@@ -32,7 +32,9 @@ as well as on testing, and other quality oriented practices, like continuous int
 You can read more about it on the [ROS Quality wiki](http://wiki.ros.org/Quality). This includes also following the advices given
 in the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Throughout the documentation links to corresponding REPs are given.
 
+The wiki section [ROS developer's guide](http://wiki.ros.org/DevelopersGuide) is a good starting point for getting used to the common practices for developing components to be shared with the community. It includes links to [naming conventions](http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources) (e.g. for packages) and ROS [C++](http://wiki.ros.org/CppStyleGuide) and [Python](http://wiki.ros.org/PyStyleGuide) style guides.
 
+Other good resources to learn more about ROS best practices is the [Autonomous Systems Lab](https://github.com/ethz-asl/ros_best_practices/wiki) of ETH Zurich.
 
 ## References
 
