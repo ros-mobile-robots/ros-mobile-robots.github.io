@@ -24,12 +24,13 @@ Use the menu on the left to learn more about the ROS packages and other componen
 
 The source code for this project can be found in [this GitHub repository](https://github.com/fjp/diffbot).
 
-## Best Practices
+## Best Practices and REP
 
 The project tries to follow the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) as good as possible. 
 This includes examples and patterns on producing and contributing high quality code, 
 as well as on testing, and other quality oriented practices, like continuous integration. 
-You can read more about it on the [ROS Quality wiki](http://wiki.ros.org/Quality).
+You can read more about it on the [ROS Quality wiki](http://wiki.ros.org/Quality). This includes also following the advices given
+in the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Throughout the documentation links to corresponding REPs are given.
 
 
 
