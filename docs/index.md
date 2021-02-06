@@ -24,6 +24,15 @@ Use the menu on the left to learn more about the ROS packages and other componen
 
 The source code for this project can be found in [this GitHub repository](https://github.com/fjp/diffbot).
 
+## Best Practices
+
+The project tries to follow the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) as good as possible. 
+This includes examples and patterns on producing and contributing high quality code, 
+as well as on testing, and other quality oriented practices, like continuous integration. 
+You can read more about it on the [ROS Quality wiki](http://wiki.ros.org/Quality).
+
+
+
 ## References
 
 Helpful resources to bring your own robots into ROS are:
