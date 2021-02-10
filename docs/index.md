@@ -36,6 +36,14 @@ The wiki section [ROS developer's guide](http://wiki.ros.org/DevelopersGuide) is
 
 Other good resources to learn more about ROS best practices is the [Autonomous Systems Lab](https://github.com/ethz-asl/ros_best_practices/wiki) of ETH Zurich.
 
+!!! Note
+    Your contributions to the code or documentation are most welcome but please try to follow the mentioned best pratices where possible.
+
+## Testing and CI
+
+This repository makes use of automated builds when new code is pushed or a pull reuqest is made to this repository.
+For this the Travis and GitHub actions configurations (yml files) from [ROS Industrial CI](https://github.com/ros-industrial/industrial_ci) are used.
+
 ## References
 
 Helpful resources to bring your own robots into ROS are:
