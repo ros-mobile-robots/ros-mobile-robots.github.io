@@ -14,13 +14,26 @@ To work with ROS we will use [`catkin_tools`](https://catkin-tools.readthedocs.i
 instead of [`catkin_make`](http://wiki.ros.org/catkin/commands/catkin_make). `catkin_tools` provide commands such as [`catkin build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html) which we will use instead of [`catkin_make`](https://wiki.ros.org/catkin/commands/catkin_make) because the `catkin_tools` are more actively developed than `catkin_make`
 [ref](https://robotics.stackexchange.com/questions/16604/ros-catkin-make-vs-catkin-build).
 
-It is recommended to use `catkin_tools` instead of the default `catkin` when building ROS workspaces. `catkin_tools` provides a number of benefits over regular `catkin_make` and will be used in the documentation. All packages can be built using `catkin_make` however: use `catkin_make` in place of `catkin build` where appropriate.
-{: .notice}
+!!! note
+    It is recommended to use `catkin_tools` instead of the default `catkin` when building ROS workspaces. 
+    `catkin_tools` provides a number of benefits over regular `catkin_make` and will be used in the documentation. 
+    All packages can be built using `catkin_make` however: use `catkin_make` in place of `catkin build` where appropriate.
 
-Follow the [instructions to insall](https://catkin-tools.readthedocs.io/en/latest/installing.html#installing-on-ubuntu-with-apt-get) `catkin_tools` from a Ubuntu package repository. After sucessfully installing `catkin_tools` we can create and initialize a workspace (called `ros` for this project) with the [commands listed in the build_tools documentation](https://catkin-tools.readthedocs.io/en/latest/quick_start.html):
+!!! bug
+    The current way to install `catkin-tools` in the [documentation](https://catkin-tools.readthedocs.io/en/latest/installing.html#installing-on-ubuntu-with-apt-get) 
+    from the Ubuntu package repository doesn't work. Follow the steps below instead for now.
 
-Note that we already `source`d the `setup.bash` while following the [ROS installation instructions](http://wiki.ros.org/melodic/Installation/Ubuntu).
-{: .notice}
+!!! success
+    As of now the correct way to install `catkin-tools` is to use the following command:
+    ```
+    sudo apt-get install python3-osrf-pycommon python3-catkin-tools
+    ```
+    For your reference, you can read more about it in [this open issue](https://github.com/catkin/catkin_tools/issues/594).
+
+After sucessfully installing `catkin_tools` we can create and initialize a workspace (called `ros` for this project) with the [commands listed in the build_tools documentation](https://catkin-tools.readthedocs.io/en/latest/quick_start.html):
+
+!!! note
+    Note that we already `source`d the `setup.bash` while following the [ROS installation instructions](http://wiki.ros.org/melodic/Installation/Ubuntu).
 
 
 ```bash
