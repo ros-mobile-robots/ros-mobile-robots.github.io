@@ -1,18 +1,39 @@
-The hardware interfaces provide an interface between the components (sensors and actuators) of the 2WD robot and
-the main processing unit, the Raspberry Pi 4 B.
+The hardware interfaces provide an interface between the components (sensors and actuators) of the 2WD robot and its processing units, the Raspberry Pi 4 B (or the Nvidia Jetson Nano) and the microcontroller (in this case the Teensy 4.0).
 
-## GPIO
+## USB
 
-Currently, three GPIO pins are used to connect the ultrasonic ranger and two speed sensors.
+The Universial Serial Bus (USB) connections are required to connect the Single Board Computer (SBC) with the microcontroller. Using this connection, it is possible to communicate via [`rosserial`](http://wiki.ros.org/rosserial).
+
+Another USB connector is used for the RPLidar laser scanner. 
+
+!!! info
+    See the section [USB Devices](#usb-devices) below to setup the required permissions and allow the communication between this interface.
+
+## Single Board Computer GPIO
+
+Currently, one GPIO pin is used to connect the ultrasonic ranger.
 
 The ultrasonic ranger uses just a single GPIO pin for communicating its measured distances.
 Therefore, we can use one of the GPIO pins such as [physical pin 11](https://pinout.xyz/pinout/pin11_gpio17).
 
-The LM393 speed sensors also use a single digital GPIO pin each. These pins will be setup using software interrupts with the [RPi.GPIO](https://pypi.org/project/RPi.GPIO/) library. 
 
-## Prepare I2C Connection
+!!! info
+    In case you are using LM393 speed sensors, instead of the encoders of the DG01D-E, the LM393 use a single digital GPIO pin each. 
+    These pins could be directly connected to the Raspberry Pi GPIOs and setup using software interrupts with the [RPi.GPIO](https://pypi.org/project/RPi.GPIO/) library.
+    Alternatively they could be also connected to the pins of the microcontroller, e.g. Teensy. For this build the 
+    
+    
+## Microcontroller Digital Pins
 
-The I2C connections are used for multiple components such as the motor driver and the oled display.
+Four digital pins on the Teensy microcontroller are in use for the two quadrature encoders of the DG01D-E.
+
+
+!!! info
+    See the [`diffbot_base`](https://github.com/fjp/diffbot/tree/noetic-devel/diffbot_base/scripts/encoders) package for the running software script to read the encoder ticks.
+
+## Single Board Computer I2C Connection
+
+The I2C connections on the Raspberry Pi 4 B are used for multiple components such as the motor driver and the oled display.
 
 
 <figure>
