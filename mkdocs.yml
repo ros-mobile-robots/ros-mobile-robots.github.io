@@ -35,7 +35,7 @@ nav:
     - Power Supply: power-supply.md
     - Laser Range Scanner: laser-range-scanner.md
   - Processing Units:
-    - Raspberry Pi Setup: ros-network-setup.md
+    - Raspberry Pi Setup: rpi-setup.md
     - Git Setup: git-setup.md
     - ROS Setup: ros-setup.md
     - Teensy MCU: teensy-mcu.md
