@@ -39,6 +39,7 @@ The `motor_example.py` applies 50-100% of the 10 VDC which leads to the followin
 
 
 <details markdown="1"><summary>Voltage sweep measurements</summary>
+
 - 0:00 Forward Speed 50: 6.5 VDC
 - 0:12 Back Speed 50: 6.5 VDC 
 - 0:23 Forward Speed 60: 6.9 VDC
@@ -51,6 +52,7 @@ The `motor_example.py` applies 50-100% of the 10 VDC which leads to the followin
 - 1:41 Back 90: 7.6 VDC
 - 1:52 Forward 100: 7.9 VDC
 - 2:02 Back 100: 7.9 VDC
+
 </details>
 
 
