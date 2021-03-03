@@ -213,8 +213,7 @@ For this the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout - BNO055](
 
 For the used odometry sensor see the section below [Motor and Wheel Encoder](/projects/diffbot/components/#motor-and-wheel-encoder)
 
-<details markdown="1">
-    <summary>Alternative Optical Sensor</summary>
+<details markdown="1"><summary>Alternative Optical Sensor</summary>
 
 To estimate the change in position over time ([odometry](https://en.wikipedia.org/wiki/Odometry)) the robot will
 utilize an [optical speed sensor](https://en.wikipedia.org/wiki/Wheel_speed_sensor#Optical_sensor). 
@@ -265,8 +264,7 @@ which makes it easy to assemble the robot and saves space because of no addition
     <figcaption>DG01D-E Motor with wheel encoders.</figcaption>
 </figure>
 
-<details markdown="1">
-    <summary>Alternative Brushed Gear Motor</summary>
+<details markdown="1"><summary>Alternative Brushed Gear Motor</summary>
 
 ### Brushed Gearbox Motor
 
