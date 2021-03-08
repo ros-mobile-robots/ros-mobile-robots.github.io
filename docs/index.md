@@ -55,3 +55,4 @@ Helpful resources to bring your own robots into ROS are:
   - [**Programming Robots with ROS** A Practical Introduction to the Robot Operating System](http://shop.oreilly.com/product/0636920024736.do) from O'Reilly Media
   - [**Mastering ROS for Robotics Programming** Second Edition](https://www.packtpub.com/eu/hardware-and-creative/mastering-ros-robotics-programming-second-edition) from Packt
   - [**Elements of Robotics** Robots and Their Applications](https://www.springer.com/de/book/9783319625324) from Springer
+  - [**ROS Robot Programming Book for Free!** Handbook from Robotis written by Turtlebot3 Developers](https://community.robotsource.org/t/download-the-ros-robot-programming-book-for-free/51)
