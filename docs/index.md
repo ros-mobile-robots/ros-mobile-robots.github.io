@@ -39,10 +39,22 @@ Other good resources to learn more about ROS best practices is the [Autonomous S
 !!! Note
     Your contributions to the code or documentation are most welcome but please try to follow the mentioned best pratices where possible.
 
-## Testing and CI
+## Testing, Debugging and CI
+
+For a ROS catkin workspace explaining gTest and [rostest](http://wiki.ros.org/rostest) see [Ros-Test-Example](https://github.com/steup/Ros-Test-Example) and its [documentation](https://github.com/steup/Ros-Test-Example/blob/master/src/cars/doc/slides/slides.pdf).
+To run tests with catkin-tools, see [Building and running tests](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html#building-and-running-tests).
+
+To get a workspace that allows a debugger to stop at breakpoints, it is required to build the catkin workspace with Debug Symbols. 
+For this the command `catkin build --save-config --cmake-args -DCMAKE_BUILD_TYPE=Debug` is used, mentioned in the [catkin-tools cheat sheet](https://catkin-tools.readthedocs.io/en/latest/cheat_sheet.html).
+
 
 This repository makes use of automated builds when new code is pushed or a pull reuqest is made to this repository.
 For this the Travis and GitHub actions configurations (yml files) from [ROS Industrial CI](https://github.com/ros-industrial/industrial_ci) are used.
+
+## Documentation
+
+The documentation is using [material design theme](https://squidfunk.github.io/mkdocs-material/), which is based on [MkDocs](https://www.mkdocs.org/).
+Future code documentation will make use of [doxygen](http://wiki.ros.org/Doxygen) and [rosdoc_lite](http://wiki.ros.org/rosdoc_lite).
 
 ## References
 
