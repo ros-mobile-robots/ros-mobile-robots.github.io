@@ -10,6 +10,11 @@ Download the latest release of the image and flash it to an empty sd card. To do
 [balenaEtcher](https://www.balena.io/etcher/). 
 Another way is to use the [Raspberry Pi Imager](https://www.raspberrypi.org/downloads/) explained [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-imaging-utility/).
 
+!!! info
+    [Flashing](https://en.wikipedia.org/wiki/Firmware#Flashing) in this context, means the transfer of software data, also refered to as Firmware, 
+    from your computer to a device, such as a the sd card in this case. The term “to flash” comes from the Flash storage component of a 
+    device where the Firmware is stored.
+
 ## Wifi Issues
 
 So far there are no known issues using WiFi with Ubuntu Mate 20.04 arm64 on the Raspberry Pi 4B.
