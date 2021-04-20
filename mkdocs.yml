@@ -33,6 +33,7 @@ markdown_extensions:
   - pymdownx.details
   - abbr
   - extra
+  - footnotes
   - pymdownx.snippets
   - pymdownx.highlight:
       linenums: true
@@ -54,6 +55,7 @@ nav:
     - Laser Range Scanner: laser-range-scanner.md
   - Processing Units:
     - Raspberry Pi Setup: rpi-setup.md
+    - Jetson Nano Setup: jetson-nano-setup.md
     - Git Setup: git-setup.md
     - ROS Setup: ros-setup.md
     - Teensy MCU: teensy-mcu.md

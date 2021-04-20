@@ -1,5 +1,9 @@
 These are the instructions to setup a custom Ubuntu 20.04 Focal Fossa on Raspberry Pi 4 B.
 
+!!! note
+    In case you don't have a Raspberry Pi 4 B, it is also possible to create the robot using a Jetson Nano from Nvidia.
+    See the [related section in the documentation](./jetson-nano-setup.md).
+
 ## Obtain Ubuntu 20.04 Mate Image for Raspberry Pi
 
 To install the long term supported (LTS) Ubuntu 20.04 on the Raspberry Pi 4B we make use of [arm64 version](https://ubuntu-mate.org/download/arm64/focal/) 
@@ -39,4 +43,4 @@ Once finished, follow the next steps to install ROS Noetic.
 
 !!! note
     To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.
-  Just clone this repository: https://github.com/fjp/diffbot.git and run `ubuntu-setup.sh`. But to learn more, you should follow the instructions on the following pages.
+    Just clone this repository: https://github.com/fjp/diffbot.git and run `ubuntu-setup.sh`. But to learn more, you should follow the instructions on the following pages.
