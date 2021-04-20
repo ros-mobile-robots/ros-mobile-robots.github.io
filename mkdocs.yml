@@ -49,6 +49,15 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Components: components.md
+  - Robotics Theory:
+    - Modeling and Control: theory/robotics.md
+    - Robot Vision: theory/robotics.md
+    - Object Detection: theory/robotics.md
+    - State Estimation and Localization: theory/robotics.md
+    - Planning I: theory/robotics.md
+    - Planning II: theory/robotics.md
+    - Learning by Reinforcement: theory/robotics.md
+    - Learning by Imitation: theory/robotics.md
   - Hardware and Theory:
     - Motion and Odometry: theory/motion-and-odometry.md
     - Power Supply: power-supply.md

@@ -1,23 +1,28 @@
 # Welcome to DiffBot Documentation
 
 This project guides you on how to build an autonomous two wheel differential drive robot. [![image](https://img.shields.io/github/stars/fjp/diffbot?style=social)](https://github.com/fjp/diffbot)
-The robot is equipped with a [Raspberry Pi 4 B](https://de.aliexpress.com/item/32858825148.html?spm=a2g0o.productlist.0.0.5d232e8bvlKM7l&algo_pvid=2c45d347-5783-49a6-a0a8-f104d0b78232&algo_expid=2c45d347-5783-49a6-a0a8-f104d0b78232-0&btsid=0100feb4-37d7-453a-8ff8-47a0e2fbdef7&ws_ab_test=searchweb0_0,searchweb201602_9,searchweb201603_52) running [ROS Noetic](http://wiki.ros.org/noetic) middleware on Ubuntu Mate 20.04.
+The robot can operate on a [Raspberry Pi 4 B](https://de.aliexpress.com/item/32858825148.html?spm=a2g0o.productlist.0.0.5d232e8bvlKM7l&algo_pvid=2c45d347-5783-49a6-a0a8-f104d0b78232&algo_expid=2c45d347-5783-49a6-a0a8-f104d0b78232-0&btsid=0100feb4-37d7-453a-8ff8-47a0e2fbdef7&ws_ab_test=searchweb0_0,searchweb201602_9,searchweb201603_52) or [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) 
+running [ROS Noetic](http://wiki.ros.org/noetic) or [ROS Melodic](http://wiki.ros.org/melodic) middleware on Ubuntu Mate 20.04 and Ubuntu 18.04 respectively.
 With a motor driver and two actuators it can drive autonomously to a desired location while sensing its environment using sensors, 
-such as a camera and an ultrasonic ranger to avoid obstacles. Speed sensors combined with an inertial measurement unit (IMU) are used for localization.
+such as a camera and an laser scanner to avoid obstacles. Odometry wheel encoders (also refered to as speed sensors) 
+combined with an inertial measurement unit (IMU) are used for localization.
 The project is split into multiple parts, to adress the following main aspects of the robot.
 
-- [Part list](/projects/diffbot/components/) and the theory behind the parts.
+- [Bill of Materials (BOM)](./components.md) and the theory behind the parts.
+- [Theory of (mobile) robots](./theory/robotics.md).
 - [Assembly](/projects/diffbot/assembly/) of the robot platform and the components.
-- Raspberry Pi 4 B setup using ROS Noetic, which will be the brain of the robot.
+- Setup of ROS (Noetic or Melodic) on either Raspberry Pi 4 B or Jetson Nano, 
+  which are both [Single Board Computers (SBC)](https://en.wikipedia.org/wiki/Single-board_computer) and are the brain of the robot.
 - [Modeling the Robot](/projects/diffbot/URDF) in Blender and URDF to simulate it in Gazebo.
 - ROS packages and nodes: 
   - Hardware drivers to interact with the hardware components
   - High level nodes for perception, navigation, localization and control.
 
-Use the menu on the left to learn more about the ROS packages and other components of the robot.
+Use the menu to learn more about the ROS packages and other components of the robot.
 
 !!! note
     Using a [Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) instead of a Raspberry Pi is also possible.
+    See the [Jetson Nano Setup section](./jetson-nano-setup.md) in this documentation for more details.
 
 
 ## Source Code
