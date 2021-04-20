@@ -2,7 +2,7 @@
 
 The following pages will provide an overview of the following important topics of robotics:
 For more details be sure to check out the [Self Driving cars with Duckietown edX MOOC](https://www.edx.org/course/self-driving-cars-with-duckietown).
-Also don't forget to read through the resources listed on the [main page](./index.md#references) of this documentation and consult your robotics
+Also don't forget to read through the resources listed on the [main page](../index.md#references) of this documentation and consult your robotics
 engineering text books of choice.
 
 - Modeling and Control
