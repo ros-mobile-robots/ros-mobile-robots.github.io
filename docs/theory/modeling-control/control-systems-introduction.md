@@ -15,7 +15,8 @@ graph RL
   A[Actuators] -- Inputs --> P[Process and Environment];
   DIR("<img src='https://iconscout.com/ms-icon-310x310.png' width='30' />")
   P -->|Outputs| S[Sensors];
-  S -->|Observations| C;
+  S -- Observations --> id1["<img src='' />"];
+  style id1 fill:#ffff,stroke-width:0px
 ```
 
 In the case of a mobile robot, the system is the real physical robot and its environment around it.
