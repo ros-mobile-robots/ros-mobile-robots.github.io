@@ -9,7 +9,7 @@ combined with an inertial measurement unit (IMU) are used for localization.
 The project is split into multiple parts, to adress the following main aspects of the robot.
 
 - [Bill of Materials (BOM)](./components.md) and the theory behind the parts.
-- [Theory of (mobile) robots](./theory/robotics.md).
+- [Theory of (mobile) robots](./theory/index.md).
 - [Assembly](/projects/diffbot/assembly/) of the robot platform and the components.
 - Setup of ROS (Noetic or Melodic) on either Raspberry Pi 4 B or Jetson Nano, 
   which are both [Single Board Computers (SBC)](https://en.wikipedia.org/wiki/Single-board_computer) and are the brain of the robot.
