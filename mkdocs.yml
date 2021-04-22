@@ -23,12 +23,13 @@ theme:
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
-  
-repo_url: https://github.com/fjp/diffbot
 
 #extra_javascript:
 #  - https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js
 #  - custom_theme/js/config.js
+  
+repo_url: https://github.com/fjp/diffbot
+
 
 edit_uri: blob/noetic-devel/docs
 
@@ -57,13 +58,13 @@ nav:
     - theory/index.md
     - Modeling and Control:
       - Introduction to Control Systems: theory/modeling-control/control-systems-introduction.md
-    - Robot Vision: theory/ov.md
-    - Object Detection: theory/index.md
-    - State Estimation and Localization: theory/index.md
-    - Planning I: theory/index.md
-    - Planning II: theory/index.md
-    - Learning by Reinforcement: theory/index.md
-    - Learning by Imitation: theory/index.md
+    - Robot Vision: theory/robot-vision/overview.md
+    - Object Detection: theory/object-detection/overview.md
+    - State Estimation and Localization: theory/estimatione-localization/overview.md
+    - Planning I: theory/planning1/overview.md
+    - Planning II: theory/planning2/overview.md
+    - Learning by Reinforcement: theory/reinforcement-learning/overview.md
+    - Learning by Imitation: theory/imitation-learning/overview.md
   - Hardware and Theory:
     - Motion and Odometry: theory/motion-and-odometry.md
     - Power Supply: power-supply.md
