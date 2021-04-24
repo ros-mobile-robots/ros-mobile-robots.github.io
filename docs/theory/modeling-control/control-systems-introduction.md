@@ -1,4 +1,4 @@
-## Introduction to Control Systems
+# Introduction to Control Systems
 
 !!! quote
     Control systems is the science of making machines behave the way we want them to behave as opposed to how they would naturally behave.
@@ -26,3 +26,27 @@ robot's sensors. For example a change in the camera viewport of the environment 
 Controlling a system means to design a logical component that
 will output, at every instant in time, the commands for the plant
 actuators so that the output of our system follow a given plan.
+
+## Need for Control Systems
+
+The main objectives of the controller are the following:
+
+1. Stability
+2. Performance
+3. Robustness
+
+### Stability
+
+Mathematically, stability can be formalized as [Bounded Input Bounded Output](https://en.wikipedia.org/wiki/BIBO_stability). The output of a system will be bounded for every input to the system that is bounded. In other words, if finite energy is provided to the system, then finite energy should exit the system.
+
+### Performance
+
+Beside being stable a system needs also to perform well. Performance can be measured in several ways:
+
+- How quickly does the system converge to the plan or how precisely.
+- Maximum acceptable error at any point in time or how well can the system recover from unexpected external stimuli, such as the noise in the measurements
+or disturbances, like a sudden gust of wind or hitting a bump on the road.
+
+### Robustness
+
+Robustness, is the ability of the controller to provide stability and performance even in the presence of uncertainty in the mathematical model of the plant.
