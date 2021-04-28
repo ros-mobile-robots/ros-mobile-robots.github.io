@@ -50,7 +50,6 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 
-
 nav:
   - Home: index.md
   - Components: components.md
@@ -59,6 +58,7 @@ nav:
     - Modeling and Control:
       - Introduction to Control Systems: theory/modeling-control/control-systems-introduction.md
       - Representations and models: theory/modeling-control/robot-representations.md
+      - Modeling a Differential Drive Robot: theory/modeling-control/modeling-differential-drive-robot.md
     - Robot Vision: theory/robot-vision/overview.md
     - Object Detection: theory/object-detection/overview.md
     - State Estimation and Localization: theory/estimatione-localization/overview.md
