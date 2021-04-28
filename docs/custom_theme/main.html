@@ -17,6 +17,9 @@
     <script data-ad-client="ca-pub-2214309606626131" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <!-- Cookie consent -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+    <!-- katex minified versions -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.2/dist/katex.min.css" integrity="sha384-Cqd8ihRLum0CCg8rz0hYKPoLZ3uw+gES2rXQXycqnL5pgVQIflxAUDS7ZSjITLb5" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.2/dist/katex.min.js" integrity="sha384-1Or6BdeNQb0ezrmtGeqQHFpppNd7a/gw29xeiSikBbsb44xu3uAo8c7FwbF5jhbd" crossorigin="anonymous"></script>
 {% endblock libs %}
 
 
@@ -45,4 +48,15 @@
     });
     </script>
 {% endblock scripts %}
+
+
+{% block content %}
+{% if page.nb_url %}
+    <a href="{{ page.nb_url }}" title="Download Notebook" class="md-content__button md-icon">
+        {% include ".icons/material/download.svg" %}
+    </a>
+{% endif %}
+
+{{ super() }}
+{% endblock content %}
 
