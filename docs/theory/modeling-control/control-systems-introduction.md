@@ -264,21 +264,21 @@ Designing a controller allows to have systems behave in a desired way, rather th
 Although we can measure quantities of interest and drive the system through actuators, not all systems are controllable.
 Some systems simply can't be controlled.
 
-Systems have their natural dynamics, fundamentally dictated by the laws of physics. More often than not, 
-just "letting the system go" will not meet the user's requirements. 
-Control systems leverage our abilities to _measure_ quantities of interest and to _actuate_ (or influence the physical world through devices), 
+Systems have their natural dynamics, fundamentally dictated by the laws of physics. More often than not,
+just "letting the system go" will not meet the user's requirements.
+Control systems leverage our abilities to _measure_ quantities of interest and to _actuate_ (or influence the physical world through devices),
 to drive the system where we want, and how we want.
 
 In practice a controller consists of lines of code or one or more mechanical devices.
-A controller is typically a _logic_, that outputs _decisions_. 
-These decisions are translated to the real world through actuators. 
+A controller is typically a _logic_, that outputs _decisions_.
+These decisions are translated to the real world through actuators.
 It is actually possible to create control logics with analog devices too.
 
 Stability is the first design objective for most controllers because unstable systems are potentially unsafe.
-An unstable system might lead to overshooting driving behaviour, not following a reference path and even 
+An unstable system might lead to overshooting driving behaviour, not following a reference path and even
 driving outside of the road without heading back.
-There are very few instances in which sending a system unstable might be desirable 
-(exceptions being, e.g., acrobatic flight or selected military/destructive applications). 
+There are very few instances in which sending a system unstable might be desirable
+(exceptions being, e.g., acrobatic flight or selected military/destructive applications).
 An unstable system will behave unpredictably, potentially with catastrophic results.
 
 
