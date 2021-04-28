@@ -50,6 +50,12 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 
+
+plugins:
+  - mkdocs-jupyter:
+      execute: False
+      include_source: True
+
 nav:
   - Home: index.md
   - Components: components.md
