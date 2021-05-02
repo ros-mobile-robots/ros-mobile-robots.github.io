@@ -50,8 +50,8 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 
-
 plugins:
+  - search
   - mkdocs-jupyter:
       execute: False
       include_source: True
