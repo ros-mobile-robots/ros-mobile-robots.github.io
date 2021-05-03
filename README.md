@@ -13,3 +13,12 @@ Afterwards, the command also deploys these static files to the [gh-pages branch]
 
 See the offical [Getting Started](https://squidfunk.github.io/mkdocs-material/publishing-your-site/#with-github-actions) guide on how to publish
 the website using other methods.
+
+## License
+
+In general, the text of this documentation is available under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0. Please refer to [LICENSE.text](LICENSE.text) for the actual legaleese wording of the license. This applies to:
+
+- All md files.
+- All illustrations appearing in the text.
+
+The examples and code snippets assoiated with the book are made available under a three clause BSD license, see [LICENSE.code](LICENSE.code) for the actual license text. This is to make it possible for readers to take inspiration from, or even copy and paste code from the documentation without any fear of licensing issues. This applies to all example source code.
