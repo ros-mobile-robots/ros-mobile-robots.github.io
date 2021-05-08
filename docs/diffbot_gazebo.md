@@ -20,7 +20,7 @@ For the launch files the convention is to have a folder named `launch` and for G
  
  Inside the `launch` folder is the `diffbot.launch`.
  
- ```xml
+```xml
 <launch>
     <!-- these are the arguments you can pass this launch file, for example paused:=true -->
     <arg name="paused" default="false"/>
@@ -129,8 +129,9 @@ To get the Gas station or other available models it is possible to clone the [ga
 ```
 Then add this path inside Gazebo to insert these models into your world file.
 
+
+### Using ROS launch to Spawn URDF Robots
  
- ### Using ROS launch to Spawn URDF Robots
  
  According to the [Gazebo roslaunch tutorial](http://gazebosim.org/tutorials?tut=ros_roslaunch#UsingroslaunchtoSpawnURDFRobots) the recommended way
  to spawn a robot into Gazebo is to use a launch file. Therefore, edit the `diffbot.launch` inside the `diffbot_gazebo` package by adding the following inside the `<launch> </launch` tag:
@@ -448,7 +449,7 @@ gz sdf -p MODEL.urdf
       <velocity_decay/>
     </link>
     <plugin name='gazebo_ros_control' filename='libgazebo_ros_control.so'>
-      <robotNamespace>/rrbot</robotNamespace>
+      <robotNamespace>/diffbot</robotNamespace>
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
     </plugin>
     <static>0</static>
@@ -480,3 +481,12 @@ gz sdf -p MODEL.urdf
 
 
 
+In case the output looks like the following, there are most certainly missing [`<inertial>`](http://wiki.ros.org/urdf/Tutorials/Adding%20Physical%20and%20Collision%20Properties%20to%20a%20URDF%20Model#Inertia) tags in the `<link>` tag.
+For the Gazebo simulator the `<inertial>` must be present, in order to simulate the dynamics of the robot. 
+See also http://wiki.ros.org/urdf/XML/link and the [Gazebo tutorials on URDF](http://gazebosim.org/tutorials/?tut=ros_urdf).
+
+```xml
+<sdf version='1.7'>
+  <model name='diffbot'/>
+</sdf>
+```
