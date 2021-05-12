@@ -5,6 +5,7 @@ theme:
   custom_dir: docs/custom_theme
   features:
     - navigation.tabs
+    - navigation.top
 #    - navigation.indexes
   palette:
     # Light mode
