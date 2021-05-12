@@ -41,8 +41,10 @@ commands should we send to the wheels?
 We know that the pose of a robot is the position and the orientation of the body frame with respect to the world frame.
 We define the robot body frame so that the origin, $A$, is in the mid-axle point.
 
+{% raw %}
 - World Frame: $\{{\color{blue}x^{w}}, {\color{blue}y^{w}}\}$
 - Body (robot) frame: $\{{\color{orange}x^{r}}, {\color{orange}y^{r}}\}$
+{% endraw %}
 
 !!! todo "TODO"
     Add image of robot including orange reference frame and blue world reference frame.
