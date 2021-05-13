@@ -35,7 +35,7 @@ and at each iteration using the previous estimate as an initial condition.
 
 
 !!! todo "TODO"
-    Add odometry update image
+    Add odometry update image in world frame
 
 
 The essence of odometry is to use the measurements of the distance traveled
@@ -206,7 +206,7 @@ $$
 $$
 \begin{align}
 d_{A,t_k} &= \frac{ d_{r,t_k} + d_{l,t_k} }{2} \\
-\theta_{A,t_k} &= \frac{ d_{r,t_k} - d_{l,t_k} }{2L} \\
+\Delta \theta_{t_k} &= \frac{ d_{r,t_k} - d_{l,t_k} }{2L} \\
 d_{r/l,t_k} &= 2\pi R \frac{N_k}{N_{tot}}
 \end{align}
 $$
@@ -216,5 +216,90 @@ $$
 ## Challenges in Odometry
 
 There are practical challenges in odometry.
+
+### "Dead reconing"
+
 The first practical challenge stems from using this dead reckoning approach, 
 which is the official name of always adding an increment to a previous estimate in order to obtain a new one.
+
+$$
+\begin{align}
+x_{t_{k+1}} &\approx x_{t_k} + \Delta x_{t_k} \\
+y_{t_{k+1}} &\approx y_{t_k} +  \Delta y_{t_k} \\
+\theta_{t_{k+1}} &\approx \theta_{t_k} + \Delta \theta_{t_k} \\
+\end{align}
+$$
+
+!!! todo "TODO"
+    Reuse odometry update image in world frame
+
+
+While it might work well for short distances,
+over time, errors like the discrete time approximation will accumulate, 
+making the estimate drift from reality.
+
+
+### Kinematic Model
+
+Second, we're using a mathematical model, that of the kinematics of a differential drive robot,
+to translate the actual measurements to the pose of the robot.
+
+{% raw %}
+$$
+\dot{q}_{t} = 
+\frac{R}{2} \begin{bmatrix}cos(\theta_t) & 0 \\ sin(\theta_t) & 0 \\ 0 & 1\end{bmatrix}
+\begin{bmatrix}1 & 1 \\ \frac{1}{L} & -\frac{1}{L} \end{bmatrix}
+\begin{bmatrix}\dot{\phi}_{r,t} \\ \dot{\phi}_{l,t} \end{bmatrix}
+$$
+{% endraw %}
+
+You might recall that we previously said that all models are wrong, although some are useful.
+This wisdom is ever more true when the assumptions of the model are not respected.
+
+### Wheel Slip
+
+In particular, we impose the condition of no slippage of the wheels.
+
+!!! todo "TODO"
+    Add wheel slip images/animation
+
+When the wheels slip, it means that the motor will be spinning,
+the encoders will be producing measurements, but the robot will not be moving the same distance as we are assuming.
+This will induce errors in the odometry, and they will compound over time.
+
+
+### Odometry Calibration
+
+Finally, we need to use some actual numerical values for the parameters of the model:
+the wheel radii - which, by the way, are assumed to be identical,
+but will they really be - and the robot baseline.
+
+{% raw %}
+$$
+\begin{align}
+\Delta \theta_{t_k} &= \frac{ d_{r,t_k} - d_{l,t_k} }{2 {\color{red}{L}} } \\
+d_{r/l,t_k} &= 2\pi {\color{red}{R}} \frac{N_k}{N_{tot}}
+\end{align}
+$$
+{% endraw %}
+
+Accurately measuring these parameters is very important.
+Even small imperfections will induce systematic errors in the odometry that, again, will compound over time.
+
+Note that although nominally identical, no two real-world physical robots
+will ever be the same due to manufacturing, assembly, or handling
+differences.
+
+To find the values of the parameters of the model that best fit our robot,
+we will need to perform an odometry calibration procedure.
+
+## Summary
+
+- Wheel encoders can be used to update the robot's pose in time:
+  
+    1. Measure the motor's angular displacements $\Delta \phi$ in $\Delta t$
+    2. Use the kinematics mdoel to find the robot's $\Delta x$, $\Delta y$, $\Delta \theta$
+    3. Update the pose by adding the calculated increments
+
+- Subject to dfit in time due to accumulation of numerical, slipping/skidding and calibration impercision errors.
+
