@@ -71,6 +71,7 @@ nav:
       - Introduction to Control Systems: theory/modeling-control/control-systems-introduction.md
       - Representations and models: theory/modeling-control/robot-representations.md
       - Modeling a Differential Drive Robot: theory/modeling-control/modeling-differential-drive-robot.md
+      - Odometry: theory/modeling-control/odometry.md
     - Robot Vision: theory/robot-vision/overview.md
     - Object Detection: theory/object-detection/overview.md
     - State Estimation and Localization: theory/estimatione-localization/overview.md
