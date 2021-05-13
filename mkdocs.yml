@@ -32,7 +32,7 @@ theme:
 repo_url: https://github.com/fjp/diffbot
 
 
-edit_uri: blob/noetic-devel/docs
+edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs
 
 # Extra parameters
 extra:
