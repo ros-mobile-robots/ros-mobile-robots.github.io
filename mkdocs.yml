@@ -29,7 +29,7 @@ theme:
 #  - https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js
 #  - custom_theme/js/config.js
   
-repo_url: https://github.com/fjp/diffbot
+repo_url: https://github.com/ros-mobile-robots/diffbot
 
 
 edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs
