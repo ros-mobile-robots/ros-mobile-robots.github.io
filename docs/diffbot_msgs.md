@@ -84,6 +84,8 @@ Integrating these messages requires the following steps.
 rosrun rosserial_client make_libraries ~/Arduino/tmp/
 ``` 
 
+This will generate all messages for ALL installed packages, but in our case only the `diffbot_msgs` package is needed to avoid missing includes.
+
 - Copy the generated `~/Arduino/tmp/diffbot_msgs` message folder to the `src` folder of the `rosserial` Arduino library.
   When `rosserial` was installed with the Arduino Library Manager, the location is `~/Arduino/libraries/Rosserial_Arduino_Library/`.
 
@@ -96,4 +98,4 @@ The new messages, specific to DiffBot, can be used by including the generated he
 
 ### References
 
-- [Tutorials Arduino IDE Setup](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup)
+- [Tutorials Arduino IDE Setup](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup), specifically [Install ros_lib into the Arduino Environment](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup#Install_ros_lib_into_the_Arduino_Environment)
