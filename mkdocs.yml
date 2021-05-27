@@ -92,6 +92,7 @@ nav:
     - Hardware Interfaces: hardware-interfaces.md
     - ROS Network Setup: ros-network-setup.md
   - Packages:
+    - Packages: packages.md
     - Robot Package: diffbot_robot.md
     - Robot Description: robot-description.md
     - Simulation: diffbot_gazebo.md
