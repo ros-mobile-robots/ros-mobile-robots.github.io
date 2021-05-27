@@ -133,7 +133,6 @@ fjp@ubuntu:~/git/2wd-robot/ros$ source ~/git/2wd-robot/ros/devel/setup.bash # Lo
     ```
     alias sa='source ~/git/2wd-robot/ros/devel/setup.bash'
     ```
-    
     It is recommended to use the correct setup script for the shell you use ([`bash`](https://en.wikipedia.org/wiki/Bash_(Unix_shell)), [` zsh`](https://en.wikipedia.org/wiki/Z_shell), etc.).
     In case you are unsure, you can check with the `echo $SHELL` command which will most likely output `/bin/bash`.
 
