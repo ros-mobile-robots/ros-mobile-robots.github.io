@@ -1,4 +1,4 @@
-## ROS Installation
+# ROS Installation
 
 The robot setup is supposed to run on Ubuntu Mate 20.04 Focal Fossa. [ROS Noetic](http://wiki.ros.org/melodic) is intended to run with this Ubuntu version.
 
@@ -117,6 +117,8 @@ Finished  <<< catkin_tools_prebuild                [ 10.0 seconds ]
 [build]   Failed:    None.
 [build] Runtime: 10.1 seconds total.
 ```
+
+## Environment Setup
 
 Finally the newly built packages have to be [loaded in the environment](https://catkin-tools.readthedocs.io/en/latest/quick_start.html#loading-the-workspace-environment) using `source`.
 
