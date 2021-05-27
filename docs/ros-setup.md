@@ -124,6 +124,23 @@ Finally the newly built packages have to be [loaded in the environment](https://
 fjp@ubuntu:~/git/2wd-robot/ros$ source ~/git/2wd-robot/ros/devel/setup.bash # Load the workspace's environment
 ```
 
+!!! tip
+    To avoid tediously typing the above `source` command, it is convenient to create an alias in your `~/.bashrc` or `~/.zshrc` similar to the following:
+    ```
+    alias s='source devel/setup.bash'
+    ```
+    or using the absolute path
+    ```
+    alias sa='source ~/git/2wd-robot/ros/devel/setup.bash'
+    ```
+    
+    It is recommended to use the correct setup script for the shell you use ([`bash`](https://en.wikipedia.org/wiki/Bash_(Unix_shell)), [` zsh`](https://en.wikipedia.org/wiki/Z_shell), etc.).
+    In case you are unsure, you can check with the `echo $SHELL` command which will most likely output `/bin/bash`.
+
+
+!!! info
+    Instead of `source` it is possible to use the `.` command instead. Don't confuse it though with the current directory, which is also represented as `.`.
+
 ## Resources
 
 Although the [catkin tutorial](https://wiki.ros.org/catkin/Tutorials) uses `catkin_make` it provides a helpful guide to create a workspace
