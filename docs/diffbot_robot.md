@@ -1,6 +1,7 @@
 ## DiffBot Robot
 
-This is a [ROS metapackage](http://wiki.ros.org/Metapackages) that references all related packages to DiffBot.
+The [`diffbot_robot`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_robot) package is a 
+[ROS metapackage](http://wiki.ros.org/Metapackages) that references all related packages to DiffBot.
 A metapackage can be created with:
 
 ```console
