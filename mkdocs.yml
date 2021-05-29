@@ -37,6 +37,7 @@ edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/
 # Extra parameters
 extra:
   asset_dir: /resources # /assets
+  diffbot_repo_url: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel
 
 markdown_extensions:
   - admonition
