@@ -10,6 +10,8 @@ Note howerver, the following from the [`std_msgs` documentation](http://wiki.ros
     For ease of documentation and collaboration, we recommend that existing messages be used, or new messages created, that provide meaningful field name(s).
 
 
+## Diffbot Messages
+
 Therefore, we create a package that contains message definitions specific to DiffBot. 
 The following command uses `catkin-tools` to create the `diffbot_msgs` package:
 
@@ -26,7 +28,7 @@ Successfully created package files in /home/fjp/git/ros_ws/src/diffbot_msgs.
     The following is based on [ROS Tutorials Creating Msg And Srv](https://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv#Creating_a_msg).
     In this tutorial you can find the required configurations for the `package.xml` and `CMakeLists.txt`.
 
-## Encoders
+### Encoders
 
 Currently there is no encoder message definition in ROS (see the [`sensor_msgs`](https://wiki.ros.org/sensor_msgs) package) 
 which is why a dedicated message is created for the encoders. For this, a simple [msg](http://wiki.ros.org/msg) description file,
@@ -58,7 +60,7 @@ From the `common_msgs` DiffBot uses for example the [`nav_msgs`](http://wiki.ros
 and [`sensor_msgs/LaserScan`](http://docs.ros.org/en/api/sensor_msgs/html/msg/LaserScan.html), 
 where both are definitions from the [`sensor_msgs`](https://wiki.ros.org/sensor_msgs) package.
 
-## Wheel Commands
+### Wheel Commands
 
 To command a joint velocity for each wheel `diffbot_msgs` provides the [`WheelCmd.msg`]({{ diffbot_repo_url }}/diffbot_msgs/msg/WheelCmd.msg).
 This specifies the `Header` and a float64 array for the angular wheel joint velocities.
@@ -88,7 +90,7 @@ int32[2] encoders
 ```
 
 !!! tip
-    When using the a ros command such as `rosmsg` make use of the tab key to auto complete the message name. 
+    When using the a ros command such as `rosmsg` make use of the ++tab++ key to auto complete the message name. 
 
 
 ## ROSSerial
