@@ -1,5 +1,4 @@
-## DiffBot Messages Package
-
+# DiffBot Messages Package
 
 As mentioned before, the nodes in ROS communicate with each other by publishing [messages](http://wiki.ros.org/Messages) to [topics](http://wiki.ros.org/Topics). 
 ROS provides the [`std_msgs`](http://wiki.ros.org/std_msgs) package that includes ROS' common message types to represent primitive data types (see the ROS [msg specification](http://wiki.ros.org/msg) for primitive types) and other basic message constructs, such as multiarrays. 
@@ -27,9 +26,11 @@ Successfully created package files in /home/fjp/git/ros_ws/src/diffbot_msgs.
     The following is based on [ROS Tutorials Creating Msg And Srv](https://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv#Creating_a_msg).
     In this tutorial you can find the required configurations for the `package.xml` and `CMakeLists.txt`.
 
+## Encoders
+
 Currently there is no encoder message definition in ROS (see the [`sensor_msgs`](https://wiki.ros.org/sensor_msgs) package) 
 which is why a dedicated message is created for the encoders. For this, a simple [msg](http://wiki.ros.org/msg) description file,
-named `Encoder.msg` is created in the `msg/` subdirectory of this `diffbot_msgs` package:
+named [`Encoders.msg`]({{ diffbot_repo_url }}/diffbot_msgs/msg/Encoders.msg) is created in the `msg/` subdirectory of this `diffbot_msgs` package:
 
 
 ```
@@ -39,8 +40,8 @@ Header header
 # Use an array of size two of type int32 for the two encoders.
 # int32 is used instead of int64 because it is not supporte by Arduino/Teensy.
 # An overflow is also unlikely with the encoders of the DG01D-E 
-# motor with encoder because of its low encoder resolution
-int32[2] encoders
+# motor with its encoder because of its low encoder resolution
+int32[2] ticks
 ```
 
 The message includes the message type [`Header`](http://docs.ros.org/en/api/std_msgs/html/msg/Header.html) 
@@ -54,16 +55,30 @@ Combining the encoder message into a single one alleviates additional timing pro
 
 There exists also the [`common_msgs`](https://wiki.ros.org/common_msgs) meta package for common, generic robot-specific message types.
 From the `common_msgs` DiffBot uses for example the [`nav_msgs`](http://wiki.ros.org/nav_msgs) for navigation with the [navigation stack](http://wiki.ros.org/navigation). Other relevant message definitions are the [`sensor_msgs/Imu`](http://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html) 
-and `sensor_msgs/LaserScan`](http://docs.ros.org/en/api/sensor_msgs/html/msg/LaserScan.html), 
+and [`sensor_msgs/LaserScan`](http://docs.ros.org/en/api/sensor_msgs/html/msg/LaserScan.html), 
 where both are definitions from the [`sensor_msgs`](https://wiki.ros.org/sensor_msgs) package.
 
+## Wheel Commands
 
-### Using rosmsg
+To command a joint velocity for each wheel `diffbot_msgs` provides the [`WheelCmd.msg`]({{ diffbot_repo_url }}/diffbot_msgs/msg/WheelCmd.msg).
+This specifies the `Header` and a float64 array for the angular wheel joint velocities.
+
+```
+# This is a message that holds commanded angular joint velocity
+Header header
+
+# Use an array of type float32 for the two wheel joint velocities.
+# float32 is used instead of float64 because it is not supporte by Arduino/Teensy.
+float32[] velocities
+```
+
+
+## Using rosmsg
 
 After building the package and its messages using `catkin build` let's make sure that ROS can see it using the rosmsg show command.
 
 ```console
-$ rosmsg show diffbot_msgs/Encoder
+$ rosmsg show diffbot_msgs/Encoders
 std_msgs/Header header
   uint32 seq
   time stamp
@@ -72,8 +87,11 @@ int32[2] encoders
 
 ```
 
+!!! tip
+    When using the a ros command such as `rosmsg` make use of the tab key to auto complete the message name. 
 
-### ROSSerial
+
+## ROSSerial
 
 The generated messages in this packages are used on the Teensy microcontroller, which is using [`rosserial`](http://wiki.ros.org/rosserial).
 Integrating these messages requires the following steps.
@@ -90,12 +108,12 @@ This will generate all messages for ALL installed packages, but in our case only
   When `rosserial` was installed with the Arduino Library Manager, the location is `~/Arduino/libraries/Rosserial_Arduino_Library/`.
 
 
-### Usage
+## Usage
 
-The new messages, specific to DiffBot, can be used by including the generated header, for example `#include <diffbot_msgs/Encoder.h>`.
+The new messages, specific to DiffBot, can be used by including the generated header, for example `#include <diffbot_msgs/Encoders.h>`.
 
 
 
-### References
+## References
 
 - [Tutorials Arduino IDE Setup](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup), specifically [Install ros_lib into the Arduino Environment](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup#Install_ros_lib_into_the_Arduino_Environment)
