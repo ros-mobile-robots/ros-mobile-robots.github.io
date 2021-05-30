@@ -119,3 +119,4 @@ The new messages, specific to DiffBot, can be used by including the generated he
 ## References
 
 - [Tutorials Arduino IDE Setup](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup), specifically [Install ros_lib into the Arduino Environment](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup#Install_ros_lib_into_the_Arduino_Environment)
+- [`rosserial` limitations](http://wiki.ros.org/rosserial/Overview/Limitations): `float64` is not supported on Arduino.
