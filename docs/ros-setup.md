@@ -1,12 +1,34 @@
 # ROS Installation
 
-The robot setup is supposed to run on Ubuntu Mate 20.04 Focal Fossa. [ROS Noetic](http://wiki.ros.org/melodic) is intended to run with this Ubuntu version.
+The robot setup is supposed to run on Ubuntu Mate 20.04 Focal Fossa. [ROS Noetic](http://wiki.ros.org/noetic) is intended to run with this Ubuntu version. To install ROS follow the [installation instructions](http://wiki.ros.org/noetic/Installation/Ubuntu).
+
+!!! info
+    In the 1.4 Installation step](http://wiki.ros.org/noetic/Installation/Ubuntu#Installation-1) you have to choose
+    how much of ROS you want to install. For the development pc you can go with the `sudo apt install ros-noetic-desktop-full`
+    command. For the robot install the `ros-noetic-robot` Ubuntu package. Other system dependencies will be installed
+    with the [`rosdep`](http://wiki.ros.org/rosdep) command, explained in the following section.
 
 Another program that is required to run ROS nodes written with the `rospy` client library is `python-is-python3`. Install it with:
 
 ```console
 sudo apt install python-is-python3
 ```
+
+## Dependencies
+
+After having git cloned one or more ROS packages, such as [`diffbot`]({{ diffbot_repo_url }}), 
+it is necessary to install system dependencies of the packages in the catkin workspace.
+For this, ROS provides the [`rosdep`](http://wiki.ros.org/rosdep) tool. 
+To install all system dependencies of the packages in your catkin workspace make use of the 
+following command ([source](http://wiki.ros.org/rosdep#Install_dependency_of_all_packages_in_the_workspace)):
+
+```console
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+This will go through each package's `package.xml` file and install the listed dependencies that are currently
+not installed on your system.
+
 
 ## Build Tool: `catkin_tools`
 
