@@ -42,7 +42,7 @@ vcs import < diffbot_robot.repos
 This will clone all repositories which are passed in via stdin in YAML format.
 
 For the SBC not all dependencies in `diffbot.repos` are needed.
-Instead the `diffbot_robot.repos` is here to clone the `diffbot` and `rp_lidar` repositories.
+Instead the `diffbot_robot.repos` is here to clone the `diffbot` and [`rplidar_ros`](https://github.com/Slamtec/rplidar_ros) repositories.
 
 ```
 vcs import < robot.repos
