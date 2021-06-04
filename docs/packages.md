@@ -36,16 +36,21 @@ Inside the cloned `diffbot` repository,
 make use of the `import` command and the `diffbot.repos` file containing the required source repositories:
 
 ```
-vcs import < diffbot_robot.repos
+vcs import < diffbot.repos
 ```
 
-This will clone all repositories which are passed in via stdin in YAML format.
+This will clone all repositories which are stored in the `diffbot.repos` that get passed in via stdin in YAML format.
+
+!!! note
+    The file `diffbot.repos` contains relative paths and will clone the listed repositories in the parent folder from where
+    the `vcs import` command is called. When it is called from inside the `diffbot` repository, which should be located
+    in the `src` folder of a catkin workspace, then the other repositories are also cloned in the `src` folder.
 
 For the SBC not all dependencies in `diffbot.repos` are needed.
-Instead the `diffbot_robot.repos` is here to clone the `diffbot` and [`rplidar_ros`](https://github.com/Slamtec/rplidar_ros) repositories.
+Instead the `diffbot_robot.repos` is here to clone the [`rplidar_ros`](https://github.com/Slamtec/rplidar_ros) repository.
 
 ```
-vcs import < robot.repos
+vcs import < diffbot_robot.repos
 ```
 
 Now that additional packages are inside the catkin workspace it is time to install the system dependencies.
