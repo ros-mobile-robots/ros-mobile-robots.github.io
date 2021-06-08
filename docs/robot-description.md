@@ -26,7 +26,7 @@ The `meshes` folder keeps the `meshes` that are included in the `urdf` file, and
 ### Robot Model
 
 To model the two wheeled differential drive robot we follow [REP-120](https://www.ros.org/reps/rep-0120.html#base-link).
-It states to use a `base_link` and a `base_footprint`. The resulting description files can be found in the [`diffbot_description`](https://github.com/fjp/diffbot/tree/master/ros/src/diffbot_control) package.
+It states to use a `base_link` and a `base_footprint`. The resulting description files can be found in the [`diffbot_description`]({{ diffbot_repo_url }}/diffbot_control) package.
 
 
 ### Required Tools
@@ -67,7 +67,7 @@ fjp@ubuntu:/tmp$ evince diffbot.pdf
 ```
 
 <figure>
-    <a href="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/diffbot-tf-tree.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/diffbot-tf-tree.png"></a>
+    <a href="{{ asset_dir }}/diffbot-tf-tree.png"><img src="{{ asset_dir }}/diffbot-tf-tree.png"></a>
     <figcaption>Graphviz diagram of DiffBot URDF robot description.</figcaption>
 </figure>
 
@@ -87,7 +87,7 @@ fjp@ubuntu:~/git/diffbot/ros$ roslaunch diffbot_description view_diffbot.launch
 According to the launch file's configuration, this will show the robot in RViz together with the `joint-state-publisher-gui` to set the joint values:
 
 <figure>
-    <a href="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/rviz_diffbot_meshes.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/rviz_diffbot_meshes.png"></a>
+    <a href="{{ asset_dir }}/rviz_diffbot_meshes.png"><img src="{{ asset_dir }}/rviz_diffbot_meshes.png"></a>
     <figcaption>DiffBot displayed in RViz.</figcaption>
 </figure>
 
@@ -95,3 +95,15 @@ With the robot descripton loaded on the ROS parameter server, it's possible to u
 
 In the next section, [Gazebo Simulation](/projects/diffbot/ros-packages/gazebo/), the robot model is prepared for simulation inside of 
 [Gazebo](http://gazebosim.org/).
+
+### URDF in Gazebo
+
+http://gazebosim.org/tutorials?tut=ros_urdf&cat=connect_ros#Tutorial:UsingaURDFinGazebo
+
+### References
+
+- http://gazebosim.org/tutorials?tut=ros_urdf&cat=connect_ros#Tutorial:UsingaURDFinGazebo
+- https://answers.ros.org/question/30539/choosing-the-right-coefficients-for-gazebo-simulation/
+- https://answers.ros.org/question/231880/how-to-improve-amcl-pose-estimate/
+
+
