@@ -28,7 +28,7 @@ The [`remo.urdf.xacro`]({{ remo_repo_url }}/urdf/remo.urdf.xacro) accepts a `cam
 Another xacro argument is the `sbc_type` wher you can select between `jetson` and `rpi`.
 
 | Jetson Nano | Raspberry Pi 4 B |
-|:-----------------------:|:-----:|:-----:|
+|:-----------------------:|:-----:|
 | [<img src="{{ asset_dir }}/remo/sbc_types/jetson-nano.png" width="700">]({{ asset_dir }}/remo/sbc_types/jetson-nano.png) | [<img src="{{ asset_dir }}/remo/sbc_types/raspi.png" width="700">]({{ asset_dir }}/remo/sbc_types/raspi.png) |
 
 
