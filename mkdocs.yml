@@ -38,6 +38,7 @@ edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/
 extra:
   asset_dir: /resources # /assets
   diffbot_repo_url: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel
+  remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
 
 markdown_extensions:
   - admonition
@@ -96,7 +97,9 @@ nav:
   - Packages:
     - Packages: packages.md
     - Robot Package: diffbot_robot.md
-    - Robot Description: robot-description.md
+    - Robot Description:
+      - Robot Description: robot-description.md
+      - Remo Description: packages/remo_description.md
     - Simulation: diffbot_gazebo.md
     - Control: diffbot_control.md
     - Base Hardware Interface: diffbot_base.md
