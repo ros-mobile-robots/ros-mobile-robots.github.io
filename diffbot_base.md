@@ -4,7 +4,7 @@ This package contains the so called hardware interface of DiffBot which represen
 [ROS Control](http://wiki.ros.org/ros_control). 
 
 <figure>
-    <a href="{{ asset_dir }}/ros_control_overview.png"><img src="{{ asset_dir }}/ros_control_overview.png"></a>
+    <a href="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_overview.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_overview.png"></a>
     <figcaption><a href="http://wiki.ros.org/ros_control#Overview" title="ROS Control">ROS Control</a> Overview.</figcaption>
 </figure>
 
@@ -13,9 +13,8 @@ file. The launch file will
 
 - Load the robot description from `diffbot_description` to the paramter server
 - Run the hardware interface of this package `diffbot_base`
-- Load the controller configuration yaml from the `diffbot_control` package to the [parameter server](http://wiki.ros.org/Parameter%20Server)
+- Load the controller configuration yaml from the `diffbot_control` package to the parameter server
 - Load the controllers with the [controller manager](http://wiki.ros.org/controller_manager?distro=noetic)
-- Load the value of the encoder resolution to the parameter server
 
 ### diffbot_base Package
 
@@ -236,9 +235,8 @@ and to command it. When the controller manager runs, the controllers will read f
 
 
 
-The main node that will be executed uses the `controller_manager` to operate the so called control loop. 
-In the case of  DiffBot a simple example looks like the following, 
-refer to the [`diffbot_base.cpp`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) for the complete implementation:
+The main node that will be executed uses the `controller_manager` to operate the so called control loop. In the case of  DiffBot a simple example looks like 
+the following, refer to the [`diffbot_base.cpp`](https://github.com/fjp/diffbot/blob/master/diffbot_base/src/diffbot_base.cpp) for the complete implementation:
 
 ```cpp
 #include <ros/ros.h>
@@ -389,10 +387,6 @@ launch file from [`diffbot_base/launch/diffbot.launch`](https://github.com/fjp/d
     <rosparam command="load" 
               file="$(find diffbot_control)/config/diffbot_control.yaml"/>
 
-    <!-- Load base config to the parameter server -->
-    <rosparam command="load" 
-              file="$(find diffbot_base)/config/base.yaml"/>
-
     <!-- Load the controllers -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
         output="screen" ns="diffbot" args="joint_state_controller
@@ -400,31 +394,13 @@ launch file from [`diffbot_base/launch/diffbot.launch`](https://github.com/fjp/d
 </launch>
 ```
 
-This will load the DiffBot robot description onto the parameter server which is required for the hardware interface that gets created inside the next
+This will load the DiffBot robot description onto the parameter server which is required  for the hardware interface that gets created inside the next
 node `diffbot_base`. It creates the hardware interface and instantiates a new controller manager in the `diffbot_base.cpp`.
-Finally the `spawner` from the `controller_manager` package is used to initialize and start the controllers defined in the `diffbot_control/config/diffbot_control.yaml`. This step of the launch file is required to get the controllers initialized and started.
+Finally the `spawner` from the `controller_manager` package is used to initialize and start the controllers defined in the `diffbot_control/config/diffbot_control.yaml`. The last step in this launch file is required to get the controllers initialized and started.
 Another way would be to use `controller_manager::ControllerManager::loadControllers()` inside the `diffbot_base.cpp`.
 
-Additionally the launch file loads additional parameters, stored in the `diffbot_base/config/base.yaml` on the parameter server.
-These parameters are hardware related and used to tune the driving behaviour:
 
-```
-# Hardware related parameters
-# will be loaded onto the parameter server
-# See the diffbot.launch
-diffbot:
-  encoder_resolution: 542
-  gain: 1.0
-  trim: 0.0
-  motor_constant: 27.0
-  pwm_limit: 1.0
-  debug:
-    hardware_interface: false
-    base_controller: true
-```
-
-
-After launching this launch file on DiffBot's single board computer (e.g. Raspberry Pi or Jetson Nano) with 
+After launching this launch file on DiffBot (Raspberry Pi) with 
 
 ```console
 roslaunch diffbot_base diffbot.launch

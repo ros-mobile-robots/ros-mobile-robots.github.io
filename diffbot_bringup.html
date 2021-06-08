@@ -1029,11 +1029,11 @@
                 <h2 id="diffbot-bring-up-package">DiffBot Bring Up Package</h2>
 <p>The bringup package is used to initialize the real hardware of DiffBot and to actually drive the robot around.
 First the package is created using <code>catkin-tools</code>:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">fjp@diffbot:~/git/diffbot/ros/src$</span> catkin create pkg diffbot_bringup
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">fjp@diffbot:~/git/diffbot/ros/src$ </span>catkin create pkg diffbot_bringup
 <span class="go">Creating package &quot;diffbot_bringup&quot; in &quot;/home/fjp/git/diffbot/ros/src&quot;...</span>
 <span class="go">Created file diffbot_bringup/package.xml</span>
 <span class="go">Created file diffbot_bringup/CMakeLists.txt</span>
@@ -1047,27 +1047,27 @@ It will also setup the ROS <a href="http://wiki.ros.org/controller_manager">cont
 <a href="https://fjp.at/projects/diffbot/ros-packages/base/#hardware-interface">DiffBot's hardware interface</a>.</p>
 <p>For the motor driver the node <code>motor_driver.py</code> from the <code>grove_motor_driver</code> package is started.
 And for the encoders rosserial communicates with the Teensy microcontroller to publish the encoder ticks. </p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
     <span class="c">&lt;!-- Including the following launch file from diffbot_base package will --&gt;</span>
     <span class="c">&lt;!-- Load the robot description onto the parameter server --&gt;</span>
     <span class="c">&lt;!-- Run the controller manager with DiffBot&#39;s hardware interface --&gt;</span>
@@ -1098,18 +1098,18 @@ In the case of DiffBot this is the <code>base_footprint</code>, a conventional l
 It is the well known <a href="http://wiki.ros.org/robot_state_publisher"><code>robot_state_publisher</code></a>, which uses the joint states published by the ROS controller <a href="http://wiki.ros.org/joint_state_controller"><code>joint_state_controller</code></a> (not to be confused with <a href="http://wiki.ros.org/joint_state_publisher"><code>joint_state_publisher</code></a> - it is not used here, see <a href="https://answers.ros.org/question/303358/what-is-the-difference-between-joint_state_publisher-and-joint_state_controller/">this answer</a> for the difference) to create the transforms
 between the links.</p>
 <p>To do this the <code>bringup.launch</code> includes the <code>minimal.launch</code> and then runs the <code>robot_state_publisher</code>:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
     <span class="nt">&lt;include</span> <span class="na">file=</span><span class="s">&quot;$(find diffbot_bringup)/launch/minimal.launch&quot;</span><span class="nt">&gt;</span>
         <span class="c">&lt;!-- arg name=&quot;model&quot; value=&quot;$(arg model)&quot; /--&gt;</span>
     <span class="nt">&lt;/include&gt;</span>

@@ -37,17 +37,3 @@ over different virtual machines.
 
 On the other hand, containerization has minimal overhead and it allow us to deploy multiple applications
 so that they can communicate with each other.
-
-## Modern Applications with Containerization
-
-It is common to organize and deploy modern applications using stacks of containers which are working together.
-
-
-
-
-## Resources
-
-- [Official Docker Documentation](https://docs.docker.com/get-started/overview/)
-- http://wiki.ros.org/docker/Tutorials
-- https://docker-curriculum.com/
-- Docker Deep Dive, by Nigel Poulton.

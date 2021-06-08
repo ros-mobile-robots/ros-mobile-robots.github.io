@@ -1139,12 +1139,12 @@ For ease of documentation and collaboration, we recommend that existing messages
 <h2 id="diffbot-messages">Diffbot Messages</h2>
 <p>Therefore, we create a package that contains message definitions specific to DiffBot. 
 The following command uses <code>catkin-tools</code> to create the <code>diffbot_msgs</code> package:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5
-6</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">ros_ws/src$ catkin create pkg diffbot_msgs --catkin-deps message_generation std_msgs                                                           </span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">ros_ws/src$ catkin create pkg diffbot_msgs --catkin-deps message_generation std_msgs                                                           </span>
 <span class="go">Creating package &quot;diffbot_msgs&quot; in &quot;/home/fjp/git/ros_ws/src&quot;...</span>
 <span class="go">WARNING: Packages with messages or services should depend on both message_generation and message_runtime</span>
 <span class="go">Created file diffbot_msgs/package.xml</span>
@@ -1161,14 +1161,14 @@ In this tutorial you can find the required configurations for the <code>package.
 <p>Currently there is no encoder message definition in ROS (see the <a href="https://wiki.ros.org/sensor_msgs"><code>sensor_msgs</code></a> package) 
 which is why a dedicated message is created for the encoders. For this, a simple <a href="http://wiki.ros.org/msg">msg</a> description file,
 named <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_msgs/msg/Encoders.msg"><code>Encoders.msg</code></a> is created in the <code>msg/</code> subdirectory of this <code>diffbot_msgs</code> package:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5
-6
-7
-8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code># This is a message to hold number of ticks from Encoders
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code># This is a message to hold number of ticks from Encoders
 Header header
 
 # Use an array of size two of type int32 for the two encoders.
@@ -1191,12 +1191,12 @@ where both are definitions from the <a href="https://wiki.ros.org/sensor_msgs"><
 <h3 id="wheel-commands">Wheel Commands</h3>
 <p>To command a joint velocity for each wheel <code>diffbot_msgs</code> provides the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_msgs/msg/WheelCmd.msg"><code>WheelCmd.msg</code></a>.
 This specifies the <code>Header</code> and a float64 array for the angular wheel joint velocities.</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5
-6</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code># This is a message that holds commanded angular joint velocity
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code># This is a message that holds commanded angular joint velocity
 Header header
 
 # Use an array of type float32 for the two wheel joint velocities.
@@ -1206,12 +1206,12 @@ float32[] velocities
 </td></tr></table>
 <h2 id="using-rosmsg">Using rosmsg</h2>
 <p>After building the package and its messages using <code>catkin build</code> let's make sure that ROS can see it using the rosmsg show command.</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5
-6</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$</span> rosmsg show diffbot_msgs/Encoders
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>rosmsg show diffbot_msgs/Encoders
 <span class="go">std_msgs/Header header</span>
 <span class="go">  uint32 seq</span>
 <span class="go">  time stamp</span>
@@ -1229,7 +1229,7 @@ Integrating these messages requires the following steps.</p>
 <ul>
 <li>Generate rosserial libraries in a temporary folder using the <a href="http://wiki.ros.org/rosserial/Tutorials/Adding%20Other%20Messages"><code>make_libraries</code></a> script:</li>
 </ul>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rosrun rosserial_client make_libraries ~/Arduino/tmp/</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rosrun rosserial_client make_libraries ~/Arduino/tmp/</span>
 </code></pre></div>
 </td></tr></table>
 <p>This will generate all messages for ALL installed packages, but in our case only the <code>diffbot_msgs</code> package is needed to avoid missing includes.</p>

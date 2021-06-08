@@ -1100,11 +1100,11 @@
     <figcaption>Navigation Stack Overview.</figcaption>
 </figure>
 
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">fjp@diffbot:~/catkin_ws/src/diffbot$</span> catkin create pkg diffbot_navigation --catkin-deps amcl map_server move_base diffbot_bringup                           
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">fjp@diffbot:~/catkin_ws/src/diffbot$ </span>catkin create pkg diffbot_navigation --catkin-deps amcl map_server move_base diffbot_bringup                           
 <span class="go">Creating package &quot;diffbot_navigation&quot; in &quot;/home/fjp/git/ros_ws/src/diffbot&quot;...</span>
 <span class="go">Created file diffbot_navigation/package.xml</span>
 <span class="go">Created file diffbot_navigation/CMakeLists.txt</span>
@@ -1112,7 +1112,7 @@
 </code></pre></div>
 </td></tr></table>
 <p>We also need the following ROS packages that can be installed from the ROS Ubuntu packages:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$</span> sudo apt install ros-noetic-dwa-local-planner ros-noetic-amcl ros-noetic-map-server ros-noetic-move-base
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>sudo apt install ros-noetic-dwa-local-planner ros-noetic-amcl ros-noetic-map-server ros-noetic-move-base
 </code></pre></div>
 </td></tr></table>
 <p>After this we create the required launch files and parameter configurations. These will be used for the simulation and the real robot.
@@ -1120,13 +1120,13 @@ First we focus on the simulation in Gazebo.</p>
 <h3 id="launch-files">Launch files</h3>
 <p>All launch files are in the folder named <code>launch</code> of the <code>diffbot_navigation</code> package.</p>
 <p>Inside the <code>move_base.launch</code> it is important to remap the following topics:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5
-6
-7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>  <span class="c">&lt;!-- Arguments --&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>  <span class="c">&lt;!-- Arguments --&gt;</span>
   <span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;cmd_vel_topic&quot;</span> <span class="na">default=</span><span class="s">&quot;/diffbot/mobile_base_controller/cmd_vel&quot;</span> <span class="nt">/&gt;</span>
   <span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;odom_topic&quot;</span> <span class="na">default=</span><span class="s">&quot;/diffbot/mobile_base_controller/odom&quot;</span> <span class="nt">/&gt;</span>
 ...
@@ -1176,7 +1176,7 @@ Using slam_gmapping, you can create a 2-D occupancy grid map (like a building fl
 <p>To navigate the robot in the simulation run the following command but make sure to first download the 
 <a href="https://github.com/ROBOTIS-GIT/turtlebot3_simulations/tree/master/turtlebot3_gazebo/models/turtlebot3_world">turtlebot3_world</a><br />
 to your <code>~/.gazebo/models/</code> folder. This is required because the <code>turtlebot3_world.world</code> file references the <code>turtlebot3_world</code> model.</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch diffbot_navigation diffbot.launch world_name:=&#39;$(find diffbot_gazebo)/worlds/turtlebot3_world.world&#39;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch diffbot_navigation diffbot.launch world_name:=&#39;$(find diffbot_gazebo)/worlds/turtlebot3_world.world&#39;</span>
 </code></pre></div>
 </td></tr></table>
 <p>This will spawn DiffBot inside the turtlebot3 world inside Gazebo and visualize the elements of the navigation stack in RViz.</p>

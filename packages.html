@@ -1105,8 +1105,8 @@ repository.</p>
 <h2 id="git-clone-diffbot-repository">Git: clone diffbot repository</h2>
 <p>After setting up ROS on your workstation PC and the SBC (either <a href="https://ros-mobile-robots.com/rpi-setup/">Raspberry Pi 4B</a> or <a href="https://ros-mobile-robots.com/jetson-nano-setup/">Jetson Nano</a>),
 create a ros workspace in your users home folder and clone the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code> repository</a>:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>mkdir -p ros_ws/src
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>mkdir -p ros_ws/src
 git clone https://github.com/ros-mobile-robots/diffbot.git
 </code></pre></div>
 </td></tr></table>
@@ -1126,7 +1126,7 @@ To do this the recommended tool to use is <a href="http://wiki.ros.org/vcstool">
 </div>
 <p>Inside the cloned <code>diffbot</code> repository, 
 make use of the <code>import</code> command and the <code>diffbot.repos</code> file containing the required source repositories:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>vcs import &lt; diffbot.repos
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>vcs import &lt; diffbot.repos
 </code></pre></div>
 </td></tr></table>
 <p>This will clone all repositories which are stored in the <code>diffbot.repos</code> that get passed in via stdin in YAML format.</p>
@@ -1138,7 +1138,7 @@ in the <code>src</code> folder of a catkin workspace, then the other repositorie
 </div>
 <p>For the SBC not all dependencies in <code>diffbot.repos</code> are needed.
 Instead the <code>diffbot_robot.repos</code> is here to clone the <a href="https://github.com/Slamtec/rplidar_ros"><code>rplidar_ros</code></a> repository.</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>vcs import &lt; diffbot_robot.repos
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>vcs import &lt; diffbot_robot.repos
 </code></pre></div>
 </td></tr></table>
 <p>Now that additional packages are inside the catkin workspace it is time to install the system dependencies.</p>
@@ -1146,7 +1146,7 @@ Instead the <code>diffbot_robot.repos</code> is here to clone the <a href="https
 <p>All the needed ROS system dependencies which are required by diffbot's packages can be installed using
 <a href="http://wiki.ros.org/rosdep"><code>rosdep</code></a> command, which was installed during the ROS setup.
 To install all system dependencies use the following command:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>rosdep install --from-paths src --ignore-src -r -y
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>rosdep install --from-paths src --ignore-src -r -y
 </code></pre></div>
 </td></tr></table>
 <div class="admonition info">
@@ -1159,11 +1159,11 @@ Inside the workspace use <a href="https://catkin-tools.readthedocs.io/en/latest/
 <p class="admonition-title">Note</p>
 <p>The first time you run the following command, make sure to execute it inside your catkin workspace and not the <code>src</code> directory.</p>
 </div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>catkin build
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>catkin build
 </code></pre></div>
 </td></tr></table>
 <p>Now source the catkin workspace either using the <a href="ros-setup.html#environment-setup">created alias</a> or the full command for the bash shell:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>source devel/setup.bash
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>source devel/setup.bash
 </code></pre></div>
 </td></tr></table>
 <h2 id="examples">Examples</h2>
