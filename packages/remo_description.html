@@ -873,6 +873,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#camera-types" class="md-nav__link">
     Camera Types
   </a>
@@ -882,6 +889,20 @@
         <li class="md-nav__item">
   <a href="#single-board-computer-types" class="md-nav__link">
     Single Board Computer Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handshake-acknowledgment" class="md-nav__link">
+    :handshake: Acknowledgment
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
   </a>
   
 </li>
@@ -1052,6 +1073,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#camera-types" class="md-nav__link">
     Camera Types
   </a>
@@ -1061,6 +1089,20 @@
         <li class="md-nav__item">
   <a href="#single-board-computer-types" class="md-nav__link">
     Single Board Computer Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handshake-acknowledgment" class="md-nav__link">
+    :handshake: Acknowledgment
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
   </a>
   
 </li>
@@ -1086,6 +1128,16 @@
                 
                 
                 <h1 id="remo-description">Remo Description</h1>
+<p>ROS URDF description package of REMO robot (Research Education Mobile/Modular robot) a highly modifiable and extendable
+autonomous mobile robot based on <a href="https://github.com/NVIDIA-AI-IOT/jetbot">Nvidia's Jetbot</a>.
+This ROS package is found in the <a href="https://github.com/ros-mobile-robots/remo_description/blob/main"><code>remo_description</code> repository</a> contains the stl files to 3D print Remo robot.</p>
+<p><img alt="https://media.githubusercontent.com/media/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif" src="https://media.githubusercontent.com/media/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif" /></p>
+<h2 id="usage">Usage</h2>
+<p>This is a ROS package which should be cloned in a catkin workspace.
+To use <code>remo_description</code> inside a Gazebo simulation or on a real 3D printed Remo robot, you can directly make use of the ROS packages in the
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel">ros-mobile-robots/diffbot</a> repository.
+Most of the launch files you find in the <code>diffbot</code> repository
+accept a <code>model</code> argument. Just append <code>model:=remo</code> to the end of a <code>roslaunch</code> command to make use of this <code>remo_description</code> package.</p>
 <h2 id="camera-types">Camera Types</h2>
 <p>The <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro"><code>remo.urdf.xacro</code></a> accepts a <code>camera_type</code>
 <a href="http://wiki.ros.org/xacro#Rospack_commands">xacro arg</a> which lets you choose between the following different camera types</p>
@@ -1109,7 +1161,15 @@
 <p>Another xacro argument is the <code>sbc_type</code> wher you can select between <code>jetson</code> and <code>rpi</code>.</p>
 <p>| Jetson Nano | Raspberry Pi 4 B |
 |:-----------------------:|:-----:|:-----:|
-| <a href="/resources/remo/sbc_types/jetson.png"><img src="/resources/remo/sbc_types/jetson.png" width="700"></a> | <a href="/resources/remo/sbc_types/raspi.png"><img src="/resources/remo/sbc_types/raspi.png" width="700"></a> |</p>
+| <a href="/resources/remo/sbc_types/jetson-nano.png"><img src="/resources/remo/sbc_types/jetson-nano.png" width="700"></a> | <a href="/resources/remo/sbc_types/raspi.png"><img src="/resources/remo/sbc_types/raspi.png" width="700"></a> |</p>
+<h2 id="handshake-acknowledgment">:handshake: Acknowledgment</h2>
+<ul>
+<li><a href="https://louisrapine.com/">Louis Morandy-Rapiné</a> for his great work on REMO robot and designing it in <a href="https://www.autodesk.com/products/fusion-360/overview">Fusion 360</a>.</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://github.com/NVIDIA-AI-IOT/jetbot">Nvidia Jetbot</a></li>
+</ul>
                 
               
 
