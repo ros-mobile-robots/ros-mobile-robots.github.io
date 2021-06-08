@@ -30,3 +30,12 @@ Another xacro argument is the `sbc_type` wher you can select between `jetson` an
 | Jetson Nano | Raspberry Pi 4 B |
 |:-----------------------:|:-----:|:-----:|
 | [<img src="{{ asset_dir }}/remo/sbc_types/jetson-nano.png" width="700">]({{ asset_dir }}/remo/sbc_types/jetson-nano.png) | [<img src="{{ asset_dir }}/remo/sbc_types/raspi.png" width="700">]({{ asset_dir }}/remo/sbc_types/raspi.png) |
+
+
+## :handshake: Acknowledgment
+
+- [Louis Morandy-Rapiné](https://louisrapine.com/) for his great work on REMO robot and designing it in [Fusion 360](https://www.autodesk.com/products/fusion-360/overview).
+
+## References
+
+- [Nvidia Jetbot](https://github.com/NVIDIA-AI-IOT/jetbot)
