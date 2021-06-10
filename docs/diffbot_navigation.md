@@ -1,7 +1,7 @@
 ## DiffBot Navigation Package
 
 <figure>
-    <a href="https://github.com/fjp/diffbot/raw/master/docs/resources/navigation/navigation_stack.png"><img src="https://github.com/fjp/diffbot/raw/master/docs/resources/navigation/navigation_stack.png"></a>
+    <a href="{{ asset_dir }}/navigation/navigation_stack.png"><img src="{{ asset_dir }}/navigation/navigation_stack.png"></a>
     <figcaption>Navigation Stack Overview.</figcaption>
 </figure>
 
@@ -93,9 +93,10 @@ coming from the running [`map_server`](http://wiki.ros.org/map_server), you can 
 [2D Nav Goal in RViz](http://wiki.ros.org/navigation/Tutorials/Using%20rviz%20with%20the%20Navigation%20Stack#A2D_Nav_Goal).
 Just select the navigation arrow to where the robot should move as shown in the animation above.
 
-
-The DWA local planner is working for differential drive robots, like DiffBot. For other robots such as non-holonomic robots or other types of mobile robots (also differential drive robots) other planners can be used. See for example [`teb_local_planner`](http://wiki.ros.org/teb_local_planner).
-{: .notice }
+!!! note
+    The DWA local planner is working for differential drive robots, like DiffBot. 
+    For other robots such as non-holonomic robots or other types of mobile robots (also differential drive robots) other planners can be used. 
+    See for example [`teb_local_planner`](http://wiki.ros.org/teb_local_planner).
 
 
 ### Resources 
