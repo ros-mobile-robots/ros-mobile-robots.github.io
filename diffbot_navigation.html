@@ -10,7 +10,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2, mkdocs-material-7.1.7">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.7">
     
     
       
@@ -1135,7 +1135,7 @@
                 
                 <h2 id="diffbot-navigation-package">DiffBot Navigation Package</h2>
 <figure>
-    <a href="https://github.com/fjp/diffbot/raw/master/docs/resources/navigation/navigation_stack.png"><img src="https://github.com/fjp/diffbot/raw/master/docs/resources/navigation/navigation_stack.png"></a>
+    <a href="/resources/navigation/navigation_stack.png"><img src="/resources/navigation/navigation_stack.png"></a>
     <figcaption>Navigation Stack Overview.</figcaption>
 </figure>
 
@@ -1220,7 +1220,7 @@ to your <code>~/.gazebo/models/</code> folder. This is required because the <cod
 </td></tr></table>
 <p>This will spawn DiffBot inside the turtlebot3 world inside Gazebo and visualize the elements of the navigation stack in RViz.</p>
 <figure>
-    <a href="https://youtu.be/2SwFTrJ1Ofg"><img src="https://github.com/fjp/diffbot/blob/master/docs/resources/navigation/diffbot-navigation-gazebo-turtlebot3-world-small.gif"></a>
+    <a href="https://youtu.be/2SwFTrJ1Ofg"><img src="/resources/navigation/diffbot-navigation-gazebo-turtlebot3-world-small.gif"></a>
     <figcaption>Navigation demo of DiffBot (click to view the demo on Youtube).</figcaption>
 </figure>
 
@@ -1228,7 +1228,12 @@ to your <code>~/.gazebo/models/</code> folder. This is required because the <cod
 coming from the running <a href="http://wiki.ros.org/map_server"><code>map_server</code></a>, you can use the 
 <a href="http://wiki.ros.org/navigation/Tutorials/Using%20rviz%20with%20the%20Navigation%20Stack#A2D_Nav_Goal">2D Nav Goal in RViz</a>.
 Just select the navigation arrow to where the robot should move as shown in the animation above.</p>
-<p class="notice">The DWA local planner is working for differential drive robots, like DiffBot. For other robots such as non-holonomic robots or other types of mobile robots (also differential drive robots) other planners can be used. See for example <a href="http://wiki.ros.org/teb_local_planner"><code>teb_local_planner</code></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The DWA local planner is working for differential drive robots, like DiffBot. 
+For other robots such as non-holonomic robots or other types of mobile robots (also differential drive robots) other planners can be used. 
+See for example <a href="http://wiki.ros.org/teb_local_planner"><code>teb_local_planner</code></a>.</p>
+</div>
 <h3 id="resources">Resources</h3>
 <p>Global Planners:
 - <a href="http://wiki.ros.org/global_planner"><code>global_planner</code></a></p>
