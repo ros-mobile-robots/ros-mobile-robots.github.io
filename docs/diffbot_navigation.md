@@ -84,7 +84,7 @@ roslaunch diffbot_navigation diffbot.launch world_name:='$(find diffbot_gazebo)/
 This will spawn DiffBot inside the turtlebot3 world inside Gazebo and visualize the elements of the navigation stack in RViz.
 
 <figure>
-    <a href="https://youtu.be/2SwFTrJ1Ofg"><img src="https://github.com/fjp/diffbot/blob/master/docs/resources/navigation/diffbot-navigation-gazebo-turtlebot3-world-small.gif"></a>
+    <a href="https://youtu.be/2SwFTrJ1Ofg"><img src="{{ asset_dir }}/navigation/diffbot-navigation-gazebo-turtlebot3-world-small.gif"></a>
     <figcaption>Navigation demo of DiffBot (click to view the demo on Youtube).</figcaption>
 </figure>
 
