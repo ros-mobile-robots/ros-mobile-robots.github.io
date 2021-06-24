@@ -110,6 +110,7 @@ nav:
     - SLAM: diffbot_slam.md
     - Move Base Flex: diffbot_mbf.md
     - Hardware Bringup: diffbot_bringup.md
+    - Rasperry Pi Camera: packages/raspicam_node.md
 
 google_analytics:
   - UA-117971961-1
