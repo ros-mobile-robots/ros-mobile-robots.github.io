@@ -39,6 +39,9 @@ extra:
   asset_dir: /resources # /assets
   diffbot_repo_url: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
+  analytics:
+    provider: google
+    property: G-5Z9V7GPRX3
 
 markdown_extensions:
   - admonition
@@ -112,7 +115,3 @@ nav:
     - Move Base Flex: diffbot_mbf.md
     - Hardware Bringup: diffbot_bringup.md
     - Rasperry Pi Camera: packages/raspicam_node.md
-
-google_analytics:
-  - UA-117971961-1
-  - auto
