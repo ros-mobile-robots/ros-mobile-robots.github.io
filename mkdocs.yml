@@ -115,3 +115,6 @@ nav:
     - Move Base Flex: diffbot_mbf.md
     - Hardware Bringup: diffbot_bringup.md
     - Rasperry Pi Camera: packages/raspicam_node.md
+  - About:
+    - Privacy Policy: privacy-policy.md
+    - Legal Notice: legal-notice.md
