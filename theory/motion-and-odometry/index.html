@@ -9,28 +9,30 @@
       
       
       
-      <link rel="icon" href="/assets/images/favicon.png">
+        <link rel="canonical" href="https://ros-mobile-robots.com/theory/motion-and-odometry/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.10">
     
     
       
-        <title>DiffBot Differential Drive Mobile Robot</title>
+        <title>Motion and Odometry - DiffBot Differential Drive Mobile Robot</title>
       
     
     
-      <link rel="stylesheet" href="/assets/stylesheets/main.1fe995fd.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1fe995fd.min.css">
       
         
-        <link rel="stylesheet" href="/assets/stylesheets/palette.f1a3b89f.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f1a3b89f.min.css">
         
       
     
     
     
-    <script src="//js/jquery-3.5.1.min.js"></script>
-    <script src="//js/jquery.fitvids.js"></script>
+    <script src="../../js/jquery-3.5.1.min.js"></script>
+    <script src="../../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-    <script src="//js/config.js"></script>
+    <script src="../../js/config.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- UML diagrams using Mermaid -->
@@ -87,7 +89,7 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("/",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
       <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
@@ -96,6 +98,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#robotic-motion-and-odometry" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -103,7 +110,7 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href="../.." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -122,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Motion and Odometry
             
           </span>
         </div>
@@ -215,7 +222,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/." class="md-tabs__link">
+    <a href="../.." class="md-tabs__link">
       Home
     </a>
   </li>
@@ -227,7 +234,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/components/" class="md-tabs__link">
+    <a href="../../components/" class="md-tabs__link">
       Components
     </a>
   </li>
@@ -242,7 +249,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/theory/" class="md-tabs__link">
+      <a href="../" class="md-tabs__link">
         Robotics Theory
       </a>
     </li>
@@ -252,13 +259,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="/theory/motion-and-odometry/" class="md-tabs__link">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
         Hardware and Theory
       </a>
     </li>
@@ -274,7 +283,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/rpi-setup/" class="md-tabs__link">
+      <a href="../../rpi-setup/" class="md-tabs__link">
         Processing Units
       </a>
     </li>
@@ -290,7 +299,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/packages/" class="md-tabs__link">
+      <a href="../../packages/" class="md-tabs__link">
         Packages
       </a>
     </li>
@@ -306,7 +315,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/privacy-policy/" class="md-tabs__link">
+      <a href="../../privacy-policy/" class="md-tabs__link">
         About
       </a>
     </li>
@@ -333,7 +342,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href="../.." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -365,7 +374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         Home
       </a>
     </li>
@@ -380,7 +389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/components/" class="md-nav__link">
+      <a href="../../components/" class="md-nav__link">
         Components
       </a>
     </li>
@@ -416,7 +425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         Theory behind Robotics
       </a>
     </li>
@@ -449,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/control-systems-introduction/" class="md-nav__link">
+      <a href="../modeling-control/control-systems-introduction/" class="md-nav__link">
         Introduction to Control Systems
       </a>
     </li>
@@ -461,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/robot-representations/" class="md-nav__link">
+      <a href="../modeling-control/robot-representations/" class="md-nav__link">
         Representations and models
       </a>
     </li>
@@ -473,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
+      <a href="../modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
         Modeling a Differential Drive Robot
       </a>
     </li>
@@ -485,7 +494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/odometry/" class="md-nav__link">
+      <a href="../modeling-control/odometry/" class="md-nav__link">
         Odometry
       </a>
     </li>
@@ -524,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/robot-vision/pinhole-camera-model/" class="md-nav__link">
+      <a href="../robot-vision/pinhole-camera-model/" class="md-nav__link">
         Pinhole Camera Model
       </a>
     </li>
@@ -542,7 +551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/object-detection/overview.md" class="md-nav__link">
+      <a href="../object-detection/overview.md" class="md-nav__link">
         Object Detection
       </a>
     </li>
@@ -554,7 +563,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/estimatione-localization/overview.md" class="md-nav__link">
+      <a href="../estimatione-localization/overview.md" class="md-nav__link">
         State Estimation and Localization
       </a>
     </li>
@@ -566,7 +575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning1/overview.md" class="md-nav__link">
+      <a href="../planning1/overview.md" class="md-nav__link">
         Planning I
       </a>
     </li>
@@ -578,7 +587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning2/overview.md" class="md-nav__link">
+      <a href="../planning2/overview.md" class="md-nav__link">
         Planning II
       </a>
     </li>
@@ -590,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/reinforcement-learning/overview.md" class="md-nav__link">
+      <a href="../reinforcement-learning/overview.md" class="md-nav__link">
         Learning by Reinforcement
       </a>
     </li>
@@ -602,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/imitation-learning/overview.md" class="md-nav__link">
+      <a href="../imitation-learning/overview.md" class="md-nav__link">
         Learning by Imitation
       </a>
     </li>
@@ -621,12 +630,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
       
       <label class="md-nav__link" for="__nav_4">
         Hardware and Theory
@@ -642,11 +653,74 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="/theory/motion-and-odometry/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Motion and Odometry
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Motion and Odometry
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#robotic-motion-and-odometry" class="md-nav__link">
+    Robotic Motion and Odometry
+  </a>
+  
+    <nav class="md-nav" aria-label="Robotic Motion and Odometry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distance-velocity-and-time" class="md-nav__link">
+    Distance, Velocity and Time
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acceleration-as-change-in-velocity" class="md-nav__link">
+    Acceleration as Change in Velocity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -656,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/power-supply/" class="md-nav__link">
+      <a href="../../power-supply/" class="md-nav__link">
         Power Supply
       </a>
     </li>
@@ -668,7 +742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/laser-range-scanner/" class="md-nav__link">
+      <a href="../../laser-range-scanner/" class="md-nav__link">
         Laser Range Scanner
       </a>
     </li>
@@ -710,7 +784,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rpi-setup/" class="md-nav__link">
+      <a href="../../rpi-setup/" class="md-nav__link">
         Raspberry Pi Setup
       </a>
     </li>
@@ -722,7 +796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/jetson-nano-setup/" class="md-nav__link">
+      <a href="../../jetson-nano-setup/" class="md-nav__link">
         Jetson Nano Setup
       </a>
     </li>
@@ -734,7 +808,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/git-setup/" class="md-nav__link">
+      <a href="../../git-setup/" class="md-nav__link">
         Git Setup
       </a>
     </li>
@@ -746,7 +820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-setup/" class="md-nav__link">
+      <a href="../../ros-setup/" class="md-nav__link">
         ROS Setup
       </a>
     </li>
@@ -758,7 +832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/teensy-mcu/" class="md-nav__link">
+      <a href="../../teensy-mcu/" class="md-nav__link">
         Teensy MCU
       </a>
     </li>
@@ -770,7 +844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hardware-interfaces/" class="md-nav__link">
+      <a href="../../hardware-interfaces/" class="md-nav__link">
         Hardware Interfaces
       </a>
     </li>
@@ -782,7 +856,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-network-setup/" class="md-nav__link">
+      <a href="../../ros-network-setup/" class="md-nav__link">
         ROS Network Setup
       </a>
     </li>
@@ -824,7 +898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/" class="md-nav__link">
+      <a href="../../packages/" class="md-nav__link">
         Packages
       </a>
     </li>
@@ -836,7 +910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_robot/" class="md-nav__link">
+      <a href="../../diffbot_robot/" class="md-nav__link">
         Robot Package
       </a>
     </li>
@@ -869,7 +943,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/robot-description/" class="md-nav__link">
+      <a href="../../robot-description/" class="md-nav__link">
         Robot Description
       </a>
     </li>
@@ -881,7 +955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/remo_description/" class="md-nav__link">
+      <a href="../../packages/remo_description/" class="md-nav__link">
         Remo Description
       </a>
     </li>
@@ -899,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_gazebo/" class="md-nav__link">
+      <a href="../../diffbot_gazebo/" class="md-nav__link">
         Simulation
       </a>
     </li>
@@ -911,7 +985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_control/" class="md-nav__link">
+      <a href="../../diffbot_control/" class="md-nav__link">
         Control
       </a>
     </li>
@@ -923,7 +997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_base/" class="md-nav__link">
+      <a href="../../diffbot_base/" class="md-nav__link">
         Base Hardware Interface
       </a>
     </li>
@@ -935,7 +1009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_msgs/" class="md-nav__link">
+      <a href="../../diffbot_msgs/" class="md-nav__link">
         Messages
       </a>
     </li>
@@ -947,7 +1021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/grove_motor_driver/" class="md-nav__link">
+      <a href="../../grove_motor_driver/" class="md-nav__link">
         Motor Driver
       </a>
     </li>
@@ -959,7 +1033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/DG01D-E-motor-with-encoder/" class="md-nav__link">
+      <a href="../../DG01D-E-motor-with-encoder/" class="md-nav__link">
         Motor and Encoder
       </a>
     </li>
@@ -971,7 +1045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_navigation/" class="md-nav__link">
+      <a href="../../diffbot_navigation/" class="md-nav__link">
         Navigation
       </a>
     </li>
@@ -983,7 +1057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_slam/" class="md-nav__link">
+      <a href="../../diffbot_slam/" class="md-nav__link">
         SLAM
       </a>
     </li>
@@ -995,7 +1069,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_mbf/" class="md-nav__link">
+      <a href="../../diffbot_mbf/" class="md-nav__link">
         Move Base Flex
       </a>
     </li>
@@ -1007,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_bringup/" class="md-nav__link">
+      <a href="../../diffbot_bringup/" class="md-nav__link">
         Hardware Bringup
       </a>
     </li>
@@ -1019,7 +1093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/raspicam_node/" class="md-nav__link">
+      <a href="../../packages/raspicam_node/" class="md-nav__link">
         Rasperry Pi Camera
       </a>
     </li>
@@ -1061,7 +1135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/privacy-policy/" class="md-nav__link">
+      <a href="../../privacy-policy/" class="md-nav__link">
         Privacy Policy
       </a>
     </li>
@@ -1073,7 +1147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/legal-notice/" class="md-nav__link">
+      <a href="../../legal-notice/" class="md-nav__link">
         Legal Notice
       </a>
     </li>
@@ -1093,11 +1167,130 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#robotic-motion-and-odometry" class="md-nav__link">
+    Robotic Motion and Odometry
+  </a>
+  
+    <nav class="md-nav" aria-label="Robotic Motion and Odometry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distance-velocity-and-time" class="md-nav__link">
+    Distance, Velocity and Time
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acceleration-as-change-in-velocity" class="md-nav__link">
+    Acceleration as Change in Velocity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
-  <h1>404 - Not found</h1>
+
+
+
+                
+                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/motion-and-odometry.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>Motion and Odometry</h1>
+                
+                <h2 id="robotic-motion-and-odometry">Robotic Motion and Odometry</h2>
+<p>The following section describes the theory of robotic motion and odometry, which is part of the book <a href="https://link.springer.com/book/10.1007/978-3-319-62533-1">Elements of Robotics</a>. The section focuses on a detailed look on the quadrature encoders that are
+attached to the robot wheels. For DiffBot the encoders are part of the <a href="https://www.sparkfun.com/products/16413">motors DG01D-E</a>. </p>
+<p>This section reviews the basic concepts of distance, time, velocity and acceleration. 
+The physics of motion can be described using calculus, but a computer cannot deal with continuous functions; 
+instead, discrete approximations must be used.</p>
+<p>Odometry, the fundamental algorithm for computing robotic motion. 
+An approximation of the location of a robot can be obtained by repeatedly computing the distance moved and 
+the change direction from the velocity of the wheels in a short period of time. 
+Unfortunately, odometry is subject to serious errors. 
+It is important to understand that errors in direction are much more significant than errors in distance.</p>
+<p>See the following video explaining odometry:</p>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/3S8MXsnNe3U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+<p>In the simplest implementation, the speed of the wheels of a robot is assumed to be proportional to 
+the power applied by the motors. To improve the accuracy of odometry wheel encoders can be used, 
+which measure the actual number of revolutions of the wheels.</p>
+<p>The following video from Sparkfun gives an overview of Encoders</p>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/oLBYHbLO8W0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+<h3 id="distance-velocity-and-time">Distance, Velocity and Time</h3>
+<p>In general, if a robot moves at a constant applied to the motors it causes the wheels to rotate, which in turn causes the robot velocity <span class="arithmatex">\(v\)</span> for a period of time <span class="arithmatex">\(t\)</span>, the distance <span class="arithmatex">\(s\)</span> it moves is <span class="arithmatex">\(s = v \cdot t\)</span>. When power is to move at some velocity. However, we cannot specify that a certain power causes a certain velocity</p>
+<ul>
+<li>No two electrical or mechanical components are ever precisely identical.</li>
+<li>The environment affects the velocity of a robot because of different friction of the surface</li>
+<li>External forces can affect the velocity of a robot. It needs more power to sustain a specific velocity when moving uphill and less power when moving downhill, because the force of gravity decreases and increases the velocity.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Velocity is speed in a direction. A robot can be moving 10cm/s forwards or backwards; in both cases, the speed is the same but the velocity is different.</p>
+</div>
+<h3 id="acceleration-as-change-in-velocity">Acceleration as Change in Velocity</h3>
+<p>To get a true picture of the motion of a robot, we need to divide its motion into
+small segments <span class="arithmatex">\(s_1,s_2,\dots\)</span> and measure the distance and time for each segment individually. 
+Then, we can compute the velocities for each segment. In symbols, if we denote the length of the
+segment si by <span class="arithmatex">\(\Delta s_i = x_{i+1} − x_i\)</span> and the time it takes the robot to cross segment si by
+<span class="arithmatex">\(\Delta t_i = t_{i+1} − t_i\)</span> , then <span class="arithmatex">\(v_i\)</span> , the velocity in segment <span class="arithmatex">\(s_i\)</span> is given by:</p>
+<div class="arithmatex">\[
+v_i = \frac{\Delta s_i}{\Delta t_i}
+\]</div>
+<p>Acceleration is defined as the change in velocity over a period of time</p>
+<div class="arithmatex">\[a_i = \frac{\Delta v_i}{\Delta t_i}\]</div>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://www8.cs.umu.se/kurser/5DV122/HT13/material/Hellstrom-ForwardKinematics.pdf">Kinematics equations for Differential Drive and Articulated Steering</a></li>
+</ul>
+                
+              
+
+              
+                
+
 
               
             </article>
@@ -1113,6 +1306,41 @@
       
         
 <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../robot-vision/pinhole-camera-model/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Pinhole Camera Model" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Pinhole Camera Model
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../../power-supply/" class="md-footer__link md-footer__link--next" aria-label="Next: Power Supply" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Power Supply
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1137,11 +1365,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "/", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "/assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
     
     
     
-      <script src="/assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ddd52ceb.min.js"></script>
       
     
     <script>

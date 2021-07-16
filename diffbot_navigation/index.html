@@ -9,28 +9,30 @@
       
       
       
-      <link rel="icon" href="/assets/images/favicon.png">
+        <link rel="canonical" href="https://ros-mobile-robots.com/diffbot_navigation/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.10">
     
     
       
-        <title>DiffBot Differential Drive Mobile Robot</title>
+        <title>Navigation - DiffBot Differential Drive Mobile Robot</title>
       
     
     
-      <link rel="stylesheet" href="/assets/stylesheets/main.1fe995fd.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.1fe995fd.min.css">
       
         
-        <link rel="stylesheet" href="/assets/stylesheets/palette.f1a3b89f.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f1a3b89f.min.css">
         
       
     
     
     
-    <script src="//js/jquery-3.5.1.min.js"></script>
-    <script src="//js/jquery.fitvids.js"></script>
+    <script src="../js/jquery-3.5.1.min.js"></script>
+    <script src="../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-    <script src="//js/config.js"></script>
+    <script src="../js/config.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- UML diagrams using Mermaid -->
@@ -87,7 +89,7 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("/",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
       <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
@@ -96,6 +98,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#diffbot-navigation-package" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -103,7 +110,7 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href=".." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -122,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Navigation
             
           </span>
         </div>
@@ -215,7 +222,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/." class="md-tabs__link">
+    <a href=".." class="md-tabs__link">
       Home
     </a>
   </li>
@@ -227,7 +234,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/components/" class="md-tabs__link">
+    <a href="../components/" class="md-tabs__link">
       Components
     </a>
   </li>
@@ -242,7 +249,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/theory/" class="md-tabs__link">
+      <a href="../theory/" class="md-tabs__link">
         Robotics Theory
       </a>
     </li>
@@ -258,7 +265,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/theory/motion-and-odometry/" class="md-tabs__link">
+      <a href="../theory/motion-and-odometry/" class="md-tabs__link">
         Hardware and Theory
       </a>
     </li>
@@ -274,7 +281,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/rpi-setup/" class="md-tabs__link">
+      <a href="../rpi-setup/" class="md-tabs__link">
         Processing Units
       </a>
     </li>
@@ -284,13 +291,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="/packages/" class="md-tabs__link">
+      <a href="../packages/" class="md-tabs__link md-tabs__link--active">
         Packages
       </a>
     </li>
@@ -306,7 +315,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/privacy-policy/" class="md-tabs__link">
+      <a href="../privacy-policy/" class="md-tabs__link">
         About
       </a>
     </li>
@@ -333,7 +342,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href=".." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -365,7 +374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         Home
       </a>
     </li>
@@ -380,7 +389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/components/" class="md-nav__link">
+      <a href="../components/" class="md-nav__link">
         Components
       </a>
     </li>
@@ -416,7 +425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/" class="md-nav__link">
+      <a href="../theory/" class="md-nav__link">
         Theory behind Robotics
       </a>
     </li>
@@ -449,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/control-systems-introduction/" class="md-nav__link">
+      <a href="../theory/modeling-control/control-systems-introduction/" class="md-nav__link">
         Introduction to Control Systems
       </a>
     </li>
@@ -461,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/robot-representations/" class="md-nav__link">
+      <a href="../theory/modeling-control/robot-representations/" class="md-nav__link">
         Representations and models
       </a>
     </li>
@@ -473,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
+      <a href="../theory/modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
         Modeling a Differential Drive Robot
       </a>
     </li>
@@ -485,7 +494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/odometry/" class="md-nav__link">
+      <a href="../theory/modeling-control/odometry/" class="md-nav__link">
         Odometry
       </a>
     </li>
@@ -524,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/robot-vision/pinhole-camera-model/" class="md-nav__link">
+      <a href="../theory/robot-vision/pinhole-camera-model/" class="md-nav__link">
         Pinhole Camera Model
       </a>
     </li>
@@ -542,7 +551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/object-detection/overview.md" class="md-nav__link">
+      <a href="../theory/object-detection/overview.md" class="md-nav__link">
         Object Detection
       </a>
     </li>
@@ -554,7 +563,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/estimatione-localization/overview.md" class="md-nav__link">
+      <a href="../theory/estimatione-localization/overview.md" class="md-nav__link">
         State Estimation and Localization
       </a>
     </li>
@@ -566,7 +575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning1/overview.md" class="md-nav__link">
+      <a href="../theory/planning1/overview.md" class="md-nav__link">
         Planning I
       </a>
     </li>
@@ -578,7 +587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning2/overview.md" class="md-nav__link">
+      <a href="../theory/planning2/overview.md" class="md-nav__link">
         Planning II
       </a>
     </li>
@@ -590,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/reinforcement-learning/overview.md" class="md-nav__link">
+      <a href="../theory/reinforcement-learning/overview.md" class="md-nav__link">
         Learning by Reinforcement
       </a>
     </li>
@@ -602,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/imitation-learning/overview.md" class="md-nav__link">
+      <a href="../theory/imitation-learning/overview.md" class="md-nav__link">
         Learning by Imitation
       </a>
     </li>
@@ -644,7 +653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/motion-and-odometry/" class="md-nav__link">
+      <a href="../theory/motion-and-odometry/" class="md-nav__link">
         Motion and Odometry
       </a>
     </li>
@@ -656,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/power-supply/" class="md-nav__link">
+      <a href="../power-supply/" class="md-nav__link">
         Power Supply
       </a>
     </li>
@@ -668,7 +677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/laser-range-scanner/" class="md-nav__link">
+      <a href="../laser-range-scanner/" class="md-nav__link">
         Laser Range Scanner
       </a>
     </li>
@@ -710,7 +719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rpi-setup/" class="md-nav__link">
+      <a href="../rpi-setup/" class="md-nav__link">
         Raspberry Pi Setup
       </a>
     </li>
@@ -722,7 +731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/jetson-nano-setup/" class="md-nav__link">
+      <a href="../jetson-nano-setup/" class="md-nav__link">
         Jetson Nano Setup
       </a>
     </li>
@@ -734,7 +743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/git-setup/" class="md-nav__link">
+      <a href="../git-setup/" class="md-nav__link">
         Git Setup
       </a>
     </li>
@@ -746,7 +755,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-setup/" class="md-nav__link">
+      <a href="../ros-setup/" class="md-nav__link">
         ROS Setup
       </a>
     </li>
@@ -758,7 +767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/teensy-mcu/" class="md-nav__link">
+      <a href="../teensy-mcu/" class="md-nav__link">
         Teensy MCU
       </a>
     </li>
@@ -770,7 +779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hardware-interfaces/" class="md-nav__link">
+      <a href="../hardware-interfaces/" class="md-nav__link">
         Hardware Interfaces
       </a>
     </li>
@@ -782,7 +791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-network-setup/" class="md-nav__link">
+      <a href="../ros-network-setup/" class="md-nav__link">
         ROS Network Setup
       </a>
     </li>
@@ -801,12 +810,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
       
       <label class="md-nav__link" for="__nav_6">
         Packages
@@ -824,7 +835,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/" class="md-nav__link">
+      <a href="../packages/" class="md-nav__link">
         Packages
       </a>
     </li>
@@ -836,7 +847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_robot/" class="md-nav__link">
+      <a href="../diffbot_robot/" class="md-nav__link">
         Robot Package
       </a>
     </li>
@@ -869,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/robot-description/" class="md-nav__link">
+      <a href="../robot-description/" class="md-nav__link">
         Robot Description
       </a>
     </li>
@@ -881,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/remo_description/" class="md-nav__link">
+      <a href="../packages/remo_description/" class="md-nav__link">
         Remo Description
       </a>
     </li>
@@ -899,7 +910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_gazebo/" class="md-nav__link">
+      <a href="../diffbot_gazebo/" class="md-nav__link">
         Simulation
       </a>
     </li>
@@ -911,7 +922,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_control/" class="md-nav__link">
+      <a href="../diffbot_control/" class="md-nav__link">
         Control
       </a>
     </li>
@@ -923,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_base/" class="md-nav__link">
+      <a href="../diffbot_base/" class="md-nav__link">
         Base Hardware Interface
       </a>
     </li>
@@ -935,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_msgs/" class="md-nav__link">
+      <a href="../diffbot_msgs/" class="md-nav__link">
         Messages
       </a>
     </li>
@@ -947,7 +958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/grove_motor_driver/" class="md-nav__link">
+      <a href="../grove_motor_driver/" class="md-nav__link">
         Motor Driver
       </a>
     </li>
@@ -959,7 +970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/DG01D-E-motor-with-encoder/" class="md-nav__link">
+      <a href="../DG01D-E-motor-with-encoder/" class="md-nav__link">
         Motor and Encoder
       </a>
     </li>
@@ -969,11 +980,81 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="/diffbot_navigation/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Navigation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Navigation
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#diffbot-navigation-package" class="md-nav__link">
+    DiffBot Navigation Package
+  </a>
+  
+    <nav class="md-nav" aria-label="DiffBot Navigation Package">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launch-files" class="md-nav__link">
+    Launch files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-configuration" class="md-nav__link">
+    Parameter Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation-in-gazebo-with-available-map" class="md-nav__link">
+    Navigation in Gazebo with available Map
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -983,7 +1064,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_slam/" class="md-nav__link">
+      <a href="../diffbot_slam/" class="md-nav__link">
         SLAM
       </a>
     </li>
@@ -995,7 +1076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_mbf/" class="md-nav__link">
+      <a href="../diffbot_mbf/" class="md-nav__link">
         Move Base Flex
       </a>
     </li>
@@ -1007,7 +1088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_bringup/" class="md-nav__link">
+      <a href="../diffbot_bringup/" class="md-nav__link">
         Hardware Bringup
       </a>
     </li>
@@ -1019,7 +1100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/raspicam_node/" class="md-nav__link">
+      <a href="../packages/raspicam_node/" class="md-nav__link">
         Rasperry Pi Camera
       </a>
     </li>
@@ -1061,7 +1142,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/privacy-policy/" class="md-nav__link">
+      <a href="../privacy-policy/" class="md-nav__link">
         Privacy Policy
       </a>
     </li>
@@ -1073,7 +1154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/legal-notice/" class="md-nav__link">
+      <a href="../legal-notice/" class="md-nav__link">
         Legal Notice
       </a>
     </li>
@@ -1093,11 +1174,198 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#diffbot-navigation-package" class="md-nav__link">
+    DiffBot Navigation Package
+  </a>
+  
+    <nav class="md-nav" aria-label="DiffBot Navigation Package">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launch-files" class="md-nav__link">
+    Launch files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-configuration" class="md-nav__link">
+    Parameter Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation-in-gazebo-with-available-map" class="md-nav__link">
+    Navigation in Gazebo with available Map
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
-  <h1>404 - Not found</h1>
+
+
+
+                
+                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/diffbot_navigation.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>Navigation</h1>
+                
+                <h2 id="diffbot-navigation-package">DiffBot Navigation Package</h2>
+<figure>
+    <a href="/resources/navigation/navigation_stack.png"><img src="/resources/navigation/navigation_stack.png"></a>
+    <figcaption>Navigation Stack Overview.</figcaption>
+</figure>
+
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">fjp@diffbot:~/catkin_ws/src/diffbot$ </span>catkin create pkg diffbot_navigation --catkin-deps amcl map_server move_base diffbot_bringup                           
+<span class="go">Creating package &quot;diffbot_navigation&quot; in &quot;/home/fjp/git/ros_ws/src/diffbot&quot;...</span>
+<span class="go">Created file diffbot_navigation/package.xml</span>
+<span class="go">Created file diffbot_navigation/CMakeLists.txt</span>
+<span class="go">Successfully created package files in /home/fjp/git/ros_ws/src/diffbot/diffbot_navigation.</span>
+</code></pre></div>
+</td></tr></table>
+<p>We also need the following ROS packages that can be installed from the ROS Ubuntu packages:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>sudo apt install ros-noetic-dwa-local-planner ros-noetic-amcl ros-noetic-map-server ros-noetic-move-base
+</code></pre></div>
+</td></tr></table>
+<p>After this we create the required launch files and parameter configurations. These will be used for the simulation and the real robot.
+First we focus on the simulation in Gazebo.</p>
+<h3 id="launch-files">Launch files</h3>
+<p>All launch files are in the folder named <code>launch</code> of the <code>diffbot_navigation</code> package.</p>
+<p>Inside the <code>move_base.launch</code> it is important to remap the following topics:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>  <span class="c">&lt;!-- Arguments --&gt;</span>
+  <span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;cmd_vel_topic&quot;</span> <span class="na">default=</span><span class="s">&quot;/diffbot/mobile_base_controller/cmd_vel&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;odom_topic&quot;</span> <span class="na">default=</span><span class="s">&quot;/diffbot/mobile_base_controller/odom&quot;</span> <span class="nt">/&gt;</span>
+...
+    <span class="c">&lt;!-- remappings of move_base node --&gt;</span>
+    <span class="nt">&lt;remap</span> <span class="na">from=</span><span class="s">&quot;cmd_vel&quot;</span> <span class="na">to=</span><span class="s">&quot;$(arg cmd_vel_topic)&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;remap</span> <span class="na">from=</span><span class="s">&quot;odom&quot;</span> <span class="na">to=</span><span class="s">&quot;$(arg odom_topic)&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+</td></tr></table>
+<h3 id="parameter-configuration">Parameter Configuration</h3>
+<p>The parameters for the navigation package go into the <code>config</code> (for some robots named <code>param</code>) folder.
+Most of them can be changed during runtime using <a href="http://wiki.ros.org/dynamic_reconfigure">dynamic reconfigure</a> with the <a href="http://wiki.ros.org/rqt_reconfigure"><code>rqt_reconfigure</code> gui</a>.</p>
+<ul>
+<li>
+<p><a href="http://wiki.ros.org/navigation/Tutorials/RobotSetup">Setup and Configuration of the Navigation Stack on a Robot</a></p>
+</li>
+<li>
+<p><a href="http://wiki.ros.org/amcl?distro=noetic"><code>amcl</code></a>: amcl is a probabilistic localization system for a robot moving in 2D. 
+It implements the adaptive (or KLD-sampling) Monte Carlo localization approach (as described by Dieter Fox), 
+which uses a particle filter to track the pose of a robot against a known map.</p>
+</li>
+<li>
+<p><a href="http://wiki.ros.org/map_server?distro=noetic"><code>map_server</code></a>: provides the <code>map_server</code> ROS Node, which offers map data as a ROS Service. 
+It also provides the <code>map_saver</code> command-line utility, which allows dynamically generated maps to be saved to file.</p>
+</li>
+<li>
+<p><a href="http://wiki.ros.org/move_base?distro=noetic"><code>move_base</code></a>: The <code>move_base</code> package provides an implementation of an action 
+(see the <a href="http://www.ros.org/wiki/actionlib"><code>actionlib</code></a> package) that, given a goal in the world, will attempt to reach it with a mobile base. 
+The <code>move_base</code> node links together a global and local planner to accomplish its global navigation task. 
+It supports any global planner adhering to the <code>nav_core::BaseGlobalPlanner</code> interface specified in the <a href="http://www.ros.org/wiki/nav_core"><code>nav_core</code></a> package 
+and any local planner adhering to the <code>nav_core::BaseLocalPlanner</code> interface specified in the <code>nav_core</code> package. 
+The <code>move_base</code> node also maintains two costmaps, one for the global planner, and one for a local planner (see the <a href="http://www.ros.org/wiki/costmap_2d"><code>costmap_2d</code></a> package) 
+that are used to accomplish navigation tasks.</p>
+</li>
+<li>
+<p><a href="http://wiki.ros.org/gmapping"><code>gmapping</code></a>: This package contains a ROS wrapper for OpenSlam's Gmapping. 
+The gmapping package provides laser-based SLAM (Simultaneous Localization and Mapping), as a ROS node called slam_gmapping. 
+Using slam_gmapping, you can create a 2-D occupancy grid map (like a building floorplan) from laser and pose data collected by a mobile robot.</p>
+</li>
+<li>
+<p><a href="https://github.com/cartographer-project/cartographer_ros">ROS cartographer</a></p>
+</li>
+<li><a href="https://github.com/SteveMacenski/slam_toolbox"><code>slam_toolbox</code></a></li>
+</ul>
+<p>Examples
+- <a href="https://github.com/ROBOTIS-GIT/turtlebot3/tree/master/turtlebot3_navigation">TurtleBot3 Navigation</a></p>
+<h3 id="navigation-in-gazebo-with-available-map">Navigation in Gazebo with available Map</h3>
+<p>To navigate the robot in the simulation run the following command but make sure to first download the 
+<a href="https://github.com/ROBOTIS-GIT/turtlebot3_simulations/tree/master/turtlebot3_gazebo/models/turtlebot3_world">turtlebot3_world</a><br />
+to your <code>~/.gazebo/models/</code> folder. This is required because the <code>turtlebot3_world.world</code> file references the <code>turtlebot3_world</code> model.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch diffbot_navigation diffbot.launch world_name:=&#39;$(find diffbot_gazebo)/worlds/turtlebot3_world.world&#39;</span>
+</code></pre></div>
+</td></tr></table>
+<p>This will spawn DiffBot inside the turtlebot3 world inside Gazebo and visualize the elements of the navigation stack in RViz.</p>
+<figure>
+    <a href="https://youtu.be/2SwFTrJ1Ofg"><img src="/resources/navigation/diffbot-navigation-gazebo-turtlebot3-world-small.gif"></a>
+    <figcaption>Navigation demo of DiffBot (click to view the demo on Youtube).</figcaption>
+</figure>
+
+<p>To navigate the robot using the default <a href="http://wiki.ros.org/dwa_local_planner">DWA planner</a> in the known map, 
+coming from the running <a href="http://wiki.ros.org/map_server"><code>map_server</code></a>, you can use the 
+<a href="http://wiki.ros.org/navigation/Tutorials/Using%20rviz%20with%20the%20Navigation%20Stack#A2D_Nav_Goal">2D Nav Goal in RViz</a>.
+Just select the navigation arrow to where the robot should move as shown in the animation above.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The DWA local planner is working for differential drive robots, like DiffBot. 
+For other robots such as non-holonomic robots or other types of mobile robots (also differential drive robots) other planners can be used. 
+See for example <a href="http://wiki.ros.org/teb_local_planner"><code>teb_local_planner</code></a>.</p>
+</div>
+<h3 id="resources">Resources</h3>
+<p>Global Planners:
+- <a href="http://wiki.ros.org/global_planner"><code>global_planner</code></a></p>
+<p>Local Planners:
+- <a href="https://answers.ros.org/question/10718/dwa_planner-vs-base_local_planner/">Difference between DWA and Base Local Planner</a>
+- <a href="https://answers.ros.org/question/274564/difference-between-dwa-local_planner-and-teb-local_planner/">Difference between DWA and TEB Local Planner</a></p>
+                
+              
+
+              
+                
+
 
               
             </article>
@@ -1113,6 +1381,41 @@
       
         
 <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../DG01D-E-motor-with-encoder/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Motor and Encoder" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Motor and Encoder
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../diffbot_slam/" class="md-footer__link md-footer__link--next" aria-label="Next: SLAM" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              SLAM
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1137,11 +1440,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "/", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "/assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
     
     
     
-      <script src="/assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      <script src="../assets/javascripts/bundle.ddd52ceb.min.js"></script>
       
     
     <script>

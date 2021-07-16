@@ -9,28 +9,30 @@
       
       
       
-      <link rel="icon" href="/assets/images/favicon.png">
+        <link rel="canonical" href="https://ros-mobile-robots.com/diffbot_msgs/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.10">
     
     
       
-        <title>DiffBot Differential Drive Mobile Robot</title>
+        <title>Messages - DiffBot Differential Drive Mobile Robot</title>
       
     
     
-      <link rel="stylesheet" href="/assets/stylesheets/main.1fe995fd.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.1fe995fd.min.css">
       
         
-        <link rel="stylesheet" href="/assets/stylesheets/palette.f1a3b89f.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f1a3b89f.min.css">
         
       
     
     
     
-    <script src="//js/jquery-3.5.1.min.js"></script>
-    <script src="//js/jquery.fitvids.js"></script>
+    <script src="../js/jquery-3.5.1.min.js"></script>
+    <script src="../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-    <script src="//js/config.js"></script>
+    <script src="../js/config.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- UML diagrams using Mermaid -->
@@ -87,7 +89,7 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("/",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
       <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
@@ -96,6 +98,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#diffbot-messages-package" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -103,7 +110,7 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href=".." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -122,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Messages
             
           </span>
         </div>
@@ -215,7 +222,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/." class="md-tabs__link">
+    <a href=".." class="md-tabs__link">
       Home
     </a>
   </li>
@@ -227,7 +234,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/components/" class="md-tabs__link">
+    <a href="../components/" class="md-tabs__link">
       Components
     </a>
   </li>
@@ -242,7 +249,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/theory/" class="md-tabs__link">
+      <a href="../theory/" class="md-tabs__link">
         Robotics Theory
       </a>
     </li>
@@ -258,7 +265,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/theory/motion-and-odometry/" class="md-tabs__link">
+      <a href="../theory/motion-and-odometry/" class="md-tabs__link">
         Hardware and Theory
       </a>
     </li>
@@ -274,7 +281,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/rpi-setup/" class="md-tabs__link">
+      <a href="../rpi-setup/" class="md-tabs__link">
         Processing Units
       </a>
     </li>
@@ -284,13 +291,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="/packages/" class="md-tabs__link">
+      <a href="../packages/" class="md-tabs__link md-tabs__link--active">
         Packages
       </a>
     </li>
@@ -306,7 +315,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/privacy-policy/" class="md-tabs__link">
+      <a href="../privacy-policy/" class="md-tabs__link">
         About
       </a>
     </li>
@@ -333,7 +342,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href=".." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -365,7 +374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         Home
       </a>
     </li>
@@ -380,7 +389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/components/" class="md-nav__link">
+      <a href="../components/" class="md-nav__link">
         Components
       </a>
     </li>
@@ -416,7 +425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/" class="md-nav__link">
+      <a href="../theory/" class="md-nav__link">
         Theory behind Robotics
       </a>
     </li>
@@ -449,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/control-systems-introduction/" class="md-nav__link">
+      <a href="../theory/modeling-control/control-systems-introduction/" class="md-nav__link">
         Introduction to Control Systems
       </a>
     </li>
@@ -461,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/robot-representations/" class="md-nav__link">
+      <a href="../theory/modeling-control/robot-representations/" class="md-nav__link">
         Representations and models
       </a>
     </li>
@@ -473,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
+      <a href="../theory/modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
         Modeling a Differential Drive Robot
       </a>
     </li>
@@ -485,7 +494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/odometry/" class="md-nav__link">
+      <a href="../theory/modeling-control/odometry/" class="md-nav__link">
         Odometry
       </a>
     </li>
@@ -524,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/robot-vision/pinhole-camera-model/" class="md-nav__link">
+      <a href="../theory/robot-vision/pinhole-camera-model/" class="md-nav__link">
         Pinhole Camera Model
       </a>
     </li>
@@ -542,7 +551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/object-detection/overview.md" class="md-nav__link">
+      <a href="../theory/object-detection/overview.md" class="md-nav__link">
         Object Detection
       </a>
     </li>
@@ -554,7 +563,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/estimatione-localization/overview.md" class="md-nav__link">
+      <a href="../theory/estimatione-localization/overview.md" class="md-nav__link">
         State Estimation and Localization
       </a>
     </li>
@@ -566,7 +575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning1/overview.md" class="md-nav__link">
+      <a href="../theory/planning1/overview.md" class="md-nav__link">
         Planning I
       </a>
     </li>
@@ -578,7 +587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning2/overview.md" class="md-nav__link">
+      <a href="../theory/planning2/overview.md" class="md-nav__link">
         Planning II
       </a>
     </li>
@@ -590,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/reinforcement-learning/overview.md" class="md-nav__link">
+      <a href="../theory/reinforcement-learning/overview.md" class="md-nav__link">
         Learning by Reinforcement
       </a>
     </li>
@@ -602,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/imitation-learning/overview.md" class="md-nav__link">
+      <a href="../theory/imitation-learning/overview.md" class="md-nav__link">
         Learning by Imitation
       </a>
     </li>
@@ -644,7 +653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/motion-and-odometry/" class="md-nav__link">
+      <a href="../theory/motion-and-odometry/" class="md-nav__link">
         Motion and Odometry
       </a>
     </li>
@@ -656,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/power-supply/" class="md-nav__link">
+      <a href="../power-supply/" class="md-nav__link">
         Power Supply
       </a>
     </li>
@@ -668,7 +677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/laser-range-scanner/" class="md-nav__link">
+      <a href="../laser-range-scanner/" class="md-nav__link">
         Laser Range Scanner
       </a>
     </li>
@@ -710,7 +719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rpi-setup/" class="md-nav__link">
+      <a href="../rpi-setup/" class="md-nav__link">
         Raspberry Pi Setup
       </a>
     </li>
@@ -722,7 +731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/jetson-nano-setup/" class="md-nav__link">
+      <a href="../jetson-nano-setup/" class="md-nav__link">
         Jetson Nano Setup
       </a>
     </li>
@@ -734,7 +743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/git-setup/" class="md-nav__link">
+      <a href="../git-setup/" class="md-nav__link">
         Git Setup
       </a>
     </li>
@@ -746,7 +755,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-setup/" class="md-nav__link">
+      <a href="../ros-setup/" class="md-nav__link">
         ROS Setup
       </a>
     </li>
@@ -758,7 +767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/teensy-mcu/" class="md-nav__link">
+      <a href="../teensy-mcu/" class="md-nav__link">
         Teensy MCU
       </a>
     </li>
@@ -770,7 +779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hardware-interfaces/" class="md-nav__link">
+      <a href="../hardware-interfaces/" class="md-nav__link">
         Hardware Interfaces
       </a>
     </li>
@@ -782,7 +791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-network-setup/" class="md-nav__link">
+      <a href="../ros-network-setup/" class="md-nav__link">
         ROS Network Setup
       </a>
     </li>
@@ -801,12 +810,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
       
       <label class="md-nav__link" for="__nav_6">
         Packages
@@ -824,7 +835,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/" class="md-nav__link">
+      <a href="../packages/" class="md-nav__link">
         Packages
       </a>
     </li>
@@ -836,7 +847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_robot/" class="md-nav__link">
+      <a href="../diffbot_robot/" class="md-nav__link">
         Robot Package
       </a>
     </li>
@@ -869,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/robot-description/" class="md-nav__link">
+      <a href="../robot-description/" class="md-nav__link">
         Robot Description
       </a>
     </li>
@@ -881,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/remo_description/" class="md-nav__link">
+      <a href="../packages/remo_description/" class="md-nav__link">
         Remo Description
       </a>
     </li>
@@ -899,7 +910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_gazebo/" class="md-nav__link">
+      <a href="../diffbot_gazebo/" class="md-nav__link">
         Simulation
       </a>
     </li>
@@ -911,7 +922,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_control/" class="md-nav__link">
+      <a href="../diffbot_control/" class="md-nav__link">
         Control
       </a>
     </li>
@@ -923,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_base/" class="md-nav__link">
+      <a href="../diffbot_base/" class="md-nav__link">
         Base Hardware Interface
       </a>
     </li>
@@ -933,11 +944,99 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="/diffbot_msgs/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Messages
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Messages
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#diffbot-messages" class="md-nav__link">
+    Diffbot Messages
+  </a>
+  
+    <nav class="md-nav" aria-label="Diffbot Messages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#encoders" class="md-nav__link">
+    Encoders
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wheel-commands" class="md-nav__link">
+    Wheel Commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-rosmsg" class="md-nav__link">
+    Using rosmsg
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rosserial" class="md-nav__link">
+    ROSSerial
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -947,7 +1046,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/grove_motor_driver/" class="md-nav__link">
+      <a href="../grove_motor_driver/" class="md-nav__link">
         Motor Driver
       </a>
     </li>
@@ -959,7 +1058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/DG01D-E-motor-with-encoder/" class="md-nav__link">
+      <a href="../DG01D-E-motor-with-encoder/" class="md-nav__link">
         Motor and Encoder
       </a>
     </li>
@@ -971,7 +1070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_navigation/" class="md-nav__link">
+      <a href="../diffbot_navigation/" class="md-nav__link">
         Navigation
       </a>
     </li>
@@ -983,7 +1082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_slam/" class="md-nav__link">
+      <a href="../diffbot_slam/" class="md-nav__link">
         SLAM
       </a>
     </li>
@@ -995,7 +1094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_mbf/" class="md-nav__link">
+      <a href="../diffbot_mbf/" class="md-nav__link">
         Move Base Flex
       </a>
     </li>
@@ -1007,7 +1106,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_bringup/" class="md-nav__link">
+      <a href="../diffbot_bringup/" class="md-nav__link">
         Hardware Bringup
       </a>
     </li>
@@ -1019,7 +1118,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/raspicam_node/" class="md-nav__link">
+      <a href="../packages/raspicam_node/" class="md-nav__link">
         Rasperry Pi Camera
       </a>
     </li>
@@ -1061,7 +1160,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/privacy-policy/" class="md-nav__link">
+      <a href="../privacy-policy/" class="md-nav__link">
         Privacy Policy
       </a>
     </li>
@@ -1073,7 +1172,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/legal-notice/" class="md-nav__link">
+      <a href="../legal-notice/" class="md-nav__link">
         Legal Notice
       </a>
     </li>
@@ -1093,11 +1192,223 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#diffbot-messages" class="md-nav__link">
+    Diffbot Messages
+  </a>
+  
+    <nav class="md-nav" aria-label="Diffbot Messages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#encoders" class="md-nav__link">
+    Encoders
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wheel-commands" class="md-nav__link">
+    Wheel Commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-rosmsg" class="md-nav__link">
+    Using rosmsg
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rosserial" class="md-nav__link">
+    ROSSerial
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
-  <h1>404 - Not found</h1>
+
+
+
+                
+                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/diffbot_msgs.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="diffbot-messages-package">DiffBot Messages Package</h1>
+<p>As mentioned before, the nodes in ROS communicate with each other by publishing <a href="http://wiki.ros.org/Messages">messages</a> to <a href="http://wiki.ros.org/Topics">topics</a>. 
+ROS provides the <a href="http://wiki.ros.org/std_msgs"><code>std_msgs</code></a> package that includes ROS' common message types to represent primitive data types (see the ROS <a href="http://wiki.ros.org/msg">msg specification</a> for primitive types) and other basic message constructs, such as multiarrays. 
+Note howerver, the following from the <a href="http://wiki.ros.org/std_msgs"><code>std_msgs</code> documentation</a>:</p>
+<div class="admonition quote">
+<p class="admonition-title">Quote</p>
+<p>The types in <code>std_msgs</code> do not convey semantic meaning about their contents: every message simply has a field called "data". 
+Therefore, while the messages in this package can be useful for quick prototyping, they are NOT intended for "long-term" usage. 
+For ease of documentation and collaboration, we recommend that existing messages be used, or new messages created, that provide meaningful field name(s).</p>
+</div>
+<h2 id="diffbot-messages">Diffbot Messages</h2>
+<p>Therefore, we create a package that contains message definitions specific to DiffBot. 
+The following command uses <code>catkin-tools</code> to create the <code>diffbot_msgs</code> package:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">ros_ws/src$ catkin create pkg diffbot_msgs --catkin-deps message_generation std_msgs                                                           </span>
+<span class="go">Creating package &quot;diffbot_msgs&quot; in &quot;/home/fjp/git/ros_ws/src&quot;...</span>
+<span class="go">WARNING: Packages with messages or services should depend on both message_generation and message_runtime</span>
+<span class="go">Created file diffbot_msgs/package.xml</span>
+<span class="go">Created file diffbot_msgs/CMakeLists.txt</span>
+<span class="go">Successfully created package files in /home/fjp/git/ros_ws/src/diffbot_msgs.</span>
+</code></pre></div>
+</td></tr></table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following is based on <a href="https://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv#Creating_a_msg">ROS Tutorials Creating Msg And Srv</a>.
+In this tutorial you can find the required configurations for the <code>package.xml</code> and <code>CMakeLists.txt</code>.</p>
+</div>
+<h3 id="encoders">Encoders</h3>
+<p>Currently there is no encoder message definition in ROS (see the <a href="https://wiki.ros.org/sensor_msgs"><code>sensor_msgs</code></a> package) 
+which is why a dedicated message is created for the encoders. For this, a simple <a href="http://wiki.ros.org/msg">msg</a> description file,
+named <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_msgs/msg/Encoders.msg"><code>Encoders.msg</code></a> is created in the <code>msg/</code> subdirectory of this <code>diffbot_msgs</code> package:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code># This is a message to hold number of ticks from Encoders
+Header header
+
+# Use an array of size two of type int32 for the two encoders.
+# int32 is used instead of int64 because it is not supporte by Arduino/Teensy.
+# An overflow is also unlikely with the encoders of the DG01D-E 
+# motor with its encoder because of its low encoder resolution
+int32[2] ticks
+</code></pre></div>
+</td></tr></table>
+<p>The message includes the message type <a href="http://docs.ros.org/en/api/std_msgs/html/msg/Header.html"><code>Header</code></a> 
+(see also <a href="http://wiki.ros.org/msg#headerSect">Header msg</a>) which includes common metadata fileds such as timestamp that is automatically 
+set by <a href="http://wiki.ros.org/Client%20Libraries">ROS client libraries</a>.</p>
+<p>Having this encoder message description gives semantic meaning to the encoder messages 
+and for example avoids having two separate int32 publishers for each encoder.
+Combining the encoder message into a single one alleviates additional timing problems.</p>
+<p>There exists also the <a href="https://wiki.ros.org/common_msgs"><code>common_msgs</code></a> meta package for common, generic robot-specific message types.
+From the <code>common_msgs</code> DiffBot uses for example the <a href="http://wiki.ros.org/nav_msgs"><code>nav_msgs</code></a> for navigation with the <a href="http://wiki.ros.org/navigation">navigation stack</a>. Other relevant message definitions are the <a href="http://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html"><code>sensor_msgs/Imu</code></a> 
+and <a href="http://docs.ros.org/en/api/sensor_msgs/html/msg/LaserScan.html"><code>sensor_msgs/LaserScan</code></a>, 
+where both are definitions from the <a href="https://wiki.ros.org/sensor_msgs"><code>sensor_msgs</code></a> package.</p>
+<h3 id="wheel-commands">Wheel Commands</h3>
+<p>To command a joint velocity for each wheel <code>diffbot_msgs</code> provides the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_msgs/msg/WheelCmd.msg"><code>WheelCmd.msg</code></a>.
+This specifies the <code>Header</code> and a float64 array for the angular wheel joint velocities.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code># This is a message that holds commanded angular joint velocity
+Header header
+
+# Use an array of type float32 for the two wheel joint velocities.
+# float32 is used instead of float64 because it is not supporte by Arduino/Teensy.
+float32[] velocities
+</code></pre></div>
+</td></tr></table>
+<h2 id="using-rosmsg">Using rosmsg</h2>
+<p>After building the package and its messages using <code>catkin build</code> let's make sure that ROS can see it using the rosmsg show command.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>rosmsg show diffbot_msgs/Encoders
+<span class="go">std_msgs/Header header</span>
+<span class="go">  uint32 seq</span>
+<span class="go">  time stamp</span>
+<span class="go">  string frame_id</span>
+<span class="go">int32[2] encoders</span>
+</code></pre></div>
+</td></tr></table>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When using the a ros command such as <code>rosmsg</code> make use of the <span class="keys"><kbd class="key-tab">Tab</kbd></span> key to auto complete the message name. </p>
+</div>
+<h2 id="rosserial">ROSSerial</h2>
+<p>The generated messages in this packages are used on the Teensy microcontroller, which is using <a href="http://wiki.ros.org/rosserial"><code>rosserial</code></a>.
+Integrating these messages requires the following steps.</p>
+<ul>
+<li>Generate rosserial libraries in a temporary folder using the <a href="http://wiki.ros.org/rosserial/Tutorials/Adding%20Other%20Messages"><code>make_libraries</code></a> script:</li>
+</ul>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rosrun rosserial_client make_libraries ~/Arduino/tmp/</span>
+</code></pre></div>
+</td></tr></table>
+<p>This will generate all messages for ALL installed packages, but in our case only the <code>diffbot_msgs</code> package is needed to avoid missing includes.</p>
+<ul>
+<li>Copy the generated <code>~/Arduino/tmp/diffbot_msgs</code> message folder to the <code>src</code> folder of the <code>rosserial</code> Arduino library.
+  When <code>rosserial</code> was installed with the Arduino Library Manager, the location is <code>~/Arduino/libraries/Rosserial_Arduino_Library/</code>.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>The new messages, specific to DiffBot, can be used by including the generated header, for example <code>#include &lt;diffbot_msgs/Encoders.h&gt;</code>.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup">Tutorials Arduino IDE Setup</a>, specifically <a href="http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup#Install_ros_lib_into_the_Arduino_Environment">Install ros_lib into the Arduino Environment</a></li>
+<li><a href="http://wiki.ros.org/rosserial/Overview/Limitations"><code>rosserial</code> limitations</a>: <code>float64</code> is not supported on Arduino.</li>
+</ul>
+                
+              
+
+              
+                
+
 
               
             </article>
@@ -1113,6 +1424,41 @@
       
         
 <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../diffbot_base/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Base Hardware Interface" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Base Hardware Interface
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../grove_motor_driver/" class="md-footer__link md-footer__link--next" aria-label="Next: Motor Driver" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Motor Driver
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1137,11 +1483,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "/", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "/assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
     
     
     
-      <script src="/assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      <script src="../assets/javascripts/bundle.ddd52ceb.min.js"></script>
       
     
     <script>

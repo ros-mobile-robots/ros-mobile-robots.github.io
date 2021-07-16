@@ -9,28 +9,30 @@
       
       
       
-      <link rel="icon" href="/assets/images/favicon.png">
+        <link rel="canonical" href="https://ros-mobile-robots.com/theory/architecture/docker/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.10">
     
     
       
-        <title>DiffBot Differential Drive Mobile Robot</title>
+        <title>Docker - DiffBot Differential Drive Mobile Robot</title>
       
     
     
-      <link rel="stylesheet" href="/assets/stylesheets/main.1fe995fd.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.1fe995fd.min.css">
       
         
-        <link rel="stylesheet" href="/assets/stylesheets/palette.f1a3b89f.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.f1a3b89f.min.css">
         
       
     
     
     
-    <script src="//js/jquery-3.5.1.min.js"></script>
-    <script src="//js/jquery.fitvids.js"></script>
+    <script src="../../../js/jquery-3.5.1.min.js"></script>
+    <script src="../../../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-    <script src="//js/config.js"></script>
+    <script src="../../../js/config.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- UML diagrams using Mermaid -->
@@ -87,7 +89,7 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("/",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
       <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
@@ -96,6 +98,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#docker" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -103,7 +110,7 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href="../../.." title="DiffBot Differential Drive Mobile Robot" class="md-header__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -122,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Docker
             
           </span>
         </div>
@@ -215,7 +222,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/." class="md-tabs__link">
+    <a href="../../.." class="md-tabs__link">
       Home
     </a>
   </li>
@@ -227,7 +234,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="/components/" class="md-tabs__link">
+    <a href="../../../components/" class="md-tabs__link">
       Components
     </a>
   </li>
@@ -242,7 +249,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/theory/" class="md-tabs__link">
+      <a href="../../" class="md-tabs__link">
         Robotics Theory
       </a>
     </li>
@@ -258,7 +265,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/theory/motion-and-odometry/" class="md-tabs__link">
+      <a href="../../motion-and-odometry/" class="md-tabs__link">
         Hardware and Theory
       </a>
     </li>
@@ -274,7 +281,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/rpi-setup/" class="md-tabs__link">
+      <a href="../../../rpi-setup/" class="md-tabs__link">
         Processing Units
       </a>
     </li>
@@ -290,7 +297,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/packages/" class="md-tabs__link">
+      <a href="../../../packages/" class="md-tabs__link">
         Packages
       </a>
     </li>
@@ -306,7 +313,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/privacy-policy/" class="md-tabs__link">
+      <a href="../../../privacy-policy/" class="md-tabs__link">
         About
       </a>
     </li>
@@ -333,7 +340,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
+    <a href="../../.." title="DiffBot Differential Drive Mobile Robot" class="md-nav__button md-logo" aria-label="DiffBot Differential Drive Mobile Robot" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -365,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         Home
       </a>
     </li>
@@ -380,7 +387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/components/" class="md-nav__link">
+      <a href="../../../components/" class="md-nav__link">
         Components
       </a>
     </li>
@@ -416,7 +423,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/" class="md-nav__link">
+      <a href="../../" class="md-nav__link">
         Theory behind Robotics
       </a>
     </li>
@@ -449,7 +456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/control-systems-introduction/" class="md-nav__link">
+      <a href="../../modeling-control/control-systems-introduction/" class="md-nav__link">
         Introduction to Control Systems
       </a>
     </li>
@@ -461,7 +468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/robot-representations/" class="md-nav__link">
+      <a href="../../modeling-control/robot-representations/" class="md-nav__link">
         Representations and models
       </a>
     </li>
@@ -473,7 +480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
+      <a href="../../modeling-control/modeling-differential-drive-robot/" class="md-nav__link">
         Modeling a Differential Drive Robot
       </a>
     </li>
@@ -485,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/modeling-control/odometry/" class="md-nav__link">
+      <a href="../../modeling-control/odometry/" class="md-nav__link">
         Odometry
       </a>
     </li>
@@ -524,7 +531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/robot-vision/pinhole-camera-model/" class="md-nav__link">
+      <a href="../../robot-vision/pinhole-camera-model/" class="md-nav__link">
         Pinhole Camera Model
       </a>
     </li>
@@ -542,7 +549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/object-detection/overview.md" class="md-nav__link">
+      <a href="../../object-detection/overview.md" class="md-nav__link">
         Object Detection
       </a>
     </li>
@@ -554,7 +561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/estimatione-localization/overview.md" class="md-nav__link">
+      <a href="../../estimatione-localization/overview.md" class="md-nav__link">
         State Estimation and Localization
       </a>
     </li>
@@ -566,7 +573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning1/overview.md" class="md-nav__link">
+      <a href="../../planning1/overview.md" class="md-nav__link">
         Planning I
       </a>
     </li>
@@ -578,7 +585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/planning2/overview.md" class="md-nav__link">
+      <a href="../../planning2/overview.md" class="md-nav__link">
         Planning II
       </a>
     </li>
@@ -590,7 +597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/reinforcement-learning/overview.md" class="md-nav__link">
+      <a href="../../reinforcement-learning/overview.md" class="md-nav__link">
         Learning by Reinforcement
       </a>
     </li>
@@ -602,7 +609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/imitation-learning/overview.md" class="md-nav__link">
+      <a href="../../imitation-learning/overview.md" class="md-nav__link">
         Learning by Imitation
       </a>
     </li>
@@ -644,7 +651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/theory/motion-and-odometry/" class="md-nav__link">
+      <a href="../../motion-and-odometry/" class="md-nav__link">
         Motion and Odometry
       </a>
     </li>
@@ -656,7 +663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/power-supply/" class="md-nav__link">
+      <a href="../../../power-supply/" class="md-nav__link">
         Power Supply
       </a>
     </li>
@@ -668,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/laser-range-scanner/" class="md-nav__link">
+      <a href="../../../laser-range-scanner/" class="md-nav__link">
         Laser Range Scanner
       </a>
     </li>
@@ -710,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rpi-setup/" class="md-nav__link">
+      <a href="../../../rpi-setup/" class="md-nav__link">
         Raspberry Pi Setup
       </a>
     </li>
@@ -722,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/jetson-nano-setup/" class="md-nav__link">
+      <a href="../../../jetson-nano-setup/" class="md-nav__link">
         Jetson Nano Setup
       </a>
     </li>
@@ -734,7 +741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/git-setup/" class="md-nav__link">
+      <a href="../../../git-setup/" class="md-nav__link">
         Git Setup
       </a>
     </li>
@@ -746,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-setup/" class="md-nav__link">
+      <a href="../../../ros-setup/" class="md-nav__link">
         ROS Setup
       </a>
     </li>
@@ -758,7 +765,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/teensy-mcu/" class="md-nav__link">
+      <a href="../../../teensy-mcu/" class="md-nav__link">
         Teensy MCU
       </a>
     </li>
@@ -770,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hardware-interfaces/" class="md-nav__link">
+      <a href="../../../hardware-interfaces/" class="md-nav__link">
         Hardware Interfaces
       </a>
     </li>
@@ -782,7 +789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ros-network-setup/" class="md-nav__link">
+      <a href="../../../ros-network-setup/" class="md-nav__link">
         ROS Network Setup
       </a>
     </li>
@@ -824,7 +831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/" class="md-nav__link">
+      <a href="../../../packages/" class="md-nav__link">
         Packages
       </a>
     </li>
@@ -836,7 +843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_robot/" class="md-nav__link">
+      <a href="../../../diffbot_robot/" class="md-nav__link">
         Robot Package
       </a>
     </li>
@@ -869,7 +876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/robot-description/" class="md-nav__link">
+      <a href="../../../robot-description/" class="md-nav__link">
         Robot Description
       </a>
     </li>
@@ -881,7 +888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/remo_description/" class="md-nav__link">
+      <a href="../../../packages/remo_description/" class="md-nav__link">
         Remo Description
       </a>
     </li>
@@ -899,7 +906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_gazebo/" class="md-nav__link">
+      <a href="../../../diffbot_gazebo/" class="md-nav__link">
         Simulation
       </a>
     </li>
@@ -911,7 +918,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_control/" class="md-nav__link">
+      <a href="../../../diffbot_control/" class="md-nav__link">
         Control
       </a>
     </li>
@@ -923,7 +930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_base/" class="md-nav__link">
+      <a href="../../../diffbot_base/" class="md-nav__link">
         Base Hardware Interface
       </a>
     </li>
@@ -935,7 +942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_msgs/" class="md-nav__link">
+      <a href="../../../diffbot_msgs/" class="md-nav__link">
         Messages
       </a>
     </li>
@@ -947,7 +954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/grove_motor_driver/" class="md-nav__link">
+      <a href="../../../grove_motor_driver/" class="md-nav__link">
         Motor Driver
       </a>
     </li>
@@ -959,7 +966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/DG01D-E-motor-with-encoder/" class="md-nav__link">
+      <a href="../../../DG01D-E-motor-with-encoder/" class="md-nav__link">
         Motor and Encoder
       </a>
     </li>
@@ -971,7 +978,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_navigation/" class="md-nav__link">
+      <a href="../../../diffbot_navigation/" class="md-nav__link">
         Navigation
       </a>
     </li>
@@ -983,7 +990,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_slam/" class="md-nav__link">
+      <a href="../../../diffbot_slam/" class="md-nav__link">
         SLAM
       </a>
     </li>
@@ -995,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_mbf/" class="md-nav__link">
+      <a href="../../../diffbot_mbf/" class="md-nav__link">
         Move Base Flex
       </a>
     </li>
@@ -1007,7 +1014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/diffbot_bringup/" class="md-nav__link">
+      <a href="../../../diffbot_bringup/" class="md-nav__link">
         Hardware Bringup
       </a>
     </li>
@@ -1019,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/packages/raspicam_node/" class="md-nav__link">
+      <a href="../../../packages/raspicam_node/" class="md-nav__link">
         Rasperry Pi Camera
       </a>
     </li>
@@ -1061,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/privacy-policy/" class="md-nav__link">
+      <a href="../../../privacy-policy/" class="md-nav__link">
         Privacy Policy
       </a>
     </li>
@@ -1073,7 +1080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/legal-notice/" class="md-nav__link">
+      <a href="../../../legal-notice/" class="md-nav__link">
         Legal Notice
       </a>
     </li>
@@ -1093,11 +1100,100 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#docker-containers" class="md-nav__link">
+    Docker Containers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-containerization" class="md-nav__link">
+    Why Containerization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#difference-between-containerization-and-virtual-machines" class="md-nav__link">
+    Difference between Containerization and Virtual Machines
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
-  <h1>404 - Not found</h1>
+
+
+
+                
+                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/architecture/docker.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="docker">Docker</h1>
+<h2 id="docker-containers">Docker Containers</h2>
+<p>A container includes an application and its dependencies. 
+It's goal is to easily ship (deploy) and handle applications.</p>
+<p>Like real world shipping containers, Docker containers wrap up an application in a filesystem containing
+everything the application needs to run:</p>
+<ul>
+<li>source code</li>
+<li>runtime libraries</li>
+<li>system tools</li>
+<li>configruation files</li>
+</ul>
+<p>The result is that a containerzied application will run identically on any host. 
+And there are no incompatibilieties of any kind.</p>
+<h2 id="why-containerization">Why Containerization</h2>
+<p>In the traditional operating systems like Linux Ubuntu a package manager install apps.
+These apps run on shared runtime libraries. Therfore, applications are coupled,
+because they share the same dependencies. This can can lead to <strong>compatibility issues</strong>,
+when, for example, two or more applications requires a different version of the same shared library.</p>
+<p>When using containerization, each application running in a container comes with its own needed set of libraries.
+This way, each application container is isolated and can be updated independently.</p>
+<h2 id="difference-between-containerization-and-virtual-machines">Difference between Containerization and Virtual Machines</h2>
+<p>Containers are different to virtual machines. In a virtual machine environment there
+is a host system that runs a hypervisor (e.g. VMWare). The hypervisor divides the physical 
+hardware resources among the virtual machines. Each virtual machine runs its own operating system.</p>
+<p>The disadvantage of this is that there is a considerable overhead and processes cannot communicate 
+over different virtual machines.</p>
+<p>On the other hand, containerization has minimal overhead and it allow us to deploy multiple applications
+so that they can communicate with each other.</p>
+                
+              
+
+              
+                
+
 
               
             </article>
@@ -1137,11 +1233,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "/", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "/assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
     
     
     
-      <script src="/assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.ddd52ceb.min.js"></script>
       
     
     <script>
