@@ -28,9 +28,10 @@ theme:
 #extra_javascript:
 #  - https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js
 #  - custom_theme/js/config.js
+
+site_url: https://ros-mobile-robots.com/
   
 repo_url: https://github.com/ros-mobile-robots/diffbot
-
 
 edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs
 
@@ -42,6 +43,8 @@ extra:
   analytics:
     provider: google
     property: G-5Z9V7GPRX3
+    
+copyright: Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy.html">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice.html">Legal Notice</a>
 
 markdown_extensions:
   - admonition
