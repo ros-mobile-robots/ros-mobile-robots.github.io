@@ -1267,6 +1267,50 @@ NM_SETTING_WIRELESS_POWERSAVE_ENABLE  (3): enable powersave
 </td></tr></table>
 <p>(Informal source on <a href="https://gist.github.com/jcberthon/ea8cfe278998968ba7c5a95344bc8b55">GitHub</a> for these values.)</p>
 <p>You can check if it is turned off with <code>iwconfig</code>:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>wlan0     IEEE 802.11  ESSID:&quot;wifiname&quot;  
+          Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
+          Bit Rate=433.3 Mb/s   Tx-Power=31 dBm   
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality=70/70  Signal level=-27 dBm  
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:1  Invalid misc:0   Missed beacon:0
+
+lo        no wireless extensions.
+
+wlan1     IEEE 802.11AC  ESSID:&quot;wifiname&quot;  Nickname:&quot;WIFI@RTL8821CU&quot;
+          Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
+          Bit Rate:434 Mb/s   Sensitivity:0/0  
+          Retry:off   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality=64/100  Signal level=-26 dBm  Noise level=0 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+
+eth0      no wireless extensions.
+</code></pre></div>
+</td></tr></table>
+<p>This is the output when there is one external usb WiFi dongle connected to the Raspberry Pi 4 B and no ethernet cable.</p>
 <p>Sources</p>
 <ul>
 <li>https://www.raspberrypi.org/forums/viewtopic.php?t=194619</li>

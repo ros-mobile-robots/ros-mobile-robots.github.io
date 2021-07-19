@@ -61,6 +61,32 @@ NM_SETTING_WIRELESS_POWERSAVE_ENABLE  (3): enable powersave
 
 You can check if it is turned off with `iwconfig`:
 
+```
+wlan0     IEEE 802.11  ESSID:"wifiname"  
+          Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
+          Bit Rate=433.3 Mb/s   Tx-Power=31 dBm   
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality=70/70  Signal level=-27 dBm  
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:1  Invalid misc:0   Missed beacon:0
+
+lo        no wireless extensions.
+
+wlan1     IEEE 802.11AC  ESSID:"wifiname"  Nickname:"WIFI@RTL8821CU"
+          Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
+          Bit Rate:434 Mb/s   Sensitivity:0/0  
+          Retry:off   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality=64/100  Signal level=-26 dBm  Noise level=0 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+
+eth0      no wireless extensions.
+```
+
+This is the output when there is one external usb WiFi dongle connected to the Raspberry Pi 4 B and no ethernet cable.
+
 
 Sources
 
