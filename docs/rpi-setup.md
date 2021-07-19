@@ -32,6 +32,41 @@ So far there are no known issues using WiFi with Ubuntu Mate 20.04 arm64 on the 
 This can be changed by editing the value of `REGDOMAIN` in the file `/etc/default/crda` ([Central Regulatory Domain Agent](https://wireless.wiki.kernel.org/en/developers/regulatory/crda)) to the code for your country [ref](https://github.com/TheRemote/Ubuntu-Server-raspi4-unofficial/issues/98).
 </details>
 
+There might be some wifi issues where the connection is lost after some time. This might be a firmware issue reported [here](https://github.com/raspberrypi/linux/issues/3849).
+Although the wifi power save management is turned off by default, make sure to also do this for external wifi usb dongles by editing the following file
+
+```
+sudo vim /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
+```
+
+It contains:
+
+```
+[connection]
+wifi.powersave = 3
+```
+
+Set this to `2`. 
+
+Possible values for the `wifi.powersave` field are:
+
+```
+NM_SETTING_WIRELESS_POWERSAVE_DEFAULT (0): use the default value
+NM_SETTING_WIRELESS_POWERSAVE_IGNORE  (1): don't touch existing setting
+NM_SETTING_WIRELESS_POWERSAVE_DISABLE (2): disable powersave
+NM_SETTING_WIRELESS_POWERSAVE_ENABLE  (3): enable powersave
+```
+
+(Informal source on [GitHub](https://gist.github.com/jcberthon/ea8cfe278998968ba7c5a95344bc8b55) for these values.)
+
+You can check if it is turned off with `iwconfig`:
+
+
+Sources
+
+- https://www.raspberrypi.org/forums/viewtopic.php?t=194619
+- https://unix.stackexchange.com/a/315400/50268
+- https://github.com/raspberrypi/linux/issues/3849
 
 
 ## Prepare Ubuntu
