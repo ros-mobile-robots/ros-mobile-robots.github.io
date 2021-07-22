@@ -47,11 +47,12 @@ extra:
 copyright: Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy.html">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice.html">Legal Notice</a>
 
 markdown_extensions:
-  - admonition
-  - pymdownx.details
   - abbr
+  - admonition
   - extra
   - footnotes
+  - meta
+  - pymdownx.details
   - pymdownx.snippets
   - pymdownx.keys
   - pymdownx.highlight:
@@ -118,6 +119,3 @@ nav:
     - Move Base Flex: diffbot_mbf.md
     - Hardware Bringup: diffbot_bringup.md
     - Rasperry Pi Camera: packages/raspicam_node.md
-  - About:
-    - Privacy Policy: privacy-policy.md
-    - Legal Notice: legal-notice.md
