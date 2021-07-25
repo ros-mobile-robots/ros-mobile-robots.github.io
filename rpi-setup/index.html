@@ -1278,8 +1278,14 @@ shoud output something similar to:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>RTL8821cu   USB     0bda:c811   Realtek     WEP WPA WPA2
 </code></pre></div>
 </td></tr></table>
-<p>For it the instructions <code>https://github.com/brektrou/rtl8821CU</code> repository can be used to install the driver.
-After cloning this package, the Makefile needs to be adapted to work for the Raspberry Pi 4B:</p>
+<p>For it the instructions in the <a href="https://github.com/brektrou/rtl8821CU"><code>https://github.com/brektrou/rtl8821CU</code></a> repository can be used to install the driver.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>These instructions are specifically for the Realtek (id c811) USB wifi dongle. In case you use another USB dongle it might work directly or there exists
+a ubuntu package. In general try to use Google for instructions on how to install. 
+The following is only an example on what might be needed to get the driver  working.</p>
+</div>
+<p>After cloning this package, the Makefile needs to be adapted to work for the Raspberry Pi 4B:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -1306,9 +1312,10 @@ sudo make
 <p>After a reboot the USB Wifi dongle should be detected and two wifi adapters should show up - the internal wifi module on the RPi and the USB dongle.</p>
 <p>Sources</p>
 <ul>
-<li>https://www.raspberrypi.org/forums/viewtopic.php?t=194619</li>
-<li>https://unix.stackexchange.com/a/315400/50268</li>
-<li>https://github.com/raspberrypi/linux/issues/3849</li>
+<li><a href="https://www.raspberrypi.org/forums/viewtopic.php?t=194619">Disable power management in Stretch</a></li>
+<li><a href="https://unix.stackexchange.com/a/315400/50268">How to turn off Wireless power management permanently</a></li>
+<li><a href="https://github.com/raspberrypi/linux/issues/3849">RPi4: WiFi client crashes often (brcmf_fw_crashed: Firmware has halted or crashed)</a></li>
+<li><a href="https://wiki.ubuntuusers.de/WLAN/Karten/Realtek/">WLAN Karten Realtek (german)</a></li>
 </ul>
 <h2 id="prepare-ubuntu">Prepare Ubuntu</h2>
 <p>After flashing the image to the sd card insert it to the Pi, hook it up to a monitor via HDMI and power it up by pluggin in the USB-C connector.
