@@ -1,3 +1,10 @@
+---
+title: Autonomous Differential Drive Mobile Robot - Base Package
+description: "ROS Base Package for ROS Noetic running on a Raspberry Pi 4 for an autonomous 2WD Robot to act in an environment according to sensor information."
+categories: [robotics]
+tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, ubuntu, focal, package, gazebo, simulation, hardware_interfacem, hardware, interface, ros-control, control, controllers, diff_drive_controller]
+---
+
 ## DiffBot Base Package
 
 This package contains the so called hardware interface of DiffBot which represents the real hardware in software to work with 
@@ -371,6 +378,21 @@ Then, place the robot on one end oriented in the direction to the other end. Now
 and stop it when it reaches the end of the tape. Record the lateral displacement from the tape. 
 Measuring a value below 10 cm is considered precise for these motors.
 
+
+### CMakeLists.txt
+
+The `diffbot_hw_interface` target library of the `diffbot_base` package depends on the custom `diffbot_msgs`.
+To have them built first, add the following to the `CMakeLists.txt` of the `diffbot_base` package:
+
+```
+add_dependencies(diffbot_hw_interface diffbot_msgs_generate_messages_cpp)
+```
+
+!!! note 
+    This makes sure message headers of this package are generated before being used. 
+    If you use messages from other packages inside your catkin workspace, 
+    you need to add dependencies to their respective generation targets as well, because catkin builds all projects in parallel.[^pubsubtut]
+
 ### Launch File
 
 To run a single controller_manager, the one from the `diffbot_base` package defined inside `difbot_base.cpp` use the 
@@ -472,7 +494,7 @@ $ roslaunch diffbot_gazebo diffbot_base.launch
 This will launch the gazebo simulation, which can make use of the running controllers inside the controller manager too:
 
 <figure>
-    <a href="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_gazebo.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_gazebo.png"></a>
+    <a href="{{ asset_dir }}/ros_control_gazebo.png"><img src="{{ asset_dir }}/ros_control_gazebo.png"></a>
     <figcaption><a href="http://gazebosim.org/tutorials/?tut=ros_control" title="ROS Control with Gazebo">ROS Control with Gazebo</a> Overview.</figcaption>
 </figure>
 
@@ -480,3 +502,8 @@ This will launch the gazebo simulation, which can make use of the running contro
 After launching the Gazebo simulation the controllers got uninitialized.
 (It is assumed that the [`gazebo_ros_control`](https://github.com/ros-simulation/gazebo_ros_pkgs/tree/kinetic-devel/gazebo_ros_control) plugin that gets launched). Because of this the controllers have to be initialized and started again. For this the [`diffbot_base/launch/controllers.launch`](https://github.com/fjp/diffbot/blob/master/ros/src/diffbot_base/launch/controllers.launch) should be used.
 This launch file is just loading and starting all controllers again. Note that using the `spawner` from the `controller_manager` package, like in the `diffbot_base/launch/diffbot.launch` results in an error. (TODO this needs some more testing).
+
+
+## References
+
+[^pubsubtut]: [ROS Tutorials: Writing Publisher Subscriber, Building your nodes](http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29#roscpp_tutorials.2FTutorials.2FWritingPublisherSubscriber.Building_your_nodes) 
