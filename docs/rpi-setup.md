@@ -108,7 +108,13 @@ With the `idVendor=0bda` and `idProduct=c811` you can search for the correct dri
 RTL8821cu 	USB 	0bda:c811 	Realtek 	WEP WPA WPA2
 ```
 
-For it the instructions `https://github.com/brektrou/rtl8821CU` repository can be used to install the driver.
+For it the instructions in the [`https://github.com/brektrou/rtl8821CU`](https://github.com/brektrou/rtl8821CU) repository can be used to install the driver.
+
+!!! warning
+    These instructions are specifically for the Realtek (id c811) USB wifi dongle. In case you use another USB dongle it might work directly or there exists
+    a ubuntu package. In general try to use Google for instructions on how to install. 
+    The following is only an example on what might be needed to get the driver  working.
+
 After cloning this package, the Makefile needs to be adapted to work for the Raspberry Pi 4B:
 
 ```
@@ -137,9 +143,10 @@ After a reboot the USB Wifi dongle should be detected and two wifi adapters shou
 
 Sources
 
-- https://www.raspberrypi.org/forums/viewtopic.php?t=194619
-- https://unix.stackexchange.com/a/315400/50268
-- https://github.com/raspberrypi/linux/issues/3849
+- [Disable power management in Stretch](https://www.raspberrypi.org/forums/viewtopic.php?t=194619)
+- [How to turn off Wireless power management permanently](https://unix.stackexchange.com/a/315400/50268)
+- [RPi4: WiFi client crashes often (brcmf_fw_crashed: Firmware has halted or crashed)](https://github.com/raspberrypi/linux/issues/3849)
+- [WLAN Karten Realtek (german)](https://wiki.ubuntuusers.de/WLAN/Karten/Realtek/)
 
 
 ## Prepare Ubuntu
