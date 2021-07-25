@@ -46,7 +46,7 @@ It contains:
 wifi.powersave = 3
 ```
 
-Set this to `2`. 
+Set this to `2` to turn power management off. 
 
 Possible values for the `wifi.powersave` field are:
 
@@ -87,6 +87,53 @@ eth0      no wireless extensions.
 
 This is the output when there is one external usb WiFi dongle connected to the Raspberry Pi 4 B and no ethernet cable.
 
+
+## Instructions to install Wifi drivers
+
+In case you use a Realtek USB Wifi dongle it might not be directly supported by the linux kernel.
+To install the correct driver, you first have to figure out the driver id. When plugging in the USB Wifi dongle and running `dmesg` afterwards
+shoud output something similar to:
+
+```
+[ 1430.931258] usb 1-1.3: new high-speed USB device number 13 using xhci_hcd
+[ 1431.031913] usb 1-1.3: New USB device found, idVendor=0bda, idProduct=c811, bcdDevice= 2.00
+[ 1431.031925] usb 1-1.3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+[ 1431.031932] usb 1-1.3: Product: 802.11ac NIC
+[ 1431.031939] usb 1-1.3: Manufacturer: Realtek
+```
+
+With the `idVendor=0bda` and `idProduct=c811` you can search for the correct driver. In this case it is the
+
+```
+RTL8821cu 	USB 	0bda:c811 	Realtek 	WEP WPA WPA2
+```
+
+For it the instructions `https://github.com/brektrou/rtl8821CU` repository can be used to install the driver.
+After cloning this package, the Makefile needs to be adapted to work for the Raspberry Pi 4B:
+
+```
+###################### Platform Related #######################
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = n
+CONFIG_PLATFORM_ARM64_RPI = y
+```
+
+Then follow the instructions from the README.md:
+
+```
+# For AArch64
+sudo cp /lib/modules/$(uname -r)/build/arch/arm64/Makefile /lib/modules/$(uname -r)/build/arch/arm64/Makefile.$(date +%Y%m%d%H%M)
+sudo sed -i 's/-mgeneral-regs-only//' /lib/modules/$(uname -r)/build/arch/arm64/Makefile
+```
+
+and finally make and install the driver:
+
+```
+make
+sudo make
+```
+
+After a reboot the USB Wifi dongle should be detected and two wifi adapters should show up - the internal wifi module on the RPi and the USB dongle.
 
 Sources
 
