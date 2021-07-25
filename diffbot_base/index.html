@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="ROS Base Package for ROS Noetic running on a Raspberry Pi 4 for an autonomous 2WD Robot to act in an environment according to sensor information.">
+      
       
       
       
@@ -16,7 +18,7 @@
     
     
       
-        <title>Base Hardware Interface - DiffBot Differential Drive Mobile Robot</title>
+        <title>Autonomous Differential Drive Mobile Robot - Base Package - DiffBot Differential Drive Mobile Robot</title>
       
     
     
@@ -129,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Base Hardware Interface
+              Autonomous Differential Drive Mobile Robot - Base Package
             
           </span>
         </div>
@@ -986,6 +988,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cmakeliststxt" class="md-nav__link">
+    CMakeLists.txt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#launch-file" class="md-nav__link">
     Launch File
   </a>
@@ -1007,6 +1016,13 @@
         <li class="md-nav__item">
   <a href="#simulation" class="md-nav__link">
     Simulation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
   </a>
   
 </li>
@@ -1180,6 +1196,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cmakeliststxt" class="md-nav__link">
+    CMakeLists.txt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#launch-file" class="md-nav__link">
     Launch File
   </a>
@@ -1201,6 +1224,13 @@
         <li class="md-nav__item">
   <a href="#simulation" class="md-nav__link">
     Simulation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
   </a>
   
 </li>
@@ -1231,7 +1261,7 @@
 <p>This package contains the so called hardware interface of DiffBot which represents the real hardware in software to work with 
 <a href="http://wiki.ros.org/ros_control">ROS Control</a>. </p>
 <figure>
-    <a href="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_overview.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_overview.png"></a>
+    <a href="/resources/ros_control_overview.png"><img src="/resources/ros_control_overview.png"></a>
     <figcaption><a href="http://wiki.ros.org/ros_control#Overview" title="ROS Control">ROS Control</a> Overview.</figcaption>
 </figure>
 
@@ -1822,6 +1852,18 @@ Another problem of not driving straight can be weight distribution or the orient
 Then, place the robot on one end oriented in the direction to the other end. Now command it to move straight along the line
 and stop it when it reaches the end of the tape. Record the lateral displacement from the tape. 
 Measuring a value below 10 cm is considered precise for these motors.</p>
+<h3 id="cmakeliststxt">CMakeLists.txt</h3>
+<p>The <code>diffbot_hw_interface</code> target library of the <code>diffbot_base</code> package depends on the custom <code>diffbot_msgs</code>.
+To have them built first, add the following to the <code>CMakeLists.txt</code> of the <code>diffbot_base</code> package:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>add_dependencies(diffbot_hw_interface diffbot_msgs_generate_messages_cpp)
+</code></pre></div>
+</td></tr></table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This makes sure message headers of this package are generated before being used. 
+If you use messages from other packages inside your catkin workspace, 
+you need to add dependencies to their respective generation targets as well, because catkin builds all projects in parallel.<sup id="fnref:pubsubtut"><a class="footnote-ref" href="#fn:pubsubtut">1</a></sup></p>
+</div>
 <h3 id="launch-file">Launch File</h3>
 <p>To run a single controller_manager, the one from the <code>diffbot_base</code> package defined inside <code>difbot_base.cpp</code> use the 
 launch file from <a href="https://github.com/fjp/diffbot/blob/master/ros/src/diffbot_base/launch/diffbot.launch"><code>diffbot_base/launch/diffbot.launch</code></a>:</p>
@@ -1920,13 +1962,24 @@ another launch will be required to run these additional nodes. See the <code>dif
 </td></tr></table>
 <p>This will launch the gazebo simulation, which can make use of the running controllers inside the controller manager too:</p>
 <figure>
-    <a href="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_gazebo.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/master/docs/resources/ros_control_gazebo.png"></a>
+    <a href="/resources/ros_control_gazebo.png"><img src="/resources/ros_control_gazebo.png"></a>
     <figcaption><a href="http://gazebosim.org/tutorials/?tut=ros_control" title="ROS Control with Gazebo">ROS Control with Gazebo</a> Overview.</figcaption>
 </figure>
 
 <p>After launching the Gazebo simulation the controllers got uninitialized.
 (It is assumed that the <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/tree/kinetic-devel/gazebo_ros_control"><code>gazebo_ros_control</code></a> plugin that gets launched). Because of this the controllers have to be initialized and started again. For this the <a href="https://github.com/fjp/diffbot/blob/master/ros/src/diffbot_base/launch/controllers.launch"><code>diffbot_base/launch/controllers.launch</code></a> should be used.
 This launch file is just loading and starting all controllers again. Note that using the <code>spawner</code> from the <code>controller_manager</code> package, like in the <code>diffbot_base/launch/diffbot.launch</code> results in an error. (TODO this needs some more testing).</p>
+<h2 id="references">References</h2>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:pubsubtut">
+<p><a href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29#roscpp_tutorials.2FTutorials.2FWritingPublisherSubscriber.Building_your_nodes">ROS Tutorials: Writing Publisher Subscriber, Building your nodes</a>&#160;<a class="footnote-backref" href="#fnref:pubsubtut" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+                
+                  
                 
               
 
