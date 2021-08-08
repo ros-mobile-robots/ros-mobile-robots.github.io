@@ -14,7 +14,7 @@
         <link rel="canonical" href="https://ros-mobile-robots.com/diffbot_base/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.0">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.2">
     
     
       
@@ -22,7 +22,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.fe914879.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.1118c9be.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ba0d045b.min.css">
@@ -1270,8 +1270,9 @@ file. The launch file will </p>
 <ul>
 <li>Load the robot description from <code>diffbot_description</code> to the paramter server</li>
 <li>Run the hardware interface of this package <code>diffbot_base</code></li>
-<li>Load the controller configuration yaml from the <code>diffbot_control</code> package to the parameter server</li>
+<li>Load the controller configuration yaml from the <code>diffbot_control</code> package to the <a href="http://wiki.ros.org/Parameter%20Server">parameter server</a></li>
 <li>Load the controllers with the <a href="http://wiki.ros.org/controller_manager?distro=noetic">controller manager</a></li>
+<li>Load the value of the encoder resolution to the parameter server</li>
 </ul>
 <h3 id="diffbot_base-package">diffbot_base Package</h3>
 <p>The <code>diffbot_base</code> package is created with <code>catkin-tools</code>:</p>
@@ -1666,8 +1667,9 @@ the robot's description from the ROS parameter server:</p>
 </td></tr></table>
 <p>The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
 and to command it. When the controller manager runs, the controllers will read from the pos, vel and eff variables of the custom robot hardware interface, and the controller will write the desired command into the cmd variable. It's mandatory to make sure the pos, vel and eff variables always have the latest joint state available, and to make sure that whatever is written into the cmd variable gets executed by the robot. This can be done by implementing hardware_interface::RobotHW::read() and a hardware_interface::RobotHW::write() methods.</p>
-<p>The main node that will be executed uses the <code>controller_manager</code> to operate the so called control loop. In the case of  DiffBot a simple example looks like 
-the following, refer to the <a href="https://github.com/fjp/diffbot/blob/master/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base.cpp</code></a> for the complete implementation:</p>
+<p>The main node that will be executed uses the <code>controller_manager</code> to operate the so called control loop. 
+In the case of  DiffBot a simple example looks like the following, 
+refer to the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base.cpp</code></a> for the complete implementation:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -1883,7 +1885,11 @@ launch file from <a href="https://github.com/fjp/diffbot/blob/master/ros/src/dif
 <span class="normal">14</span>
 <span class="normal">15</span>
 <span class="normal">16</span>
-<span class="normal">17</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="c">&lt;!-- https://github.com/ros-controls/ros_controllers/tree/kinetic-devel/diff_drive_controller/test --&gt;</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="c">&lt;!-- https://github.com/ros-controls/ros_controllers/tree/kinetic-devel/diff_drive_controller/test --&gt;</span>
 <span class="nt">&lt;launch&gt;</span>
     <span class="c">&lt;!-- Load DiffBot model --&gt;</span>
     <span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">&quot;robot_description&quot;</span>
@@ -1895,6 +1901,10 @@ launch file from <a href="https://github.com/fjp/diffbot/blob/master/ros/src/dif
     <span class="nt">&lt;rosparam</span> <span class="na">command=</span><span class="s">&quot;load&quot;</span> 
               <span class="na">file=</span><span class="s">&quot;$(find diffbot_control)/config/diffbot_control.yaml&quot;</span><span class="nt">/&gt;</span>
 
+    <span class="c">&lt;!-- Load base config to the parameter server --&gt;</span>
+    <span class="nt">&lt;rosparam</span> <span class="na">command=</span><span class="s">&quot;load&quot;</span> 
+              <span class="na">file=</span><span class="s">&quot;$(find diffbot_base)/config/base.yaml&quot;</span><span class="nt">/&gt;</span>
+
     <span class="c">&lt;!-- Load the controllers --&gt;</span>
     <span class="nt">&lt;node</span> <span class="na">name=</span><span class="s">&quot;controller_spawner&quot;</span> <span class="na">pkg=</span><span class="s">&quot;controller_manager&quot;</span> <span class="na">type=</span><span class="s">&quot;spawner&quot;</span> <span class="na">respawn=</span><span class="s">&quot;false&quot;</span>
         <span class="na">output=</span><span class="s">&quot;screen&quot;</span> <span class="na">ns=</span><span class="s">&quot;diffbot&quot;</span> <span class="na">args=</span><span class="s">&quot;joint_state_controller</span>
@@ -1902,11 +1912,38 @@ launch file from <a href="https://github.com/fjp/diffbot/blob/master/ros/src/dif
 <span class="nt">&lt;/launch&gt;</span>
 </code></pre></div>
 </td></tr></table>
-<p>This will load the DiffBot robot description onto the parameter server which is required  for the hardware interface that gets created inside the next
+<p>This will load the DiffBot robot description onto the parameter server which is required for the hardware interface that gets created inside the next
 node <code>diffbot_base</code>. It creates the hardware interface and instantiates a new controller manager in the <code>diffbot_base.cpp</code>.
-Finally the <code>spawner</code> from the <code>controller_manager</code> package is used to initialize and start the controllers defined in the <code>diffbot_control/config/diffbot_control.yaml</code>. The last step in this launch file is required to get the controllers initialized and started.
+Finally the <code>spawner</code> from the <code>controller_manager</code> package is used to initialize and start the controllers defined in the <code>diffbot_control/config/diffbot_control.yaml</code>. This step of the launch file is required to get the controllers initialized and started.
 Another way would be to use <code>controller_manager::ControllerManager::loadControllers()</code> inside the <code>diffbot_base.cpp</code>.</p>
-<p>After launching this launch file on DiffBot (Raspberry Pi) with </p>
+<p>Additionally the launch file loads additional parameters, stored in the <code>diffbot_base/config/base.yaml</code> on the parameter server.
+These parameters are hardware related and used to tune the driving behaviour:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code># Hardware related parameters
+# will be loaded onto the parameter server
+# See the diffbot.launch
+diffbot:
+  encoder_resolution: 542
+  gain: 1.0
+  trim: 0.0
+  motor_constant: 27.0
+  pwm_limit: 1.0
+  debug:
+    hardware_interface: false
+    base_controller: true
+</code></pre></div>
+</td></tr></table>
+<p>After launching this launch file on DiffBot's single board computer (e.g. Raspberry Pi or Jetson Nano) with </p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch diffbot_base diffbot.launch</span>
 </code></pre></div>
 </td></tr></table>
@@ -2060,11 +2097,11 @@ This launch file is just loading and starting all controllers again. Note that u
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.53c85856.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.709b4209.min.js", "version": null}</script>
     
     
     
-      <script src="../assets/javascripts/bundle.716f8af4.min.js"></script>
+      <script src="../assets/javascripts/bundle.2b46852b.min.js"></script>
       
     
     <script>
