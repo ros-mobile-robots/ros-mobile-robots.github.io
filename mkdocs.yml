@@ -44,7 +44,7 @@ extra:
     provider: google
     property: G-5Z9V7GPRX3
     
-copyright: Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy.html">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice.html">Legal Notice</a>
+copyright: Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a>
 
 markdown_extensions:
   - abbr
