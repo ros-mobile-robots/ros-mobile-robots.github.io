@@ -1,3 +1,11 @@
+---
+title: Components of an Autonomous Differential Drive Mobile Robot
+permalink: /projects/diffbot/components/
+excerpt: "The required components of an autonomous differential drive equipped to satisfy the requirements of the ROS Navigation Stack."
+categories: [robotics]
+tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, sensors, components]
+---
+
 Part list and assembly of the robot platform and the components.
 
 | Category     | Hardware          | Part Number                                       | Data Sheet & Info       |
