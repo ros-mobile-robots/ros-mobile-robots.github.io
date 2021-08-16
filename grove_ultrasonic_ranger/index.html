@@ -1506,17 +1506,17 @@ range: <span class="m">1</span>.67693090439
 <span class="normal"> 8</span>
 <span class="normal"> 9</span>
 <span class="normal">10</span>
-<span class="normal">11</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">if</span><span class="p">(</span><span class="n">minimum_range</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&amp;&amp;</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">maximum_range</span><span class="p">){</span>  <span class="c1">// Represents expected pre-REP logic and is the only necessary condition for most applications.</span>
-    <span class="c1">// This is a valid measurement.</span>
-<span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="o">!</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
-    <span class="c1">// Object too close to measure.</span>
-<span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="o">!</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
-    <span class="c1">// No objects detected in range.</span>
-<span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">){</span>
-    <span class="c1">// This is an erroneous, invalid, or missing measurement.</span>
-<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="c1">// The sensor reported these measurements as valid, but they are discarded per the limits defined by minimum_range and maximum_range.</span>
-<span class="p">}</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">if</span><span class="p">(</span><span class="n">minimum_range</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">maximum_range</span><span class="p">){</span><span class="w">  </span><span class="c1">// Represents expected pre-REP logic and is the only necessary condition for most applications.</span>
+<span class="w">    </span><span class="c1">// This is a valid measurement.</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Object too close to measure.</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// No objects detected in range.</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// This is an erroneous, invalid, or missing measurement.</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// The sensor reported these measurements as valid, but they are discarded per the limits defined by minimum_range and maximum_range.</span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </td></tr></table>
                 

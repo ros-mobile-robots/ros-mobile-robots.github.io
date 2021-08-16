@@ -1500,169 +1500,169 @@ the robot's description from the ROS parameter server:</p>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
-<span class="normal">163</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">namespace</span> <span class="nn">diffbot_base</span>
-<span class="p">{</span>
-    <span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">DiffBotHWInterface</span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="o">&amp;</span><span class="n">nh</span><span class="p">,</span> <span class="n">urdf</span><span class="o">::</span><span class="n">Model</span> <span class="o">*</span><span class="n">urdf_model</span><span class="p">)</span>
-        <span class="o">:</span> <span class="n">name_</span><span class="p">(</span><span class="s">&quot;hardware_interface&quot;</span><span class="p">)</span>
-        <span class="p">,</span> <span class="n">nh_</span><span class="p">(</span><span class="n">nh</span><span class="p">)</span>
-    <span class="p">{</span> 
-        <span class="c1">// Initialization of the robot&#39;s resources (joints, sensors, actuators) and</span>
-        <span class="c1">// interfaces can be done here or inside init().</span>
-        <span class="c1">// E.g. parse the URDF for joint names &amp; interfaces, then initialize them</span>
-        <span class="c1">// Check if the URDF model needs to be loaded</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">urdf_model</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
-            <span class="n">loadURDF</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span> <span class="s">&quot;robot_description&quot;</span><span class="p">);</span>
-        <span class="k">else</span>
-            <span class="n">urdf_model_</span> <span class="o">=</span> <span class="n">urdf_model</span><span class="p">;</span>
+<span class="normal">163</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">diffbot_base</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">DiffBotHWInterface</span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nh</span><span class="p">,</span><span class="w"> </span><span class="n">urdf</span><span class="o">::</span><span class="n">Model</span><span class="w"> </span><span class="o">*</span><span class="n">urdf_model</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">name_</span><span class="p">(</span><span class="s">&quot;hardware_interface&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="p">,</span><span class="w"> </span><span class="n">nh_</span><span class="p">(</span><span class="n">nh</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span>
+<span class="w">        </span><span class="c1">// Initialization of the robot&#39;s resources (joints, sensors, actuators) and</span>
+<span class="w">        </span><span class="c1">// interfaces can be done here or inside init().</span>
+<span class="w">        </span><span class="c1">// E.g. parse the URDF for joint names &amp; interfaces, then initialize them</span>
+<span class="w">        </span><span class="c1">// Check if the URDF model needs to be loaded</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">urdf_model</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">loadURDF</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;robot_description&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">            </span><span class="n">urdf_model_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">urdf_model</span><span class="p">;</span><span class="w"></span>
 
-        <span class="c1">// Load rosparams</span>
-        <span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="nf">rpnh</span><span class="p">(</span><span class="n">nh_</span><span class="p">,</span> <span class="n">name_</span><span class="p">);</span>
-        <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="c1">// Code API of rosparam_shortcuts:</span>
-        <span class="c1">// http://docs.ros.org/en/noetic/api/rosparam_shortcuts/html/namespacerosparam__shortcuts.html#aa6536fe0130903960b1de4872df68d5d</span>
-        <span class="n">error</span> <span class="o">+=</span> <span class="o">!</span><span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span> <span class="n">rpnh</span><span class="p">,</span> <span class="s">&quot;joints&quot;</span><span class="p">,</span> <span class="n">joint_names_</span><span class="p">);</span>
-        <span class="n">error</span> <span class="o">+=</span> <span class="o">!</span><span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span> <span class="n">nh_</span><span class="p">,</span> <span class="s">&quot;mobile_base_controller/wheel_radius&quot;</span><span class="p">,</span> <span class="n">wheel_radius_</span><span class="p">);</span>
-        <span class="n">error</span> <span class="o">+=</span> <span class="o">!</span><span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span> <span class="n">nh_</span><span class="p">,</span> <span class="s">&quot;mobile_base_controller/linear/x/max_velocity&quot;</span><span class="p">,</span> <span class="n">max_velocity_</span><span class="p">);</span>
-        <span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">shutdownIfError</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Load rosparams</span>
+<span class="w">        </span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="nf">rpnh</span><span class="p">(</span><span class="n">nh_</span><span class="p">,</span><span class="w"> </span><span class="n">name_</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Code API of rosparam_shortcuts:</span>
+<span class="w">        </span><span class="c1">// http://docs.ros.org/en/noetic/api/rosparam_shortcuts/html/namespacerosparam__shortcuts.html#aa6536fe0130903960b1de4872df68d5d</span>
+<span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="o">!</span><span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span><span class="w"> </span><span class="n">rpnh</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;joints&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">joint_names_</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="o">!</span><span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span><span class="w"> </span><span class="n">nh_</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mobile_base_controller/wheel_radius&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">wheel_radius_</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="o">!</span><span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span><span class="w"> </span><span class="n">nh_</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mobile_base_controller/linear/x/max_velocity&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">max_velocity_</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">rosparam_shortcuts</span><span class="o">::</span><span class="n">shutdownIfError</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">);</span><span class="w"></span>
 
-        <span class="n">wheel_diameter_</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">wheel_radius_</span><span class="p">;</span>
-        <span class="c1">//max_velocity_ = 0.2; // m/s</span>
-        <span class="c1">// ros_control RobotHW needs velocity in rad/s but in the config its given in m/s</span>
-        <span class="n">max_velocity_</span> <span class="o">=</span> <span class="n">linearToAngular</span><span class="p">(</span><span class="n">max_velocity_</span><span class="p">);</span>
+<span class="w">        </span><span class="n">wheel_diameter_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">wheel_radius_</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="c1">//max_velocity_ = 0.2; // m/s</span>
+<span class="w">        </span><span class="c1">// ros_control RobotHW needs velocity in rad/s but in the config its given in m/s</span>
+<span class="w">        </span><span class="n">max_velocity_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linearToAngular</span><span class="p">(</span><span class="n">max_velocity_</span><span class="p">);</span><span class="w"></span>
 
-        <span class="c1">// Setup publisher for the motor driver </span>
-        <span class="n">pub_left_motor_value_</span> <span class="o">=</span> <span class="n">nh_</span><span class="p">.</span><span class="n">advertise</span><span class="o">&lt;</span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;motor_left&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-        <span class="n">pub_right_motor_value_</span> <span class="o">=</span> <span class="n">nh_</span><span class="p">.</span><span class="n">advertise</span><span class="o">&lt;</span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;motor_right&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Setup publisher for the motor driver </span>
+<span class="w">        </span><span class="n">pub_left_motor_value_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nh_</span><span class="p">.</span><span class="n">advertise</span><span class="o">&lt;</span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;motor_left&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">pub_right_motor_value_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nh_</span><span class="p">.</span><span class="n">advertise</span><span class="o">&lt;</span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;motor_right&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-        <span class="c1">// Setup subscriber for the wheel encoders</span>
-        <span class="n">sub_left_encoder_ticks_</span> <span class="o">=</span> <span class="n">nh_</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;ticks_left&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">leftEncoderTicksCallback</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
-        <span class="n">sub_right_encoder_ticks_</span> <span class="o">=</span> <span class="n">nh_</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;ticks_right&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">rightEncoderTicksCallback</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Setup subscriber for the wheel encoders</span>
+<span class="w">        </span><span class="n">sub_left_encoder_ticks_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nh_</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;ticks_left&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">leftEncoderTicksCallback</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">sub_right_encoder_ticks_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nh_</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;ticks_right&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">rightEncoderTicksCallback</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span><span class="w"></span>
 
-        <span class="c1">// Initialize the hardware interface</span>
-        <span class="n">init</span><span class="p">(</span><span class="n">nh_</span><span class="p">,</span> <span class="n">nh_</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">        </span><span class="c1">// Initialize the hardware interface</span>
+<span class="w">        </span><span class="n">init</span><span class="p">(</span><span class="n">nh_</span><span class="p">,</span><span class="w"> </span><span class="n">nh_</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
 
-    <span class="kt">bool</span> <span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">init</span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="o">&amp;</span><span class="n">root_nh</span><span class="p">,</span> <span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="o">&amp;</span><span class="n">robot_hw_nh</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">ROS_INFO</span><span class="p">(</span><span class="s">&quot;Initializing DiffBot Hardware Interface ...&quot;</span><span class="p">);</span>
-        <span class="n">num_joints_</span> <span class="o">=</span> <span class="n">joint_names_</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
-        <span class="n">ROS_INFO</span><span class="p">(</span><span class="s">&quot;Number of joints: %d&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">num_joints_</span><span class="p">);</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">NUM_JOINTS</span><span class="o">&gt;</span> <span class="n">motor_names</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;left_motor&quot;</span><span class="p">,</span> <span class="s">&quot;right_motor&quot;</span><span class="p">};</span>
-        <span class="k">for</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_joints_</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
-        <span class="p">{</span>
-            <span class="c1">// Create a JointStateHandle for each joint and register them with the </span>
-            <span class="c1">// JointStateInterface.</span>
-            <span class="n">hardware_interface</span><span class="o">::</span><span class="n">JointStateHandle</span> <span class="nf">joint_state_handle</span><span class="p">(</span><span class="n">joint_names_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                                                                    <span class="o">&amp;</span><span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> 
-                                                                    <span class="o">&amp;</span><span class="n">joint_velocities_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                                                                    <span class="o">&amp;</span><span class="n">joint_efforts_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-            <span class="n">joint_state_interface_</span><span class="p">.</span><span class="n">registerHandle</span><span class="p">(</span><span class="n">joint_state_handle</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">init</span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="o">&amp;</span><span class="n">root_nh</span><span class="p">,</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="o">&amp;</span><span class="n">robot_hw_nh</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">ROS_INFO</span><span class="p">(</span><span class="s">&quot;Initializing DiffBot Hardware Interface ...&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">num_joints_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">joint_names_</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="n">ROS_INFO</span><span class="p">(</span><span class="s">&quot;Number of joints: %d&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">num_joints_</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_JOINTS</span><span class="o">&gt;</span><span class="w"> </span><span class="n">motor_names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;left_motor&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;right_motor&quot;</span><span class="p">};</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_joints_</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// Create a JointStateHandle for each joint and register them with the </span>
+<span class="w">            </span><span class="c1">// JointStateInterface.</span>
+<span class="w">            </span><span class="n">hardware_interface</span><span class="o">::</span><span class="n">JointStateHandle</span><span class="w"> </span><span class="nf">joint_state_handle</span><span class="p">(</span><span class="n">joint_names_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"></span>
+<span class="w">                                                                    </span><span class="o">&amp;</span><span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span>
+<span class="w">                                                                    </span><span class="o">&amp;</span><span class="n">joint_velocities_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"></span>
+<span class="w">                                                                    </span><span class="o">&amp;</span><span class="n">joint_efforts_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">            </span><span class="n">joint_state_interface_</span><span class="p">.</span><span class="n">registerHandle</span><span class="p">(</span><span class="n">joint_state_handle</span><span class="p">);</span><span class="w"></span>
 
-            <span class="c1">// Create a JointHandle (read and write) for each controllable joint</span>
-            <span class="c1">// using the read-only joint handles within the JointStateInterface and </span>
-            <span class="c1">// register them with the JointVelocityInterface.</span>
-            <span class="n">hardware_interface</span><span class="o">::</span><span class="n">JointHandle</span> <span class="nf">joint_handle</span><span class="p">(</span><span class="n">joint_state_handle</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-            <span class="n">velocity_joint_interface_</span><span class="p">.</span><span class="n">registerHandle</span><span class="p">(</span><span class="n">joint_handle</span><span class="p">);</span>
+<span class="w">            </span><span class="c1">// Create a JointHandle (read and write) for each controllable joint</span>
+<span class="w">            </span><span class="c1">// using the read-only joint handles within the JointStateInterface and </span>
+<span class="w">            </span><span class="c1">// register them with the JointVelocityInterface.</span>
+<span class="w">            </span><span class="n">hardware_interface</span><span class="o">::</span><span class="n">JointHandle</span><span class="w"> </span><span class="nf">joint_handle</span><span class="p">(</span><span class="n">joint_state_handle</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">            </span><span class="n">velocity_joint_interface_</span><span class="p">.</span><span class="n">registerHandle</span><span class="p">(</span><span class="n">joint_handle</span><span class="p">);</span><span class="w"></span>
 
-            <span class="c1">// Initialize joint states with zero values</span>
-            <span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
-            <span class="n">joint_velocities_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
-            <span class="n">joint_efforts_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span> <span class="c1">// unused with diff_drive_controller</span>
+<span class="w">            </span><span class="c1">// Initialize joint states with zero values</span>
+<span class="w">            </span><span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">joint_velocities_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">joint_efforts_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"> </span><span class="c1">// unused with diff_drive_controller</span>
 
-            <span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+<span class="w">            </span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 
-            <span class="c1">// Initialize the pid controllers for the motors using the robot namespace</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">pid_namespace</span> <span class="o">=</span> <span class="s">&quot;pid/&quot;</span> <span class="o">+</span> <span class="n">motor_names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-            <span class="n">ROS_INFO_STREAM</span><span class="p">(</span><span class="s">&quot;pid namespace: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">pid_namespace</span><span class="p">);</span>
-            <span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="nf">nh</span><span class="p">(</span><span class="n">root_nh</span><span class="p">,</span> <span class="n">pid_namespace</span><span class="p">);</span>
-            <span class="c1">// TODO implement builder pattern to initialize values otherwise it is hard to see which parameter is what.</span>
-            <span class="n">pids_</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">init</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="o">-</span><span class="n">max_velocity_</span><span class="p">,</span> <span class="n">max_velocity_</span><span class="p">);</span>
-            <span class="n">pids_</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">setOutputLimits</span><span class="p">(</span><span class="o">-</span><span class="n">max_velocity_</span><span class="p">,</span> <span class="n">max_velocity_</span><span class="p">);</span>
-        <span class="p">}</span>
+<span class="w">            </span><span class="c1">// Initialize the pid controllers for the motors using the robot namespace</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">pid_namespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;pid/&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">motor_names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">            </span><span class="n">ROS_INFO_STREAM</span><span class="p">(</span><span class="s">&quot;pid namespace: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">pid_namespace</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="nf">nh</span><span class="p">(</span><span class="n">root_nh</span><span class="p">,</span><span class="w"> </span><span class="n">pid_namespace</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// TODO implement builder pattern to initialize values otherwise it is hard to see which parameter is what.</span>
+<span class="w">            </span><span class="n">pids_</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">init</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">max_velocity_</span><span class="p">,</span><span class="w"> </span><span class="n">max_velocity_</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">pids_</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">setOutputLimits</span><span class="p">(</span><span class="o">-</span><span class="n">max_velocity_</span><span class="p">,</span><span class="w"> </span><span class="n">max_velocity_</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
 
-        <span class="c1">// Register the JointStateInterface containing the read only joints</span>
-        <span class="c1">// with this robot&#39;s hardware_interface::RobotHW.</span>
-        <span class="n">registerInterface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">joint_state_interface_</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Register the JointStateInterface containing the read only joints</span>
+<span class="w">        </span><span class="c1">// with this robot&#39;s hardware_interface::RobotHW.</span>
+<span class="w">        </span><span class="n">registerInterface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">joint_state_interface_</span><span class="p">);</span><span class="w"></span>
 
-        <span class="c1">// Register the JointVelocityInterface containing the read/write joints</span>
-        <span class="c1">// with this robot&#39;s hardware_interface::RobotHW.</span>
-        <span class="n">registerInterface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">velocity_joint_interface_</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Register the JointVelocityInterface containing the read/write joints</span>
+<span class="w">        </span><span class="c1">// with this robot&#39;s hardware_interface::RobotHW.</span>
+<span class="w">        </span><span class="n">registerInterface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">velocity_joint_interface_</span><span class="p">);</span><span class="w"></span>
 
-        <span class="n">ROS_INFO</span><span class="p">(</span><span class="s">&quot;... Done Initializing DiffBot Hardware Interface&quot;</span><span class="p">);</span>
-        <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">        </span><span class="n">ROS_INFO</span><span class="p">(</span><span class="s">&quot;... Done Initializing DiffBot Hardware Interface&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="c1">// The read method is part of the control loop cycle (read, update, write) and is used to </span>
-    <span class="c1">// populate the robot state from the robot&#39;s hardware resources (joints, sensors, actuators). </span>
-    <span class="c1">// This method should be called before controller_manager::ControllerManager::update() and write.</span>
-    <span class="kt">void</span> <span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">read</span><span class="p">(</span><span class="k">const</span> <span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">&amp;</span> <span class="n">time</span><span class="p">,</span> <span class="k">const</span> <span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="o">&amp;</span> <span class="n">period</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">ros</span><span class="o">::</span><span class="n">Duration</span> <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">period</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// The read method is part of the control loop cycle (read, update, write) and is used to </span>
+<span class="w">    </span><span class="c1">// populate the robot state from the robot&#39;s hardware resources (joints, sensors, actuators). </span>
+<span class="w">    </span><span class="c1">// This method should be called before controller_manager::ControllerManager::update() and write.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">read</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">&amp;</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="o">&amp;</span><span class="w"> </span><span class="n">period</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="w"> </span><span class="n">elapsed_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">period</span><span class="p">;</span><span class="w"></span>
 
-        <span class="c1">// Read from robot hw (motor encoders)</span>
-        <span class="c1">// Fill joint_state_* members with read values</span>
-        <span class="kt">double</span> <span class="n">wheel_angles</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
-        <span class="kt">double</span> <span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_joints_</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
-        <span class="p">{</span>
-            <span class="n">wheel_angles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ticksToAngle</span><span class="p">(</span><span class="n">encoder_ticks_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-            <span class="c1">//double wheel_angle_normalized = normalizeAngle(wheel_angle);</span>
-            <span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wheel_angles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">        </span><span class="c1">// Read from robot hw (motor encoders)</span>
+<span class="w">        </span><span class="c1">// Fill joint_state_* members with read values</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">wheel_angles</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_joints_</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">wheel_angles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticksToAngle</span><span class="p">(</span><span class="n">encoder_ticks_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">            </span><span class="c1">//double wheel_angle_normalized = normalizeAngle(wheel_angle);</span>
+<span class="w">            </span><span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wheel_angles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
 
-            <span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-            <span class="n">joint_velocities_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">period</span><span class="p">.</span><span class="n">toSec</span><span class="p">();</span>
-            <span class="n">joint_efforts_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span> <span class="c1">// unused with diff_drive_controller</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">            </span><span class="n">joint_positions_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">            </span><span class="n">joint_velocities_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wheel_angle_deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">period</span><span class="p">.</span><span class="n">toSec</span><span class="p">();</span><span class="w"></span>
+<span class="w">            </span><span class="n">joint_efforts_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"> </span><span class="c1">// unused with diff_drive_controller</span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="c1">// The write method is part of the control loop cycle (read, update, write) and is used to </span>
-    <span class="c1">// send out commands to the robot&#39;s hardware resources (joints, actuators). </span>
-    <span class="c1">// This method should be called after read and controller_manager::ControllerManager::update.</span>
-    <span class="kt">void</span> <span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">write</span><span class="p">(</span><span class="k">const</span> <span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">&amp;</span> <span class="n">time</span><span class="p">,</span> <span class="k">const</span> <span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="o">&amp;</span> <span class="n">period</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">ros</span><span class="o">::</span><span class="n">Duration</span> <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">period</span><span class="p">;</span>
-        <span class="c1">// Write to robot hw</span>
-        <span class="c1">// joint velocity commands from ros_control&#39;s RobotHW are in rad/s</span>
-        <span class="c1">// Convert the velocity command to a percentage value for the motor</span>
-        <span class="c1">// This maps the velocity to a percentage value which is used to apply</span>
-        <span class="c1">// a percentage of the highest possible battery voltage to each motor.</span>
-        <span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span> <span class="n">left_motor</span><span class="p">;</span>
-        <span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span> <span class="n">right_motor</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// The write method is part of the control loop cycle (read, update, write) and is used to </span>
+<span class="w">    </span><span class="c1">// send out commands to the robot&#39;s hardware resources (joints, actuators). </span>
+<span class="w">    </span><span class="c1">// This method should be called after read and controller_manager::ControllerManager::update.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">write</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">&amp;</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="o">&amp;</span><span class="w"> </span><span class="n">period</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="w"> </span><span class="n">elapsed_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">period</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Write to robot hw</span>
+<span class="w">        </span><span class="c1">// joint velocity commands from ros_control&#39;s RobotHW are in rad/s</span>
+<span class="w">        </span><span class="c1">// Convert the velocity command to a percentage value for the motor</span>
+<span class="w">        </span><span class="c1">// This maps the velocity to a percentage value which is used to apply</span>
+<span class="w">        </span><span class="c1">// a percentage of the highest possible battery voltage to each motor.</span>
+<span class="w">        </span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="w"> </span><span class="n">left_motor</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="w"> </span><span class="n">right_motor</span><span class="p">;</span><span class="w"></span>
 
-        <span class="kt">double</span> <span class="n">output_left</span> <span class="o">=</span> <span class="n">pids_</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">joint_velocities_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">period</span><span class="p">);</span>
-        <span class="kt">double</span> <span class="n">output_right</span> <span class="o">=</span> <span class="n">pids_</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">joint_velocities_</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">period</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">output_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pids_</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">joint_velocities_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">period</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">output_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pids_</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">joint_velocities_</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">period</span><span class="p">);</span><span class="w"></span>
 
-        <span class="n">left_motor</span><span class="p">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">output_left</span> <span class="o">/</span> <span class="n">max_velocity_</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">;</span>
-        <span class="n">right_motor</span><span class="p">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">output_right</span> <span class="o">/</span> <span class="n">max_velocity_</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">left_motor</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">output_left</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">max_velocity_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">100.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">right_motor</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">output_right</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">max_velocity_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">100.0</span><span class="p">;</span><span class="w"></span>
 
-    <span class="c1">// Publish the PID computed motor commands to the left and right motors</span>
-    <span class="n">pub_left_motor_value_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">left_motor</span><span class="p">);</span>
-        <span class="n">pub_right_motor_value_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">right_motor</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="c1">// Publish the PID computed motor commands to the left and right motors</span>
+<span class="w">    </span><span class="n">pub_left_motor_value_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">left_motor</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">pub_right_motor_value_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">right_motor</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="c1">// Process updates from encoders using a subscriber</span>
-    <span class="kt">void</span> <span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">leftEncoderTicksCallback</span><span class="p">(</span><span class="k">const</span> <span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">::</span><span class="n">ConstPtr</span><span class="o">&amp;</span> <span class="n">msg</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">encoder_ticks_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
-        <span class="n">ROS_DEBUG_STREAM_THROTTLE</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;Left encoder ticks: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="c1">// Process updates from encoders using a subscriber</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">leftEncoderTicksCallback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">::</span><span class="n">ConstPtr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">encoder_ticks_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">ROS_DEBUG_STREAM_THROTTLE</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Left encoder ticks: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">rightEncoderTicksCallback</span><span class="p">(</span><span class="k">const</span> <span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">::</span><span class="n">ConstPtr</span><span class="o">&amp;</span> <span class="n">msg</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">encoder_ticks_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
-        <span class="n">ROS_DEBUG_STREAM_THROTTLE</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;Right encoder ticks: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">rightEncoderTicksCallback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Int32</span><span class="o">::</span><span class="n">ConstPtr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">encoder_ticks_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">ROS_DEBUG_STREAM_THROTTLE</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Right encoder ticks: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="kt">double</span> <span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">ticksToAngle</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">ticks</span><span class="p">)</span> <span class="k">const</span>
-    <span class="p">{</span>
-        <span class="c1">// Convert number of encoder ticks to angle in radians</span>
-        <span class="kt">double</span> <span class="n">angle</span> <span class="o">=</span> <span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">ticks</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">M_PI</span> <span class="o">/</span> <span class="mf">542.0</span><span class="p">);</span>
-        <span class="n">ROS_DEBUG_STREAM_THROTTLE</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ticks</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; ticks correspond to an angle of &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">angle</span><span class="p">);</span>
-    <span class="k">return</span> <span class="n">angle</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">DiffBotHWInterface</span><span class="o">::</span><span class="n">ticksToAngle</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ticks</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Convert number of encoder ticks to angle in radians</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">ticks</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">M_PI</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">542.0</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">ROS_DEBUG_STREAM_THROTTLE</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ticks</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; ticks correspond to an angle of &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">angle</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">angle</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="p">};</span>
+<span class="p">};</span><span class="w"></span>
 </code></pre></div>
 </td></tr></table>
 <p>The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
@@ -1720,57 +1720,57 @@ refer to the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-d
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
-<span class="normal">51</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;ros/ros.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;diffbot_base/diffbot_hw_interface.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;controller_manager/controller_manager.h&gt;</span><span class="cp"></span>
+<span class="normal">51</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ros/ros.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;diffbot_base/diffbot_hw_interface.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;controller_manager/controller_manager.h&gt;</span><span class="cp"></span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="c1">// Initialize the ROS node</span>
-    <span class="n">ros</span><span class="o">::</span><span class="n">init</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="s">&quot;diffbot_hw_interface&quot;</span><span class="p">);</span>
-    <span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="n">nh</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Initialize the ROS node</span>
+<span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">init</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;diffbot_hw_interface&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="n">nh</span><span class="p">;</span><span class="w"></span>
 
-    <span class="c1">// Create an instance of your robot so that this instance knows about all </span>
-    <span class="c1">// the resources that are available.</span>
-    <span class="n">diffbot_base</span><span class="o">::</span><span class="n">DiffBotHWInterface</span> <span class="n">diffBot</span><span class="p">(</span><span class="n">nh</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Create an instance of your robot so that this instance knows about all </span>
+<span class="w">    </span><span class="c1">// the resources that are available.</span>
+<span class="w">    </span><span class="n">diffbot_base</span><span class="o">::</span><span class="n">DiffBotHWInterface</span><span class="w"> </span><span class="n">diffBot</span><span class="p">(</span><span class="n">nh</span><span class="p">);</span><span class="w"></span>
 
-    <span class="c1">// Create an instance of the controller manager and pass it the robot, </span>
-    <span class="c1">// so that it can handle its resources.</span>
-    <span class="n">controller_manager</span><span class="o">::</span><span class="n">ControllerManager</span> <span class="n">cm</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diffBot</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Create an instance of the controller manager and pass it the robot, </span>
+<span class="w">    </span><span class="c1">// so that it can handle its resources.</span>
+<span class="w">    </span><span class="n">controller_manager</span><span class="o">::</span><span class="n">ControllerManager</span><span class="w"> </span><span class="n">cm</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diffBot</span><span class="p">);</span><span class="w"></span>
 
-    <span class="c1">// Setup a separate thread that will be used to service ROS callbacks.</span>
-    <span class="c1">// NOTE: We run the ROS loop in a separate thread as external calls such</span>
-    <span class="c1">// as service callbacks to load controllers can block the (main) control loop</span>
-    <span class="n">ros</span><span class="o">::</span><span class="n">AsyncSpinner</span> <span class="n">spinner</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-    <span class="n">spinner</span><span class="p">.</span><span class="n">start</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// Setup a separate thread that will be used to service ROS callbacks.</span>
+<span class="w">    </span><span class="c1">// NOTE: We run the ROS loop in a separate thread as external calls such</span>
+<span class="w">    </span><span class="c1">// as service callbacks to load controllers can block the (main) control loop</span>
+<span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">AsyncSpinner</span><span class="w"> </span><span class="n">spinner</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">spinner</span><span class="p">.</span><span class="n">start</span><span class="p">();</span><span class="w"></span>
 
-    <span class="c1">// Setup for the control loop.</span>
-    <span class="n">ros</span><span class="o">::</span><span class="n">Time</span> <span class="n">prev_time</span> <span class="o">=</span> <span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
-    <span class="n">ros</span><span class="o">::</span><span class="n">Rate</span> <span class="n">rate</span><span class="p">(</span><span class="mf">10.0</span><span class="p">);</span> <span class="c1">// 10 Hz rate</span>
+<span class="w">    </span><span class="c1">// Setup for the control loop.</span>
+<span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">prev_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Rate</span><span class="w"> </span><span class="n">rate</span><span class="p">(</span><span class="mf">10.0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 10 Hz rate</span>
 
-    <span class="c1">// Blocks until shutdown signal recieved</span>
-    <span class="k">while</span> <span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">())</span>
-    <span class="p">{</span>
-        <span class="c1">// Basic bookkeeping to get the system time in order to compute the control period.</span>
-        <span class="k">const</span> <span class="n">ros</span><span class="o">::</span><span class="n">Time</span>     <span class="n">time</span>   <span class="o">=</span> <span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
-        <span class="k">const</span> <span class="n">ros</span><span class="o">::</span><span class="n">Duration</span> <span class="n">period</span> <span class="o">=</span> <span class="n">time</span> <span class="o">-</span> <span class="n">prev_time</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Blocks until shutdown signal recieved</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">())</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Basic bookkeeping to get the system time in order to compute the control period.</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="w">     </span><span class="n">time</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="w"> </span><span class="n">period</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_time</span><span class="p">;</span><span class="w"></span>
 
-        <span class="c1">// Execution of the actual control loop.</span>
-        <span class="n">diffBot</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">period</span><span class="p">);</span>
-        <span class="c1">// If needed, its possible to define transmissions in software by calling the </span>
-        <span class="c1">// transmission_interface::ActuatorToJointPositionInterface::propagate()</span>
-        <span class="c1">// after reading the joint states.</span>
-        <span class="n">cm</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">period</span><span class="p">);</span>
-        <span class="c1">// In case of software transmissions, use </span>
-        <span class="c1">// transmission_interface::JointToActuatorEffortHandle::propagate()</span>
-        <span class="c1">// to convert from the joint space to the actuator space.</span>
-        <span class="n">diffBot</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">period</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Execution of the actual control loop.</span>
+<span class="w">        </span><span class="n">diffBot</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">period</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// If needed, its possible to define transmissions in software by calling the </span>
+<span class="w">        </span><span class="c1">// transmission_interface::ActuatorToJointPositionInterface::propagate()</span>
+<span class="w">        </span><span class="c1">// after reading the joint states.</span>
+<span class="w">        </span><span class="n">cm</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">period</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// In case of software transmissions, use </span>
+<span class="w">        </span><span class="c1">// transmission_interface::JointToActuatorEffortHandle::propagate()</span>
+<span class="w">        </span><span class="c1">// to convert from the joint space to the actuator space.</span>
+<span class="w">        </span><span class="n">diffBot</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">period</span><span class="p">);</span><span class="w"></span>
 
-        <span class="c1">// All these steps keep getting repeated with the specified rate.</span>
-        <span class="n">rate</span><span class="p">.</span><span class="n">sleep</span><span class="p">();</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">        </span><span class="c1">// All these steps keep getting repeated with the specified rate.</span>
+<span class="w">        </span><span class="n">rate</span><span class="p">.</span><span class="n">sleep</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </td></tr></table>
 <p>As we can see, the basic steps are to initialize the node, instantiate the hardware interface, pass it to a new controller manager and run the

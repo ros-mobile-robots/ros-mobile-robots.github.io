@@ -1,3 +1,10 @@
+---
+title: Autonomous Differential Drive Mobile Robot - Hardware Interfaces
+description: "Hardware Interfaces of an autonomous mobile robot running ROS Noetic on a Raspberry Pi 4 together with a low level microcontroller as well as sensors (camera, LiDAR, IMUs) and actuators."
+categories: [robotics]
+tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, ubuntu, focal, package, gazebo, simulation, hardware_interfacem, hardware, interface, low-level, microcontroller, dialout, usb, gpio]
+---
+
 The hardware interfaces provide an interface between the components (sensors and actuators) of the 2WD robot and its processing units, the Raspberry Pi 4 B (or the Nvidia Jetson Nano) and the microcontroller (in this case the Teensy 4.0).
 
 ## USB
