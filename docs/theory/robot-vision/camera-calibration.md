@@ -18,10 +18,10 @@ $$
       f_x & s & p_x \\
       0   & f_y & p_y \\
       0   & 0   & 1 \\
-     \end{bmatrix}}{\text{\textbf{intrinsics} \\ 5 DOF + lens distortion}}
+     \end{bmatrix}}_{\text{\textbf{intrinsics} \\ 5 DOF + lens distortion}}
      \underbrace{\begin{bmatrix}
       R | t
-     \end{bmatrix}}{\text{\textbf{extrinsics} \\ 6 DOF}}
+     \end{bmatrix}}_{\text{\textbf{extrinsics} \\ 6 DOF}}
      \mathbf{X} = P \mathbf{X}
 $$
 
