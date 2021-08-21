@@ -84,6 +84,8 @@ nav:
       - Odometry: theory/modeling-control/odometry.md
     - Robot Vision:
       - Pinhole Camera Model: theory/robot-vision/pinhole-camera-model.md
+      - Camera Calibration: theory/robot-vision/camera-calibration.md
+      - Image Processing: theory/robot-vision/image-processing.md
     - Object Detection: theory/object-detection/overview.md
     - State Estimation and Localization: theory/estimatione-localization/overview.md
     - Planning I: theory/planning1/overview.md
