@@ -1236,15 +1236,41 @@ and its pose relative to the frame of the world or the robot (extrinsic paramete
      \end{bmatrix}}_{\text{\textbf{extrinsics}} \\ \text{6 DOF}}
      \mathbf{X} = P \mathbf{X}
 \]</div>
+<p>Having a mathematical expression for perspective projection allows us to reason over a robot's three-dimensional world from two-dimensional images.</p>
+<p>Suppose an algorithm that detects lane markings in an image received from the robot's camera. In order to use these detections to keep the robot in its lane,
+it would be useful to understand where tehy are in relation to the robot. 
+As we will see, calibrating the camera allows us to transform these detections into the robot's reference frame.
+The result can then be used to understand the lane geometry and where the robot is relative to the lane.</p>
+<p>There are different approaches to calibrating a camera. The pin-hole camera model can be represendet as a product of two matrices,
+one defined in terms of up to five parameters intrinsic to the camera, and the other specifying the camera six degrees of freedom pose.
+Ignoring lens distortions, there is a total of 11 parameters that define the camera model.</p>
+<p>Nonlinear intrinsic parameters such as lens distortion are also important although they cannot be included in the linear camera model described by the intrinsic parameter matrix. 
+Many modern camera calibration algorithms estimate these intrinsic parameters as well in the form of non-linear optimisation techniques. This is done in the form of optimising the camera and distortion parameters in the form of what is generally known as bundle adjustment.<sup id="fnref:wiki"><a class="footnote-ref" href="#fn:wiki">1</a></sup></p>
+<p>The calibration process typically involves associating the coordinates of points in the scene with their corresponding projections onto the image plane.
+Each correspondence <span class="arithmatex">\(\mathbf{x}_i \leftrightarrow \mathbf{X}_i\)</span> provides two constraints on the projection model. One for each of the two image coordinates.</p>
+<p>With 11 degrees-of-freedom in the model, we need at least six point-pairs but have to be careful about avoiding degeneracies.
+For example, the three points can't all lie on the same line or the same plane.</p>
+<p>In practice, we use a calibration target that provides a well-defined set of 3D points that are easy to detect in the image, 
+often involving one or more checkerboard patterns. One option for calibrating the camera is to directly estimate
+the entries of the three-by-four camera matrix P that maps 3D scene points to their 2D image coordinates.
+While the matrix has 12 entries, there are only 11 degrees-of-freedom, since perspective projection is only defined up to scale.</p>
 <h3 id="calibration-via-direct-linear-transformation">Calibration via Direct Linear Transformation</h3>
 <h3 id="calibration-as-an-optimization-problem">Calibration as an Optimization Problem</h3>
 <h3 id="homographies-and-homography-estimation">Homographies and Homography Estimation</h3>
 <h2 id="references">References</h2>
 <ul>
-<li><a href="">Self-Driving Cars with Duckietown</a></li>
+<li><a href="https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@a43815226b7242b7a071a10bbdc8ffa2/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@17abe5f8b31049a2ad37c52c1e9d1107">Self-Driving Cars with Duckietown</a></li>
 <li><a href="https://de.mathworks.com/help/vision/ug/camera-calibration.html">Mathworks Camera Calibration</a></li>
 <li><a href="http://www.vision.caltech.edu/bouguetj/calib_doc/">Pin-hole Camera Calibration with Matlab Toolbox Documentation</a></li>
 </ul>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:wiki">
+<p><a href="https://en.wikipedia.org/wiki/Camera_resectioning">Wikipedia Camera Resectioning</a>&#160;<a class="footnote-backref" href="#fnref:wiki" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
                 
               
 
