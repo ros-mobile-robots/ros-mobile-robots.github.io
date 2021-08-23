@@ -1373,9 +1373,10 @@ is a widely used edge detection algorithm that performs the following steps:</p>
 <li><strong>Filters out noise</strong> using a Gaussian blur</li>
 <li><strong>Finds the strength and direction of edges</strong> using Sobel filters</li>
 <li>Applies <strong>non-maximum suppression</strong> to isolate the strongest edges and thin them to one-pixel wide lines.</li>
-<li>Uses <strong>hysteresis to isolate the best edges</strong></li>
+<li>Uses <strong>hysteresis to isolate the best edges</strong> using low and high thresholds to cut/pass intensity values.</li>
 </ol>
-<p>Read more about the <a href="https://en.wikipedia.org/wiki/Canny_edge_detector">Canny edge detection algorithm on Wikipedia</a>.</p>
+<p>Canny edge detection eliminates weak edges and noise and isolates edges that are part of an object boundary.
+Read more about the <a href="https://en.wikipedia.org/wiki/Canny_edge_detector">Canny edge detection algorithm on Wikipedia</a>.</p>
 <h2 id="references">References</h2>
 <ul>
 <li><a href="https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@c443df0997224ccab9f2c3f762fcc086/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@bc207d642e644b67989c59dbbcb9a0c6">Self-driving cars with Duckietown</a></li>

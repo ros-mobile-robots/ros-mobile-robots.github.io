@@ -117,8 +117,9 @@ is a widely used edge detection algorithm that performs the following steps:
 1. **Filters out noise** using a Gaussian blur
 2. **Finds the strength and direction of edges** using Sobel filters
 3. Applies **non-maximum suppression** to isolate the strongest edges and thin them to one-pixel wide lines.
-4. Uses **hysteresis to isolate the best edges**
+4. Uses **hysteresis to isolate the best edges** using low and high thresholds to cut/pass intensity values.
 
+Canny edge detection eliminates weak edges and noise and isolates edges that are part of an object boundary.
 Read more about the [Canny edge detection algorithm on Wikipedia](https://en.wikipedia.org/wiki/Canny_edge_detector).
     
 
