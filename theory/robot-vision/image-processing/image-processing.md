@@ -107,6 +107,19 @@ The weights of a convolutional neural network that it updates during training ar
 In deep convolutional neural networks the individual filter kernels are stacked which increases the depth of a convolutional filter (or kernel), 
 similar to the channels of a color image are stacked. Using stacked filters yields more features from an input image but also increases the number of learnable weights (filter values). In traditional filters the values of filter weights were set explicitly, 
 but neural networks will actually learn the best filter weights as they train on a set of image data.
+
+
+### Canny Edge Detection
+
+OpenCV provides the [`Canny`](http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html) edge detector, which 
+is a widely used edge detection algorithm that performs the following steps:
+
+1. **Filters out noise** using a Gaussian blur
+2. **Finds the strength and direction of edges** using Sobel filters
+3. Applies **non-maximum suppression** to isolate the strongest edges and thin them to one-pixel wide lines.
+4. Uses **hysteresis to isolate the best edges**
+
+Read more about the [Canny edge detection algorithm on Wikipedia](https://en.wikipedia.org/wiki/Canny_edge_detector).
     
 
 ## References

@@ -633,6 +633,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#canny-edge-detection" class="md-nav__link">
+    Canny Edge Detection
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1233,6 +1240,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#canny-edge-detection" class="md-nav__link">
+    Canny Edge Detection
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1352,6 +1366,16 @@ The weights of a convolutional neural network that it updates during training ar
 <p>In deep convolutional neural networks the individual filter kernels are stacked which increases the depth of a convolutional filter (or kernel), 
 similar to the channels of a color image are stacked. Using stacked filters yields more features from an input image but also increases the number of learnable weights (filter values). In traditional filters the values of filter weights were set explicitly, 
 but neural networks will actually learn the best filter weights as they train on a set of image data.</p>
+<h3 id="canny-edge-detection">Canny Edge Detection</h3>
+<p>OpenCV provides the <a href="http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html"><code>Canny</code></a> edge detector, which 
+is a widely used edge detection algorithm that performs the following steps:</p>
+<ol>
+<li><strong>Filters out noise</strong> using a Gaussian blur</li>
+<li><strong>Finds the strength and direction of edges</strong> using Sobel filters</li>
+<li>Applies <strong>non-maximum suppression</strong> to isolate the strongest edges and thin them to one-pixel wide lines.</li>
+<li>Uses <strong>hysteresis to isolate the best edges</strong></li>
+</ol>
+<p>Read more about the <a href="https://en.wikipedia.org/wiki/Canny_edge_detector">Canny edge detection algorithm on Wikipedia</a>.</p>
 <h2 id="references">References</h2>
 <ul>
 <li><a href="https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@c443df0997224ccab9f2c3f762fcc086/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@bc207d642e644b67989c59dbbcb9a0c6">Self-driving cars with Duckietown</a></li>
