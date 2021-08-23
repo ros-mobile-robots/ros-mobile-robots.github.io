@@ -640,6 +640,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#shape-detection" class="md-nav__link">
+    Shape Detection
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1247,6 +1254,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#shape-detection" class="md-nav__link">
+    Shape Detection
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1377,6 +1391,15 @@ is a widely used edge detection algorithm that performs the following steps:</p>
 </ol>
 <p>Canny edge detection eliminates weak edges and noise and isolates edges that are part of an object boundary.
 Read more about the <a href="https://en.wikipedia.org/wiki/Canny_edge_detector">Canny edge detection algorithm on Wikipedia</a>.</p>
+<h3 id="shape-detection">Shape Detection</h3>
+<p>So far we defined image filters for smoothing images and detecting the edges (high-frequency) components of objects in an image. 
+Using this knowledge about pattern recognition in images enables one to begin identifying unique shapes and then objects.</p>
+<p>Edges to Boundaries and Shapes
+To find unifying boundaries around objects to separate and locate multiple objects in a given image, the Hough transform can be used.
+It transforms image data from the x-y coordinate system into Hough space, where you can easily identify simple boundaries like lines and circles.</p>
+<p>The Hough transform is used in a variety of shape-recognition applications. A Hough transform can find the edges of driving lanes.</p>
+<p>See <a href="https://homepages.inf.ed.ac.uk/rbf/HIPR2/hough.htm">this resource</a> on Hough transform and also the 
+<a href="https://en.wikipedia.org/wiki/Hough_transform">Wikipedia article</a> about it.</p>
 <h2 id="references">References</h2>
 <ul>
 <li><a href="https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@c443df0997224ccab9f2c3f762fcc086/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@bc207d642e644b67989c59dbbcb9a0c6">Self-driving cars with Duckietown</a></li>
