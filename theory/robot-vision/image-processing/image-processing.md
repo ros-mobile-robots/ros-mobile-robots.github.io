@@ -44,6 +44,10 @@ $$
 
 !!! note
     TODO add image examples
+    
+    
+- Magnitude: $S = \sqrt{S_x^2 + S_y^2}$
+- Direction: $\theta = \atan2{S_y, S_x}$
 
 ### Image Blurring
 
