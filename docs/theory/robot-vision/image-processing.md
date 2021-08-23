@@ -58,6 +58,19 @@ To block noise in an image, use a filter that filters high frequencies, e.g. spe
 Without blurring the image and therefore removing the high-frequnecy noise, a preceding high-pass filtering step would also amplify the noise.
 To enhance only the high-frequency edges, it is common to first apply a low-pass filter, which basically takes an average of neighbouring pixels.
 
+A simple filter to blur or low-pass filter an image is the normalized average filter:
+
+$$
+1/9 \begin{matrix}
+     1 & 1 & 1 \\
+     1 & 1 & 1 \\
+     1 & 1 & 1 \\
+    \end{matrix}
+$$
+
+!!! note 
+    Normalization is important to avoid brightening the image and therefore maintain the same energy.
+
 ### Gaussian Kernels
 
 ## References
