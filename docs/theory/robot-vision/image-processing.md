@@ -73,6 +73,14 @@ $$
 
 ### Gaussian Kernels
 
+Gaussian kernels are used to blur/smooth an image and therefore block high frequency parts of an image.
+Compared to an averageing filter, Gaussian kernels better preserve edges. 
+
+!!! note
+    An even better method to preserve edges are [bilateral filters](https://docs.opencv.org/4.5.3/d4/d86/group__imgproc__filter.html#ga9d7064d478c95d60003cf839430737ed).
+    It is highly effective in noise removal while keeping edges sharp. But the operation is slower compared to other filters.
+    
+
 ## References
 
 - [Self-driving cars with Duckietown](https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@c443df0997224ccab9f2c3f762fcc086/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@bc207d642e644b67989c59dbbcb9a0c6)
