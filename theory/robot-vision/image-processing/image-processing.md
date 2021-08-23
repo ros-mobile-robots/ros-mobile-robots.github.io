@@ -56,7 +56,7 @@ For more details see also the [Sobel operator on Wikipedia](https://en.wikipedia
 To block noise in an image, use a filter that filters high frequencies, e.g. specle or discoloration, and let low frequency components of an image pass, such as smooth surfaces.
 
 Without blurring the image and therefore removing the high-frequnecy noise, a preceding high-pass filtering step would also amplify the noise.
-To enhance only the high-frequency edges, it is common to first apply a low-pass filter.
+To enhance only the high-frequency edges, it is common to first apply a low-pass filter, which basically takes an average of neighbouring pixels.
 
 ### Gaussian Kernels
 
