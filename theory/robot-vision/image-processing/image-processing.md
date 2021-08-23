@@ -111,7 +111,7 @@ but neural networks will actually learn the best filter weights as they train on
 
 ### Canny Edge Detection
 
-OpenCV provides the [`Canny`](http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html) edge detector, which 
+OpenCV provides the [`Canny`](https://docs.opencv.org/4.5.3/da/d22/tutorial_py_canny.html) edge detector, which 
 is a widely used edge detection algorithm that performs the following steps:
 
 1. **Filters out noise** using a Gaussian blur
