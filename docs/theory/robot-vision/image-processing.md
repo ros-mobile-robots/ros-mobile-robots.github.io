@@ -17,6 +17,31 @@ The output of an FT represents the image in the frequency domain, while the inpu
 
 - [OpenCV Filtering Tutorial](https://docs.opencv.org/4.5.2/d4/d13/tutorial_py_filtering.html)
 
+
+#### Gradient and Sobel Filter
+
+Gradients are a measure of intensity change in an image. As images are treated as functions $I(x,y)$, 
+the gradient is the derivative of this function $I'(x,y)$, describing the change in intensity $\Delta I$ at pixel locations $x$ and $y$.
+
+The Sobel filter is very commonly used in edge detection and in finding patterns in intensity in an image. 
+Applying a Sobel filter to an image is a way of taking (an approximation) of the derivative of the image in the $x$ or $y$ direction.
+
+$$
+S_x = \begin{matrix}
+        -1 & 0 & 1 \\
+        -2 & 0 & 2 \\
+        -1 & 0 & 1 \\
+      \end{matrix}
+$$
+
+$$
+S_y = \begin{matrix}
+        -1 & -2 & -1 \\
+        0 & 0 & 0 \\
+        1 & 2 & 1 \\
+      \end{matrix}
+$$
+
 ### Image Blurring
 
 ### Gaussian Kernels
