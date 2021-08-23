@@ -105,7 +105,8 @@ The only difference is that neural networks learn to create filters themselfes t
 The weights of a convolutional neural network that it updates during training are the values inside the filter kernels.
 
 In deep convolutional neural networks the individual filter kernels are stacked which increases the depth of a convolutional filter (or kernel), 
-similar to the channels of a color image. Using stacked filters yields more features from an input image but also increases the number of learnable weights (filter values).
+similar to the channels of a color image are stacked. Using stacked filters yields more features from an input image but also increases the number of learnable weights (filter values). In traditional filters the values of filter weights were set explicitly, 
+but neural networks will actually learn the best filter weights as they train on a set of image data.
     
 
 ## References
