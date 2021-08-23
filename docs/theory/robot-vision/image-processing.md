@@ -121,6 +121,20 @@ is a widely used edge detection algorithm that performs the following steps:
 
 Canny edge detection eliminates weak edges and noise and isolates edges that are part of an object boundary.
 Read more about the [Canny edge detection algorithm on Wikipedia](https://en.wikipedia.org/wiki/Canny_edge_detector).
+
+### Shape Detection
+
+So far we defined image filters for smoothing images and detecting the edges (high-frequency) components of objects in an image. 
+Using this knowledge about pattern recognition in images enables one to begin identifying unique shapes and then objects.
+
+Edges to Boundaries and Shapes
+To find unifying boundaries around objects to separate and locate multiple objects in a given image, the Hough transform can be used.
+It transforms image data from the x-y coordinate system into Hough space, where you can easily identify simple boundaries like lines and circles.
+
+The Hough transform is used in a variety of shape-recognition applications. A Hough transform can find the edges of driving lanes.
+
+See [this resource](https://homepages.inf.ed.ac.uk/rbf/HIPR2/hough.htm) on Hough transform and also the 
+[Wikipedia article](https://en.wikipedia.org/wiki/Hough_transform) about it.
     
 
 ## References
