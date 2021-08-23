@@ -134,7 +134,7 @@ It transforms image data from the x-y coordinate system into Hough space, where 
 The Hough transform is used in a variety of shape-recognition applications. A Hough transform can find the edges of driving lanes.
 
 See [this resource](https://homepages.inf.ed.ac.uk/rbf/HIPR2/hough.htm) on Hough transform and also the 
-[Wikipedia article](https://en.wikipedia.org/wiki/Hough_transform) about it.
+[Wikipedia article](https://en.wikipedia.org/wiki/Hough_transform) about it. An example is found in the [OpenCV Hough lines tutorial](https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html)
     
 
 ## References
