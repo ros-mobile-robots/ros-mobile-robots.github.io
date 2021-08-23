@@ -70,11 +70,24 @@ $$
 
 !!! note 
     Normalization is important to avoid brightening the image and therefore maintain the same energy.
+    For the averiging filter the pixel values sum to one: $1/9 (1+1+1 + 1+1+1 + 1+1+1)=1$
 
 ### Gaussian Kernels
 
 Gaussian kernels are used to blur/smooth an image and therefore block high frequency parts of an image.
-Compared to an averageing filter, Gaussian kernels better preserve edges. 
+Compared to an averageing filter, Gaussian kernels better preserve edges.
+
+The gaussian kernel can be seen as a weighted average, which gives the most weight to the center pixel.
+
+$$
+1/16 \begin{matrix}
+     1 & 2 & 1 \\
+     2 & 4 & 2 \\
+     1 & 2 & 1 \\
+    \end{matrix}
+$$
+
+As with the average filter, the values of the gaussian filter sum to one $1/16 (1+2+1 + 2+4+2 + 1+2+1)=1$. 
 
 !!! note
     An even better method to preserve edges are [bilateral filters](https://docs.opencv.org/4.5.3/d4/d86/group__imgproc__filter.html#ga9d7064d478c95d60003cf839430737ed).
