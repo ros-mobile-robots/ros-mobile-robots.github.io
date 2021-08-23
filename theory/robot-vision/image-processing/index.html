@@ -597,6 +597,19 @@
     Linear Filtering and Convolution
   </a>
   
+    <nav class="md-nav" aria-label="Linear Filtering and Convolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gradient-and-sobel-filter" class="md-nav__link">
+    Gradient and Sobel Filter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1177,6 +1190,19 @@
     Linear Filtering and Convolution
   </a>
   
+    <nav class="md-nav" aria-label="Linear Filtering and Convolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gradient-and-sobel-filter" class="md-nav__link">
+    Gradient and Sobel Filter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1241,6 +1267,25 @@ The output of an FT represents the image in the frequency domain, while the inpu
 <ul>
 <li><a href="https://docs.opencv.org/4.5.2/d4/d13/tutorial_py_filtering.html">OpenCV Filtering Tutorial</a></li>
 </ul>
+<h4 id="gradient-and-sobel-filter">Gradient and Sobel Filter</h4>
+<p>Gradients are a measure of intensity change in an image. As images are treated as functions <span class="arithmatex">\(I(x,y)\)</span>, 
+the gradient is the derivative of this function <span class="arithmatex">\(I'(x,y)\)</span>, describing the change in intensity <span class="arithmatex">\(\Delta I\)</span> at pixel locations <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span>.</p>
+<p>The Sobel filter is very commonly used in edge detection and in finding patterns in intensity in an image. 
+Applying a Sobel filter to an image is a way of taking (an approximation) of the derivative of the image in the <span class="arithmatex">\(x\)</span> or <span class="arithmatex">\(y\)</span> direction.</p>
+<div class="arithmatex">\[
+S_x = \begin{matrix}
+        -1 &amp; 0 &amp; 1 \\
+        -2 &amp; 0 &amp; 2 \\
+        -1 &amp; 0 &amp; 1 \\
+      \end{matrix}
+\]</div>
+<div class="arithmatex">\[
+S_y = \begin{matrix}
+        -1 &amp; -2 &amp; -1 \\
+        0 &amp; 0 &amp; 0 \\
+        1 &amp; 2 &amp; 1 \\
+      \end{matrix}
+\]</div>
 <h3 id="image-blurring">Image Blurring</h3>
 <h3 id="gaussian-kernels">Gaussian Kernels</h3>
 <h2 id="references">References</h2>
