@@ -51,7 +51,9 @@ $$
 
 For more details see also the [Sobel operator on Wikipedia](https://en.wikipedia.org/wiki/Sobel_operator).
 
-### Image Blurring
+### Image Blurring and Low-pass Filter
+
+To block noise in an image, use a filter that filters high frequencies, e.g. specle or discoloration, and let low frequency components of an image pass, such as smooth surfaces.
 
 ### Gaussian Kernels
 
