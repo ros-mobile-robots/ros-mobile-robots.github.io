@@ -49,6 +49,8 @@ $$
 - Magnitude: $S = \sqrt{S_x^2 + S_y^2}$
 - Direction: $\theta = \atan2{S_y, S_x}$
 
+For more details see also the [Sobel operator on Wikipedia](https://en.wikipedia.org/wiki/Sobel_operator).
+
 ### Image Blurring
 
 ### Gaussian Kernels
@@ -58,3 +60,4 @@ $$
 - [Self-driving cars with Duckietown](https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@c443df0997224ccab9f2c3f762fcc086/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@bc207d642e644b67989c59dbbcb9a0c6)
 - [OpenCV Fourier Transform](https://docs.opencv.org/4.5.3/de/dbc/tutorial_py_fourier_transform.html)
 - [OpenCV Filtering tutorial](https://docs.opencv.org/4.5.3/d4/d13/tutorial_py_filtering.html)
+- [Wikipedia Sobel operator](https://en.wikipedia.org/wiki/Sobel_operator)
