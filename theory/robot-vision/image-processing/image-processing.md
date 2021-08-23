@@ -96,6 +96,16 @@ As with the average filter, the values of the gaussian filter sum to one $1/16 (
 
 Read more about the math behind [Gaussian filters on Wikipedia](https://en.wikipedia.org/wiki/Gaussian_blur) 
 and also see the OpenCV documentation of the [`GaussianBlur`](https://docs.opencv.org/4.5.3/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1) function.
+
+
+### Convolutional Neural Networks
+
+Convolutional neural networks consist of convolutional layers which are made up of similar filters defined previously.
+The only difference is that neural networks learn to create filters themselfes through gradient descent and error back propagation.
+The weights of a convolutional neural network that it updates during training are the values inside the filter kernels.
+
+In deep convolutional neural networks the individual filter kernels are stacked which increases the depth of a convolutional filter (or kernel), 
+similar to the channels of a color image. Using stacked filters yields more features from an input image but also increases the number of learnable weights (filter values).
     
 
 ## References
