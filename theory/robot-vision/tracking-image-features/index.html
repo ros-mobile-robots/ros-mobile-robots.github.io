@@ -1090,6 +1090,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#types-of-features" class="md-nav__link">
+    Types of Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#corner-detectors" class="md-nav__link">
+    Corner Detectors
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#intensity-gradient-and-filtering" class="md-nav__link">
     Intensity Gradient and Filtering
   </a>
@@ -1199,8 +1213,26 @@ Features as measurable pieces of data in an image that help distinguish between 
 </ol>
 <p>Edges are one of the simplest shapes that you can detect; 
 edges often define the boundaries between objects but they may not provide enough information to find and identify small features on those objects.</p>
+<h3 id="types-of-features">Types of Features</h3>
+<ol>
+<li>Edges: Areas with a high intensity gradient</li>
+<li>Corners: Intersection of two edges</li>
+<li>Blobs: Region based features; areas of extreme brightness or unique texture</li>
+</ol>
+<p>Corners are the most repeatable feature, which means they are easy to recognize given two or more images of the same scene.
+Corners match exactly and are good features, therefore we are interested in finding this type of features.</p>
+<h3 id="corner-detectors">Corner Detectors</h3>
+<p>A corner can be located by following these steps:</p>
+<ul>
+<li>Calculate the gradient for a small window of the image, using sobel-x and sobel-y operators (without applying binary thesholding).</li>
+<li>Use vector addition to calculate the magnitude and direction of the total gradient from these two values.</li>
+<li>Apply this calculation as you slide the window across the image, calculating the gradient of each window. When a big variation in the direction &amp; magnitude of the gradient has been detected - a corner has been found!</li>
+</ul>
 <h3 id="intensity-gradient-and-filtering">Intensity Gradient and Filtering</h3>
 <h3 id="harris-corner-detector">Harris Corner Detector</h3>
+<ul>
+<li><a href="https://docs.opencv.org/4.5.3/dc/d0d/tutorial_py_features_harris.html">OpenCV Harris tutorial</a></li>
+</ul>
 <h3 id="overview-of-popular-keypoint-detectors">Overview of Popular Keypoint Detectors</h3>
 <h3 id="hog-descriptors-sift-and-surf-etc">HOG Descriptors (SIFT and SURF, etc.)</h3>
 <h3 id="binary-descriptors-brisk">Binary Descriptors (BRISK, ...)</h3>
