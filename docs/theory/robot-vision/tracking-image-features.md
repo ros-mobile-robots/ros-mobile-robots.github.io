@@ -17,9 +17,29 @@ Edges are one of the simplest shapes that you can detect;
 edges often define the boundaries between objects but they may not provide enough information to find and identify small features on those objects.
 
 
+### Types of Features
+
+1. Edges: Areas with a high intensity gradient
+2. Corners: Intersection of two edges
+3. Blobs: Region based features; areas of extreme brightness or unique texture
+
+
+Corners are the most repeatable feature, which means they are easy to recognize given two or more images of the same scene.
+Corners match exactly and are good features, therefore we are interested in finding this type of features.
+
+### Corner Detectors
+
+A corner can be located by following these steps:
+
+- Calculate the gradient for a small window of the image, using sobel-x and sobel-y operators (without applying binary thesholding).
+- Use vector addition to calculate the magnitude and direction of the total gradient from these two values.
+- Apply this calculation as you slide the window across the image, calculating the gradient of each window. When a big variation in the direction & magnitude of the gradient has been detected - a corner has been found!
+
 ### Intensity Gradient and Filtering
 
 ### Harris Corner Detector
+
+- [OpenCV Harris tutorial](https://docs.opencv.org/4.5.3/dc/d0d/tutorial_py_features_harris.html)
 
 ### Overview of Popular Keypoint Detectors
 
