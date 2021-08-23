@@ -42,6 +42,9 @@ S_y = \begin{matrix}
       \end{matrix}
 $$
 
+!!! note
+    TODO add image examples
+
 ### Image Blurring
 
 ### Gaussian Kernels
