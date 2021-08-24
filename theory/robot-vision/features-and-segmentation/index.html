@@ -1079,6 +1079,19 @@
     Features
   </a>
   
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#types-of-features" class="md-nav__link">
+    Types of Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1111,6 +1124,26 @@
                   <h1>Features and segmentation</h1>
                 
                 <h2 id="features">Features</h2>
+<p>Features and feature extraction form the basis for many computer vision applications and it is an important task in computer vision
+to select the right features.
+The idea is to represent the content of an image as a piece of information, named a feature. Thus defining a set of data, 
+such as a set of images, as a smaller, simpler model made of a combination of visual features: a few colors and shapes.
+Features as measurable pieces of data in an image that help distinguish between different classes of images.</p>
+<p>There are two main types of features, which can be useful individually or in combination:</p>
+<ol>
+<li>Color-based and</li>
+<li>Shape-based</li>
+</ol>
+<p>Edges are one of the simplest shapes that you can detect; 
+edges often define the boundaries between objects but they may not provide enough information to find and identify small features on those objects.</p>
+<h3 id="types-of-features">Types of Features</h3>
+<ol>
+<li>Edges: Areas with a high intensity gradient</li>
+<li>Corners: Intersection of two edges</li>
+<li>Blobs: Region based features; areas of extreme brightness or unique texture</li>
+</ol>
+<p>Corners are the most repeatable feature, which means they are easy to recognize given two or more images of the same scene.
+Corners match exactly and are good features, therefore we are interested in finding this type of features.</p>
 <h2 id="segmentation">Segmentation</h2>
 <ul>
 <li><a href="https://docs.opencv.org/4.5.3/d3/d05/tutorial_py_table_of_contents_contours.html">Contours in OpenCV</a></li>
