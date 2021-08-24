@@ -1,0 +1,8 @@
+## Combining Camera and LiDAR
+
+The main problem with a single-sensor approach is its reduced reliability as each sensor has its weaknesses under certain situations.
+To improve the tracking process results we can make use of both, camera and LiDAR sensors, and can combine the data from these sensors.
+
+The first step in the fusion process will be to combine the tracked feature points within the camera images with the 3D Lidar points. 
+For this we use homogeneous coordinates and the transformation matrices related to cameras to geometrically project the LiDAR points 
+into the camera in such a way that we know the position of each 3D Lidar point on the image sensor.
