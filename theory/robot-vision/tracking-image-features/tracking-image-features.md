@@ -16,6 +16,16 @@ A corner can be located by following these steps:
 
 ### Overview of Popular Keypoint Detectors
 
+
+### Descriptors
+
+Descriptors provide distinctive information on the surrounding area of a keypoint.
+The literature differentiates between gradient-based descriptors and binary descriptors, 
+with the latter being a relatively new addition with the clear advantage of computational speed. 
+
+- An example of a gradient-based descriptor is the Scale Invariant Feature Transform (SIFT).
+- A representative of binary descriptors is the Binary Robust Invariant Scalable Keypoints (BRISK).
+
 ### HOG Descriptors (SIFT and SURF, etc.)
 
 ### Binary Descriptors (BRISK, ...)
