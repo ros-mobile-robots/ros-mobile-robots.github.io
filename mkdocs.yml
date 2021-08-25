@@ -86,6 +86,9 @@ nav:
       - Pinhole Camera Model: theory/robot-vision/pinhole-camera-model.md
       - Camera Calibration: theory/robot-vision/camera-calibration.md
       - Image Processing: theory/robot-vision/image-processing.md
+      - Features and Segmentation: theory/robot-vision/features-and-segmentation.md
+      - Tracking Image Features: theory/robot-vision/tracking-image-features.md
+      - Combining Camera and Lidar: theory/robot-vision/combining-camera-and-lidar.md
     - Object Detection: theory/object-detection/overview.md
     - State Estimation and Localization: theory/estimatione-localization/overview.md
     - Planning I: theory/planning1/overview.md
