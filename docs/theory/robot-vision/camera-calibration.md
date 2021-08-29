@@ -65,5 +65,6 @@ While the matrix has 12 entries, there are only 11 degrees-of-freedom, since per
 - [Self-Driving Cars with Duckietown](https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@a43815226b7242b7a071a10bbdc8ffa2/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@17abe5f8b31049a2ad37c52c1e9d1107)
 - [Mathworks Camera Calibration](https://de.mathworks.com/help/vision/ug/camera-calibration.html)
 - [Pin-hole Camera Calibration with Matlab Toolbox Documentation](http://www.vision.caltech.edu/bouguetj/calib_doc/)
+- [OpenCV Camera Calibration and 3D Reconstruction](https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html)
 
 [^wiki]: [Wikipedia Camera Resectioning](https://en.wikipedia.org/wiki/Camera_resectioning)
