@@ -638,8 +638,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#descriptors" class="md-nav__link">
-    Descriptors
+  <a href="#descriptors-feature-vector" class="md-nav__link">
+    Descriptors (Feature Vector)
   </a>
   
 </li>
@@ -652,9 +652,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#binary-descriptors-brisk" class="md-nav__link">
-    Binary Descriptors (BRISK, ...)
+  <a href="#binary-descriptors-brisk-orb-etc" class="md-nav__link">
+    Binary Descriptors (BRISK, ORB, etc.)
   </a>
+  
+    <nav class="md-nav" aria-label="Binary Descriptors (BRISK, ORB, etc.)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oriented-fast-and-rotated-brief-orb" class="md-nav__link">
+    Oriented FAST and Rotated BRIEF (ORB)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1278,8 +1291,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#descriptors" class="md-nav__link">
-    Descriptors
+  <a href="#descriptors-feature-vector" class="md-nav__link">
+    Descriptors (Feature Vector)
   </a>
   
 </li>
@@ -1292,9 +1305,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#binary-descriptors-brisk" class="md-nav__link">
-    Binary Descriptors (BRISK, ...)
+  <a href="#binary-descriptors-brisk-orb-etc" class="md-nav__link">
+    Binary Descriptors (BRISK, ORB, etc.)
   </a>
+  
+    <nav class="md-nav" aria-label="Binary Descriptors (BRISK, ORB, etc.)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oriented-fast-and-rotated-brief-orb" class="md-nav__link">
+    Oriented FAST and Rotated BRIEF (ORB)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1373,8 +1399,8 @@
 <li><a href="https://docs.opencv.org/4.5.3/dc/d0d/tutorial_py_features_harris.html">OpenCV Harris tutorial</a></li>
 </ul>
 <h3 id="overview-of-popular-keypoint-detectors">Overview of Popular Keypoint Detectors</h3>
-<h3 id="descriptors">Descriptors</h3>
-<p>Descriptors provide distinctive information on the surrounding area of a keypoint.
+<h3 id="descriptors-feature-vector">Descriptors (Feature Vector)</h3>
+<p>Descriptors also known als feature vectors provide distinctive information on the surrounding area of a keypoint.
 The literature differentiates between gradient-based descriptors and binary descriptors, 
 with the latter being a relatively new addition with the clear advantage of computational speed. </p>
 <ul>
@@ -1382,7 +1408,28 @@ with the latter being a relatively new addition with the clear advantage of comp
 <li>A representative of binary descriptors is the Binary Robust Invariant Scalable Keypoints (BRISK).</li>
 </ul>
 <h3 id="hog-descriptors-sift-and-surf-etc">HOG Descriptors (SIFT and SURF, etc.)</h3>
-<h3 id="binary-descriptors-brisk">Binary Descriptors (BRISK, ...)</h3>
+<h3 id="binary-descriptors-brisk-orb-etc">Binary Descriptors (BRISK, ORB, etc.)</h3>
+<h4 id="oriented-fast-and-rotated-brief-orb">Oriented FAST and Rotated BRIEF (ORB)</h4>
+<p>ORB is a combination of FAST and BRIEF. FAST is a feature detection algorithm, while BRIEF is a feature vector creation algorithm.</p>
+<p>ORB starts by detecting special regions in an image called keypoints, which is a small region in an image, that is particularly distinctive.
+Such keypoints are for example corners, where the pixel values sharply change from light to dark.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TODO image showing ORB features.</p>
+</div>
+<p>After locating keypoints in an image, ORB calculates a corresponding feature vector for each keypoint.
+The ORB algorithm creates feature vectors that contain only ones and zeros, which is why they are called
+<strong>binary feature vectors</strong>:</p>
+<div class="arithmatex">\[
+V1 = [01011100100110\dots]\\
+V2 = [10010100110100\dots]\\
+V3 = [11000100101110\dots]\\
+\hdots
+\]</div>
+<p>The sequence of ones and zeros varies, according to what a specific keypoint and its surrounding pixel area looks like.
+The vector represents the pattern of intensity around a keypoint. So multiple feature vectors can be used to identify a larger area
+and even a specific object in an image.</p>
+<p>ORB is not only incredible fast but it is also impervious to noise illumination, and image transformations such as rotations.</p>
 <h2 id="references">References</h2>
 <h3 id="text-books-and-papers">Text Books and Papers</h3>
 <ul>
