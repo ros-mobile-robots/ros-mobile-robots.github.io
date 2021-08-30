@@ -17,9 +17,9 @@ A corner can be located by following these steps:
 ### Overview of Popular Keypoint Detectors
 
 
-### Descriptors
+### Descriptors (Feature Vector)
 
-Descriptors provide distinctive information on the surrounding area of a keypoint.
+Descriptors also known als feature vectors provide distinctive information on the surrounding area of a keypoint.
 The literature differentiates between gradient-based descriptors and binary descriptors, 
 with the latter being a relatively new addition with the clear advantage of computational speed. 
 
@@ -28,8 +28,35 @@ with the latter being a relatively new addition with the clear advantage of comp
 
 ### HOG Descriptors (SIFT and SURF, etc.)
 
-### Binary Descriptors (BRISK, ...)
+### Binary Descriptors (BRISK, ORB, etc.)
 
+
+#### Oriented FAST and Rotated BRIEF (ORB)
+
+ORB is a combination of FAST and BRIEF. FAST is a feature detection algorithm, while BRIEF is a feature vector creation algorithm.
+
+ORB starts by detecting special regions in an image called keypoints, which is a small region in an image, that is particularly distinctive.
+Such keypoints are for example corners, where the pixel values sharply change from light to dark.
+
+!!! note
+    TODO image showing ORB features.
+    
+After locating keypoints in an image, ORB calculates a corresponding feature vector for each keypoint.
+The ORB algorithm creates feature vectors that contain only ones and zeros, which is why they are called
+**binary feature vectors**:
+
+$$
+V1 = [01011100100110\dots]\\
+V2 = [10010100110100\dots]\\
+V3 = [11000100101110\dots]\\
+\hdots
+$$
+
+The sequence of ones and zeros varies, according to what a specific keypoint and its surrounding pixel area looks like.
+The vector represents the pattern of intensity around a keypoint. So multiple feature vectors can be used to identify a larger area
+and even a specific object in an image.
+
+ORB is not only incredible fast but it is also impervious to noise illumination, and image transformations such as rotations.
 
 ## References
 
