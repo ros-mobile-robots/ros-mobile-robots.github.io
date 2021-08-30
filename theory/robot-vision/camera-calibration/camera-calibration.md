@@ -66,5 +66,8 @@ While the matrix has 12 entries, there are only 11 degrees-of-freedom, since per
 - [Mathworks Camera Calibration](https://de.mathworks.com/help/vision/ug/camera-calibration.html)
 - [Pin-hole Camera Calibration with Matlab Toolbox Documentation](http://www.vision.caltech.edu/bouguetj/calib_doc/)
 - [OpenCV Camera Calibration and 3D Reconstruction](https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html)
+- [ROS Camera Calibration](https://wiki.ros.org/camera_calibration)
+- [ROS Wiki image_pipeline CameraInfo](https://wiki.ros.org/image_pipeline/CameraInfo)
+- [Z. Zhang. A Flexible New Technique for Camera Calibration. IEEE Transactions on Pattern Analysis and Machine Intelligence, 22(11):1330-1334, 2000.](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr98-71.pdf)
 
 [^wiki]: [Wikipedia Camera Resectioning](https://en.wikipedia.org/wiki/Camera_resectioning)
