@@ -1154,12 +1154,21 @@
 <li>Segmentation</li>
 </ol>
 <p>The underlying basis of all these neural networks is the convolutional layer.</p>
-<p>A classification CNN takes in an input image and outputs a distribution of class scores.</p>
+<p>A classification CNN takes in an input image and outputs a distribution of class scores.
+This is done by feeding the input image through convolutional layers, which is the backbone of a CNN.
+These layers are used to filter the input image, and the filters are also known as convolution kernels.
+A kernel has a certain (small) size and one or more channels, specifying its depth.
+Each filter extracts different features from an image, such as edges or colors.
+As a CNN trains it updates the weights that define the image filters in this convolutional layer using <a href="https://en.wikipedia.org/wiki/Backpropagation">back propagation</a>.
+To learn more about backprogagation also visit this blog post.</p>
 <h2 id="references">References</h2>
 <ul>
 <li><a href="https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@e82fa6cafbee43feaa24c77408ea5658/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@05e2bb20a6f34d77be200ce92047e6d8">Self-Driving Cars with Duckietown</a></li>
 <li>https://ujjwalkarn.me/2016/08/11/intuitive-explanation-convnets/</li>
 <li><a href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient Descent</a></li>
+<li><a href="https://karpathy.medium.com/yes-you-should-understand-backprop-e2f06eab496b">Yes you should understand backprop by Andrej Karpathy</a></li>
+<li><a href="http://karpathy.github.io/neuralnets/">Hacker's guide to Neural Networks</a></li>
+<li><a href="https://www.youtube.com/watch?v=NfnWJUyUJYU&amp;list=PLkt2uSq6rBVctENoVBg1TpCC7OQi31AlC">CS231n taught by Andrej Karpathy</a></li>
 </ul>
                 
               
