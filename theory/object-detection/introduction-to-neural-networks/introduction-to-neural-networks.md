@@ -12,9 +12,12 @@ A classification CNN takes in an input image and outputs a distribution of class
 This is done by feeding the input image through convolutional layers, which is the backbone of a CNN.
 These layers are used to filter the input image, and the filters are also known as convolution kernels.
 A kernel has a certain (small) size and one or more channels, specifying its depth.
-Each filter extracts different features from an image, such as edges or colors.
+Each filter extracts different features from an image, such as edges or colors. 
+The output of a given convolutional layer is a set of **feature maps** (also called activation maps), which are filtered versions of an original input image.
 As a CNN trains it updates the weights that define the image filters in this convolutional layer using [back propagation](https://en.wikipedia.org/wiki/Backpropagation).
-To learn more about backprogagation also visit this blog post.
+
+
+### Activation Function
 
 ## References
 
