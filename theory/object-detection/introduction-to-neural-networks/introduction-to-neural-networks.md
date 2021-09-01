@@ -19,6 +19,11 @@ As a CNN trains it updates the weights that define the image filters in this con
 
 ### Activation Function
 
+[Activation functions](https://en.wikipedia.org/wiki/Activation_function), such as [ReLU](https://en.wikipedia.org/wiki/Rectifier_(neural_networks))'s, are typically placed after a convolutional layer to slightly 
+transform the output so that it's more efficient to perform backpropagation and effectively train the network.
+
+
+
 ## References
 
 - [Self-Driving Cars with Duckietown](https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@e82fa6cafbee43feaa24c77408ea5658/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@05e2bb20a6f34d77be200ce92047e6d8)
