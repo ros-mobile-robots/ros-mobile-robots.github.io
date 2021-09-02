@@ -56,6 +56,20 @@ While the matrix has 12 entries, there are only 11 degrees-of-freedom, since per
 
 ### Calibration via Direct Linear Transformation
 
+The direct linear transform is a 11 DOF transformation, taking the 6 DOF from the extrinsics and the 5 DOF from the intrinsics
+into account to describe a so called affine camera model. This is basically a camera which has a perfect lense, without distortions from, e.g. lenses.
+This is an approximation of the camera because all real world cameras have lens distortions.
+
+The camera parameters obtained through DLT can be computed using six or more control points, which are points with known coordinates in the environment.
+By picturing those points we can estimate what are the intrinsics of the camera and where that camera is.
+
+In practice there are addiontal non-linear parameters to account for lens distortions:
+
+- Radial Distortion
+  - barrel distortion
+  - cushion distortion
+- Tangential Distortion
+
 ### Calibration as an Optimization Problem
 
 ### Homographies and Homography Estimation
@@ -69,5 +83,9 @@ While the matrix has 12 entries, there are only 11 degrees-of-freedom, since per
 - [ROS Camera Calibration](https://wiki.ros.org/camera_calibration)
 - [ROS Wiki image_pipeline CameraInfo](https://wiki.ros.org/image_pipeline/CameraInfo)
 - [Z. Zhang. A Flexible New Technique for Camera Calibration. IEEE Transactions on Pattern Analysis and Machine Intelligence, 22(11):1330-1334, 2000.](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr98-71.pdf)
+
+### Youtube
+
+- [Camera Intrinsics and Extrinsics - 5 Minutes with Cyrill](https://www.youtube.com/watch?v=ND2fa08vxkY)
 
 [^wiki]: [Wikipedia Camera Resectioning](https://en.wikipedia.org/wiki/Camera_resectioning)
