@@ -604,6 +604,19 @@
     References
   </a>
   
+    <nav class="md-nav" aria-label="References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#youtube" class="md-nav__link">
+    Youtube
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1225,6 +1238,19 @@
     References
   </a>
   
+    <nav class="md-nav" aria-label="References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#youtube" class="md-nav__link">
+    Youtube
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1291,6 +1317,18 @@ often involving one or more checkerboard patterns. One option for calibrating th
 the entries of the three-by-four camera matrix P that maps 3D scene points to their 2D image coordinates.
 While the matrix has 12 entries, there are only 11 degrees-of-freedom, since perspective projection is only defined up to scale.</p>
 <h3 id="calibration-via-direct-linear-transformation">Calibration via Direct Linear Transformation</h3>
+<p>The direct linear transform is a 11 DOF transformation, taking the 6 DOF from the extrinsics and the 5 DOF from the intrinsics
+into account to describe a so called affine camera model. This is basically a camera which has a perfect lense, without distortions from, e.g. lenses.
+This is an approximation of the camera because all real world cameras have lens distortions.</p>
+<p>The camera parameters obtained through DLT can be computed using six or more control points, which are points with known coordinates in the environment.
+By picturing those points we can estimate what are the intrinsics of the camera and where that camera is.</p>
+<p>In practice there are addiontal non-linear parameters to account for lens distortions:</p>
+<ul>
+<li>Radial Distortion</li>
+<li>barrel distortion</li>
+<li>cushion distortion</li>
+<li>Tangential Distortion</li>
+</ul>
 <h3 id="calibration-as-an-optimization-problem">Calibration as an Optimization Problem</h3>
 <h3 id="homographies-and-homography-estimation">Homographies and Homography Estimation</h3>
 <h2 id="references">References</h2>
@@ -1302,6 +1340,10 @@ While the matrix has 12 entries, there are only 11 degrees-of-freedom, since per
 <li><a href="https://wiki.ros.org/camera_calibration">ROS Camera Calibration</a></li>
 <li><a href="https://wiki.ros.org/image_pipeline/CameraInfo">ROS Wiki image_pipeline CameraInfo</a></li>
 <li><a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr98-71.pdf">Z. Zhang. A Flexible New Technique for Camera Calibration. IEEE Transactions on Pattern Analysis and Machine Intelligence, 22(11):1330-1334, 2000.</a></li>
+</ul>
+<h3 id="youtube">Youtube</h3>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=ND2fa08vxkY">Camera Intrinsics and Extrinsics - 5 Minutes with Cyrill</a></li>
 </ul>
 <div class="footnote">
 <hr />
