@@ -77,6 +77,8 @@ nav:
   - Components: components.md
   - Robotics Theory:
     - theory/index.md
+    - Preliminaries:
+      - Probability: theory/preliminaries/probability.md
     - Modeling and Control:
       - Introduction to Control Systems: theory/modeling-control/control-systems-introduction.md
       - Representations and models: theory/modeling-control/robot-representations.md
