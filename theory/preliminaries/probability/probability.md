@@ -36,3 +36,10 @@ The function $p(x,y)$ is called joint distribution.
 ### Moments of RVs
 
 ### Entropy
+
+
+## Resources
+
+- [Duckietown Preliminaries](https://docs.duckietown.org/DT19/preliminaries/out/probability_basics.html)
+- [Probabilistic Robotics, Thrun, Burgard, Fox](https://amzn.to/3kolas5)
+- [Papoulis: Probability, Random Variables, Stochastic Processes](https://amzn.to/3lC0ZWV)
