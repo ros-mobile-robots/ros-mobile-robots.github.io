@@ -40,6 +40,7 @@ extra:
   asset_dir: /resources # /assets
   diffbot_repo_url: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
+  disqus: ros-mobile-robots
   analytics:
     provider: google
     property: G-5Z9V7GPRX3
