@@ -92,7 +92,21 @@ nav:
       - Tracking Image Features: theory/robot-vision/tracking-image-features.md
       - Combining Camera and Lidar: theory/robot-vision/combining-camera-and-lidar.md
     - Object Detection: theory/object-detection/overview.md
-    - State Estimation and Localization: theory/estimatione-localization/overview.md
+    - State Estimation: 
+      - Recursive State Estimation: theory/state-estimation/recursive-state-estimation.md
+      - Gaussian Filters (Kalman Filter): theory/state-estimation/gaussian-filters.md
+      - Nonparametric Filters (Particle Filter): theory/state-estimation/nonparametric-filters.md
+    - Localization:
+      - Markov and Gaussian Localization: theory/localization/markov-and-gaussian-localization.md
+      - Grid and Monte Carlo Localization: theory/localization/grid-and-monte-carlo-localization.md
+    - Mapping:
+      - Occupancy Grid Mapping: theory/mapping/occupancy-grid-mapping.md
+    - Simultaneous Localization and Mapping (SLAM): 
+      - SLAM Overview: theory/slam/slam-overview.md
+      - EKF SLAM: theory/slam/ekf-slam.md
+      - GraphSLAM: theory/slam/graphslam.md
+      - FastSLAM: theory/slam/fastslam.md
+      - GMapping: theory/slam/gmapping.md
     - Planning I: theory/planning1/overview.md
     - Planning II: theory/planning2/overview.md
     - Learning by Reinforcement: theory/reinforcement-learning/overview.md
