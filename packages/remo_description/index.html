@@ -1246,6 +1246,19 @@
     Usage
   </a>
   
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#git-lfs-and-bandwith-quota" class="md-nav__link">
+    Git LFS and Bandwith Quota
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1458,6 +1471,19 @@
     Usage
   </a>
   
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#git-lfs-and-bandwith-quota" class="md-nav__link">
+    Git LFS and Bandwith Quota
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1519,6 +1545,16 @@ To use <code>remo_description</code> inside a Gazebo simulation or on a real 3D 
 <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel">ros-mobile-robots/diffbot</a> repository.
 Most of the launch files you find in the <code>diffbot</code> repository
 accept a <code>model</code> argument. Just append <code>model:=remo</code> to the end of a <code>roslaunch</code> command to make use of this <code>remo_description</code> package.</p>
+<h3 id="git-lfs-and-bandwith-quota">Git LFS and Bandwith Quota</h3>
+<p>The binary stl files are hosted on GitHub using <a href="https://git-lfs.github.com/">Git Large File Storage (git lfs)</a> 
+to avoid increasing the total size of the repository because of possible stl file changes.
+For open source repositories, GitHub has a bandwith limit of 1 GB (up to 1.5 GB) per month. 
+Depending on how many users clone/pull the stl files using git lfs per month, this bandwith can be exhausted after a few days. 
+If you are not able to clone/pull the stl files and only get the pointer files, you have to wait until the bandwith quota resets back to zero. 
+In case you need the stl files immediately, and to support this work you can get <a href="https://gumroad.com/l/GnMpU?wanted=true">immediate access to the stl files</a>:</p>
+<p><a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a></p>
+<p>Also if you find this work useful please consider the funding options to support the development and design of this robot.
+However, you will always be able to clone/pull and use the Remo stl files once the bandwith quota resets.</p>
 <h2 id="camera-types">Camera Types</h2>
 <p>The <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro"><code>remo.urdf.xacro</code></a> accepts a <code>camera_type</code>
 <a href="http://wiki.ros.org/xacro#Rospack_commands">xacro arg</a> which lets you choose between the following different camera types</p>
