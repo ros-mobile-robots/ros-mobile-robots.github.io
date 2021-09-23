@@ -28,6 +28,12 @@ In case you need the stl files immediately, and to support this work you can get
 Also if you find this work useful please consider the funding options to support the development and design of this robot.
 However, you will always be able to clone/pull and use the Remo stl files once the bandwith quota resets.
 
+### Assembly
+
+For assembly instructions please watch the video below:
+
+[![remo fusion animation](raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
+
 ## Camera Types
 
 The [`remo.urdf.xacro`]({{ remo_repo_url }}/urdf/remo.urdf.xacro) accepts a `camera_type`
