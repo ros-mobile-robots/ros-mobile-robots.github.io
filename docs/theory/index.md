@@ -6,42 +6,43 @@ Also don't forget to read through the resources listed on the [main page](../ind
 engineering text books of choice.
 
 - Modeling and Control
-  * Introduction to control systems
-  * Representations and models
-  * PID control
+    * Introduction to control systems
+    * Representations and models
+    * PID control
 
 - Robot Vision
-  * Introduction to projective geometry
-  * Camera modeling and calibration
-  * Image processing
+
+    * Introduction to projective geometry
+    * Camera modeling and calibration
+    * Image processing
 
 - Object Detection
-  * Convolutional neural networks
-  * One and two stage object detection
+    * Convolutional neural networks
+    * One and two stage object detection
 
 - State Estimation and Localization
-  * Bayes filtering framework
-  * Parameterized methods (Kalman filter)
-  * Sampling-based methods (Particle and histogram filter)
+    * Bayes filtering framework
+    * Parameterized methods (Kalman filter)
+    * Sampling-based methods (Particle and histogram filter)
 
 - Planning I
-  * Planning formalization
-  * Graphs
+    * Planning formalization
+    * Graphs
 
 - Planning II
-  * Probabilistic roadmaps
-  * Sampling-based planning
+    * Probabilistic roadmaps
+    * Sampling-based planning
 
 - Learning by Reinforcement
-  * Markov decision processes
-  * Value functions
-  * Policy gradients
-  * Domain randomization
+    * Markov decision processes
+    * Value functions
+    * Policy gradients
+    * Domain randomization
 
 - Learning by Imitation
-  * Behaviour cloning
-  * Online imitation learning
-  * Safety and uncertainty
+    * Behaviour cloning
+    * Online imitation learning
+    * Safety and uncertainty
 
 
 
