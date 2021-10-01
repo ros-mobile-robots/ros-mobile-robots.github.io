@@ -6,6 +6,7 @@ Also don't forget to read through the resources listed on the [main page](../ind
 engineering text books of choice.
 
 - Modeling and Control
+
     * Introduction to control systems
     * Representations and models
     * PID control
@@ -17,29 +18,35 @@ engineering text books of choice.
     * Image processing
 
 - Object Detection
+
     * Convolutional neural networks
     * One and two stage object detection
 
 - State Estimation and Localization
+
     * Bayes filtering framework
     * Parameterized methods (Kalman filter)
     * Sampling-based methods (Particle and histogram filter)
 
 - Planning I
+
     * Planning formalization
     * Graphs
 
 - Planning II
+
     * Probabilistic roadmaps
     * Sampling-based planning
 
 - Learning by Reinforcement
+
     * Markov decision processes
     * Value functions
     * Policy gradients
     * Domain randomization
 
 - Learning by Imitation
+
     * Behaviour cloning
     * Online imitation learning
     * Safety and uncertainty
@@ -49,3 +56,4 @@ engineering text books of choice.
 ## Resources
 
 - [Self Driving cars with Duckietown edX MOOC](https://www.edx.org/course/self-driving-cars-with-duckietown)
+- [Uni Freiburg SLAM Course, Robot Mapping - WS 2013/14](http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/)
