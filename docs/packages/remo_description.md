@@ -32,7 +32,7 @@ However, you will always be able to clone/pull and use the Remo stl files once t
 
 For assembly instructions please watch the video below:
 
-[![remo fusion animation](raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
+[![remo fusion animation](https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
 
 ## Camera Types
 
