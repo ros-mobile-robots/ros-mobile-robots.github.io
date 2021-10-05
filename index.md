@@ -5,7 +5,10 @@ The robot can operate on a [Raspberry Pi 4 B](https://de.aliexpress.com/item/328
 running [ROS Noetic](http://wiki.ros.org/noetic) or [ROS Melodic](http://wiki.ros.org/melodic) middleware on Ubuntu Mate 20.04 and Ubuntu 18.04 respectively.
 With a motor driver and two actuators it can drive autonomously to a desired location while sensing its environment using sensors, 
 such as a camera and an laser scanner to avoid obstacles. Odometry wheel encoders (also refered to as speed sensors) 
-combined with an inertial measurement unit (IMU) are used for localization.
+combined with an inertial measurement unit (IMU) are used for localization. The following video shows an overview of the components:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/6aAEbtfVbAk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 The project is split into multiple parts, to adress the following main aspects of the robot.
 
 - [Bill of Materials (BOM)](./components.md) and the theory behind the parts.
