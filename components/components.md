@@ -16,7 +16,7 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/2GLOyr0), [Amazon.de](https://amzn.to/3dcFmYE) | |
 | SLAMTEC RPLiDAR A2M8 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com](https://amzn.to/3lthTFz), [Amazon.de](https://amzn.to/30MyImR) | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.de](https://amzn.to/3km5KF3) | |
-| Teensy 4.0 or 3.2 | 1 | $ | [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
+| Teensy 4.0 or 3.2 | 1 | $19.95 | [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
 | Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Sparkfun](https://www.sparkfun.com/products/16413) | |
 | Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm) |
 | Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.de](https://amzn.to/3kiX8PH) | |
@@ -24,6 +24,15 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
 | Caster ball | 1 | $6.30 | [Amazon](http://amzn.com/B01N2S7CX6/) | 1-inch diameter | |
 | Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A | |
+
+### USB Wi-Fi Dongle (optional)
+
+For improved connectivity use a Wi-Fi USB dongle.
+
+|  **Part** | **Quantity** | **Cost** | **URL** | **Notes** |
+| --- | --: | --: | --- | --- |
+| WiFi Dongle - TP-Link Archer T2U Nano | 1 | $17.99 | [Amazon](https://amzn.com/B07PB1X4CN/) | RTL8811AU chipset |
+| WiFi Dongle - TP-Link Archer T2U Plus | 1 | $19.99 | [Amazon](https://amzn.com/B07P5PRK7J/) | RTL8811AU chipset |
 
 
 ### Camera Modules (optional)
