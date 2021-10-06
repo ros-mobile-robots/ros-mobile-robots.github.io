@@ -12,20 +12,31 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 
 | **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
 |:------------------------|:------------:| --- |  --- |  --- |
-| Raspberry Pi 4 B (4 Gb) | 1 | $ | [Amazon.com](https://amzn.to/3ltuJUo), [Amazon.de](https://amzn.to/2IchIAc) | |
+| Raspberry Pi 4 B (4 Gb) | 1 | $55.0 | [Sparkfun](https://www.sparkfun.com/products/15447), [Amazon.com](https://amzn.to/3ltuJUo), [Amazon.de](https://amzn.to/2IchIAc) | |
 | SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/2GLOyr0), [Amazon.de](https://amzn.to/3dcFmYE) | |
-| SLAMTEC RPLidar A2M8 (12 m) | 1 | $ | [Amazon.com](https://amzn.to/3lthTFz), [Amazon.de](https://amzn.to/30MyImR) | |
-| Raspi Camera Module V2, 8 MP, 1080p | 1 | $ | [Amazon.com](https://amzn.to/2Ib9fgG), [Amazon.de](https://amzn.to/2FdVDQF) | |
+| SLAMTEC RPLiDAR A2M8 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com](https://amzn.to/3lthTFz), [Amazon.de](https://amzn.to/30MyImR) | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.de](https://amzn.to/3km5KF3) | |
 | Teensy 4.0 or 3.2 | 1 | $ | [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
-| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $ [Sparkfun](https://www.sparkfun.com/products/16413) | |
+| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Sparkfun](https://www.sparkfun.com/products/16413) | |
 | Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm) |
-| Battery pack (for four or eight batteries) | 1 | $ |  [Amazon.de](https://amzn.to/3kiX8PH) | |
+| Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.de](https://amzn.to/3kiX8PH) | |
 | USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle | |
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
 | Caster ball | 1 | $6.30 | [Amazon](http://amzn.com/B01N2S7CX6/) | 1-inch diameter | |
-| Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A |
-| Screws
+| Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A | |
+
+
+### Camera Modules (optional)
+
+The camera modules are currently optional. SLAM, localization and navigation is currently laser based.
+Get a camera in case you plan to do applications such as object detection, visual graph based SLAM methods, etc.
+
+| **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
+|:------------------------|:------------:| --- |  --- |  --- |
+| Raspi Camera Module V2, 8 MP, 1080p | 1 | $ | [Amazon.com](https://amzn.to/2Ib9fgG), [Amazon.de](https://amzn.to/2FdVDQF) | |
+| OAK-1 | 1 | $149 | [OpenCV.ai](https://store.opencv.ai/products/oak-1) | |
+| OAK-D | 1 | $199 | [OpenCV.ai](https://store.opencv.ai/products/oak-d) | |
+| OAK-D Lite | 1 | -- | [OpenCV.ai](https://store.opencv.ai/products/oak-d-lite) | Will be released |
 
 
 ### Assembly Hardware
