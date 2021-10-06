@@ -6,7 +6,53 @@ categories: [robotics]
 tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, sensors, components]
 ---
 
-Part list and assembly of the robot platform and the components.
+## BOM for REMO Robot
+
+Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
+
+| **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
+|:------------------------|:------------:| --- |  --- |  --- |
+| Raspberry Pi 4 B (4 Gb) | 1 | $ | [Amazon.com](https://amzn.to/3ltuJUo), [Amazon.de](https://amzn.to/2IchIAc) | |
+| SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/2GLOyr0), [Amazon.de](https://amzn.to/3dcFmYE) | |
+| SLAMTEC RPLidar A2M8 (12 m) | 1 | $ | [Amazon.com](https://amzn.to/3lthTFz), [Amazon.de](https://amzn.to/30MyImR) | |
+| Raspi Camera Module V2, 8 MP, 1080p | 1 | $ | [Amazon.com](https://amzn.to/2Ib9fgG), [Amazon.de](https://amzn.to/2FdVDQF) | |
+| Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.de](https://amzn.to/3km5KF3) | |
+| Teensy 4.0 or 3.2 | 1 | $ | [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
+| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $ [Sparkfun](https://www.sparkfun.com/products/16413) | |
+| Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm) |
+| Battery pack (for four or eight batteries) | 1 | $ |  [Amazon.de](https://amzn.to/3kiX8PH) | |
+| USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle | |
+| Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
+| Caster ball | 1 | $6.30 | [Amazon](http://amzn.com/B01N2S7CX6/) | 1-inch diameter | |
+| Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A |
+| Screws
+
+
+### Assembly Hardware
+
+You need the following parts to build REMO. They come in packs, so order the quantity you need for the number of REMOs you are going to build.
+
+|  **Part** | **Qty per REMO** | **Qty per pack** | **Cost per REMO** | **URL** | **Notes** |
+| --- | --- | --: | --: | --: | --- |
+|  Adhesive pads | 2 | 48 | $0.14 |  | optional |
+|  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack |
+|  M2 screw | 20 | 100 | $1.29 |  | 8mm long, self tapping |
+|  M2 screw | 4 | 60 | $0.47 |  | 25mm long|
+|  M2 Brass threaded inserts | 4 | 100 | $0.24 |  |  |
+|  Jumper wires | 4 | 40 | $0.13 | [Amazon](https://amzn.to/2tacYQD) | Female-female, ~20cm |
+
+### Optional parts
+
+| **Part** | **Quantity** | **Cost** | **Store** | **Notes** |
+| --- | --: | --: | --- | --- |
+| Jetson Nano | 1 |  $99.00 | [NVIDIA](https://developer.nvidia.com/embedded/buy/jetson-nano-devkit)  |  |
+| *PiOLED* display | 1 | $14.95 | [Adafruit](http://adafru.it/3527), [Amazon](https://amzn.to/2GgxUxX) |  |
+| *PiOLED* header | 1 | $5.95 | [Adafruit](http://adafru.it/1541), [Amazon](https://amzn.to/2taLSJf), [Sparkfun](https://www.sparkfun.com/products/12792) | 2x(3+) right angle male |
+
+
+## Components
+
+The following shows a more detailed part list and assembly of the robot platform and the components.
 
 | Category     | Hardware          | Part Number                                       | Data Sheet & Info       |
 |:------------:|:-----------------:|:-------------------------------------------------:|:-----------------------:|
