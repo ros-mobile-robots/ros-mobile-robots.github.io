@@ -176,11 +176,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ros-mobile-robots.com/theory/non-parametric-filters/</loc>
-         <lastmod>2021-10-13</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://ros-mobile-robots.com/theory/architecture/docker/</loc>
          <lastmod>2021-10-13</lastmod>
          <changefreq>daily</changefreq>
@@ -257,6 +252,11 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/theory/slam/slam-overview/</loc>
+         <lastmod>2021-10-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/theory/state-estimation/nonparametric-filters/</loc>
          <lastmod>2021-10-13</lastmod>
          <changefreq>daily</changefreq>
     </url>
