@@ -9,14 +9,14 @@
       
       
       
-        <link rel="canonical" href="https://ros-mobile-robots.com/theory/object-detection/introduction-to-neural-networks/">
+        <link rel="canonical" href="https://ros-mobile-robots.com/theory/localization/markov-and-gaussian-localization/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.3">
     
     
       
-        <title>Introduction to neural networks - DiffBot Differential Drive Mobile Robot</title>
+        <title>Markov and Gaussian Localization - DiffBot Differential Drive Mobile Robot</title>
       
     
     
@@ -99,7 +99,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introduction-to-neural-networks" class="md-skip">
+        <a href="#mobile-robot-localization-markov-and-gaussian" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Introduction to neural networks
+              Markov and Gaussian Localization
             
           </span>
         </div>
@@ -251,13 +251,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../../" class="md-tabs__link">
+      <a href="../../" class="md-tabs__link md-tabs__link--active">
         Robotics Theory
       </a>
     </li>
@@ -393,12 +395,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
       
       
       
@@ -716,7 +720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../overview.md" class="md-nav__link">
+      <a href="../../object-detection/overview.md" class="md-nav__link">
         Object Detection
       </a>
     </li>
@@ -803,12 +807,14 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_7" type="checkbox" id="__nav_3_7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_7" type="checkbox" id="__nav_3_7" checked>
       
       
       
@@ -829,11 +835,60 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../localization/markov-and-gaussian-localization/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Markov and Gaussian Localization
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Markov and Gaussian Localization
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mobile-robot-localization-markov-and-gaussian" class="md-nav__link">
+    Mobile Robot Localization: Markov and Gaussian
+  </a>
+  
+    <nav class="md-nav" aria-label="Mobile Robot Localization: Markov and Gaussian">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#markov-localization" class="md-nav__link">
+    Markov Localization
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -845,7 +900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../localization/grid-and-monte-carlo-localization.md" class="md-nav__link">
+      <a href="../grid-and-monte-carlo-localization.md" class="md-nav__link">
         Grid and Monte Carlo Localization
       </a>
     </li>
@@ -1581,29 +1636,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#introduction-to-neural-networks" class="md-nav__link">
-    Introduction to Neural Networks
+  <a href="#mobile-robot-localization-markov-and-gaussian" class="md-nav__link">
+    Mobile Robot Localization: Markov and Gaussian
   </a>
   
-    <nav class="md-nav" aria-label="Introduction to Neural Networks">
+    <nav class="md-nav" aria-label="Mobile Robot Localization: Markov and Gaussian">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#activation-function" class="md-nav__link">
-    Activation Function
+  <a href="#markov-localization" class="md-nav__link">
+    Markov Localization
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
-    References
-  </a>
   
 </li>
       
@@ -1622,40 +1670,33 @@
 
 
                 
-                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/object-detection/introduction-to-neural-networks.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/localization/markov-and-gaussian-localization.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                  <h1>Introduction to neural networks</h1>
+                  <h1>Markov and Gaussian Localization</h1>
                 
-                <h2 id="introduction-to-neural-networks">Introduction to Neural Networks</h2>
-<p>Convolutional neural networks can learn features through supervised learning and can be categorized into three different types:</p>
-<ol>
-<li>Classification </li>
-<li>Object detection</li>
-<li>Segmentation</li>
-</ol>
-<p>The underlying basis of all these neural networks is the convolutional layer.</p>
-<p>A classification CNN takes in an input image and outputs a distribution of class scores.
-This is done by feeding the input image through convolutional layers, which is the backbone of a CNN.
-These layers are used to filter the input image, and the filters are also known as convolution kernels.
-A kernel has a certain (small) size and one or more channels, specifying its depth.
-Each filter extracts different features from an image, such as edges or colors. 
-The output of a given convolutional layer is a set of <strong>feature maps</strong> (also called activation maps), which are filtered versions of an original input image.
-As a CNN trains it updates the weights that define the image filters in this convolutional layer using <a href="https://en.wikipedia.org/wiki/Backpropagation">back propagation</a>.</p>
-<h3 id="activation-function">Activation Function</h3>
-<p><a href="https://en.wikipedia.org/wiki/Activation_function">Activation functions</a>, such as <a href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks)">ReLU</a>'s, are typically placed after a convolutional layer to slightly 
-transform the output so that it's more efficient to perform backpropagation and effectively train the network.</p>
-<h2 id="references">References</h2>
-<ul>
-<li><a href="https://learning.edx.org/course/course-v1:ETHx+DT-01x+1T2021/block-v1:ETHx+DT-01x+1T2021+type@sequential+block@e82fa6cafbee43feaa24c77408ea5658/block-v1:ETHx+DT-01x+1T2021+type@vertical+block@05e2bb20a6f34d77be200ce92047e6d8">Self-Driving Cars with Duckietown</a></li>
-<li>https://ujjwalkarn.me/2016/08/11/intuitive-explanation-convnets/</li>
-<li><a href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient Descent</a></li>
-<li><a href="https://karpathy.medium.com/yes-you-should-understand-backprop-e2f06eab496b">Yes you should understand backprop by Andrej Karpathy</a></li>
-<li><a href="http://karpathy.github.io/neuralnets/">Hacker's guide to Neural Networks</a></li>
-<li><a href="https://www.youtube.com/watch?v=NfnWJUyUJYU&amp;list=PLkt2uSq6rBVctENoVBg1TpCC7OQi31AlC">CS231n taught by Andrej Karpathy</a></li>
-</ul>
+                <h2 id="mobile-robot-localization-markov-and-gaussian">Mobile Robot Localization: Markov and Gaussian</h2>
+<p>Mobile robot localilzation is the problem of determining the pose of a robot relative to a given map of the environment.
+It is also refered to as <a href="theory/state-estimation/recursive-state-estimation.md">position estimation</a>.</p>
+<h3 id="markov-localization">Markov Localization</h3>
+<p>Probabilistic localization algorithms are variants of teh Bayes filter.
+Markov localization is just a different name for the Bayes filter applied to the mobile robot localization problem.</p>
+<div class="arithmatex">\[
+\begin{algorithm}
+\caption{Markov localization}
+\begin{algorithmic}
+\PROCEDURE{Markov_localization}{$bel(x_{t-1}), u_t, z_t, m$}
+    \FOR{all $x_t$}
+        \STATE $\bar{bel}(x_t) = \int p(x_t | u_t, x_{t-1}, m) bel(x_{t-1} dx_{t-1}$
+        \STATE $bel(x_t) = \eta p(z_t | x_t, m) \bar{bel}(x_t)$
+    \ENDFOR
+    \RETURN $bel(x_t)$ 
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+\]</div>
                 
               
 
@@ -1665,7 +1706,7 @@ transform the output so that it's more efficient to perform backpropagation and 
 
   <h2 id="__comments">Comments</h2>
   <div id="disqus_thread"></div>
-  <script>var script,disqus_config=function(){this.page.url="https://ros-mobile-robots.com/theory/object-detection/introduction-to-neural-networks/",this.page.identifier="theory/object-detection/introduction-to-neural-networks/"};"undefined"==typeof DISQUS?((script=document.createElement("script")).async=!0,script.src="https://ros-mobile-robots.disqus.com/embed.js",script.setAttribute("data-timestamp",Date.now()),document.body.appendChild(script)):DISQUS.reset({reload:!0,config:disqus_config})</script>
+  <script>var script,disqus_config=function(){this.page.url="https://ros-mobile-robots.com/theory/localization/markov-and-gaussian-localization/",this.page.identifier="theory/localization/markov-and-gaussian-localization/"};"undefined"==typeof DISQUS?((script=document.createElement("script")).async=!0,script.src="https://ros-mobile-robots.disqus.com/embed.js",script.setAttribute("data-timestamp",Date.now()),document.body.appendChild(script)):DISQUS.reset({reload:!0,config:disqus_config})</script>
 
               
             </article>
@@ -1681,6 +1722,41 @@ transform the output so that it's more efficient to perform backpropagation and 
       
         
 <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../../state-estimation/nonparametric-filters/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Nonparametric Filters (Particle Filter)" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Nonparametric Filters (Particle Filter)
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../../slam/slam-overview/" class="md-footer__link md-footer__link--next" aria-label="Next: SLAM Overview" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              SLAM Overview
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
