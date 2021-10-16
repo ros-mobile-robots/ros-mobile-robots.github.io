@@ -40,6 +40,7 @@ Markov localization is just a different name for the Bayes filter applied to the
             \STATE $\bar{bel}(x_t) = \int p(x_t | u_t, x_{t-1}, m) bel(x_{t-1}) \,d x_{t-1}$
             \STATE $bel(x_t) = \eta p(z_t | x_t, m) \bar{bel}(x_t)$
         \ENDFOR
+        \RETURN $bel(x_t)$
     \ENDPROCEDURE
     \end{algorithmic}
     \end{algorithm}
