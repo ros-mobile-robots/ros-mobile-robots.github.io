@@ -37,7 +37,7 @@ Markov localization is just a different name for the Bayes filter applied to the
     \begin{algorithmic}
     \PROCEDURE{Quicksort}{$bel(x_{t-1}), u_t, z_t, m$}
         \IF{$p < r$} 
-            \STATE $q = $ \CALL{Partition}{$A, p, r$}
+            \STATE $\bar{bel}(x_t) = \int p(x_t | u_t, x_{t-1}, m) bel(x_{t-1}) \,d x_{t-1}$
             \STATE \CALL{Quicksort}{$A, p, q - 1$}
             \STATE \CALL{Quicksort}{$A, q + 1, r$}
         \ENDIF
