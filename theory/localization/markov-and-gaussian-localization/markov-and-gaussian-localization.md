@@ -11,7 +11,7 @@ It is also refered to as [position estimation](theory/state-estimation/recursive
 Probabilistic localization algorithms are variants of teh Bayes filter.
 Markov localization is just a different name for the Bayes filter applied to the mobile robot localization problem.
 
-<pre id="markov-localization" style="display:hidden;">
+<pre id="markovlocalization" style="display:hidden;">
     \begin{algorithm}
     \caption{Markov localization}
     \begin{algorithmic}
@@ -27,13 +27,13 @@ Markov localization is just a different name for the Bayes filter applied to the
 </pre>
 
 <script>
-    pseudocode.renderElement(document.getElementById("markov-localization"));
+    pseudocode.renderElement(document.getElementById("markovlocalization"));
 </script>
 
-<pre id="quicksort" style="display:hidden;">
+<pre id="markov" style="display:hidden;">
     % This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
     \begin{algorithm}
-    \caption{Quicksort}
+    \caption{Markov Localization}
     \begin{algorithmic}
     \PROCEDURE{Quicksort}{$bel(x_{t-1}), u_t, z_t, m$}
         \FORALL{$x_t$}
@@ -47,6 +47,6 @@ Markov localization is just a different name for the Bayes filter applied to the
 </pre>
 
 <script>
-    pseudocode.renderElement(document.getElementById("quicksort"));
+    pseudocode.renderElement(document.getElementById("markov"));
 </script>
 
