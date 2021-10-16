@@ -8,7 +8,7 @@ It is also refered to as [position estimation](theory/state-estimation/recursive
 
 ### Markov Localization
 
-Probabilistic localization algorithms are variants of teh Bayes filter.
+Probabilistic localization algorithms are variants of the Bayes filter.
 Markov localization is just a different name for the Bayes filter applied to the mobile robot localization problem.
 
 <pre id="markovlocalization" style="display:hidden;">
