@@ -338,6 +338,8 @@ which makes it easy to assemble the robot and saves space because of no addition
     <figcaption>DG01D-E Motor with wheel encoders.</figcaption>
 </figure>
 
+For more details such as the encoder pulses per revolution see [the documentation on Motor and Encoder](DG01D-E-motor-with-encoder.md).
+
 <details markdown="1"><summary>Alternative Brushed Gear Motor</summary>
 
 ### Brushed Gearbox Motor
