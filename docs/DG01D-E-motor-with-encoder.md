@@ -9,6 +9,29 @@ The hall sensor can sense the North and South poles of its magnetic plate.
 When the hall sensor senses the South of the magnetic plate, the hall output will result in a high level. 
 Meanwhile the North is the inverse and, when sensed, the hall output will result a low level.
 
+It is not clear which encoder the current DG01D-E motor has built in. To find its resolution (counts, cycles and pulses per revolution, see image below for the difference), 
+we can spin the wheel for one full rotation and record the number of ticks, also known as counts. 
+This way we can obtain the geared resolution, meaning the resolution measured at the wheel axle and not the motor shaft. 
+It is possible to calculate the resolution at the motor shaft from the resolution measured at the wheel axle when we know the gear reduction ratio. 
+Because the datasheet is not precise about the gearbox ratio (1:48) it is hard to know exactly the pulses, counts, (and cycles) per revolution at the motor shaft itself 
+(where the encoder is attached). The output resolution of the wheel (after the gear reduction) on the other hand can be measured quite easily with a 
+[script encoders_test.ino code](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/encoders/encoders_test/encoders_test.ino). 
+From these measurements it seems that this encoder has only 3 pulses per revolution (ppr) because with the code that reads both edges (rising and falling) of 
+both channels we can observe roughly 542 at the wheel output shaft (lets round it up to 576 counts per wheel revolution to obtain 3 ppr. 
+We could also assume that the gear ratio might not be exactly correct). So 576 counts / 48:1 gear ratio / 2 channels / 2 edges = 3 pulses per revolution at the motor shaft. 
+Having an encoder with higher ppr (and having the same gear reduction ratio of 48:1) would yield a more accurate odometry. 
+For example let's say we get an encoder with 7 ppr, then we get the following output resolution at the wheel: 
+7 ppr (at motor shaft) * 48:1 gear ratio * 2 channels * 2 edges = 1344 ppr (measured at wheel). 
+The following image shows the difference between counts, pulses (and cycles).
+
+
+<figure>
+    <a href="{{ asset_dir }}/hardware/encoder/quadrature-encoder-pulses-counts-cycles.png"><img src="{{ asset_dir }}/hardware/encoder/quadrature-encoder-pulses-counts-cycles.png"></a>
+    <figcaption>Difference between pulses, counts and cycles of a quadrature encoder.</figcaption>
+</figure>
+
+[Source: cuidevices.com](https://www.cuidevices.com/blog/what-is-encoder-ppr-cpr-and-lpr)
+
 ### Terminal Pin Layout
 
 The pins on the product are as follows, when looking at the connector on the housing, motor down/connector up, from right to left. The colors correspond to the included cable when plugged in to the connection slot.
@@ -26,6 +49,12 @@ The following image shows the motor from its side with the corresponding pin des
     <a href="https://raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"><img src="https://raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"></a>
     <figcaption>DG01D-E Motor with encoder pin description.</figcaption>
 </figure>
+
+### Wheel Encoder Setup with ROS
+
+The following video gives an idea of what has to be done to get the motor and encoder working with ROS.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kNTMK3HlahQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 ### Wheel Encoder Measurements
