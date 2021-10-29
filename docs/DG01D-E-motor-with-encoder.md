@@ -32,6 +32,17 @@ The following image shows the difference between counts, pulses (and cycles).
 
 [Source: cuidevices.com](https://www.cuidevices.com/blog/what-is-encoder-ppr-cpr-and-lpr)
 
+It is also possible to get the PPR from the number of magnetic polse, which you can see with a magnetic field paper:
+
+<figure>
+    <a href="{{ asset_dir }}/hardware/encoder/quadrature-encoder-pulses-counts-cycles.png"><img src="{{ asset_dir }}/hardware/encoder/quadrature-encoder-pulses-counts-cycles.png"></a>
+    <figcaption>Difference between pulses, counts and cycles of a quadrature encoder.</figcaption>
+</figure>
+
+![DG01D-E_exposed_encoder]({{ asset_dir }}/hardware/encoder/DG01D-E_exposed_encoder.jpg){ align=left }
+
+![magnetic-field-paper]({{ asset_dir }}/hardware/encoder/magnetic-field-paper.jpg){ align=right } There are six poles which results in three pulses per revolution.
+
 ### Terminal Pin Layout
 
 The pins on the product are as follows, when looking at the connector on the housing, motor down/connector up, from right to left. The colors correspond to the included cable when plugged in to the connection slot.
