@@ -1,0 +1,4 @@
+# Direct dependencies
+mkdocs-material
+mkdocs-jupyter
+mkdocs-macros-plugin
