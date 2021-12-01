@@ -22,7 +22,7 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.de](https://amzn.to/3kiX8PH) | |
 | USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle | |
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
-| Caster ball | 1 | $6.30 | [Amazon](http://amzn.com/B01N2S7CX6/) | 1-inch diameter | |
+| Caster ball | 1 | $6.30 | [Amazon.com](http://amzn.com/B01N2S7CX6/), [Amazon.de](https://amzn.to/3Ie7Non) | 1-inch diameter | |
 | Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A | |
 
 ### USB Wi-Fi Dongle (optional)
