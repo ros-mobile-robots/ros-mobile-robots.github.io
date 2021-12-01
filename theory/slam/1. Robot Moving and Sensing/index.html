@@ -8,11 +8,10 @@
       
       
       
-      
         <link rel="canonical" href="https://ros-mobile-robots.com/theory/slam/1.%20Robot%20Moving%20and%20Sensing/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.6">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.0.2">
     
     
       
@@ -20,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.a57b2b03.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.816931ca.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.9204c3b2.min.css">
         
       
     
@@ -65,11 +64,11 @@
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
-    
+    <script>function __md_scope(e,t,_){return new URL(_||(t===localStorage?"../../..":"../../.."),location).pathname+"."+e}function __md_get(e,t=localStorage,_){return JSON.parse(t.getItem(__md_scope(e,t,_)))}function __md_set(e,t,_=localStorage,o){try{_.setItem(__md_scope(e,_,o),JSON.stringify(t))}catch(e){}}</script>
     
       
 
@@ -81,7 +80,7 @@
   
 
 
-  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-5Z9V7GPRX3"),document.addEventListener("DOMContentLoaded",function(){"undefined"!=typeof location$&&location$.subscribe(function(t){gtag("config","G-5Z9V7GPRX3",{page_path:t.pathname})})})</script>
+  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-5Z9V7GPRX3"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&gtag("event","search",{search_term:this.value})}),"undefined"!=typeof location$&&location$.subscribe(function(e){gtag("config","G-5Z9V7GPRX3",{page_path:e.pathname})})})</script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5Z9V7GPRX3"></script>
 
 
@@ -100,9 +99,8 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
-      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -118,6 +116,7 @@
     <div data-md-component="announce">
       
     </div>
+    
     
       
 
@@ -176,8 +175,7 @@
       <label class="md-header__button md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
       </label>
-      
-<div class="md-search" data-md-component="search" role="dialog">
+      <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
@@ -209,8 +207,7 @@
     
     
       <div class="md-header__source">
-        
-<a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -354,8 +351,7 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -1581,7 +1577,6 @@
                   <div class="md-sidebar__inner">
                     
 
-
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1709,12 +1704,12 @@
 
 
                 
-                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/slam/1. Robot Moving and Sensing.ipynb" title="Edit this page" class="md-content__button md-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
-                  </a>
-                
-                
-                <script>
+<a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/slam/1. Robot Moving and Sensing.ipynb" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+<script>
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -2380,8 +2375,8 @@ all of MD as it is not optimized for dense, information rich UIs.
     <!-- End of mathjax configuration --><div class="jupyter-wrapper">
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="robot-class">Robot Class<a class="anchor-link" href="#Robot-Class">&#182;</a></h1><p>In this project, we'll be localizing a robot in a 2D grid world. The basis for simultaneous localization and mapping (SLAM) is to gather information from a robot's sensors and motions over time, and then use information about measurements and motion to re-construct a map of the world.</p>
-<h3 id="uncertainty">Uncertainty<a class="anchor-link" href="#Uncertainty">&#182;</a></h3><p>As you've learned, robot motion and sensors have some uncertainty associated with them. For example, imagine a car driving up hill and down hill; the speedometer reading will likely overestimate the speed of the car going up hill and underestimate the speed of the car going down hill because it cannot perfectly account for gravity. Similarly, we cannot perfectly predict the <em>motion</em> of a robot. A robot is likely to slightly overshoot or undershoot a target location.</p>
+<h1 id="robot-class">Robot Class<a class="anchor-link" href="#robot-class">&#182;</a></h1><p>In this project, we'll be localizing a robot in a 2D grid world. The basis for simultaneous localization and mapping (SLAM) is to gather information from a robot's sensors and motions over time, and then use information about measurements and motion to re-construct a map of the world.</p>
+<h3 id="uncertainty">Uncertainty<a class="anchor-link" href="#uncertainty">&#182;</a></h3><p>As you've learned, robot motion and sensors have some uncertainty associated with them. For example, imagine a car driving up hill and down hill; the speedometer reading will likely overestimate the speed of the car going up hill and underestimate the speed of the car going down hill because it cannot perfectly account for gravity. Similarly, we cannot perfectly predict the <em>motion</em> of a robot. A robot is likely to slightly overshoot or undershoot a target location.</p>
 <p>In this notebook, we'll look at the <code>robot</code> class that is <em>partially</em> given to you for the upcoming SLAM notebook. First, we'll create a robot and move it around a 2D grid world. Then, <strong>you'll be tasked with defining a <code>sense</code> function for this robot that allows it to sense landmarks in a given world</strong>! It's important that you understand how this robot moves, senses, and how it keeps track of different landmarks that it sees in a 2D grid world, so that you can work with it's movement and sensor data.</p>
 <hr>
 <p>Before we start analyzing robot motion, let's load in our resources and define the <code>robot</code> class. You can see that this class initializes the robot's position and adds measures of uncertainty for motion. You'll also see a <code>sense()</code> function which is not yet implemented, and you will learn more about that later in this notebook.</p>
@@ -2701,7 +2696,7 @@ class robot:
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="define-a-world-and-a-robot">Define a world and a robot<a class="anchor-link" href="#Define-a-world-and-a-robot">&#182;</a></h2><p>Next, let's instantiate a robot object. As you can see in <code>__init__</code> above, the robot class takes in a number of parameters including a world size and some values that indicate the sensing and movement capabilities of the robot.</p>
+<h2 id="define-a-world-and-a-robot">Define a world and a robot<a class="anchor-link" href="#define-a-world-and-a-robot">&#182;</a></h2><p>Next, let's instantiate a robot object. As you can see in <code>__init__</code> above, the robot class takes in a number of parameters including a world size and some values that indicate the sensing and movement capabilities of the robot.</p>
 <p>In the next example, we define a small 10x10 square world, a measurement range that is half that of the world and small values for motion and measurement noise. These values will typically be about 10 times larger, but we just want to demonstrate this behavior on a small scale. You are also free to change these values and note what happens as your robot moves!</p>
 
 </div>
@@ -2776,7 +2771,7 @@ print(r)</div>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="visualizing-the-world">Visualizing the World<a class="anchor-link" href="#Visualizing-the-World">&#182;</a></h2><p>In the given example, we can see/print out that the robot is in the middle of the 10x10 world at (x, y) = (5.0, 5.0), which is exactly what we expect!</p>
+<h2 id="visualizing-the-world">Visualizing the World<a class="anchor-link" href="#visualizing-the-world">&#182;</a></h2><p>In the given example, we can see/print out that the robot is in the middle of the 10x10 world at (x, y) = (5.0, 5.0), which is exactly what we expect!</p>
 <p>However, it's kind of hard to imagine this robot in the center of a world, without visualizing the grid itself, and so in the next cell we provide a helper visualization function, <code>display_world</code>, that will display a grid world in a plot and draw a red <code>o</code> at the location of our robot, <code>r</code>. The details of how this function works can be found in the <code>helpers.py</code> file in the home directory; you do not have to change anything in this <code>helpers.py</code> file.</p>
 
 </div>
@@ -2865,9 +2860,9 @@ display_world(int(world_size), [r.x, r.y])</div>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="movement">Movement<a class="anchor-link" href="#Movement">&#182;</a></h2><p>Now you can really picture where the robot is in the world! Next, let's call the robot's <code>move</code> function. We'll ask it to move some distance <code>(dx, dy)</code> and we'll see that this motion is not perfect by the placement of our robot <code>o</code> and by the printed out position of <code>r</code>.</p>
+<h2 id="movement">Movement<a class="anchor-link" href="#movement">&#182;</a></h2><p>Now you can really picture where the robot is in the world! Next, let's call the robot's <code>move</code> function. We'll ask it to move some distance <code>(dx, dy)</code> and we'll see that this motion is not perfect by the placement of our robot <code>o</code> and by the printed out position of <code>r</code>.</p>
 <p>Try changing the values of <code>dx</code> and <code>dy</code> and/or running this cell multiple times; see how the robot moves and how the uncertainty in robot motion accumulates over multiple movements.</p>
-<h4 id="for-a-dx-1-does-the-robot-move-exactly-one-spot-to-the-right-what-about-dx-1-what-happens-if-you-try-to-move-the-robot-past-the-boundaries-of-the-world">For a <code>dx</code> = 1, does the robot move <em>exactly</em> one spot to the right? What about <code>dx</code> = -1? What happens if you try to move the robot past the boundaries of the world?<a class="anchor-link" href="#For-a-dx-=-1,-does-the-robot-move-exactly-one-spot-to-the-right?-What-about-dx-=--1?-What-happens-if-you-try-to-move-the-robot-past-the-boundaries-of-the-world?">&#182;</a></h4>
+<h4 id="for-a-dx-1-does-the-robot-move-exactly-one-spot-to-the-right-what-about-dx-1-what-happens-if-you-try-to-move-the-robot-past-the-boundaries-of-the-world">For a <code>dx</code> = 1, does the robot move <em>exactly</em> one spot to the right? What about <code>dx</code> = -1? What happens if you try to move the robot past the boundaries of the world?<a class="anchor-link" href="#for-a-dx-1-does-the-robot-move-exactly-one-spot-to-the-right-what-about-dx-1-what-happens-if-you-try-to-move-the-robot-past-the-boundaries-of-the-world">&#182;</a></h4>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -2958,7 +2953,7 @@ display_world(int(world_size), [r.x, r.y])</div>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="landmarks">Landmarks<a class="anchor-link" href="#Landmarks">&#182;</a></h2><p>Next, let's create landmarks, which are measurable features in the map. You can think of landmarks as things like notable buildings, or something smaller such as a tree, rock, or other feature.</p>
+<h2 id="landmarks">Landmarks<a class="anchor-link" href="#landmarks">&#182;</a></h2><p>Next, let's create landmarks, which are measurable features in the map. You can think of landmarks as things like notable buildings, or something smaller such as a tree, rock, or other feature.</p>
 <p>The robot class has a function <code>make_landmarks</code> which randomly generates locations for the number of specified landmarks. Try changing <code>num_landmarks</code> or running this cell multiple times to see where these landmarks appear. We have to pass these locations as a third argument to the <code>display_world</code> function and the list of landmark locations is accessed similar to how we find the robot position <code>r.landmarks</code>.</p>
 <p>Each landmark is displayed as a purple <code>x</code> in the grid world, and we also print out the exact <code>[x, y]</code> locations of these landmarks at the end of this cell.</p>
 
@@ -3066,9 +3061,9 @@ print('Landmark locations [x,y]: ', r.landmarks)</div>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="sense">Sense<a class="anchor-link" href="#Sense">&#182;</a></h2><p>Once we have some landmarks to sense, we need to be able to tell our robot to <em>try</em> to sense how far they are away from it. It will be up to you to code the <code>sense</code> function in our robot class.</p>
+<h2 id="sense">Sense<a class="anchor-link" href="#sense">&#182;</a></h2><p>Once we have some landmarks to sense, we need to be able to tell our robot to <em>try</em> to sense how far they are away from it. It will be up to you to code the <code>sense</code> function in our robot class.</p>
 <p>The <code>sense</code> function uses only internal class parameters and returns a list of the the measured/sensed x and y distances to the landmarks it senses within the specified <code>measurement_range</code>.</p>
-<h3 id="todo-implement-the-sense-function">TODO: Implement the <code>sense</code> function<a class="anchor-link" href="#TODO:-Implement-the-sense-function">&#182;</a></h3><p>Follow the <code>##TODO's</code> in the class code above to complete the <code>sense</code> function for the robot class. Once you have tested out your code, please <strong>copy your complete <code>sense</code> code to the <code>robot_class.py</code> file in the home directory</strong>. By placing this complete code in the <code>robot_class</code> Python file, we will be able to refernce this class in a later notebook.</p>
+<h3 id="todo-implement-the-sense-function">TODO: Implement the <code>sense</code> function<a class="anchor-link" href="#todo-implement-the-sense-function">&#182;</a></h3><p>Follow the <code>##TODO's</code> in the class code above to complete the <code>sense</code> function for the robot class. Once you have tested out your code, please <strong>copy your complete <code>sense</code> code to the <code>robot_class.py</code> file in the home directory</strong>. By placing this complete code in the <code>robot_class</code> Python file, we will be able to refernce this class in a later notebook.</p>
 <p>The measurements have the format, <code>[i, dx, dy]</code> where <code>i</code> is the landmark index (0, 1, 2, ...) and <code>dx</code> and <code>dy</code> are the measured distance between the robot's location (x, y) and the landmark's location (x, y). This distance will not be perfect since our sense function has some associated <code>measurement noise</code>.</p>
 <hr>
 <p>In the example in the following cell, we have given our robot a range of <code>5.0</code> so any landmarks that are within that range of our robot's location, should appear in a list of measurements. Not all landmarks are guaranteed to be in our visibility range, so this list will be variable in length.</p>
@@ -3143,7 +3138,7 @@ print(measurements)</div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <hr>
-<h2 id="data">Data<a class="anchor-link" href="#Data">&#182;</a></h2><h4 id="putting-it-all-together">Putting it all together<a class="anchor-link" href="#Putting-it-all-together">&#182;</a></h4><p>To perform SLAM, we'll collect a series of robot sensor measurements and motions, in that order, over a defined period of time. Then we'll use only this data to re-construct the map of the world with the robot and landmark locations. You can think of SLAM as peforming what we've done in this notebook, only backwards. Instead of defining a world and robot and creating movement and sensor data, it will be up to you to use movement and sensor measurements to reconstruct the world!</p>
+<h2 id="data">Data<a class="anchor-link" href="#data">&#182;</a></h2><h4 id="putting-it-all-together">Putting it all together<a class="anchor-link" href="#putting-it-all-together">&#182;</a></h4><p>To perform SLAM, we'll collect a series of robot sensor measurements and motions, in that order, over a defined period of time. Then we'll use only this data to re-construct the map of the world with the robot and landmark locations. You can think of SLAM as peforming what we've done in this notebook, only backwards. Instead of defining a world and robot and creating movement and sensor data, it will be up to you to use movement and sensor measurements to reconstruct the world!</p>
 <p>In the next notebook, you'll see this list of movements and measurements (which you'll use to re-construct the world) listed in a structure called <code>data</code>. This is an array that holds sensor measurements and movements in a specific order, which will be useful to call upon when you have to extract this data and form constraint matrices and vectors.</p>
 <p><code>data</code> is constructed over a series of time steps as follows:</p>
 
@@ -3237,25 +3232,16 @@ print('Motion: ', data[time_step][1])</div>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="final-robot-class">Final robot class<a class="anchor-link" href="#Final-robot-class">&#182;</a></h3><p>Before moving on to the last notebook in this series, please make sure that you have copied your final, completed <code>sense</code> function into the <code>robot_class.py</code> file in the home directory. We will be using this file in the final implementation of slam!</p>
+<h3 id="final-robot-class">Final robot class<a class="anchor-link" href="#final-robot-class">&#182;</a></h3><p>Before moving on to the last notebook in this series, please make sure that you have copied your final, completed <code>sense</code> function into the <code>robot_class.py</code> file in the home directory. We will be using this file in the final implementation of slam!</p>
 
 </div>
 </div>
 </div>
 
 
-                
-              
 
               
-                
 
-
-  <h2 id="__comments">Comments</h2>
-  <div id="disqus_thread"></div>
-  <script>var script,disqus_config=function(){this.page.url="https://ros-mobile-robots.com/theory/slam/1.%20Robot%20Moving%20and%20Sensing/",this.page.identifier="theory/slam/1.%20Robot%20Moving%20and%20Sensing/"};"undefined"==typeof DISQUS?((script=document.createElement("script")).async=!0,script.src="https://ros-mobile-robots.disqus.com/embed.js",script.setAttribute("data-timestamp",Date.now()),document.body.appendChild(script)):DISQUS.reset({reload:!0,config:disqus_config})</script>
-
-              
             </article>
           </div>
         </div>
@@ -3267,25 +3253,23 @@ print('Motion: ', data[time_step][1])</div>
         
       </main>
       
-        
-<footer class="md-footer">
+        <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-          <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a>
-          </div>
-        
-        
-          Made with
-          <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-            Material for MkDocs
-          </a>
-        
-        
-      </div>
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
     </div>
   </div>
@@ -3295,11 +3279,11 @@ print('Motion: ', data[time_step][1])</div>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.fcfe8b6d.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.01824240.min.js"}</script>
     
     
     
-      <script src="../../../assets/javascripts/bundle.b1047164.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.ff0eccb3.min.js"></script>
       
     
     <script src="https://gumroad.com/js/gumroad.js"></script>

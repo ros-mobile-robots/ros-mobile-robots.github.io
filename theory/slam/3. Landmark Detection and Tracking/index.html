@@ -8,11 +8,10 @@
       
       
       
-      
         <link rel="canonical" href="https://ros-mobile-robots.com/theory/slam/3.%20Landmark%20Detection%20and%20Tracking/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.6">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.0.2">
     
     
       
@@ -20,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.a57b2b03.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.816931ca.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.9204c3b2.min.css">
         
       
     
@@ -65,11 +64,11 @@
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
-    
+    <script>function __md_scope(e,t,_){return new URL(_||(t===localStorage?"../../..":"../../.."),location).pathname+"."+e}function __md_get(e,t=localStorage,_){return JSON.parse(t.getItem(__md_scope(e,t,_)))}function __md_set(e,t,_=localStorage,o){try{_.setItem(__md_scope(e,_,o),JSON.stringify(t))}catch(e){}}</script>
     
       
 
@@ -81,7 +80,7 @@
   
 
 
-  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-5Z9V7GPRX3"),document.addEventListener("DOMContentLoaded",function(){"undefined"!=typeof location$&&location$.subscribe(function(t){gtag("config","G-5Z9V7GPRX3",{page_path:t.pathname})})})</script>
+  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-5Z9V7GPRX3"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&gtag("event","search",{search_term:this.value})}),"undefined"!=typeof location$&&location$.subscribe(function(e){gtag("config","G-5Z9V7GPRX3",{page_path:e.pathname})})})</script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5Z9V7GPRX3"></script>
 
 
@@ -100,9 +99,8 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
-      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -118,6 +116,7 @@
     <div data-md-component="announce">
       
     </div>
+    
     
       
 
@@ -176,8 +175,7 @@
       <label class="md-header__button md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
       </label>
-      
-<div class="md-search" data-md-component="search" role="dialog">
+      <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
@@ -209,8 +207,7 @@
     
     
       <div class="md-header__source">
-        
-<a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -354,8 +351,7 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/ros-mobile-robots/diffbot/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -1581,7 +1577,6 @@
                   <div class="md-sidebar__inner">
                     
 
-
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1836,12 +1831,12 @@
 
 
                 
-                  <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/slam/3. Landmark Detection and Tracking.ipynb" title="Edit this page" class="md-content__button md-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
-                  </a>
-                
-                
-                <script>
+<a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs/theory/slam/3. Landmark Detection and Tracking.ipynb" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+<script>
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -2507,8 +2502,8 @@ all of MD as it is not optimized for dense, information rich UIs.
     <!-- End of mathjax configuration --><div class="jupyter-wrapper">
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="project-3-implement-slam">Project 3:  Implement SLAM<a class="anchor-link" href="#Project-3:--Implement-SLAM">&#182;</a></h1><hr>
-<h2 id="project-overview">Project Overview<a class="anchor-link" href="#Project-Overview">&#182;</a></h2><p>In this project, you'll implement SLAM for robot that moves and senses in a 2 dimensional, grid world!</p>
+<h1 id="project-3-implement-slam">Project 3:  Implement SLAM<a class="anchor-link" href="#project-3-implement-slam">&#182;</a></h1><hr>
+<h2 id="project-overview">Project Overview<a class="anchor-link" href="#project-overview">&#182;</a></h2><p>In this project, you'll implement SLAM for robot that moves and senses in a 2 dimensional, grid world!</p>
 <p>SLAM gives us a way to both localize a robot and build up a map of its environment as a robot moves and senses in real-time. This is an active area of research in the fields of robotics and autonomous systems. Since this localization and map-building relies on the visual sensing of landmarks, this is a computer vision problem.</p>
 <p>Using what you've learned about robot motion, representations of uncertainty in motion and sensing, and localization techniques, you will be tasked with defining a function, <code>slam</code>, which takes in six parameters as input and returns the vector <code>mu</code>.</p>
 <blockquote><p><code>mu</code> contains the (x,y) coordinate locations of the robot as it moves, and the positions of landmarks that it senses in the world</p>
@@ -2524,16 +2519,16 @@ all of MD as it is not optimized for dense, information rich UIs.
               [Lx1],
               [Ly1]])</code></pre>
 <p>You can see that <code>mu</code> holds the poses first <code>(x0, y0), (x1, y1), ...,</code> then the landmark locations at the end of the matrix; we consider a <code>nx1</code> matrix to be a vector.</p>
-<h2 id="generating-an-environment">Generating an environment<a class="anchor-link" href="#Generating-an-environment">&#182;</a></h2><p>In a real SLAM problem, you may be given a map that contains information about landmark locations, and in this example, we will make our own data using the <code>make_data</code> function, which generates a world grid with landmarks in it and then generates data by placing a robot in that world and moving and sensing over some numer of time steps. The <code>make_data</code> function relies on a correct implementation of robot move/sense functions, which, at this point, should be complete and in the <code>robot_class.py</code> file. The data is collected as an instantiated robot moves and senses in a world. Your SLAM function will take in this data as input. So, let's first create this data and explore how it represents the movement and sensor measurements that our robot takes.</p>
+<h2 id="generating-an-environment">Generating an environment<a class="anchor-link" href="#generating-an-environment">&#182;</a></h2><p>In a real SLAM problem, you may be given a map that contains information about landmark locations, and in this example, we will make our own data using the <code>make_data</code> function, which generates a world grid with landmarks in it and then generates data by placing a robot in that world and moving and sensing over some numer of time steps. The <code>make_data</code> function relies on a correct implementation of robot move/sense functions, which, at this point, should be complete and in the <code>robot_class.py</code> file. The data is collected as an instantiated robot moves and senses in a world. Your SLAM function will take in this data as input. So, let's first create this data and explore how it represents the movement and sensor measurements that our robot takes.</p>
 <hr>
 
 </div>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="create-the-world">Create the world<a class="anchor-link" href="#Create-the-world">&#182;</a></h2><p>Use the code below to generate a world of a specified size with randomly generated landmark locations. You can change these parameters and see how your implementation of SLAM responds!</p>
+<h2 id="create-the-world">Create the world<a class="anchor-link" href="#create-the-world">&#182;</a></h2><p>Use the code below to generate a world of a specified size with randomly generated landmark locations. You can change these parameters and see how your implementation of SLAM responds!</p>
 <p><code>data</code> holds the sensors measurements and motion of your robot over time. It stores the measurements as <code>data[i][0]</code> and the motion as <code>data[i][1]</code>.</p>
-<h4 id="helper-functions">Helper functions<a class="anchor-link" href="#Helper-functions">&#182;</a></h4><p>You will be working with the <code>robot</code> class that may look familiar from the first notebook,</p>
+<h4 id="helper-functions">Helper functions<a class="anchor-link" href="#helper-functions">&#182;</a></h4><p>You will be working with the <code>robot</code> class that may look familiar from the first notebook,</p>
 <p>In fact, in the <code>helpers.py</code> file, you can read the details of how data is made with the <code>make_data</code> function. It should look very similar to the robot move/sense cycle you've seen in the first notebook.</p>
 
 </div>
@@ -2701,7 +2696,7 @@ Robot: [x=82.09985 y=4.82303]
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="a-note-on-make_data">A note on <code>make_data</code><a class="anchor-link" href="#A-note-on-make_data">&#182;</a></h3><p>The function above, <code>make_data</code>, takes in so many world and robot motion/sensor parameters because it is responsible for:</p>
+<h3 id="a-note-on-make_data">A note on <code>make_data</code><a class="anchor-link" href="#a-note-on-make_data">&#182;</a></h3><p>The function above, <code>make_data</code>, takes in so many world and robot motion/sensor parameters because it is responsible for:</p>
 <ol>
 <li>Instantiating a robot (using the robot class)</li>
 <li>Creating a grid world with landmarks in it</li>
@@ -2788,7 +2783,7 @@ Example motion:
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="initialize-constraints">Initialize Constraints<a class="anchor-link" href="#Initialize-Constraints">&#182;</a></h2><p>One of the most challenging tasks here will be to create and modify the constraint matrix and vector: omega and xi. In the second notebook, you saw an example of how omega and xi could hold all the values that define the relationships between robot poses <code>xi</code> and landmark positions <code>Li</code> in a 1D world, as seen below, where omega is the blue matrix and xi is the pink vector.</p>
+<h2 id="initialize-constraints">Initialize Constraints<a class="anchor-link" href="#initialize-constraints">&#182;</a></h2><p>One of the most challenging tasks here will be to create and modify the constraint matrix and vector: omega and xi. In the second notebook, you saw an example of how omega and xi could hold all the values that define the relationships between robot poses <code>xi</code> and landmark positions <code>Li</code> in a 1D world, as seen below, where omega is the blue matrix and xi is the pink vector.</p>
 <p><img src='images/motion_constraint.png' width=50% height=50% /></p>
 <p>In <em>this</em> project, you are tasked with implementing constraints for a 2D world. We are referring to robot poses as <code>Px, Py</code> and landmark positions as <code>Lx, Ly</code>, and one way to approach this challenge is to add <em>both</em> x and y locations in the constraint matrices.</p>
 <p><img src='images/constraints2D.png' width=50% height=50% /></p>
@@ -2798,7 +2793,7 @@ Example motion:
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="todo-write-a-function-that-initializes-omega-and-xi">TODO: Write a function that initializes omega and xi<a class="anchor-link" href="#TODO:-Write-a-function-that-initializes-omega-and-xi">&#182;</a></h3><p>Complete the function <code>initialize_constraints</code> so that it returns <code>omega</code> and <code>xi</code> constraints for the starting position of the robot. Any values that we do not yet know should be initialized with the value <code>0</code>. You may assume that our robot starts out in exactly the middle of the world with 100% confidence (no motion or measurement noise at this point). The inputs <code>N</code> time steps, <code>num_landmarks</code>, and <code>world_size</code> should give you all the information you need to construct intial constraints of the correct size and starting values.</p>
+<h3 id="todo-write-a-function-that-initializes-omega-and-xi">TODO: Write a function that initializes omega and xi<a class="anchor-link" href="#todo-write-a-function-that-initializes-omega-and-xi">&#182;</a></h3><p>Complete the function <code>initialize_constraints</code> so that it returns <code>omega</code> and <code>xi</code> constraints for the starting position of the robot. Any values that we do not yet know should be initialized with the value <code>0</code>. You may assume that our robot starts out in exactly the middle of the world with 100% confidence (no motion or measurement noise at this point). The inputs <code>N</code> time steps, <code>num_landmarks</code>, and <code>world_size</code> should give you all the information you need to construct intial constraints of the correct size and starting values.</p>
 <p><em>Depending on your approach you may choose to return one omega and one xi that hold all (x,y) positions </em>or<em> two of each (one for x values and one for y); choose whichever makes most sense to you!</em></p>
 
 </div>
@@ -2887,7 +2882,7 @@ Example motion:
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="test-as-you-go">Test as you go<a class="anchor-link" href="#Test-as-you-go">&#182;</a></h3><p>It's good practice to test out your code, as you go. Since <code>slam</code> relies on creating and updating constraint matrices, <code>omega</code> and <code>xi</code> to account for robot sensor measurements and motion, let's check that they initialize as expected for any given parameters.</p>
+<h3 id="test-as-you-go">Test as you go<a class="anchor-link" href="#test-as-you-go">&#182;</a></h3><p>It's good practice to test out your code, as you go. Since <code>slam</code> relies on creating and updating constraint matrices, <code>omega</code> and <code>xi</code> to account for robot sensor measurements and motion, let's check that they initialize as expected for any given parameters.</p>
 <p>Below, you'll find some test code that allows you to visualize the results of your function <code>initialize_constraints</code>. We are using the <a href="https://seaborn.pydata.org/">seaborn</a> library for visualization.</p>
 <p><strong>Please change the test values of N, landmarks, and world_size and see the results</strong>. Be careful not to use these values as input into your final slam function.</p>
 <p>This code assumes that you have created one of each constraint: <code>omega</code> and <code>xi</code>, but you can change and add to this code, accordingly. The constraints should vary in size with the number of time steps and landmarks as these values affect the number of poses a robot will take <code>(Px0,Py0,...Pxn,Pyn)</code> and landmark locations <code>(Lx0,Ly0,...Lxn,Lyn)</code> whose relationships should be tracked in the constraint matrices. Recall that <code>omega</code> holds the weights of each variable and <code>xi</code> holds the value of the sum of these variables, as seen in Notebook 2. You'll need the <code>world_size</code> to determine the starting pose of the robot in the world and fill in the initial values for <code>xi</code>.</p>
@@ -3156,7 +3151,7 @@ sns.heatmap(DataFrame(initial_xi), cmap='Oranges', annot=True, linewidths=.5)</d
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <hr>
-<h2 id="slam-inputs">SLAM inputs<a class="anchor-link" href="#SLAM-inputs">&#182;</a></h2><p>In addition to <code>data</code>, your slam function will also take in:</p>
+<h2 id="slam-inputs">SLAM inputs<a class="anchor-link" href="#slam-inputs">&#182;</a></h2><p>In addition to <code>data</code>, your slam function will also take in:</p>
 <ul>
 <li>N -   The number of time steps that a robot will be moving and sensing</li>
 <li>num_landmarks - The number of landmarks in the world</li>
@@ -3164,9 +3159,9 @@ sns.heatmap(DataFrame(initial_xi), cmap='Oranges', annot=True, linewidths=.5)</d
 <li>motion_noise - The noise associated with motion; the update confidence for motion should be <code>1.0/motion_noise</code></li>
 <li>measurement_noise - The noise associated with measurement/sensing; the update weight for measurement should be <code>1.0/measurement_noise</code></li>
 </ul>
-<h4 id="a-note-on-noise">A note on noise<a class="anchor-link" href="#A-note-on-noise">&#182;</a></h4><p>Recall that <code>omega</code> holds the relative "strengths" or weights for each position variable, and you can update these weights by accessing the correct index in omega <code>omega[row][col]</code> and <em>adding/subtracting</em> <code>1.0/noise</code> where <code>noise</code> is measurement or motion noise. <code>Xi</code> holds actual position values, and so to update <code>xi</code> you'll do a similar addition process only using the actual value of a motion or measurement. So for a vector index <code>xi[row][0]</code> you will end up adding/subtracting one measurement or motion divided by their respective <code>noise</code>.</p>
-<h3 id="todo-implement-graph-slam">TODO: Implement Graph SLAM<a class="anchor-link" href="#TODO:-Implement-Graph-SLAM">&#182;</a></h3><p>Follow the TODO's below to help you complete this slam implementation (these TODO's are in the recommended order), then test out your implementation!</p>
-<h4 id="updating-with-motion-and-measurements">Updating with motion and measurements<a class="anchor-link" href="#Updating-with-motion-and-measurements">&#182;</a></h4><p>With a 2D omega and xi structure as shown above (in earlier cells), you'll have to be mindful about how you update the values in these constraint matrices to account for motion and measurement constraints in the x and y directions. Recall that the solution to these matrices (which holds all values for robot poses <code>P</code> and landmark locations <code>L</code>) is the vector, <code>mu</code>, which can be computed at the end of the construction of omega and xi as the inverse of omega times xi: $\mu = \Omega^{-1}\xi$</p>
+<h4 id="a-note-on-noise">A note on noise<a class="anchor-link" href="#a-note-on-noise">&#182;</a></h4><p>Recall that <code>omega</code> holds the relative "strengths" or weights for each position variable, and you can update these weights by accessing the correct index in omega <code>omega[row][col]</code> and <em>adding/subtracting</em> <code>1.0/noise</code> where <code>noise</code> is measurement or motion noise. <code>Xi</code> holds actual position values, and so to update <code>xi</code> you'll do a similar addition process only using the actual value of a motion or measurement. So for a vector index <code>xi[row][0]</code> you will end up adding/subtracting one measurement or motion divided by their respective <code>noise</code>.</p>
+<h3 id="todo-implement-graph-slam">TODO: Implement Graph SLAM<a class="anchor-link" href="#todo-implement-graph-slam">&#182;</a></h3><p>Follow the TODO's below to help you complete this slam implementation (these TODO's are in the recommended order), then test out your implementation!</p>
+<h4 id="updating-with-motion-and-measurements">Updating with motion and measurements<a class="anchor-link" href="#updating-with-motion-and-measurements">&#182;</a></h4><p>With a 2D omega and xi structure as shown above (in earlier cells), you'll have to be mindful about how you update the values in these constraint matrices to account for motion and measurement constraints in the x and y directions. Recall that the solution to these matrices (which holds all values for robot poses <code>P</code> and landmark locations <code>L</code>) is the vector, <code>mu</code>, which can be computed at the end of the construction of omega and xi as the inverse of omega times xi: $\mu = \Omega^{-1}\xi$</p>
 <p><strong>You may also choose to return the values of <code>omega</code> and <code>xi</code> if you want to visualize their final state!</strong></p>
 
 </div>
@@ -3586,7 +3581,7 @@ def slam(data, N, num_landmarks, world_size, motion_noise, measurement_noise):
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="helper-functions">Helper functions<a class="anchor-link" href="#Helper-functions">&#182;</a></h2><p>To check that your implementation of SLAM works for various inputs, we have provided two helper functions that will help display the estimated pose and landmark locations that your function has produced. First, given a result <code>mu</code> and number of time steps, <code>N</code>, we define a function that extracts the poses and landmarks locations and returns those as their own, separate lists.</p>
+<h2 id="helper-functions">Helper functions<a class="anchor-link" href="#helper-functions">&#182;</a></h2><p>To check that your implementation of SLAM works for various inputs, we have provided two helper functions that will help display the estimated pose and landmark locations that your function has produced. First, given a result <code>mu</code> and number of time steps, <code>N</code>, we define a function that extracts the poses and landmarks locations and returns those as their own, separate lists.</p>
 <p>Then, we define a function that nicely print out these lists; both of these we will call, in the next step.</p>
 
 </div>
@@ -3795,14 +3790,14 @@ def get_pose_landmarks_online(mu):
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="run-slam">Run SLAM<a class="anchor-link" href="#Run-SLAM">&#182;</a></h2><p>Once you've completed your implementation of <code>slam</code>, see what <code>mu</code> it returns for different world sizes and different landmarks!</p>
-<h3 id="what-to-expect">What to Expect<a class="anchor-link" href="#What-to-Expect">&#182;</a></h3><p>The <code>data</code> that is generated is random, but you did specify the number, <code>N</code>, or time steps that the robot was expected to move and the <code>num_landmarks</code> in the world (which your implementation of <code>slam</code> should see and estimate a position for. Your robot should also start with an estimated pose in the very center of your square world, whose size is defined by <code>world_size</code>.</p>
+<h2 id="run-slam">Run SLAM<a class="anchor-link" href="#run-slam">&#182;</a></h2><p>Once you've completed your implementation of <code>slam</code>, see what <code>mu</code> it returns for different world sizes and different landmarks!</p>
+<h3 id="what-to-expect">What to Expect<a class="anchor-link" href="#what-to-expect">&#182;</a></h3><p>The <code>data</code> that is generated is random, but you did specify the number, <code>N</code>, or time steps that the robot was expected to move and the <code>num_landmarks</code> in the world (which your implementation of <code>slam</code> should see and estimate a position for. Your robot should also start with an estimated pose in the very center of your square world, whose size is defined by <code>world_size</code>.</p>
 <p>With these values in mind, you should expect to see a result that displays two lists:</p>
 <ol>
 <li><strong>Estimated poses</strong>, a list of (x, y) pairs that is exactly <code>N</code> in length since this is how many motions your robot has taken. The very first pose should be the center of your world, i.e. <code>[50.000, 50.000]</code> for a world that is 100.0 in square size.</li>
 <li><strong>Estimated landmarks</strong>, a list of landmark positions (x, y) that is exactly <code>num_landmarks</code> in length. </li>
 </ol>
-<h4 id="landmark-locations">Landmark Locations<a class="anchor-link" href="#Landmark-Locations">&#182;</a></h4><p>If you refer back to the printout of <em>exact</em> landmark locations when this data was created, you should see values that are very similar to those coordinates, but not quite (since <code>slam</code> must account for noise in motion and measurement).</p>
+<h4 id="landmark-locations">Landmark Locations<a class="anchor-link" href="#landmark-locations">&#182;</a></h4><p>If you refer back to the printout of <em>exact</em> landmark locations when this data was created, you should see values that are very similar to those coordinates, but not quite (since <code>slam</code> must account for noise in motion and measurement).</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -3904,7 +3899,7 @@ Estimated Landmarks:
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="visualize-the-constructed-world">Visualize the constructed world<a class="anchor-link" href="#Visualize-the-constructed-world">&#182;</a></h2><p>Finally, using the <code>display_world</code> code from the <code>helpers.py</code> file (which was also used in the first notebook), we can actually visualize what you have coded with <code>slam</code>: the final position of the robot and the positon of landmarks, created from only motion and measurement data!</p>
+<h2 id="visualize-the-constructed-world">Visualize the constructed world<a class="anchor-link" href="#visualize-the-constructed-world">&#182;</a></h2><p>Finally, using the <code>display_world</code> code from the <code>helpers.py</code> file (which was also used in the first notebook), we can actually visualize what you have coded with <code>slam</code>: the final position of the robot and the positon of landmarks, created from only motion and measurement data!</p>
 <p><strong>Note that these should be very similar to the printed <em>true</em> landmark locations and final pose from our call to <code>make_data</code> early in this notebook.</strong></p>
 
 </div>
@@ -4024,7 +4019,7 @@ True last pose:  [82.09984637157041, 4.823028844244325]
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="question-how-far-away-is-your-final-pose-as-estimated-by-slam-compared-to-the-true-final-pose-why-do-you-think-these-poses-are-different">Question: How far away is your final pose (as estimated by <code>slam</code>) compared to the <em>true</em> final pose? Why do you think these poses are different?<a class="anchor-link" href="#Question:-How-far-away-is-your-final-pose-(as-estimated-by-slam)-compared-to-the-true-final-pose?-Why-do-you-think-these-poses-are-different?">&#182;</a></h3><p>You can find the true value of the final pose in one of the first cells where <code>make_data</code> was called. You may also want to look at the true landmark locations and compare them to those that were estimated by <code>slam</code>. Ask yourself: what do you think would happen if we moved and sensed more (increased N)? Or if we had lower/higher noise parameters.</p>
+<h3 id="question-how-far-away-is-your-final-pose-as-estimated-by-slam-compared-to-the-true-final-pose-why-do-you-think-these-poses-are-different">Question: How far away is your final pose (as estimated by <code>slam</code>) compared to the <em>true</em> final pose? Why do you think these poses are different?<a class="anchor-link" href="#question-how-far-away-is-your-final-pose-as-estimated-by-slam-compared-to-the-true-final-pose-why-do-you-think-these-poses-are-different">&#182;</a></h3><p>You can find the true value of the final pose in one of the first cells where <code>make_data</code> was called. You may also want to look at the true landmark locations and compare them to those that were estimated by <code>slam</code>. Ask yourself: what do you think would happen if we moved and sensed more (increased N)? Or if we had lower/higher noise parameters.</p>
 
 </div>
 </div>
@@ -4469,8 +4464,8 @@ df_poses</div>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="testing">Testing<a class="anchor-link" href="#Testing">&#182;</a></h2><p>To confirm that your slam code works before submitting your project, it is suggested that you run it on some test data and cases. A few such cases have been provided for you, in the cells below. When you are ready, uncomment the test cases in the next cells (there are two test cases, total); your output should be <strong>close-to or exactly</strong> identical to the given results. If there are minor discrepancies it could be a matter of floating point accuracy or in the calculation of the inverse matrix.</p>
-<h3 id="submit-your-project">Submit your project<a class="anchor-link" href="#Submit-your-project">&#182;</a></h3><p>If you pass these tests, it is a good indication that your project will pass all the specifications in the project rubric. Follow the submission instructions to officially submit!</p>
+<h2 id="testing">Testing<a class="anchor-link" href="#testing">&#182;</a></h2><p>To confirm that your slam code works before submitting your project, it is suggested that you run it on some test data and cases. A few such cases have been provided for you, in the cells below. When you are ready, uncomment the test cases in the next cells (there are two test cases, total); your output should be <strong>close-to or exactly</strong> identical to the given results. If there are minor discrepancies it could be a matter of floating point accuracy or in the calculation of the inverse matrix.</p>
+<h3 id="submit-your-project">Submit your project<a class="anchor-link" href="#submit-your-project">&#182;</a></h3><p>If you pass these tests, it is a good indication that your project will pass all the specifications in the project rubric. Follow the submission instructions to officially submit!</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -4802,7 +4797,7 @@ Estimated Landmarks:
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="todos">TODOs<a class="anchor-link" href="#TODOs">&#182;</a></h2><ul>
+<h2 id="todos">TODOs<a class="anchor-link" href="#todos">&#182;</a></h2><ul>
 <li>Create a new version of <code>slam</code> in which <code>omega</code> only keeps track of the latest robot pose (you do not need all of them to implement <code>slam</code> correctly).</li>
 </ul>
 <p>See <a href="https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373">Udacity Artificial Intelligence for Robotics</a> on how to implement online Graph SLAM. See also <a href="https://youtu.be/jaeNlxhQL1I">specific video</a>.</p>
@@ -4817,7 +4812,7 @@ Estimated Landmarks:
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="online-slam">Online SLAM<a class="anchor-link" href="#Online-SLAM">&#182;</a></h3>
+<h3 id="online-slam">Online SLAM<a class="anchor-link" href="#online-slam">&#182;</a></h3>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -32316,7 +32311,7 @@ TkSuQmCC\
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="create-a-non-random-maze-of-landmarks-and-see-how-your-implementation-of-slam-performs">Create a non-random maze of landmarks and see how your implementation of slam performs<a class="anchor-link" href="#Create-a-non-random-maze-of-landmarks-and-see-how-your-implementation-of-slam-performs">&#182;</a></h2>
+<h2 id="create-a-non-random-maze-of-landmarks-and-see-how-your-implementation-of-slam-performs">Create a non-random maze of landmarks and see how your implementation of slam performs<a class="anchor-link" href="#create-a-non-random-maze-of-landmarks-and-see-how-your-implementation-of-slam-performs">&#182;</a></h2>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -32908,7 +32903,7 @@ True last pose:  [52.524320896194645, 71.44034682637752]
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="online-slam">Online SLAM<a class="anchor-link" href="#Online-SLAM">&#182;</a></h2>
+<h2 id="online-slam">Online SLAM<a class="anchor-link" href="#online-slam">&#182;</a></h2>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -36122,18 +36117,9 @@ Ny44My4xMDA=
 </div>
 
 
-                
-              
 
               
-                
 
-
-  <h2 id="__comments">Comments</h2>
-  <div id="disqus_thread"></div>
-  <script>var script,disqus_config=function(){this.page.url="https://ros-mobile-robots.com/theory/slam/3.%20Landmark%20Detection%20and%20Tracking/",this.page.identifier="theory/slam/3.%20Landmark%20Detection%20and%20Tracking/"};"undefined"==typeof DISQUS?((script=document.createElement("script")).async=!0,script.src="https://ros-mobile-robots.disqus.com/embed.js",script.setAttribute("data-timestamp",Date.now()),document.body.appendChild(script)):DISQUS.reset({reload:!0,config:disqus_config})</script>
-
-              
             </article>
           </div>
         </div>
@@ -36145,25 +36131,23 @@ Ny44My4xMDA=
         
       </main>
       
-        
-<footer class="md-footer">
+        <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-          <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a>
-          </div>
-        
-        
-          Made with
-          <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-            Material for MkDocs
-          </a>
-        
-        
-      </div>
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021 - 2021 Franz Pucher | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
     </div>
   </div>
@@ -36173,11 +36157,11 @@ Ny44My4xMDA=
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.fcfe8b6d.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.01824240.min.js"}</script>
     
     
     
-      <script src="../../../assets/javascripts/bundle.b1047164.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.ff0eccb3.min.js"></script>
       
     
     <script src="https://gumroad.com/js/gumroad.js"></script>

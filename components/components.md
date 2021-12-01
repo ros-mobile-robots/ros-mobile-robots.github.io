@@ -18,7 +18,7 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.de](https://amzn.to/3km5KF3) | |
 | Teensy 4.0 or 3.2 | 1 | $19.95 | [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
 | Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Sparkfun](https://www.sparkfun.com/products/16413) | |
-| Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm) |
+| Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm |
 | Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.de](https://amzn.to/3kiX8PH) | |
 | USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle | |
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
@@ -56,7 +56,7 @@ You need the following parts to build REMO. They come in packs, so order the qua
 | --- | --- | --: | --: | --: | --- |
 |  Adhesive pads | 2 | 48 | $0.14 |  | optional |
 |  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack |
-|  M2 screw | 20 | 100 | $1.29 |  | 8mm long, self tapping |
+|  M2 screw | 20 | 100 | $1.29 | [Amazon](https://amzn.to/3d9LZf7)  | 8mm long, self tapping |
 |  M2 screw | 4 | 60 | $0.47 |  | 25mm long|
 |  M2 Brass threaded inserts | 4 | 100 | $0.24 |  |  |
 |  Jumper wires | 4 | 40 | $0.13 | [Amazon](https://amzn.to/2tacYQD) | Female-female, ~20cm |
