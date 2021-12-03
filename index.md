@@ -2,10 +2,13 @@
 
 This project guides you on how to build an autonomous two wheel differential drive robot. [![image](https://img.shields.io/github/stars/ros-mobile-robots/diffbot?style=social)](https://github.com/ros-mobile-robots/diffbot)
 The robot can operate on a [Raspberry Pi 4 B](https://de.aliexpress.com/item/32858825148.html?spm=a2g0o.productlist.0.0.5d232e8bvlKM7l&algo_pvid=2c45d347-5783-49a6-a0a8-f104d0b78232&algo_expid=2c45d347-5783-49a6-a0a8-f104d0b78232-0&btsid=0100feb4-37d7-453a-8ff8-47a0e2fbdef7&ws_ab_test=searchweb0_0,searchweb201602_9,searchweb201603_52) or [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) 
-running [ROS Noetic](http://wiki.ros.org/noetic) or [ROS Melodic](http://wiki.ros.org/melodic) middleware on Ubuntu Mate 20.04 and Ubuntu 18.04 respectively.
-With a motor driver and two actuators it can drive autonomously to a desired location while sensing its environment using sensors, 
-such as a camera and a laser scanner to avoid obstacles. Odometry wheel encoders (also refered to as speed sensors) 
-combined with an inertial measurement unit (IMU) are used for localization. The following video shows an overview of the components:
+running [ROS Noetic](http://wiki.ros.org/noetic) or [ROS Melodic](http://wiki.ros.org/melodic) middleware on Ubuntu Mate 20.04 and Ubuntu 18.04, respectively.
+With a motor driver that actuates two brushed motors the robot can drive autonomously to a desired location while sensing its environment using sensors, 
+such as a laser scanner to avoid obstacles and a camera to detect objects. Odometry wheel encoders (also refered to as speed sensors) 
+combined with an inertial measurement unit (IMU) are used together with the laser scanner for localization in a previously stored map. 
+Unseen enviornments can be mapped with the laser scanner, making use of open source SLAM algorithms such as `gmapping`. 
+
+The following video gives an overview of the robot's components:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/6aAEbtfVbAk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
