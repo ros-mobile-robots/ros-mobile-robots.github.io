@@ -95,3 +95,4 @@ Helpful resources to bring your own robots into ROS are:
   - [Robocademy](https://robocademy.com/)
   - [ROS Online Course for Beginner](https://discourse.ros.org/t/new-ros-online-course-for-beginner/5320)
   - [Udacity Robotics Software Engineer](https://www.udacity.com/course/robotics-software-engineer--nd209)
+  - [Self-Driving Cars with Duckietown](https://www.edx.org/course/self-driving-cars-with-duckietown) by ETH Zurich
