@@ -4,7 +4,11 @@ ROS URDF description package of REMO robot (Research Education Mobile/Modular ro
 autonomous mobile robot based on [Nvidia's Jetbot](https://github.com/NVIDIA-AI-IOT/jetbot).
 This ROS package is found in the [`remo_description` repository]({{ remo_repo_url }}) contains the stl files to 3D print Remo robot.
 
-![https://media.githubusercontent.com/media/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif](https://media.githubusercontent.com/media/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif)
+![https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif](https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif)
+
+You can explore the model in more detail through the following Fusion 360 viewer:
+
+<iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
 
 ## Usage
 
