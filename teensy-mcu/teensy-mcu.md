@@ -98,12 +98,26 @@ Each [DG01D-E](https://www.sparkfun.com/products/16413) motor has two signal pin
 
 
 <figure>
-    <a href="hhttps://raw.githubusercontent.com/fjp/diffbot/noetic-devel/docs/resources/hardware/teensy40-pinout01.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/noetic-devel/docs/resources/hardware/teensy40-pinout01.png"></a>
+    <a href="{{ asset_dir }}/hardware/teensy40-pinout01.png"><img src="{{ asset_dir }}/hardware/teensy40-pinout01.png"></a>
     <figcaption>Teensy 4.0 Pins.</figcaption>
 </figure>
 
 
-TODO add connection schematic
+The bread board view of [Fritzing](https://fritzing.org/) shows the connection schematic and is shown for both models in the following:
+
+=== "DiffBot"
+
+    <figure>
+        <a href="./fritzing/diffbot_architecture.svg"><img src="./fritzing/diffbot_architecture.svg"></a>
+        <figcaption>Teensy 4.0 Pins.</figcaption>
+    </figure>
+
+=== "Remo"
+
+    <figure>
+        <a href="fritzing/remo_architecture.svg"><img src="fritzing/remo_architecture.svg"></a>
+        <figcaption>Teensy 4.0 Pins.</figcaption>
+    </figure>
 
 
 With one motor encoder connected to pins 5, 6, echo the `/encoder_ticks` topic:

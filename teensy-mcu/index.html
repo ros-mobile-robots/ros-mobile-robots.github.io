@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://ros-mobile-robots.com/teensy-mcu/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.0.5">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.6">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.a617204b.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.cd566b2a.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.9204c3b2.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
         
       
     
@@ -98,7 +98,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1760,11 +1760,31 @@ The code for the motor encoders uses it as basis together with a pubsub example 
 </div>
 <p>Each <a href="https://www.sparkfun.com/products/16413">DG01D-E</a> motor has two signal pins for its built-in encoder. For these, the Teensy pins 5, 6 are used for the left encoder and 7, 8 are used for the right one, see also the <a href="https://www.pjrc.com/teensy/pinout.html">Teensy pinout</a>.</p>
 <figure>
-    <a href="hhttps://raw.githubusercontent.com/fjp/diffbot/noetic-devel/docs/resources/hardware/teensy40-pinout01.png"><img src="https://raw.githubusercontent.com/fjp/diffbot/noetic-devel/docs/resources/hardware/teensy40-pinout01.png"></a>
+    <a href="/resources/hardware/teensy40-pinout01.png"><img src="/resources/hardware/teensy40-pinout01.png"></a>
     <figcaption>Teensy 4.0 Pins.</figcaption>
 </figure>
 
-<p>TODO add connection schematic</p>
+<p>The bread board view of <a href="https://fritzing.org/">Fritzing</a> shows the connection schematic and is shown for both models in the following:</p>
+<p>=== "DiffBot"</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>&lt;figure&gt;
+    &lt;a href=&quot;./fritzing/diffbot_architecture.svg&quot;&gt;&lt;img src=&quot;./fritzing/diffbot_architecture.svg&quot;&gt;&lt;/a&gt;
+    &lt;figcaption&gt;Teensy 4.0 Pins.&lt;/figcaption&gt;
+&lt;/figure&gt;
+</code></pre></div>
+</td></tr></table>
+<p>=== "Remo"</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>&lt;figure&gt;
+    &lt;a href=&quot;fritzing/remo_architecture.svg&quot;&gt;&lt;img src=&quot;fritzing/remo_architecture.svg&quot;&gt;&lt;/a&gt;
+    &lt;figcaption&gt;Teensy 4.0 Pins.&lt;/figcaption&gt;
+&lt;/figure&gt;
+</code></pre></div>
+</td></tr></table>
 <p>With one motor encoder connected to pins 5, 6, echo the <code>/encoder_ticks</code> topic:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rostopic echo /encoder_ticks</span>
 </code></pre></div>
@@ -1927,11 +1947,11 @@ The code for the motor encoders uses it as basis together with a pubsub example 
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.cefbb252.min.js"}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.22074ed6.min.js"}</script>
     
     
     
-      <script src="../assets/javascripts/bundle.a5f8ea78.min.js"></script>
+      <script src="../assets/javascripts/bundle.1514a9a0.min.js"></script>
       
     
     <script src="https://gumroad.com/js/gumroad.js"></script>

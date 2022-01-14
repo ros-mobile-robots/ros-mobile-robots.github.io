@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://ros-mobile-robots.com/diffbot_bringup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.0.5">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.6">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.a617204b.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.cd566b2a.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.9204c3b2.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
         
       
     
@@ -98,7 +98,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1698,22 +1698,22 @@ And for the encoders rosserial communicates with the Teensy microcontroller to p
 <span class="normal">19</span>
 <span class="normal">20</span>
 <span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
-    <span class="c">&lt;!-- Including the following launch file from diffbot_base package will --&gt;</span>
-    <span class="c">&lt;!-- Load the robot description onto the parameter server --&gt;</span>
-    <span class="c">&lt;!-- Run the controller manager with DiffBot&#39;s hardware interface --&gt;</span>
-    <span class="c">&lt;!-- Load the controller config onto the parameter server --&gt;</span>
+    <span class="cm">&lt;!-- Including the following launch file from diffbot_base package will --&gt;</span>
+    <span class="cm">&lt;!-- Load the robot description onto the parameter server --&gt;</span>
+    <span class="cm">&lt;!-- Run the controller manager with DiffBot&#39;s hardware interface --&gt;</span>
+    <span class="cm">&lt;!-- Load the controller config onto the parameter server --&gt;</span>
     <span class="nt">&lt;include</span> <span class="na">file=</span><span class="s">&quot;$(find diffbot_base)/launch/diffbot.launch&quot;</span><span class="nt">&gt;</span>
-        <span class="c">&lt;!-- arg name=&quot;model&quot; value=&quot;$(arg model)&quot; /--&gt;</span>
+        <span class="cm">&lt;!-- arg name=&quot;model&quot; value=&quot;$(arg model)&quot; /--&gt;</span>
     <span class="nt">&lt;/include&gt;</span>
 
 
-    <span class="c">&lt;!-- Motors --&gt;</span>
-    <span class="c">&lt;!-- --&gt;</span>
+    <span class="cm">&lt;!-- Motors --&gt;</span>
+    <span class="cm">&lt;!-- --&gt;</span>
     <span class="nt">&lt;node</span> <span class="na">name=</span><span class="s">&quot;motor_driver&quot;</span> <span class="na">pkg=</span><span class="s">&quot;grove_motor_driver&quot;</span> <span class="na">type=</span><span class="s">&quot;motor_driver.py&quot;</span> <span class="na">respawn=</span><span class="s">&quot;false&quot;</span>
         <span class="na">output=</span><span class="s">&quot;screen&quot;</span> <span class="na">ns=</span><span class="s">&quot;diffbot&quot;</span> <span class="nt">/&gt;</span>
 
-    <span class="c">&lt;!-- Encoders --&gt;</span>
-    <span class="c">&lt;!-- Run rosserial to connect with the Teensy 3.2 board connected to the motor encoders --&gt;</span>
+    <span class="cm">&lt;!-- Encoders --&gt;</span>
+    <span class="cm">&lt;!-- Run rosserial to connect with the Teensy 3.2 board connected to the motor encoders --&gt;</span>
     <span class="nt">&lt;node</span> <span class="na">name=</span><span class="s">&quot;rosserial_teensy&quot;</span> <span class="na">pkg=</span><span class="s">&quot;rosserial_python&quot;</span> <span class="na">type=</span><span class="s">&quot;serial_node.py&quot;</span> <span class="na">respawn=</span><span class="s">&quot;false&quot;</span>
         <span class="na">output=</span><span class="s">&quot;screen&quot;</span> <span class="na">ns=</span><span class="s">&quot;diffbot&quot;</span> <span class="na">args=</span><span class="s">&quot;_port:=/dev/ttyACM0</span>
 <span class="s">                                            _baud:=115200&quot;</span><span class="nt">/&gt;</span>
@@ -1741,13 +1741,13 @@ between the links.</p>
 <span class="normal">11</span>
 <span class="normal">12</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
     <span class="nt">&lt;include</span> <span class="na">file=</span><span class="s">&quot;$(find diffbot_bringup)/launch/minimal.launch&quot;</span><span class="nt">&gt;</span>
-        <span class="c">&lt;!-- arg name=&quot;model&quot; value=&quot;$(arg model)&quot; /--&gt;</span>
+        <span class="cm">&lt;!-- arg name=&quot;model&quot; value=&quot;$(arg model)&quot; /--&gt;</span>
     <span class="nt">&lt;/include&gt;</span>
 
-    <span class="c">&lt;!-- Starting robot state publish which will publish tf --&gt;</span>
-    <span class="c">&lt;!-- This is needed to publish transforms between all links --&gt;</span>
-    <span class="c">&lt;!-- diff_drive_controller publishes only a single transfrom between odom and base_footprint --&gt;</span>
-    <span class="c">&lt;!-- The robot_state_publisher reads the joint states published by ros control&#39;s joint_state_controller --&gt;</span>
+    <span class="cm">&lt;!-- Starting robot state publish which will publish tf --&gt;</span>
+    <span class="cm">&lt;!-- This is needed to publish transforms between all links --&gt;</span>
+    <span class="cm">&lt;!-- diff_drive_controller publishes only a single transfrom between odom and base_footprint --&gt;</span>
+    <span class="cm">&lt;!-- The robot_state_publisher reads the joint states published by ros control&#39;s joint_state_controller --&gt;</span>
     <span class="nt">&lt;node</span> <span class="na">name=</span><span class="s">&quot;robot_state_publisher&quot;</span> <span class="na">pkg=</span><span class="s">&quot;robot_state_publisher&quot;</span> <span class="na">type=</span><span class="s">&quot;robot_state_publisher&quot;</span>
         <span class="na">output=</span><span class="s">&quot;screen&quot;</span> <span class="na">ns=</span><span class="s">&quot;diffbot&quot;</span> <span class="nt">/&gt;</span>
 <span class="nt">&lt;/launch&gt;</span>
@@ -1828,11 +1828,11 @@ between the links.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.cefbb252.min.js"}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.22074ed6.min.js"}</script>
     
     
     
-      <script src="../assets/javascripts/bundle.a5f8ea78.min.js"></script>
+      <script src="../assets/javascripts/bundle.1514a9a0.min.js"></script>
       
     
     <script src="https://gumroad.com/js/gumroad.js"></script>
