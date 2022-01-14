@@ -2,21 +2,26 @@
 
 Install git on Ubuntu via the following command:
 
-<pre><font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ sudo apt install git</pre>
+```console
+fjp@ubuntu:~$ sudo apt install git
+```
 
 
 Set your username and email address that you use on github (when using github to host your repository):
 
+```console
 $ git config --global user.name "github_username"
 $ git config --global user.email "your.name@provider.com"
-
+```
 
 To store your password credentials when pushing and pulling to the remote repository use the following commands:
 
-<pre><font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ git config --global credential.helper store
-<font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ git push
-Username for &apos;https://github.com&apos;: fjp
-Password for &apos;https://fjp@github.com&apos;: 
+```console
+fjp@ubuntu:~/git/2wd-robot$ git config --global credential.helper store
+fjp@ubuntu:~/git/2wd-robot$ git push
+Username for 'https://github.com': fjp
+Password for 'https://fjp@github.com': 
 Everything up-to-date
-<font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ git push
-Everything up-to-date</pre>
+fjp@ubuntu:~/git/2wd-robot$ git push
+Everything up-to-date
+```

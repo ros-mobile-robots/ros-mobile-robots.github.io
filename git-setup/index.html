@@ -1658,19 +1658,31 @@
 
 <h2 id="git-setup">git setup</h2>
 <p>Install git on Ubuntu via the following command:</p>
-<pre><font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ sudo apt install git</pre>
-
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">fjp@ubuntu:~$ </span>sudo apt install git
+</code></pre></div>
+</td></tr></table>
 <p>Set your username and email address that you use on github (when using github to host your repository):</p>
-<p>$ git config --global user.name "github_username"
-$ git config --global user.email "your.name@provider.com"</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>git config --global user.name <span class="s2">&quot;github_username&quot;</span>
+<span class="gp">$ </span>git config --global user.email <span class="s2">&quot;your.name@provider.com&quot;</span>
+</code></pre></div>
+</td></tr></table>
 <p>To store your password credentials when pushing and pulling to the remote repository use the following commands:</p>
-<pre><font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ git config --global credential.helper store
-<font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ git push
-Username for &apos;https://github.com&apos;: fjp
-Password for &apos;https://fjp@github.com&apos;: 
-Everything up-to-date
-<font color="#8AE234"><b>fjp@ubuntu</b></font>:<font color="#729FCF"><b>~/git/2wd-robot</b></font>$ git push
-Everything up-to-date</pre>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">fjp@ubuntu:~/git/2wd-robot$ </span>git config --global credential.helper store
+<span class="gp">fjp@ubuntu:~/git/2wd-robot$ </span>git push
+<span class="go">Username for &#39;https://github.com&#39;: fjp</span>
+<span class="go">Password for &#39;https://fjp@github.com&#39;: </span>
+<span class="go">Everything up-to-date</span>
+<span class="gp">fjp@ubuntu:~/git/2wd-robot$ </span>git push
+<span class="go">Everything up-to-date</span>
+</code></pre></div>
+</td></tr></table>
 
               
 
