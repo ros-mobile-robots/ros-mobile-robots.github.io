@@ -1765,26 +1765,22 @@ The code for the motor encoders uses it as basis together with a pubsub example 
 </figure>
 
 <p>The bread board view of <a href="https://fritzing.org/">Fritzing</a> shows the connection schematic and is shown for both models in the following:</p>
-<p>=== "DiffBot"</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>&lt;figure&gt;
-    &lt;a href=&quot;./fritzing/diffbot_architecture.svg&quot;&gt;&lt;img src=&quot;./fritzing/diffbot_architecture.svg&quot;&gt;&lt;/a&gt;
-    &lt;figcaption&gt;Teensy 4.0 Pins.&lt;/figcaption&gt;
-&lt;/figure&gt;
-</code></pre></div>
-</td></tr></table>
-<p>=== "Remo"</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>&lt;figure&gt;
-    &lt;a href=&quot;fritzing/remo_architecture.svg&quot;&gt;&lt;img src=&quot;fritzing/remo_architecture.svg&quot;&gt;&lt;/a&gt;
-    &lt;figcaption&gt;Teensy 4.0 Pins.&lt;/figcaption&gt;
-&lt;/figure&gt;
-</code></pre></div>
-</td></tr></table>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">DiffBot</label><label for="__tabbed_1_2">Remo</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><figure>
+    <a href="./fritzing/diffbot_architecture.svg"><img src="./fritzing/diffbot_architecture.svg"></a>
+    <figcaption>Teensy 4.0 Pins.</figcaption>
+</figure></p>
+</div>
+<div class="tabbed-block">
+<p><figure>
+    <a href="fritzing/remo_architecture.svg"><img src="fritzing/remo_architecture.svg"></a>
+    <figcaption>Teensy 4.0 Pins.</figcaption>
+</figure></p>
+</div>
+</div>
+</div>
 <p>With one motor encoder connected to pins 5, 6, echo the <code>/encoder_ticks</code> topic:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rostopic echo /encoder_ticks</span>
 </code></pre></div>
