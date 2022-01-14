@@ -107,17 +107,12 @@ The bread board view of [Fritzing](https://fritzing.org/) shows the connection s
 
 === "DiffBot"
 
-    <figure>
-        <a href="./fritzing/diffbot_architecture.svg"><img src="./fritzing/diffbot_architecture.svg"></a>
-        <figcaption>Teensy 4.0 Pins.</figcaption>
-    </figure>
+    ![DiffBot Fritzing](fritzing/diffbot_architecture.svg)
 
 === "Remo"
 
-    <figure>
-        <a href="fritzing/remo_architecture.svg"><img src="fritzing/remo_architecture.svg"></a>
-        <figcaption>Teensy 4.0 Pins.</figcaption>
-    </figure>
+    ![DiffBot Fritzing](fritzing/remo_architecture.svg)
+        
 
 
 With one motor encoder connected to pins 5, 6, echo the `/encoder_ticks` topic:
