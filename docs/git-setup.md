@@ -7,9 +7,10 @@ Install git on Ubuntu via the following command:
 
 Set your username and email address that you use on github (when using github to host your repository):
 
+```console
 $ git config --global user.name "github_username"
 $ git config --global user.email "your.name@provider.com"
-
+```
 
 To store your password credentials when pushing and pulling to the remote repository use the following commands:
 
