@@ -1741,7 +1741,7 @@ Alternatively they could be also connected to the pins of the microcontroller, e
 <h2 id="single-board-computer-i2c-connection">Single Board Computer I2C Connection</h2>
 <p>The I2C connections on the Raspberry Pi 4 B are used for multiple components such as the motor driver and the oled display.</p>
 <figure>
-    <a href="https://github.com/fjp/2wd-robot/raw/master/docs/i2c-rpi-pinout.png"><img src="https://github.com/fjp/2wd-robot/raw/master/docs/i2c-rpi-pinout.png"></a>
+    <a href="/resources/hardware/i2c-rpi-pinout.png"><img src="/resources/hardware/i2c-rpi-pinout.png"></a>
     <figcaption><a href="https://pinout.xyz/pinout/i2c" title="I2C Pinout">I2C Pinout</a> on Raspberry Pi 4 B.</figcaption>
 </figure>
 
@@ -1753,13 +1753,13 @@ Alternatively they could be also connected to the pins of the microcontroller, e
 <span class="normal">4</span>
 <span class="normal">5</span>
 <span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>fjp@ubuntu:~/git/2wd-robot$ i2cdetect
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>fjp@remo:~$ i2cdetect
 
 Command <span class="s1">&#39;i2cdetect&#39;</span> not found, but can be installed with:
 
 sudo apt install i2c-tools
 
-fjp@ubuntu:~/git/2wd-robot$ sudo apt install i2c-tools
+fjp@remo:~$ sudo apt install i2c-tools
 </code></pre></div>
 </td></tr></table>
 <p>This <code>i2cdetect</code> tool is  a  userspace program to scan an I2C bus for devices
