@@ -175,4 +175,6 @@ The found value 540 for a full turn of the wheel is important for the hardware i
 If you are working with Remo the recommende way is to use `base_controller` from `diffbot_base/scripts` instead of the `encoders.ino`.
 Build instructions using Visual Studio Code including the PlatformIO plugin are shown in the following video:
 
-<iframe src="https://onedrive.live.com/embed?cid=DCAB904DC4D78DEE&resid=DCAB904DC4D78DEE%211624&authkey=AH6XlI8ib97nx0k" width="320" height="200" frameborder="0" scrolling="no" allowfullscreen></iframe>
+<iframe width="320" height="200" src="https://onedrive.live.com/embed?cid=DCAB904DC4D78DEE&resid=DCAB904DC4D78DEE%211624&authkey=AH6XlI8ib97nx0k" frameborder="0" scrolling="no" allowfullscreen></iframe>
+
+When using `base_controller` you should use the low level PID controllers running on the MCU.
