@@ -44,7 +44,7 @@ The I2C connections on the Raspberry Pi 4 B are used for multiple components suc
 
 
 <figure>
-    <a href="https://github.com/fjp/2wd-robot/raw/master/docs/i2c-rpi-pinout.png"><img src="https://github.com/fjp/2wd-robot/raw/master/docs/i2c-rpi-pinout.png"></a>
+    <a href="{{ asset_dir }}/hardware/i2c-rpi-pinout.png"><img src="{{ asset_dir }}/hardware/i2c-rpi-pinout.png"></a>
     <figcaption><a href="https://pinout.xyz/pinout/i2c" title="I2C Pinout">I2C Pinout</a> on Raspberry Pi 4 B.</figcaption>
 </figure>
 
@@ -54,13 +54,13 @@ Using these ports on the Raspberry Pi 4 B, requires that we enable the I2C inter
 To do so, we will use the tool `i2cdetect` which requires that we install a tool on Ubuntu called `i2c-tools`:
 
 ```bash
-fjp@ubuntu:~/git/2wd-robot$ i2cdetect
+fjp@remo:~$ i2cdetect
 
 Command 'i2cdetect' not found, but can be installed with:
 
 sudo apt install i2c-tools
 
-fjp@ubuntu:~/git/2wd-robot$ sudo apt install i2c-tools
+fjp@remo:~$ sudo apt install i2c-tools
 ```
 
 This `i2cdetect` tool is  a  userspace program to scan an I2C bus for devices
