@@ -145,5 +145,4 @@ nav:
     - Move Base Flex: diffbot_mbf.md
     - Hardware Bringup: diffbot_bringup.md
     - Rasperry Pi Camera: packages/raspicam_node.md
-  - Insiders:
-    - Insiders: index.md
+  - Insiders: insiders/index.md
