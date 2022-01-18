@@ -146,6 +146,7 @@ are released for general availability.
 
 - [ ] PID tuning on MCU using topic instead of requiring re-flashing
 - [ ] Remo: RPLidar 1 lidar platform
+- [ ] Add tutorials to documentation
 
 #### $ 1,000 – Mont Durand
 
@@ -176,6 +177,7 @@ can be used by all users.
 
 #### $ 0 – Schneestock
 
+- [x] Documentation using Material for MkDocs
 - [x] Make use of rosdep for system dependencies
 - [x] [Parametrize sensor description when using standard laser instead of gpu laser](#27)
 - [x] vcstool to simplify external dependency installation
