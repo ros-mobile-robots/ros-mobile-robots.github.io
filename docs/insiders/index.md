@@ -17,7 +17,6 @@ that new features are first exclusively released to sponsors as part of
   [what sponsorships achieve]: #what-sponsorships-achieve
   [how to become a sponsor]: #how-to-become-a-sponsor
   [available features]: #available-features
-  [Material for MkDocs]: https://squidfunk.github.io/mkdocs-material/
 
 ## What is Insiders?
 
@@ -121,12 +120,12 @@ You can cancel your sponsorship anytime.[^5]
 
 ## Available features
 
-The following features are solely available via Material for MkDocs Insiders:
+The following features are solely available via DiffBot and Remo Insiders:
 
 <div class="mdx-columns" markdown>
 
 - [x] [TBA] :material-new-box:
-- [x] [TBA icons] :material-new-box:
+- [x] [TBA] :material-new-box:
 - [x] [TBA]
 
 </div>
@@ -191,7 +190,7 @@ could also create a dedicated GitHub account with a yearly billing cycle, which
 you only use for sponsoring (some sponsors already do that).
 
 If you have any problems or further questions, please reach out to
-sponsors@squidfunk.com.
+ros@fjp.at.
 
   [billing cycle]: https://docs.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/changing-the-duration-of-your-billing-cycle
 
@@ -201,7 +200,7 @@ _Are we allowed to use Insiders under the same terms and conditions as
 DiffBot and Remo?_
 
 Yes. Whether you're an individual or a company, you may use _DiffBot and Remo
-Insiders_ precisely under the same terms as Material for MkDocs, which are given
+Insiders_ precisely under the same terms as DiffBot and Remo, which are given
 by the [BSD 3-Clause License]. However, we kindly ask you to respect the following
 guidelines:
 
