@@ -1570,6 +1570,8 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           Rasperry Pi Camera
@@ -1586,6 +1588,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1594,8 +1598,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#raspberry-pi-camera" class="md-nav__link">
-    Raspberry Pi Camera
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-node" class="md-nav__link">
+    Running the node
   </a>
   
 </li>
@@ -1647,6 +1658,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1655,8 +1668,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#raspberry-pi-camera" class="md-nav__link">
-    Raspberry Pi Camera
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-node" class="md-nav__link">
+    Running the node
   </a>
   
 </li>
@@ -1681,16 +1701,105 @@
 </a>
 
 
-  <h1>Rasperry Pi Camera</h1>
-
-<h2 id="raspberry-pi-camera">Raspberry Pi Camera</h2>
+<h1 id="raspberry-pi-camera">Raspberry Pi Camera</h1>
 <p>The diffbot robot uses the <a href="https://github.com/UbiquityRobotics/raspicam_node"><code>UbiquityRobotics/raspicam_node</code></a>
 to interface the <a href="https://www.raspberrypi.org/products/camera-module-v2/">Raspberry Pi Camera v2</a>.</p>
-<p>To publish the camera image on the /raw/image/compressed topic run the following on the robot:</p>
+<h2 id="setup">Setup</h2>
+<p>Currently there exists  no binary of the <code>raspicam_node</code> for ROS noetic (only for kinetic there is the <code>ros-kinetic-raspicam-node</code>).
+To work with the <code>raspicam_node</code> for ROS Noetic, you have to build it from source with steps 
+outlined in the build intstructions of the <a href="https://github.com/UbiquityRobotics/raspicam_node#build-intructions">readme</a>.
+For completeness, these steps are listed here:</p>
+<p>First go to your catkin_ws cd <code>~/ros_ws/src</code> and download the source for this node by running</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">git clone https://github.com/UbiquityRobotics/raspicam_node.git</span>
+</code></pre></div>
+</td></tr></table>
+<p>There are some dependencies that are not recognized by ROS, so you need to create the file <code>/etc/ros/rosdep/sources.list.d/30-ubiquity.list</code> and add 
+the following to it:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>yaml https://raw.githubusercontent.com/UbiquityRobotics/rosdep/master/raspberry-pi.yaml
+</code></pre></div>
+</td></tr></table>
+<p>This will add ROS dependency sources, which are relevant for the Raspberry Pi. </p>
+<p>For completeness you can list the content of this yaml file here:</p>
+<details>
+<summary>Show content</summary>
+
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nt">libraspberrypi0</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">debian</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi0</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi0</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="nt">libraspberrypi-dev</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">debian</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi-dev</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi-dev</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="nt">libpigpio</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">debian</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpio-dev</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpio-dev</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="nt">libpigpiod-if</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">debian</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpiod-if-dev</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">apt</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpiod-if-dev</span><span class="p p-Indicator">]</span><span class="w"></span>
+</code></pre></div>
+</td></tr></table>
+</details>
+
+<p>To make use of these sources run </p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rosdep update.</span>
+</code></pre></div>
+</td></tr></table>
+<p>Next, we parse the <code>package.xml</code> file for required dependencies and also install them with the <code>rosdep</code> command:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">cd ~/ros_ws</span>
+<span class="go">rosdep install --from-paths src --ignore-src --rosdistro=noetic -y</span>
+</code></pre></div>
+</td></tr></table>
+<p>Finally, you can compile the code with the <code>catkin build</code> command from <a href="https://catkin-tools.readthedocs.io/en/latest/"><code>catkin-tools</code></a> or 
+use the legacy <a href="http://wiki.ros.org/catkin/commands/catkin_make"><code>catkin_make</code></a> command.</p>
+<h2 id="running-the-node">Running the node</h2>
+<p>To publish the camera image on the <code>/raw/image/compressed</code> topic run the following on the SBC of the robot:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch raspicam_node camerav2_410x308_30fps.launch</span>
 </code></pre></div>
 </td></tr></table>
-<p>Running <code>rostopic list</code> should show the topics of raspicam node::</p>
+<p>Running <code>rostopic list</code> should show the topics of raspicam node:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -1705,6 +1814,14 @@ to interface the <a href="https://www.raspberrypi.org/products/camera-module-v2/
 </code></pre></div>
 </td></tr></table>
 <p>This will open up a window where you can see the camera image. If it is dark, check if you removed the lense protection ;-)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is also a <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_bringup/launch/rpicamera.launch"><code>rpicamera.launch</code></a>
+in the <code>diffbot_bringup</code> package which you can make use of:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch diffbot_bringup rpicamera.launch</span>
+</code></pre></div>
+</td></tr></table>
+</div>
 
               
 
