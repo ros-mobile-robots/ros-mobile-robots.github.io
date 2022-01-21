@@ -86,6 +86,7 @@ Helpful resources to bring your own robots into ROS are:
 - Understand [ROS Concepts](https://wiki.ros.org/ROS/Concepts)
 - Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) such as [Using ROS on your custom Robot](http://wiki.ros.org/ROS/Tutorials#Using_ROS_on_your_custom_Robot)
 - Books:
+  - [*Introduction to Autonomous Robots (free book)*](https://github.com/Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots)
   - [**Robot Operating System (ROS) for Absolute Beginners**](https://link.springer.com/book/10.1007/978-1-4842-3405-1) from Apress by [Lentin Joseph](https://lentinjoseph.com/)
   - [**Programming Robots with ROS** A Practical Introduction to the Robot Operating System](http://shop.oreilly.com/product/0636920024736.do) from O'Reilly Media
   - [**Mastering ROS for Robotics Programming** Second Edition](https://www.packtpub.com/eu/hardware-and-creative/mastering-ros-robotics-programming-second-edition) from Packt
