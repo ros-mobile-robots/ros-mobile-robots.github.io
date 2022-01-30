@@ -2398,7 +2398,10 @@ all of MD as it is not optimized for dense, information rich UIs.
     init_mathjax();
     </script>
     <!-- End of mathjax configuration --><div class="jupyter-wrapper">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="robot-class">Robot Class<a class="anchor-link" href="#robot-class">&#182;</a></h1><p>In this project, we'll be localizing a robot in a 2D grid world. The basis for simultaneous localization and mapping (SLAM) is to gather information from a robot's sensors and motions over time, and then use information about measurements and motion to re-construct a map of the world.</p>
@@ -2407,6 +2410,7 @@ all of MD as it is not optimized for dense, information rich UIs.
 <hr>
 <p>Before we start analyzing robot motion, let's load in our resources and define the <code>robot</code> class. You can see that this class initializes the robot's position and adds measures of uncertainty for motion. You'll also see a <code>sense()</code> function which is not yet implemented, and you will learn more about that later in this notebook.</p>
 
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -2725,12 +2729,16 @@ class robot:
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="define-a-world-and-a-robot">Define a world and a robot<a class="anchor-link" href="#define-a-world-and-a-robot">&#182;</a></h2><p>Next, let's instantiate a robot object. As you can see in <code>__init__</code> above, the robot class takes in a number of parameters including a world size and some values that indicate the sensing and movement capabilities of the robot.</p>
 <p>In the next example, we define a small 10x10 square world, a measurement range that is half that of the world and small values for motion and measurement noise. These values will typically be about 10 times larger, but we just want to demonstrate this behavior on a small scale. You are also free to change these values and note what happens as your robot moves!</p>
 
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -2806,12 +2814,16 @@ print(r)</div>
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="visualizing-the-world">Visualizing the World<a class="anchor-link" href="#visualizing-the-world">&#182;</a></h2><p>In the given example, we can see/print out that the robot is in the middle of the 10x10 world at (x, y) = (5.0, 5.0), which is exactly what we expect!</p>
 <p>However, it's kind of hard to imagine this robot in the center of a world, without visualizing the grid itself, and so in the next cell we provide a helper visualization function, <code>display_world</code>, that will display a grid world in a plot and draw a red <code>o</code> at the location of our robot, <code>r</code>. The details of how this function works can be found in the <code>helpers.py</code> file in the home directory; you do not have to change anything in this <code>helpers.py</code> file.</p>
 
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -2890,6 +2902,8 @@ display_world(int(world_size), [r.x, r.y])</div>
 <div class="jp-RenderedImage jp-OutputArea-output ">
 <img src="data:image/png;base64,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
 "
+class="
+"
 >
 </div>
 
@@ -2901,12 +2915,16 @@ display_world(int(world_size), [r.x, r.y])</div>
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="movement">Movement<a class="anchor-link" href="#movement">&#182;</a></h2><p>Now you can really picture where the robot is in the world! Next, let's call the robot's <code>move</code> function. We'll ask it to move some distance <code>(dx, dy)</code> and we'll see that this motion is not perfect by the placement of our robot <code>o</code> and by the printed out position of <code>r</code>.</p>
 <p>Try changing the values of <code>dx</code> and <code>dy</code> and/or running this cell multiple times; see how the robot moves and how the uncertainty in robot motion accumulates over multiple movements.</p>
 <h4 id="for-a-dx-1-does-the-robot-move-exactly-one-spot-to-the-right-what-about-dx-1-what-happens-if-you-try-to-move-the-robot-past-the-boundaries-of-the-world">For a <code>dx</code> = 1, does the robot move <em>exactly</em> one spot to the right? What about <code>dx</code> = -1? What happens if you try to move the robot past the boundaries of the world?<a class="anchor-link" href="#for-a-dx-1-does-the-robot-move-exactly-one-spot-to-the-right-what-about-dx-1-what-happens-if-you-try-to-move-the-robot-past-the-boundaries-of-the-world">&#182;</a></h4>
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -2989,6 +3007,8 @@ display_world(int(world_size), [r.x, r.y])</div>
 <div class="jp-RenderedImage jp-OutputArea-output ">
 <img src="data:image/png;base64,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
 "
+class="
+"
 >
 </div>
 
@@ -3000,13 +3020,17 @@ display_world(int(world_size), [r.x, r.y])</div>
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="landmarks">Landmarks<a class="anchor-link" href="#landmarks">&#182;</a></h2><p>Next, let's create landmarks, which are measurable features in the map. You can think of landmarks as things like notable buildings, or something smaller such as a tree, rock, or other feature.</p>
 <p>The robot class has a function <code>make_landmarks</code> which randomly generates locations for the number of specified landmarks. Try changing <code>num_landmarks</code> or running this cell multiple times to see where these landmarks appear. We have to pass these locations as a third argument to the <code>display_world</code> function and the list of landmark locations is accessed similar to how we find the robot position <code>r.landmarks</code>.</p>
 <p>Each landmark is displayed as a purple <code>x</code> in the grid world, and we also print out the exact <code>[x, y]</code> locations of these landmarks at the end of this cell.</p>
 
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -3091,6 +3115,8 @@ print('Landmark locations [x,y]: ', r.landmarks)</div>
 <div class="jp-RenderedImage jp-OutputArea-output ">
 <img src="data:image/png;base64,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
 "
+class="
+"
 >
 </div>
 
@@ -3114,7 +3140,10 @@ print('Landmark locations [x,y]: ', r.landmarks)</div>
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="sense">Sense<a class="anchor-link" href="#sense">&#182;</a></h2><p>Once we have some landmarks to sense, we need to be able to tell our robot to <em>try</em> to sense how far they are away from it. It will be up to you to code the <code>sense</code> function in our robot class.</p>
@@ -3125,6 +3154,7 @@ print('Landmark locations [x,y]: ', r.landmarks)</div>
 <p>In the example in the following cell, we have given our robot a range of <code>5.0</code> so any landmarks that are within that range of our robot's location, should appear in a list of measurements. Not all landmarks are guaranteed to be in our visibility range, so this list will be variable in length.</p>
 <p><em>Note: the robot's location is often called the <strong>pose</strong> or <code>[Pxi, Pyi]</code> and the landmark locations are often written as <code>[Lxi, Lyi]</code>. You'll see this notation in the next notebook.</em></p>
 
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -3190,7 +3220,10 @@ print(measurements)</div>
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p><strong>Refer back to the grid map above. Do these measurements make sense to you? Are all the landmarks captured in this list (why/why not)?</strong></p>
@@ -3198,7 +3231,11 @@ print(measurements)</div>
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <hr>
@@ -3206,6 +3243,7 @@ print(measurements)</div>
 <p>In the next notebook, you'll see this list of movements and measurements (which you'll use to re-construct the world) listed in a structure called <code>data</code>. This is an array that holds sensor measurements and movements in a specific order, which will be useful to call upon when you have to extract this data and form constraint matrices and vectors.</p>
 <p><code>data</code> is constructed over a series of time steps as follows:</p>
 
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -3299,11 +3337,15 @@ print('Motion: ', data[time_step][1])</div>
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h3 id="final-robot-class">Final robot class<a class="anchor-link" href="#final-robot-class">&#182;</a></h3><p>Before moving on to the last notebook in this series, please make sure that you have copied your final, completed <code>sense</code> function into the <code>robot_class.py</code> file in the home directory. We will be using this file in the final implementation of slam!</p>
 
+</div>
 </div>
 </div>
 </div>

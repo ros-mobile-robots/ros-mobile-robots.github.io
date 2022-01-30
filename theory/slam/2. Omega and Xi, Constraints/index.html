@@ -2343,7 +2343,10 @@ all of MD as it is not optimized for dense, information rich UIs.
     init_mathjax();
     </script>
     <!-- End of mathjax configuration --><div class="jupyter-wrapper">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="omega-and-xi">Omega and Xi<a class="anchor-link" href="#omega-and-xi">&#182;</a></h2><p>To implement Graph SLAM, a matrix and a vector (omega and xi, respectively) are introduced. The matrix is square and labelled with all the robot poses (xi) and all the landmarks (Li). Every time you make an observation, for example, as you move between two poses by some distance <code>dx</code> and can relate those two positions, you can represent this as a numerical relationship in these matrices.</p>
@@ -2362,6 +2365,7 @@ all of MD as it is not optimized for dense, information rich UIs.
 <hr>
 <p><strong>You can confirm this result for yourself by executing the math in the cell below.</strong></p>
 
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -2457,7 +2461,10 @@ print(mu)</div>
 
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="motion-constraints-and-landmarks">Motion Constraints and Landmarks<a class="anchor-link" href="#motion-constraints-and-landmarks">&#182;</a></h2><p>In the last example, the constraint equations, relating one pose to another were given to you. In this next example, let's look at how motion (and similarly, sensor measurements) can be used to create constraints and fill up the constraint matrices, omega and xi. Let's start with empty/zero matrices.</p>
@@ -2468,6 +2475,7 @@ print(mu)</div>
 <hr>
 <h3 id="2d-case">2D case<a class="anchor-link" href="#2d-case">&#182;</a></h3><p>In these examples, we've been showing you change in only one dimension, the x-dimension. In the project, it will be up to you to represent x and y positional values in omega and xi. One solution could be to create an omega and xi that are 2x larger that the number of robot poses (that will be generated over a series of time steps) and the number of landmarks, so that they can hold both x and y values for poses and landmark locations. I might suggest drawing out a rough solution to graph slam as you read the instructions in the next notebook; that always helps me organize my thoughts. Good luck!</p>
 
+</div>
 </div>
 </div>
 </div>
