@@ -86,14 +86,14 @@ Helpful resources to bring your own robots into ROS are:
 - Understand [ROS Concepts](https://wiki.ros.org/ROS/Concepts)
 - Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) such as [Using ROS on your custom Robot](http://wiki.ros.org/ROS/Tutorials#Using_ROS_on_your_custom_Robot)
 - Books:
-  - [*Introduction to Autonomous Robots (free book)*](https://github.com/Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots)
-  - [**Robot Operating System (ROS) for Absolute Beginners**](https://link.springer.com/book/10.1007/978-1-4842-3405-1) from Apress by [Lentin Joseph](https://lentinjoseph.com/)
-  - [**Programming Robots with ROS** A Practical Introduction to the Robot Operating System](http://shop.oreilly.com/product/0636920024736.do) from O'Reilly Media
-  - [**Mastering ROS for Robotics Programming** Second Edition](https://www.packtpub.com/eu/hardware-and-creative/mastering-ros-robotics-programming-second-edition) from Packt
-  - [**Elements of Robotics** Robots and Their Applications](https://www.springer.com/de/book/9783319625324) from Springer
-  - [**ROS Robot Programming Book for Free!** Handbook from Robotis written by Turtlebot3 Developers](https://community.robotsource.org/t/download-the-ros-robot-programming-book-for-free/51)
+    - [*Introduction to Autonomous Robots (free book)*](https://github.com/Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots)
+    - [**Robot Operating System (ROS) for Absolute Beginners**](https://link.springer.com/book/10.1007/978-1-4842-3405-1) from Apress by [Lentin Joseph](https://lentinjoseph.com/)
+    - [**Programming Robots with ROS** A Practical Introduction to the Robot Operating System](http://shop.oreilly.com/product/0636920024736.do) from O'Reilly Media
+    - [**Mastering ROS for Robotics Programming** Second Edition](https://www.packtpub.com/eu/hardware-and-creative/mastering-ros-robotics-programming-second-edition) from Packt
+    - [**Elements of Robotics** Robots and Their Applications](https://www.springer.com/de/book/9783319625324) from Springer
+    - [**ROS Robot Programming Book for Free!** Handbook from Robotis written by Turtlebot3 Developers](https://community.robotsource.org/t/download-the-ros-robot-programming-book-for-free/51)
 - Courses:
-  - [Robocademy](https://robocademy.com/)
-  - [ROS Online Course for Beginner](https://discourse.ros.org/t/new-ros-online-course-for-beginner/5320)
-  - [Udacity Robotics Software Engineer](https://www.udacity.com/course/robotics-software-engineer--nd209)
-  - [Self-Driving Cars with Duckietown](https://www.edx.org/course/self-driving-cars-with-duckietown) by ETH Zurich
+    - [Robocademy](https://robocademy.com/)
+    - [ROS Online Course for Beginner](https://discourse.ros.org/t/new-ros-online-course-for-beginner/5320)
+    - [Udacity Robotics Software Engineer](https://www.udacity.com/course/robotics-software-engineer--nd209)
+    - [Self-Driving Cars with Duckietown](https://www.edx.org/course/self-driving-cars-with-duckietown) by ETH Zurich
