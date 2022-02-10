@@ -67,6 +67,8 @@ markdown_extensions:
       alternate_style: true 
   - pymdownx.arithmatex:
       generic: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 plugins:
   - search
