@@ -175,19 +175,35 @@ Regarding speed, the Pi has a limited bus speed of approximately 20 MB/s ([sourc
 
 ### Robot Base
 
-The [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05) is used as the base for the autonomous mobile robot. 
+For the robot base you have two options to choose from. Either robot car kit consisting of plexi glas material or a more sturdier 3D printed variant named Remo. 
 
-<figure>
-    <a href="{{ asset_dir }}/components/car-kit05.jpg"><img src="{{ asset_dir }}/components/car-kit05.jpg"></a>
-    <figcaption>Parts of the 2WD Robot Car Kit 05 from Joy-IT.</figcaption>
-</figure>
+=== "DiffBot"
 
-The acrylic chassis has many holes which allow to mount a mounting plate that can hold different development boards.
-It allows also to mount a Raspberry Pi 4 B, which will be used in this project. Two wheels, hence 2WD, are included in the kit which can be attached to the motors that are provided too. A third caster wheel is provided which allows the robot to spin on the spot. This means the robot can be described by a holonomic model. 
+    The [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05) is used as the base for the autonomous mobile robot. 
 
-The motors operate in a range between 3 to 6 Volts DC and make it possible to mount a punched disk for speed measurements. 
-With that punched disk and additional speed sensors it is possible to implement odometry in ROS. 
-To power the motors a battery compartment is available together with a switch to turn the robot on or off.
+    <figure>
+        <a href="{{ asset_dir }}/components/car-kit05.jpg"><img src="{{ asset_dir }}/components/car-kit05.jpg"></a>
+        <figcaption>Parts of the 2WD Robot Car Kit 05 from Joy-IT.</figcaption>
+    </figure>
+
+    The acrylic chassis has many holes which allow to mount a mounting plate that can hold different development boards.
+    It allows also to mount a Raspberry Pi 4 B, which will be used in this project. Two wheels, hence 2WD, 
+    are included in the kit which can be attached to the motors that are provided too. 
+    A third caster wheel is provided which allows the robot to spin on the spot. This means the robot can be described by a holonomic model. 
+
+    The motors operate in a range between 3 to 6 Volts DC and make it possible to mount a punched disk for speed measurements. 
+    With that punched disk and additional speed sensors it is possible to implement odometry in ROS. 
+    To power the motors a battery compartment is available together with a switch to turn the robot on or off.
+   
+=== "Remo"
+
+    Remo is a 3D printable Research Education Mobile/Modular Open robot platform. You can find more information in the following video and 
+    on the [`remo_description` package page](/packages/remo_description/).
+
+    [![remo fusion animation](https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
+
+    <iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
+   
 
 ### Power Supplies
 
