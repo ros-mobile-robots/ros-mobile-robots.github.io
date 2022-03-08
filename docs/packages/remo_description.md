@@ -8,7 +8,7 @@ This ROS package is found in the [`remo_description` repository]({{ remo_repo_ur
 
 You can explore the model in more detail through the following Fusion 360 viewer:
 
-<iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="640" height="480" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
+<iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
 
 ## Usage
 
