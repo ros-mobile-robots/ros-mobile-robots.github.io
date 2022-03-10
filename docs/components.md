@@ -175,7 +175,7 @@ Regarding speed, the Pi has a limited bus speed of approximately 20 MB/s ([sourc
 
 ### Robot Base
 
-For the robot base you have two options to choose from. Either robot car kit consisting of plexi glas material or a more sturdier 3D printed variant named Remo. 
+For the robot base you have at least two options to choose from. Either the robot car kit consisting of plexi glas material or a more sturdier 3D printed variant named Remo.
 
 === "DiffBot"
 
@@ -204,6 +204,7 @@ For the robot base you have two options to choose from. Either robot car kit con
 
     <iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
    
+Alternatively, you can build your own mobile robot!
 
 ### Power Supplies
 
