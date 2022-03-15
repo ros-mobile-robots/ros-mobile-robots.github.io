@@ -3,7 +3,10 @@
 The diffbot robot uses the [`UbiquityRobotics/raspicam_node`](https://github.com/UbiquityRobotics/raspicam_node)
 to interface the [Raspberry Pi Camera v2](https://www.raspberrypi.org/products/camera-module-v2/).
 
-![RPi Camera v2]({{ asset_dir }}/components/rpi-camera.jpg)
+<figure>
+    <a href="{{ asset_dir }}/components/rpi-camera.jpg"><img src="{{ asset_dir }}/components/rpi-camera.jpg"></a>
+    <figcaption>RPi Camera v2.</figcaption>
+</figure>
 
 
 ## Setup
