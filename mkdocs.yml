@@ -147,4 +147,7 @@ nav:
     - Move Base Flex: diffbot_mbf.md
     - Hardware Bringup: diffbot_bringup.md
     - Rasperry Pi Camera: packages/raspicam_node.md
+    - Inertial Measurement Unit:
+      - Robot Localization: packages/imu/robot_localization.md
+      - BNO055 Driver: packages/imu/driver-bno055.md
   - Insiders: insiders/index.md
