@@ -1706,6 +1706,11 @@
 <h1 id="raspberry-pi-camera">Raspberry Pi Camera</h1>
 <p>The diffbot robot uses the <a href="https://github.com/UbiquityRobotics/raspicam_node"><code>UbiquityRobotics/raspicam_node</code></a>
 to interface the <a href="https://www.raspberrypi.org/products/camera-module-v2/">Raspberry Pi Camera v2</a>.</p>
+<figure>
+    <a href="/resources/components/rpi-camera.jpg"><img src="/resources/components/rpi-camera.jpg"></a>
+    <figcaption>RPi Camera v2.</figcaption>
+</figure>
+
 <h2 id="setup">Setup</h2>
 <p>Currently there exists  no binary of the <code>raspicam_node</code> for ROS noetic (only for kinetic there is the <code>ros-kinetic-raspicam-node</code>).
 To work with the <code>raspicam_node</code> for ROS Noetic, you have to build it from source with steps 
@@ -1785,7 +1790,7 @@ the following to it:</p>
 </details>
 
 <p>To make use of these sources run </p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rosdep update.</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rosdep update</span>
 </code></pre></div>
 </td></tr></table>
 <p>Next, we parse the <code>package.xml</code> file for required dependencies and also install them with the <code>rosdep</code> command:</p>
