@@ -3,6 +3,8 @@
 The diffbot robot uses the [`UbiquityRobotics/raspicam_node`](https://github.com/UbiquityRobotics/raspicam_node)
 to interface the [Raspberry Pi Camera v2](https://www.raspberrypi.org/products/camera-module-v2/).
 
+![RPi Camera v2]({{ asset_dir }}/components/rpi-camera.jpg)
+
 
 ## Setup
 
@@ -67,7 +69,7 @@ libpigpiod-if:
 To make use of these sources run 
 
 ```console
-rosdep update.
+rosdep update
 ```
 
 Next, we parse the `package.xml` file for required dependencies and also install them with the `rosdep` command:
