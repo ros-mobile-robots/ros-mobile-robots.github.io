@@ -166,6 +166,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://ros-mobile-robots.com/packages/imu/driver-bno055/</loc>
+         <lastmod>2022-03-15</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://ros-mobile-robots.com/packages/imu/robot_localization/</loc>
          <lastmod>2022-03-15</lastmod>
          <changefreq>daily</changefreq>
