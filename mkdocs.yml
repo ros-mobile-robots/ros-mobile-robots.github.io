@@ -73,9 +73,9 @@ markdown_extensions:
 plugins:
   - search
   - macros
-  - mkdocs-jupyter:
-      execute: False
-      include_source: True
+  #- mkdocs-jupyter:
+  #    execute: False
+  #    include_source: True
 
 nav:
   - Home: index.md
