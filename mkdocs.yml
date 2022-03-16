@@ -73,9 +73,9 @@ markdown_extensions:
 plugins:
   - search
   - macros
-  #- mkdocs-jupyter:
-  #    execute: False
-  #    include_source: True
+  - mkdocs-jupyter:
+      execute: False
+      include_source: True
 
 nav:
   - Home: index.md
@@ -110,6 +110,9 @@ nav:
       - Occupancy Grid Mapping: theory/mapping/occupancy-grid-mapping.md
     - Simultaneous Localization and Mapping (SLAM): 
       - SLAM Overview: theory/slam/slam-overview.md
+      - Robot Moving and Sensing Notebook: theory/slam/1. Robot Moving and Sensing.ipynb
+      - Omega and Xi Constraints Notebook: theory/slam/2. Omega and Xi, Constraints.ipynb
+      - Landmark Detection and Tracking: theory/slam/3. Landmark Detection and Tracking.ipynb
       - EKF SLAM: theory/slam/ekf-slam.md
       - GraphSLAM: theory/slam/graphslam.md
       - FastSLAM: theory/slam/fastslam.md
