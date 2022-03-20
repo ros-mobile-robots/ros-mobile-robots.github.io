@@ -66,27 +66,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ros-mobile-robots.com/git-setup/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://ros-mobile-robots.com/grove_motor_driver/</loc>
          <lastmod>2022-03-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/grove_ultrasonic_ranger/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://ros-mobile-robots.com/hardware-interfaces/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://ros-mobile-robots.com/jetson-nano-setup/</loc>
          <lastmod>2022-03-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -127,26 +112,6 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/robot-description/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://ros-mobile-robots.com/ros-network-setup/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://ros-mobile-robots.com/ros-setup/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://ros-mobile-robots.com/rpi-setup/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://ros-mobile-robots.com/teensy-mcu/</loc>
          <lastmod>2022-03-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -192,6 +157,46 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/packages/imu/robot_localization/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/git-setup/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/hardware-interfaces/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/jetson-nano-setup/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/ros-network-setup/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/ros-setup/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/rpi-setup/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/processing_units/teensy-mcu/</loc>
          <lastmod>2022-03-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
