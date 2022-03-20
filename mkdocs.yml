@@ -89,14 +89,15 @@ nav:
     - Assembly: hardware_setup/assembly.md
     - Install: hardware_setup/install.md
   - Processing Units:
+    - processing_units/index.md
     - Single Board Computer:
-      - Raspberry Pi Setup: rpi-setup.md
-      - Jetson Nano Setup: jetson-nano-setup.md
-      - Git Setup: git-setup.md
-      - ROS Setup: ros-setup.md
-    - Microcontroller: packages/diffbot_base/scripts/teensy-mcu.md
-    - Hardware Interfaces: hardware-interfaces.md
-    - ROS Network Setup: ros-network-setup.md
+      - Raspberry Pi Setup: processing_units/rpi-setup.md
+      - Jetson Nano Setup: processing_units/jetson-nano-setup.md
+      - Git Setup: processing_units/git-setup.md
+      - ROS Setup: processing_units/ros-setup.md
+    - Microcontroller: processing_units/teensy-mcu.md
+    - Hardware Interfaces: processing_units/hardware-interfaces.md
+    - ROS Network Setup: processing_units/ros-network-setup.md
   - ROS Software Packages:
     - packages/index.md
     - Packages: packages.md
