@@ -2021,6 +2021,21 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview-of-ros-nodes-and-topics-for-the-remo-robot" class="md-nav__link">
+    Overview of ROS nodes and topics for the Remo robot
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2042,7 +2057,7 @@
 
 <h1 id="processing-units">Processing Units</h1>
 <p>Our robot consists of components which are connected as shown in the block diagram below:</p>
-<p><img alt="Block Diagram Remo" src="/resources/processing_units/block-diagram-remo.svg" /></p>
+<p><a href="/resources/processing_units/block-diagram-remo.svg"><img alt="Block Diagram Remo" src="/resources/processing_units/block-diagram-remo.svg" /></a></p>
 <p>The Teensy 3.2 microcontroller board is connected to the encoder and optional IMU
 sensor as well as the motor driver actuator. It communicates to the Raspberry Pi 4 B via
 USB over the <code>rosserial</code> protocol. The motor driver and the optional IMU exchange
@@ -2051,6 +2066,33 @@ is therefore connected to one of the USB ports of the SBC. The motor encoder sen
 are interfaced through the GPIO pins of the microcontroller. The following shows the
 connection diagram of the components:</p>
 <p><a href="/fritzing/remo_architecture.svg"><img alt="Remo Fritzing" src="/fritzing/remo_architecture.svg" /></a></p>
+<h2 id="overview-of-ros-nodes-and-topics-for-the-remo-robot">Overview of ROS nodes and topics for the Remo robot</h2>
+<p>The following launch file will bring up the hardware nodes, load the robot description
+onto the parameter server, start <code>diff_drive_controller</code>, and begin to publish the
+transformations using <code>tf</code>. Run this launch file on the robot's SBC:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch diffbot_bringup bringup.launch model:=remo</span>
+</code></pre></div>
+</td></tr></table>
+<p>On the development PC, you can use the teleop node to steer the robot. To do this, run
+the following:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">roslaunch diffbot_bringup keyboard_teleop.launch</span>
+</code></pre></div>
+</td></tr></table>
+<p>Issuing the rosnode list command shows the following list of started nodes:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">/diffbot/controller_spawner</span>
+<span class="go">/diffbot/diffbot_base</span>
+<span class="go">/diffbot/robot_state_publisher</span>
+<span class="go">/diffbot/rosserial_base_controller</span>
+<span class="go">/diffbot_teleop_keyboard</span>
+<span class="go">/rosout</span>
+</code></pre></div>
+</td></tr></table>
+<p><a href="/resources/processing_units/ros-nodes-remo.svg"><img alt="ROS nodes and topics of Remo" src="/resources/processing_units/ros-nodes-remo.svg" /></a></p>
 
               
 
