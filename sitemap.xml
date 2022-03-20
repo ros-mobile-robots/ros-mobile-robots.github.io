@@ -96,11 +96,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ros-mobile-robots.com/packages/</loc>
-         <lastmod>2022-03-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://ros-mobile-robots.com/power-supply/</loc>
          <lastmod>2022-03-20</lastmod>
          <changefreq>daily</changefreq>
@@ -137,6 +132,16 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/insiders/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/packages-setup/</loc>
          <lastmod>2022-03-20</lastmod>
          <changefreq>daily</changefreq>
     </url>

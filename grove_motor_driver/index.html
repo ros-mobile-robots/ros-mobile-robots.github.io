@@ -718,6 +718,10 @@
       
         
           
+            
+          
+        
+          
         
           
         
@@ -749,10 +753,16 @@
         
       
       
-        <label class="md-nav__link" for="__nav_5">
-          ROS Software Packages
-          <span class="md-nav__icon md-icon"></span>
-        </label>
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../packages/">ROS Software Packages</a>
+          
+            <label for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
       
       <nav class="md-nav" aria-label="ROS Software Packages" data-md-level="1">
         <label class="md-nav__title" for="__nav_5">
@@ -762,12 +772,14 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+          
+            
               
   
   
   
     <li class="md-nav__item">
-      <a href="../packages/" class="md-nav__link">
+      <a href="../packages/packages-setup/" class="md-nav__link">
         Packages
       </a>
     </li>
@@ -798,7 +810,7 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_3" type="checkbox" id="__nav_5_3" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_4" type="checkbox" id="__nav_5_4" >
       
       
       
@@ -809,13 +821,13 @@
         
       
       
-        <label class="md-nav__link" for="__nav_5_3">
+        <label class="md-nav__link" for="__nav_5_4">
           Robot Description
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Robot Description" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_3">
+        <label class="md-nav__title" for="__nav_5_4">
           <span class="md-nav__icon md-icon"></span>
           Robot Description
         </label>
@@ -1096,7 +1108,7 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_15" type="checkbox" id="__nav_5_15" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16" type="checkbox" id="__nav_5_16" >
       
       
       
@@ -1107,13 +1119,13 @@
         
       
       
-        <label class="md-nav__link" for="__nav_5_15">
+        <label class="md-nav__link" for="__nav_5_16">
           Inertial Measurement Unit
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Inertial Measurement Unit" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_15">
+        <label class="md-nav__title" for="__nav_5_16">
           <span class="md-nav__icon md-icon"></span>
           Inertial Measurement Unit
         </label>
@@ -2448,8 +2460,8 @@ See <a href="https://fjp.at/projects/diffbot/hardware-interfaces/#prepare-i2c-co
 The node subscribes to the topic <code>/2wd_robot/cmd_vel</code> which is of type <a href="https://docs.ros.org/api/geometry_msgs/html/msg/Twist.html">Twist message</a> 
 from the <a href="https://docs.ros.org/api/geometry_msgs/html/index-msg.html">geometry_msgs</a> header. 
 To send commands to the motor the . These topics can be published with nodes from the navigation stack or with <a href="http://wiki.ros.org/rostopic#rostopic_pub"><code>rostopic pub</code></a> for test purposes.</p>
-<p>https://en.wikipedia.org/wiki/Differential_wheeled_robot</p>
-<p>http://wiki.ros.org/differential_drive</p>
+<p><a href="https://en.wikipedia.org/wiki/Differential_wheeled_robot">https://en.wikipedia.org/wiki/Differential_wheeled_robot</a></p>
+<p><a href="http://wiki.ros.org/differential_drive">http://wiki.ros.org/differential_drive</a></p>
 <p>After the node has been implemented, we need to build the workspace with <a href="https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html"><code>catkin build</code></a>:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
