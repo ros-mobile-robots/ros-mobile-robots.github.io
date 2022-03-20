@@ -16,7 +16,7 @@ The project is split into multiple parts, to adress the following main aspects o
 
 - [Bill of Materials (BOM)](./components.md) and the theory behind the parts.
 - [Theory of (mobile) robots](./theory/index.md).
-- [Assembly](/projects/diffbot/assembly/) of the robot platform and the components.
+- [Assembly](./hardware_setup/assembly.md) of the robot platform and the components.
 - Setup of ROS (Noetic or Melodic) on either Raspberry Pi 4 B or Jetson Nano, 
   which are both [Single Board Computers (SBC)](https://en.wikipedia.org/wiki/Single-board_computer) and are the brain of the robot.
 - [Modeling the Robot](/projects/diffbot/URDF) in Blender and URDF to simulate it in Gazebo.
