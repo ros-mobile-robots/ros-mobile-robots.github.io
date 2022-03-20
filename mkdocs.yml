@@ -6,7 +6,7 @@ theme:
   features:
     - navigation.tabs
     - navigation.top
-#    - navigation.indexes
+    - navigation.indexes
   palette:
     # Light mode
     - media: "(prefers-color-scheme: light)"
@@ -82,6 +82,40 @@ nav:
   - Getting Started:
     - Technical Requirements: technical_requirements.md
     - Components: components.md
+  - Hardware Setup:
+    - hardware_setup/overview.md
+    - 3D Printing: hardware_setup/3D_print.md
+    - Electronics: hardware_setup/electronics.md
+    - Assembly: hardware_setup/assembly.md
+    - Install: hardware_setup/install.md
+  - Processing Units:
+    - Raspberry Pi Setup: rpi-setup.md
+    - Jetson Nano Setup: jetson-nano-setup.md
+    - Git Setup: git-setup.md
+    - ROS Setup: ros-setup.md
+    - Teensy MCU: teensy-mcu.md
+    - Hardware Interfaces: hardware-interfaces.md
+    - ROS Network Setup: ros-network-setup.md
+  - ROS Software Packages:
+    - Packages: packages.md
+    - Robot Package: diffbot_robot.md
+    - Robot Description:
+      - Robot Description: robot-description.md
+      - Remo Description: packages/remo_description.md
+    - Simulation: diffbot_gazebo.md
+    - Control: diffbot_control.md
+    - Base Hardware Interface: diffbot_base.md
+    - Messages: diffbot_msgs.md
+    - Motor Driver: grove_motor_driver.md
+    - Motor and Encoder: DG01D-E-motor-with-encoder.md
+    - Navigation: diffbot_navigation.md
+    - SLAM: diffbot_slam.md
+    - Move Base Flex: diffbot_mbf.md
+    - Hardware Bringup: diffbot_bringup.md
+    - Rasperry Pi Camera: packages/raspicam_node.md
+    - Inertial Measurement Unit:
+      - Robot Localization: packages/imu/robot_localization.md
+      - BNO055 Driver: packages/imu/driver-bno055.md
   - Robotics Theory:
     - theory/index.md
     - Preliminaries:
@@ -127,32 +161,4 @@ nav:
     - Motion and Odometry: theory/motion-and-odometry.md
     - Power Supply: power-supply.md
     - Laser Range Scanner: laser-range-scanner.md
-  - Processing Units:
-    - Raspberry Pi Setup: rpi-setup.md
-    - Jetson Nano Setup: jetson-nano-setup.md
-    - Git Setup: git-setup.md
-    - ROS Setup: ros-setup.md
-    - Teensy MCU: teensy-mcu.md
-    - Hardware Interfaces: hardware-interfaces.md
-    - ROS Network Setup: ros-network-setup.md
-  - Packages:
-    - Packages: packages.md
-    - Robot Package: diffbot_robot.md
-    - Robot Description:
-      - Robot Description: robot-description.md
-      - Remo Description: packages/remo_description.md
-    - Simulation: diffbot_gazebo.md
-    - Control: diffbot_control.md
-    - Base Hardware Interface: diffbot_base.md
-    - Messages: diffbot_msgs.md
-    - Motor Driver: grove_motor_driver.md
-    - Motor and Encoder: DG01D-E-motor-with-encoder.md
-    - Navigation: diffbot_navigation.md
-    - SLAM: diffbot_slam.md
-    - Move Base Flex: diffbot_mbf.md
-    - Hardware Bringup: diffbot_bringup.md
-    - Rasperry Pi Camera: packages/raspicam_node.md
-    - Inertial Measurement Unit:
-      - Robot Localization: packages/imu/robot_localization.md
-      - BNO055 Driver: packages/imu/driver-bno055.md
   - Insiders: insiders/index.md
