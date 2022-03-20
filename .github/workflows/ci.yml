@@ -3,13 +3,27 @@ on:
   push:
     branches:
       - main
+      - feature/hardware-setup
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
+          # The branch, tag or SHA to checkout. When checking out the repository that
+          # triggered a workflow, this defaults to the reference or SHA for that event.
+          # Otherwise, uses the default branch.
+          # Default ''
+          ref: feature/hardware-setup
+          
+          # Number of commits to fetch. 0 indicates all history for all branches and tags.
+          # Default: 1
           fetch-depth: 0
+          
+          # Whether to download Git-LFS files
+          # Default: false
+          lfs: ''
+          
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
