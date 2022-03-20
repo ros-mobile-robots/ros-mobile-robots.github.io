@@ -69,6 +69,7 @@ markdown_extensions:
       generic: true
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.magiclink
 
 plugins:
   - search
@@ -100,7 +101,7 @@ nav:
     - ROS Network Setup: processing_units/ros-network-setup.md
   - ROS Software Packages:
     - packages/index.md
-    - Packages: packages.md
+    - Packages Setup: packages/packages-setup.md
     - Robot Package: diffbot_robot.md
     - Robot Description:
       - Robot Description: robot-description.md

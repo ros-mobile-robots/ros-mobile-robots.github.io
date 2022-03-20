@@ -1,117 +1,101 @@
-# Diffbot ROS Packages
+# ROS Software Packages
 
-The following describes the easiest way to make use of diffbot's ROS packages inside the [ros-mobile-robots/diffbot](https://github.com/ros-mobile-robots/diffbot)
-repository.
+After having verified that the hardware requirements for the Navigation Stack are met, an
+overview of Remo's software follows.
 
-The following steps will be performed on both, the workstation/development PC and the single board computer (SBC).
+## Software requirements for the ROS Navigation Stack
 
-## Git: clone diffbot repository
+The [`diffbot`](https://github.com/ros-mobile-robots/diffbot/) and
+[`remo_description`](https://github.com/ros-mobile-robots/remo_description) repositories 
+contain the following ROS packages:
 
-After setting up ROS on your workstation PC and the SBC (either [Raspberry Pi 4B](https://ros-mobile-robots.com/rpi-setup/) or [Jetson Nano](https://ros-mobile-robots.com/jetson-nano-setup/)),
-create a ros workspace in your users home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}):
+- `diffbot_base`: This package contains the platform-specific code for the base
+controller component required by the ROS Navigation Stack. It consists of the
+firmware based on rosserial for the Teensy MCU and the C++ node running
+on the SBC that instantiates the ROS Control hardware interface including the
+`controller_manager` control loop for the real robot. The low-level `base_controller`
+component reads the encoder ticks from the hardware, calculates
+angular joint positions and velocities, and publishes them to the ROS Control
+hardware interface. Using this interface makes it possible to use the `diff_drive_controller`
+package from [ROS Control](http://wiki.ros.org/diff_drive_controller). 
+It provides a controller (`DiffDriveController`) for a
+differential drive mobile base that computes target joint velocities from commands
+received by either a teleop node or the ROS Navigation Stack. The computed
+target joint velocities are forwarded to the low-level base controller, where they are
+compared to the measured velocities to compute suitable motor PWM signals using
+two separate PID controllers, one for each motor.
+- `diffbot_bringup`: Launch files to bring up the hardware driver nodes (camera,
+lidar, microcontroller, and so on) as well as the C++ nodes from the `diffbot_base` 
+package for the real robot.
+- `diffbot_control`: Configurations for `DiffDriveController` and
+`JointStateController` of ROS Control used in the Gazebo simulation and the
+real robot. The parameter configurations are loaded onto the parameter server with
+the help of the launch files inside this package.
+- `remo_description`: This package contains the URDF description of Remo
+including its sensors. It allows you to pass arguments to visualize different
+camera and SBC types. It also defines the `gazebo_ros_control` plugin.
+Remo's description is based on the description at https://github.com/ros-mobile-robots/mobile_robot_description,
+which provides a modular URDF structure that makes it easier to model your own differential drive robot.
+- `diffbot_gazebo`: Simulation-specific launch and configuration files for Remo
+and Diffbot, to be used in the Gazebo simulator.
+- `diffbot_msgs`: Message definitions specific to Remo/Diffbot, for example, the
+message for encoder data is defined in this package.
+- `diffbot_navigation`: This package contains all the required configuration and
+launch files for the ROS Navigation Stack to work.
+- `diffbot_slam`: Configurations for simultaneous localization and mapping using
+implementations such as gmapping to create a map of the environment.
 
-```
-mkdir -p ros_ws/src
-git clone https://github.com/ros-mobile-robots/diffbot.git
-```
-
-## Obtain (system) Dependencies
-
-The `diffbot` repository relies on two sorts of dependencies:
-
-- Source (non binary) dependencies from other (git) repositories.
-- System dependencies available in the (ROS) Ubuntu package repositories. Also refered to as pre built binaries.
-
-
-### Source Dependencies
-
-Let's first obtain source dependencies from other repositories. 
-To do this the recommended tool to use is [`vcstool`](http://wiki.ros.org/vcstool)
-(see also https://github.com/dirk-thomas/vcstool for additional documentation and examples.).
-
-!!! note
-    [`vcstool`](http://wiki.ros.org/vcstool) replaces [`wstool`](http://wiki.ros.org/wstool).
-
-Inside the cloned `diffbot` repository, 
-make use of the `import` command and the `diffbot.repos` file containing the required source repositories:
-
-```
-vcs import < diffbot.repos
-```
-
-This will clone all repositories which are stored in the `diffbot.repos` that get passed in via stdin in YAML format.
-
-!!! note
-    The file `diffbot.repos` contains relative paths and will clone the listed repositories in the parent folder from where
-    the `vcs import` command is called. When it is called from inside the `diffbot` repository, which should be located
-    in the `src` folder of a catkin workspace, then the other repositories are also cloned in the `src` folder.
-
-For the SBC not all dependencies in `diffbot.repos` are needed.
-Instead the `diffbot_robot.repos` is here to clone the [`rplidar_ros`](https://github.com/Slamtec/rplidar_ros) repository.
-
-```
-vcs import < diffbot_robot.repos
-```
-
-Now that additional packages are inside the catkin workspace it is time to install the system dependencies.
-
-### System Dependencies
-
-All the needed ROS system dependencies which are required by diffbot's packages can be installed using
-[`rosdep`](http://wiki.ros.org/rosdep) command, which was installed during the ROS setup.
-To install all system dependencies use the following command:
-
-```
-rosdep install --from-paths src --ignore-src -r -y
-```
-
-!!! info
-    On the following packages pages it is explained that the dependencies of a ROS package are defined inside its `package.xml`.
-    
- 
-After the installation of all dependencies finished (which can take a while), it is time to build the catkin workspace. 
-Inside the workspace use [`catkin-tools`](https://catkin-tools.readthedocs.io/en/latest/) to build the packages inside the `src` folder.
-
-!!! note
-    The first time you run the following command, make sure to execute it inside your catkin workspace and not the `src` directory.
-    
-```
-catkin build
-```
-
-Now source the catkin workspace either using the [created alias](../ros-setup.md#environment-setup) or the full command for the bash shell:
-
-```
-source devel/setup.bash
-```
-
-## Examples
-
-Now you are ready to follow the examples listed in the readme.
-
-!!! info
-    TODO extend documentation with examples
+After this overview of the ROS packages of a differential robot that fulfill the requirements
+of the Navigation Stack, the next section implements the base controller component.
 
 
-## Optional Infos
+## Developing a low-level controller and a highlevel ROS Control hardware interface for a differential drive robot
 
-### Manual Dependency Installation
+In the following two sections, the base controller, mentioned in the Navigation Stack, will be developed. 
 
-To install a package from source clone (using git) or download the source files from where they are located (commonly hosted on GitHub) into the `src` folder of a ros catkin workspace and execute the [`catkin build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html) command. Also make sure to source the workspace after building new packages with `source devel/setup.bash`.
+![Navigation Stack]({{ asset_dir }}/navigation/navigation_stack.png)
 
-```console
-cd /homw/fjp/git/diffbot/ros/  # Navigate to the workspace
-catkin build              # Build all the packages in the workspace
-ls build                  # Show the resulting build space
-ls devel                  # Show the resulting devel space
-```
+For Remo, this platform-specific node is split into two software components.
+The first component is the high-level `diffbot::DiffBotHWInterface` that
+inherits from `hardware_interface::RobotHW`, acting as an interface between
+robot hardware and the packages of ROS Control that communicate with the Navigation
+Stack and provide [`diff_drive_controller`](http://wiki.ros.org/diff_drive_controller) – 
+one of many available controllers from ROS Control. With the
+`gazebo_ros_control` plugin, the same controller including its configuration can be
+used in the simulation and the real robot. An overview of ROS Control in a simulation
+and the real world is given in the following figure (http://gazebosim.org/tutorials/?tut=ros_control):
 
-!!! note
 
-    Make sure to clone/download the source files suitable for the ROS distribtion
-    you are using. If the sources are not available for the distribution you are
-    working with, it is worth to try building anyway. Chances are that the package
-    you want to use is suitable for multiple ROS distros. For example if a package
-    states in its docs, that it is only available for
-    [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a
-    ROS [noetic](http://wiki.ros.org/noetic) install.
+<figure markdown>
+  ![ROS Control simulation and reality]({{ asset_dir }}/packages/ros-control-simulation-and-reality.svg)
+  <figcaption>ROS Control in simulation and reality</figcaption>
+</figure>
+
+The second component is the low-level base controller that measures angular wheel
+joint positions and velocities and applies the commands from the high-level interface
+to the wheel joints. The following figure shows the communication between the two
+components:
+
+
+<figure markdown>
+  ![ROS Control Simulation and Reality]({{ asset_dir }}/packages/ros-control-simulation-and-reality.svg)
+  <figcaption>ROS Control Simulation and Reality</figcaption>
+</figure>
+
+The low-level base controller uses two PID controllers to compute PWM signals for each
+motor based on the error between measured and target wheel velocities.
+`RobotHW` receives measured joint states (angular position (rad) and angular velocity
+(rad/s)) from which it updates its joint values. With these measured velocities and the
+desired command velocity (`geometry_msgs/Twist` message on the `cmd_vel`
+topic), from the Navigation Stack, the `diff_drive_controller` computes the
+target angular velocities for both wheel joints using the mathematical equations of a
+differential drive robot. This controller works with continuous wheel joints through a
+`VelocityJointInterface` class. The computed target commands are then published
+within the high-level hardware interface inside the robot's `RobotHW::write` method.
+Additionally, the controller computes and publishes the odometry on the odom topic
+(`nav_msgs/Odometry`) and the transform from `odom` to `base_footprint`.
+Having explained the two components of the base controller, the low-level firmware is
+implemented first. The high-level hardware interface follows the next section.
+
+!!! note "TODO"
+    TODO Details about implementation will follow (see code for now)
