@@ -151,6 +151,26 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://ros-mobile-robots.com/hardware_setup/3D_print/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/hardware_setup/assembly/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/hardware_setup/electronics/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/hardware_setup/overview/</loc>
+         <lastmod>2022-03-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://ros-mobile-robots.com/insiders/</loc>
          <lastmod>2022-03-20</lastmod>
          <changefreq>daily</changefreq>

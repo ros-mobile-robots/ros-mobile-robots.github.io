@@ -16,7 +16,7 @@ The project is split into multiple parts, to adress the following main aspects o
 
 - [Bill of Materials (BOM)](./components.md) and the theory behind the parts.
 - [Theory of (mobile) robots](./theory/index.md).
-- [Assembly](/projects/diffbot/assembly/) of the robot platform and the components.
+- [Assembly](./hardware_setup/assembly.md) of the robot platform and the components.
 - Setup of ROS (Noetic or Melodic) on either Raspberry Pi 4 B or Jetson Nano, 
   which are both [Single Board Computers (SBC)](https://en.wikipedia.org/wiki/Single-board_computer) and are the brain of the robot.
 - [Modeling the Robot](/projects/diffbot/URDF) in Blender and URDF to simulate it in Gazebo.
@@ -98,6 +98,3 @@ Helpful resources to bring your own robots into ROS are:
     - [ROS Online Course for Beginner](https://discourse.ros.org/t/new-ros-online-course-for-beginner/5320)
     - [Udacity Robotics Software Engineer](https://www.udacity.com/course/robotics-software-engineer--nd209)
     - [Self-Driving Cars with Duckietown](https://www.edx.org/course/self-driving-cars-with-duckietown) by ETH Zurich
-
-
-<script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/chassis.stl"></script>
