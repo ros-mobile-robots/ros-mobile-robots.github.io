@@ -8,8 +8,8 @@ More detailed assembly instructions are found in the next few sections:
 
 ## Frame
 
-![assembly frame](images/drawing_frame_group.svg)
+![assembly frame](https://media.githubusercontent.com/media/ros-mobile-robots/ros-mobile-robots.github.io/feature/hardware-setup/docs/hardware_setup/images/drawing_frame_group.svg)
 
 ## Bread Board
 
-![bread board](images/bread_board.svg)
+![bread board](https://media.githubusercontent.com/media/ros-mobile-robots/ros-mobile-robots.github.io/feature/hardware-setup/docs/hardware_setup/images/bread_board.svg)
