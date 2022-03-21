@@ -2142,9 +2142,10 @@ joint positions and velocities and applies the commands from the high-level inte
 to the wheel joints. The following figure shows the communication between the two
 components:</p>
 <figure>
-<p><img alt="ROS Control Simulation and Reality" src="/resources/packages/ros-control-simulation-and-reality.svg" />
+<p><img alt="Block diagram of low-level controller and high-level hardware interface" src="/resources/packages/low-level-base_controller-high-level-hardware_interface.svg" />
   </p>
-<figcaption>ROS Control Simulation and Reality</figcaption>
+<figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
+Control)</figcaption>
 </figure>
 <p>The low-level base controller uses two PID controllers to compute PWM signals for each
 motor based on the error between measured and target wheel velocities.
