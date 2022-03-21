@@ -78,8 +78,9 @@ components:
 
 
 <figure markdown>
-  ![ROS Control Simulation and Reality]({{ asset_dir }}/packages/ros-control-simulation-and-reality.svg)
-  <figcaption>ROS Control Simulation and Reality</figcaption>
+  ![Block diagram of low-level controller and high-level hardware interface]({{ asset_dir }}/packages/low-level-base_controller-high-level-hardware_interface.svg)
+  <figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
+Control)</figcaption>
 </figure>
 
 The low-level base controller uses two PID controllers to compute PWM signals for each
