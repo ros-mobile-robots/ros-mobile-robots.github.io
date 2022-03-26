@@ -12,7 +12,7 @@ The following figure shows a 3D-printed Remo robot together with its components 
 satisfy the requirements for the ROS Navigation Stack. These parts are introduced next:
 
 <figure>
-    <a href="{{ asset_dir }}/remo/remo_front_side.jpg"><img src="{{ asset_dir }}/remo/remo_front_side-camera.jpg"></a>
+    <a href="{{ asset_dir }}/remo/remo_front_side.jpg"><img src="{{ asset_dir }}/remo/remo_front_side.jpg"></a>
     <figcaption>Remo prototype.</figcaption>
 </figure>
 
