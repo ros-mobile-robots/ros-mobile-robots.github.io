@@ -3,7 +3,7 @@
 The robot setup is supposed to run on Ubuntu Mate 20.04 Focal Fossa. [ROS Noetic](http://wiki.ros.org/noetic) is intended to run with this Ubuntu version. To install ROS follow the [installation instructions](http://wiki.ros.org/noetic/Installation/Ubuntu).
 
 !!! info
-    In the 1.4 Installation step](http://wiki.ros.org/noetic/Installation/Ubuntu#Installation-1) you have to choose
+    In the [1.4 Installation step](http://wiki.ros.org/noetic/Installation/Ubuntu#Installation-1) you have to choose
     how much of ROS you want to install. For the development pc you can go with the `sudo apt install ros-noetic-desktop-full`
     command. For the robot install the `ros-noetic-robot` Ubuntu package. Other system dependencies will be installed
     with the [`rosdep`](http://wiki.ros.org/rosdep) command, explained in the following section.
