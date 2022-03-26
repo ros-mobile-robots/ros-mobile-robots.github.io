@@ -8,6 +8,14 @@ tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, s
 
 ## BOM for REMO Robot
 
+The following figure shows a 3D-printed Remo robot together with its components that
+satisfy the requirements for the ROS Navigation Stack. These parts are introduced next:
+
+<figure>
+    <a href="{{ asset_dir }}/remo/remo_front_side.jpg"><img src="{{ asset_dir }}/remo/remo_front_side-camera.jpg"></a>
+    <figcaption>Remo prototype.</figcaption>
+</figure>
+
 Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 
 | **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |

@@ -111,6 +111,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://ros-mobile-robots.com/technical_requirements/</loc>
+         <lastmod>2022-03-26</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://ros-mobile-robots.com/hardware_setup/3D_print/</loc>
          <lastmod>2022-03-26</lastmod>
          <changefreq>daily</changefreq>
