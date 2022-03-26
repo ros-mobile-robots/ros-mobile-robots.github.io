@@ -79,7 +79,9 @@ plugins:
 
 nav:
   - Home: index.md
-  - Components: components.md
+  - Getting Started:
+    - Technical Requirements: technical_requirements.md
+    - Components: components.md
   - Robotics Theory:
     - theory/index.md
     - Preliminaries:
