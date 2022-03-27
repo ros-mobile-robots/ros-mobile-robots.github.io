@@ -492,6 +492,61 @@
     Software requirements
   </a>
   
+    <nav class="md-nav" aria-label="Software requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operating-system" class="md-nav__link">
+    Operating System
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    Git
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-control" class="md-nav__link">
+    Remote Control
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hardware-interface" class="md-nav__link">
+    Hardware Interface
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-dependencies" class="md-nav__link">
+    Source Dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binary-dependencies" class="md-nav__link">
+    Binary Dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-ros-workspace" class="md-nav__link">
+    Build ROS Workspace
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2149,6 +2204,61 @@
     Software requirements
   </a>
   
+    <nav class="md-nav" aria-label="Software requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operating-system" class="md-nav__link">
+    Operating System
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    Git
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-control" class="md-nav__link">
+    Remote Control
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hardware-interface" class="md-nav__link">
+    Hardware Interface
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-dependencies" class="md-nav__link">
+    Source Dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binary-dependencies" class="md-nav__link">
+    Binary Dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-ros-workspace" class="md-nav__link">
+    Build ROS Workspace
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2189,16 +2299,64 @@ own two- or four-wheeled differential drive robot similar to the one present in 
 <code>diffbot_description</code> package or 3D print a more stable Remo robot with the stl files in
 <a href="https://github.com/ros-mobile-robots/remo_description">https://github.com/ros-mobile-robots/remo_description</a>. </p>
 <p>The next two sections describe the technical requirements for the software and hardware.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This technical requirements page is here to give you an overview of what is required to get your robot up
+and running. You can already follow the steps in practice but they will be also
+mentioned in later sections (in more detail) when they are really needed.</p>
+</div>
 <h2 id="software-requirements">Software requirements</h2>
-<p>For the development PC, you should have ROS Noetic installed on Ubuntu 20.04
-(<a href="https://releases.ubuntu.com/20.04/">https://releases.ubuntu.com/20.04/</a>). On the Raspberry Pi 4 B Single-
-Board Computer (SBC) that is mounted on Remo, we use Ubuntu Mate 20.04 for arm64
-architecture (<a href="https://ubuntu-mate.org/download/arm64/focal/">https://ubuntu-mate.org/download/arm64/focal/</a>). To clone
-large stl files from the Git repository we use git-lfs. On both Ubuntu flavors it needs
-to be installed with the following terminal command:</p>
+<p>The following sections give an overview about which software will be used:</p>
+<ul>
+<li><a href="#operating-system">Operating Systems</a></li>
+<li><a href="#git">Git</a></li>
+<li><a href="#remote-control">Remote Control</a></li>
+<li><a href="#hardware-interface">Hardware Interface</a></li>
+<li><a href="#source-dependencies">Source Dependencies</a></li>
+<li><a href="#binary-dependencies">Binary Dependencies</a></li>
+<li><a href="#build-ros-workspace">Build ROS Workspace</a></li>
+</ul>
+<p>More detailed software setup instructions are found in the chapter about
+<a href="#processing-units">Processing Units</a>.</p>
+<h3 id="operating-system">Operating System</h3>
+<p>For the development PC, you should have ROS Noetic installed on
+<a href="https://releases.ubuntu.com/20.04/">Ubuntu 20.04</a> or using
+<a href="https://docs.microsoft.com/en-us/windows/wsl/">Windows Subsystem for Linux (WSL) 2</a>
+running on <strong>Windows 11</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a href="https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">Windows 11 is required for GUI features</a>,
+such as Gazebo and RViz. WSL 2 on Windows 10 only provides command line support, although you
+can install an X11 server, such as <a href="https://sourceforge.net/projects/vcxsrv/">VcXsrv</a>,
+explained <a href="https://jack-kawell.com/2020/06/12/ros-wsl2/">here</a>.</p>
+</div>
+<p>On the Single Board Computer (SBC) (e.g. Raspberry Pi 4 B) that is mounted on Remo,
+we use <a href="https://ubuntu-mate.org/download/arm64/focal/">Ubuntu Mate 20.04</a> for arm64 architecture.</p>
+<h3 id="git">Git</h3>
+<p>As the software is hosted on GitHub which uses git as a version control system it needs to be
+present in your used operating system. </p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Ubuntu</label><label for="__tabbed_1_2">Windows</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>On Ubuntu this is usually the case, which you can check with:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>git --version
+<span class="go">git version 2.25.1</span>
+</code></pre></div>
+</td></tr></table>
+</div>
+<div class="tabbed-block">
+<p>On Windows you need to install Git using a package manager such as
+<a href="https://chocolatey.org/">chocolatey</a> or downloading it from <a href="https://git-scm.com/downloads">https://git-scm.com/downloads</a>.</p>
+</div>
+</div>
+</div>
+<p>To clone large stl files from the Git repository we use <a href="https://git-lfs.github.com/">git-lfs</a>. 
+On both Ubuntu flavors it needs to be installed with the following terminal command:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">sudo apt install git-lfs</span>
 </code></pre></div>
 </td></tr></table>
+<h3 id="remote-control">Remote Control</h3>
 <p>On both the development PC and the SBC of the robot, you need a connection to the
 same local network and to enable the ssh protocol, to connect from the development PC
 (client) to the robot, which is running an open-ssh server. Install it on Ubuntu Mate
@@ -2206,12 +2364,14 @@ same local network and to enable the ssh protocol, to connect from the developme
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">sudo apt install openssh-server</span>
 </code></pre></div>
 </td></tr></table>
+<h3 id="hardware-interface">Hardware Interface</h3>
 <p>Another interface setup that is needed to work with the microcontroller, is to add your
 user to the <code>dialout</code> group on both machines, the SBC and the development PC. This can
 be done with the following command, followed by a system reboot:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">sudo adduser &lt;username&gt; dialout</span>
 </code></pre></div>
 </td></tr></table>
+<h3 id="source-dependencies">Source Dependencies</h3>
 <p>When you clone the diffbot repository in a new catkin workspace, you will find two
 YAML files, <code>diffbot_dev.repos</code> and <code>remo_robot.repos</code>, that list required source
 dependencies together with their version control type, the repository address, and a
@@ -2221,6 +2381,12 @@ source dependencies on the real robot.</p>
 from <a href="http://wiki.ros.org/vcstool"><code>vcstool</code></a>, which replaces
 <a href="http://wiki.ros.org/wstool"><code>wstool</code></a>:</p>
 <ol>
+<li>
+<p>Install vcstool using the command:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">sudo apt install python3-vcstool</span>
+</code></pre></div>
+</td></tr></table>
+</li>
 <li>
 <p>In a new catkin workspace, clone the diffbot repository inside the src folder:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">ros_ws/src$ git clone https://github.com/ros-mobile-robots/diffbot.git</span>
@@ -2247,6 +2413,7 @@ PC or the SBC of Remo to clone the listed dependencies:</p>
 </td></tr></table>
 </li>
 </ol>
+<h3 id="binary-dependencies">Binary Dependencies</h3>
 <p>After obtaining the source dependencies with <code>vcstool</code>, we can compile the workspace.
 To successfully compile the packages of the repository, binary dependencies must be
 installed. As the required dependencies are specified in each ROS package's <code>package.xml</code>, 
@@ -2254,9 +2421,10 @@ the rosdep command can install the required ROS packages from the Ubuntu reposit
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">rosdep install --from-paths src --ignore-src -r -y</span>
 </code></pre></div>
 </td></tr></table>
+<h3 id="build-ros-workspace">Build ROS Workspace</h3>
 <p>Finally, the workspaces on the development machine and the SBC of the robot need to
 be built, either using <code>catkin_make</code> or catkin tools. <code>catkin_make</code> comes pre-installed with ROS.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">catkin tools</label><label for="__tabbed_1_2"><code>catkin_make</code></label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">catkin tools</label><label for="__tabbed_2_2"><code>catkin_make</code></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">catkin build</span>
@@ -2277,6 +2445,7 @@ NVIDIA's JetBot. The currently available parts can be 3D printed using the provi
 stl files in the <a href="https://github.com/ros-mobile-robots/remo_description"><code>remo_description</code></a> repository. 
 To do this, you either need a 3D printer with a recommended build volume of 15x15x15 cm or to use
 a local or online 3D print service. Further details are found in <a href="../hardware_setup/3D_print/">hardware setup</a>.</p>
+<p>On the following <a href="#components">components</a> page you find a bill of materials and more details about each part.</p>
 
               
 
