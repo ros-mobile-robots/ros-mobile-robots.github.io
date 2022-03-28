@@ -856,6 +856,8 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           Robot Package
@@ -872,6 +874,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -880,8 +884,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#diffbot-robot" class="md-nav__link">
-    DiffBot Robot
+  <a href="#prepare-and-create-a-new-release" class="md-nav__link">
+    Prepare and Create a New Release
   </a>
   
 </li>
@@ -2124,6 +2128,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -2132,8 +2138,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#diffbot-robot" class="md-nav__link">
-    DiffBot Robot
+  <a href="#prepare-and-create-a-new-release" class="md-nav__link">
+    Prepare and Create a New Release
   </a>
   
 </li>
@@ -2159,9 +2165,7 @@
 
 
 
-  <h1>Robot Package</h1>
-
-<h2 id="diffbot-robot">DiffBot Robot</h2>
+<h1 id="diffbot-robot">DiffBot Robot</h1>
 <p>The <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_robot"><code>diffbot_robot</code></a> package is a 
 <a href="http://wiki.ros.org/Metapackages">ROS metapackage</a> that references all related packages to DiffBot.
 A metapackage can be created with:</p>
@@ -2176,13 +2180,197 @@ A metapackage can be created with:</p>
 </td></tr></table>
 <p>To release a package see the <a href="http://wiki.ros.org/bloom">bloom</a> page and the listed tutorials there. Specifically the following ones:</p>
 <ul>
-<li>
-<p>To index the package follow the <a href="http://wiki.ros.org/rosdistro/Tutorials/Indexing%20Your%20ROS%20Repository%20for%20Documentation%20Generation">Indexing Your ROS Repository for Documentation Generation</a>.</p>
-</li>
-<li>
-<p>Release a package using bloom, see <a href="http://wiki.ros.org/bloom/Tutorials/FirstTimeRelease">First Time Release tutorial</a>.</p>
-</li>
+<li>To index the package follow the <a href="http://wiki.ros.org/rosdistro/Tutorials/Indexing%20Your%20ROS%20Repository%20for%20Documentation%20Generation">Indexing Your ROS Repository for Documentation Generation</a>.</li>
+<li>Release a package using bloom, see <a href="http://wiki.ros.org/bloom/Tutorials/FirstTimeRelease">First Time Release tutorial</a>.</li>
 </ul>
+<h2 id="prepare-and-create-a-new-release">Prepare and Create a New Release</h2>
+<p>The steps to do create a new release are the following</p>
+<ol>
+<li><code>cd</code> to the <code>diffbot</code> repository which contains all the modified packages and make sure there are no uncommitted or untracked changes.</li>
+<li>
+<p>Use <code>catkin_generate_changelog</code> to create updated changelogs (populated with the previous commit messages):</p>
+<p><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">➜  diffbot git:(noetic-devel) ✗ catkin_generate_changelog</span>
+<span class="go">Found packages: diffbot_base, diffbot_bringup, diffbot_control, diffbot_description, diffbot_gazebo, diffbot_mbf, diffbot_msgs, diffbot_navigation, diffbot_robot, diffbot_slam</span>
+<span class="go">Querying commit information since latest tag...</span>
+<span class="go">Updating forthcoming section of changelog files...</span>
+<span class="go">- updating &#39;diffbot_base/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_bringup/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_control/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_description/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_gazebo/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_mbf/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_msgs/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_navigation/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_robot/CHANGELOG.rst&#39;</span>
+<span class="go">- updating &#39;diffbot_slam/CHANGELOG.rst&#39;</span>
+<span class="go">Done.</span>
+<span class="go">Please review the extracted commit messages and consolidate the changelog entries before committing the files!</span>
+</code></pre></div>
+</td></tr></table>
+3. Clean up the Changelog: Go through every package's CHANGELOG.rst file and modify the commit messages if needed.
+4. Commit the updated CHANGELOG.rst files</p>
+<p><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">➜  diffbot git:(noetic-devel) ✗ git status</span>
+<span class="go">On branch noetic-devel</span>
+<span class="go">Your branch is up to date with &#39;origin/noetic-devel&#39;.</span>
+
+<span class="go">Changes not staged for commit:</span>
+<span class="go">  (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)</span>
+<span class="go">  (use &quot;git restore &lt;file&gt;...&quot; to discard changes in working directory)</span>
+<span class="go">        modified:   diffbot_base/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_bringup/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_control/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_description/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_gazebo/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_mbf/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_msgs/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_navigation/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_robot/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_slam/CHANGELOG.rst</span>
+
+<span class="go">no changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)</span>
+<span class="go">➜  diffbot git:(noetic-devel) ✗ git add .</span>
+<span class="go">➜  diffbot git:(noetic-devel) ✗ git status</span>
+<span class="go">On branch noetic-devel</span>
+<span class="go">Your branch is up to date with &#39;origin/noetic-devel&#39;.</span>
+
+<span class="go">Changes to be committed:</span>
+<span class="go">  (use &quot;git restore --staged &lt;file&gt;...&quot; to unstage)</span>
+<span class="go">        modified:   diffbot_base/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_bringup/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_control/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_description/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_gazebo/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_mbf/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_msgs/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_navigation/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_robot/CHANGELOG.rst</span>
+<span class="go">        modified:   diffbot_slam/CHANGELOG.rst</span>
+<span class="go">➜  diffbot git:(noetic-devel) ✗ git commit -m &quot;prepare release: updating CHANGELOG.rst files&quot;</span>
+<span class="go">[noetic-devel d2849d9] prepare release: updating CHANGELOG.rst files</span>
+<span class="go"> 10 files changed, 70 insertions(+)</span>
+</code></pre></div>
+</td></tr></table>
+5. Bump up the package.xml version</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">➜  diffbot git:(noetic-devel) catkin_prepare_release --bump minor</span>
+<span class="go">Prepare the source repository for a release.</span>
+<span class="go">Repository type: git</span>
+<span class="go">Found packages: diffbot_base, diffbot_bringup, diffbot_control, diffbot_description, diffbot_gazebo, diffbot_mbf, diffbot_msgs, diffbot_navigation, diffbot_robot, diffbot_slam</span>
+<span class="go">Prepare release of version &#39;1.1.0&#39; [Y/n]?</span>
+<span class="go">Trying to push to remote repository (dry run)...</span>
+<span class="go">Everything up-to-date</span>
+<span class="go">Checking if working copy is clean (no staged changes, no modified files, no untracked files)...</span>
+<span class="go">Rename the forthcoming section of the following packages to version &#39;1.1.0&#39;: diffbot_base, diffbot_bringup, diffbot_control, diffbot_description, diffbot_gazebo, diffbot_mbf, diffbot_msgs, diffbot_navigation, diffbot_robot, diffbot_slam</span>
+<span class="go">Bump version of all packages from &#39;1.0.0&#39; to &#39;1.1.0&#39;</span>
+<span class="go">Committing the package.xml files...</span>
+<span class="go">[noetic-devel e7b6c8c] 1.1.0</span>
+<span class="go"> 20 files changed, 30 insertions(+), 30 deletions(-)</span>
+<span class="go">Creating tag &#39;1.1.0&#39;...</span>
+<span class="go">The following commands will be executed to push the changes and tag to the remote repository:</span>
+<span class="go">  /usr/bin/git push origin noetic-devel</span>
+<span class="go">  /usr/bin/git push origin 1.1.0</span>
+<span class="go">Execute commands to push the local commits and tags to the remote repository [Y/n]?</span>
+<span class="go">Enumerating objects: 54, done.</span>
+<span class="go">Counting objects: 100% (54/54), done.</span>
+<span class="go">Delta compression using up to 48 threads</span>
+<span class="go">Compressing objects: 100% (32/32), done.</span>
+<span class="go">Writing objects: 100% (32/32), 5.78 KiB | 227.00 KiB/s, done.</span>
+<span class="go">Total 32 (delta 24), reused 0 (delta 0)</span>
+<span class="go">remote: Resolving deltas: 100% (24/24), completed with 21 local objects.</span>
+<span class="go">To https://github.com/ros-mobile-robots/diffbot.git</span>
+<span class="go">   d2849d9..e7b6c8c  noetic-devel -&gt; noetic-devel</span>
+<span class="go">Total 0 (delta 0), reused 0 (delta 0)</span>
+<span class="go">To https://github.com/ros-mobile-robots/diffbot.git</span>
+<span class="go"> * [new tag]         1.1.0 -&gt; 1.1.0</span>
+<span class="go">The source repository has been released successfully. The next step will be &#39;bloom-release&#39;.</span>
+</code></pre></div>
+</td></tr></table>
+</li>
+</ol>
+<p>As mentioned in the final output, you are now ready to create a <a href="http://wiki.ros.org/bloom/Tutorials/FirstTimeRelease#Creating_a_Release_Repository">release repository</a> (if not already <a href="https://github.com/ros-mobile-robots-release">done</a>)) and
+follow the rest of the steps to <a href="http://wiki.ros.org/bloom/Tutorials/FirstTimeRelease#Creating_a_Release_Repository">releasing your package</a>.</p>
 
               
 
