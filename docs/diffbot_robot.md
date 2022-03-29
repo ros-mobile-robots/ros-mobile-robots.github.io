@@ -152,7 +152,7 @@ follow the rest of the steps to [releasing your package](http://wiki.ros.org/blo
 
 ## Releasing your Package for the first time
 
-```console
+````console
 ➜  diffbot git:(noetic-devel) bloom-release --rosdistro noetic --track noetic diffbot --edit
 ROS Distro index file associate with commit '725def91e71e2e1a9520416feb916c802ed75314'
 New ROS Distro index url: 'https://raw.githubusercontent.com/ros/rosdistro/725def91e71e2e1a9520416feb916c802ed75314/index-v4.yaml'
@@ -1407,4 +1407,6 @@ remote:
 To https://github.com/fjp/rosdistro.git
  * [new branch]          bloom-diffbot-0 -> bloom-diffbot-0
 <== Pull request opened at: https://github.com/ros/rosdistro/pull/32590
-```
+````
+
+View the pull request at https://github.com/ros/rosdistro/pull/32590 and check that the tests (e.g. Nose test) pass.
