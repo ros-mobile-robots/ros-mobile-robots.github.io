@@ -1210,7 +1210,7 @@ VCS Type must be one of git, svn, hg, or bzr.
 VCS type: git
 VCS url: https://github.com/ros-mobile-robots/diffbot.git
 VCS version must be a branch, tag, or commit, e.g. master or 0.1.0
-VCS version: 1.1.0
+VCS version: noetic-devel
 Would you like to add source information for this repository? [Y/n]? Y
 ==> Looking for a source entry for this repository in a different distribution...
 No existing source entries found for use as defaults.
