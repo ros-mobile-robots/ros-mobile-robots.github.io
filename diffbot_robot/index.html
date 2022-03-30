@@ -2211,6 +2211,19 @@ A metapackage can be created with:</p>
 <li>To index the package follow the <a href="http://wiki.ros.org/rosdistro/Tutorials/Indexing%20Your%20ROS%20Repository%20for%20Documentation%20Generation">Indexing Your ROS Repository for Documentation Generation</a>.</li>
 <li>Release a package using bloom, see <a href="http://wiki.ros.org/bloom/Tutorials/FirstTimeRelease">First Time Release tutorial</a>.</li>
 </ul>
+<p>If you released a package and create a PR to the rosdistro repository your PR might be marked as "held for sync",
+which means the following (<a href="https://discourse.ros.org/t/preparing-for-noetic-sync-2021-03-12/19383/4">source</a>):</p>
+<p>The syncs are how we get updated packages out to end users. The pipeline is essentially:</p>
+<ul>
+<li>Package maintainers make source changes to their repository.</li>
+<li>Once they have enough fixes/features, they do a source release.</li>
+<li>After a source release, they do a bloom-release to release the package into the distribution (this opens up the rosdistro PRs).</li>
+<li>After review, the ROS team merges those PRs into GitHub - ros/rosdistro: This repo maintains a lists of repositories for each ROS distribution.</li>
+<li>The <a href="https://build.ros.org">buildfarm</a> notices this, and rebuilds the package (and any packages that depend on this package).</li>
+<li>Assuming the packages built properly, they are now available at <a href="http://packages.ros.org/ros-testing/ubuntu/">http://packages.ros.org/ros-testing/ubuntu/</a> for testing. But this is not the same as general availability.</li>
+<li>Periodically, the ROS team will put a particular ROS distribution into a "sync freeze", so that changes stop happening to that distribution.</li>
+<li>After a testing period, the “sync” will be performed from the testing to the main repository. The packages are now available to end-users.</li>
+</ul>
 <h2 id="install-bloom">Install Bloom</h2>
 <p><a href="http://ros-infrastructure.github.io/bloom/">Bloom</a> will be used to release our packages.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>

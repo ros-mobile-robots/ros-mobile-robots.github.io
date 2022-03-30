@@ -16,6 +16,21 @@ To release a package see the [bloom](http://wiki.ros.org/bloom) page and the lis
 - To index the package follow the [Indexing Your ROS Repository for Documentation Generation](http://wiki.ros.org/rosdistro/Tutorials/Indexing%20Your%20ROS%20Repository%20for%20Documentation%20Generation).
 - Release a package using bloom, see [First Time Release tutorial](http://wiki.ros.org/bloom/Tutorials/FirstTimeRelease).
 
+
+If you released a package and create a PR to the rosdistro repository your PR might be marked as "held for sync",
+which means the following ([source](https://discourse.ros.org/t/preparing-for-noetic-sync-2021-03-12/19383/4)):
+
+The syncs are how we get updated packages out to end users. The pipeline is essentially:
+
+- Package maintainers make source changes to their repository.
+- Once they have enough fixes/features, they do a source release.
+- After a source release, they do a bloom-release to release the package into the distribution (this opens up the rosdistro PRs).
+- After review, the ROS team merges those PRs into GitHub - ros/rosdistro: This repo maintains a lists of repositories for each ROS distribution.
+- The [buildfarm](https://build.ros.org) notices this, and rebuilds the package (and any packages that depend on this package).
+- Assuming the packages built properly, they are now available at http://packages.ros.org/ros-testing/ubuntu/ for testing. But this is not the same as general availability.
+- Periodically, the ROS team will put a particular ROS distribution into a "sync freeze", so that changes stop happening to that distribution.
+- After a testing period, the “sync” will be performed from the testing to the main repository. The packages are now available to end-users.
+
 ## Install Bloom
 
 [Bloom](http://ros-infrastructure.github.io/bloom/) will be used to release our packages.
