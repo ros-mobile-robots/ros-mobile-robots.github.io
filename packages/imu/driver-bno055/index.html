@@ -2442,7 +2442,95 @@ GND to GND</p>
 <li>Connect the SDA (blue wire) pin to the I2C data SDA pin on your SBC or an I2C hub that is connected to the SBC.</li>
 </ul>
 <h4 id="software">Software</h4>
-<p>Refer to <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython</a></p>
+<p>Refer to <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython</a>
+as well as to the <a href="https://learn.adafruit.com/circuitpython-essentials/circuitpython-essentials">CircuitPython Guide</a></p>
+<ol>
+<li>
+<p>Make sure you have python3-venv installed:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">sudo apt install python3.8-venv</span>
+</code></pre></div>
+</td></tr></table>
+</li>
+<li>
+<p>Create a virtual environment:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>python3 -m venv venv
+</code></pre></div>
+</td></tr></table>
+</li>
+<li>
+<p>Activate the venv</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span><span class="nb">source</span> venv/bin/activate
+<span class="gp gp-VirtualEnv">(venv)</span> <span class="gp">fjp@remo:~/test_imu$</span>
+</code></pre></div>
+</td></tr></table>
+</li>
+<li>
+<p>Install the CircuitPython driver for the BNO055:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">pip install adafruit-circuitpython-bno055</span>
+</code></pre></div>
+</td></tr></table>
+</li>
+<li>
+<p>Create a simple test program or copy the <a href="https://github.com/adafruit/Adafruit_CircuitPython_BNO055/tree/main/examples">example programs</a>:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp">$ </span>vim imu.py
+</code></pre></div>
+</td></tr></table>
+<p>and copy the following content:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">adafruit_bno055</span>
+
+<span class="c1"># This driver takes an instantiated and active I2C object as an argument to its constructor.</span>
+<span class="c1"># The way to create an I2C object depends on the board you are using.</span>
+<span class="c1"># For boards with labeled SCL and SDA pins, you can:</span>
+<span class="kn">import</span> <span class="nn">board</span>
+
+<span class="n">i2c</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">I2C</span><span class="p">()</span>
+
+<span class="c1"># Once you have the I2C object, you can create the sensor object:</span>
+<span class="n">sensor</span> <span class="o">=</span> <span class="n">adafruit_bno055</span><span class="o">.</span><span class="n">BNO055_I2C</span><span class="p">(</span><span class="n">i2c</span><span class="p">)</span>
+
+<span class="c1"># And then you can start reading the measurements:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">euler</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">gravity</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+</li>
+<li>
+<p>TODO i2c permissions to execute with non-admin user or use sudo</p>
+</li>
+<li>
+<p>Execute the python script:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="go">python imu.py</span>
+</code></pre></div>
+</td></tr></table>
+<p>This should result in an output similar to:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="gp gp-VirtualEnv">(venv)</span> <span class="gp">root@remo:/home/fjp/test_imu# </span>python imu.py
+<span class="go">29</span>
+<span class="gp gp-VirtualEnv">(8.0, 0.0, 0.0)</span>
+<span class="gp gp-VirtualEnv">(0.0, 0.0, 0.0)</span>
+</code></pre></div>
+</td></tr></table>
+</li>
+</ol>
 <h3 id="microcontroller">Microcontroller</h3>
 <p>The following sections show how to wire and use the BNO055 with the Teensy microcontroller board using 
 the <a href="https://platformio.org/">PlatformIO</a> plugin of Visual Studio Code.</p>
