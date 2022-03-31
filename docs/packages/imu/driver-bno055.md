@@ -76,7 +76,75 @@ GND to GND
 #### Software
 
 Refer to https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython
+as well as to the [CircuitPython Guide](https://learn.adafruit.com/circuitpython-essentials/circuitpython-essentials)
 
+1. Make sure you have python3-venv installed:
+
+    ```console
+    sudo apt install python3.8-venv
+    ```
+   
+2. Create a virtual environment:
+
+     ```console
+     $ python3 -m venv venv
+     ```
+    
+3. Activate the venv
+
+    ```console
+    $ source venv/bin/activate
+    (venv) fjp@remo:~/test_imu$
+    ```
+
+4. Install the CircuitPython driver for the BNO055:
+
+    ```console
+    pip install adafruit-circuitpython-bno055
+    ```
+    
+5. Create a simple test program or copy the [example programs](https://github.com/adafruit/Adafruit_CircuitPython_BNO055/tree/main/examples):
+
+    ```console
+    $ vim imu.py
+    ```
+    
+    and copy the following content:
+    
+    ```python
+    import adafruit_bno055
+
+    # This driver takes an instantiated and active I2C object as an argument to its constructor.
+    # The way to create an I2C object depends on the board you are using.
+    # For boards with labeled SCL and SDA pins, you can:
+    import board
+
+    i2c = board.I2C()
+
+    # Once you have the I2C object, you can create the sensor object:
+    sensor = adafruit_bno055.BNO055_I2C(i2c)
+
+    # And then you can start reading the measurements:
+    print(sensor.temperature)
+    print(sensor.euler)
+    print(sensor.gravity)
+    ```
+    
+6. TODO i2c permissions to execute with non-admin user or use sudo
+7. Execute the python script:
+
+    ```console
+    python imu.py
+    ```
+    
+    This should result in an output similar to:
+    
+    ```console
+    (venv) root@remo:/home/fjp/test_imu# python imu.py
+    29
+    (8.0, 0.0, 0.0)
+    (0.0, 0.0, 0.0)
+    ```
 
 ### Microcontroller
 
