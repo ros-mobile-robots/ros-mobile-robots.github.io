@@ -27,6 +27,11 @@ jobs:
 
       - name: Run Vale
         uses: errata-ai/vale-action@reviewdog
+        with:
+          debug: true
+          # github-pr-check, github-pr-review, github-check
+          reporter: github-pr-check
+          vale_flags: "--glob='*.{txt,md}'"
         env:
           # Required, set by GitHub actions automatically:
           # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret
