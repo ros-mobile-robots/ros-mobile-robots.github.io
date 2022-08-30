@@ -31,6 +31,8 @@ jobs:
           debug: true
           # github-pr-check, github-pr-review, github-check
           reporter: github-pr-check
+          # added, diff_context, file, nofilter
+          filter_mode: nofilter
           vale_flags: "--glob='*.{txt,md}'"
         env:
           # Required, set by GitHub actions automatically:
