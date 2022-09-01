@@ -22,8 +22,8 @@ jobs:
     container:
       image: jdkato/vale
       volumes:
-        - $(pwd)/styles:/styles
-        - $(pwd)/docs:/docs
+        - styles:/styles
+        - docs:/docs
       options: --cpus 1
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
