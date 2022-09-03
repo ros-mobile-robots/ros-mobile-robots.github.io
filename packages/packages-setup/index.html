@@ -15,7 +15,7 @@
     
     
       
-        <title>Packages - DiffBot Differential Drive Mobile Robot</title>
+        <title>Packages Setup - DiffBot Differential Drive Mobile Robot</title>
       
     
     
@@ -143,7 +143,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Packages
+              Packages Setup
             
           </span>
         </div>
@@ -627,12 +627,6 @@
         
           
         
-          
-        
-          
-        
-          
-        
       
       
         
@@ -654,6 +648,42 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Single Board Computer
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Single Board Computer" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Single Board Computer
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
           
             
               
@@ -711,6 +741,13 @@
 
             
           
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
             
               
   
@@ -718,7 +755,7 @@
   
     <li class="md-nav__item">
       <a href="../../processing_units/teensy-mcu/" class="md-nav__link">
-        Teensy MCU
+        Microcontroller
       </a>
     </li>
   
@@ -849,12 +886,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Packages
+          Packages Setup
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Packages
+        Packages Setup
       </a>
       
         
@@ -910,6 +947,26 @@
   <a href="#examples" class="md-nav__link">
     Examples
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-infos" class="md-nav__link">
+    Optional Infos
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional Infos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-dependency-installation" class="md-nav__link">
+    Manual Dependency Installation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1036,10 +1093,91 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_7" type="checkbox" id="__nav_5_7" >
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../diffbot_base/">Base Hardware Interface</a>
+          
+            <label for="__nav_5_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Base Hardware Interface" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_7">
+          <span class="md-nav__icon md-icon"></span>
+          Base Hardware Interface
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../diffbot_base/" class="md-nav__link">
-        Base Hardware Interface
+      <a href="../diffbot_base/pid/" class="md-nav__link">
+        PID Controllers
       </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diffbot_base/low-level/" class="md-nav__link">
+        Low-Level PID Approach
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diffbot_base/high-level/" class="md-nav__link">
+        High-Level PID Approach
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -2215,6 +2353,26 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#optional-infos" class="md-nav__link">
+    Optional Infos
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional Infos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-dependency-installation" class="md-nav__link">
+    Manual Dependency Installation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2295,7 +2453,7 @@ Inside the workspace use <a href="https://catkin-tools.readthedocs.io/en/latest/
 </div>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>catkin build
 </code></pre></div></td></tr></table></div>
-<p>Now source the catkin workspace either using the <a href="ros-setup.md#environment-setup">created alias</a> or the full command for the bash shell:</p>
+<p>Now source the catkin workspace either using the <a href="../ros-setup.md#environment-setup">created alias</a> or the full command for the bash shell:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>source devel/setup.bash
 </code></pre></div></td></tr></table></div>
 <h2 id="examples">Examples</h2>
@@ -2303,6 +2461,27 @@ Inside the workspace use <a href="https://catkin-tools.readthedocs.io/en/latest/
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>TODO extend documentation with examples</p>
+</div>
+<h2 id="optional-infos">Optional Infos</h2>
+<h3 id="manual-dependency-installation">Manual Dependency Installation</h3>
+<p>To install a package from source clone (using git) or download the source files from where they are located (commonly hosted on GitHub) into the <code>src</code> folder of a ros catkin workspace and execute the <a href="https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html"><code>catkin build</code></a> command. Also make sure to source the workspace after building new packages with <code>source devel/setup.bash</code>.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd /homw/fjp/git/diffbot/ros/  # Navigate to the workspace</span>
+<span class="go">catkin build              # Build all the packages in the workspace</span>
+<span class="go">ls build                  # Show the resulting build space</span>
+<span class="go">ls devel                  # Show the resulting devel space</span>
+</code></pre></div></td></tr></table></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure to clone/download the source files suitable for the ROS distribtion
+you are using. If the sources are not available for the distribution you are
+working with, it is worth to try building anyway. Chances are that the package
+you want to use is suitable for multiple ROS distros. For example if a package
+states in its docs, that it is only available for
+<a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a
+ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
 </div>
 
 

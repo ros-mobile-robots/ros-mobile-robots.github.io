@@ -16,11 +16,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ros-mobile-robots.com/diffbot_base/</loc>
-         <lastmod>2022-09-03</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://ros-mobile-robots.com/diffbot_bringup/</loc>
          <lastmod>2022-09-03</lastmod>
          <changefreq>daily</changefreq>
@@ -157,6 +152,26 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/packages/remo_description/</loc>
+         <lastmod>2022-09-03</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/diffbot_base/</loc>
+         <lastmod>2022-09-03</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/diffbot_base/high-level/</loc>
+         <lastmod>2022-09-03</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/diffbot_base/low-level/</loc>
+         <lastmod>2022-09-03</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/diffbot_base/pid/</loc>
          <lastmod>2022-09-03</lastmod>
          <changefreq>daily</changefreq>
     </url>

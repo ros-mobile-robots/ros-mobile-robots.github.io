@@ -79,7 +79,7 @@ Inside the workspace use [`catkin-tools`](https://catkin-tools.readthedocs.io/en
 catkin build
 ```
 
-Now source the catkin workspace either using the [created alias](ros-setup.md#environment-setup) or the full command for the bash shell:
+Now source the catkin workspace either using the [created alias](../ros-setup.md#environment-setup) or the full command for the bash shell:
 
 ```
 source devel/setup.bash
@@ -91,3 +91,27 @@ Now you are ready to follow the examples listed in the readme.
 
 !!! info
     TODO extend documentation with examples
+
+
+## Optional Infos
+
+### Manual Dependency Installation
+
+To install a package from source clone (using git) or download the source files from where they are located (commonly hosted on GitHub) into the `src` folder of a ros catkin workspace and execute the [`catkin build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html) command. Also make sure to source the workspace after building new packages with `source devel/setup.bash`.
+
+```console
+cd /homw/fjp/git/diffbot/ros/  # Navigate to the workspace
+catkin build              # Build all the packages in the workspace
+ls build                  # Show the resulting build space
+ls devel                  # Show the resulting devel space
+```
+
+!!! note
+
+    Make sure to clone/download the source files suitable for the ROS distribtion
+    you are using. If the sources are not available for the distribution you are
+    working with, it is worth to try building anyway. Chances are that the package
+    you want to use is suitable for multiple ROS distros. For example if a package
+    states in its docs, that it is only available for
+    [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a
+    ROS [noetic](http://wiki.ros.org/noetic) install.

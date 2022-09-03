@@ -627,12 +627,6 @@
         
           
         
-          
-        
-          
-        
-          
-        
       
       
         
@@ -654,6 +648,42 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Single Board Computer
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Single Board Computer" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Single Board Computer
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
           
             
               
@@ -711,6 +741,13 @@
 
             
           
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
             
               
   
@@ -718,7 +755,7 @@
   
     <li class="md-nav__item">
       <a href="../processing_units/teensy-mcu/" class="md-nav__link">
-        Teensy MCU
+        Microcontroller
       </a>
     </li>
   
@@ -840,7 +877,7 @@
   
     <li class="md-nav__item">
       <a href="packages-setup/" class="md-nav__link">
-        Packages
+        Packages Setup
       </a>
     </li>
   
@@ -961,10 +998,91 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_7" type="checkbox" id="__nav_5_7" >
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="diffbot_base/">Base Hardware Interface</a>
+          
+            <label for="__nav_5_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Base Hardware Interface" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_7">
+          <span class="md-nav__icon md-icon"></span>
+          Base Hardware Interface
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../diffbot_base/" class="md-nav__link">
-        Base Hardware Interface
+      <a href="diffbot_base/pid/" class="md-nav__link">
+        PID Controllers
       </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="diffbot_base/low-level/" class="md-nav__link">
+        Low-Level PID Approach
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="diffbot_base/high-level/" class="md-nav__link">
+        High-Level PID Approach
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -2106,13 +2224,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#developing-a-low-level-controller-and-a-highlevel-ros-control-hardware-interface-for-a-differential-drive-robot" class="md-nav__link">
-    Developing a low-level controller and a highlevel ROS Control hardware interface for a differential drive robot
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2135,40 +2246,43 @@
 
 
 <h1 id="ros-software-packages">ROS Software Packages</h1>
-<p>After having verified that the hardware requirements for the Navigation Stack are met, an
-overview of Remo's software follows.</p>
+<p>After having verified that the hardware requirements for the Navigation Stack
+are met, an overview of Remo's software follows.</p>
 <h2 id="software-requirements-for-the-ros-navigation-stack">Software requirements for the ROS Navigation Stack</h2>
 <p>The <a href="https://github.com/ros-mobile-robots/diffbot/"><code>diffbot</code></a> and
-<a href="https://github.com/ros-mobile-robots/remo_description"><code>remo_description</code></a> repositories 
-contain the following ROS packages:</p>
+<a href="https://github.com/ros-mobile-robots/remo_description"><code>remo_description</code></a>
+repositories contain the following ROS packages:</p>
 <ul>
 <li><code>diffbot_base</code>: This package contains the platform-specific code for the base
 controller component required by the ROS Navigation Stack. It consists of the
-firmware based on rosserial for the Teensy MCU and the C++ node running
-on the SBC that instantiates the ROS Control hardware interface including the
-<code>controller_manager</code> control loop for the real robot. The low-level <code>base_controller</code>
-component reads the encoder ticks from the hardware, calculates
-angular joint positions and velocities, and publishes them to the ROS Control
-hardware interface. Using this interface makes it possible to use the <code>diff_drive_controller</code>
-package from <a href="http://wiki.ros.org/diff_drive_controller">ROS Control</a>. 
-It provides a controller (<code>DiffDriveController</code>) for a
-differential drive mobile base that computes target joint velocities from commands
-received by either a teleop node or the ROS Navigation Stack. The computed
-target joint velocities are forwarded to the low-level base controller, where they are
-compared to the measured velocities to compute suitable motor PWM signals using
-two separate PID controllers, one for each motor.</li>
+firmware based on rosserial for the Teensy MCU and the C++ node running on the
+SBC that instantiates the ROS Control hardware interface including the
+<code>controller_manager</code> control loop for the real robot. The low-level
+<code>base_controller</code> component reads the encoder ticks from the hardware,
+calculates angular joint positions and velocities, and publishes them to the ROS
+Control hardware interface. Using this interface makes it possible to use the
+<code>diff_drive_controller</code> package from <a href="http://wiki.ros.org/diff_drive_controller">ROS
+Control</a>. It provides a controller
+(<code>DiffDriveController</code>) for a differential drive mobile base that computes
+target joint velocities from commands received by either a teleop node or the
+ROS Navigation Stack. The computed target joint velocities are forwarded to the
+low-level base controller, where they are compared to the measured velocities to
+compute suitable motor PWM signals using two separate PID controllers, one for
+each motor.</li>
 <li><code>diffbot_bringup</code>: Launch files to bring up the hardware driver nodes (camera,
-lidar, microcontroller, and so on) as well as the C++ nodes from the <code>diffbot_base</code> 
-package for the real robot.</li>
+lidar, microcontroller, and so on) as well as the C++ nodes from the
+<code>diffbot_base</code> package for the real robot.</li>
 <li><code>diffbot_control</code>: Configurations for <code>DiffDriveController</code> and
-<code>JointStateController</code> of ROS Control used in the Gazebo simulation and the
-real robot. The parameter configurations are loaded onto the parameter server with
+<code>JointStateController</code> of ROS Control used in the Gazebo simulation and the real
+robot. The parameter configurations are loaded onto the parameter server with
 the help of the launch files inside this package.</li>
 <li><code>remo_description</code>: This package contains the URDF description of Remo
 including its sensors. It allows you to pass arguments to visualize different
-camera and SBC types. It also defines the <code>gazebo_ros_control</code> plugin.
-Remo's description is based on the description at <a href="https://github.com/ros-mobile-robots/mobile_robot_description">https://github.com/ros-mobile-robots/mobile_robot_description</a>,
-which provides a modular URDF structure that makes it easier to model your own differential drive robot.</li>
+camera and SBC types. It also defines the <code>gazebo_ros_control</code> plugin. Remo's
+description is based on the description at
+<a href="https://github.com/ros-mobile-robots/mobile_robot_description">https://github.com/ros-mobile-robots/mobile_robot_description</a>, which provides a
+modular URDF structure that makes it easier to model your own differential drive
+robot.</li>
 <li><code>diffbot_gazebo</code>: Simulation-specific launch and configuration files for Remo
 and Diffbot, to be used in the Gazebo simulator.</li>
 <li><code>diffbot_msgs</code>: Message definitions specific to Remo/Diffbot, for example, the
@@ -2178,53 +2292,9 @@ launch files for the ROS Navigation Stack to work.</li>
 <li><code>diffbot_slam</code>: Configurations for simultaneous localization and mapping using
 implementations such as gmapping to create a map of the environment.</li>
 </ul>
-<p>After this overview of the ROS packages of a differential robot that fulfill the requirements
-of the Navigation Stack, the next section implements the base controller component.</p>
-<h2 id="developing-a-low-level-controller-and-a-highlevel-ros-control-hardware-interface-for-a-differential-drive-robot">Developing a low-level controller and a highlevel ROS Control hardware interface for a differential drive robot</h2>
-<p>In the following two sections, the base controller, mentioned in the Navigation Stack, will be developed. </p>
-<p><img alt="Navigation Stack" src="/resources/navigation/navigation_stack.png" /></p>
-<p>For Remo, this platform-specific node is split into two software components.
-The first component is the high-level <code>diffbot::DiffBotHWInterface</code> that
-inherits from <code>hardware_interface::RobotHW</code>, acting as an interface between
-robot hardware and the packages of ROS Control that communicate with the Navigation
-Stack and provide <a href="http://wiki.ros.org/diff_drive_controller"><code>diff_drive_controller</code></a> – 
-one of many available controllers from ROS Control. With the
-<code>gazebo_ros_control</code> plugin, the same controller including its configuration can be
-used in the simulation and the real robot. An overview of ROS Control in a simulation
-and the real world is given in the following figure (<a href="http://gazebosim.org/tutorials/?tut=ros_control">http://gazebosim.org/tutorials/?tut=ros_control</a>):</p>
-<figure>
-<p><img alt="ROS Control simulation and reality" src="/resources/packages/ros-control-simulation-and-reality.svg" />
-  </p>
-<figcaption>ROS Control in simulation and reality</figcaption>
-</figure>
-<p>The second component is the low-level base controller that measures angular wheel
-joint positions and velocities and applies the commands from the high-level interface
-to the wheel joints. The following figure shows the communication between the two
-components:</p>
-<figure>
-<p><img alt="Block diagram of low-level controller and high-level hardware interface" src="/resources/packages/low-level-base_controller-high-level-hardware_interface.svg" />
-  </p>
-<figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
-Control)</figcaption>
-</figure>
-<p>The low-level base controller uses two PID controllers to compute PWM signals for each
-motor based on the error between measured and target wheel velocities.
-<code>RobotHW</code> receives measured joint states (angular position (rad) and angular velocity
-(rad/s)) from which it updates its joint values. With these measured velocities and the
-desired command velocity (<code>geometry_msgs/Twist</code> message on the <code>cmd_vel</code>
-topic), from the Navigation Stack, the <code>diff_drive_controller</code> computes the
-target angular velocities for both wheel joints using the mathematical equations of a
-differential drive robot. This controller works with continuous wheel joints through a
-<code>VelocityJointInterface</code> class. The computed target commands are then published
-within the high-level hardware interface inside the robot's <code>RobotHW::write</code> method.
-Additionally, the controller computes and publishes the odometry on the odom topic
-(<code>nav_msgs/Odometry</code>) and the transform from <code>odom</code> to <code>base_footprint</code>.
-Having explained the two components of the base controller, the low-level firmware is
-implemented first. The high-level hardware interface follows the next section.</p>
-<div class="admonition note">
-<p class="admonition-title">TODO</p>
-<p>TODO Details about implementation will follow (see code for now)</p>
-</div>
+<p>After this overview of the ROS packages of a differential robot that fulfill the
+requirements of the Navigation Stack, the next pages explain those packages in
+more detail.</p>
 
 
   
@@ -2267,13 +2337,13 @@ implemented first. The high-level hardware interface follows the next section.</
       
       
         
-        <a href="packages-setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Packages" rel="next">
+        <a href="packages-setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Packages Setup" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Packages
+              Packages Setup
             </div>
           </div>
           <div class="md-footer__button md-icon">
