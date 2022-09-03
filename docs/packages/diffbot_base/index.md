@@ -58,8 +58,12 @@ The previous approach (high-level PID) is documented in [High-Level Approach](hi
 ## Developing a low-level controller firmware and a high-level ROS Control hardware interface for a differential drive robot
 
 In the following two sections, the base controller, mentioned in the Navigation
-Stack, will be developed. For DiffBot/Remo, this platform-specific node is split
-into two software components.
+Stack, will be developed.
+
+![Navigation Stack]({{ asset_dir }}/navigation/navigation_stack.png)
+
+For DiffBot/Remo, this platform-specific node is split into two software
+components.
 
 The first component is the high-level `diffbot::DiffBotHWInterface` that
 inherits from `hardware_interface::RobotHW`, acting as an interface between
@@ -73,9 +77,9 @@ simulation and the real robot.
 An overview of ROS Control in simulation and the real world is given in the
 following figure (http://gazebosim.org/tutorials/?tut=ros_control):
 
-<figure>
-    <a href="{{ asset_dir }}/packages/diffbot_base/roscontrol-sim-reality.svg"><img src="{{ asset_dir }}/packages/diffbot_base/roscontrol-sim-reality.svg"></a>
-    <figcaption>ROS Control in Simulation and Reality</figcaption>
+<figure markdown>
+  ![ROS Control simulation and reality]({{ asset_dir }}/packages/diffbot_base/ros-control-simulation-and-reality.svg)
+  <figcaption>ROS Control in Simulation and Reality</figcaption>
 </figure>
 
 The second component is the low-level base controller that measures angular
@@ -83,35 +87,37 @@ wheel joint positions and velocities and applies the commands from the
 high-level interface to the wheel joints. The following figure shows the
 communication between the two components:
 
-<figure>
-    <a href="{{ asset_dir }}/packages/diffbot_base/block-diagram-low-high-level.svg"><img src="{{ asset_dir }}/packages/diffbot_base/block-diagram-low-high-level.svg"></a>
-    <figcaption>Block diagram of the low-level controller and the high-level hardware interface</figcaption>
+<figure markdown>
+  ![Block diagram of low-level controller and high-level hardware interface]({{ asset_dir }}/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg)
+  <figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
+Control)</figcaption>
 </figure>
 
 The low-level base controller uses two PID controllers to compute PWM signals
 for each motor based on the error between measured and target wheel velocities.
 `RobotHW` receives measured joint states (angular position (rad) and angular
 velocity (rad/s)) from which it updates its joint values. With these measured
-velocities and the desired command velocity (`geometry_msgs/Twist` message on the
-`cmd_vel` topic), from the Navigation Stack, the `diff_drive_controller` computes
-the target angular velocities for both wheel joints using the mathematical
-equations of a differential drive robot. This controller works with continuous
-wheel joints through a `VelocityJointInterface` class. The computed target
-commands are then published within the high-level hardware interface inside the
-robots `RobotHW::write` method. Additionally, the controller computes and
-publishes the odometry on the odom topic (`nav_msgs/Odometry`) and the transform
-from `odom` to `base_footprint`.
+velocities and the desired command velocity (`geometry_msgs/Twist` message on
+the `cmd_vel` topic), from the Navigation Stack, the `diff_drive_controller`
+computes the target angular velocities for both wheel joints using the
+mathematical equations of a differential drive robot. This controller works with
+continuous wheel joints through a `VelocityJointInterface` class. The computed
+target commands are then published within the high-level hardware interface
+inside the robot's `RobotHW::write` method. Additionally, the controller
+computes and publishes the odometry on the odom topic (`nav_msgs/Odometry`) and
+the transform from `odom` to `base_footprint`.
 
 
-Having explained the two components of the base
-controller, the low-level firmware is implemented first. The high-level hardware
-interface follows the next section.
+Having explained the two components of the base controller, the low-level
+firmware is implemented first. The high-level hardware interface follows the
+next section.
 
-But before this an introduction to the PID controllers are given in [PID Controllers](pid.md).
+But before this an introduction to the PID controllers are given in [PID
+Controllers](pid.md).
 
 ### diffbot_base Package
 
-The `diffbot_base` package is created with `catkin-tools`:
+The `diffbot_base` package was created with `catkin-tools`:
 
 ```console
 fjp@diffbot:/home/fjp/catkin_ws/src$ catkin create pkg diffbot_base --catkin-deps diff_drive_controller hardware_interface roscpp sensor_msgs rosparam_shortcuts                 
