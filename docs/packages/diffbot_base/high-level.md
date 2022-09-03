@@ -1,11 +1,12 @@
 ---
-title: Autonomous Differential Drive Mobile Robot - Base Package
-description: "ROS Base Package for ROS Noetic running on a Raspberry Pi 4 for an autonomous 2WD Robot to act in an environment according to sensor information."
+title: Base Package - High Level Approach
+description: "ROS Base Package for ROS Noetic running on a Raspberry Pi 4 for an autonomous 2WD Robot to act in an environment according to sensor information.
+This describes the implementation of the diffbot_base package following the high-level approach."
 categories: [robotics]
 tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, ubuntu, focal, package, gazebo, simulation, hardware_interfacem, hardware, interface, ros-control, control, controllers, diff_drive_controller]
 ---
 
-## DiffBot Base Package
+## DiffBot Base Package - High Level Approach
 
 This package contains the so called hardware interface of DiffBot which represents the real hardware in software to work with 
 [ROS Control](http://wiki.ros.org/ros_control). 
