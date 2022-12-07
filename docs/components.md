@@ -28,10 +28,11 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Sparkfun](https://www.sparkfun.com/products/16413) | |
 | Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm |
 | Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.de](https://amzn.to/3kiX8PH) | |
-| USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle | |
+| USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle |
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
-| Caster ball | 1 | $6.30 | [Amazon.com](http://amzn.com/B01N2S7CX6/), [Amazon.de](https://amzn.to/3Ie7Non) | 1-inch diameter | |
-| Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A | |
+| Caster ball | 1 | $6.30 | [Amazon.com](http://amzn.com/B01N2S7CX6/), [Amazon.de](https://amzn.to/3Ie7Non) | 1-inch diameter; Alternatively any smooth, durable 3/4" [ball bearing](https://amzn.to/3FyT2Nm) for the caster |
+| Wheels      | 2 | $3.50 | [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
+| Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A |
 
 ### USB Wi-Fi Dongle (optional)
 
