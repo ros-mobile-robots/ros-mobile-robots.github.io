@@ -64,9 +64,11 @@ You need the following parts to build REMO. They come in packs, so order the qua
 | --- | --- | --: | --: | --: | --- |
 |  Adhesive pads | 2 | 48 | $0.14 |  | optional |
 |  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack |
-|  M2 screw | 20 | 100 | $1.29 | [Amazon](https://amzn.to/3d9LZf7)  | 8mm long, self tapping |
-|  M2 screw | 4 | 60 | $0.47 |  | 25mm long|
-|  M2 Brass threaded inserts | 4 | 100 | $0.24 |  |  |
+|  M2 screw (self tapping) | 20 | 100 | $1.29 | [Amazon](https://amzn.to/3d9LZf7)  | 8mm long, self tapping |
+|  M2 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/3uvw8A6) | 8mm long |
+|  M3 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/3F8GZoQ) | 25mm long, to fix the motors to the base frame |
+|  M3 nut | 4 | 100 | $0.24 | [Amazon](https://amzn.to/3F8GZoQ)  | To fix the motors to the base frame |
+|  M2 Brass threaded inserts | 4 | 100 | $0.24 | [Amazon](https://amzn.to/3BeJ9Cc) |  |
 |  Jumper wires | 4 | 40 | $0.13 | [Amazon](https://amzn.to/2tacYQD) | Female-female, ~20cm |
 
 ### Optional parts
