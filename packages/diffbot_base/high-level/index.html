@@ -2834,7 +2834,8 @@ the robot's description from the ROS parameter server:</p>
 <span class="p">};</span><span class="w"></span>
 </code></pre></div></td></tr></table></div>
 <p>The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
-and to command it. When the controller manager runs, the controllers will read from the pos, vel and eff variables of the custom robot hardware interface, and the controller will write the desired command into the cmd variable. It's mandatory to make sure the pos, vel and eff variables always have the latest joint state available, and to make sure that whatever is written into the cmd variable gets executed by the robot. This can be done by implementing hardware_interface::RobotHW::read() and a hardware_interface::RobotHW::write() methods.</p>
+and to command it. When the controller manager runs, the controllers will read from the <code>pos</code>, <code>vel</code> and <code>eff</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>cmd</code> variable. It's mandatory to make sure the <code>pos</code>, <code>vel</code> and <code>eff</code> variables always have the latest joint state available, and to make sure that whatever is written into the <code>cmd</code> variable gets executed by the robot. This can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
+<p>The <code>write()</code> method also contains the output interface to the motor driver. In this case it is publishing <code>/diffbot/motor_left</code> and <code>/diffbot/motor_right</code> topics, which are subscribed by the <a href="[https://github.com/ros-mobile-robots/grove_motor_driver](https://github.com/ros-mobile-robots/grove_motor_driver/blob/main/src/motor_driver.py)">grove_i2c motor_driver python node</a> that is running on the SBC.</p>
 <p>The main node that will be executed uses the <code>controller_manager</code> to operate the so called control loop. 
 In the case of  DiffBot a simple example looks like the following, 
 refer to the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base.cpp</code></a> for the complete implementation:</p>
@@ -3014,9 +3015,12 @@ note the voltage level where each motor starts to rotate. Such a test was done o
 Using the motors 04 and 05 improved the driving behaviour significantly. </p>
 <p>To deal with significant differences in the motors it would also help to tune the two PIDs individually,
 which is not shown in the <a href="https://youtu.be/fdn5Mu0Qhl8">video above</a>.</p>
-<p class="notice">Make also sure that the motor driver outputs the same voltage level on both channels when the robot is commanded to move straight.
-The used Grove i2c motor driver was tested to do this.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make also sure that the motor driver outputs the same voltage level on both channels when the robot is commanded to move straight.
+The used <a href="https://github.com/ros-mobile-robots/grove_motor_driver">Grove i2c motor driver</a> was tested to do this.
 Another problem of not driving straight can be weight distribution or the orientation of the caster wheel.</p>
+</div>
 <p>A good test to check the accuracy is to fix two meters of adhesive tape on the floor in a straight line. 
 Then, place the robot on one end oriented in the direction to the other end. Now command it to move straight along the line
 and stop it when it reaches the end of the tape. Record the lateral displacement from the tape. 
