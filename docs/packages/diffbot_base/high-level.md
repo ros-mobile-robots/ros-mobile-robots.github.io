@@ -239,9 +239,9 @@ namespace diffbot_base
 };
 ```
 
-The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
-and to command it. When the controller manager runs, the controllers will read from the pos, vel and eff variables of the custom robot hardware interface, and the controller will write the desired command into the cmd variable. It's mandatory to make sure the pos, vel and eff variables always have the latest joint state available, and to make sure that whatever is written into the cmd variable gets executed by the robot. This can be done by implementing hardware_interface::RobotHW::read() and a hardware_interface::RobotHW::write() methods.
+The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, and to command it. When the controller manager runs, the controllers will read from the `pos`, `vel` and `eff` variables of the custom robot hardware interface, and the controller will write the desired command into the `cmd` variable. It's mandatory to make sure the `pos`, `vel` and `eff` variables always have the latest joint state available, and to make sure that whatever is written into the `cmd` variable gets executed by the robot. This can be done by implementing `hardware_interface::RobotHW::read()` and a `hardware_interface::RobotHW::write()` methods.
 
+The `write()` method also contains the output interface to the motor driver. In this case it is publishing `/diffbot/motor_left` and `/diffbot/motor_right` topics, which are subscribed by the [grove_i2c motor_driver python node]([https://github.com/ros-mobile-robots/grove_motor_driver](https://github.com/ros-mobile-robots/grove_motor_driver/blob/main/src/motor_driver.py)) that is running on the SBC.
 
 
 The main node that will be executed uses the `controller_manager` to operate the so called control loop. 
@@ -361,18 +361,17 @@ Using six [DG01D-E](https://www.sparkfun.com/products/16413) motors the followin
 | 06    |  3.3        |
 
 
-In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
-Using the motors 04 and 05 improved the driving behaviour significantly. 
-{: .notice } 
+!!! note
+    In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
+    Using the motors 04 and 05 improved the driving behaviour significantly.
 
 To deal with significant differences in the motors it would also help to tune the two PIDs individually,
 which is not shown in the [video above](https://youtu.be/fdn5Mu0Qhl8).
 
-
-Make also sure that the motor driver outputs the same voltage level on both channels when the robot is commanded to move straight.
-The used Grove i2c motor driver was tested to do this.
-Another problem of not driving straight can be weight distribution or the orientation of the caster wheel.
-{: .notice }
+!!! note
+    Make also sure that the motor driver outputs the same voltage level on both channels when the robot is commanded to move straight.
+    The used [Grove i2c motor driver](https://github.com/ros-mobile-robots/grove_motor_driver) was tested to do this.
+    Another problem of not driving straight can be weight distribution or the orientation of the caster wheel.
 
 A good test to check the accuracy is to fix two meters of adhesive tape on the floor in a straight line. 
 Then, place the robot on one end oriented in the direction to the other end. Now command it to move straight along the line
