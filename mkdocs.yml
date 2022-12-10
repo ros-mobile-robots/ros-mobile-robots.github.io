@@ -73,6 +73,7 @@ markdown_extensions:
 
 plugins:
   - search
+  - glightbox
   - macros
   - mkdocs-jupyter:
       execute: False
