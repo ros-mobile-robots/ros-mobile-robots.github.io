@@ -2,3 +2,4 @@
 mkdocs-material
 mkdocs-jupyter
 mkdocs-macros-plugin
+mkdocs-glightbox
