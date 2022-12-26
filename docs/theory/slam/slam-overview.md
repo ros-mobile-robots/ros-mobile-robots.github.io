@@ -78,6 +78,28 @@ summary of the Simultaneous Localization and Mapping (SLAM) libraries and algori
 - ElasticFusion: A real-time visual SLAM algorithm based on a volumetric representation of the environment, implemented in C++ and open-source. ElasticFusion uses a volumetric approach to represent the environment and track the camera's pose in real-time.
 
 
+| Algorithm              | Type                     | Source Code / Website                                                 |
+|------------------------|---------------------------|------------------------------------------------------------------------|
+| GTSAM                  | Graph-based SLAM          | https://bitbucket.org/gtborg/gtsam                                     |
+| GraphSLAM              | Graph-based SLAM          |                                                                        |
+| ORB-SLAM               | Feature-based SLAM        | https://github.com/raulmur/ORB_SLAM2                                  |
+| Cartographer           | Graph-based SLAM          | https://github.com/googlecartographer/cartographer                     |
+| RTAB-Map               | Graph-based SLAM          | https://introlab.github.io/rtabmap/                                    |
+| Okvis                  | Kalman filter-based SLAM  | https://github.com/ethz-asl/okvis                                     |
+| FastSLAM               | Particle filter-based SLAM | https://github.com/ekfslamproject/FastSLAM                            |
+| GMapping               | Particle filter-based SLAM | https://openslam.org/gmapping.html                                    |
+| DSO                    | Direct method-based SLAM   | https://github.com/JakobEngel/dso                                      |
+| SVO                    | Direct method-based SLAM   | https://github.com/HugoNip/SVO                                         |
+| LSD-SLAM               | Direct method-based SLAM   | https://github.com/tum-vision/lsd_slam                                |
+| PTAM                  | Feature-based SLAM        | https://github.com/Oxford-PTAM/PTAM-GPL                               |
+| DTAM                  | Direct method-based SLAM   | https://github.com/tum-vision/dense_trajectory_and_mapping            |
+| VINS-Mono              | Direct method-based SLAM   | https://github.com/HKUST-Aerial-Robotics/VINS-Mono                    |
+| VINS-Fusion            | Direct method-based SLAM   | https://github.com/HKUST-Aerial-Robotics/VINS-Fusion                  |
+| Elastic Fusion         | Direct method-based SLAM   | https://github.com/mp3guy/ElasticFusion                               |
+
+
+
+
 ### Resources
 
 #### Online
