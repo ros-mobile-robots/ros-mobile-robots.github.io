@@ -1,4 +1,22 @@
-## Simultaneous Localization and Mapping (SLAM) Overview 
+## Simultaneous Localization and Mapping (SLAM) Overview
+
+Simultaneous Localization and Mapping (SLAM) is a field of robotics and computer vision that is concerned with the problem of building a map of an unknown environment while simultaneously estimating the pose (position and orientation) of a robot or camera within that environment. SLAM algorithms typically use data from sensors such as cameras, LIDARs, or inertial measurement units (IMUs) to estimate the pose and build a map of the environment in real-time as the robot or camera moves through the environment.
+
+SLAM algorithms have a wide range of applications, including autonomous navigation and exploration, augmented reality, and 3D modeling. They are used in a variety of robotic platforms, including ground vehicles, aerial vehicles, and mobile robots.
+
+There are several different approaches to solving the SLAM problem, including graph-based SLAM, Kalman filter-based SLAM, particle filter-based SLAM, and direct method-based SLAM.
+
+### Frontend-backend architecture
+
+In Simultaneous Localization and Mapping (SLAM), it is common to divide the overall SLAM system into a frontend and a backend. The frontend is responsible for processing the raw measurements from the sensors, such as cameras, LIDARs, or inertial measurement units (IMUs), and extracting features or other relevant information. The backend is responsible for estimating the pose and structure of the environment based on the processed measurements and any additional constraints.
+
+The frontend typically includes tasks such as feature extraction, feature matching, and initial pose estimation, while the backend includes tasks such as graph optimization, pose graph optimization, or bundle adjustment. The frontend and backend may operate in a loop, with the frontend providing new measurements to the backend, and the backend updating the estimates of the poses and structures based on the new measurements.
+
+The frontend and backend are often implemented separately in SLAM systems, as this allows for more flexibility in terms of the specific algorithms and techniques that are used for each task. It also allows for the separation of the real-time processing tasks (such as feature extraction and matching) from the more computationally intensive optimization tasks (such as graph optimization or bundle adjustment).
+
+The frontend and backend of a SLAM system may be implemented as separate modules or components, and may communicate with each other through a common interface or API. In some cases, the frontend and backend may be implemented as part of a single monolithic SLAM system, with the different tasks being integrated into a single codebase.
+
+### Types of SLAM algorithms
 
 
 There are several different types of Simultaneous Localization and Mapping (SLAM) algorithms, which can be classified based on the approach they use to estimate the pose and map of the robot or camera within an unknown environment. Some common types of SLAM algorithms include:
