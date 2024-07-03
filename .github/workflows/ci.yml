@@ -31,4 +31,8 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install -r requirements.txt
-      - run: mkdocs gh-deploy --force
+      - name: build documentation
+        run: mkdocs build
+      - name: deploy documentation
+        if: ${{ github.ref == 'main' }}
+        run: mkdocs gh-deploy --force
