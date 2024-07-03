@@ -1,9 +1,12 @@
 name: Documentation CI
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
       - feature/hardware-setup
+  pull_request:
+    branches: [ "main" ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,7 +30,9 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - run: pip install mkdocs-material
-      - run: pip install mkdocs-jupyter
-      - run: pip install mkdocs-macros-plugin
-      - run: mkdocs gh-deploy --force
+      - run: pip install -r requirements.txt
+      - name: build documentation
+        run: mkdocs build
+      - name: deploy documentation
+        if: ${{ github.ref == 'main' }}
+        run: mkdocs gh-deploy --force
