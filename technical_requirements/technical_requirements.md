@@ -1,22 +1,16 @@
 # Technical requirements
 
-In the https://github.com/ros-mobile-robots organization on GitHub
-are the required ROS packages to set up a differential drive robot. 
-One of the main software repositories is https://github.com/ros-mobile-robots/diffbot.
-It includes packages for simulation and the configurations and software to operate a real
-robot and interact with it from a development PC. For the hardware, you can build your
-own two- or four-wheeled differential drive robot similar to the one present in the 
-`diffbot_description` package or 3D print a more stable Remo robot with the stl files in
-https://github.com/ros-mobile-robots/remo_description. 
-
-The next two sections describe the technical requirements for the software and hardware.
+To get started with building a ROS-based mobile robot, this section outlines the essential software and hardware you'll need. We'll explore key resources from the https://github.com/ros-mobile-robots organization on GitHub and provide options for building your own robot or using a pre-designed platform. Later sections will delve deeper into specific software installation and hardware components.
 
 !!! info
-    This technical requirements page is here to give you an overview of what is required to get your robot up
-    and running. You can already follow the steps in practice but they will be also
-    mentioned in later sections (in more detail) when they are really needed.
+    This technical requirements page is here to give you an overview of what is required to get your robot up and running.
+    You can already follow the steps in practice but they will be also mentioned in later sections (in more detail) when they are really needed.
 
 ## Software requirements
+
+One of the main software repositories is https://github.com/ros-mobile-robots/diffbot.
+It includes packages for simulation and the configurations and software to operate a real
+robot and interact with it from a development PC (or dev machine).
 
 The following sections give an overview about which software will be used:
 
@@ -84,91 +78,12 @@ same local network and to enable the ssh protocol, to connect from the developme
 sudo apt install openssh-server
 ```
 
-### Hardware Interface
-
-Another interface setup that is needed to work with the microcontroller, is to add your
-user to the `dialout` group on both machines, the SBC and the development PC. This can
-be done with the following command, followed by a system reboot:
-
-```console
-sudo adduser <username> dialout
-```
-
-### Source Dependencies
-
-When you clone the diffbot repository in a new catkin workspace, you will find two
-YAML files, `diffbot_dev.repos` and `remo_robot.repos`, that list required source
-dependencies together with their version control type, the repository address, and a
-relative path where these dependencies are cloned. `remo_robot.repos` is here to clone
-source dependencies on the real robot.
-
-To make use of such YAML files and clone the listed dependencies, we use the commands
-from [`vcstool`](http://wiki.ros.org/vcstool), which replaces
-[`wstool`](http://wiki.ros.org/wstool):
-
-1. Install vcstool using the command:
-
-    ```console
-    sudo apt install python3-vcstool
-    ```
-
-2. In a new catkin workspace, clone the diffbot repository inside the src folder:
-
-    ```console
-    ros_ws/src$ git clone https://github.com/ros-mobile-robots/diffbot.git
-    ```
-
-    for a specific tag (e.g. 1.0.0) you can use the following command:
-
-    ```console
-    ros_ws/src$ git clone --depth 1 --branch 1.0.0 https://github.com/ros-mobile-robots/diffbot.git
-    ```
-
-3. Make sure to execute the `vcs import` command from the root of the catkin
-workspace and pipe in the `diffbot_dev.repos` or `remo_robot.repos`
-YAML file, depending on where you execute the command, either the development
-PC or the SBC of Remo to clone the listed dependencies:
-
-    ```console
-    vcs import < src/diffbot/diffbot_dev.repos
-    ```
-
-4. Execute the next command on the SBC of the robot:
-    
-    ```console
-    vcs import < src/diffbot/remo_robot.repos
-    ```
-
-### Binary Dependencies
-
-After obtaining the source dependencies with `vcstool`, we can compile the workspace.
-To successfully compile the packages of the repository, binary dependencies must be
-installed. As the required dependencies are specified in each ROS package's `package.xml`, 
-the rosdep command can install the required ROS packages from the Ubuntu repositories:
-
-```console
-rosdep install --from-paths src --ignore-src -r -y
-```
-
-### Build ROS Workspace
-
-Finally, the workspaces on the development machine and the SBC of the robot need to
-be built, either using `catkin_make` or catkin tools. `catkin_make` comes pre-installed with ROS.
-
-=== "catkin tools"
-
-    ```console
-    catkin build
-    ```
-
-=== "`catkin_make`"
-    
-    ```console
-    catkin_make
-    ```
-
-
 ## Hardware requirements
+
+For the hardware, you can build your
+own two- or four-wheeled differential drive robot similar to the one present in the 
+`diffbot_description` package or 3D print a more stable Remo robot with the stl files in
+https://github.com/ros-mobile-robots/remo_description.
 
 The repository at https://github.com/ros-mobile-robots/remo_description contains the 
 robot description of Remo. Remo is a modular mobile robot platform, which is based on 

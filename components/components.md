@@ -20,19 +20,19 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 
 | **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
 |:------------------------|:------------:| --- |  --- |  --- |
-| Raspberry Pi 4 B (4 Gb) | 1 | $55.0 | [Sparkfun](https://www.sparkfun.com/products/15447), [Amazon.com](https://amzn.to/3ltuJUo), [Amazon.de](https://amzn.to/2IchIAc) | |
-| SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/2GLOyr0), [Amazon.de](https://amzn.to/3dcFmYE) | |
-| SLAMTEC RPLiDAR A2M8 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com](https://amzn.to/3lthTFz), [Amazon.de](https://amzn.to/30MyImR) | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
+| Raspberry Pi 4 B (4 Gb) | 1 | $55.0 | [Sparkfun](https://www.sparkfun.com/products/15447), [Amazon.com](https://amzn.to/4e0GdKz), [Amazon.de](https://amzn.to/2IchIAc) | |
+| SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/3XGHNvl), [Amazon.de](https://amzn.to/3dcFmYE) | |
+| SLAMTEC RPLiDAR A2M8 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com](https://amzn.to/4eoG0kq), [Amazon.de](https://amzn.to/30MyImR) | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.de](https://amzn.to/3km5KF3) | |
-| Teensy 4.0 or 3.2 | 1 | $19.95 | [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
-| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Sparkfun](https://www.sparkfun.com/products/16413) | |
-| Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm |
-| Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.de](https://amzn.to/3kiX8PH) | |
-| USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle |
+| Teensy 4.0 or 3.2 | 1 | $19.95 | [Amazon.com](https://amzn.to/3MM9E7j), [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
+| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Amazon.com](https://amzn.to/3zhOtXu), [Sparkfun](https://www.sparkfun.com/products/16413) | |
+| Powerbank (e.g 15'000 mAh, or 10'000 mAh) | 1 | $23.99 | [Amazon.de](https://amzn.to/3kmkx2t), [Anker Amazon.com](https://amzn.to/3zkreMy), [Anker Amazon.de](https://amzn.to/3B4ObUA) | The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm |
+| Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.com](https://amzn.to/47rP6ud), [Amazon.de](https://amzn.to/3kiX8PH) | |
+| USB cable pack | 1 | $6.99 | [Amazon.com](https://amzn.to/3z8ATpw), [Amazon.de](https://amzn.to/4ghEqm5) | Type A to Micro, right angle |
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
-| Caster ball | 1 | $6.30 | [Amazon.com](http://amzn.com/B01N2S7CX6/), [Amazon.de](https://amzn.to/3Ie7Non) | 1-inch diameter; Alternatively any smooth, durable 3/4" [ball bearing](https://amzn.to/3FyT2Nm) for the caster |
-| Wheels      | 2 | $3.50 | [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
-| Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A |
+| Caster ball | 1 | $6.30 | [Amazon.com](https://amzn.to/3ZGCihZ), [Amazon.de](https://amzn.to/3Ie7Non) | 25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing](https://amzn.to/3FyT2Nm) for the caster |
+| Wheels      | 2 | $3.50 | [Amazon.com](https://amzn.to/4grj5qb), [Amazon.de](https://amzn.to/3XEjXR4), [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
+| Power supply | 1 | $7.50 | [Amazon.com](https://amzn.to/3MGWTLh), [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A |
 
 ### USB Wi-Fi Dongle (optional)
 
@@ -40,8 +40,8 @@ For improved connectivity use a Wi-Fi USB dongle.
 
 |  **Part** | **Quantity** | **Cost** | **URL** | **Notes** |
 | --- | --: | --: | --- | --- |
-| WiFi Dongle - TP-Link Archer T2U Nano | 1 | $17.99 | [Amazon](https://amzn.com/B07PB1X4CN/) | RTL8811AU chipset |
-| WiFi Dongle - TP-Link Archer T2U Plus | 1 | $19.99 | [Amazon](https://amzn.com/B07P5PRK7J/) | RTL8811AU chipset |
+| WiFi Dongle - TP-Link Archer T2U Nano | 1 | $17.99 | [Amazon](https://amzn.to/4f2F3PV) | RTL8811AU chipset |
+| WiFi Dongle - TP-Link Archer T2U Plus | 1 | $19.99 | [Amazon](https://amzn.to/4cuxwaS) | RTL8811AU chipset |
 
 
 ### Camera Modules (optional)
@@ -51,7 +51,7 @@ Get a camera in case you plan to do applications such as object detection, visua
 
 | **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
 |:------------------------|:------------:| --- |  --- |  --- |
-| Raspi Camera Module V2, 8 MP, 1080p | 1 | $ | [Amazon.com](https://amzn.to/2Ib9fgG), [Amazon.de](https://amzn.to/2FdVDQF) | |
+| Raspi Camera Module V2, 8 MP, 1080p | 1 | $ | [Amazon.com](https://amzn.to/4cPB9YH), [Amazon.de](https://amzn.to/2FdVDQF) | |
 | OAK-1 | 1 | $149 | [OpenCV.ai](https://store.opencv.ai/products/oak-1) | |
 | OAK-D | 1 | $199 | [OpenCV.ai](https://store.opencv.ai/products/oak-d) | |
 | OAK-D Lite | 1 | -- | [OpenCV.ai](https://store.opencv.ai/products/oak-d-lite) | Will be released |
@@ -65,20 +65,20 @@ You need the following parts to build REMO. They come in packs, so order the qua
 | --- | --- | --: | --: | --: | --- |
 |  Adhesive pads | 2 | 48 | $0.14 |  | optional |
 |  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack |
-|  M2 screw (self tapping) | 20 | 100 | $1.29 | [Amazon](https://amzn.to/3d9LZf7)  | 8mm long, self tapping |
-|  M2 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/3uvw8A6) | 8mm long |
-|  M3 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/3F8GZoQ) | 25mm long, to fix the motors to the base frame |
-|  M3 nut | 4 | 100 | $0.24 | [Amazon](https://amzn.to/3F8GZoQ)  | To fix the motors to the base frame |
-|  M2 Brass threaded inserts | 4 | 100 | $0.24 | [Amazon](https://amzn.to/3BeJ9Cc) |  |
-|  Jumper wires | 4 | 40 | $0.13 | [Amazon](https://amzn.to/2tacYQD) | Female-female, ~20cm |
+|  M2 screw (self tapping) | 20 | 100 | $1.29 | [Amazon](https://amzn.to/3xKYmwg)  | 8mm long, self tapping |
+|  M2 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/3xwPmuE) | 8mm long |
+|  M3 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/4bwD9nF) | 25mm long, to fix the motors to the base frame |
+|  M3 nut | 4 | 100 | $0.24 | [Amazon](https://amzn.to/4cLV1vx)  | To fix the motors to the base frame |
+|  M2 Brass threaded inserts | 4 | 100 | $0.24 | [Amazon](https://amzn.to/4cLRDkt) |  |
+|  Jumper wires | 4 | 40 | $0.13 | [Amazon](https://amzn.to/4cJdEjO) | Female-female, ~20cm |
 
 ### Optional parts
 
 | **Part** | **Quantity** | **Cost** | **Store** | **Notes** |
 | --- | --: | --: | --- | --- |
 | Jetson Nano | 1 |  $99.00 | [NVIDIA](https://developer.nvidia.com/embedded/buy/jetson-nano-devkit)  |  |
-| *PiOLED* display | 1 | $14.95 | [Adafruit](http://adafru.it/3527), [Amazon](https://amzn.to/2GgxUxX) |  |
-| *PiOLED* header | 1 | $5.95 | [Adafruit](http://adafru.it/1541), [Amazon](https://amzn.to/2taLSJf), [Sparkfun](https://www.sparkfun.com/products/12792) | 2x(3+) right angle male |
+| *PiOLED* display | 1 | $14.95 | [Adafruit](http://adafru.it/3527), [Amazon](https://amzn.to/3VK4jkW) |  |
+| *PiOLED* header | 1 | $5.95 | [Adafruit](http://adafru.it/1541), [Amazon](https://amzn.to/3VOyhEu), [Sparkfun](https://www.sparkfun.com/products/12792) | 2x(3+) right angle male |
 
 
 ## Components
@@ -120,12 +120,12 @@ Order list
 
 | Part                    | Store |
 |:------------------------|:---------------------------------------------------------------------------:|
-| Raspberry Pi 4 B (4 Gb) | [Amazon.com](https://amzn.to/3ltuJUo), [Amazon.de](https://amzn.to/2IchIAc) |
-| SanDisk 64 GB SD Card Class 10 | [Amazon.com](https://amzn.to/2GLOyr0), [Amazon.de](https://amzn.to/3dcFmYE) |
-|Robot Smart Chassis Kit  | [Amazon.com](https://amzn.to/34GXNAK), [Amazon.de](https://amzn.to/2Gy3CJ4) |
-| SLAMTEC RPLidar A2M8 (12 m) | [Amazon.com](https://amzn.to/3lthTFz), [Amazon.de](https://amzn.to/30MyImR) |
-| Grove Ultrasonic Ranger | [Amazon.com](https://amzn.to/36M9TLS), [Amazon.de](https://amzn.to/34GZmyC) |
-| Raspi Camera Module V2, 8 MP, 1080p | [Amazon.com](https://amzn.to/2Ib9fgG), [Amazon.de](https://amzn.to/2FdVDQF) |
+| Raspberry Pi 4 B (4 Gb) | [Amazon.com](https://amzn.to/3xFxzkX), [Amazon.de](https://amzn.to/2IchIAc) |
+| SanDisk 64 GB SD Card Class 10 | [Amazon.com](https://amzn.to/3W7FKzD), [Amazon.de](https://amzn.to/3dcFmYE) |
+|Robot Smart Chassis Kit  | [Amazon.com](https://amzn.to/3W6gHgz), [Amazon.de](https://amzn.to/2Gy3CJ4) |
+| SLAMTEC RPLidar A2M8 (12 m) | [Amazon.com](https://amzn.to/45YagPV), [Amazon.de](https://amzn.to/30MyImR) |
+| Grove Ultrasonic Ranger | [Amazon.com](https://amzn.to/3W7wtrk), [Amazon.de](https://amzn.to/34GZmyC) |
+| Raspi Camera Module V2, 8 MP, 1080p | [Amazon.com](https://amzn.to/4cMRmgW), [Amazon.de](https://amzn.to/2FdVDQF) |
 | Grove Motor Driver | [seeedstudio.com](https://www.seeedstudio.com/Grove-I2C-Motor-Driver-with-L298.html), [Amazon.de](https://amzn.to/36M8O6M) |
 | I2C Hub | [seeedstudio.com](https://www.seeedstudio.com/Grove-I2C-Hub.html), [Amazon.de](https://amzn.to/34CGEbz) |
 
