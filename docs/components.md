@@ -20,19 +20,19 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 
 | **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
 |:------------------------|:------------:| --- |  --- |  --- |
-| Raspberry Pi 4 B (4 Gb) | 1 | $55.0 | [Sparkfun](https://www.sparkfun.com/products/15447), [Amazon.com](https://amzn.to/3L6PZ14), [Amazon.de](https://amzn.to/2IchIAc) | |
-| SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/4eSkqWv), [Amazon.de](https://amzn.to/3dcFmYE) | |
-| SLAMTEC RPLiDAR A2M8 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com](https://amzn.to/3VSEBLe), [Amazon.de](https://amzn.to/30MyImR) | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
+| Raspberry Pi 4 B (4 Gb) | 1 | $55.0 | [Sparkfun](https://www.sparkfun.com/products/15447), [Amazon.com](https://amzn.to/4e0GdKz), [Amazon.de](https://amzn.to/2IchIAc) | |
+| SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/3XGHNvl), [Amazon.de](https://amzn.to/3dcFmYE) | |
+| SLAMTEC RPLiDAR A2M8 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com](https://amzn.to/4eoG0kq), [Amazon.de](https://amzn.to/30MyImR) | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.de](https://amzn.to/3km5KF3) | |
-| Teensy 4.0 or 3.2 | 1 | $19.95 | [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
-| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Sparkfun](https://www.sparkfun.com/products/16413) | |
-| Powerbank (e.g 15000 mAh) | 1 | $15.99 | [Amazon.de](https://amzn.to/3kmkx2t) | This Powerbank from Goobay is close to the maximum possible size LxWxH: 135.5x70x18 mm |
-| Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.de](https://amzn.to/3kiX8PH) | |
-| USB cable pack | 1 | $6.99 | [Amazon](http://amzn.com/B01N337FQF/) | Type A to Micro, right angle |
+| Teensy 4.0 or 3.2 | 1 | $19.95 | [Amazon.com](https://amzn.to/3MM9E7j), [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html), [PJRC Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | |
+| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $5.95 | [Amazon.com](https://amzn.to/3zhOtXu), [Sparkfun](https://www.sparkfun.com/products/16413) | |
+| Powerbank (e.g 15'000 mAh, or 10'000 mAh) | 1 | $23.99 | [Amazon.de](https://amzn.to/3kmkx2t), [Anker Amazon.com](https://amzn.to/3zkreMy), [Anker Amazon.de](https://amzn.to/3B4ObUA) | The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm |
+| Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.com](https://amzn.to/47rP6ud), [Amazon.de](https://amzn.to/3kiX8PH) | |
+| USB cable pack | 1 | $6.99 | [Amazon.com](https://amzn.to/3z8ATpw), [Amazon.de](https://amzn.to/4ghEqm5) | Type A to Micro, right angle |
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
-| Caster ball | 1 | $6.30 | [Amazon.com](http://amzn.com/B01N2S7CX6/), [Amazon.de](https://amzn.to/3Ie7Non) | 25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing](https://amzn.to/3FyT2Nm) for the caster |
-| Wheels      | 2 | $3.50 | [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
-| Power supply | 1 | $7.50 | [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A |
+| Caster ball | 1 | $6.30 | [Amazon.com](https://amzn.to/3ZGCihZ), [Amazon.de](https://amzn.to/3Ie7Non) | 25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing](https://amzn.to/3FyT2Nm) for the caster |
+| Wheels      | 2 | $3.50 | [Amazon.com](https://amzn.to/4grj5qb), [Amazon.de](https://amzn.to/3XEjXR4), [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
+| Power supply | 1 | $7.50 | [Amazon.com](https://amzn.to/3MGWTLh), [Adafruit](http://bit.ly/af1995) | Micro USB, 5V, 2.5A |
 
 ### USB Wi-Fi Dongle (optional)
 
