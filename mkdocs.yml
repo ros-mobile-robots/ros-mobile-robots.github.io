@@ -69,9 +69,11 @@ markdown_extensions:
       generic: true
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.magiclink
 
 plugins:
   - search
+  - glightbox
   - macros
   - mkdocs-jupyter:
       execute: False
@@ -83,6 +85,47 @@ nav:
   - Getting Started:
     - Technical Requirements: technical_requirements.md
     - Components: components.md
+  - Hardware Setup:
+    - hardware_setup/overview.md
+    - 3D Printing: hardware_setup/3D_print.md
+    - Electronics: hardware_setup/electronics.md
+    - Assembly: hardware_setup/assembly.md
+    - Install: hardware_setup/install.md
+  - Processing Units:
+    - processing_units/index.md
+    - Single Board Computer:
+      - Raspberry Pi Setup: processing_units/rpi-setup.md
+      - Jetson Nano Setup: processing_units/jetson-nano-setup.md
+      - Git Setup: processing_units/git-setup.md
+      - ROS Setup: processing_units/ros-setup.md
+    - Microcontroller: processing_units/teensy-mcu.md
+    - Hardware Interfaces: processing_units/hardware-interfaces.md
+    - ROS Network Setup: processing_units/ros-network-setup.md
+  - ROS Software Packages:
+    - packages/index.md
+    - Packages Setup: packages/packages-setup.md
+    - Robot Package: diffbot_robot.md
+    - Robot Description:
+      - Robot Description: robot-description.md
+      - Remo Description: packages/remo_description.md
+    - Simulation: diffbot_gazebo.md
+    - Control: diffbot_control.md
+    - Base Hardware Interface:
+      - packages/diffbot_base/index.md
+      - PID Controllers: packages/diffbot_base/pid.md
+      - Low-Level PID Approach: packages/diffbot_base/low-level.md
+      - High-Level PID Approach: packages/diffbot_base/high-level.md
+    - Messages: diffbot_msgs.md
+    - Motor Driver: grove_motor_driver.md
+    - Motor and Encoder: DG01D-E-motor-with-encoder.md
+    - Navigation: diffbot_navigation.md
+    - SLAM: diffbot_slam.md
+    - Move Base Flex: diffbot_mbf.md
+    - Hardware Bringup: diffbot_bringup.md
+    - Rasperry Pi Camera: packages/raspicam_node.md
+    - Inertial Measurement Unit:
+      - Robot Localization: packages/imu/robot_localization.md
+      - BNO055 Driver: packages/imu/driver-bno055.md
   - Robotics Theory:
     - theory/index.md
     - Preliminaries:
@@ -128,37 +171,4 @@ nav:
     - Motion and Odometry: theory/motion-and-odometry.md
     - Power Supply: power-supply.md
     - Laser Range Scanner: laser-range-scanner.md
-  - Processing Units:
-    - Single Board Computer:
-      - Raspberry Pi Setup: rpi-setup.md
-      - Jetson Nano Setup: jetson-nano-setup.md
-      - Git Setup: git-setup.md
-      - ROS Setup: ros-setup.md
-    - Microcontroller: packages/diffbot_base/scripts/teensy-mcu.md
-    - Hardware Interfaces: hardware-interfaces.md
-    - ROS Network Setup: ros-network-setup.md
-  - Packages:
-    - packages/index.md
-    - Robot Package: diffbot_robot.md
-    - Robot Description:
-      - Robot Description: robot-description.md
-      - Remo Description: packages/remo_description.md
-    - Simulation: diffbot_gazebo.md
-    - Control: diffbot_control.md
-    - Base Hardware Interface:
-      - packages/diffbot_base/index.md
-      - PID Controllers: packages/diffbot_base/pid.md
-      - Low-Level PID Approach: packages/diffbot_base/low-level.md
-      - High-Level PID Approach: packages/diffbot_base/high-level.md
-    - Messages: diffbot_msgs.md
-    - Motor Driver: grove_motor_driver.md
-    - Motor and Encoder: DG01D-E-motor-with-encoder.md
-    - Navigation: diffbot_navigation.md
-    - SLAM: diffbot_slam.md
-    - Move Base Flex: diffbot_mbf.md
-    - Hardware Bringup: diffbot_bringup.md
-    - Rasperry Pi Camera: packages/raspicam_node.md
-    - Inertial Measurement Unit:
-      - Robot Localization: packages/imu/robot_localization.md
-      - BNO055 Driver: packages/imu/driver-bno055.md
   - Insiders: insiders/index.md

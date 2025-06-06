@@ -34,5 +34,6 @@ jobs:
       - name: build documentation
         run: mkdocs build
       - name: deploy documentation
+        # Deploy only on main branch, not on feature branches or pull requests
         if: ${{ github.ref == 'refs/heads/main' }}
         run: mkdocs gh-deploy --force
