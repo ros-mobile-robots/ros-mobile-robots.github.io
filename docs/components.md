@@ -20,7 +20,7 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 
 | **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
 |:------------------------|:------------:| --- |  --- |  --- |
-| Raspberry Pi 4 B (4 Gb) | 1 | $55.0 | [Sparkfun](https://www.sparkfun.com/products/15447), [Amazon.com](https://amzn.to/3L6PZ14), [Amazon.de](https://amzn.to/2IchIAc) | |
+| Raspberry Pi 5 (8 Gb) | 1 | $55.0 | [Sparkfun](https://www.sparkfun.com/products/15447), [Amazon.com](https://amzn.to/3L6PZ14), [Amazon.de](https://amzn.to/4m4Eqbw) | |
 | SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com](https://amzn.to/4eSkqWv), [Amazon.de](https://amzn.to/3dcFmYE) | |
 | SLAMTEC RPLiDAR A2M8 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com](https://amzn.to/3VSEBLe), [Amazon.de](https://amzn.to/30MyImR) | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.de](https://amzn.to/3km5KF3) | |
