@@ -134,6 +134,7 @@ nav:
       - Jetson Nano Setup: jetson-nano-setup.md
       - Git Setup: git-setup.md
       - ROS Setup: ros-setup.md
+      - SBC Software Setup: sbc-software-setup.md
     - Microcontroller: packages/diffbot_base/scripts/teensy-mcu.md
     - Hardware Interfaces: hardware-interfaces.md
     - ROS Network Setup: ros-network-setup.md
