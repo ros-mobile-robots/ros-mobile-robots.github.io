@@ -78,7 +78,6 @@ plugins:
   - mkdocs-jupyter:
       execute: False
       include_source: True
-  - glightbox
 
 nav:
   - Home: index.md

@@ -2,38 +2,31 @@ name: Documentation CI
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - feature/hardware-setup
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # Builds the checked out ref: the pull request for PRs, main for pushes
+      - uses: actions/checkout@v4
         with:
-          # The branch, tag or SHA to checkout. When checking out the repository that
-          # triggered a workflow, this defaults to the reference or SHA for that event.
-          # Otherwise, uses the default branch.
-          # Default ''
-          ref: feature/hardware-setup
-          
-          # Number of commits to fetch. 0 indicates all history for all branches and tags.
-          # Default: 1
           fetch-depth: 0
-          
-          # Whether to download Git-LFS files
-          # Default: false
-          lfs: ''
-          
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.x
+          python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: build documentation
         run: mkdocs build
       - name: deploy documentation
-        # Deploy only on main branch, not on feature branches or pull requests
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
         run: mkdocs gh-deploy --force
