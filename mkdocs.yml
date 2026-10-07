@@ -44,8 +44,24 @@ extra:
   analytics:
     provider: google
     property: G-5Z9V7GPRX3
-    
-copyright: Copyright &copy; 2021 - 2026 Franz Pucher | As an Amazon Associate I earn from qualifying purchases. | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a>
+  # Cookie banner: Google Analytics and AdSense (see docs/custom_theme/main.html)
+  # only load after visitors accept them. The footer link "Cookie settings" reopens it.
+  consent:
+    title: Cookie consent
+    description: >-
+      This site uses cookies to measure which pages are useful (Google Analytics)
+      and to show ads (Google AdSense), which help fund the project.
+      Nothing is loaded until you accept, and you can change your choice at any time
+      with "Cookie settings" at the bottom of every page.
+    actions:
+      - accept
+      - reject
+      - manage
+    cookies:
+      analytics: Google Analytics
+      adsense: Google AdSense
+
+copyright: Copyright &copy; 2021 - 2026 Franz Pucher | As an Amazon Associate I earn from qualifying purchases. | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a> | <a href="#__consent">Cookie settings</a>
 
 markdown_extensions:
   - abbr
