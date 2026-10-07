@@ -34,35 +34,127 @@
     <!--
       Consent comes from the European regulations message in AdSense (Privacy & messaging),
       Google's certified consent tool, which the AdSense script below shows to visitors from the
-      EEA, UK and Switzerland. Google Analytics starts only after visitors allow storage on their
-      device (TCF purpose 1) for Google (vendor 755), or when the message doesn't apply to them.
-      Material's own analytics call is skipped by overriding this block.
+      EEA, UK and Switzerland. Google Analytics follows the message's answer through the
+      Privacy & messaging JavaScript API (googlefc), see
+      https://developers.google.com/funding-choices/fc-api-docs
+      This replaces Material's analytics integration (extra.analytics in mkdocs.yml only provides
+      the property ID).
     -->
-    {% include "partials/integrations/analytics/google.html" %}
     <script>
         (function () {
+            var property = "{{ config.extra.analytics.property }}";
             var started = false;
-            function startAnalytics() {
-                if (!started && typeof __md_analytics !== "undefined") {
-                    started = true;
-                    __md_analytics();
+            window.googlefc = window.googlefc || {};
+            window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+
+            // Values of googlefc.ConsentModePurposeStatusEnum
+            var UNKNOWN = 0, GRANTED = 1, DENIED = 2, NOT_APPLICABLE = 3, NOT_CONFIGURED = 4;
+
+            // Calls back with true or false, or null while the answer isn't known yet.
+            // The analytics_storage choice decides. If it isn't set up in AdSense ("Enable consent
+            // mode for analytics purposes"), storage consent (TCF purpose 1) for Google (vendor 755) does.
+            function analyticsAllowed(callback) {
+                var values = typeof googlefc.getGoogleConsentModeValues === "function" ? googlefc.getGoogleConsentModeValues() : null;
+                var analytics = values ? values.analyticsStoragePurposeConsentStatus : NOT_CONFIGURED;
+                if (analytics === GRANTED || analytics === NOT_APPLICABLE) return callback(true, values);
+                if (analytics === DENIED) return callback(false, values);
+                if (analytics !== NOT_CONFIGURED || typeof window.__tcfapi !== "function") return callback(null, values);
+                var answered = false;
+                window.__tcfapi("addEventListener", 2, function (tcData, success) {
+                    if (answered || (success && tcData && tcData.eventStatus === "cmpuishown")) return;
+                    answered = true;
+                    if (success && tcData) window.__tcfapi("removeEventListener", 2, function () {}, tcData.listenerId);
+                    if (!success || !tcData) return callback(null, values);
+                    callback(tcData.gdprApplies === false || !!(tcData.purpose.consents[1] && tcData.vendor.consents[755]), values);
+                });
+            }
+
+            function startAnalytics(values) {
+                started = true;
+                function granted(key) {
+                    return values && (values[key] === GRANTED || values[key] === NOT_APPLICABLE) ? "granted" : "denied";
                 }
+                window.dataLayer = window.dataLayer || [];
+                var gtag = window.gtag = function () { dataLayer.push(arguments); };
+                // Advertising features of Analytics follow the advertising choices
+                gtag("consent", "default", {
+                    analytics_storage: "granted",
+                    ad_storage: granted("adStoragePurposeConsentStatus"),
+                    ad_user_data: granted("adUserDataPurposeConsentStatus"),
+                    ad_personalization: granted("adPersonalizationPurposeConsentStatus")
+                });
+                gtag("js", new Date());
+                gtag("config", property);
+                var script = document.createElement("script");
+                script.async = true;
+                script.src = "https://www.googletagmanager.com/gtag/js?id=" + property;
+                document.head.appendChild(script);
+
+                // The events of Material's analytics integration: site search, page feedback and
+                // page changes. They need the page and Material's bundle, so they wait for
+                // DOMContentLoaded, unless visitors accepted after it fired.
+                function trackPageEvents() {
+                    if (document.forms.search) {
+                        document.forms.search.query.addEventListener("blur", function () {
+                            if (this.value) gtag("event", "search", { search_term: this.value });
+                        });
+                    }
+                    document$.subscribe(function () {
+                        var feedback = document.forms.feedback;
+                        if (typeof feedback === "undefined") return;
+                        for (var button of feedback.querySelectorAll("[type=submit]")) {
+                            button.addEventListener("click", function (event) {
+                                event.preventDefault();
+                                var value = this.getAttribute("data-md-value");
+                                gtag("event", "feedback", { page: document.location.pathname, data: value });
+                                feedback.firstElementChild.disabled = true;
+                                var note = feedback.querySelector(".md-feedback__note [data-md-value='" + value + "']");
+                                if (note) note.hidden = false;
+                            });
+                        }
+                        feedback.hidden = false;
+                    });
+                    location$.subscribe(function (url) {
+                        gtag("config", property, { page_path: url.pathname });
+                    });
+                }
+                if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", trackPageEvents);
+                else trackPageEvents();
             }
-            function onConsent(tcData, success) {
-                if (!success || !tcData) return;
-                if (tcData.gdprApplies === false) return startAnalytics();
-                if (tcData.eventStatus !== "tcloaded" && tcData.eventStatus !== "useractioncomplete") return;
-                if (tcData.purpose.consents[1] && tcData.vendor.consents[755]) startAnalytics();
+
+            // Also removes cookies that earlier versions of the site set without asking
+            function deleteAnalyticsCookies() {
+                var site = location.hostname.split(".").slice(-2).join(".");
+                document.cookie.split(";").forEach(function (cookie) {
+                    var name = cookie.split("=")[0].trim();
+                    if (name !== "_ga" && name.indexOf("_ga_") !== 0) return;
+                    ["", "; domain=" + location.hostname, "; domain=." + site].forEach(function (domain) {
+                        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/" + domain;
+                    });
+                });
             }
-            // The consent tool defines __tcfapi once the AdSense script has loaded it.
-            // With an ad blocker it never appears, and analytics stays off.
-            (function waitForConsentTool(tries) {
-                if (typeof window.__tcfapi === "function") window.__tcfapi("addEventListener", 2, onConsent);
-                else if (tries > 0) setTimeout(function () { waitForConsentTool(tries - 1); }, 250);
-            })(120);
+
+            function followConsent() {
+                analyticsAllowed(function (allowed, values) {
+                    if (allowed === true && !started) startAnalytics(values);
+                    if (allowed !== false) return;
+                    deleteAnalyticsCookies();
+                    if (started) {
+                        // Consent was withdrawn: reload, so the running tag is gone
+                        gtag("consent", "update", { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
+                        location.reload();
+                    }
+                });
+            }
+            // Runs once the answer is known: from an earlier visit, after visitors choose, or when the
+            // message doesn't apply. CONSENT_DATA_READY runs again when visitors change their choice
+            // with "Cookie settings". With an ad blocker the consent tool never loads, and
+            // Analytics stays off.
+            window.googlefc.callbackQueue.push({ CONSENT_MODE_DATA_READY: followConsent });
+            window.googlefc.callbackQueue.push({ CONSENT_DATA_READY: followConsent });
         })();
     </script>
-    <!-- Adsense, which also shows the consent message (see above) -->
+    <!-- AdSense, which also shows the consent message (see above) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2214309606626131"
      crossorigin="anonymous"></script>
 {% endblock analytics %}
