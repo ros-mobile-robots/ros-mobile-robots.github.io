@@ -1,0 +1,5 @@
+networkx
+shapely
+trimesh
+xacro
+yourdfpy
