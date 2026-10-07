@@ -39,12 +39,13 @@ Place the second motor in the pocket on the other side.
 
 ### Step 4: Motor screws
 
-![Step 4: two long screws through each side wall and one screw into the end of each motor hold the motors](images/frame/04-motor-screws.svg)
+![Step 4: two long screws through each side wall hold the motors, with an M3 nut on the inside of each motor](images/frame/04-motor-screws.svg)
 
-Fix each motor with two M3 × 25 mm screws through the side wall of the chassis and the motor, and an M3 nut on each screw.
-Then fix the far end of each motor with one more screw, which goes in along the motor through the end of the chassis.
+Fix each motor with two M3 × 25 mm screws through the side wall of the chassis and the motor.
+On the inside, put an M3 nut on each screw, in the opening of the motor.
+The drawing shows the nuts for the far motor; the other motor gets the same two nuts, hidden from this angle.
 
-**Parts:** 4 × M3 × 25 mm screw, 4 × M3 nut, 2 screws for the motor ends
+**Parts:** 4 × M3 × 25 mm screw, 4 × M3 nut
 
 ### Step 5: Motor driver
 
@@ -86,19 +87,20 @@ Turn the chassis right side up again and slide the battery pack into the compart
 
 **Parts:** battery pack (for four or eight batteries)
 
-### Step 10: Battery bracket
+### Step 10: Camera mount
 
-![Step 10: a bracket closes the battery compartment](images/frame/10-battery-bracket.svg)
+![Step 10: the camera mount closes the battery compartment](images/frame/10-camera-mount.svg)
 
-Slide the bracket over the open side of the battery compartment, so the battery pack can't fall out.
+Slide the camera mount over the open side of the battery compartment.
+It keeps the battery pack in place and later holds the adapter for your camera (see [Camera Mount](3D_print.md#camera-mount) on the 3D printing page).
 
-**Parts:** battery bracket (printed)
+**Parts:** camera mount (printed, `camera_mount.stl`)
 
-### Step 11: Battery bracket screws
+### Step 11: Camera mount screws
 
-![Step 11: screws from the sides and the top hold the bracket](images/frame/11-battery-bracket-screws.svg)
+![Step 11: screws from the sides and the top hold the camera mount](images/frame/11-camera-mount-screws.svg)
 
-Fix the bracket with screws from both sides and from the top.
+Fix the camera mount with screws from both sides and from the top.
 
 **Parts:** 6 × M2 self-tapping screw
 
@@ -106,9 +108,10 @@ Fix the bracket with screws from both sides and from the top.
 
 ![Step 12: the powerbank goes on top of the chassis](images/frame/12-powerbank.svg)
 
-Place the powerbank on top of the chassis. It can be at most 135.5 × 71 × 18 mm (L × W × H).
+Place the powerbank in its compartment on top of the chassis. It fits snugly; two adhesive pads keep it from shifting.
+It can be at most 135.5 × 71 × 18 mm (L × W × H).
 
-**Parts:** powerbank
+**Parts:** powerbank, 2 × adhesive pad
 
 ### Step 13: Wheels
 
