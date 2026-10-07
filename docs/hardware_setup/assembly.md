@@ -73,11 +73,17 @@ Fix the board with four screws.
 
 Connect the motors to the motor driver as shown in the Fritzing view above (also on the [Electronics](electronics.md) page):
 
-- Screw the red (M+) and brown (M−) wire of each motor cable into the motor terminals of the board.
-  The firmware expects the left motor on `M3` and the right motor on `M4` (see [low-level base controller](../packages/diffbot_base/low-level.md)).
-  If a wheel turns the wrong way later, swap its two wires.
+- Screw the red (M+) and brown (M−) wire of each motor cable into the `M3`/`M4` terminal block of the board.
+  The firmware expects the left motor on `M4` and the right motor on `M3` (`MOTOR_LEFT` and `MOTOR_RIGHT` in `diffbot_base_config.h`, see [low-level base controller](../packages/diffbot_base/low-level.md)).
+  If a wheel turns the wrong way later, swap its red and brown wire.
 - The other four wires of each motor cable (blue G, green H1, yellow H2, orange V) belong to the encoder.
   They go to the Teensy on the breadboard, not to the motor driver.
+  Keep each encoder with its motor: H1 and H2 of the left motor go to Teensy pins 5 and 6, those of the right motor to pins 7 and 8.
+
+!!! warning "The Fritzing view pairs the motors the other way round"
+    In the Fritzing view, the motor on `M3` has its encoder on pins 5 and 6.
+    The firmware reads pins 5 and 6 for the motor on `M4`.
+    Follow the text above until the diagram is fixed.
 
 The battery cable follows in step 10. The Fritzing view also shows the I2C wires from the board to the Grove I2C hub.
 
@@ -103,9 +109,8 @@ Fix the caster with four screws.
 
 ![Step 10: the battery pack slides into the compartment under the top plate](images/frame/10-battery-pack.svg)
 
-Turn the chassis right side up again.
-Connect the battery pack's cable to the 2-pin power terminal of the motor driver: black to − and red to +, as marked on the board.
-Then slide the battery pack into the compartment under the top plate.
+While the chassis is still upside down, connect the cable of the empty battery pack to the 2-pin power terminal of the motor driver: black to − and red to +, as marked on the board.
+Then turn the chassis right side up again and slide the battery pack into the compartment under the top plate.
 Leave the batteries out until all the wiring is done.
 
 **Parts:** battery pack (for four or eight batteries)

@@ -58,7 +58,7 @@ values such as the following:
 - Encoder pins: Defines to which pins on the Teensy microcontroller the Hall
   effect sensors are connected.
 - Motor I2C address and pins: The Adafruit motor driver can drive four DC
-  motors. Due to cable management, motor terminals `M3` and `M4` are used for
+  motors. Due to cable management, motor terminals `M4` and `M3` are used for
   the left and right motors, respectively.
 - PID: The tuned constants for both PID controllers of `base_controller`.
 - PWM_MAX and PWM_MIN: The minimum and maximum possible PWM values that can be
