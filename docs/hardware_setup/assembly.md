@@ -39,11 +39,12 @@ Place the second motor in the pocket on the other side.
 
 ### Step 4: Motor screws
 
-![Step 4: two long screws through each side wall hold the motors](images/frame/04-motor-screws.svg)
+![Step 4: two long screws through each side wall and one screw into the end of each motor hold the motors](images/frame/04-motor-screws.svg)
 
 Fix each motor with two M3 × 25 mm screws through the side wall of the chassis and the motor, and an M3 nut on each screw.
+Then fix the far end of each motor with one more screw, which goes in along the motor through the end of the chassis.
 
-**Parts:** 4 × M3 × 25 mm screw, 4 × M3 nut
+**Parts:** 4 × M3 × 25 mm screw, 4 × M3 nut, 2 screws for the motor ends
 
 ### Step 5: Motor driver
 
