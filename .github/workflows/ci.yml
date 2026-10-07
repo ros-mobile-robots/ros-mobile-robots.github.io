@@ -2,37 +2,49 @@ name: Documentation CI
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - feature/hardware-setup
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+
+# Read-only by default: pull request builds must not be able to push to gh-pages
+permissions:
+  contents: read
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # Builds the checked out ref: the pull request for PRs, main for pushes
+      - uses: actions/checkout@v4
         with:
-          # The branch, tag or SHA to checkout. When checking out the repository that
-          # triggered a workflow, this defaults to the reference or SHA for that event.
-          # Otherwise, uses the default branch.
-          # Default ''
-          ref: feature/hardware-setup
-          
-          # Number of commits to fetch. 0 indicates all history for all branches and tags.
-          # Default: 1
           fetch-depth: 0
-          
-          # Whether to download Git-LFS files
-          # Default: false
-          lfs: ''
-          
-      - uses: actions/setup-python@v2
+          lfs: true
+          persist-credentials: false
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.x
+          python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: build documentation
         run: mkdocs build
+
+  deploy:
+    # Only pushes to main publish the site, not pull requests or manual runs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: docs-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
       - name: deploy documentation
-        if: ${{ github.ref == 'refs/heads/main' }}
         run: mkdocs gh-deploy --force
