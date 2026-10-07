@@ -31,18 +31,40 @@
 
 
 {% block analytics %}
-    {{ super() }}
-    <!-- Adsense, loaded only after visitors accept it in the cookie consent banner (extra.consent in mkdocs.yml) -->
+    <!--
+      Consent comes from the European regulations message in AdSense (Privacy & messaging),
+      Google's certified consent tool, which the AdSense script below shows to visitors from the
+      EEA, UK and Switzerland. Google Analytics starts only after visitors allow storage on their
+      device (TCF purpose 1) for Google (vendor 755), or when the message doesn't apply to them.
+      Material's own analytics call is skipped by overriding this block.
+    -->
+    {% include "partials/integrations/analytics/google.html" %}
     <script>
-        var consent = __md_get("__consent");
-        if (consent && consent.adsense) {
-            var adsense = document.createElement("script");
-            adsense.async = true;
-            adsense.crossOrigin = "anonymous";
-            adsense.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2214309606626131";
-            document.head.appendChild(adsense);
-        }
+        (function () {
+            var started = false;
+            function startAnalytics() {
+                if (!started && typeof __md_analytics !== "undefined") {
+                    started = true;
+                    __md_analytics();
+                }
+            }
+            function onConsent(tcData, success) {
+                if (!success || !tcData) return;
+                if (tcData.gdprApplies === false) return startAnalytics();
+                if (tcData.eventStatus !== "tcloaded" && tcData.eventStatus !== "useractioncomplete") return;
+                if (tcData.purpose.consents[1] && tcData.vendor.consents[755]) startAnalytics();
+            }
+            // The consent tool defines __tcfapi once the AdSense script has loaded it.
+            // With an ad blocker it never appears, and analytics stays off.
+            (function waitForConsentTool(tries) {
+                if (typeof window.__tcfapi === "function") window.__tcfapi("addEventListener", 2, onConsent);
+                else if (tries > 0) setTimeout(function () { waitForConsentTool(tries - 1); }, 250);
+            })(120);
+        })();
     </script>
+    <!-- Adsense, which also shows the consent message (see above) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2214309606626131"
+     crossorigin="anonymous"></script>
 {% endblock analytics %}
 
 
@@ -53,6 +75,16 @@
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();
+        });
+    </script>
+    <script>
+        // "Cookie settings" in the footer reopens the AdSense consent message
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest('a[href="#cookie-settings"]')) return;
+            event.preventDefault();
+            window.googlefc = window.googlefc || {};
+            window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+            window.googlefc.callbackQueue.push(function () { window.googlefc.showRevocationMessage(); });
         });
     </script>
 {% endblock scripts %}
