@@ -24,6 +24,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true
+          # The build runs code from the pull request (MkDocs plugins and macros), so it gets no
+          # push credentials; only the publish step below uses the token
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         if: github.event.action != 'closed'
@@ -33,11 +36,16 @@ jobs:
       - name: build preview
         if: github.event.action != 'closed'
         env:
+          PREVIEW_PATH: pr-preview/pr-${{ github.event.number }}
           SITE_URL: https://ros-mobile-robots.com/pr-preview/pr-${{ github.event.number }}/
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           pip install -r requirements.txt
           mkdocs build
+          # Content links and images with root-relative URLs such as /resources/... or
+          # /packages/... would load the live site; point them into the preview
+          find site -name '*.html' -print0 | xargs -0 perl -pi -e \
+            's{\b((?:href|src)=["\x27])/(?!/|\Q$ENV{PREVIEW_PATH}\E/)}{$1/$ENV{PREVIEW_PATH}/}g'
           # A preview needs no CNAME, and the publish action never deletes one,
           # so it would stay behind when the preview is removed
           rm -f site/CNAME
