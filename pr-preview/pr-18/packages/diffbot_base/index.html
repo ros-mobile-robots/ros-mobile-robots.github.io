@@ -3773,7 +3773,7 @@
 <p>This package contains the so called hardware interface of DiffBot which represents the real hardware in software to work with 
 <a href="http://wiki.ros.org/ros_control">ROS Control</a>. </p>
 <figure>
-    <a href="/resources/ros_control_overview.png"><img src="/resources/ros_control_overview.png"></a>
+    <a href="/pr-preview/pr-18/resources/ros_control_overview.png"><img src="/pr-preview/pr-18/resources/ros_control_overview.png"></a>
     <figcaption><a href="http://wiki.ros.org/ros_control#Overview" title="ROS Control">ROS Control</a> Overview.</figcaption>
 </figure>
 
@@ -3813,7 +3813,7 @@ The previous approach (high-level PID) is documented in <a href="high-level/">Hi
 <h2 id="developing-a-low-level-controller-firmware-and-a-high-level-ros-control-hardware-interface-for-a-differential-drive-robot">Developing a low-level controller firmware and a high-level ROS Control hardware interface for a differential drive robot</h2>
 <p>In the following two sections, the base controller, mentioned in the Navigation
 Stack, will be developed.</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/resources/navigation/navigation_stack.png" data-desc-position="bottom"><img alt="Navigation Stack" src="/resources/navigation/navigation_stack.png"></a></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-18/resources/navigation/navigation_stack.png" data-desc-position="bottom"><img alt="Navigation Stack" src="/pr-preview/pr-18/resources/navigation/navigation_stack.png"></a></p>
 <p>For DiffBot/Remo, this platform-specific node is split into two software
 components.</p>
 <p>The first component is the high-level <code>diffbot::DiffBotHWInterface</code> that
@@ -3827,7 +3827,7 @@ simulation and the real robot.</p>
 <p>An overview of ROS Control in simulation and the real world is given in the
 following figure (<a href="http://gazebosim.org/tutorials/?tut=ros_control">http://gazebosim.org/tutorials/?tut=ros_control</a>):</p>
 <figure>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg" data-desc-position="bottom"><img alt="ROS Control simulation and reality" src="/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg"></a>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-18/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg" data-desc-position="bottom"><img alt="ROS Control simulation and reality" src="/pr-preview/pr-18/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg"></a>
   </p>
 <figcaption>ROS Control in Simulation and Reality</figcaption>
 </figure>
@@ -3836,7 +3836,7 @@ wheel joint positions and velocities and applies the commands from the
 high-level interface to the wheel joints. The following figure shows the
 communication between the two components:</p>
 <figure>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg" data-desc-position="bottom"><img alt="Block diagram of low-level controller and high-level hardware interface" src="/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg"></a>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-18/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg" data-desc-position="bottom"><img alt="Block diagram of low-level controller and high-level hardware interface" src="/pr-preview/pr-18/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg"></a>
   </p>
 <figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
 Control)</figcaption>
