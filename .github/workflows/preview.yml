@@ -1,0 +1,55 @@
+# Builds every pull request from this repository and publishes it to
+# https://ros-mobile-robots.com/pr-preview/pr-<number>/ on the gh-pages branch.
+# The preview is updated on every push and removed when the pull request is closed.
+name: PR preview
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    # Pull requests from forks get a read-only token and cannot publish
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-python@v5
+        if: github.event.action != 'closed'
+        with:
+          python-version: "3.12"
+
+      - name: build preview
+        if: github.event.action != 'closed'
+        env:
+          SITE_URL: https://ros-mobile-robots.com/pr-preview/pr-${{ github.event.number }}/
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          pip install -r requirements.txt
+          mkdocs build
+          # A preview needs no CNAME, and the publish action never deletes one,
+          # so it would stay behind when the preview is removed
+          rm -f site/CNAME
+          # Shows which commit the preview was built from
+          echo "$HEAD_SHA" > site/preview-sha.txt
+
+      - name: publish preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: site
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          pages-base-url: ros-mobile-robots.com
+          wait-for-pages-deployment: false
+          qr-code: false

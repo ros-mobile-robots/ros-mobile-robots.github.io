@@ -46,5 +46,16 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - name: deploy documentation
-        run: mkdocs gh-deploy --force
+      - name: build documentation
+        run: |
+          mkdocs build
+          # The site is already built, GitHub Pages must not run Jekyll on it
+          touch site/.nojekyll
+      # Unlike mkdocs gh-deploy, this keeps the pr-preview folder on gh-pages (preview.yml)
+      - name: publish to gh-pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site
+          branch: gh-pages
+          clean-exclude: pr-preview
+          force: false
