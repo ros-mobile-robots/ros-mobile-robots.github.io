@@ -6,27 +6,45 @@ on:
   pull_request:
     branches: [main]
 
+# Read-only by default: pull request builds must not be able to push to gh-pages
 permissions:
-  contents: write
-
-concurrency:
-  group: docs-${{ github.ref }}
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       # Builds the checked out ref: the pull request for PRs, main for pushes
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          lfs: true
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: build documentation
         run: mkdocs build
+
+  deploy:
+    # Only pushes to main publish the site, not pull requests or manual runs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: docs-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
       - name: deploy documentation
-        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
         run: mkdocs gh-deploy --force
