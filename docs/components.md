@@ -8,6 +8,8 @@ tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, s
 
 ## BOM for REMO Robot
 
+--8<-- "includes/affiliate-note.md"
+
 The following figure shows a 3D-printed Remo robot together with its components that
 satisfy the requirements for the ROS Navigation Stack. These parts are introduced next:
 
@@ -119,6 +121,8 @@ The following shows a more detailed part list and assembly of the robot platform
 |              | Odometry                  | Joy-IT - LM393 Speed Sensor with H206 slot-type opto interrupter | [Joy-IT](https://joy-it.net/en/products/SEN-Speed) |
 
 Order list
+
+--8<-- "includes/affiliate-note.md"
 
 | Part                    | Store |
 |:------------------------|:---------------------------------------------------------------------------:|

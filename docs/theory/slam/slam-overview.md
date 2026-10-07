@@ -19,5 +19,5 @@
 
 #### Books
 
-- [Probabilistic Robotics, Sebastian Thrun, Wolfram Burgard, Dieter Fox][amazon_book_probabilistic_robotics_ger], [MIT Press](https://mitpress.mit.edu/books/probabilistic-robotics)
+- [Probabilistic Robotics, Sebastian Thrun, Wolfram Burgard, Dieter Fox][amazon_book_probabilistic_robotics_ger] (affiliate link), [MIT Press](https://mitpress.mit.edu/books/probabilistic-robotics)
 
