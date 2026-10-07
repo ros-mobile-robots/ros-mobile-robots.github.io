@@ -29,7 +29,8 @@ theme:
 #  - https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js
 #  - custom_theme/js/config.js
 
-site_url: https://ros-mobile-robots.com/
+# PR previews (preview.yml) build with SITE_URL=https://ros-mobile-robots.com/pr-preview/pr-<number>/
+site_url: !ENV [SITE_URL, "https://ros-mobile-robots.com/"]
   
 repo_url: https://github.com/ros-mobile-robots/diffbot
 
