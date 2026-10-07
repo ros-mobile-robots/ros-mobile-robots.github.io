@@ -50,5 +50,34 @@
 [amazon_rpi_cam_v2_ger]: https://amzn.to/3IG7FDb
 [amazon_rpi_cam_v2_us]: https://amzn.to/4h1dkjI
 
-[amazon_rpi2]: https://amzn.to/3L6PZ14?tag=yourtrackingid-20
-[amazon_sdcard]: https://amzn.to/4eSkqWv?tag=yourtrackingid-20
+<!-- Mechanical parts and tools -->
+[amazon_m2x10_self_tapping_screw_ger]: https://amzn.to/3xKYmwg
+[amazon_m2_m3_m4_screw_assortment_ger]: https://amzn.to/3xwPmuE
+[amazon_m4_screw_nut_box_ger]: https://amzn.to/4bwD9nF
+[amazon_threaded_inserts_ger]: https://amzn.to/4cLRDkt
+[amazon_jumper_wires_ff_us]: https://amzn.to/4cJdEjO
+[amazon_picoscope_3203d_ger]: https://amzn.to/33I5tUb
+[amazon_voltcraft_pps16005_ger]: https://amzn.to/3iKsI4a
+[amazon_meanwell_gst25e05_ger]: https://amzn.to/3sFAOQx
+
+<!-- Human machine interface -->
+[amazon_pioled_us]: https://amzn.to/3VK4jkW
+[amazon_header_2x20_right_angle_us]: https://amzn.to/3VOyhEu
+
+<!-- DiffBot parts list -->
+[amazon_rpi_4_model_b_us]: https://amzn.to/3xFxzkX
+[amazon_rpi_4_model_b_ger]: https://amzn.to/2IchIAc
+[amazon_sdcard_ultra_64gb_us]: https://amzn.to/3W7FKzD
+[amazon_robot_car_chassis_us]: https://amzn.to/3W6gHgz
+[amazon_robot_car_chassis_ger]: https://amzn.to/2Gy3CJ4
+[amazon_rplidar_a2m8_us]: https://amzn.to/45YagPV
+[amazon_rplidar_a2m8_ger]: https://amzn.to/30MyImR
+[amazon_grove_ultrasonic_us]: https://amzn.to/3W7wtrk
+[amazon_rpi_cam_v2_us_b01er2skfs]: https://amzn.to/4cMRmgW
+[amazon_grove_motor_driver_ger]: https://amzn.to/36M8O6M
+[amazon_grove_i2c_hub_ger]: https://amzn.to/34CGEbz
+
+<!-- Books -->
+[amazon_book_probabilistic_robotics_ger]: https://amzn.to/3kolas5
+[amazon_book_papoulis_probability_ger]: https://amzn.to/3lC0ZWV
+[amazon_book_mastering_ros_ger]: https://amzn.to/3tpmT55

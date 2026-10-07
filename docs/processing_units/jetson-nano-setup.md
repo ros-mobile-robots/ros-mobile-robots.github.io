@@ -75,7 +75,7 @@ To connect the 4 Amps @ 5 Volts barrel jack connector to the Jetson Nano a Jumpe
 
 !!! note
     Make sure to use a 5 V 4 Amps switching power supply. 
-    For example the [Mean Well GST25E05-P1J](https://amzn.to/3sFAOQx) or the [AC/DC Desktop Adapter 5 V from Adafruit](https://www.adafruit.com/product/1466).
+    For example the [Mean Well GST25E05-P1J][amazon_meanwell_gst25e05_ger] or the [AC/DC Desktop Adapter 5 V from Adafruit](https://www.adafruit.com/product/1466).
     DC barrel jack 5.5 mm OD / 2.1 mm ID / 9.5 mm length, center pin positive.
 
 Connect the jumper on J48. J48 is located between the Barrel Jack connector and the Camera connector. 
