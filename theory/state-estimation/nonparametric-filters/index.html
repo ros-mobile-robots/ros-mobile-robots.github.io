@@ -63,10 +63,6 @@
     <script>
         mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });
     </script>
-    <!-- Adsense -->
-    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2214309606626131" crossorigin="anonymous"></script>
-    <!-- Cookie consent -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">    
 
     
       
@@ -80,19 +76,133 @@
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
-      
-  
+    <!--
+      Consent comes from the European regulations message in AdSense (Privacy & messaging),
+      Google's certified consent tool, which the AdSense script below shows to visitors from the
+      EEA, UK and Switzerland. With consent mode turned on in AdSense, the message updates Google's
+      consent state itself, also for an Analytics tag that's already running. This script only
+      decides whether Analytics loads at all ("basic" consent mode):
+      - consent defaults: denied in the EEA, UK and Switzerland, granted elsewhere
+      - Analytics loads once per page, when the Analytics choice is granted or doesn't apply
+      - a later change of the choice (e.g. via "Cookie settings") reloads the page, so the new
+        page starts from the settled choice
+      - a denied choice deletes the _ga cookies
+      Material's own analytics call is replaced; extra.analytics in mkdocs.yml only provides the ID.
+      API: https://developers.google.com/funding-choices/fc-api-docs
+    -->
+    <script>
+        (function () {
+            var property = "G-5Z9V7GPRX3";
+            window.dataLayer = window.dataLayer || [];
+            var gtag = window.gtag = window.gtag || function () { dataLayer.push(arguments); };
+            var europe = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE",
+                "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+                "IS", "LI", "NO", "GB", "CH"];
+            var denied = { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" };
+            gtag("consent", "default", Object.assign({ region: europe }, denied));
+            gtag("consent", "default", { analytics_storage: "granted", ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted" });
 
+            window.googlefc = window.googlefc || {};
+            window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+            // Values of googlefc.ConsentModePurposeStatusEnum
+            var GRANTED = 1, NOT_APPLICABLE = 3;
 
-  
-  
+            function analyticsAllowed() {
+                var values = typeof googlefc.getGoogleConsentModeValues === "function" ? googlefc.getGoogleConsentModeValues() : null;
+                var status = values ? values.analyticsStoragePurposeConsentStatus : 0;
+                return status === GRANTED || status === NOT_APPLICABLE;
+            }
 
-<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-5Z9V7GPRX3"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-5Z9V7GPRX3",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-5Z9V7GPRX3",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
-  
-    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
-  
+            // Also removes cookies that earlier versions of the site set without asking
+            function deleteAnalyticsCookies() {
+                var site = location.hostname.split(".").slice(-2).join(".");
+                document.cookie.split(";").forEach(function (cookie) {
+                    var name = cookie.split("=")[0].trim();
+                    if (name !== "_ga" && name.indexOf("_ga_") !== 0) return;
+                    ["", "; domain=" + location.hostname, "; domain=." + site].forEach(function (domain) {
+                        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/" + domain;
+                    });
+                });
+            }
 
-    
+            function startAnalytics() {
+                gtag("js", new Date());
+                gtag("config", property);
+                var script = document.createElement("script");
+                script.async = true;
+                script.src = "https://www.googletagmanager.com/gtag/js?id=" + property;
+                document.head.appendChild(script);
+
+                // The events of Material's analytics integration: site search, page feedback and
+                // page changes. They need the page and Material's bundle, so they wait for
+                // DOMContentLoaded, unless visitors accepted after it fired.
+                function trackPageEvents() {
+                    if (document.forms.search) {
+                        document.forms.search.query.addEventListener("blur", function () {
+                            if (this.value) gtag("event", "search", { search_term: this.value });
+                        });
+                    }
+                    document$.subscribe(function () {
+                        var feedback = document.forms.feedback;
+                        if (typeof feedback === "undefined") return;
+                        for (var button of feedback.querySelectorAll("[type=submit]")) {
+                            button.addEventListener("click", function (event) {
+                                event.preventDefault();
+                                var value = this.getAttribute("data-md-value");
+                                gtag("event", "feedback", { page: document.location.pathname, data: value });
+                                feedback.firstElementChild.disabled = true;
+                                var note = feedback.querySelector(".md-feedback__note [data-md-value='" + value + "']");
+                                if (note) note.hidden = false;
+                            });
+                        }
+                        feedback.hidden = false;
+                    });
+                    location$.subscribe(function (url) {
+                        gtag("config", property, { page_path: url.pathname });
+                    });
+                }
+                if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", trackPageEvents);
+                else trackPageEvents();
+            }
+
+            // Once per page, when Google's message knows the answer: from an earlier visit, after
+            // the visitor's first choice, or because the message doesn't apply. With an ad blocker
+            // the message never loads, and Analytics stays off.
+            var decided = false;
+            function decide() {
+                if (decided) return;
+                decided = true;
+                if (analyticsAllowed()) startAnalytics();
+                else deleteAnalyticsCookies();
+            }
+
+            // Later changes only reach a TCF listener; the readiness callbacks run once. Incomplete
+            // answers and "message shown" events are skipped. The first completed answer on a page
+            // is handled by decide(); a later one switches Analytics off and reloads, because Google's
+            // value reader still returns the old choice at that moment.
+            var firstAnswer = true;
+            function onTcData(data, success) {
+                if (!success || !data) return;
+                if (data.eventStatus === "tcloaded") { firstAnswer = false; return; }
+                if (data.eventStatus !== "useractioncomplete") return;
+                if (firstAnswer) { firstAnswer = false; return; }
+                window["ga-disable-" + property] = true;
+                location.reload();
+            }
+            var listening = false;
+            function listen() {
+                if (listening || typeof window.__tcfapi !== "function") return;
+                listening = true;
+                window.__tcfapi("addEventListener", 2, onTcData);
+            }
+
+            window.googlefc.callbackQueue.push({ CONSENT_API_READY: listen });
+            window.googlefc.callbackQueue.push({ CONSENT_MODE_DATA_READY: function () { listen(); decide(); } });
+        })();
+    </script>
+    <!-- AdSense, which also shows the consent message (see above) -->
+    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2214309606626131" crossorigin="anonymous"></script>
+
     
   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
             html.glightbox-open { overflow: initial; height: 100%; }
@@ -3829,7 +3939,7 @@ e.g., wheel odometry and laser distance measurements. This form of state estimat
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright © 2021 - 2026 Franz Pucher | As an Amazon Associate I earn from qualifying purchases. | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a>
+      Copyright © 2021 - 2026 Franz Pucher | As an Amazon Associate I earn from qualifying purchases. | <a href="https://www.ros-mobile-robots.com/privacy-policy/">Privacy Policy</a> | <a href="https://www.ros-mobile-robots.com/legal-notice/">Legal Notice</a> | <a href="#cookie-settings">Cookie settings</a>
     </div>
   
   
@@ -3867,21 +3977,15 @@ e.g., wheel odometry and laser distance measurements. This form of state estimat
             $(".md-main").fitVids();
         });
     </script>
-    <!-- cookie consent -->
-    <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
     <script>
-    window.cookieconsent.initialise({
-    "palette": {
-        "popup": {
-        "background": "#edeff5",
-        "text": "#838391"
-        },
-        "button": {
-        "background": "#4b81e8"
-        }
-    },
-    "theme": "classic"
-    });
+        // "Cookie settings" in the footer reopens the AdSense consent message
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest('a[href="#cookie-settings"]')) return;
+            event.preventDefault();
+            window.googlefc = window.googlefc || {};
+            window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+            window.googlefc.callbackQueue.push(function () { window.googlefc.showRevocationMessage(); });
+        });
     </script>
 
   
