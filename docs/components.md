@@ -8,7 +8,7 @@ tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, s
 
 ## BOM for REMO Robot
 
---8<-- "docs/links.md"
+--8<-- "includes/affiliate-note.md"
 
 The following figure shows a 3D-printed Remo robot together with its components that
 satisfy the requirements for the ROS Navigation Stack. These parts are introduced next:
@@ -29,11 +29,11 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.us][amazon_ada2927_us], [Amazon.de][amazon_ada2927_ger] | |
 | Teensy 4.0 or 3.2 | 1 | $32.29 | [Amazon.com][amazon_teensy_4.0_us], [Amazon.de][amazon_teensy_4.0_ger], [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html) | |
 | Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $12.50 | [Amazon.com][amazon_hobby_motor_us], [Sparkfun](https://www.sparkfun.com/products/16413) | |
-| Powerbank (e.g 15'000 mAh, or 10'000 mAh) | 1 | $23.99 | [Anker 10K Amazon.com][amazon_anker_powerbank_pc10k_us], [Anker 10K Amazon.de][amazon_anker_powerbank_pc10k_ger], [Amazon.de](https://amzn.to/3kmkx2t) | The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm |
+| Powerbank (e.g 15'000 mAh, or 10'000 mAh) | 1 | $23.99 | [Anker 10K Amazon.com][amazon_anker_powerbank_pc10k_us], [Anker 10K Amazon.de][amazon_anker_powerbank_pc10k_ger] | The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm |
 | Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.com][amazon_battery_holder_8x_aa_us], [Amazon.de][amazon_battery_holder_8x_aa_ger] | |
 | USB C to USB C cable | 1 | $6.99 | [Amazon.com][amazon_usb_c_cable_50cm_us], [Amazon.de][amazon_usb_c_cable_50cm_ger] | USB C to USB C for Powerbank to [SBC](https://en.wikipedia.org/wiki/Single-board_computer) |
 | Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
-| Caster ball | 1 | $6.30 | [Amazon.com][amazon_caster_ball], [Amazon.de][amazon_caster_ball_ger] | 25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing][amazon_ball_bearing_ger] for the caster |
+| Caster ball | 1 | $6.30 | [Amazon.com][amazon_caster_ball_us], [Amazon.de][amazon_caster_ball_ger] | 25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing][amazon_ball_bearing_ger] for the caster |
 | Wheels      | 2 | $3.50 | [Amazon.com][amazon_wheels_us], [Amazon.de][amazon_wheels_ger], [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
 | Power supply | 1 | $7.50 | [Amazon.com][amazon_power_supply_us], [Amazon.de][amazon_power_supply_ger] | USB C, 5V, 3.5A |
 
@@ -69,20 +69,20 @@ You need the following parts to build REMO. They come in packs, so order the qua
 | --- | --- | --: | --: | --: | --- |
 |  Adhesive pads | 2 | 48 | $0.14 |  | optional |
 |  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack |
-|  M2 screw (self tapping) | 20 | 100 | $1.29 | [Amazon](https://amzn.to/3xKYmwg)  | 8mm long, self tapping |
-|  M2 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/3xwPmuE) | 8mm long |
-|  M3 screw | 4 | 60 | $0.47 | [Amazon](https://amzn.to/4bwD9nF) | 25mm long, to fix the motors to the base frame |
-|  M3 nut | 4 | 100 | $0.24 | [Amazon](https://amzn.to/4cLV1vx)  | To fix the motors to the base frame |
-|  M2 Brass threaded inserts | 4 | 100 | $0.24 | [Amazon](https://amzn.to/4cLRDkt) |  |
-|  Jumper wires | 4 | 40 | $0.13 | [Amazon](https://amzn.to/4cJdEjO) | Female-female, ~20cm |
+|  M2 screw (self tapping) | 20 | 100 | $1.29 | [Amazon][amazon_m2x10_self_tapping_screw_ger]  | 8mm long, self tapping |
+|  M2 screw | 4 | 60 | $0.47 | [Amazon][amazon_m2_m3_m4_screw_assortment_ger] | 8mm long |
+|  M3 screw | 4 | 60 | $0.47 | [Amazon][amazon_m4_screw_nut_box_ger] | 25mm long, to fix the motors to the base frame |
+|  M3 nut | 4 | 100 | $0.24 | [Amazon][amazon_m4_screw_nut_box_ger]  | To fix the motors to the base frame |
+|  M2 Brass threaded inserts | 4 | 100 | $0.24 | [Amazon][amazon_threaded_inserts_ger] |  |
+|  Jumper wires | 4 | 40 | $0.13 | [Amazon][amazon_jumper_wires_ff_us] | Female-female, ~20cm |
 
 ### Optional parts
 
 | **Part** | **Quantity** | **Cost** | **Store** | **Notes** |
 | --- | --: | --: | --- | --- |
 | Jetson Nano | 1 |  $99.00 | [NVIDIA](https://developer.nvidia.com/embedded/buy/jetson-nano-devkit)  |  |
-| *PiOLED* display | 1 | $14.95 | [Adafruit](http://adafru.it/3527), [Amazon](https://amzn.to/3VK4jkW) |  |
-| *PiOLED* header | 1 | $5.95 | [Adafruit](http://adafru.it/1541), [Amazon](https://amzn.to/3VOyhEu), [Sparkfun](https://www.sparkfun.com/products/12792) | 2x(3+) right angle male |
+| *PiOLED* display | 1 | $14.95 | [Adafruit](http://adafru.it/3527), [Amazon][amazon_pioled_us] |  |
+| *PiOLED* header | 1 | $5.95 | [Adafruit](http://adafru.it/1541), [Amazon][amazon_header_2x20_right_angle_us], [Sparkfun](https://www.sparkfun.com/products/12792) | 2x(3+) right angle male |
 
 
 ## Components
@@ -122,24 +122,26 @@ The following shows a more detailed part list and assembly of the robot platform
 
 Order list
 
+--8<-- "includes/affiliate-note.md"
+
 | Part                    | Store |
 |:------------------------|:---------------------------------------------------------------------------:|
-| Raspberry Pi 4 B (4 Gb) | [Amazon.com](https://amzn.to/3xFxzkX), [Amazon.de](https://amzn.to/2IchIAc) |
-| SanDisk 64 GB SD Card Class 10 | [Amazon.com](https://amzn.to/3W7FKzD), [Amazon.de](https://amzn.to/3dcFmYE) |
-|Robot Smart Chassis Kit  | [Amazon.com](https://amzn.to/3W6gHgz), [Amazon.de](https://amzn.to/2Gy3CJ4) |
-| SLAMTEC RPLidar A2M8 (12 m) | [Amazon.com](https://amzn.to/45YagPV), [Amazon.de](https://amzn.to/30MyImR) |
-| Grove Ultrasonic Ranger | [Amazon.com](https://amzn.to/3W7wtrk), [Amazon.de](https://amzn.to/34GZmyC) |
-| Raspi Camera Module V2, 8 MP, 1080p | [Amazon.com](https://amzn.to/4cMRmgW), [Amazon.de](https://amzn.to/2FdVDQF) |
-| Grove Motor Driver | [seeedstudio.com](https://www.seeedstudio.com/Grove-I2C-Motor-Driver-with-L298.html), [Amazon.de](https://amzn.to/36M8O6M) |
-| I2C Hub | [seeedstudio.com](https://www.seeedstudio.com/Grove-I2C-Hub.html), [Amazon.de](https://amzn.to/34CGEbz) |
+| Raspberry Pi 4 B (4 Gb) | [Amazon.com][amazon_rpi_4_model_b_us], [Amazon.de][amazon_rpi_4_model_b_ger] |
+| SanDisk 64 GB SD Card Class 10 | [Amazon.com][amazon_sdcard_ultra_64gb_us], [Amazon.de][sandisk_64gb_ger] |
+|Robot Smart Chassis Kit  | [Amazon.com][amazon_robot_car_chassis_us], [Amazon.de][amazon_robot_car_chassis_ger] |
+| SLAMTEC RPLidar A2M8 (12 m) | [Amazon.com][amazon_rplidar_a2m8_us], [Amazon.de][amazon_rplidar_a2m8_ger] |
+| Grove Ultrasonic Ranger | [Amazon.com][amazon_grove_ultrasonic_us] |
+| Raspi Camera Module V2, 8 MP, 1080p | [Amazon.com][amazon_rpi_cam_v2_us_b01er2skfs], [Amazon.de][amazon_rpi_cam_v2_ger] |
+| Grove Motor Driver | [seeedstudio.com](https://www.seeedstudio.com/Grove-I2C-Motor-Driver-with-L298.html), [Amazon.de][amazon_grove_motor_driver_ger] |
+| I2C Hub | [seeedstudio.com](https://www.seeedstudio.com/Grove-I2C-Hub.html), [Amazon.de][amazon_grove_i2c_hub_ger] |
 
 
 Additional (Optional) Equipment
 
 | Part                                   | Store |
 |:---------------------------------------|:------------------------------------:|
-| PicoScope 3000 Series Oscilloscope 2CH | [Amazon.de](https://amzn.to/33I5tUb) |
-| VOLTCRAFT PPS-16005                    | [Amazon.de](https://amzn.to/3iKsI4a) |
+| PicoScope 3000 Series Oscilloscope 2CH | [Amazon.de][amazon_picoscope_3203d_ger] |
+| VOLTCRAFT PPS-16005                    | [Amazon.de][amazon_voltcraft_pps16005_ger] |
 
 ## Board - Raspberry Pi 4 B
 
