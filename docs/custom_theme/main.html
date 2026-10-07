@@ -50,23 +50,23 @@
             // Values of googlefc.ConsentModePurposeStatusEnum
             var UNKNOWN = 0, GRANTED = 1, DENIED = 2, NOT_APPLICABLE = 3, NOT_CONFIGURED = 4;
 
-            // Calls back with true or false, or null while the answer isn't known yet.
+            // The latest complete TCF answer (null until one arrives)
+            var tcData = null;
+
+            function consentModeValues() {
+                return typeof googlefc.getGoogleConsentModeValues === "function" ? googlefc.getGoogleConsentModeValues() : null;
+            }
+
+            // true or false, or null while the answer isn't known yet.
             // The analytics_storage choice decides. If it isn't set up in AdSense ("Enable consent
             // mode for analytics purposes"), storage consent (TCF purpose 1) for Google (vendor 755) does.
-            function analyticsAllowed(callback) {
-                var values = typeof googlefc.getGoogleConsentModeValues === "function" ? googlefc.getGoogleConsentModeValues() : null;
+            function analyticsAllowed(values) {
                 var analytics = values ? values.analyticsStoragePurposeConsentStatus : NOT_CONFIGURED;
-                if (analytics === GRANTED || analytics === NOT_APPLICABLE) return callback(true, values);
-                if (analytics === DENIED) return callback(false, values);
-                if (analytics !== NOT_CONFIGURED || typeof window.__tcfapi !== "function") return callback(null, values);
-                var answered = false;
-                window.__tcfapi("addEventListener", 2, function (tcData, success) {
-                    if (answered || (success && tcData && tcData.eventStatus === "cmpuishown")) return;
-                    answered = true;
-                    if (success && tcData) window.__tcfapi("removeEventListener", 2, function () {}, tcData.listenerId);
-                    if (!success || !tcData) return callback(null, values);
-                    callback(tcData.gdprApplies === false || !!(tcData.purpose.consents[1] && tcData.vendor.consents[755]), values);
-                });
+                if (analytics === GRANTED || analytics === NOT_APPLICABLE) return true;
+                if (analytics === DENIED) return false;
+                if (analytics !== NOT_CONFIGURED || !tcData) return null;
+                if (tcData.gdprApplies === false) return true;
+                return !!(tcData.purpose.consents[1] && tcData.vendor.consents[755]);
             }
 
             function startAnalytics(values) {
@@ -135,23 +135,47 @@
             }
 
             function followConsent() {
-                analyticsAllowed(function (allowed, values) {
-                    if (allowed === true && !started) startAnalytics(values);
-                    if (allowed !== false) return;
-                    deleteAnalyticsCookies();
-                    if (started) {
-                        // Consent was withdrawn: reload, so the running tag is gone
-                        gtag("consent", "update", { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
-                        location.reload();
-                    }
-                });
+                var values = consentModeValues();
+                var allowed = analyticsAllowed(values);
+                if (allowed === true && !started) startAnalytics(values);
+                if (allowed !== false) return;
+                deleteAnalyticsCookies();
+                if (started) {
+                    // Consent was withdrawn: reload, so the running tag is gone
+                    gtag("consent", "update", { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
+                    location.reload();
+                }
             }
+
+            // The readiness callbacks below run only once. A TCF listener that stays registered
+            // reports every later choice too, e.g. after "Cookie settings". Early answers can be
+            // incomplete (no eventStatus, purpose or vendor), so only complete ones count, or
+            // gdprApplies: false. Google's consent mode values may update a moment after the TCF
+            // event, so the choice is checked again shortly after.
+            function onTcData(data, success) {
+                if (!success || !data) return;
+                var complete = data.eventStatus === "tcloaded" || data.eventStatus === "useractioncomplete";
+                if (data.gdprApplies !== false && !(complete && data.purpose && data.vendor)) return;
+                tcData = data;
+                followConsent();
+                if (data.eventStatus === "useractioncomplete") {
+                    setTimeout(followConsent, 500);
+                    setTimeout(followConsent, 2000);
+                }
+            }
+            var listening = false;
+            function listen() {
+                if (listening || typeof window.__tcfapi !== "function") return;
+                listening = true;
+                window.__tcfapi("addEventListener", 2, onTcData);
+            }
+
             // Runs once the answer is known: from an earlier visit, after visitors choose, or when the
-            // message doesn't apply. CONSENT_DATA_READY runs again when visitors change their choice
-            // with "Cookie settings". With an ad blocker the consent tool never loads, and
+            // message doesn't apply. With an ad blocker the consent tool never loads, and
             // Analytics stays off.
-            window.googlefc.callbackQueue.push({ CONSENT_MODE_DATA_READY: followConsent });
-            window.googlefc.callbackQueue.push({ CONSENT_DATA_READY: followConsent });
+            window.googlefc.callbackQueue.push({ CONSENT_API_READY: listen });
+            window.googlefc.callbackQueue.push({ CONSENT_MODE_DATA_READY: function () { listen(); followConsent(); } });
+            window.googlefc.callbackQueue.push({ CONSENT_DATA_READY: function () { listen(); followConsent(); } });
         })();
     </script>
     <!-- AdSense, which also shows the consent message (see above) -->
