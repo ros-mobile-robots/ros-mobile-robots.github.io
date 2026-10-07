@@ -9,8 +9,8 @@ The parts are listed in the [components](../components.md) and the [3D printed p
 
 ## Frame
 
-The frame is assembled in 13 steps. In each drawing, the dashed magenta lines show where a part goes.
-Steps 2 to 8 work on the bottom of the chassis, so turn it upside down after step 1.
+The frame is assembled in 14 steps. In each drawing, the dashed magenta lines show where a part goes.
+Steps 2 to 9 work on the bottom of the chassis, so turn it upside down after step 1.
 
 ### Step 1: Threaded inserts
 
@@ -53,6 +53,10 @@ The drawing shows the nuts for the far motor; the other motor gets the same two 
 
 Place the motor driver board between the two motors.
 
+Some boards come with the screw terminals and pin headers loose, others with everything soldered on.
+If yours are loose, solder them on before this step. The drawings show the board without them.
+The cables are connected in step 7, once the board is screwed in.
+
 **Parts:** Adafruit DC Motor (+ Stepper) FeatherWing
 
 ### Step 6: Motor driver screws
@@ -63,59 +67,78 @@ Fix the board with four screws.
 
 **Parts:** 4 × M2 self-tapping screw
 
-### Step 7: Caster
+### Step 7: Motor cables
 
-![Step 7: the caster goes into the round opening of the chassis](images/frame/07-caster.svg)
+![Step 7: in the Fritzing view, the red and brown wire of each motor go to the screw terminals on the right side of the motor driver](../fritzing/remo_architecture.svg)
+
+Connect the motors to the motor driver as shown in the Fritzing view above (also on the [Electronics](electronics.md) page):
+
+- Screw the red (M+) and brown (M−) wire of each motor cable into the motor terminals of the board.
+  The firmware expects the left motor on `M3` and the right motor on `M4` (see [low-level base controller](../packages/diffbot_base/low-level.md)).
+  If a wheel turns the wrong way later, swap its two wires.
+- The other four wires of each motor cable (blue G, green H1, yellow H2, orange V) belong to the encoder.
+  They go to the Teensy on the breadboard, not to the motor driver.
+
+The battery cable follows in step 10. The Fritzing view also shows the I2C wires from the board to the Grove I2C hub.
+
+**Parts:** 2 × motor cable (comes with the motors)
+
+### Step 8: Caster
+
+![Step 8: the caster goes into the round opening of the chassis](images/frame/08-caster.svg)
 
 Put the caster ball into the printed caster base and shroud, then place the caster in the round opening of the chassis.
 
 **Parts:** caster base and shroud (printed), 1 × caster ball (25.4 mm)
 
-### Step 8: Caster screws
+### Step 9: Caster screws
 
-![Step 8: four screws hold the caster](images/frame/08-caster-screws.svg)
+![Step 9: four screws hold the caster](images/frame/09-caster-screws.svg)
 
 Fix the caster with four screws.
 
 **Parts:** 4 × M2 self-tapping screw
 
-### Step 9: Battery pack
+### Step 10: Battery pack
 
-![Step 9: the battery pack slides into the compartment under the top plate](images/frame/09-battery-pack.svg)
+![Step 10: the battery pack slides into the compartment under the top plate](images/frame/10-battery-pack.svg)
 
-Turn the chassis right side up again and slide the battery pack into the compartment under the top plate.
+Turn the chassis right side up again.
+Connect the battery pack's cable to the 2-pin power terminal of the motor driver: black to − and red to +, as marked on the board.
+Then slide the battery pack into the compartment under the top plate.
+Leave the batteries out until all the wiring is done.
 
 **Parts:** battery pack (for four or eight batteries)
 
-### Step 10: Camera mount
+### Step 11: Camera mount
 
-![Step 10: the camera mount closes the battery compartment](images/frame/10-camera-mount.svg)
+![Step 11: the camera mount closes the battery compartment](images/frame/11-camera-mount.svg)
 
 Slide the camera mount over the open side of the battery compartment.
 It keeps the battery pack in place and later holds the adapter for your camera (see [Camera Mount](3D_print.md#camera-mount) on the 3D printing page).
 
 **Parts:** camera mount (printed, `camera_mount.stl`)
 
-### Step 11: Camera mount screws
+### Step 12: Camera mount screws
 
-![Step 11: screws from the sides and the top hold the camera mount](images/frame/11-camera-mount-screws.svg)
+![Step 12: screws from the sides and the top hold the camera mount](images/frame/12-camera-mount-screws.svg)
 
 Fix the camera mount with screws from both sides and from the top.
 
 **Parts:** 6 × M2 self-tapping screw
 
-### Step 12: Powerbank
+### Step 13: Powerbank
 
-![Step 12: the powerbank goes on top of the chassis](images/frame/12-powerbank.svg)
+![Step 13: the powerbank goes on top of the chassis](images/frame/13-powerbank.svg)
 
 Place the powerbank in its compartment on top of the chassis. It fits snugly; two adhesive pads keep it from shifting.
 It can be at most 135.5 × 71 × 18 mm (L × W × H).
 
 **Parts:** powerbank, 2 × adhesive pad
 
-### Step 13: Wheels
+### Step 14: Wheels
 
-![Step 13: the wheels go onto the motor shafts](images/frame/13-wheels.svg)
+![Step 14: the wheels go onto the motor shafts](images/frame/14-wheels.svg)
 
 Push the wheels onto the motor shafts.
 
