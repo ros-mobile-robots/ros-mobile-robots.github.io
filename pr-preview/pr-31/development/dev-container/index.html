@@ -11,7 +11,7 @@
         <link rel="prev" href="../../components/">
       
       
-        <link rel="next" href="../../hardware_setup/overview/">
+        <link rel="next" href="../dev-container-internals/">
       
       
         
@@ -220,7 +220,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dev-container" class="md-skip">
+        <a href="#development-environment" class="md-skip">
           Skip to content
         </a>
       
@@ -752,6 +752,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked="">
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Environment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development Environment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -844,67 +902,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-the-dev-container-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How the dev container works
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How the dev container works">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#the-image" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The image
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#creating-the-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Creating the container
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#network" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Network
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#gui-apps-x11-and-wslg" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GUI apps: X11 and WSLg
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#updating" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -929,6 +926,42 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev-container-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -3718,67 +3751,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-the-dev-container-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How the dev container works
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How the dev container works">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#the-image" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The image
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#creating-the-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Creating the container
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#network" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Network
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#gui-apps-x11-and-wslg" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GUI apps: X11 and WSLg
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#updating" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3823,7 +3795,7 @@
   
 
 
-<h1 id="dev-container">Dev Container</h1>
+<h1 id="development-environment">Development Environment</h1>
 <p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/#dev-container-workflow">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
 <p>It's the recommended setup for the development PC. The robot's single board computer is still set up natively, see <a href="../../packages/packages-setup/">Packages Setup</a>.</p>
 <h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
@@ -3867,7 +3839,7 @@
   B -. 1. register, look up .-&gt; M
   C ---|2. topics and services,&lt;br/&gt;directly, both ways| B
   B ---|USB, rosserial| T</div>
-<p>Every node first registers with the ROS master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). That's why the robot must be able to reach your PC, not only the other way round. Both kinds of traffic go over Wi-Fi or your LAN. The container shares the host's network (see <a href="#network">Network</a>), and the windows reach your screen as described in <a href="#gui-apps-x11-and-wslg">GUI apps</a>.</p>
+<p>Every node first registers with the ROS master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). That's why the robot must be able to reach your PC, not only the other way round. Both kinds of traffic go over Wi-Fi or your LAN. The container shares the host's network (see <a href="../dev-container-internals/#network">Network</a>), and the windows reach your screen as described in <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>.</p>
 <h2 id="requirements">Requirements</h2>
 <ul>
 <li>
@@ -3884,10 +3856,10 @@
 </li>
 <li><strong>For windows like RViz and Gazebo:</strong><ul>
 <li>On Windows with WSL 2: nothing to install, WSLg shows them on the Windows desktop.</li>
-<li>On a Linux desktop: install <code>xauth</code> on the host (<code>sudo apt install xauth</code>). The X server only accepts clients that present the display's <em>cookie</em>. In X11, a cookie is a secret: a random 128-bit value that your desktop creates when you log in, so no other user or program can draw on your screen or read it (<a href="https://www.x.org/releases/current/doc/man/man7/Xsecurity.7.xhtml">X security</a>). It has nothing to do with web cookies. <a href="https://www.x.org/releases/current/doc/man/man1/xauth.1.xhtml"><code>xauth</code></a> is the standard tool for these cookies, and the setup uses it to hand yours to the container (see <a href="#gui-apps-x11-and-wslg">GUI apps</a>).</li>
+<li>On a Linux desktop: install <code>xauth</code> on the host (<code>sudo apt install xauth</code>). The X server only accepts clients that present the display's <em>cookie</em>. In X11, a cookie is a secret: a random 128-bit value that your desktop creates when you log in, so no other user or program can draw on your screen or read it (<a href="https://www.x.org/releases/current/doc/man/man7/Xsecurity.7.xhtml">X security</a>). It has nothing to do with web cookies. <a href="https://www.x.org/releases/current/doc/man/man1/xauth.1.xhtml"><code>xauth</code></a> is the standard tool for these cookies, and the setup uses it to hand yours to the container (see <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>).</li>
 </ul>
 </li>
-<li><strong>For the real robot from WSL 2:</strong> WSL's mirrored networking, so the robot can reach your PC (see <a href="#network">Network</a>). Simulation doesn't need it.</li>
+<li><strong>For the real robot from WSL 2:</strong> WSL's mirrored networking, so the robot can reach your PC (see <a href="../dev-container-internals/#network">Network</a>). Simulation doesn't need it.</li>
 </ul>
 <h2 id="usage">Usage</h2>
 <p>Clone the repository on the host first:</p>
@@ -3907,7 +3879,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </div>
 <div class="tabbed-block">
-<p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see <a href="#creating-the-container">Creating the container</a>).</p>
+<p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see <a href="../dev-container-internals/#creating-the-container">Creating the container</a>).</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -3927,89 +3899,7 @@
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_control diffbot.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>After changing code, rebuild with <code>catkin build</code> in <code>~/catkin_ws</code>.</p>
-<h2 id="how-the-dev-container-works">How the dev container works</h2>
-<p>What the files in diffbot's <code>.devcontainer/noetic/</code> folder do, and how the image, the container, the network and the display access are set up.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">File in diffbot</th>
-<th style="text-align: left;">Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/Dockerfile"><code>.devcontainer/noetic/Dockerfile</code></a></td>
-<td style="text-align: left;">The image: ROS, Gazebo, tools and the packages' dependencies</td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/devcontainer.json"><code>.devcontainer/noetic/devcontainer.json</code></a></td>
-<td style="text-align: left;">How the container runs: mounts, network, display, what runs when</td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>.devcontainer/noetic/setup.sh</code></a></td>
-<td style="text-align: left;">Runs once in a new container: fetches repositories, installs dependencies, builds the workspace</td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>.devcontainer/noetic/host-x11.sh</code></a></td>
-<td style="text-align: left;">Runs on the host before the container starts: prepares the display access</td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.dockerignore"><code>.dockerignore</code></a></td>
-<td style="text-align: left;">Keeps <code>.git</code> and the X11 cookie out of the image build</td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/devcontainer.yml"><code>.github/workflows/devcontainer.yml</code></a></td>
-<td style="text-align: left;">CI builds the same container on every pull request</td>
-</tr>
-</tbody>
-</table>
-<h3 id="the-image">The image</h3>
-<p>The <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/Dockerfile">Dockerfile</a> starts from <a href="https://hub.docker.com/r/osrf/ros"><code>osrf/ros:noetic-desktop-full</code></a>, the official ROS image with ROS Noetic, Gazebo 11 and RViz on Ubuntu 20.04. On top it installs <a href="https://catkin-tools.readthedocs.io/">catkin tools</a>, <a href="https://github.com/dirk-thomas/vcstool">vcstool</a> and a few shell tools, and creates the user <code>ros</code> (UID 1000, sudo without password).</p>
-<p>The packages' dependencies are installed with <a href="http://wiki.ros.org/rosdep">rosdep</a> from their <code>package.xml</code> files. The Dockerfile has two <a href="https://docs.docker.com/build/building/multi-stage/">stages</a> for this:</p>
-<ol>
-<li>The first stage copies the repository and keeps only the <code>package.xml</code> files.</li>
-<li>The second stage copies just those files and runs <code>rosdep install</code> on them.</li>
-</ol>
-<p>Docker reuses a build step as long as its inputs don't change (<a href="https://docs.docker.com/build/cache/">build cache</a>). Because the rosdep step only sees the <code>package.xml</code> files, a change to the source code doesn't reinstall the dependencies: the image rebuilds in about 2 seconds. A change to a <code>package.xml</code> reinstalls them, which takes about 40 seconds.</p>
-<div class="admonition note">
-<p class="admonition-title">Why the old Dockerfile was replaced</p>
-<p>The repository used to have a <code>Dockerfile</code> in its root. It stopped building because it added the ROS package source a second time, with ROS's old signing key, which expired in 2025 (<code>EXPKEYSIG F42ED6FBAB17C654</code>; see the <a href="https://discourse.ros.org/t/ros-signing-key-migration-guide/43937">ROS signing key migration guide</a>). The official ROS images already have the ROS package source set up with the current key, so the new Dockerfile doesn't add it again.</p>
-</div>
-<h3 id="creating-the-container">Creating the container</h3>
-<p>When the container is created, the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/devcontainer.json">devcontainer.json</a> settings apply in this order (see the dev container <a href="https://containers.dev/implementors/json_reference/#lifecycle-scripts">lifecycle scripts</a>):</p>
-<ol>
-<li><strong>On the host:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> prepares the display access (see <a href="#gui-apps-x11-and-wslg">GUI apps</a> below).</li>
-<li><strong>Build and start:</strong> the image is built, and the container starts with your clone mounted at <code>~/catkin_ws/src/diffbot</code>. VS Code and the CLI change the UID and GID of the user <code>ros</code> to yours, so files created in the container belong to you on the host (<a href="https://containers.dev/implementors/json_reference/"><code>updateRemoteUserUID</code></a>).</li>
-<li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <a href="https://github.com/dirk-thomas/vcstool"><code>vcs import</code></a> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
-</ol>
-<p><code>remo_description</code> contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its <a href="https://github.com/ros-mobile-robots/remo_description#stl-mesh-files">README</a>. DiffBot's own meshes are part of <code>diffbot_description</code>.</p>
-<h3 id="network">Network</h3>
-<p>The container uses the host's network (<a href="https://docs.docker.com/engine/network/drivers/host/"><code>--network=host</code></a>): it has no network of its own, and ROS nodes in the container are reachable at the host's IP address. For the real robot, set <a href="http://wiki.ros.org/ROS/EnvironmentVariables"><code>ROS_MASTER_URI</code> and <code>ROS_IP</code></a> as described in <a href="../../processing_units/ros-network-setup/">ROS Network Setup</a>.</p>
-<p>ROS 1 nodes connect to each other directly, in both directions: the machines need "full bi-directional connectivity, on all ports" (<a href="http://wiki.ros.org/ROS/NetworkSetup">ROS NetworkSetup</a>). So the robot must be able to reach your PC too:</p>
-<ul>
-<li><strong>Linux PC:</strong> the host's IP address is the PC's address on your network, so this works as usual.</li>
-<li><strong>Windows with WSL 2:</strong> by default, WSL 2 sits behind its own network translation (NAT) with a private IP address, and devices on your network can't connect to it. Switch on <a href="https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking">mirrored networking</a> (Windows 11 22H2 or later): add <code>networkingMode=mirrored</code> under <code>[wsl2]</code> in <code>%UserProfile%\.wslconfig</code> (<a href="https://learn.microsoft.com/en-us/windows/wsl/wsl-config">WSL settings</a>) and run <code>wsl --shutdown</code>. WSL then shares Windows' network addresses, and the robot can reach it. Windows' Hyper-V firewall may also need to allow incoming connections, as described on that page. This setup isn't tested with the robot yet.</li>
-</ul>
-<h3 id="gui-apps-x11-and-wslg">GUI apps: X11 and WSLg</h3>
-<p>The container has no screen of its own; it's "headless". Linux GUI apps don't need one: a program like RViz is an X client: it connects to an X server and sends it what to draw, and the X server shows the window (<a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml">X Window System</a>). The container borrows the host's X server. It gets the socket folder <code>/tmp/.X11-unix</code>, through which clients reach the X server, and the <a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml#heading5"><code>DISPLAY</code></a> variable, which says which display to use. So RViz runs in the container, but its window opens on your desktop like any other.</p>
-<p>On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> provides the X server and accepts local clients without a cookie, so nothing else is needed.</p>
-<details class="info">
-<summary>How WSLg shows Linux windows on Windows</summary>
-<p>An X11 program like RViz connects through the X socket to XWayland, WSLg's X server. Weston, a Wayland compositor, collects the windows and sends them over a remote desktop (RDP) connection to Windows, which shows each one as a normal window. All of this runs in a small "system distro" next to your Ubuntu.</p>
-<p></p><figure>
-  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="../images/wslg-architecture.png" alt="WSLg architecture: X11 and Wayland apps in the user distro connect to XWayland and Weston in the WSLg system distro, which sends windows to the Windows host over RDP"></a>
-  <figcaption>Diagram: <a href="https://github.com/microsoft/wslg">WSLg</a>, Microsoft, <a href="https://github.com/microsoft/wslg/blob/main/LICENSE">MIT License</a></figcaption>
-</figure><p></p>
-</details>
-<p>A native Linux desktop (X11, or Wayland with Xwayland) only accepts clients that present the display's cookie (<code>MIT-MAGIC-COOKIE-1</code>, see <a href="#requirements">Requirements</a>). <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> copies that cookie for the container, the method from the <a href="http://wiki.ros.org/docker/Tutorials/GUI">ROS Docker GUI tutorial</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>xauth<span class="w"> </span>nlist<span class="w"> </span><span class="s2">"</span><span class="nv">$DISPLAY</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">'s/^..../ffff/'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xauth<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$tmp_file</span><span class="s2">"</span><span class="w"> </span>nmerge<span class="w"> </span>-
-</code></pre></div></td></tr></tbody></table></div>
-<ul>
-<li><strong>Wildcard address:</strong> <code>xauth nlist</code> prints the cookie entries for the display. Their first four characters are the address family; <code>ffff</code> changes it to "wild", so the cookie matches any hostname, including the container's.</li>
-<li><strong>Where the cookie goes:</strong> the script writes the cookie to <code>.devcontainer/noetic/.x11/xauth</code>, through a temporary file and a rename. Git and Docker ignore that folder.</li>
-<li><strong>How the container finds it:</strong> the container reads the cookie through the workspace mount (<code>XAUTHORITY</code> points there). A refreshed cookie is therefore visible in a running container too.</li>
-</ul>
-<p>This avoids <a href="https://www.x.org/releases/current/doc/man/man1/xhost.1.xhtml"><code>xhost +</code></a>, which switches off the access control, so every local user and process could connect to your display. The ROS tutorial also calls that "not the safest way".</p>
+<p>How the image, the container, the network and the display access work in detail: <a href="../dev-container-internals/">How the Dev Container Works</a>.</p>
 <h2 id="updating">Updating</h2>
 <ul>
 <li>
@@ -4037,11 +3927,11 @@
 </tr>
 <tr>
 <td style="text-align: left;"><code>No protocol specified</code> or <code>cannot open display</code> on native Linux</td>
-<td style="text-align: left;">Install <code>xauth</code> on the host and recreate the container (see <a href="#gui-apps-x11-and-wslg">GUI apps</a>). Check that <code>echo $DISPLAY</code> shows a display on the host.</td>
+<td style="text-align: left;">Install <code>xauth</code> on the host and recreate the container (see <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>). Check that <code>echo $DISPLAY</code> shows a display on the host.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Files in the clone belong to another user (plain Docker)</td>
-<td style="text-align: left;">Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID (see <a href="#creating-the-container">Creating the container</a>).</td>
+<td style="text-align: left;">Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID (see <a href="../dev-container-internals/#creating-the-container">Creating the container</a>).</td>
 </tr>
 <tr>
 <td style="text-align: left;">Gazebo is slow</td>
