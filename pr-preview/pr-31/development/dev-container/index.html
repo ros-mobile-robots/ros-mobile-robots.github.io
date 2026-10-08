@@ -3925,8 +3925,14 @@
 <p>This avoids <code>xhost +</code>, which would allow every local user and process to connect to your display.</p>
 <h2 id="updating">Updating</h2>
 <ul>
-<li><strong>New ROS or system dependency:</strong> add it to the package's <code>package.xml</code>. Then rebuild the container: <strong>Dev Containers: Rebuild Container</strong> in VS Code, or <code>devcontainer up --remove-existing-container</code> with the CLI.</li>
-<li><strong>New source dependency:</strong> add the repository to <code>diffbot_dev.repos</code>, and to the robot's <code>.repos</code> file if the robot needs it too.</li>
+<li>
+<p><strong>New ROS or system dependency:</strong> add it to the package's <code>package.xml</code>. Then rebuild the container: <strong>Dev Containers: Rebuild Container</strong> in VS Code, or with the CLI, from the diffbot folder:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json --remove-existing-container</span>
+</code></pre></div></td></tr></tbody></table></div>
+</li>
+<li>
+<p><strong>New source dependency:</strong> add the repository to <code>diffbot_dev.repos</code>, and to the robot's <code>.repos</code> file if the robot needs it too.</p>
+</li>
 <li><strong>Tools in the image:</strong> add them to the <code>apt-get install</code> list in the Dockerfile.</li>
 </ul>
 <h2 id="troubleshooting">Troubleshooting</h2>
