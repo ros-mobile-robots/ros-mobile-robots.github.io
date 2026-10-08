@@ -1,0 +1,63 @@
+# Continuous Integration
+
+Every pull request and every push to the default branch runs automated checks with [GitHub Actions](https://docs.github.com/actions). A PR is only merged when they pass.
+
+## diffbot
+
+| Workflow | File | What it checks |
+|:---------|:-----|:---------------|
+| CI | `.github/workflows/diffbot_ci_action.yml` | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
+| Build base controller | `.github/workflows/build_base_controller.yml` | Builds the Teensy firmware in `diffbot_base/scripts/base_controller` with [PlatformIO](https://platformio.org/) for the Teensy 4.0, the default environment in its `platformio.ini`. The Teensy 3.1/3.2 environment isn't built in CI. |
+| Dev container | `.github/workflows/devcontainer.yml` | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
+
+### industrial_ci
+
+industrial_ci starts a ROS Docker image, installs the packages' dependencies with rosdep, builds the workspace with catkin and runs the tests. The workflow runs it twice: with ROS packages from the `main` repository, which users install, and from `testing`, where new package versions appear first.
+
+[ccache](https://ccache.dev/) speeds up the C++ builds. The workflow stores its cache with `actions/cache`. The cache key contains the run ID, so each successful run saves a new cache, and `restore-keys` loads the newest one at the start of the next run.
+
+### Dev container workflow
+
+[`devcontainers/ci`](https://github.com/devcontainers/ci) creates the container exactly as VS Code or the Dev Container CLI would, including `setup.sh`, which builds the workspace. Then it runs:
+
+```console
+catkin build --catkin-make-args run_tests
+catkin_test_results build
+```
+
+So a broken Dockerfile, a missing dependency or a failing build shows up in the PR, not on a developer's machine weeks later.
+
+### Tests
+
+The packages have no test cases yet, so the checks prove that everything builds, not that it behaves correctly. Tests are planned as part of the [roadmap](index.md#roadmap).
+
+### Action versions
+
+The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the CI workflow failed before building anything because `actions/cache@v2` had been switched off, and Node 20 actions were retired in September 2026. When a check fails during "Set up job", an outdated action is the likely cause.
+
+### Running the checks locally
+
+- **Workspace build and tests:** in the dev container, in `~/catkin_ws`, run the two commands from the dev container workflow above.
+- **Firmware:**
+
+    ```console
+    pip install platformio
+    cd diffbot_base/scripts/base_controller
+    pio run                # Teensy 4.0
+    pio run -e teensy31    # Teensy 3.1/3.2
+    ```
+
+## This documentation site
+
+| Workflow | File | What it does |
+|:---------|:-----|:-------------|
+| Documentation CI | `.github/workflows/ci.yml` | Builds the site with `mkdocs build --strict`, which fails on any warning, such as a broken link. On a push to `main` it also publishes the site to the `gh-pages` branch, which GitHub Pages serves at ros-mobile-robots.com. |
+| Lint | `.github/workflows/lint.yml` | Checks the spelling with [codespell](https://github.com/codespell-project/codespell); its settings are in `.codespellrc`. |
+| PR preview | `.github/workflows/preview.yml` | Builds every pull request and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. |
+
+To build the site locally:
+
+```console
+pip install -r requirements.txt
+mkdocs serve
+```
