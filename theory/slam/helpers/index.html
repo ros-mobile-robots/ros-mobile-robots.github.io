@@ -4089,7 +4089,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=34468dff">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=29834b97">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4126,7 +4126,7 @@ import seaborn as sns</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=fea2a53c">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e1e0567b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4229,7 +4229,7 @@ def display_world(world_size, position, landmarks=None):
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=2ae82f4b">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=8b1564c8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4534,7 +4534,28 @@ def make_data(N, num_landmarks, world_size, measurement_range, motion_noise,
             event.preventDefault();
             window.googlefc = window.googlefc || {};
             window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
-            window.googlefc.callbackQueue.push(function () { window.googlefc.showRevocationMessage(); });
+            var timer = null, opened = false;
+            window.googlefc.callbackQueue.push(function () {
+              // the tool is there (possibly late): drop the pending or shown note, then open the settings
+              opened = true;
+              clearTimeout(timer);
+              var shown = document.getElementById("cookie-settings-note");
+              if (shown) shown.remove();
+              window.googlefc.showRevocationMessage();
+            });
+            // If Google's consent tool is blocked (ad blockers usually block it), the queue never runs: say so
+            timer = setTimeout(function () {
+              if (opened || document.getElementById("cookie-settings-note")) return;
+              var note = document.createElement("div");
+              note.id = "cookie-settings-note";
+              note.setAttribute("role", "status");
+              note.textContent = "Google's consent tool isn't available in this browser right now, probably because of an ad blocker or privacy extension, so the cookie settings can't be opened here. Any earlier choice stays as it was, and Google Analytics doesn't start on this page while the tool is blocked.";
+              note.style.cssText = "position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:1000;box-sizing:border-box;" +
+                "width:calc(100vw - 2rem);max-width:32rem;padding:.8em 1em;background:#333;color:#fff;border-radius:4px;" +
+                "font-size:.8rem;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.3)";
+              document.body.appendChild(note);
+              setTimeout(function () { note.remove(); }, 12000);
+            }, 2500);
         });
     </script>
 
