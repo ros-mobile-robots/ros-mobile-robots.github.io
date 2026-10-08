@@ -21,15 +21,15 @@ The frontend and backend of a SLAM system may be implemented as separate modules
 
 There are several different types of Simultaneous Localization and Mapping (SLAM) algorithms, which can be classified based on the approach they use to estimate the pose and map of the robot or camera within an unknown environment. Some common types of SLAM algorithms include:
 
-- Graph-based SLAM: These algorithms build a graph representation of the environment and use optimization techniques to estimate the pose and map of the robot. Graph-based SLAM algorithms are typically well-suited for environments with a high degree of structure and can be used with a variety of sensors. Examples include GraphSLAM, Cartographer and RTAB-Map; GTSAM and g2o are libraries for the optimization.
+- Graph-based SLAM: These algorithms store robot poses (and landmarks) as nodes of a graph and measurements as constraints between them, then solve for all of them at once with nonlinear least squares. Loop closures add constraints that correct the drift accumulated along the way. Examples include GraphSLAM, Cartographer and RTAB-Map; GTSAM and g2o are libraries for the optimization.
 
-- Kalman filter-based SLAM: These algorithms use a Kalman filter to estimate the pose and map of the robot in real-time. Kalman filter-based SLAM algorithms are typically well-suited for environments with a moderate degree of motion and can be used with a variety of sensors. Examples are EKF SLAM and, for visual-inertial odometry, MSCKF and ROVIO.
+- Kalman filter-based SLAM: These algorithms keep a single Gaussian estimate of the current pose and the map, or of a window of recent poses, and update it with every measurement. In EKF SLAM the covariance matrix grows quadratically with the number of landmarks, which limits the map size. Examples are EKF SLAM and, for visual-inertial odometry, MSCKF and ROVIO.
 
-- Particle filter-based SLAM: These algorithms use a particle filter to estimate the pose and map of the robot in real-time. Particle filter-based SLAM algorithms are typically well-suited for dynamic environments and can be used with a variety of sensors. Examples of particle filter-based SLAM algorithms include FastSLAM and GMapping.
+- Particle filter-based SLAM: These algorithms sample possible robot trajectories with a particle filter; each particle carries its own map, conditioned on its path (Rao-Blackwellization). This lets several hypotheses about the trajectory exist side by side. Like most SLAM methods, they assume a static world; moving objects need extra handling. Examples include FastSLAM and GMapping.
 
-- Direct method-based SLAM: These algorithms use a direct method approach that does not require feature extraction or tracking. Direct method-based SLAM algorithms are typically well-suited for use in challenging environments and can be used with visual sensors. Examples include LSD-SLAM and DSO; SVO is semi-direct.
+- Direct method-based SLAM: These algorithms estimate the camera motion by minimizing the photometric error of pixel intensities directly, instead of extracting and matching features. They can use image regions with little texture that feature-based methods ignore, but they are sensitive to exposure changes and need a good initial estimate. Examples include LSD-SLAM and DSO; SVO is semi-direct.
 
-- Feature-based SLAM: These algorithms use features in the environment to track the pose of the robot or camera. Feature-based SLAM algorithms are typically well-suited for use in structured environments and can be used with visual sensors. An example of a feature-based SLAM algorithm is ORB-SLAM.
+- Feature-based SLAM: These algorithms extract keypoints with descriptors, for example ORB, and match them between frames; the matches feed pose estimation and bundle adjustment. Matching copes with larger motions and lighting changes, but needs textured scenes. An example is ORB-SLAM.
 
 - Dense SLAM: These algorithms build a dense map of the environment, for example a volumetric (TSDF) or surfel map, usually from RGB-D cameras. Examples are KinectFusion and ElasticFusion.
 
@@ -57,7 +57,7 @@ The SLAM libraries and algorithms above, with their approach and key features:
 
 - [OpenSLAM](https://openslam-org.github.io/): A website that collects open-source SLAM implementations from many research groups, including GMapping.
 
-- [Cartographer](https://github.com/cartographer-project/cartographer): Real-time SLAM from Google for 2D and 3D lidar, with optional IMU and odometry. It builds local submaps and optimizes them in a pose graph with loop closure.
+- [Cartographer](https://github.com/cartographer-project/cartographer): Real-time SLAM from Google for 2D and 3D lidar. Odometry is optional; an IMU is optional in 2D and required in 3D. It builds local submaps and optimizes them in a pose graph with loop closure.
 
 - [LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM): Lightweight, ground-optimized LOAM for ground vehicles: it segments the ground plane and runs in real time on embedded computers.
 
