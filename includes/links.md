@@ -17,6 +17,7 @@
 [amazon_teensy_4.0_us]: https://www.amazon.com/dp/B08259KDHY?tag=fjp033-20
 
 [amazon_hobby_motor_us]: https://www.amazon.com/dp/B088FZG5K7?tag=fjp033-20
+[amazon_hobby_motor_ger]: https://www.amazon.de/dp/B09NNQ5Q49?tag=fjp-21
 
 [amazon_anker_powerbank_pc10k_ger]: https://amzn.to/3B4ObUA
 [amazon_anker_powerbank_pc10k_us]: https://www.amazon.com/dp/B0D5CLSMFB?tag=fjp033-20
