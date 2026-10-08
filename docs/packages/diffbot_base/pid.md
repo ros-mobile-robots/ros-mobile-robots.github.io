@@ -29,7 +29,7 @@ motors into account.
 
 For this reason a PID controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 !!! note
 
@@ -47,7 +47,7 @@ For more details on ROS dynamic reconfigure see [the official tutorials](http://
 
 With the use of the PID controller the robot is able to drive straight:
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/fdn5Mu0Qhl8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/fdn5Mu0Qhl8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 In case of using inexpensive motors like the [DG01D-E](https://www.sparkfun.com/products/16413) of DiffBot,
 you have to take inaccurate driving behaviour into account. The straight driving behaviour can be improved
@@ -90,7 +90,7 @@ stop it when it reaches the end of the tape. Record the lateral displacement
 from the tape. Measuring a value below 10 cm is considered precise for these
 motors.
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/37M-3k2FCsQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/37M-3k2FCsQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 The video shows the real DiffBot robot as well as running the
 `gazebo_ros_control` plugin with `diff_drive_controller` from ROS Control. The
@@ -215,7 +215,7 @@ $$
 e_{l/r} = \dot{\phi}_{desired,l/r} - \dot{\phi}_{measured,l/r}
 $$
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/4Y7zG48uHRo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/4Y7zG48uHRo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 In case of oscillations (wheel spin direction keeps changing), might happen
 because of a too high proportional gain $K_P$ or a too low derivative gain

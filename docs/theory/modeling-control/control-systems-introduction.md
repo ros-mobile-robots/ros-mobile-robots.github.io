@@ -13,9 +13,8 @@ These sensors produce observations.
 ``` mermaid
 graph RL
   A[Actuators] -- Inputs --> P[Process and Environment];
-  DIR("<img src='https://iconscout.com/ms-icon-310x310.png' width='30' />")
   P -->|Outputs| S[Sensors];
-  S -- Observations --> id1["<img src='' />"];
+  S -- Observations --> id1[" "];
   style id1 fill:#ffff,stroke-width:0px
 ```
 
@@ -214,7 +213,7 @@ planning, and control: to see, to plan, and to act.
 
     ``` mermaid
     graph LR
-      id1["<img src='' />"] -- observations --> P[perception]
+      id1[" "] -- observations --> P[perception]
       subgraph agent/controller
       P --> |estimate/belief|PL[planner] --> C[controller]
       P --> |estimate/belief|C

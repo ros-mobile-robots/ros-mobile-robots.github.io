@@ -15,7 +15,7 @@ It is important to understand that errors in direction are much more significant
 
 See the following video explaining odometry:
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/3S8MXsnNe3U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/3S8MXsnNe3U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 In the simplest implementation, the speed of the wheels of a robot is assumed to be proportional to 
@@ -24,7 +24,7 @@ which measure the actual number of revolutions of the wheels.
 
 The following video from Sparkfun gives an overview of Encoders
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/oLBYHbLO8W0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/oLBYHbLO8W0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ### Distance, Velocity and Time
 
