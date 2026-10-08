@@ -62,7 +62,7 @@ The following image shows the motor from its side with the corresponding pin des
 
 The following video gives an idea of what has to be done to get the motor and encoder working with ROS.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/kNTMK3HlahQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/kNTMK3HlahQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 ### Wheel Encoder Measurements
