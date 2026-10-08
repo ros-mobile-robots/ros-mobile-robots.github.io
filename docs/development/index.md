@@ -21,7 +21,7 @@ The plan is public in the [DiffBot & Remo roadmap](https://github.com/orgs/ros-m
 3. **ROS 2:** the port, in phases for the model and simulation, ros2_control, and the Teensy firmware. It will live in the same repository, on a new branch.
 4. **IMU, filter and navigation:** IMU, Kalman filter (robot_localization) and navigation, for ROS 1 and ROS 2.
 
-Issues labelled `good first issue` or `help wanted` are good places to start.
+Issues labelled [`good first issue`](https://github.com/ros-mobile-robots/diffbot/labels/good%20first%20issue) or [`help wanted`](https://github.com/ros-mobile-robots/diffbot/labels/help%20wanted) are good places to start.
 
 ## How changes get in
 
@@ -31,7 +31,7 @@ Issues labelled `good first issue` or `help wanted` are good places to start.
 4. **Checks and review:** the [CI checks](ci.md) must pass, and every PR gets a review.
 5. **Merge:** PRs are squash-merged. The PR title and description become the commit message, so they should read like one. The branch is deleted after the merge.
 
-A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site.
+A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site (see [Writing docs](#writing-docs)).
 
 ## Best practices
 

@@ -48,8 +48,8 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 
 ### Running the checks locally
 
-- **Workspace build and tests:** in the dev container, in `~/catkin_ws`, run the two commands from the dev container workflow above.
-- **Firmware:** build it on the host, not in the ROS container: the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. CI builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:
+- **Workspace build and tests:** in the [dev container](dev-container.md), in `~/catkin_ws`, run the two commands from the [dev container workflow](#dev-container-workflow) above.
+- **Firmware:** build it on the host, not in the [ROS container](dev-container.md): the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. CI builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:
 
     ```console
     sudo apt install python3-venv

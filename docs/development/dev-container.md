@@ -1,6 +1,6 @@
 # Dev Container
 
-The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and [CI](ci.md), gets the same environment, on Linux and on Windows with WSL 2.
+The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and [CI](ci.md#dev-container-workflow), gets the same environment, on Linux and on Windows with WSL 2.
 
 It's the recommended setup for the development PC. The robot's single board computer is still set up natively, see [Packages Setup](../packages/packages-setup.md).
 
@@ -16,7 +16,7 @@ It's the recommended setup for the development PC. The robot's single board comp
     Log out and in again, or on WSL 2 run `wsl --shutdown` in Windows PowerShell, so the new `docker` group applies.
 
 - **A way to start the container:** [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers), the [Dev Container CLI](https://github.com/devcontainers/cli) (`npm install -g @devcontainers/cli`), or plain Docker.
-- **GUI apps on a native Linux desktop:** `xauth` on the host (`sudo apt install xauth`). On Windows, WSLg needs nothing extra.
+- **GUI apps on a native Linux desktop:** `xauth` on the host (`sudo apt install xauth`), see [GUI apps](#gui-apps-x11-and-wslg). On Windows, WSLg needs nothing extra.
 
 ## Usage
 
@@ -40,7 +40,7 @@ cd diffbot
 
 === "Plain Docker"
 
-    The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it.
+    The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see [Creating the container](#creating-the-container)).
 
     ```console
     docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .
@@ -88,7 +88,7 @@ Docker reuses a build step as long as its inputs don't change. Because the rosde
 
 When the container is created, the [devcontainer.json]({{ diffbot_repo_url }}/.devcontainer/noetic/devcontainer.json) settings apply in this order:
 
-1. **On the host:** `host-x11.sh` prepares the display access (see below).
+1. **On the host:** [`host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) prepares the display access (see [GUI apps](#gui-apps-x11-and-wslg) below).
 2. **Build and start:** the image is built, and the container starts with your clone mounted at `~/catkin_ws/src/diffbot`. VS Code and the CLI change the UID and GID of the user `ros` to yours, so files created in the container belong to you on the host.
 3. **In the container:** [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) runs once. It imports `rplidar_ros` and `remo_description` with `vcs import` from [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), runs `rosdep install` again for anything added since the image was built, builds the workspace with `catkin build` and adds the workspace to `~/.bashrc`.
 
@@ -132,6 +132,6 @@ This avoids `xhost +`, which would allow every local user and process to connect
 | Problem | Fix |
 |:--------|:----|
 | `permission denied` on `/var/run/docker.sock` | Your user isn't in the `docker` group yet. Add it, then log out and in (WSL 2: `wsl --shutdown`). |
-| `No protocol specified` or `cannot open display` on native Linux | Install `xauth` on the host and recreate the container. Check that `echo $DISPLAY` shows a display on the host. |
-| Files in the clone belong to another user (plain Docker) | Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID. |
+| `No protocol specified` or `cannot open display` on native Linux | Install `xauth` on the host and recreate the container (see [GUI apps](#gui-apps-x11-and-wslg)). Check that `echo $DISPLAY` shows a display on the host. |
+| Files in the clone belong to another user (plain Docker) | Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID (see [Creating the container](#creating-the-container)). |
 | Gazebo is slow | The container renders without GPU acceleration, which isn't set up yet. |
