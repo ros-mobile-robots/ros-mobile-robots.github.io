@@ -21,17 +21,17 @@ The frontend and backend of a SLAM system may be implemented as separate modules
 
 There are several different types of Simultaneous Localization and Mapping (SLAM) algorithms, which can be classified based on the approach they use to estimate the pose and map of the robot or camera within an unknown environment. Some common types of SLAM algorithms include:
 
-- Graph-based SLAM: These algorithms build a graph representation of the environment and use optimization techniques to estimate the pose and map of the robot. Graph-based SLAM algorithms are typically well-suited for environments with a high degree of structure and can be used with a variety of sensors. Examples include GTSAM, GraphSLAM, ORB-SLAM, Cartographer, and RTAB-Map.
+- Graph-based SLAM: These algorithms build a graph representation of the environment and use optimization techniques to estimate the pose and map of the robot. Graph-based SLAM algorithms are typically well-suited for environments with a high degree of structure and can be used with a variety of sensors. Examples include GraphSLAM, Cartographer and RTAB-Map; GTSAM and g2o are libraries for the optimization.
 
-- Kalman filter-based SLAM: These algorithms use a Kalman filter to estimate the pose and map of the robot in real-time. Kalman filter-based SLAM algorithms are typically well-suited for environments with a moderate degree of motion and can be used with a variety of sensors. An example of a Kalman filter-based SLAM algorithm is Okvis.
+- Kalman filter-based SLAM: These algorithms use a Kalman filter to estimate the pose and map of the robot in real-time. Kalman filter-based SLAM algorithms are typically well-suited for environments with a moderate degree of motion and can be used with a variety of sensors. Examples are EKF SLAM and, for visual-inertial odometry, MSCKF and ROVIO.
 
 - Particle filter-based SLAM: These algorithms use a particle filter to estimate the pose and map of the robot in real-time. Particle filter-based SLAM algorithms are typically well-suited for dynamic environments and can be used with a variety of sensors. Examples of particle filter-based SLAM algorithms include FastSLAM and GMapping.
 
-- Direct method-based SLAM: These algorithms use a direct method approach that does not require feature extraction or tracking. Direct method-based SLAM algorithms are typically well-suited for use in challenging environments and can be used with visual sensors. Examples of direct method-based SLAM algorithms include DSO and SVO.
+- Direct method-based SLAM: These algorithms use a direct method approach that does not require feature extraction or tracking. Direct method-based SLAM algorithms are typically well-suited for use in challenging environments and can be used with visual sensors. Examples include LSD-SLAM and DSO; SVO is semi-direct.
 
 - Feature-based SLAM: These algorithms use features in the environment to track the pose of the robot or camera. Feature-based SLAM algorithms are typically well-suited for use in structured environments and can be used with visual sensors. An example of a feature-based SLAM algorithm is ORB-SLAM.
 
-Volumetric SLAM: These algorithms use a volumetric representation of the environment to track the pose of the robot or camera. Volumetric SLAM algorithms are typically well-suited for use in unstructured environments and can be used with visual. An example of a volumetric SLAM algorithm is ElasticFusion.
+- Dense SLAM: These algorithms build a dense map of the environment, for example a volumetric (TSDF) or surfel map, usually from RGB-D cameras. Examples are KinectFusion and ElasticFusion.
 
 <figure markdown>
   ![Visual SLAM Roadmap](https://raw.githubusercontent.com/changh95/visual-slam-roadmap/main/img/getting-familiar.png){ width="300" }
@@ -41,61 +41,61 @@ Volumetric SLAM: These algorithms use a volumetric representation of the environ
 
 ### Summary of SLAM libraries and algorithms
 
-summary of the Simultaneous Localization and Mapping (SLAM) libraries and algorithms that I mentioned, with additional information about their approach and key features:
+The SLAM libraries and algorithms above, with their approach and key features:
 
 - [GTSAM](https://gtsam.org/): A library of algorithms and data structures for SLAM, implemented in C++ and designed for efficiency and scalability. GTSAM uses a graph-based optimization approach and includes a range of algorithms for different types of sensors and environments.
 
-- [GMapping](https://openslam-org.github.io/gmapping.html): An open-source SLAM algorithm implemented in ROS, based on a particle filter and designed for use with laser scanners and odometry sensors. GMapping uses a Monte Carlo localization approach to create a map of the environment and determine the location of the robot.
+- [GMapping](https://openslam-org.github.io/gmapping.html): Laser-based SLAM with a Rao-Blackwellized particle filter: each particle carries its own occupancy grid map. It needs laser scans and odometry and is available in ROS as `slam_gmapping`.
 
-- GraphSLAM: A library for implementing SLAM algorithms that use graph-based optimization, implemented in C++ and open-source. GraphSLAM algorithms build a graph representation of the environment and use optimization techniques to estimate the pose and map of the robot.
+- GraphSLAM: An algorithm (Thrun and Montemerlo, 2006) that stores robot poses and measurements as a graph of constraints and solves for the trajectory and map with nonlinear least squares. Libraries such as GTSAM and g2o solve this kind of problem.
 
-- FastSLAM: A real-time SLAM algorithm based on a particle filter, implemented in C++ and open-source. FastSLAM uses a Bayesian filtering approach to estimate the pose and map of the robot in real-time, and is well-suited for use in dynamic environments.
+- FastSLAM: An algorithm (Montemerlo et al., 2002) that uses a Rao-Blackwellized particle filter: the particles sample the robot's path, and each particle keeps its own landmark estimates in small Kalman filters.
 
-- Hector SLAM: A ROS-based SLAM library designed for use with laser scanners and odometry sensors, implemented in C++ and open-source. Hector SLAM uses a scan matching approach to create a map of the environment and determine the location of the robot.
+- [Hector SLAM](https://github.com/tu-darmstadt-ros-pkg/hector_slam): Laser-based SLAM for ROS that matches scans against the map. It doesn't need wheel odometry, which makes it useful for handheld or flying platforms.
 
-- ORB-SLAM: A real-time SLAM library that uses visual information from cameras, implemented in C++ and open-source. ORB-SLAM is a feature-based SLAM algorithm that uses ORB features and a pose graph optimization approach to estimate the pose and map of the robot, a monocular, stereo, or RGB-D camera. It is based on the ORB (Oriented FAST and Rotated BRIEF) feature descriptor, which is fast to compute and has good performance in terms of repeatability and robustness to noise and partial occlusion. ORB-SLAM uses an efficient method for feature extraction and matching by combining the FAST corner detector with the ORB descriptor, and by using a fast and efficient matching algorithm based on the Hamming distance. This allows ORB-SLAM to extract and match features quickly and accurately, even in real-time applications with high frame rates. ORB-SLAM uses a sliding window optimization approach to estimate the camera's pose in real-time, and includes support for loop closure detection and mapping.
+- [ORB-SLAM](https://github.com/UZ-SLAMLab/ORB_SLAM3): Feature-based visual SLAM for monocular, stereo and RGB-D cameras; ORB-SLAM3 adds visual-inertial modes. It tracks ORB features (FAST corners with a binary descriptor), refines keyframes with local bundle adjustment and closes loops with a pose graph.
 
-- OpenSLAM: A collection of open-source SLAM algorithms and tools, implemented in C++. OpenSLAM includes a range of SLAM algorithms for different sensors and environments, including graph-based, Kalman filter-based, and particle filter-based approaches.
+- [OpenSLAM](https://openslam-org.github.io/): A website that collects open-source SLAM implementations from many research groups, including GMapping.
 
-- Cartographer: A real-time SLAM library developed by Google, designed for use with a variety of sensors, implemented in C++ and open-source. Cartographer uses a graph-based optimization approach and includes support for lidar, radar, and visual sensors.
+- [Cartographer](https://github.com/cartographer-project/cartographer): Real-time SLAM from Google for 2D and 3D lidar, with optional IMU and odometry. It builds local submaps and optimizes them in a pose graph with loop closure.
 
-- LeGO-LOAM: A real-time lidar-based SLAM algorithm for aerial robots and ground vehicles, implemented in C++ and open-source. LeGO-LOAM uses a scan matching and optimization approach to estimate the pose and map of the robot in real-time.
+- [LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM): Lightweight, ground-optimized LOAM for ground vehicles: it segments the ground plane and runs in real time on embedded computers.
 
-- LOAM: A real-time lidar-based SLAM algorithm for aerial robots and ground vehicles, implemented in C++ and open-source. LOAM uses a scan matching and optimization approach to estimate the pose and map of the robot in real-time.
+- LOAM: Lidar odometry and mapping (Zhang and Singh, 2014). It matches edge and planar features between scans: fast odometry at a high rate, plus slower, more accurate mapping.
 
-- DSO: A real-time visual SLAM algorithm based on direct methods, implemented in C++ and open-source. DSO uses a direct method approach that does not require feature extraction or tracking, and is well-suited for use in challenging environments.
+- [DSO](https://github.com/JakobEngel/dso): Direct Sparse Odometry, a visual odometry that minimizes the photometric error of image pixels instead of matching features.
 
 - RTAB-Map: A ROS-based SLAM library designed for use with RGB-D cameras and lidar sensors, implemented in C++ and open-source. RTAB-Map uses a graph-based optimization approach and includes support for loop closure detection.
 
-- Okvis: A real-time visual SLAM algorithm based on a Kalman filter, implemented in C++ and open-source. Okvis uses a Kalman filter-based approach and includes support for multiple cameras and inertial sensors.
+- [OKVIS](https://github.com/ethz-asl/okvis): Keyframe-based visual-inertial odometry for stereo or multi-camera rigs with an IMU, using nonlinear optimization over a sliding window of keyframes.
 
-- SVO: A real-time visual SLAM algorithm based on a semi-direct approach, implemented in C++ and open-source. SVO uses a semi-direct method approach that does not require feature extraction or tracking, and is well-suited for use in challenging environments.
+- [SVO](https://github.com/uzh-rpg/rpg_svo): Semi-direct visual odometry: direct image alignment for motion estimation, plus features for mapping. It is very fast, which suits drones.
 
-- VINS-Mono: A real-time visual SLAM algorithm for monocular cameras, implemented in C++ and open-source. VINS-Mono uses an optimization-based approach and includes support for inertial sensors.
+- [VINS-Mono](https://github.com/HKUST-Aerial-Robotics/VINS-Mono): Monocular visual-inertial SLAM with sliding-window optimization, relocalization and loop closure.
 
-- VINS-Fusion: A real-time visual SLAM algorithm for multiple cameras and sensors, implemented in C++ and open-source. VINS-Fusion uses an optimization-based approach and includes support for multiple cameras and inertial sensors.
+- [VINS-Fusion](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion): VINS-Mono extended to stereo cameras, with optional IMU and GPS fusion.
 
-- ElasticFusion: A real-time visual SLAM algorithm based on a volumetric representation of the environment, implemented in C++ and open-source. ElasticFusion uses a volumetric approach to represent the environment and track the camera's pose in real-time.
+- [ElasticFusion](https://github.com/mp3guy/ElasticFusion): Dense RGB-D SLAM that builds a surfel map and corrects it with non-rigid deformation instead of a pose graph.
 
 
-| Algorithm              | Type                     | Source Code / Website                                                 |
-|------------------------|---------------------------|------------------------------------------------------------------------|
-| GTSAM                  | Graph-based SLAM          | https://bitbucket.org/gtborg/gtsam                                     |
-| GraphSLAM              | Graph-based SLAM          |                                                                        |
-| ORB-SLAM               | Feature-based SLAM        | https://github.com/raulmur/ORB_SLAM2                                  |
-| Cartographer           | Graph-based SLAM          | https://github.com/googlecartographer/cartographer                     |
-| RTAB-Map               | Graph-based SLAM          | https://introlab.github.io/rtabmap/                                    |
-| Okvis                  | Kalman filter-based SLAM  | https://github.com/ethz-asl/okvis                                     |
-| FastSLAM               | Particle filter-based SLAM | https://github.com/ekfslamproject/FastSLAM                            |
-| GMapping               | Particle filter-based SLAM | https://openslam.org/gmapping.html                                    |
-| DSO                    | Direct method-based SLAM   | https://github.com/JakobEngel/dso                                      |
-| SVO                    | Direct method-based SLAM   | https://github.com/HugoNip/SVO                                         |
-| LSD-SLAM               | Direct method-based SLAM   | https://github.com/tum-vision/lsd_slam                                |
-| PTAM                  | Feature-based SLAM        | https://github.com/Oxford-PTAM/PTAM-GPL                               |
-| DTAM                  | Direct method-based SLAM   | https://github.com/tum-vision/dense_trajectory_and_mapping            |
-| VINS-Mono              | Direct method-based SLAM   | https://github.com/HKUST-Aerial-Robotics/VINS-Mono                    |
-| VINS-Fusion            | Direct method-based SLAM   | https://github.com/HKUST-Aerial-Robotics/VINS-Fusion                  |
-| Elastic Fusion         | Direct method-based SLAM   | https://github.com/mp3guy/ElasticFusion                               |
+| Algorithm      | Type                                  | Source code / website                                    |
+|----------------|---------------------------------------|----------------------------------------------------------|
+| GTSAM          | Graph optimization library            | https://github.com/borglab/gtsam                         |
+| GraphSLAM      | Graph-based SLAM (algorithm)          | Probabilistic Robotics, chapter 11                       |
+| ORB-SLAM       | Feature-based visual SLAM             | https://github.com/UZ-SLAMLab/ORB_SLAM3                  |
+| Cartographer   | Graph-based lidar SLAM                | https://github.com/cartographer-project/cartographer     |
+| RTAB-Map       | Graph-based SLAM                      | https://introlab.github.io/rtabmap/                      |
+| OKVIS          | Visual-inertial odometry (optimization) | https://github.com/ethz-asl/okvis                      |
+| FastSLAM       | Particle filter-based SLAM (algorithm) | Probabilistic Robotics, chapter 13                      |
+| GMapping       | Particle filter-based SLAM            | https://openslam-org.github.io/gmapping.html             |
+| DSO            | Direct visual odometry                | https://github.com/JakobEngel/dso                        |
+| SVO            | Semi-direct visual odometry           | https://github.com/uzh-rpg/rpg_svo                       |
+| LSD-SLAM       | Direct visual SLAM                    | https://github.com/tum-vision/lsd_slam                   |
+| PTAM           | Feature-based visual SLAM             | https://github.com/Oxford-PTAM/PTAM-GPL                  |
+| DTAM           | Dense direct visual SLAM (algorithm)  | Newcombe, Lovegrove and Davison, ICCV 2011               |
+| VINS-Mono      | Visual-inertial SLAM (optimization)   | https://github.com/HKUST-Aerial-Robotics/VINS-Mono       |
+| VINS-Fusion    | Visual-inertial SLAM (optimization)   | https://github.com/HKUST-Aerial-Robotics/VINS-Fusion     |
+| ElasticFusion  | Dense RGB-D SLAM (surfels)            | https://github.com/mp3guy/ElasticFusion                  |
 
 
 
