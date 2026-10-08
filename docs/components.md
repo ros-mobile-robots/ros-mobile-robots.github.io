@@ -33,7 +33,7 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | Powerbank (e.g 15'000 mAh, or 10'000 mAh) | 1 | $23.99 | [Anker 10K Amazon.com][amazon_anker_powerbank_pc10k_us], [Anker 10K Amazon.de][amazon_anker_powerbank_pc10k_ger] | The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm |
 | Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.com][amazon_battery_holder_8x_aa_us], [Amazon.de][amazon_battery_holder_8x_aa_ger] | |
 | USB C to USB C cable | 1 | $6.99 | [Amazon.com][amazon_usb_c_cable_50cm_us], [Amazon.de][amazon_usb_c_cable_50cm_ger] | USB C to USB C for Powerbank to [SBC](https://en.wikipedia.org/wiki/Single-board_computer) |
-| Remo Base  | 1 | -- | 3D printable, see [`remo_description`](https://github.com/ros-mobile-robots/remo_description) | |
+| Remo Base  | 1 | -- | [Remo STL files on Gumroad](https://fjp.gumroad.com/l/GnMpU) | 3D printed, see [3D printing](hardware_setup/3D_print.md) |
 | Caster ball | 1 | $6.30 | [Amazon.com][amazon_caster_ball_us], [Amazon.de][amazon_caster_ball_ger] | 25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing][amazon_ball_bearing_ger] for the caster |
 | Wheels      | 2 | $3.50 | [Amazon.com][amazon_wheels_us], [Amazon.de][amazon_wheels_ger], [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
 | Power supply | 1 | $7.50 | [Amazon.com][amazon_power_supply_us], [Amazon.de][amazon_power_supply_ger] | USB C, 5V, 3.5A |

@@ -6,6 +6,9 @@ The following video gives an overview of the robot's components and how it will 
 
 More detailed assembly instructions are found in the next few sections.
 The parts are listed in the [components](../components.md) and the [3D printed parts](3D_print.md).
+The printed parts need the Remo STL files:
+
+<a class="md-button md-button--primary" href="https://fjp.gumroad.com/l/GnMpU">Get the Remo STL files</a>
 
 ## Frame
 
