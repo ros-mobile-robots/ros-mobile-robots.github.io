@@ -4113,7 +4113,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=527bfac6">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=497c7da5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4144,7 +4144,7 @@ import numpy as np</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=072bef69">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=602845e3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4475,7 +4475,7 @@ class robot:
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=92f3f63e">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=4232e2d6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4502,7 +4502,7 @@ class robot:
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d18c9796">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=36b07070">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4685,17 +4685,25 @@ class robot:
             event.preventDefault();
             window.googlefc = window.googlefc || {};
             window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
-            var opened = false;
-            window.googlefc.callbackQueue.push(function () { opened = true; window.googlefc.showRevocationMessage(); });
+            var timer = null, opened = false;
+            window.googlefc.callbackQueue.push(function () {
+              // the tool is there (possibly late): drop the pending or shown note, then open the settings
+              opened = true;
+              clearTimeout(timer);
+              var shown = document.getElementById("cookie-settings-note");
+              if (shown) shown.remove();
+              window.googlefc.showRevocationMessage();
+            });
             // If Google's consent tool is blocked (ad blockers usually block it), the queue never runs: say so
-            setTimeout(function () {
+            timer = setTimeout(function () {
               if (opened || document.getElementById("cookie-settings-note")) return;
               var note = document.createElement("div");
               note.id = "cookie-settings-note";
               note.setAttribute("role", "status");
-              note.textContent = "Google's consent tool didn't load in this browser, probably because of an ad blocker or privacy extension. While it's blocked, Google Analytics doesn't load here and there's no consent to change.";
-              note.style.cssText = "position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:1000;max-width:32rem;" +
-                "padding:.8em 1em;background:#333;color:#fff;border-radius:4px;font-size:.8rem;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.3)";
+              note.textContent = "Google's consent tool isn't available in this browser right now, probably because of an ad blocker or privacy extension, so the cookie settings can't be opened here. Any earlier choice stays as it was, and Google Analytics doesn't start on this page while the tool is blocked.";
+              note.style.cssText = "position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:1000;box-sizing:border-box;" +
+                "width:calc(100vw - 2rem);max-width:32rem;padding:.8em 1em;background:#333;color:#fff;border-radius:4px;" +
+                "font-size:.8rem;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.3)";
               document.body.appendChild(note);
               setTimeout(function () { note.remove(); }, 12000);
             }, 2500);
