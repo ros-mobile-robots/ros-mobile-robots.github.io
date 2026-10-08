@@ -1,7 +1,40 @@
+## Which Microcontroller?
+
+The firmware in [`diffbot_base/scripts/base_controller`]({{ diffbot_repo_url }}/diffbot_base/scripts/base_controller) runs on a Teensy. It has two PlatformIO environments, and CI builds both:
+
+| Board | Robot | PlatformIO environment |
+|:------|:------|:-----------------------|
+| [Teensy 4.0](https://www.pjrc.com/store/teensy40.html) | Remo | `teensy40` (default) |
+| [Teensy 3.2](https://www.pjrc.com/store/teensy32.html) | DiffBot | `teensy31` |
+
+### Why not a regular Arduino
+
+The firmware talks to ROS with [rosserial](http://wiki.ros.org/rosserial): the board runs its own ROS node, which keeps message buffers and its publisher and subscriber tables in RAM. On the Teensy, rosserial uses 512-byte buffers in each direction and up to 25 publishers and subscribers. Classic Arduino boards don't have enough RAM for that:
+
+| Board | Processor | Clock | RAM |
+|:------|:----------|------:|----:|
+| Arduino Uno | ATmega328P | 16 MHz | 2 KB |
+| Arduino Mega 2560 | ATmega2560 | 16 MHz | 8 KB |
+| Teensy 3.2 | MK20DX256 | 72 MHz | 64 KB |
+| Teensy 4.0 | i.MX RT1062 | 600 MHz | 1024 KB |
+
+A [comment in the rosserial issue tracker](https://github.com/ros-drivers/rosserial/issues/125#issuecomment-355403278) reports that Arduinos with less than about 40 KB of memory don't work with rosserial, because the packets overwhelm the memory. DiffBot's [discussion #94](https://github.com/ros-mobile-robots/diffbot/discussions/94) shows it in practice: with an Arduino Mega 2560, the connection kept failing with "Unable to sync with device", "Mismatched protocol version" and checksum errors. An STM32 board with 64 KB RAM then connected, but checksum errors remained and the motors didn't move, so the builder ordered a Teensy.
+
+Other boards with enough RAM and a PlatformIO environment could work, but only the two Teensy boards above are tested.
+
+### Without rosserial: the Andino approach
+
+[Andino](https://github.com/Ekumen-OS/andino), a ROS 2 robot similar to DiffBot, runs no ROS code on its Arduino. Instead:
+
+- The single board computer runs the ros2_control hardware interface. It talks to the Arduino over USB with [libserial](https://libserial.readthedocs.io/) ([`motor_driver.cpp`](https://github.com/Ekumen-OS/andino/blob/humble/andino_base/src/motor_driver.cpp)).
+- The Arduino firmware only understands a few short text commands ([`commands.h`](https://github.com/Ekumen-OS/andino/blob/humble/andino_firmware/src/commands.h)), an idea from [ros_arduino_bridge](https://github.com/hbrobotics/ros_arduino_bridge). For example, `e` reads the encoders, `o <left> <right>` sets the PWM, `m <left> <right>` sets a closed-loop speed in ticks per second, and `u <kp> <kd> <ki> <offset>` sets the PID gains.
+
+Because the board only parses short commands, a small Arduino is enough. This is an option for the ROS 2 firmware on the [roadmap](https://github.com/orgs/ros-mobile-robots/projects/3).
+
 ## Teensy Setup
 
 The Teensy 3.2 microcontroller (MCU) is used to get the ticks from the encoders attached to the motors and send this information (counts) as a message over the `/diffbot/ticks_left`
-and `/diffbot/ticks_right` ropics. For this rosserial is running on the Teensy MCU which allows it to create a node on the Teensy that can communicate with
+and `/diffbot/ticks_right` topics. For this rosserial is running on the Teensy MCU which allows it to create a node on the Teensy that can communicate with
 the ROS Master running on the Raspberry Pi.
 
 To setup rosserial on the work PC and the Raspberry Pi the following package has to be installed:
