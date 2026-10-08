@@ -47,6 +47,9 @@
         <script src="../../js/katex-0.19.0/katex.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../../js/katex-0.19.0/katex.min.css">
         
+        <script src="../../js/mermaid-8.8.0/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        
 
     
       
@@ -806,6 +809,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#how-the-pieces-fit-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the pieces fit together
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#requirements" class="md-nav__link">
@@ -3671,6 +3685,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#how-the-pieces-fit-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the pieces fit together
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#requirements" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3799,22 +3824,60 @@
 
 
 <h1 id="dev-container">Dev Container</h1>
-<p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
+<p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/#dev-container-workflow">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
 <p>It's the recommended setup for the development PC. The robot's single board computer is still set up natively, see <a href="../../packages/packages-setup/">Packages Setup</a>.</p>
+<h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
+<p>A few terms first:</p>
+<ul>
+<li><strong>Host:</strong> the computer that runs Docker and the container. That's your Linux PC, or on Windows the Ubuntu that runs in <a href="https://learn.microsoft.com/en-us/windows/wsl/">WSL 2</a> (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.</li>
+<li><strong>Container:</strong> a separate Ubuntu 20.04 with ROS Noetic that runs on the host. Your clone of the diffbot repository is shared with it, so you edit files on the host and build and run them in the container.</li>
+<li><strong>Display server:</strong> the program that draws windows on your screen. On a Linux desktop that's the X server (or Xwayland on Wayland desktops). On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and updated Windows 10) is the display server for Linux apps and shows their windows on the Windows desktop.</li>
+</ul>
+<p><strong>Simulation, no robot needed:</strong> everything runs in the container. Gazebo simulates the robot, RViz shows what it sees, and their windows appear on your screen through the host's display server:</p>
+<div class="mermaid">graph LR
+  subgraph HOST [Host: Linux PC, or Ubuntu in WSL 2]
+    subgraph DC [Dev container: ROS Noetic]
+      NODES[roscore and DiffBot nodes]
+      GZ[Gazebo]
+      RV[RViz and rqt]
+    end
+    XS[Display server: your desktop, or WSLg on Windows]
+  end
+  GZ --&gt;|X11 socket and DISPLAY| XS
+  RV --&gt;|X11 socket and DISPLAY| XS
+  XS --&gt; SCREEN[Windows on your screen]</div>
+<p><strong>With the real robot:</strong> the robot runs ROS natively on its Raspberry Pi (see <a href="../../packages/packages-setup/">Packages Setup</a>), and the container on your PC joins its ROS network. RViz, mapping and navigation can then run on the PC:</p>
+<div class="mermaid">graph LR
+  subgraph PC [Your PC: host network]
+    C[Dev container: RViz, SLAM, navigation]
+  end
+  subgraph ROBOT [Robot: Raspberry Pi with ROS Noetic]
+    M[roscore: ROS master]
+    B[Bringup: drivers, hardware interface]
+  end
+  T[Teensy: motors and encoders]
+  C ---|Wi-Fi or LAN, ROS_MASTER_URI and ROS_IP| M
+  B ---|USB, rosserial| T</div>
+<p>The container shares the host's network (see <a href="#network">Network</a>), and the windows reach your screen as described in <a href="#gui-apps-x11-and-wslg">GUI apps</a>.</p>
 <h2 id="requirements">Requirements</h2>
 <ul>
 <li>
-<p><strong>Docker:</strong> Docker Engine on Linux or in WSL 2, or Docker Desktop. On Ubuntu, including WSL 2:</p>
+<p><strong>Docker on the host:</strong> Docker Engine on Linux or in WSL 2, or Docker Desktop. On Ubuntu, including the Ubuntu in WSL 2:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker.io docker-compose-v2 docker-buildx</span>
 <span class="go">sudo usermod -aG docker $USER</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Log out and in again, or on WSL 2 run <code>wsl --shutdown</code> in Windows PowerShell, so the new <code>docker</code> group applies.</p>
+<p>Log out and in again so the new <code>docker</code> group applies. On WSL 2, run <code>wsl --shutdown</code> in Windows PowerShell and open Ubuntu again.</p>
 </li>
 <li>
 <p><strong>A way to start the container:</strong> <a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a>, the <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> (<code>npm install -g @devcontainers/cli</code>), or plain Docker.</p>
 </li>
-<li><strong>GUI apps on a native Linux desktop:</strong> <code>xauth</code> on the host (<code>sudo apt install xauth</code>). On Windows, WSLg needs nothing extra.</li>
+<li><strong>For windows like RViz and Gazebo:</strong><ul>
+<li>On Windows with WSL 2: nothing to install, WSLg shows them on the Windows desktop.</li>
+<li>On a Linux desktop: install <code>xauth</code> on the host (<code>sudo apt install xauth</code>). The display server only accepts programs that show it a secret "cookie", and <code>xauth</code> is the tool that reads and copies that cookie for the container (see <a href="#gui-apps-x11-and-wslg">GUI apps</a>).</li>
+</ul>
+</li>
+<li><strong>For the real robot from WSL 2:</strong> WSL's mirrored networking, so the robot can reach your PC (see <a href="#network">Network</a>). Simulation doesn't need it.</li>
 </ul>
 <h2 id="usage">Usage</h2>
 <p>Clone the repository on the host first:</p>
@@ -3834,7 +3897,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </div>
 <div class="tabbed-block">
-<p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it.</p>
+<p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see <a href="#creating-the-container">Creating the container</a>).</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -3850,7 +3913,7 @@
 </div>
 </div>
 </div>
-<p>Inside the container, the workspace is <code>~/catkin_ws</code>, already built and sourced. Your clone is mounted at <code>~/catkin_ws/src/diffbot</code>, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:</p>
+<p>Inside the container, the workspace is <code>~/catkin_ws</code>, already built and sourced. This happens automatically: the image adds <code>source /opt/ros/noetic/setup.bash</code> to <code>~/.bashrc</code>, and when the container is created, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> builds the workspace with <code>catkin build</code> and adds <code>source ~/catkin_ws/devel/setup.bash</code>. Every new terminal in the container reads <code>~/.bashrc</code>, so ROS and the workspace are ready. Your clone is mounted at <code>~/catkin_ws/src/diffbot</code>, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_control diffbot.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>After changing code, rebuild with <code>catkin build</code> in <code>~/catkin_ws</code>.</p>
@@ -3904,17 +3967,22 @@
 <h3 id="creating-the-container">Creating the container</h3>
 <p>When the container is created, the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/devcontainer.json">devcontainer.json</a> settings apply in this order:</p>
 <ol>
-<li><strong>On the host:</strong> <code>host-x11.sh</code> prepares the display access (see below).</li>
+<li><strong>On the host:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> prepares the display access (see <a href="#gui-apps-x11-and-wslg">GUI apps</a> below).</li>
 <li><strong>Build and start:</strong> the image is built, and the container starts with your clone mounted at <code>~/catkin_ws/src/diffbot</code>. VS Code and the CLI change the UID and GID of the user <code>ros</code> to yours, so files created in the container belong to you on the host.</li>
 <li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <code>vcs import</code> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
 </ol>
 <p><code>remo_description</code> contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its <a href="https://github.com/ros-mobile-robots/remo_description#stl-mesh-files">README</a>. DiffBot's own meshes are part of <code>diffbot_description</code>.</p>
 <h3 id="network">Network</h3>
-<p>The container uses the host network (<code>--network=host</code>), so ROS nodes in the container are reachable at the host's IP address. Set up <code>ROS_MASTER_URI</code> and <code>ROS_IP</code> as described in <a href="../../processing_units/ros-network-setup/">ROS Network Setup</a> to talk to the robot.</p>
+<p>The container uses the host's network (<code>--network=host</code>): it has no network of its own, and ROS nodes in the container are reachable at the host's IP address. For the real robot, set <code>ROS_MASTER_URI</code> and <code>ROS_IP</code> as described in <a href="../../processing_units/ros-network-setup/">ROS Network Setup</a>.</p>
+<p>ROS 1 nodes connect to each other directly, in both directions, so the robot must be able to reach your PC too:</p>
+<ul>
+<li><strong>Linux PC:</strong> the host's IP address is the PC's address on your network, so this works as usual.</li>
+<li><strong>Windows with WSL 2:</strong> by default, WSL 2 sits behind its own network translation (NAT) with a private IP address, and devices on your network can't connect to it. Switch on <a href="https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking">mirrored networking</a> (Windows 11 22H2 or later): add <code>networkingMode=mirrored</code> under <code>[wsl2]</code> in <code>%UserProfile%\.wslconfig</code> and run <code>wsl --shutdown</code>. WSL then shares Windows' network addresses, and the robot can reach it. Windows' Hyper-V firewall may also need to allow incoming connections, as described on that page. This setup isn't tested with the robot yet.</li>
+</ul>
 <h3 id="gui-apps-x11-and-wslg">GUI apps: X11 and WSLg</h3>
-<p>RViz, Gazebo and rqt open their windows on the host's display. The container gets the X11 socket directory <code>/tmp/.X11-unix</code> and the <code>DISPLAY</code> variable from the host.</p>
-<p>On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> provides the X server and accepts local connections without authentication.</p>
-<p>A native Linux desktop (X11, or Wayland with Xwayland) only accepts clients that present the display's cookie (<code>MIT-MAGIC-COOKIE-1</code>). <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> copies that cookie for the container:</p>
+<p>The container has no screen of its own; it's "headless". Linux GUI apps don't need one: a program like RViz connects to a display server and sends it what to draw, and the display server shows the window. The container borrows the host's display server. It gets the socket folder <code>/tmp/.X11-unix</code>, through which programs reach the X server, and the <code>DISPLAY</code> variable, which says which display to use. So RViz runs in the container, but its window opens on your desktop like any other.</p>
+<p>On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> provides the X server and accepts local connections without a cookie, so nothing else is needed.</p>
+<p>A native Linux desktop (X11, or Wayland with Xwayland) only accepts programs that present the display's secret cookie (<code>MIT-MAGIC-COOKIE-1</code>), so no other user on the machine can draw on your screen. <code>xauth</code> is the standard tool to read and write these cookies. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> copies that cookie for the container:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>xauth<span class="w"> </span>nlist<span class="w"> </span><span class="s2">"</span><span class="nv">$DISPLAY</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">'s/^..../ffff/'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xauth<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$tmp_file</span><span class="s2">"</span><span class="w"> </span>nmerge<span class="w"> </span>-
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
@@ -3950,11 +4018,11 @@
 </tr>
 <tr>
 <td style="text-align: left;"><code>No protocol specified</code> or <code>cannot open display</code> on native Linux</td>
-<td style="text-align: left;">Install <code>xauth</code> on the host and recreate the container. Check that <code>echo $DISPLAY</code> shows a display on the host.</td>
+<td style="text-align: left;">Install <code>xauth</code> on the host and recreate the container (see <a href="#gui-apps-x11-and-wslg">GUI apps</a>). Check that <code>echo $DISPLAY</code> shows a display on the host.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Files in the clone belong to another user (plain Docker)</td>
-<td style="text-align: left;">Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID.</td>
+<td style="text-align: left;">Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID (see <a href="#creating-the-container">Creating the container</a>).</td>
 </tr>
 <tr>
 <td style="text-align: left;">Gazebo is slow</td>

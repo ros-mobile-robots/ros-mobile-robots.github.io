@@ -3831,9 +3831,9 @@
 </ul>
 <h3 id="running-the-checks-locally">Running the checks locally</h3>
 <ul>
-<li><strong>Workspace build and tests:</strong> in the dev container, in <code>~/catkin_ws</code>, run the two commands from the dev container workflow above.</li>
+<li><strong>Workspace build and tests:</strong> in the <a href="../dev-container/">dev container</a>, in <code>~/catkin_ws</code>, run the two commands from the <a href="#dev-container-workflow">dev container workflow</a> above.</li>
 <li>
-<p><strong>Firmware:</strong> build it on the host, not in the ROS container: the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. CI builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:</p>
+<p><strong>Firmware:</strong> build it on the host, not in the <a href="../dev-container/">ROS container</a>: the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. CI builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
