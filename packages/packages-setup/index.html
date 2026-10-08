@@ -3620,8 +3620,13 @@ repository.</p>
 <p>After setting up ROS on your workstation PC and the SBC (either <a href="../../processing_units/rpi-setup/">Raspberry Pi 4B</a> or <a href="../../processing_units/jetson-nano-setup/">Jetson Nano</a>),
 create a ros workspace in your users home folder and clone the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code> repository</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>mkdir -p ros_ws/src
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>mkdir -p ~/ros_ws/src
+cd ~/ros_ws/src
 git clone https://github.com/ros-mobile-robots/diffbot.git
+</code></pre></div></td></tr></tbody></table></div>
+<p>To use a released version instead of the latest code, clone a tag, for example the latest release, <code>1.1.0</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>git clone --depth 1 --branch 1.1.0 https://github.com/ros-mobile-robots/diffbot.git
 </code></pre></div></td></tr></tbody></table></div>
 <h2 id="obtain-system-dependencies">Obtain (system) Dependencies</h2>
 <p>The <code>diffbot</code> repository relies on two sorts of dependencies:</p>
@@ -3637,21 +3642,35 @@ To do this the recommended tool to use is <a href="http://wiki.ros.org/vcstool">
 <p class="admonition-title">Note</p>
 <p><a href="http://wiki.ros.org/vcstool"><code>vcstool</code></a> replaces <a href="http://wiki.ros.org/wstool"><code>wstool</code></a>.</p>
 </div>
-<p>Inside the cloned <code>diffbot</code> repository, 
-make use of the <code>import</code> command and the <code>diffbot.repos</code> file containing the required source repositories:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>vcs import &lt; diffbot.repos
-</code></pre></div></td></tr></tbody></table></div>
-<p>This will clone all repositories which are stored in the <code>diffbot.repos</code> that get passed in via stdin in YAML format.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The file <code>diffbot.repos</code> contains relative paths and will clone the listed repositories in the parent folder from where
-the <code>vcs import</code> command is called. When it is called from inside the <code>diffbot</code> repository, which should be located
-in the <code>src</code> folder of a catkin workspace, then the other repositories are also cloned in the <code>src</code> folder.</p>
-</div>
-<p>For the SBC not all dependencies in <code>diffbot.repos</code> are needed.
-Instead the <code>diffbot_robot.repos</code> is here to clone the <a href="https://github.com/Slamtec/rplidar_ros"><code>rplidar_ros</code></a> repository.</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>vcs import &lt; diffbot_robot.repos
-</code></pre></div></td></tr></tbody></table></div>
+<p>The <code>diffbot</code> repository has three <code>.repos</code> files that list these source dependencies.
+They clone into <code>src/</code>, so run <code>vcs import</code> from the root of the catkin workspace (<code>~/ros_ws</code>) and pass in the file for the machine you're on:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Machine</th>
+<th style="text-align: left;">Command</th>
+<th style="text-align: left;">Clones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Development PC</td>
+<td style="text-align: left;"><code>vcs import &lt; src/diffbot/diffbot_dev.repos</code></td>
+<td style="text-align: left;"><code>rplidar_ros</code>, <code>remo_description</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Remo's SBC</td>
+<td style="text-align: left;"><code>vcs import &lt; src/diffbot/remo_robot.repos</code></td>
+<td style="text-align: left;"><code>rplidar_ros</code>, <code>remo_description</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">DiffBot's SBC</td>
+<td style="text-align: left;"><code>vcs import &lt; src/diffbot/diffbot_robot.repos</code></td>
+<td style="text-align: left;"><a href="https://github.com/Slamtec/rplidar_ros"><code>rplidar_ros</code></a> (Slamtec), <code>raspicam_node</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>vcs import</code> reads the YAML file from stdin and clones every repository it lists.</p>
 <p>Now that additional packages are inside the catkin workspace it is time to install the system dependencies.</p>
 <h3 id="system-dependencies">System Dependencies</h3>
 <p>All the needed ROS system dependencies which are required by diffbot's packages can be installed using
