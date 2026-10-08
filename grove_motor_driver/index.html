@@ -3594,9 +3594,12 @@ which is a rewerite of the <a href="https://github.com/Seeed-Studio/Grove_I2C_Mo
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">pip3 install RPi.GPIO</span>
 <span class="go">pip3 install smbus</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p class="notice">Note that this will install these packages system wide. This is ok because they are installed on the Raspberry Pi which is dedicated to 
-operate for this purpose. For a development environment it is best practice to use a python virtual environment like 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that this will install these packages system wide. This is ok because they are installed on the Raspberry Pi which is dedicated to
+operate for this purpose. For a development environment it is best practice to use a python virtual environment like
 <a href="https://docs.python.org/3/library/venv.html"><code>venv</code></a> and install the packages inside it.</p>
+</div>
 <h3 id="connection">Connection</h3>
 <p>Afterwards the I2C port of the motor should be connected to the I2C port 1 of the Raspberry Pi 4 B. 
 Don't forget to remove the jumper on the motor driver board which would provide power to the Pi.

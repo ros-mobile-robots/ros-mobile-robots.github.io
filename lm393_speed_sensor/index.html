@@ -3427,11 +3427,14 @@
   <h1>Lm393 speed sensor</h1>
 
 <h3 id="lm393-speed-sensor-odometry">LM393 Speed Sensor - Odometry</h3>
-<p class="notice">Note that this sensor is deprecated in the current version of DiffBot because it isn't a quadrature encoder.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that this sensor is deprecated in the current version of DiffBot because it isn't a quadrature encoder.
 Instead, the <a href="https://www.sparkfun.com/products/16413">DG01D-E</a> motor includes a quadrature encoder that can measure ticks (can be converted to speed)
 and the direction the motor is turning (clock-wise or anti-clock-wise).
 The LM393 speed sensor could be used in combination with an additional information about the current driving direction, for example coming from
-the software. Howerver, this won't be as accurate as using a quadrature encoder that provides this information. </p>
+the software. Howerver, this won't be as accurate as using a quadrature encoder that provides this information.</p>
+</div>
 <p>To measure how far the robot has driven, we use the <a href="https://joy-it.net/en/products/SEN-Speed">LM393 speed sensor</a> from Joy-IT as <a href="https://en.wikipedia.org/wiki/Odometry">odometry</a> sensor. 
 First, we will create a ROS package with <a href="https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_create.html#catkin-create-pkg"><code>catkin create pkg PKG_NAME [--catkin-deps [DEP [DEP ...]]]</code></a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>

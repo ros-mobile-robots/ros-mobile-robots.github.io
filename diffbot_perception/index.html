@@ -3403,13 +3403,19 @@ Starting with 2011, OpenCV features GPU acceleration for real-time operations.</
 PCL is released under the terms of the BSD license, and thus free for commercial and research use.</p>
 </div>
 <p>When working with OpenCV and ROS we have to install required dependency using <code>ros-noetic-vision-opencv</code>. This will install additional dependencies like OpenCV (<code>libopencv-dv</code>) and <code>ros-noetic-cv-bridge</code>. There is no need to install OpenCV from source or the Ubuntu binaries (deb package).</p>
-<p class="notice">If you want to use OpenCV without ROS you should consider installing it from <a href="https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html">source using CMake</a>. 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to use OpenCV without ROS you should consider installing it from <a href="https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html">source using CMake</a>.
 This will allow you to configure what features should be installed, e.g., example code.
 Otherwise you can install a pre compiled binary <code>libopencv-dev</code>.</p>
+</div>
 <p>Similar to work with PCL and ROS you need to install the dependency <code>ros-noetic-perception-pcl</code>, which is the interface between ROS and PCL.</p>
-<p class="notice">To work with PCL without ROS you should consider installing it from <a href="https://pointclouds.org/documentation/tutorials/building_pcl.html">source using CMake</a>. 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To work with PCL without ROS you should consider installing it from <a href="https://pointclouds.org/documentation/tutorials/building_pcl.html">source using CMake</a>.
 This will allow you to configure what features should be installed, e.g., example code.
 Otherwise you can install a pre compiled binary <code>libpcl-dev</code>.</p>
+</div>
 <p><a href="https://wiki.ros.org/perception_pcl"><code>perception_pcl</code></a> is a meta package for PCL (Point Cloud Library) ROS interface stack. 
 PCL-ROS is the preferred bridge for 3D applications involving n-D Point Clouds and 3D geometry processing in ROS.</p>
 <!-- Mechanical parts and tools -->

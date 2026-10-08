@@ -3725,7 +3725,10 @@ file. The launch file will </p>
 <span class="go">ls build                  # Show the resulting build space</span>
 <span class="go">ls devel                  # Show the resulting devel space</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p class="notice">Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for <a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for <a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
+</div>
 <h3 id="hardware-interface">Hardware Interface</h3>
 <p>See the <a href="../diffbot_base/include"><code>include</code></a> and <a href="../diffbot_base/src"><code>src</code></a> folders of this package and the details on the hardware interface implementation.
 For more details on the hardware interface also refer to the section <a href="https://fjp.at/projects/diffbot/ros-integration/#ros-control">ROS Integration: Control</a>, it gives more details and also this <a href="https://fjp.at/posts/ros/ros-control/">overview article about ROS Control</a>.</p>
@@ -4061,8 +4064,7 @@ the robot's description from the ROS parameter server:</p>
 
 <span class="p">};</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
-and to command it. When the controller manager runs, the controllers will read from the <code>pos</code>, <code>vel</code> and <code>eff</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>cmd</code> variable. It's mandatory to make sure the <code>pos</code>, <code>vel</code> and <code>eff</code> variables always have the latest joint state available, and to make sure that whatever is written into the <code>cmd</code> variable gets executed by the robot. This can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
+<p>The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, and to command it. When the controller manager runs, the controllers will read from the <code>pos</code>, <code>vel</code> and <code>eff</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>cmd</code> variable. It's mandatory to make sure the <code>pos</code>, <code>vel</code> and <code>eff</code> variables always have the latest joint state available, and to make sure that whatever is written into the <code>cmd</code> variable gets executed by the robot. This can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
 <p>The <code>write()</code> method also contains the output interface to the motor driver. In this case it is publishing <code>/diffbot/motor_left</code> and <code>/diffbot/motor_right</code> topics, which are subscribed by the <a href="https://github.com/ros-mobile-robots/grove_motor_driver/blob/main/src/motor_driver.py">grove_i2c motor_driver python node</a> that is running on the SBC.</p>
 <p>The main node that will be executed uses the <code>controller_manager</code> to operate the so called control loop. 
 In the case of  DiffBot a simple example looks like the following, 
@@ -4185,12 +4187,15 @@ that registers the command member variable of the controller with the hardware i
 <p>When the controller manager runs, the controllers will read from the <code>joint_position</code>, <code>joint_velocity</code> and <code>joint_effort</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>joint_velocity_command</code> variable. It's mandatory to make sure the position, velocity and effort (effort is not needed in the case of the <code>diff_drive_controller</code>) variables always have the latest joint state available, and to make sure that whatever is written into the <code>joint_velocity_command</code> variable gets executed by the robot. As mentioned this can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
 <p>In the control loop the <a href="https://github.com/fjp/diffbot/blob/522cba34117ea4cf90e3e0b5b9b70f0824e226fc/diffbot_base/src/diffbot_hw_interface.cpp#L106">overriden <code>hardware_interface::RobotHW::read()</code> method of DiffBot</a> is used to read the joint states. The <code>diff_drive_controller</code> works with a VelocityInterface which is why the <code>joint_position</code>, defined in rad, and <code>joint_velocity</code>, defined in rad/s, are calculated from the encoder ticks.</p>
 <h2 id="pid-controller">PID Controller</h2>
-<p :=":" class="notice">Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders 
-and the target velocity computed by the <code>diff_drive_controller</code> for a specific wheel joint. 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders
+and the target velocity computed by the <code>diff_drive_controller</code> for a specific wheel joint.
 The <code>diff_drive_controller</code> doesn't have a PID controller integrated, and doesn't take care if the wheels of the robot are actually turning.
 As mentioned above, ROS Control expects that the commands sent by the controller are actually implemented on the real robot hardware and that the
-joint states are always up to date. This means that the <code>diff_drive_controller</code> just uses the <code>twist_msg</code> on the <code>cmd_vel</code> topic for example from the <code>rqt_robot_steering</code> and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account. 
-See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated. </p>
+joint states are always up to date. This means that the <code>diff_drive_controller</code> just uses the <code>twist_msg</code> on the <code>cmd_vel</code> topic for example from the <code>rqt_robot_steering</code> and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account.
+See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated.</p>
+</div>
 <p>This is why a PID controller is needed to avoid situations like the following where the robot moves not straigth although it is commanded to do so:</p>
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
@@ -4239,8 +4244,11 @@ note the voltage level where each motor starts to rotate. Such a test was done o
 </tr>
 </tbody>
 </table>
-<p class="notice">In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
-Using the motors 04 and 05 improved the driving behaviour significantly. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
+Using the motors 04 and 05 improved the driving behaviour significantly.</p>
+</div>
 <p>To deal with significant differences in the motors it would also help to tune the two PIDs individually,
 which is not shown in the <a href="https://youtu.be/fdn5Mu0Qhl8">video above</a>.</p>
 <div class="admonition note">
