@@ -1,0 +1,10 @@
+{
+  "name": "stl-renders",
+  "private": true,
+  "type": "module",
+  "description": "Renders Remo's STL files for the hardware setup pages",
+  "dependencies": {
+    "playwright-core": "1.63.0",
+    "three": "0.170.0"
+  }
+}

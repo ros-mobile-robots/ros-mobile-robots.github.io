@@ -149,6 +149,95 @@ Push the wheels onto the motor shafts.
 
 **Parts:** 2 × wheel
 
-## Bread Board
+## Decks and sensors
 
-![bread board](images/bread_board.svg)
+Steps 15 to 22 add the electronics, the LiDAR and the camera on top of the frame.
+The drawings from step 16 on are rendered from the STL files; again, the dashed magenta lines show where a part goes.
+
+### Step 15: Breadboard parts
+
+![Step 15: the Teensy and the BNO055 IMU plug into the breadboard](images/bread_board.svg)
+
+Push the Teensy 4.0 into the breadboard. The drawing also shows the BNO055 IMU, which is optional.
+The wiring follows the Fritzing view on the [Electronics](electronics.md) page.
+
+**Parts:** 400-point breadboard, Teensy 4.0, BNO055 IMU (optional)
+
+### Step 16: Raspberry Pi deck
+
+![Step 16: the Raspberry Pi deck goes on top of the chassis, with four screws into the threaded inserts](images/decks/16-rpi-deck.jpg)
+
+Place the Raspberry Pi deck on top of the chassis, over the powerbank.
+Fix it with four M2 × 8 mm screws into the threaded inserts from step 1.
+With a Jetson Nano, use the Jetson Nano deck instead. It goes on the same way; only its mounting holes for the board differ.
+
+**Parts:** Raspberry Pi deck (printed, `raspberry_pi_deck.stl`), 4 × M2 × 8 mm screw
+
+### Step 17: Raspberry Pi
+
+![Step 17: the Raspberry Pi goes onto the four bosses of the deck](images/decks/17-raspberry-pi.jpg)
+
+Press four M2 brass threaded inserts into the bosses of the deck, as in step 1.
+Then screw the Raspberry Pi 4 onto them with four M2 × 8 mm screws, with its USB and Ethernet ports toward the left wheel.
+
+**Parts:** Raspberry Pi 4 B, 4 × M2 brass threaded insert, 4 × M2 × 8 mm screw
+
+### Step 18: Breadboard
+
+![Step 18: the breadboard goes onto the back of the deck](images/decks/18-breadboard.jpg)
+
+Place the breadboard from step 15 on the back of the deck, behind the Raspberry Pi.
+Fix it with a Velcro strap, or with the adhesive tape on the bottom of the breadboard.
+
+**Parts:** breadboard from step 15, Velcro strap (or the breadboard's adhesive tape)
+
+### Step 19: LiDAR platform
+
+![Step 19: the LiDAR platform goes over the breadboard, with four screws through its feet into the deck](images/decks/19-lidar-platform.jpg)
+
+Place the LiDAR platform over the breadboard and fix its four feet to the deck.
+
+**Parts:** LiDAR platform (printed, `platfom_rplidar_a2.stl`), 4 × M2 self-tapping screw
+
+### Step 20: LiDAR
+
+![Step 20: the RPLiDAR A2 goes on top of the platform](images/decks/20-lidar.jpg)
+
+Put the RPLiDAR A2 on the platform and screw it on from below with four M3 screws, through the four holes in the platform.
+
+**Parts:** SLAMTEC RPLiDAR A2 M8, 4 × M3 × 6 mm screw
+
+### Step 21: USB adapter holder
+
+![Step 21: the holder with the SLAMTEC USB adapter goes onto the side of the LiDAR platform](images/decks/21-usb-adapter-holder.jpg)
+
+Put the SLAMTEC USB adapter into the printed holder, then clip the holder onto the left side of the LiDAR platform.
+
+**Parts:** SLAMTEC holder (printed, `slamtec_holder.stl`), SLAMTEC USB adapter (comes with the LiDAR)
+
+### Step 22: Camera
+
+Each camera has its own printed adapter.
+Screw the adapter onto the camera mount from step 11 with four M2 self-tapping screws.
+Then set the camera into the adapter, where its weight holds it, or fix it with four more M2 self-tapping screws (optional).
+
+=== "Raspberry Pi Camera v2"
+
+    ![Step 22: the Raspberry Pi Camera holder goes on top of the camera mount](images/decks/22-camera-raspi-cam.jpg)
+
+    **Parts:** Raspberry Pi Camera holder (printed, `Raspberry_pi_CAM_holder.stl`), Raspberry Pi Camera v2, 4 × M2 self-tapping screw (4 more to screw the camera in, optional)
+
+=== "OAK-1"
+
+    ![Step 22: the OAK-1 adjustment mount goes on top of the camera mount](images/decks/22-camera-oak-1.jpg)
+
+    **Parts:** OAK-1 adjustment mount (printed, `OAK-1_adjustment_mount.stl`), OAK-1, 4 × M2 self-tapping screw (4 more to screw the camera in, optional)
+
+=== "OAK-D"
+
+    ![Step 22: the OAK-D adjustment mount goes on top of the camera mount](images/decks/22-camera-oak-d.jpg)
+
+    The OAK-D covers the adapter's screw holes, so screw the adapter on before you attach the camera.
+
+    **Parts:** OAK-D adjustment mount (printed, `OAK-D_adjustment_mount.stl`), OAK-D, 4 × M2 self-tapping screw (4 more to screw the camera in, optional)
+

@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>STL renders</title>
+<style>html, body { margin: 0; background: #fff; }</style>
+<script type="importmap">{"imports": {"three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Renders one job from jobs.json: parts placed by their URDF pose, some lifted off ("explode"),
+// with screws and dashed magenta guide lines like the Fusion 360 drawings of steps 1-14.
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+
+const PRINTED = 0x3c3c3c, HIGHLIGHT = 0x767676, GUIDE = 0xff00ff;
+const COLORS = [  // by link name, first match wins
+  [/rpi_link|jetson/, 0x2f7d46], [/breadboard/, 0xf2f2ee], [/mcu/, 0x2b6b3a], [/motor_driver/, 0x1f1f1f],
+  [/power_bank/, 0x1a1a1a], [/battery_pack/, 0x202020], [/motor$/, 0xd0d0d0], [/wheel/, 0xe0b000],
+  [/rplidar/, 0x2a2a2a], [/camera_link/, 0x3b6e3b], [/slamtec_usb/, 0x2a4f8a], [/.*/, PRINTED],
+];
+const loader = new STLLoader();
+const meshes = new Map(), edges = new Map();
+const geometry = path => {
+  if (!meshes.has(path)) meshes.set(path, loader.loadAsync('/insiders/' + path).then(g => { g.computeVertexNormals(); return g; }));
+  return meshes.get(path);
+};
+const edgesOf = (path, g) => {
+  if (!edges.has(path)) edges.set(path, new THREE.EdgesGeometry(g, 35));
+  return edges.get(path);
+};
+const IDENTITY = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+
+window.renderJob = async (cfg) => {
+  const W = cfg.width || 1440, H = cfg.height || 810, ratio = 2;
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(ratio); renderer.setSize(W, H); renderer.setClearColor(0xffffff, 1);
+  const scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x606060, 2.2));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(0.6, -0.8, 1.4); scene.add(sun);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.6); fill.position.set(-1, 0.6, 0.4); scene.add(fill);
+
+  const data = cfg.stl ? { parts: [{ link: 'part', mesh: cfg.stl, matrix: IDENTITY, scale: [0.001, 0.001, 0.001] }] }
+                       : await (await fetch(cfg.scene)).json();
+  const show = new RegExp(cfg.show || '.*'), highlight = cfg.highlight ? new RegExp(cfg.highlight) : null;
+  const explode = cfg.explode || {}, adjust = cfg.adjust || {};
+  const fit = [], guides = [], lines = [];
+  for (const p of data.parts) {
+    if (!show.test(p.link)) continue;
+    const g = await geometry(p.mesh);
+    let color = (cfg.colors && cfg.colors[p.link]) ?? COLORS.find(([re]) => re.test(p.link))[1];
+    if (highlight && highlight.test(p.link) && color === PRINTED) color = HIGHLIGHT;
+    const pose = new THREE.Matrix4().fromArray(p.matrix.flat()).transpose().multiply(new THREE.Matrix4().makeScale(...p.scale));
+    if (adjust[p.link]) pose.premultiply(new THREE.Matrix4().makeTranslation(...adjust[p.link]));
+    const off = explode[p.link];
+    if (off) pose.premultiply(new THREE.Matrix4().makeTranslation(...off));
+    const part = new THREE.Group();
+    part.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color, roughness: 0.75, metalness: 0.05,
+      polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })));
+    part.add(new THREE.LineSegments(edgesOf(p.mesh, g), new THREE.LineBasicMaterial({ color: color > 0x808080 ? 0x777777 : 0x0d0d0d })));
+    part.matrixAutoUpdate = false; part.matrix.copy(pose); scene.add(part); part.updateMatrixWorld(true);
+    const pos = g.attributes.position, step = Math.max(1, Math.floor(pos.count / 4000));
+    for (let i = 0; i < pos.count; i += step) fit.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(pose));
+    if (off) {
+      const box = new THREE.Box3().setFromObject(part);
+      const anchors = (cfg.anchors && cfg.anchors[p.link]) || (cfg.noAutoGuide ? [] : [[0.5, 0.5, 0]]);
+      for (const [ax, ay, az] of anchors) {
+        const a = new THREE.Vector3(box.min.x + ax * (box.max.x - box.min.x), box.min.y + ay * (box.max.y - box.min.y),
+                                    box.min.z + az * (box.max.z - box.min.z));
+        lines.push([a, a.clone().sub(new THREE.Vector3(...off))]);
+      }
+    }
+  }
+  // screws hang above their hole, with a guide line from the tip down to the hole
+  const steel = new THREE.MeshStandardMaterial({ color: 0xb8b8b8, roughness: 0.35, metalness: 0.6 });
+  const steelEdge = new THREE.LineBasicMaterial({ color: 0x555555 });
+  for (const s of cfg.screws || []) {
+    const d = s.d / 1000, L = s.len / 1000, at = new THREE.Vector3(...s.at).multiplyScalar(0.001);
+    const tip = at.clone().add(new THREE.Vector3(0, 0, s.lift / 1000));
+    const shaft = new THREE.CylinderGeometry(d / 2, d / 2, L, 20).rotateX(Math.PI / 2).translate(0, 0, L / 2);
+    const head = new THREE.CylinderGeometry(d * 0.95, d * 0.95, d * 0.8, 24).rotateX(Math.PI / 2).translate(0, 0, L + d * 0.4);
+    for (const g of [shaft, head]) {
+      const m = new THREE.Mesh(g, steel); m.position.copy(tip); scene.add(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 30), steelEdge); e.position.copy(tip); scene.add(e);
+    }
+    fit.push(tip.clone().add(new THREE.Vector3(0, 0, L + d)));
+    lines.push([tip, at]);
+  }
+  for (const [a, b] of cfg.lines || []) lines.push([new THREE.Vector3(...a).multiplyScalar(0.001), new THREE.Vector3(...b).multiplyScalar(0.001)]);
+  for (const [a, b] of lines) fit.push(a, b);
+
+  // orthographic camera along cfg.view, fitted to the projected geometry
+  const centre = new THREE.Box3().setFromPoints(fit).getCenter(new THREE.Vector3());
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
+  cam.up.set(0, 0, 1);
+  cam.position.copy(centre).add(new THREE.Vector3(...(cfg.view || [1, -1.2, 0.9])).normalize());
+  cam.lookAt(centre); cam.updateMatrixWorld(true);
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const q of fit) {
+    const c = q.clone().applyMatrix4(cam.matrixWorldInverse);
+    x0 = Math.min(x0, c.x); x1 = Math.max(x1, c.x); y0 = Math.min(y0, c.y); y1 = Math.max(y1, c.y);
+  }
+  const margin = 1 + 2 * (cfg.margin ?? 0.07);
+  let w = (x1 - x0) * margin, h = (y1 - y0) * margin;
+  if (w / h > W / H) h = w * H / W; else w = h * W / H;
+  Object.assign(cam, { left: (x0 + x1 - w) / 2, right: (x0 + x1 + w) / 2, bottom: (y0 + y1 - h) / 2, top: (y0 + y1 + h) / 2 });
+  cam.updateProjectionMatrix();
+
+  if (lines.length) {
+    const span = Math.max(w, h);
+    const geom = new LineSegmentsGeometry().setPositions(lines.flatMap(([a, b]) => [...a.toArray(), ...b.toArray()]));
+    const mat = new LineMaterial({ color: GUIDE, linewidth: 3 * ratio, dashed: true, dashSize: span * 0.009, gapSize: span * 0.006 });
+    mat.resolution.set(W * ratio, H * ratio);
+    const guide = new LineSegments2(geom, mat); guide.computeLineDistances(); scene.add(guide);
+    const dot = new THREE.SphereGeometry(span * 0.003, 12, 8), dotMat = new THREE.MeshBasicMaterial({ color: GUIDE });
+    for (const [, b] of lines) { const m = new THREE.Mesh(dot, dotMat); m.position.copy(b); scene.add(m); }
+  }
+  renderer.render(scene, cam);
+  // downsample the 2x render for smooth edges and return a JPEG
+  const out = document.createElement('canvas'); out.width = W; out.height = H;
+  const ctx = out.getContext('2d'); ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(renderer.domElement, 0, 0, W, H);
+  renderer.dispose();
+  return out.toDataURL('image/jpeg', cfg.quality || 0.86);
+};
+window.ready = true;
+</script>
+</body>
+</html>
