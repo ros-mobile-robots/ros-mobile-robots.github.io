@@ -3542,13 +3542,13 @@ the change direction from the velocity of the wheels in a short period of time.
 Unfortunately, odometry is subject to serious errors. 
 It is important to understand that errors in direction are much more significant than errors in distance.</p>
 <p>See the following video explaining odometry:</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/3S8MXsnNe3U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/3S8MXsnNe3U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>In the simplest implementation, the speed of the wheels of a robot is assumed to be proportional to 
 the power applied by the motors. To improve the accuracy of odometry wheel encoders can be used, 
 which measure the actual number of revolutions of the wheels.</p>
 <p>The following video from Sparkfun gives an overview of Encoders</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/oLBYHbLO8W0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/oLBYHbLO8W0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <h3 id="distance-velocity-and-time">Distance, Velocity and Time</h3>
 <p>In general, if a robot moves at a constant applied to the motors it causes the wheels to rotate, which in turn causes the robot velocity <span class="arithmatex">\(v\)</span> for a period of time <span class="arithmatex">\(t\)</span>, the distance <span class="arithmatex">\(s\)</span> it moves is <span class="arithmatex">\(s = v \cdot t\)</span>. When power is to move at some velocity. However, we cannot specify that a certain power causes a certain velocity</p>
@@ -3598,7 +3598,7 @@ v_i = \frac{\Delta s_i}{\Delta t_i}
   <div data-giscus-consent="">
     <p>
       Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
-      shown with giscus. Loading them connects to giscus.app and GitHub; you need a GitHub account to comment.
+      shown with giscus. Loading them connects to giscus.app (hosted by Vercel, USA) and GitHub (USA); you need a GitHub account to comment.
     </p>
     <button class="md-button" type="button" data-giscus-load="">Show comments</button>
   </div>
@@ -3699,7 +3699,44 @@ v_i = \frac{\Delta s_i}{\Delta t_i}
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    // FitVids takes the aspect ratio from the width and height attributes; give percentage widths 16:9
+                    if (/%$/.test(frame.getAttribute("width") || "")) { frame.setAttribute("width", "560"); frame.setAttribute("height", "315"); }
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();

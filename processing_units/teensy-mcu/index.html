@@ -3526,7 +3526,7 @@ Step two of these instructions are only necessary on the work PC to actually pro
 </div>
 <p>The following video shows installation process, 
 more instructions to setup the Arduino IDE can be found in the <a href="http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup">ROS wiki</a>.</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/k56e-KBiP-w" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/k56e-KBiP-w" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>To check if the connection to the Teensy board works use these commands on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -3684,7 +3684,7 @@ The code for the motor encoders uses it as basis together with a pubsub example 
 <h2 id="base-controller">Base Controller</h2>
 <p>If you are working with Remo the recommende way is to use <code>base_controller</code> from <code>diffbot_base/scripts</code> instead of the <code>encoders.ino</code>.
 Build instructions using Visual Studio Code including the PlatformIO plugin are shown in the following video:</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Mn6DY1tNUcU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/Mn6DY1tNUcU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>When using <code>base_controller</code> you should use the low level PID controllers running on the MCU.</p>
 <!-- Mechanical parts and tools -->
@@ -3709,7 +3709,7 @@ Build instructions using Visual Studio Code including the PlatformIO plugin are 
   <div data-giscus-consent="">
     <p>
       Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
-      shown with giscus. Loading them connects to giscus.app and GitHub; you need a GitHub account to comment.
+      shown with giscus. Loading them connects to giscus.app (hosted by Vercel, USA) and GitHub (USA); you need a GitHub account to comment.
     </p>
     <button class="md-button" type="button" data-giscus-load="">Show comments</button>
   </div>
@@ -3810,7 +3810,44 @@ Build instructions using Visual Studio Code including the PlatformIO plugin are 
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    // FitVids takes the aspect ratio from the width and height attributes; give percentage widths 16:9
+                    if (/%$/.test(frame.getAttribute("width") || "")) { frame.setAttribute("width", "560"); frame.setAttribute("height", "315"); }
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();

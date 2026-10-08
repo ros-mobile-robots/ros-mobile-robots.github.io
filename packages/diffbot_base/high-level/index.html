@@ -4197,13 +4197,13 @@ joint states are always up to date. This means that the <code>diff_drive_control
 See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated.</p>
 </div>
 <p>This is why a PID controller is needed to avoid situations like the following where the robot moves not straight although it is commanded to do so:</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>The PID used here inherits from the ROS Control <a href="http://wiki.ros.org/control_toolbox"><code>control_toolbox::Pid</code></a> that provides Dynamic Reconfigure out of the box to tune the proportional, integral and derivative gains. The behaviour when using only the P, I and D gains is that the output can overshoot and even change between positive and negative motor percent values because of a P gain that is too high. To avoid this, a feed forward gain can help to reach the setpoint faster.
 To add this feed forward gain to the dynamic reconfigure parameters it is necessary to add a new parameter configuration file in this package inside a <code>cfg</code> folder. </p>
 <p>For more details on ROS dynamic reconfigure see <a href="http://wiki.ros.org/dynamic_reconfigure/Tutorials">the official tutorials</a>.</p>
 <p>With the use of the PID controller the robot is able to drive straight:</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/fdn5Mu0Qhl8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/fdn5Mu0Qhl8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>In case of using inexpensive motors like the <a href="https://www.sparkfun.com/products/16413">DG01D-E</a> of DiffBot,
 you have to take inaccurate driving behaviour into account. The straight driving behaviour can be improved
@@ -4441,7 +4441,7 @@ This launch file is just loading and starting all controllers again. Note that u
   <div data-giscus-consent="">
     <p>
       Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
-      shown with giscus. Loading them connects to giscus.app and GitHub; you need a GitHub account to comment.
+      shown with giscus. Loading them connects to giscus.app (hosted by Vercel, USA) and GitHub (USA); you need a GitHub account to comment.
     </p>
     <button class="md-button" type="button" data-giscus-load="">Show comments</button>
   </div>
@@ -4542,7 +4542,44 @@ This launch file is just loading and starting all controllers again. Note that u
       <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    // FitVids takes the aspect ratio from the width and height attributes; give percentage widths 16:9
+                    if (/%$/.test(frame.getAttribute("width") || "")) { frame.setAttribute("width", "560"); frame.setAttribute("height", "315"); }
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();
