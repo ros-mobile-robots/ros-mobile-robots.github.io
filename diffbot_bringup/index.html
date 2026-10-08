@@ -3467,9 +3467,9 @@ First the package is created using <code>catkin-tools</code>:</p>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The package provides a <code>launch</code> folder which includes <code>minimal.launch</code> and <code>bringup.launch</code>.</p>
 <p>The <code>minimal.launch</code> is used to load DiffBot's robot description and the controller configuration
-onto the ROS parameter server using the launch file from the <a href="https://fjp.at/projects/diffbot/ros-packages/base/"><code>diffbot_base</code> package</a>. 
+onto the ROS parameter server using the launch file from the <a href="../packages/diffbot_base/"><code>diffbot_base</code> package</a>. 
 It will also setup the ROS <a href="http://wiki.ros.org/controller_manager">controller manager</a> with 
-<a href="https://fjp.at/projects/diffbot/ros-packages/base/#hardware-interface">DiffBot's hardware interface</a>.</p>
+<a href="../packages/diffbot_base/high-level/#hardware-interface">DiffBot's hardware interface</a>.</p>
 <p>For the motor driver the node <code>motor_driver.py</code> from the <code>grove_motor_driver</code> package is started.
 And for the encoders rosserial communicates with the Teensy microcontroller to publish the encoder ticks. </p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
