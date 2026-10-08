@@ -8,10 +8,10 @@ It's the recommended setup for the development PC. The robot's single board comp
 
 A few terms first:
 
-- **Host:** the computer that runs Docker and the container. That's your Linux PC, or on Windows the Ubuntu that runs in [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.
+- **Host:** the computer that runs Docker Engine and the container. That's your Linux PC, or on Windows the Ubuntu that runs in [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.
 - **Container:** a separate Ubuntu 20.04 with ROS Noetic that runs on the host ([what is a container](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/)). A *dev container* is a container set up for development, described by a `devcontainer.json` file ([containers.dev](https://containers.dev/)). Your clone of the diffbot repository is shared with it, so you edit files on the host and build and run them in the container.
 - **X server and X clients:** Linux GUI programs use the [X Window System](https://www.x.org/releases/current/doc/man/man7/X.7.xhtml) (X11). The *X server* is the program that draws windows on your screen, so it runs where the screen is. The programs that want windows, like RViz, Gazebo and rqt, are *X clients*: each one connects to the X server and tells it what to draw. One X server serves many clients, and the clients may run somewhere else, for example in the container. The naming feels backwards at first: the server is on your desk, and the apps are its clients.
-- **Which X server:** on a Linux desktop, the desktop's own (Xwayland on [Wayland](https://wayland.freedesktop.org/) desktops). On Windows, [WSLg](https://github.com/microsoft/wslg) (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and updated Windows 10) is the X server for Linux programs and shows their windows on the Windows desktop.
+- **Which X server:** on a Linux desktop, the desktop's own (Xwayland on [Wayland](https://wayland.freedesktop.org/) desktops). On Windows, [WSLg](https://github.com/microsoft/wslg) (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later, see the [prerequisites](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps)) is the X server for Linux programs and shows their windows on the Windows desktop.
 
 How VS Code works with a dev container: its window runs on your PC, while a VS Code server, the terminals, the build and the running programs are in the container. The source code stays on your PC and is mounted into the container.
 
@@ -23,41 +23,43 @@ How VS Code works with a dev container: its window runs on your PC, while a VS C
 **Simulation, no robot needed:** everything runs in the container. Gazebo simulates the robot, RViz shows what it sees. They are X clients, and their windows appear on your screen through the host's X server:
 
 ```mermaid
-graph LR
+graph TB
   subgraph HOST [Host: Linux PC, or Ubuntu in WSL 2]
     subgraph DC [Dev container: ROS Noetic]
-      NODES[roscore and DiffBot nodes]
-      GZ[X client: Gazebo]
-      RV[X clients: RViz, rqt]
+      NODES[roscore and<br/>DiffBot nodes]
+      GZ[X client:<br/>Gazebo]
+      RV[X clients:<br/>RViz, rqt]
     end
-    XS[X server: your desktop, or WSLg on Windows]
+    XS[X server: your desktop,<br/>or WSLg on Windows]
   end
-  GZ -->|X11 socket and DISPLAY| XS
-  RV -->|X11 socket and DISPLAY| XS
-  XS --> SCREEN[Windows on your screen]
+  GZ -->|X11 socket| XS
+  RV -->|X11 socket| XS
+  XS --> SCREEN[Windows on<br/>your screen]
 ```
 
 **With the real robot:** the robot runs ROS natively on its Raspberry Pi (see [Packages Setup](../packages/packages-setup.md)), and the container on your PC joins its ROS network. RViz, mapping and navigation can then run on the PC:
 
 ```mermaid
-graph LR
-  subgraph PC [Your PC: host network]
-    C[Dev container: RViz, SLAM, navigation]
+graph TB
+  subgraph PC [Your PC: dev container]
+    C[RViz, SLAM,<br/>navigation]
   end
-  subgraph ROBOT [Robot: Raspberry Pi with ROS Noetic]
-    M[roscore: ROS master]
-    B[Bringup: drivers, hardware interface]
+  subgraph ROBOT [Robot: Raspberry Pi, ROS Noetic]
+    M[roscore:<br/>ROS master]
+    B[Bringup: drivers,<br/>hardware interface]
   end
-  T[Teensy: motors and encoders]
-  C ---|Wi-Fi or LAN, ROS_MASTER_URI and ROS_IP| M
+  T[Teensy: motors<br/>and encoders]
+  C -. 1. register, look up .-> M
+  B -. 1. register, look up .-> M
+  C ---|2. topics and services,<br/>directly, both ways| B
   B ---|USB, rosserial| T
 ```
 
-The container shares the host's network (see [Network](#network)), and the windows reach your screen as described in [GUI apps](#gui-apps-x11-and-wslg).
+Every node first registers with the ROS master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). That's why the robot must be able to reach your PC, not only the other way round. Both kinds of traffic go over Wi-Fi or your LAN. The container shares the host's network (see [Network](#network)), and the windows reach your screen as described in [GUI apps](#gui-apps-x11-and-wslg).
 
 ## Requirements
 
-- **Docker on the host:** [Docker Engine](https://docs.docker.com/engine/) on Linux or in WSL 2, or [Docker Desktop](https://docs.docker.com/desktop/). On Ubuntu, including the Ubuntu in WSL 2:
+- **Docker Engine on the host:** [Docker Engine](https://docs.docker.com/engine/) on your Linux PC, or inside the Ubuntu in WSL 2. That's the tested setup. To install it on Ubuntu, including the Ubuntu in WSL 2:
 
     ```console
     sudo apt install docker.io docker-compose-v2 docker-buildx
@@ -65,6 +67,8 @@ The container shares the host's network (see [Network](#network)), and the windo
     ```
 
     Log out and in again so the new `docker` group applies (see Docker's [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/)). On WSL 2, run `wsl --shutdown` in Windows PowerShell and open Ubuntu again.
+
+    [Docker Desktop](https://docs.docker.com/desktop/) runs Docker in its own separate virtual machine, so its "host" isn't your Ubuntu. Its host network, which this setup uses, is an opt-in feature from version 4.34 (Settings → Resources → Network → **Enable host networking**) and only carries TCP and UDP, unlike on Linux ([Docker docs](https://docs.docker.com/engine/network/drivers/host/#docker-desktop)). Docker Desktop isn't tested with this setup, and especially not with the robot.
 
 - **A way to start the container:** [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers), the [Dev Container CLI](https://github.com/devcontainers/cli) (`npm install -g @devcontainers/cli`), or plain Docker.
 - **For windows like RViz and Gazebo:**
@@ -105,7 +109,7 @@ cd diffbot
       bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
     ```
 
-Inside the container, the workspace is `~/catkin_ws`, already built and sourced. This happens automatically: the image adds `source /opt/ros/noetic/setup.bash` to `~/.bashrc`, and when the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new terminal in the container reads `~/.bashrc`, so ROS and the workspace are ready. Your clone is mounted at `~/catkin_ws/src/diffbot`, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:
+Inside the container, the workspace is `~/catkin_ws`, already built and sourced. This happens automatically: the image adds `source /opt/ros/noetic/setup.bash` to `~/.bashrc`, and when the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new interactive Bash terminal in the container reads `~/.bashrc`, so ROS and the workspace are ready there. Scripts and other non-interactive commands don't read it; they need to source the two files themselves. Your clone is mounted at `~/catkin_ws/src/diffbot`, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:
 
 ```console
 roslaunch diffbot_control diffbot.launch
