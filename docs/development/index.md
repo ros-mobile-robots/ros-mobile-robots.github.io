@@ -1,5 +1,7 @@
 # Contributing
 
+Contributions to the code and the documentation are welcome. Please follow the [best practices](#best-practices) below where you can.
+
 This section explains how DiffBot and Remo are developed: where the code lives, how changes get in, and how the development environment and the automated checks work.
 
 ## Repositories
@@ -46,7 +48,7 @@ How the code is built, tested and debugged is described in [Testing and CI](ci.m
 
 This site is built with [MkDocs](https://www.mkdocs.org/) and the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme. Its source is the [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) repository: one Markdown file per page in `docs/`, and the navigation in `mkdocs.yml`. Pull requests from branches in this repository get a preview on the real site, see [Testing and CI](ci.md#this-documentation-site).
 
-The packages have no generated API documentation (such as Doxygen) yet.
+The packages have no generated API documentation yet. For ROS packages that's usually done with [Doxygen](http://wiki.ros.org/Doxygen).
 
 ## Development environment
 
