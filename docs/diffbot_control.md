@@ -57,7 +57,7 @@ This launch file makes use of `diffbot_gazebo/launch/diffbot.launch`, `diffbot_c
 The following video shows the result of launching. Note the video may be outdated when you read this and the model has improved.
 
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/gfhgfU8zUOs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/gfhgfU8zUOs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 ### ROS Control on the Real Hardware

@@ -221,7 +221,7 @@ For the robot base you have at least two options to choose from. Either the robo
 
     [![remo fusion animation]({{ asset_dir }}/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
 
-    <iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
+    <iframe data-consent-src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
    
 Alternatively, you can build your own mobile robot!
 
