@@ -73,12 +73,12 @@ You can manage personalised advertising in [Google's ad settings](https://adsset
 We use Google Analytics 4, provided by Google Ireland Limited, to understand which pages are read and how visitors find them.
 
 - In the EEA, the UK and Switzerland, Google Analytics loads **only after you consent** to statistics in the consent message (Art. 6(1)(a) GDPR, § 165(3) TKG 2021). If you withdraw consent, Analytics stops and its cookies are deleted.
-- Outside these regions, Google Analytics loads without asking. The legal basis there is our legitimate interest in knowing which pages are read (Art. 6(1)(f) GDPR); Google doesn't store IP addresses, data is kept for two months, and you can object at any time, for example with [Google's opt-out browser add-on](https://tools.google.com/dlpage/gaoptout).
+- Outside these regions, Google Analytics loads without asking. The legal basis there is our legitimate interest in knowing which pages are read (Art. 6(1)(f) GDPR); Google doesn't store IP addresses, event data is kept for two months (see below), and you can object at any time, for example with [Google's opt-out browser add-on](https://tools.google.com/dlpage/gaoptout).
 
 Google Analytics sets the cookies `_ga` and `_ga_<ID>`, which store a random identifier for up to two years.
 It processes the pages you visit, the time spent, the referring website, your device type, browser, operating system and approximate location.
 Google Analytics 4 doesn't store IP addresses. Google uses them to derive the approximate location and for basic tasks such as spam detection and routing, and then discards them.
-We keep event data in Google Analytics for **two months**.
+We keep event data in Google Analytics for **two months**; each new visit restarts this period for your random identifier. The setting doesn't apply to standard aggregated reports, which contain no data about individual visitors.
 Google Analytics is linked to our AdSense account to report earnings per page.
 Google signals is enabled: if you're signed in to a Google account and have allowed ad personalisation there, Google may connect the visit to your account for reports across devices. You can turn this off in your [Google account settings](https://myadcenter.google.com/).
 
@@ -130,7 +130,7 @@ We delete messages when they're no longer needed, unless legal retention periods
 Google, GitHub (Microsoft), Amazon and Cloudflare may process data in the USA.
 They are certified under the EU-U.S. Data Privacy Framework, which the European Commission has found to provide an adequate level of protection (Art. 45 GDPR).
 Gumroad transfers data to the USA on the basis of the European Commission's standard contractual clauses, as described in [its privacy policy](https://gumroad.com/privacy).
-For Vimeo, Autodesk and Vercel (giscus.app), which you load only by clicking, your data may be transferred to the USA. We have no contract with these providers; the notice next to each button tells you which provider the content comes from before you load it.
+Vimeo, Autodesk and Vercel (which hosts giscus.app) state that they are certified under the EU-U.S. Data Privacy Framework ([Vimeo](https://help.vimeo.com/hc/en-us/articles/22793873068305-Does-Vimeo-participate-in-the-EU-US-Data-Privacy-Framework-DPF), [Autodesk](https://www.autodesk.com/trust/privacy), [Vercel](https://vercel.com/legal/privacy-notice)); you can check each in the [Data Privacy Framework list](https://www.dataprivacyframework.gov/list). Their content loads only after you click.
 
 ## Your rights
 
