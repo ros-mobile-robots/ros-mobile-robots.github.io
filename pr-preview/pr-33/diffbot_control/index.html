@@ -3510,11 +3510,11 @@
 
 <h2 id="diffbot-control-package">DiffBot Control Package</h2>
 <p>As described in the <a href="https://fjp.at/projects/diffbot/ros-integration/#ros-control">ROS Integration</a> and 
-<a href="https://fjp.at/projects/diffbot/ros-packages/gazebo/">Gazebo Simulation</a> sections, 
+<a href="../diffbot_gazebo/">Gazebo Simulation</a> sections, 
 DiffBot makes use of <a href="https://fjp.at/posts/ros/ros-control/">ROS Control</a> repositories. 
 Specifically the <a href="http://wiki.ros.org/diff_drive_controller"><code>diff_drive_controller</code></a> package from the 
 <a href="https://github.com/ros-controls/ros_controllers"><code>ros_controllers</code></a> meta package. 
-To leverage ROS Control for the simulation with Gazebo the <a href="https://fjp.at/projects/diffbot/ros-packages/robot-description/">robot description</a> and the 
+To leverage ROS Control for the simulation with Gazebo the <a href="../robot-description/">robot description</a> and the 
 controller configuration (usually a <code>MYROBOT_control.yaml</code> file) is required. For the real hardware its required to implement 
 a class derived from <a href="http://docs.ros.org/melodic/api/hardware_interface/html/c++/classhardware__interface_1_1RobotHW.html"><code>hardware_interface::RobotHW</code></a>.</p>
 <p>The convention to control a robot (in simulation and in the real world) is to have a package named <code>MYROBOT_control</code>. In case of DiffBot its called <code>diffbot_control</code> and created with
@@ -3533,7 +3533,7 @@ a class derived from <a href="http://docs.ros.org/melodic/api/hardware_interface
 <span class="go">Created folder diffbot_control/src</span>
 <span class="go">Successfully created package files in /home/fjp/git/diffbot/ros/src/diffbot_control.</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section <a href="https://fjp.at/projects/diffbot/ros-noetic/">ROS Noetic Setup</a> for how this was done. </p>
+<p>To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section <a href="../processing_units/ros-setup/">ROS Noetic Setup</a> for how this was done. </p>
 <table>
 <thead>
 <tr>

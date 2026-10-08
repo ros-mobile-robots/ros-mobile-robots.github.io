@@ -3485,7 +3485,7 @@ The previous approach (high-level PID) is documented in <a href="high-level/">Hi
 <h2 id="developing-a-low-level-controller-firmware-and-a-high-level-ros-control-hardware-interface-for-a-differential-drive-robot">Developing a low-level controller firmware and a high-level ROS Control hardware interface for a differential drive robot</h2>
 <p>In the following two sections, the base controller, mentioned in the Navigation
 Stack, will be developed.</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Navigation Stack" src="/pr-preview/pr-33/resources/navigation/navigation_stack.png"></a></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Navigation Stack" src="../../resources/navigation/navigation_stack.png"></a></p>
 <p>For DiffBot/Remo, this platform-specific node is split into two software
 components.</p>
 <p>The first component is the high-level <code>diffbot::DiffBotHWInterface</code> that
@@ -3499,7 +3499,7 @@ simulation and the real robot.</p>
 <p>An overview of ROS Control in simulation and the real world is given in the
 following figure (<a href="http://gazebosim.org/tutorials/?tut=ros_control">http://gazebosim.org/tutorials/?tut=ros_control</a>):</p>
 <figure>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ROS Control simulation and reality" src="/pr-preview/pr-33/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg"></a>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ROS Control simulation and reality" src="../../resources/packages/diffbot_base/ros-control-simulation-and-reality.svg"></a>
   </p>
 <figcaption>ROS Control in Simulation and Reality</figcaption>
 </figure>
@@ -3508,7 +3508,7 @@ wheel joint positions and velocities and applies the commands from the
 high-level interface to the wheel joints. The following figure shows the
 communication between the two components:</p>
 <figure>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Block diagram of low-level controller and high-level hardware interface" src="/pr-preview/pr-33/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg"></a>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Block diagram of low-level controller and high-level hardware interface" src="../../resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg"></a>
   </p>
 <figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
 Control)</figcaption>
@@ -3550,7 +3550,7 @@ Controllers</a>.</p>
 <p>To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or they have to be built from source first. The following table lists the dependencies should have been install during the initial setup phase. These dependencies are not already part of the ROS Noetic desktop full installation but required for the <code>diffbot_base</code> package.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Follow the instructions at <a href="https://fjp.at/projects/diffbot/ros-noetic/">ROS Noetic Setup</a> on how to setup ROS and the <a href="../#obtain-system-dependencies">obtain (system) dependencies</a> section on how to install all required dependencies. Performing these steps avoids installing any dependencies manually.</p>
+<p>Follow the instructions at <a href="../../processing_units/ros-setup/">ROS Noetic Setup</a> on how to setup ROS and the <a href="../packages-setup/#obtain-system-dependencies">obtain (system) dependencies</a> section on how to install all required dependencies. Performing these steps avoids installing any dependencies manually.</p>
 </div>
 <table>
 <thead>

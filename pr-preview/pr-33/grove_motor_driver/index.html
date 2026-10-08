@@ -3607,7 +3607,7 @@ However, it is also not required to connect VCC and GND of the I2C connector.
 Only the SDA (data) and SCL (clock) wires are required.</p>
 <p>Make sure to set the address with the dip switches on the motor driver to <code>0x0f</code> because this is the default address used
 in the library files.</p>
-<p>To test the physical I2C connection use <code>i2cdetect</code> described in <a href="https://fjp.at/projects/diffbot/hardware-interfaces/#prepare-i2c-connection">Hardware Interfaces</a>:
+<p>To test the physical I2C connection use <code>i2cdetect</code> described in <a href="../processing_units/hardware-interfaces/#single-board-computer-i2c-connection">Hardware Interfaces</a>:
 The output should list <code>0f</code> in the address table:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
@@ -3753,7 +3753,7 @@ The output should list <code>0f</code> in the address table:</p>
 </code></pre></div></td></tr></tbody></table></div>
 <h4 id="troubleshooting">Troubleshooting</h4>
 <p>If you get errors like the following, make sure the I2C cables from the motor driver to the 
-Raspberry Pi are connected (see <a href="https://fjp.at/projects/diffbot/hardware-interfaces/#prepare-i2c-connection">Hardware Interfaces</a> for more infos) 
+Raspberry Pi are connected (see <a href="../processing_units/hardware-interfaces/#single-board-computer-i2c-connection">Hardware Interfaces</a> for more infos) 
 and use the <code>RESET</code> button on the motor driver.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
@@ -3829,7 +3829,7 @@ it is most likely that the SDA (data) and SCL (clock) signal cables are switched
 <span class="go">70: 70 71 72 73 74 75 76 77</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>To solve this make sure the SDA and SCL cables are connected to the right pins on the Raspberry Pi.
-See <a href="https://fjp.at/projects/diffbot/hardware-interfaces/#prepare-i2c-connection">Hardware Interfaces</a> for more infos.</p>
+See <a href="../processing_units/hardware-interfaces/#single-board-computer-i2c-connection">Hardware Interfaces</a> for more infos.</p>
 <p>Another solution is to restart the Raspberry Pi while making sure that the motor driver is powerd on by connecting it to the battery pack.</p>
 <h3 id="ros-node-for-motor-driver">ROS Node for Motor Driver</h3>
 <p>To use the available library of the Grove I2C motor driver in ROS we need to create a wrapper node, called <a href="https://github.com/fjp/2wd-robot/blob/master/ros/src/grove_motor_driver/src/motor_driver.py"><code>motor_driver</code></a>.
