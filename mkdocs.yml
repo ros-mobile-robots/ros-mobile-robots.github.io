@@ -106,7 +106,9 @@ nav:
   - Getting Started:
     - Technical Requirements: technical_requirements.md
     - Components: components.md
-    - Development Environment: development/dev-container.md
+    - Development Environment:
+      - development/dev-container.md
+      - How the Dev Container Works: development/dev-container-internals.md
   - Hardware Setup:
     - hardware_setup/overview.md
     - 3D Printing: hardware_setup/3D_print.md
