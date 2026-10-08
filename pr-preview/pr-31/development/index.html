@@ -11,7 +11,7 @@
         <link rel="prev" href="../packages/imu/driver-bno055/">
       
       
-        <link rel="next" href="dev-container/">
+        <link rel="next" href="ci/">
       
       
         
@@ -22,7 +22,7 @@
     
     
       
-        <title>Development - DiffBot Differential Drive Mobile Robot</title>
+        <title>Contributing - DiffBot Differential Drive Mobile Robot</title>
       
     
     
@@ -217,7 +217,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#development" class="md-skip">
+        <a href="#contributing" class="md-skip">
           Skip to content
         </a>
       
@@ -251,7 +251,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Development
+              Contributing
             
           </span>
         </div>
@@ -479,7 +479,7 @@
   
     
   
-  Development
+  Contributing
 
         </a>
       </li>
@@ -635,6 +635,8 @@
       
         
       
+        
+      
     
     
     
@@ -721,6 +723,34 @@
     
   
     Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dev-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Environment
   
 
     
@@ -2152,8 +2182,6 @@
       
         
       
-        
-      
     
     
     
@@ -2179,7 +2207,7 @@
   <span class="md-ellipsis">
     
   
-    Development
+    Contributing
   
 
     
@@ -2201,40 +2229,12 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Development
+    Contributing
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dev-container/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dev Container
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -2251,7 +2251,7 @@
   <span class="md-ellipsis">
     
   
-    Continuous Integration
+    Testing and CI
   
 
     
@@ -3552,6 +3552,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing docs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#development-environment" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3585,7 +3607,7 @@
   
 
 
-<h1 id="development">Development</h1>
+<h1 id="contributing">Contributing</h1>
 <p>This section explains how DiffBot and Remo are developed: where the code lives, how changes get in, and how the development environment and the automated checks work.</p>
 <h2 id="repositories">Repositories</h2>
 <table>
@@ -3632,9 +3654,20 @@
 <li><strong>Merge:</strong> PRs are squash-merged. The PR title and description become the commit message, so they should read like one. The branch is deleted after the merge.</li>
 </ol>
 <p>A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site.</p>
+<h2 id="best-practices">Best practices</h2>
+<p>The code follows the <a href="http://wiki.ros.org/Tutorials/Best%20Practices">ROS best practices</a> and the <a href="http://wiki.ros.org/Quality">ROS Quality</a> guidelines where possible, including the <a href="https://www.ros.org/reps/rep-0000.html">ROS Enhancement Proposals (REPs)</a>. Pages on this site link to the REPs that apply.</p>
+<p>Good starting points:</p>
+<ul>
+<li><a href="http://wiki.ros.org/DevelopersGuide">ROS developer's guide</a>: common practices for components shared with the community, with the <a href="http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources">naming conventions</a> and the <a href="http://wiki.ros.org/CppStyleGuide">C++</a> and <a href="http://wiki.ros.org/PyStyleGuide">Python</a> style guides.</li>
+<li><a href="https://github.com/ethz-asl/ros_best_practices/wiki">ROS best practices</a> of the Autonomous Systems Lab at ETH Zurich.</li>
+</ul>
+<p>How the code is built, tested and debugged is described in <a href="ci/">Testing and CI</a>.</p>
+<h2 id="writing-docs">Writing docs</h2>
+<p>This site is built with <a href="https://www.mkdocs.org/">MkDocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> theme. Its source is the <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io">ros-mobile-robots.github.io</a> repository: one Markdown file per page in <code>docs/</code>, and the navigation in <code>mkdocs.yml</code>. Every pull request gets a preview on the real site, see <a href="ci/#this-documentation-site">Testing and CI</a>.</p>
+<p>The packages have no generated API documentation (such as Doxygen) yet.</p>
 <h2 id="development-environment">Development environment</h2>
 <ul>
-<li><strong>Development PC:</strong> use the <a href="dev-container/">dev container</a>. It has ROS Noetic, Gazebo, RViz and all dependencies, on Linux and on Windows with WSL 2.</li>
+<li><strong>Development PC:</strong> use the <a href="dev-container/">dev container</a> from Getting Started. It has ROS Noetic, Gazebo, RViz and all dependencies, on Linux and on Windows with WSL 2.</li>
 <li><strong>Robot:</strong> the Raspberry Pi or Jetson Nano is set up natively, see <a href="../packages/packages-setup/">Packages Setup</a>.</li>
 </ul>
 <!-- Mechanical parts and tools -->

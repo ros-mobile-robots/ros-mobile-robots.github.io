@@ -8,7 +8,7 @@
         <link rel="canonical" href="https://ros-mobile-robots.com/pr-preview/pr-31/development/ci/">
       
       
-        <link rel="prev" href="../dev-container/">
+        <link rel="prev" href="../">
       
       
         <link rel="next" href="../../theory/">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Continuous Integration - DiffBot Differential Drive Mobile Robot</title>
+        <title>Testing and CI - DiffBot Differential Drive Mobile Robot</title>
       
     
     
@@ -217,7 +217,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#continuous-integration" class="md-skip">
+        <a href="#testing-and-ci" class="md-skip">
           Skip to content
         </a>
       
@@ -251,7 +251,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Continuous Integration
+              Testing and CI
             
           </span>
         </div>
@@ -479,7 +479,7 @@
   
     
   
-  Development
+  Contributing
 
         </a>
       </li>
@@ -635,6 +635,8 @@
       
         
       
+        
+      
     
     
     
@@ -721,6 +723,34 @@
     
   
     Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Environment
   
 
     
@@ -2152,8 +2182,6 @@
       
         
       
-        
-      
     
     
     
@@ -2179,7 +2207,7 @@
   <span class="md-ellipsis">
     
   
-    Development
+    Contributing
   
 
     
@@ -2201,40 +2229,12 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Development
+    Contributing
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../dev-container/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dev Container
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -2260,7 +2260,7 @@
   <span class="md-ellipsis">
     
   
-    Continuous Integration
+    Testing and CI
   
 
     
@@ -2278,7 +2278,7 @@
   <span class="md-ellipsis">
     
   
-    Continuous Integration
+    Testing and CI
   
 
     
@@ -2353,6 +2353,17 @@
     <span class="md-ellipsis">
       
         Action versions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-tests-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing tests and debugging
       
     </span>
   </a>
@@ -3705,6 +3716,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#writing-tests-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing tests and debugging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#running-the-checks-locally" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3754,7 +3776,7 @@
   
 
 
-<h1 id="continuous-integration">Continuous Integration</h1>
+<h1 id="testing-and-ci">Testing and CI</h1>
 <p>Every pull request and every push to the default branch runs automated checks with <a href="https://docs.github.com/actions">GitHub Actions</a>. A PR is only merged when they pass.</p>
 <h2 id="diffbot">diffbot</h2>
 <table>
@@ -3797,6 +3819,16 @@
 <p>The packages have no test cases yet, so the checks prove that everything builds, not that it behaves correctly. Tests are planned as part of the <a href="../#roadmap">roadmap</a>.</p>
 <h3 id="action-versions">Action versions</h3>
 <p>The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the CI workflow failed before building anything because <code>actions/cache@v2</code> had been switched off, and Node 20 actions were retired in September 2026. When a check fails during "Set up job", an outdated action is the likely cause.</p>
+<h3 id="writing-tests-and-debugging">Writing tests and debugging</h3>
+<ul>
+<li><strong>Tests:</strong> ROS 1 packages use <a href="https://github.com/google/googletest">gtest</a> for C++ unit tests and <a href="http://wiki.ros.org/rostest">rostest</a> for tests that start ROS nodes. <a href="https://github.com/steup/Ros-Test-Example">Ros-Test-Example</a> shows both in a catkin workspace (<a href="https://github.com/steup/Ros-Test-Example/blob/master/src/cars/doc/slides/slides.pdf">slides</a>). catkin-tools explains <a href="https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html#building-and-running-tests">building and running tests</a>.</li>
+<li>
+<p><strong>Debugging:</strong> a debugger can only stop at breakpoints in a workspace built with debug symbols:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">catkin build --save-config --cmake-args -DCMAKE_BUILD_TYPE=Debug</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>See the <a href="https://catkin-tools.readthedocs.io/en/latest/cheat_sheet.html">catkin-tools cheat sheet</a> for more.</p>
+</li>
+</ul>
 <h3 id="running-the-checks-locally">Running the checks locally</h3>
 <ul>
 <li><strong>Workspace build and tests:</strong> in the dev container, in <code>~/catkin_ws</code>, run the two commands from the dev container workflow above.</li>
