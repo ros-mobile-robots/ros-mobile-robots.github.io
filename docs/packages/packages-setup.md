@@ -11,8 +11,15 @@ After setting up ROS on your workstation PC and the SBC (either [Raspberry Pi 4B
 create a ros workspace in your users home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}):
 
 ```
-mkdir -p ros_ws/src
+mkdir -p ~/ros_ws/src
+cd ~/ros_ws/src
 git clone https://github.com/ros-mobile-robots/diffbot.git
+```
+
+To use a released version instead of the latest code, clone a tag, for example the latest release, `1.1.0`:
+
+```
+git clone --depth 1 --branch 1.1.0 https://github.com/ros-mobile-robots/diffbot.git
 ```
 
 ## Obtain (system) Dependencies
@@ -32,26 +39,16 @@ To do this the recommended tool to use is [`vcstool`](http://wiki.ros.org/vcstoo
 !!! note
     [`vcstool`](http://wiki.ros.org/vcstool) replaces [`wstool`](http://wiki.ros.org/wstool).
 
-Inside the cloned `diffbot` repository, 
-make use of the `import` command and the `diffbot.repos` file containing the required source repositories:
+The `diffbot` repository has three `.repos` files that list these source dependencies.
+They clone into `src/`, so run `vcs import` from the root of the catkin workspace (`~/ros_ws`) and pass in the file for the machine you're on:
 
-```
-vcs import < diffbot.repos
-```
+| Machine | Command | Clones |
+|:--------|:--------|:-------|
+| Development PC | `vcs import < src/diffbot/diffbot_dev.repos` | `rplidar_ros`, `remo_description` |
+| Remo's SBC | `vcs import < src/diffbot/remo_robot.repos` | `rplidar_ros`, `remo_description` |
+| DiffBot's SBC | `vcs import < src/diffbot/diffbot_robot.repos` | [`rplidar_ros`](https://github.com/Slamtec/rplidar_ros) (Slamtec), `raspicam_node` |
 
-This will clone all repositories which are stored in the `diffbot.repos` that get passed in via stdin in YAML format.
-
-!!! note
-    The file `diffbot.repos` contains relative paths and will clone the listed repositories in the parent folder from where
-    the `vcs import` command is called. When it is called from inside the `diffbot` repository, which should be located
-    in the `src` folder of a catkin workspace, then the other repositories are also cloned in the `src` folder.
-
-For the SBC not all dependencies in `diffbot.repos` are needed.
-Instead the `diffbot_robot.repos` is here to clone the [`rplidar_ros`](https://github.com/Slamtec/rplidar_ros) repository.
-
-```
-vcs import < diffbot_robot.repos
-```
+`vcs import` reads the YAML file from stdin and clones every repository it lists.
 
 Now that additional packages are inside the catkin workspace it is time to install the system dependencies.
 
