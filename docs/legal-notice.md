@@ -1,3 +1,7 @@
+---
+comments: false
+---
+
 <h1>Legal Notice</h1>
 <h2 id="m46">Provider</h2>
 <p>Franz Pucher</p>
