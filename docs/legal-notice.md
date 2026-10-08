@@ -5,7 +5,7 @@ comments: false
 <h1>Legal Notice</h1>
 <h2 id="m46">Provider</h2>
 <p>Franz Pucher</p>
-<p>Carinagasse 8</p>
+<p>Carinagasse 8a</p>
 <p>6800 Feldkirch</p>
 <p>Austria</p>
 <h2 id="m56">Contact Options</h2><p>E-Mail Address: <a href="mailto:ros@fjp.at">ros@fjp.at</a></p>
