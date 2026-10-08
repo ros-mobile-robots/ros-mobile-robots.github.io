@@ -7,7 +7,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | Workflow | File | What it checks |
 |:---------|:-----|:---------------|
 | CI | `.github/workflows/diffbot_ci_action.yml` | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
-| Build base controller | `.github/workflows/build_base_controller.yml` | Builds the Teensy firmware in `diffbot_base/scripts/base_controller` with [PlatformIO](https://platformio.org/) for the Teensy 4.0, the default environment in its `platformio.ini`. The Teensy 3.1/3.2 environment isn't built in CI. |
+| Build base controller | `.github/workflows/build_base_controller.yml` | Builds the Teensy firmware in `diffbot_base/scripts/base_controller` with [PlatformIO](https://platformio.org/), once for each board in its `platformio.ini`: `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
 | Dev container | `.github/workflows/devcontainer.yml` | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
 
 ### industrial_ci
@@ -59,7 +59,7 @@ The workflows use the latest major versions of the GitHub actions, which run on 
     ~/.venvs/platformio/bin/pio run
     ```
 
-    `pio run` builds the Teensy 4.0, the default environment. The Teensy 3.1/3.2 environment (`pio run -e teensy31`) currently fails to link with the latest PlatformIO Teensy platform (`undefined reference to _write`).
+    `pio run` builds the Teensy 4.0, the default environment; `pio run -e teensy31` builds the Teensy 3.1/3.2.
 
 ## This documentation site
 
