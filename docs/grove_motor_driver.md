@@ -45,7 +45,7 @@ Only the SDA (data) and SCL (clock) wires are required.
 Make sure to set the address with the dip switches on the motor driver to `0x0f` because this is the default address used
 in the library files.
 
-To test the physical I2C connection use `i2cdetect` described in [Hardware Interfaces](https://fjp.at/projects/diffbot/hardware-interfaces/#prepare-i2c-connection):
+To test the physical I2C connection use `i2cdetect` described in [Hardware Interfaces](processing_units/hardware-interfaces.md#single-board-computer-i2c-connection):
 The output should list `0f` in the address table:
 
 ```console
@@ -131,7 +131,7 @@ Stop
 #### Troubleshooting
 
 If you get errors like the following, make sure the I2C cables from the motor driver to the 
-Raspberry Pi are connected (see [Hardware Interfaces](https://fjp.at/projects/diffbot/hardware-interfaces/#prepare-i2c-connection) for more infos) 
+Raspberry Pi are connected (see [Hardware Interfaces](processing_units/hardware-interfaces.md#single-board-computer-i2c-connection) for more infos) 
 and use the `RESET` button on the motor driver.
 
 ```console
@@ -186,7 +186,7 @@ i2cdetect -y 1
 ```
 
 To solve this make sure the SDA and SCL cables are connected to the right pins on the Raspberry Pi.
-See [Hardware Interfaces](https://fjp.at/projects/diffbot/hardware-interfaces/#prepare-i2c-connection) for more infos.
+See [Hardware Interfaces](processing_units/hardware-interfaces.md#single-board-computer-i2c-connection) for more infos.
 
 Another solution is to restart the Raspberry Pi while making sure that the motor driver is powerd on by connecting it to the battery pack.
 

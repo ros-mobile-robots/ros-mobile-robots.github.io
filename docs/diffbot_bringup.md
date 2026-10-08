@@ -15,9 +15,9 @@ Successfully created package files in /home/fjp/git/diffbot/ros/src/diffbot_brin
 The package provides a `launch` folder which includes `minimal.launch` and `bringup.launch`.
 
 The `minimal.launch` is used to load DiffBot's robot description and the controller configuration
-onto the ROS parameter server using the launch file from the [`diffbot_base` package](https://fjp.at/projects/diffbot/ros-packages/base/). 
+onto the ROS parameter server using the launch file from the [`diffbot_base` package](packages/diffbot_base/index.md). 
 It will also setup the ROS [controller manager](http://wiki.ros.org/controller_manager) with 
-[DiffBot's hardware interface](https://fjp.at/projects/diffbot/ros-packages/base/#hardware-interface).
+[DiffBot's hardware interface](packages/diffbot_base/high-level.md#hardware-interface).
 
 For the motor driver the node `motor_driver.py` from the `grove_motor_driver` package is started.
 And for the encoders rosserial communicates with the Teensy microcontroller to publish the encoder ticks. 

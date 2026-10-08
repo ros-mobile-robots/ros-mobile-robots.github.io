@@ -92,6 +92,13 @@ plugins:
   - mkdocs-jupyter:
       execute: False
       include_source: True
+  # Old URLs that still get visits keep working: each one gets an HTML page that
+  # redirects to the current page (source paths relative to docs/)
+  - redirects:
+      redirect_maps:
+        projects/diffbot/URDF.md: robot-description.md
+        projects/diffbot/components.md: components.md
+        diffbot_base.md: packages/diffbot_base/index.md
 
 nav:
   - Home: index.md
@@ -185,3 +192,12 @@ nav:
     - Power Supply: power-supply.md
     - Laser Range Scanner: laser-range-scanner.md
   - Insiders: insiders/index.md
+
+# Fail the strict build on links that MkDocs can check: missing pages, missing #anchors,
+# and absolute links (/path) that don't exist in docs/.
+validation:
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: relative_to_docs
+    unrecognized_links: warn

@@ -68,7 +68,7 @@ The following video gives an idea of what has to be done to get the motor and en
 ### Wheel Encoder Measurements
 
 This section shows oscilloscope waveform measurements of the quadrature encoder in the DG01D-E motor. 
-The motor is connected to the [Grove I2C Motor Driver](https://fjp.at/projects/diffbot/components/#control) that is powerd with 10 VDC. 
+The motor is connected to the [Grove I2C Motor Driver](grove_motor_driver.md) that is powerd with 10 VDC. 
 The `motor_example.py` applies 50-100% of the 10 VDC which leads to the following output voltages on the motor:
 
 

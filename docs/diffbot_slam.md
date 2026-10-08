@@ -125,7 +125,7 @@ Possible values are `gmapping` (the default), `karto`, `hector` and `cartographe
 The ROS node graph will look like the following:
 
 <figure>
-    <a href="{{ assed_dir }}/slam/nodegraph-gmapping.svg"><img src="{{ assed_dir }}/slam/nodegraph-gmapping.svg"></a>
+    <a href="{{ asset_dir }}/slam/nodegraph-gmapping.svg"><img src="{{ asset_dir }}/slam/nodegraph-gmapping.svg"></a>
     <figcaption>ROS Node graph after launching Gazebo and gmapping.</figcaption>
 </figure>
 

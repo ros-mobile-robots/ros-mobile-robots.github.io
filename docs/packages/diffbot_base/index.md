@@ -133,7 +133,7 @@ To work with this package the specified dependencies must be installed either us
 
 !!! note
 
-    Follow the instructions at [ROS Noetic Setup](https://fjp.at/projects/diffbot/ros-noetic/) on how to setup ROS and the [obtain (system) dependencies](../index.md#obtain-system-dependencies) section on how to install all required dependencies. Performing these steps avoids installing any dependencies manually.
+    Follow the instructions at [ROS Noetic Setup](../../processing_units/ros-setup.md) on how to setup ROS and the [obtain (system) dependencies](../packages-setup.md#obtain-system-dependencies) section on how to install all required dependencies. Performing these steps avoids installing any dependencies manually.
 
 | Dependency                    | Source                                                | Ubuntu/Debian Package            |
 |:-----------------------------:|:-----------------------------------------------------:|:--------------------------------:|
