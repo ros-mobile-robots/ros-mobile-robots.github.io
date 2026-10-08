@@ -405,7 +405,7 @@ are relevant in the `read()` method:
 
 In this method, it would be possible to correct for steering offsets due to
 model imperfections and slight differences in the wheel radii. See [gain / trim
-model](pid.md#gain--trim-model).
+model](pid.md#gain-trim-model).
 
 This concludes the important parts of the `DiffBotHWInterface` class and enables
 Remo to satisfy the requirements to work with the ROS Navigation Stack. In the

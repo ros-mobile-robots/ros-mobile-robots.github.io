@@ -179,7 +179,7 @@ can be used by all users.
 
 - [x] Documentation using Material for MkDocs
 - [x] Make use of rosdep for system dependencies
-- [x] [Parametrize sensor description when using standard laser instead of gpu laser](#27)
+- [x] [Parametrize sensor description when using standard laser instead of gpu laser](https://github.com/ros-mobile-robots/diffbot/issues/27)
 - [x] vcstool to simplify external dependency installation
 
 ## Frequently asked questions
@@ -218,5 +218,5 @@ guidelines:
   may __use the latest version__ that's available to you __as long as you like__.
   Just remember that [GitHub deletes private forks].
 
-  [BSD 3-Clause License]: ../LICENSE
+  [BSD 3-Clause License]: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/LICENSE
   [GitHub deletes private forks]: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/removing-a-collaborator-from-a-personal-repository

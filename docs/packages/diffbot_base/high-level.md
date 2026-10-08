@@ -39,7 +39,7 @@ Created folder diffbot_base/src
 Successfully created package files in /home/fjp/catkin_ws/src/diffbot_base.
 ```
 
-To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or they have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section [ROS Noetic Setup](https://fjp.at/projects/diffbot/ros-noetic/) for how this was done. 
+To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or they have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section [ROS Noetic Setup](../../processing_units/ros-setup.md) for how this was done. 
 
 | Dependency                    | Source                                                | Ubuntu/Debian Package            |
 |:-----------------------------:|:-----------------------------------------------------:|:--------------------------------:|
@@ -61,7 +61,7 @@ ls devel                  # Show the resulting devel space
 
 ### Hardware Interface
 
-See the [`include`](../diffbot_base/include) and [`src`](../diffbot_base/src) folders of this package and the details on the hardware interface implementation.
+See the [`include`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/include) and [`src`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/src) folders of this package and the details on the hardware interface implementation.
 For more details on the hardware interface also refer to the section [ROS Integration: Control](https://fjp.at/projects/diffbot/ros-integration/#ros-control), it gives more details and also this [overview article about ROS Control](https://fjp.at/posts/ros/ros-control/).
 
 The hardware interface provides an interface between the real robot hardware and the controllers provided by ROS Control (or even custom controllers).

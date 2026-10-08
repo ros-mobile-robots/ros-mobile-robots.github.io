@@ -1,11 +1,11 @@
 ## DiffBot Control Package
 
 As described in the [ROS Integration](https://fjp.at/projects/diffbot/ros-integration/#ros-control) and 
-[Gazebo Simulation](https://fjp.at/projects/diffbot/ros-packages/gazebo/) sections, 
+[Gazebo Simulation](diffbot_gazebo.md) sections, 
 DiffBot makes use of [ROS Control](https://fjp.at/posts/ros/ros-control/) repositories. 
 Specifically the [`diff_drive_controller`](http://wiki.ros.org/diff_drive_controller) package from the 
 [`ros_controllers`](https://github.com/ros-controls/ros_controllers) meta package. 
-To leverage ROS Control for the simulation with Gazebo the [robot description](https://fjp.at/projects/diffbot/ros-packages/robot-description/) and the 
+To leverage ROS Control for the simulation with Gazebo the [robot description](robot-description.md) and the 
 controller configuration (usually a `MYROBOT_control.yaml` file) is required. For the real hardware its required to implement 
 a class derived from [`hardware_interface::RobotHW`](http://docs.ros.org/melodic/api/hardware_interface/html/c++/classhardware__interface_1_1RobotHW.html).
 
@@ -22,7 +22,7 @@ Created folder diffbot_control/src
 Successfully created package files in /home/fjp/git/diffbot/ros/src/diffbot_control.
 ```
 
-To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section [ROS Noetic Setup](https://fjp.at/projects/diffbot/ros-noetic/) for how this was done. 
+To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section [ROS Noetic Setup](processing_units/ros-setup.md) for how this was done. 
 
 | Dependency                    | Source                                                | Ubuntu/Debian Package            |
 |:-----------------------------:|:-----------------------------------------------------:|:--------------------------------:|

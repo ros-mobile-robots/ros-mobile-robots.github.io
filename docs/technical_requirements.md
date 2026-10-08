@@ -17,13 +17,13 @@ The following sections give an overview about which software will be used:
 - [Operating Systems](#operating-system)
 - [Git](#git)
 - [Remote Control](#remote-control)
-- [Hardware Interface](#hardware-interface)
-- [Source Dependencies](#source-dependencies)
-- [Binary Dependencies](#binary-dependencies)
-- [Build ROS Workspace](#build-ros-workspace)
+- [Hardware Interfaces](processing_units/hardware-interfaces.md)
+- [Source Dependencies](packages/packages-setup.md#source-dependencies)
+- [System Dependencies](packages/packages-setup.md#system-dependencies)
+- [Build the ROS Workspace](packages/packages-setup.md)
 
 More detailed software setup instructions are found in the chapter about
-[Processing Units](#processing-units).
+[Processing Units](processing_units/index.md).
 
 ### Operating System
 
@@ -92,4 +92,4 @@ stl files in the [`remo_description`](https://github.com/ros-mobile-robots/remo_
 To do this, you either need a 3D printer with a recommended build volume of 15x15x15 cm or to use
 a local or online 3D print service. Further details are found in [hardware setup](hardware_setup/3D_print.md).
 
-On the following [components](#components) page you find a bill of materials and more details about each part.
+On the following [components](components.md) page you find a bill of materials and more details about each part.

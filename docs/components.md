@@ -217,7 +217,7 @@ For the robot base you have at least two options to choose from. Either the robo
 === "Remo"
 
     Remo is a 3D printable Research Education Mobile/Modular Open robot platform. You can find more information in the following video and 
-    on the [`remo_description` package page](/packages/remo_description/).
+    on the [`remo_description` package page](packages/remo_description.md).
 
     [![remo fusion animation]({{ asset_dir }}/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
 
@@ -312,7 +312,7 @@ As an alternative we could use the [HC SR04](https://www.seeedstudio.com/blog/20
 
 An inertial measurement unit (IMU) measures the acceleration and orientation through gyroscopes directly.
 Other states such as the velocity can then be calculated.
-For this the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout - BNO055]((https://www.adafruit.com/product/2472)) is used.
+For this the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout - BNO055](https://www.adafruit.com/product/2472) is used.
 
 <figure>
     <a href="{{ asset_dir }}/components/bno055.jpg"><img src="{{ asset_dir }}/components/bno055.jpg"></a>
@@ -321,7 +321,7 @@ For this the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout - BNO055](
 
 #### Odometry
 
-For the used odometry sensor see the section below [Motor and Wheel Encoder](/projects/diffbot/components/#motor-and-wheel-encoder)
+For the used odometry sensor see the section below [Motor and Wheel Encoder](#motor-and-wheel-encoder)
 
 <details markdown="1"><summary>Alternative Optical Sensor</summary>
 

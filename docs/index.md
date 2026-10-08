@@ -19,7 +19,7 @@ The project is split into multiple parts, to address the following main aspects 
 - [Assembly](./hardware_setup/assembly.md) of the robot platform and the components.
 - Setup of ROS (Noetic or Melodic) on either Raspberry Pi 4 B or Jetson Nano, 
   which are both [Single Board Computers (SBC)](https://en.wikipedia.org/wiki/Single-board_computer) and are the brain of the robot.
-- [Modeling the Robot](/projects/diffbot/URDF) in Blender and URDF to simulate it in Gazebo.
+- [Modeling the Robot](robot-description.md) in Blender and URDF to simulate it in Gazebo.
 - ROS packages and nodes: 
   - Hardware drivers to interact with the hardware components
   - High level nodes for perception, navigation, localization and control.
@@ -86,7 +86,7 @@ Helpful resources to bring your own robots into ROS are:
 - Understand [ROS Concepts](https://wiki.ros.org/ROS/Concepts)
 - Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) such as [Using ROS on your custom Robot](http://wiki.ros.org/ROS/Tutorials#Using_ROS_on_your_custom_Robot)
 - Books:
-    - [*Mastering ROS for Robotics Programming: Best practices and troubleshooting solutions when working with ROS, 3rd Edition*][amazon_book_mastering_ros_ger] (affiliate link) this book contains also a chapter about about [Remo](packages/remo_description/)
+    - [*Mastering ROS for Robotics Programming: Best practices and troubleshooting solutions when working with ROS, 3rd Edition*][amazon_book_mastering_ros_ger] (affiliate link) this book contains also a chapter about about [Remo](packages/remo_description.md)
     - [*Introduction to Autonomous Robots (free book)*](https://github.com/Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots)
     - [**Robot Operating System (ROS) for Absolute Beginners**](https://link.springer.com/book/10.1007/978-1-4842-3405-1) from Apress by [Lentin Joseph](https://lentinjoseph.com/)
     - [**Programming Robots with ROS** A Practical Introduction to the Robot Operating System](http://shop.oreilly.com/product/0636920024736.do) from O'Reilly Media

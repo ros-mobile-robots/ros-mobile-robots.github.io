@@ -5,3 +5,4 @@ mkdocs-material>=9.5,<10
 mkdocs-jupyter
 mkdocs-macros-plugin
 mkdocs-glightbox
+mkdocs-redirects
