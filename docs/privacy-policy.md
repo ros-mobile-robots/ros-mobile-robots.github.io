@@ -64,7 +64,7 @@ The AdSense script loads on every page and receives your IP address and informat
 - **Consent to storage, but not to personalised ads:** Google shows non-personalised ads, chosen by the page content and your coarse location. They still use cookies for frequency capping, aggregated reporting and fraud prevention, which is why they also depend on your consent to storage.
 - **No consent to storage:** no ads are shown. The AdSense script still loads, because it shows the consent message and checks your choice, so Google receives your IP address.
 
-**Outside these regions**, Google shows ads, including personalised ads, without asking. In some US states, the consent message lets you opt out of the sale or sharing of your personal information for advertising. The legal basis is our legitimate interest in financing the website (Art. 6(1)(f) GDPR); you can object at any time, for example in [Google's ad settings](https://adssettings.google.com/).
+**Outside these regions**, Google shows ads, including personalised ads, without asking. The legal basis is our legitimate interest in financing the website (Art. 6(1)(f) GDPR); you can object at any time, for example in [Google's ad settings](https://adssettings.google.com/).
 
 Whatever you choose, the ad script may set the cookie `__eoi`, which Google lists as a [security cookie](https://business.safety.google/adscookies/) used to detect fraud and abuse.
 
