@@ -3466,7 +3466,7 @@ First the package is created using <code>catkin-tools</code>:</p>
 <span class="go">Successfully created package files in /home/fjp/git/diffbot/ros/src/diffbot_bringup.</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The package provides a <code>launch</code> folder which includes <code>minimal.launch</code> and <code>bringup.launch</code>.</p>
-<p>The <code>minimal.launch</code> is used to load DiffBot's robot descripton and the controller configuration
+<p>The <code>minimal.launch</code> is used to load DiffBot's robot description and the controller configuration
 onto the ROS parameter server using the launch file from the <a href="https://fjp.at/projects/diffbot/ros-packages/base/"><code>diffbot_base</code> package</a>. 
 It will also setup the ROS <a href="http://wiki.ros.org/controller_manager">controller manager</a> with 
 <a href="https://fjp.at/projects/diffbot/ros-packages/base/#hardware-interface">DiffBot's hardware interface</a>.</p>
@@ -3540,7 +3540,7 @@ between the links.</p>
 
 <span class="w">    </span><span class="cm">&lt;!-- Starting robot state publish which will publish tf --&gt;</span>
 <span class="w">    </span><span class="cm">&lt;!-- This is needed to publish transforms between all links --&gt;</span>
-<span class="w">    </span><span class="cm">&lt;!-- diff_drive_controller publishes only a single transfrom between odom and base_footprint --&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- diff_drive_controller publishes only a single transform between odom and base_footprint --&gt;</span>
 <span class="w">    </span><span class="cm">&lt;!-- The robot_state_publisher reads the joint states published by ros control's joint_state_controller --&gt;</span>
 <span class="w">    </span><span class="nt">&lt;node</span><span class="w"> </span><span class="na">name=</span><span class="s">"robot_state_publisher"</span><span class="w"> </span><span class="na">pkg=</span><span class="s">"robot_state_publisher"</span><span class="w"> </span><span class="na">type=</span><span class="s">"robot_state_publisher"</span>
 <span class="w">        </span><span class="na">output=</span><span class="s">"screen"</span><span class="w"> </span><span class="na">ns=</span><span class="s">"diffbot"</span><span class="w"> </span><span class="nt">/&gt;</span>

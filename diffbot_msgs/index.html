@@ -3603,7 +3603,7 @@
 <h1 id="diffbot-messages-package">DiffBot Messages Package</h1>
 <p>As mentioned before, the nodes in ROS communicate with each other by publishing <a href="http://wiki.ros.org/Messages">messages</a> to <a href="http://wiki.ros.org/Topics">topics</a>. 
 ROS provides the <a href="http://wiki.ros.org/std_msgs"><code>std_msgs</code></a> package that includes ROS' common message types to represent primitive data types (see the ROS <a href="http://wiki.ros.org/msg">msg specification</a> for primitive types) and other basic message constructs, such as multiarrays. 
-Note howerver, the following from the <a href="http://wiki.ros.org/std_msgs"><code>std_msgs</code> documentation</a>:</p>
+Note however, the following from the <a href="http://wiki.ros.org/std_msgs"><code>std_msgs</code> documentation</a>:</p>
 <div class="admonition quote">
 <p class="admonition-title">Quote</p>
 <p>The types in <code>std_msgs</code> do not convey semantic meaning about their contents: every message simply has a field called "data". 
@@ -3645,13 +3645,13 @@ named <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/di
 Header header
 
 # Use an array of size two of type int32 for the two encoders.
-# int32 is used instead of int64 because it is not supporte by Arduino/Teensy.
+# int32 is used instead of int64 because it is not supported by Arduino/Teensy.
 # An overflow is also unlikely with the encoders of the DG01D-E 
 # motor with its encoder because of its low encoder resolution
 int32[2] ticks
 </code></pre></div></td></tr></tbody></table></div>
 <p>The message includes the message type <a href="http://docs.ros.org/en/api/std_msgs/html/msg/Header.html"><code>Header</code></a> 
-(see also <a href="http://wiki.ros.org/msg#headerSect">Header msg</a>) which includes common metadata fileds such as timestamp that is automatically 
+(see also <a href="http://wiki.ros.org/msg#headerSect">Header msg</a>) which includes common metadata fields such as timestamp that is automatically 
 set by <a href="http://wiki.ros.org/Client%20Libraries">ROS client libraries</a>.</p>
 <p>Having this encoder message description gives semantic meaning to the encoder messages 
 and for example avoids having two separate int32 publishers for each encoder.
@@ -3672,7 +3672,7 @@ This specifies the <code>Header</code> and a float64 array for the angular wheel
 Header header
 
 # Use an array of type float32 for the two wheel joint velocities.
-# float32 is used instead of float64 because it is not supporte by Arduino/Teensy.
+# float32 is used instead of float64 because it is not supported by Arduino/Teensy.
 float32[] velocities
 </code></pre></div></td></tr></tbody></table></div>
 <h2 id="using-rosmsg">Using rosmsg</h2>

@@ -3544,7 +3544,7 @@
 
 <p>The hardware interfaces provide an interface between the components (sensors and actuators) of the 2WD robot and its processing units, the Raspberry Pi 4 B (or the Nvidia Jetson Nano) and the microcontroller (in this case the Teensy 4.0).</p>
 <h2 id="usb">USB</h2>
-<p>The Universial Serial Bus (USB) connections are required to connect the Single Board Computer (SBC) with the microcontroller. Using this connection, it is possible to communicate via <a href="http://wiki.ros.org/rosserial"><code>rosserial</code></a>.</p>
+<p>The Universal Serial Bus (USB) connections are required to connect the Single Board Computer (SBC) with the microcontroller. Using this connection, it is possible to communicate via <a href="http://wiki.ros.org/rosserial"><code>rosserial</code></a>.</p>
 <p>Another USB connector is used for the RPLidar laser scanner. </p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -3591,7 +3591,7 @@ fjp@remo:~$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w
 </code></pre></div></td></tr></tbody></table></div>
 <p>This <code>i2cdetect</code> tool is  a  userspace program to scan an I2C bus for devices
 given a specific i2cbus argument which indicates  the number or name of the I2C bus to be scanned, 
-and should correspond to one of the busses listed by <code>i2cdetect -l</code>. See also <code>info i2cdetect</code> for the manual page.</p>
+and should correspond to one of the buses listed by <code>i2cdetect -l</code>. See also <code>info i2cdetect</code> for the manual page.</p>
 <p>To test if the i2c ports are working we use the following commands:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -3643,7 +3643,7 @@ When issuing the following:</p>
 <span class="go">crw-rw---- 1 root i2c 89, 0 Apr  1  2020 /dev/i2c-0</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>we see that the <code>/dev/i2c-0</code> device belongs to user <code>root</code> and <code>i2c</code> user group. 
-To get access without <code>sudo</code> we can add other users, requiering access to the <code>i2c</code> group with:</p>
+To get access without <code>sudo</code> we can add other users, requiring access to the <code>i2c</code> group with:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>

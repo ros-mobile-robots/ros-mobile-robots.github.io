@@ -3465,7 +3465,7 @@ velocities to compute suitable motor PWM signals using two separate PID controll
 one for each motor.</p>
 <p>Another part of this package is a launch file that will</p>
 <ul>
-<li>Load the robot description from <code>diffbot_description</code> to the paramter server</li>
+<li>Load the robot description from <code>diffbot_description</code> to the parameter server</li>
 <li>Run the hardware interface of this package <code>diffbot_base</code></li>
 <li>Load the controller configuration yaml from the <code>diffbot_control</code> package to the <a href="http://wiki.ros.org/Parameter%20Server">parameter server</a></li>
 <li>Load the controllers with the <a href="http://wiki.ros.org/controller_manager?distro=noetic">controller manager</a></li>
@@ -3474,7 +3474,7 @@ one for each motor.</p>
 <h2 id="low-level-vs-high-level-pid">Low-Level vs High-Level PID</h2>
 <p>There exist (at least) two commonly used approaches to control a robot base.</p>
 <p>The difference between the two presented approaches here is where the PID controller(s)
-that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the SBC and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are refered to as</p>
+that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the SBC and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are referred to as</p>
 <ul>
 <li>High-Level PIDs running on the hardware interface on the SBC</li>
 <li>Low-Level PIDs running on the firmware of the microcontroller</li>

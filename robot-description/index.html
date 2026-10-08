@@ -3569,7 +3569,7 @@ For this we create a package with <a href="https://catkin-tools.readthedocs.io/e
 <span class="go">Successfully created package files in /home/fjp/git/diffbot/ros/src/diffbot_description.</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Because this package contains only descriptions and launch files it doesn't require any dependencies. </p>
-<p>According to ROS conventions we create the following folders where the individual files realted to the robot description will be placed:</p>
+<p>According to ROS conventions we create the following folders where the individual files related to the robot description will be placed:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">fjp@ubuntu:~/git/diffbot/ros/src/robot_description$ </span>mkdir<span class="w"> </span>urdf<span class="w"> </span>meshes<span class="w"> </span>launch
 </code></pre></div></td></tr></tbody></table></div>
 <p>The <code>urdf</code> folder will be used to keep the <code>urdf</code> and <code>xacro</code> files. 
@@ -3628,7 +3628,7 @@ Install it with the following command:</p>
     <figcaption>DiffBot displayed in RViz.</figcaption>
 </figure>
 
-<p>With the robot descripton loaded on the ROS parameter server, it's possible to use the <code>TF Tree</code> <code>rqt</code> plugin to display the transformation tree (see image above).</p>
+<p>With the robot description loaded on the ROS parameter server, it's possible to use the <code>TF Tree</code> <code>rqt</code> plugin to display the transformation tree (see image above).</p>
 <p>In the next section, <a href="/projects/diffbot/ros-packages/gazebo/">Gazebo Simulation</a>, the robot model is prepared for simulation inside of 
 <a href="http://gazebosim.org/">Gazebo</a>.</p>
 <h3 id="urdf-in-gazebo">URDF in Gazebo</h3>

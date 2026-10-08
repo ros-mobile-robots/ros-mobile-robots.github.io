@@ -3667,7 +3667,7 @@
 <p>In the simpleste case all that is needed in this package is to write a class that inherits from <code>hardware_interface::RobotHW</code> and provide a launch
 file. The launch file will </p>
 <ul>
-<li>Load the robot description from <code>diffbot_description</code> to the paramter server</li>
+<li>Load the robot description from <code>diffbot_description</code> to the parameter server</li>
 <li>Run the hardware interface of this package <code>diffbot_base</code></li>
 <li>Load the controller configuration yaml from the <code>diffbot_control</code> package to the <a href="http://wiki.ros.org/Parameter%20Server">parameter server</a></li>
 <li>Load the controllers with the <a href="http://wiki.ros.org/controller_manager?distro=noetic">controller manager</a></li>
@@ -3727,7 +3727,7 @@ file. The launch file will </p>
 </code></pre></div></td></tr></tbody></table></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for <a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
+<p>Make sure to clone/download the source files suitable for the ROS distribution you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for <a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
 </div>
 <h3 id="hardware-interface">Hardware Interface</h3>
 <p>See the <a href="../diffbot_base/include"><code>include</code></a> and <a href="../diffbot_base/src"><code>src</code></a> folders of this package and the details on the hardware interface implementation.
@@ -4147,7 +4147,7 @@ refer to the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-d
 <span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">prev_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
 <span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Rate</span><span class="w"> </span><span class="n">rate</span><span class="p">(</span><span class="mf">10.0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 10 Hz rate</span>
 
-<span class="w">    </span><span class="c1">// Blocks until shutdown signal recieved</span>
+<span class="w">    </span><span class="c1">// Blocks until shutdown signal received</span>
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">())</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Basic bookkeeping to get the system time in order to compute the control period.</span>
@@ -4185,7 +4185,7 @@ without conflicting with other controllers, is the <a href="http://docs.ros.org/
 ROS Control uses the <code>hardware_interface::VelocityJointInterface</code> (part of the <a href="http://docs.ros.org/en/noetic/api/hardware_interface/html/c++/joint__command__interface_8h_source.html"><code>joint_command_interface.h</code></a>) 
 that registers the command member variable of the controller with the hardware interface to provide it the command that should be written to the actuators.</p>
 <p>When the controller manager runs, the controllers will read from the <code>joint_position</code>, <code>joint_velocity</code> and <code>joint_effort</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>joint_velocity_command</code> variable. It's mandatory to make sure the position, velocity and effort (effort is not needed in the case of the <code>diff_drive_controller</code>) variables always have the latest joint state available, and to make sure that whatever is written into the <code>joint_velocity_command</code> variable gets executed by the robot. As mentioned this can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
-<p>In the control loop the <a href="https://github.com/fjp/diffbot/blob/522cba34117ea4cf90e3e0b5b9b70f0824e226fc/diffbot_base/src/diffbot_hw_interface.cpp#L106">overriden <code>hardware_interface::RobotHW::read()</code> method of DiffBot</a> is used to read the joint states. The <code>diff_drive_controller</code> works with a VelocityInterface which is why the <code>joint_position</code>, defined in rad, and <code>joint_velocity</code>, defined in rad/s, are calculated from the encoder ticks.</p>
+<p>In the control loop the <a href="https://github.com/fjp/diffbot/blob/522cba34117ea4cf90e3e0b5b9b70f0824e226fc/diffbot_base/src/diffbot_hw_interface.cpp#L106">overridden <code>hardware_interface::RobotHW::read()</code> method of DiffBot</a> is used to read the joint states. The <code>diff_drive_controller</code> works with a VelocityInterface which is why the <code>joint_position</code>, defined in rad, and <code>joint_velocity</code>, defined in rad/s, are calculated from the encoder ticks.</p>
 <h2 id="pid-controller">PID Controller</h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -4196,7 +4196,7 @@ As mentioned above, ROS Control expects that the commands sent by the controller
 joint states are always up to date. This means that the <code>diff_drive_controller</code> just uses the <code>twist_msg</code> on the <code>cmd_vel</code> topic for example from the <code>rqt_robot_steering</code> and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account.
 See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated.</p>
 </div>
-<p>This is why a PID controller is needed to avoid situations like the following where the robot moves not straigth although it is commanded to do so:</p>
+<p>This is why a PID controller is needed to avoid situations like the following where the robot moves not straight although it is commanded to do so:</p>
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>The PID used here inherits from the ROS Control <a href="http://wiki.ros.org/control_toolbox"><code>control_toolbox::Pid</code></a> that provides Dynamic Reconfigure out of the box to tune the proportional, integral and derivative gains. The behaviour when using only the P, I and D gains is that the output can overshoot and even change between positive and negative motor percent values because of a P gain that is too high. To avoid this, a feed forward gain can help to reach the setpoint faster.
