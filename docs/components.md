@@ -28,6 +28,7 @@ Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 | SLAMTEC RPLiDAR A1M8 (12 m) | 1 | $99.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a1m8-360-laser-scanner.html), [Amazon.com][amazon_rplidar_a1m8_us], [Amazon.de][amazon_rplidar_a1m8_ger] | Cheaper alternative to RPLiDAR A2M8 |
 | Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.us][amazon_ada2927_us], [Amazon.de][amazon_ada2927_ger] | |
 | Teensy 4.0 or 3.2 | 1 | $32.29 | [Amazon.com][amazon_teensy_4.0_us], [Amazon.de][amazon_teensy_4.0_ger], [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html) | |
+| Breadboard (half size, 400 points) | 1 | -- | | Holds the Teensy, see [assembly step 15](hardware_setup/assembly.md#step-15-breadboard-parts) |
 | Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $12.50 | [Amazon.com][amazon_hobby_motor_us], [Sparkfun](https://www.sparkfun.com/products/16413) | |
 | Powerbank (e.g 15'000 mAh, or 10'000 mAh) | 1 | $23.99 | [Anker 10K Amazon.com][amazon_anker_powerbank_pc10k_us], [Anker 10K Amazon.de][amazon_anker_powerbank_pc10k_ger] | The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm |
 | Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.com][amazon_battery_holder_8x_aa_us], [Amazon.de][amazon_battery_holder_8x_aa_ger] | |
@@ -68,12 +69,13 @@ You need the following parts to build REMO. They come in packs, so order the qua
 |  **Part** | **Qty per REMO** | **Qty per pack** | **Cost per REMO** | **URL** | **Notes** |
 | --- | --- | --: | --: | --: | --- |
 |  Adhesive pads | 2 | 48 | $0.14 |  | optional |
-|  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack |
-|  M2 screw (self tapping) | 20 | 100 | $1.29 | [Amazon][amazon_m2x10_self_tapping_screw_ger]  | 8mm long, self tapping |
-|  M2 screw | 4 | 60 | $0.47 | [Amazon][amazon_m2_m3_m4_screw_assortment_ger] | 8mm long |
+|  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack and the breadboard |
+|  M2 screw (self tapping) | 22 | 100 | $1.42 | [Amazon][amazon_m2x10_self_tapping_screw_ger]  | 8mm long, self tapping |
+|  M2 screw | 8 | 60 | $0.94 | [Amazon][amazon_m2_m3_m4_screw_assortment_ger] | 8mm long, for the deck and the Raspberry Pi |
 |  M3 screw | 4 | 60 | $0.47 | [Amazon][amazon_m4_screw_nut_box_ger] | 25mm long, to fix the motors to the base frame |
+|  M3 screw | 4 | 60 | $0.47 | [Amazon][amazon_m4_screw_nut_box_ger] | 6mm long, to fix the LiDAR to its platform |
 |  M3 nut | 4 | 100 | $0.24 | [Amazon][amazon_m4_screw_nut_box_ger]  | To fix the motors to the base frame |
-|  M2 Brass threaded inserts | 4 | 100 | $0.24 | [Amazon][amazon_threaded_inserts_ger] |  |
+|  M2 Brass threaded inserts | 8 | 100 | $0.48 | [Amazon][amazon_threaded_inserts_ger] | 4 in the chassis posts, 4 in the deck for the Raspberry Pi |
 |  Jumper wires | 4 | 40 | $0.13 | [Amazon][amazon_jumper_wires_ff_us] | Female-female, ~20cm |
 
 ### Optional parts

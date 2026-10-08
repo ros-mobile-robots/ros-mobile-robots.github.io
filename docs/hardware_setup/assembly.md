@@ -169,6 +169,7 @@ The wiring follows the Fritzing view on the [Electronics](electronics.md) page.
 
 Place the Raspberry Pi deck on top of the chassis, over the powerbank.
 Fix it with four M2 × 8 mm screws into the threaded inserts from step 1.
+With a Jetson Nano, use the Jetson Nano deck instead. It goes on the same way; only its mounting holes for the board differ.
 
 **Parts:** Raspberry Pi deck (printed, `raspberry_pi_deck.stl`), 4 × M2 × 8 mm screw
 
@@ -176,17 +177,19 @@ Fix it with four M2 × 8 mm screws into the threaded inserts from step 1.
 
 ![Step 17: the Raspberry Pi goes onto the four bosses of the deck](images/decks/17-raspberry-pi.jpg)
 
-Screw the Raspberry Pi 4 onto the four bosses of the deck, with its USB and Ethernet ports toward the left wheel.
+Press four M2 brass threaded inserts into the bosses of the deck, as in step 1.
+Then screw the Raspberry Pi 4 onto them with four M2 × 8 mm screws, with its USB and Ethernet ports toward the left wheel.
 
-**Parts:** Raspberry Pi 4 B, 4 × M2 self-tapping screw
+**Parts:** Raspberry Pi 4 B, 4 × M2 brass threaded insert, 4 × M2 × 8 mm screw
 
 ### Step 18: Breadboard
 
 ![Step 18: the breadboard goes onto the back of the deck](images/decks/18-breadboard.jpg)
 
 Place the breadboard from step 15 on the back of the deck, behind the Raspberry Pi.
+Fix it with a Velcro strap, or with the adhesive tape on the bottom of the breadboard.
 
-**Parts:** breadboard from step 15
+**Parts:** breadboard from step 15, Velcro strap (or the breadboard's adhesive tape)
 
 ### Step 19: LiDAR platform
 
@@ -200,22 +203,23 @@ Place the LiDAR platform over the breadboard and fix its four feet to the deck.
 
 ![Step 20: the RPLiDAR A2 goes on top of the platform](images/decks/20-lidar.jpg)
 
-Put the RPLiDAR A2 on the platform and screw it on from below, through the four holes in the platform.
+Put the RPLiDAR A2 on the platform and screw it on from below with four M3 screws, through the four holes in the platform.
 
-**Parts:** SLAMTEC RPLiDAR A2 M8, 4 screws
+**Parts:** SLAMTEC RPLiDAR A2 M8, 4 × M3 × 6 mm screw
 
 ### Step 21: USB adapter holder
 
 ![Step 21: the holder with the SLAMTEC USB adapter goes onto the side of the LiDAR platform](images/decks/21-usb-adapter-holder.jpg)
 
-Put the SLAMTEC USB adapter into the printed holder, then put the holder onto the left side of the LiDAR platform.
+Put the SLAMTEC USB adapter into the printed holder, then clip the holder onto the left side of the LiDAR platform.
 
 **Parts:** SLAMTEC holder (printed, `slamtec_holder.stl`), SLAMTEC USB adapter (comes with the LiDAR)
 
 ### Step 22: Camera
 
 Each camera has its own printed adapter.
-Screw the adapter onto the camera mount from step 11 with four screws, then attach the camera to the adapter.
+Screw the adapter onto the camera mount from step 11 with four M2 self-tapping screws.
+Then fix the camera in the adapter with M2 self-tapping screws, or just set it into the adapter, where its weight holds it.
 
 === "Raspberry Pi Camera v2"
 
