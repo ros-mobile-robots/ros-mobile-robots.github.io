@@ -3899,6 +3899,8 @@ A properly chosen D gain will allow to reach the desired velocity quickly with r
                 button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
                 button.addEventListener("click", function () {
                     if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    // FitVids takes the aspect ratio from the width and height attributes; give percentage widths 16:9
+                    if (/%$/.test(frame.getAttribute("width") || "")) { frame.setAttribute("width", "560"); frame.setAttribute("height", "315"); }
                     frame.src = url.href;
                     frame.hidden = false;
                     box.remove();

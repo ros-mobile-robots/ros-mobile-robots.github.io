@@ -3652,12 +3652,12 @@ You can manage personalised advertising in <a href="https://adssettings.google.c
 <p>We use Google Analytics 4, provided by Google Ireland Limited, to understand which pages are read and how visitors find them.</p>
 <ul>
 <li>In the EEA, the UK and Switzerland, Google Analytics loads <strong>only after you consent</strong> to statistics in the consent message (Art. 6(1)(a) GDPR, § 165(3) TKG 2021). If you withdraw consent, Analytics stops and its cookies are deleted.</li>
-<li>Outside these regions, Google Analytics loads without asking. The legal basis there is our legitimate interest in knowing which pages are read (Art. 6(1)(f) GDPR); Google doesn't store IP addresses, data is kept for two months, and you can object at any time, for example with <a href="https://tools.google.com/dlpage/gaoptout">Google's opt-out browser add-on</a>.</li>
+<li>Outside these regions, Google Analytics loads without asking. The legal basis there is our legitimate interest in knowing which pages are read (Art. 6(1)(f) GDPR); Google doesn't store IP addresses, event data is kept for two months (see below), and you can object at any time, for example with <a href="https://tools.google.com/dlpage/gaoptout">Google's opt-out browser add-on</a>.</li>
 </ul>
 <p>Google Analytics sets the cookies <code>_ga</code> and <code>_ga_&lt;ID&gt;</code>, which store a random identifier for up to two years.
 It processes the pages you visit, the time spent, the referring website, your device type, browser, operating system and approximate location.
 Google Analytics 4 doesn't store IP addresses. Google uses them to derive the approximate location and for basic tasks such as spam detection and routing, and then discards them.
-We keep event data in Google Analytics for <strong>two months</strong>.
+We keep event data in Google Analytics for <strong>two months</strong>; each new visit restarts this period for your random identifier. The setting doesn't apply to standard aggregated reports, which contain no data about individual visitors.
 Google Analytics is linked to our AdSense account to report earnings per page.
 Google signals is enabled: if you're signed in to a Google account and have allowed ad personalisation there, Google may connect the visit to your account for reports across devices. You can turn this off in your <a href="https://myadcenter.google.com/">Google account settings</a>.</p>
 <h2 id="amazon-affiliate-links">Amazon affiliate links</h2>
@@ -3695,7 +3695,7 @@ We delete messages when they're no longer needed, unless legal retention periods
 <p>Google, GitHub (Microsoft), Amazon and Cloudflare may process data in the USA.
 They are certified under the EU-U.S. Data Privacy Framework, which the European Commission has found to provide an adequate level of protection (Art. 45 GDPR).
 Gumroad transfers data to the USA on the basis of the European Commission's standard contractual clauses, as described in <a href="https://gumroad.com/privacy">its privacy policy</a>.
-For Vimeo, Autodesk and Vercel (giscus.app), which you load only by clicking, your data may be transferred to the USA. We have no contract with these providers; the notice next to each button tells you which provider the content comes from before you load it.</p>
+Vimeo, Autodesk and Vercel (which hosts giscus.app) state that they are certified under the EU-U.S. Data Privacy Framework (<a href="https://help.vimeo.com/hc/en-us/articles/22793873068305-Does-Vimeo-participate-in-the-EU-US-Data-Privacy-Framework-DPF">Vimeo</a>, <a href="https://www.autodesk.com/trust/privacy">Autodesk</a>, <a href="https://vercel.com/legal/privacy-notice">Vercel</a>); you can check each in the <a href="https://www.dataprivacyframework.gov/list">Data Privacy Framework list</a>. Their content loads only after you click.</p>
 <h2 id="your-rights">Your rights</h2>
 <p>You have the right to access your personal data (Art. 15 GDPR), to have it corrected (Art. 16) or deleted (Art. 17), to restrict its processing (Art. 18), to data portability (Art. 20) and to object to processing based on legitimate interest (Art. 21).
 You can withdraw consent at any time with the <strong>Cookie settings</strong> link, with effect for the future.
@@ -3806,6 +3806,8 @@ In Austria this is the Österreichische Datenschutzbehörde, Barichgasse 40–42
                 button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
                 button.addEventListener("click", function () {
                     if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    // FitVids takes the aspect ratio from the width and height attributes; give percentage widths 16:9
+                    if (/%$/.test(frame.getAttribute("width") || "")) { frame.setAttribute("width", "560"); frame.setAttribute("height", "315"); }
                     frame.src = url.href;
                     frame.hidden = false;
                     box.remove();
