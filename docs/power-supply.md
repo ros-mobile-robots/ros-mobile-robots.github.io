@@ -21,7 +21,7 @@ with a suitable battery charchger such as the [Nitecore UMS4](https://charger.ni
 [XTAR VC4](https://www.xtar.cc/product/XTAR-VC4-Charger-20.html). DiffBot uses four 14500 batteries from [Trustfire](https://www.trustfire.com/products/trustfire-14500-900mah-battery) with 3.7 V and 900 mAh.
 
 
-Note that four standard AA bateries with 1.5 V each is perfectly fine. 
-Only the motor driver has to provide 100% of its input voltage to avoid stalling the motors.
-With higher Voltage rated batteries more different speeds will be possible.
-{: .notice }
+!!! note
+    Note that four standard AA bateries with 1.5 V each is perfectly fine.
+    Only the motor driver has to provide 100% of its input voltage to avoid stalling the motors.
+    With higher Voltage rated batteries more different speeds will be possible.

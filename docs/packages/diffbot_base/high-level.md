@@ -56,8 +56,8 @@ ls build                  # Show the resulting build space
 ls devel                  # Show the resulting devel space
 ```
 
-Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a ROS [noetic](http://wiki.ros.org/noetic) install.
-{: .notice }
+!!! note
+    Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a ROS [noetic](http://wiki.ros.org/noetic) install.
 
 ### Hardware Interface
 
@@ -323,13 +323,13 @@ In the control loop the [overriden `hardware_interface::RobotHW::read()` method 
 
 ## PID Controller
 
-Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders 
-and the target velocity computed by the `diff_drive_controller` for a specific wheel joint. 
-The `diff_drive_controller` doesn't have a PID controller integrated, and doesn't take care if the wheels of the robot are actually turning.
-As mentioned above, ROS Control expects that the commands sent by the controller are actually implemented on the real robot hardware and that the
-joint states are always up to date. This means that the `diff_drive_controller` just uses the `twist_msg` on the `cmd_vel` topic for example from the `rqt_robot_steering` and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account. 
-See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated. 
-{: .notice :}
+!!! note
+    Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders
+    and the target velocity computed by the `diff_drive_controller` for a specific wheel joint.
+    The `diff_drive_controller` doesn't have a PID controller integrated, and doesn't take care if the wheels of the robot are actually turning.
+    As mentioned above, ROS Control expects that the commands sent by the controller are actually implemented on the real robot hardware and that the
+    joint states are always up to date. This means that the `diff_drive_controller` just uses the `twist_msg` on the `cmd_vel` topic for example from the `rqt_robot_steering` and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account.
+    See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated.
 
 This is why a PID controller is needed to avoid situations like the following where the robot moves not straigth although it is commanded to do so:
 
