@@ -219,7 +219,7 @@ For the robot base you have at least two options to choose from. Either the robo
     Remo is a 3D printable Research Education Mobile/Modular Open robot platform. You can find more information in the following video and 
     on the [`remo_description` package page](/packages/remo_description/).
 
-    [![remo fusion animation](https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
+    [![remo fusion animation]({{ asset_dir }}/remo/remo_fusion_animation.gif)](https://youtu.be/6aAEbtfVbAk)
 
     <iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
    

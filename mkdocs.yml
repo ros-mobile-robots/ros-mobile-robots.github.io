@@ -78,6 +78,15 @@ markdown_extensions:
 
 plugins:
   - search
+  # Downloads Google Fonts and external images at build time
+  # and serves them from this site, so visitors don't contact those hosts. Google's ad, consent and
+  # Analytics scripts and the Gumroad overlay must keep loading from their own hosts.
+  - privacy:
+      assets_exclude:
+        - pagead2.googlesyndication.com/*
+        - fundingchoicesmessages.google.com/*
+        - www.googletagmanager.com/*
+        - gumroad.com/*
   - glightbox
   - macros
   - mkdocs-jupyter:

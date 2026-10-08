@@ -13,7 +13,7 @@ that new features are first exclusively released to sponsors as part of
 [how to become a sponsor] to get access to Insiders, and
 [what's in for you][available features]!
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/6aAEbtfVbAk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/6aAEbtfVbAk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
   [Insiders]: #what-is-insiders
   [what sponsorships achieve]: #what-sponsorships-achieve
