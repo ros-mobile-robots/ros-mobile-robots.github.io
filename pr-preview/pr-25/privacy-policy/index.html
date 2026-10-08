@@ -38,34 +38,18 @@
     <script src="../js/jquery-3.5.1.min.js"></script>
     <script src="../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-        <!-- MathJax
-        <script src="../js/mathjax.js"></script>
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        -->
         <!-- KaTeX -->
         <script src="../js/katex.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
-        </script>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
-    <!-- Pseudocode -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
-    <script>
-        pseudocode.renderElement(document.getElementById("markov-localization"));
-    </script>
-    <!-- UML diagrams using Mermaid -->
-    <script src="https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });
-    </script>
+        <script src="../js/katex-0.19.0/katex.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../js/katex-0.19.0/katex.min.css">
+        
 
     
       
         
         
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        
+        <link rel="stylesheet" href="../assets/external/fonts.googleapis.com/css.49ea35f2.css">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -3458,10 +3442,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#youtube-videos" class="md-nav__link">
+  <a href="#videos-and-the-3d-model-viewer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        YouTube videos
+        Videos and the 3D model viewer
       
     </span>
   </a>
@@ -3597,15 +3581,15 @@ E-mail: <a href="mailto:ros@fjp.at">ros@fjp.at</a></p>
 <tr>
 <td style="text-align: left;">Google AdSense</td>
 <td style="text-align: left;">Advertising</td>
-<td style="text-align: left;">Always; personalised ads only with consent</td>
-<td style="text-align: left;">Consent; legitimate interest for non-personalised ads</td>
+<td style="text-align: left;">Always; what kind of ads depends on your consent</td>
+<td style="text-align: left;">Consent; for limited ads see below</td>
 <td style="text-align: left;">Google Ireland Ltd.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Google Analytics</td>
 <td style="text-align: left;">Visitor statistics</td>
 <td style="text-align: left;">In the EEA, UK and Switzerland only with consent</td>
-<td style="text-align: left;">Consent</td>
+<td style="text-align: left;">Consent; legitimate interest elsewhere</td>
 <td style="text-align: left;">Google Ireland Ltd.</td>
 </tr>
 <tr>
@@ -3618,23 +3602,23 @@ E-mail: <a href="mailto:ros@fjp.at">ros@fjp.at</a></p>
 <tr>
 <td style="text-align: left;">Gumroad</td>
 <td style="text-align: left;">Selling the Remo STL files</td>
-<td style="text-align: left;">Home page</td>
+<td style="text-align: left;">Pages with a Gumroad button (home page, Remo description)</td>
 <td style="text-align: left;">Legitimate interest</td>
 <td style="text-align: left;">Gumroad, Inc., USA</td>
 </tr>
 <tr>
-<td style="text-align: left;">YouTube</td>
-<td style="text-align: left;">Embedded videos</td>
-<td style="text-align: left;">Pages with a video</td>
-<td style="text-align: left;">Legitimate interest; consent for playback cookies</td>
-<td style="text-align: left;">Google Ireland Ltd.</td>
+<td style="text-align: left;">YouTube, Vimeo, Autodesk</td>
+<td style="text-align: left;">Videos and a 3D model viewer</td>
+<td style="text-align: left;">Only after you click "Load video" or "Load 3D model"</td>
+<td style="text-align: left;">Consent</td>
+<td style="text-align: left;">Google Ireland Ltd.; Vimeo.com, Inc., USA; Autodesk, Inc., USA</td>
 </tr>
 <tr>
 <td style="text-align: left;">giscus</td>
 <td style="text-align: left;">Comments from GitHub Discussions</td>
 <td style="text-align: left;">Only after you click "Show comments"</td>
 <td style="text-align: left;">Consent</td>
-<td style="text-align: left;">giscus project; GitHub, Inc., USA</td>
+<td style="text-align: left;">giscus project (hosted by Vercel, Inc., USA); GitHub, Inc., USA</td>
 </tr>
 </tbody>
 </table>
@@ -3655,9 +3639,11 @@ Withdrawal doesn't affect the lawfulness of processing before it.</p>
 <h2 id="google-adsense">Google AdSense</h2>
 <p>The website shows advertising from Google AdSense, provided by Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland.
 AdSense loads on every page and receives your IP address and information about the page you're viewing.</p>
+<p>What Google does depends on your choice in the consent message:</p>
 <ul>
-<li><strong>With your consent</strong> (Art. 6(1)(a) GDPR, § 165(3) TKG 2021), Google may store and read cookies and similar identifiers on your device and show personalised ads based on your interests.</li>
-<li><strong>Without consent</strong>, Google shows only non-personalised or limited ads, which still use your IP address for delivery, frequency capping, fraud prevention and coarse location. Our legitimate interest in financing the website is the legal basis for this (Art. 6(1)(f) GDPR).</li>
+<li><strong>Consent to storage and personalised ads:</strong> Google may store and read cookies and similar identifiers on your device and show ads based on your interests (Art. 6(1)(a) GDPR, § 165(3) TKG 2021).</li>
+<li><strong>Consent to storage, but not to personalised ads:</strong> Google shows non-personalised ads, chosen by the page content and your coarse location. They still use cookies for frequency capping, aggregated reporting and fraud prevention, which is why they also depend on your consent to storage.</li>
+<li><strong>No consent to storage:</strong> Google shows only limited ads, or no ads. Limited ads don't use cookies or other storage for advertising. According to Google, they may use cookies or local storage (for example the <code>__eoi</code> cookie) to detect invalid traffic and fraud. Your IP address is still processed to deliver the ad. Delivering limited ads is based on our legitimate interest in financing the website (Art. 6(1)(f) GDPR).</li>
 </ul>
 <p>Google acts as an independent controller for its advertising services.
 See <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a> and <a href="https://policies.google.com/privacy">Google's privacy policy</a>.
@@ -3666,11 +3652,11 @@ You can manage personalised advertising in <a href="https://adssettings.google.c
 <p>We use Google Analytics 4, provided by Google Ireland Limited, to understand which pages are read and how visitors find them.</p>
 <ul>
 <li>In the EEA, the UK and Switzerland, Google Analytics loads <strong>only after you consent</strong> to statistics in the consent message (Art. 6(1)(a) GDPR, § 165(3) TKG 2021). If you withdraw consent, Analytics stops and its cookies are deleted.</li>
-<li>Outside these regions, Google Analytics loads without asking.</li>
+<li>Outside these regions, Google Analytics loads without asking. The legal basis there is our legitimate interest in knowing which pages are read (Art. 6(1)(f) GDPR); Google doesn't store IP addresses, data is kept for two months, and you can object at any time, for example with <a href="https://tools.google.com/dlpage/gaoptout">Google's opt-out browser add-on</a>.</li>
 </ul>
 <p>Google Analytics sets the cookies <code>_ga</code> and <code>_ga_&lt;ID&gt;</code>, which store a random identifier for up to two years.
 It processes the pages you visit, the time spent, the referring website, your device type, browser, operating system and approximate location.
-Google Analytics 4 doesn't store IP addresses; Google uses them only to derive the approximate location and then discards them.
+Google Analytics 4 doesn't store IP addresses. Google uses them to derive the approximate location and for basic tasks such as spam detection and routing, and then discards them.
 We keep event data in Google Analytics for <strong>two months</strong>.
 Google Analytics is linked to our AdSense account to report earnings per page.
 Google signals is enabled: if you're signed in to a Google account and have allowed ad personalisation there, Google may connect the visit to your account for reports across devices. You can turn this off in your <a href="https://myadcenter.google.com/">Google account settings</a>.</p>
@@ -3682,19 +3668,19 @@ The legal basis is our legitimate interest in financing the website (Art. 6(1)(f
 See the privacy notices of <a href="https://www.amazon.de/gp/help/customer/display.html?nodeId=201909010">Amazon.de</a> and <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=468496">Amazon.com</a>.</p>
 <h2 id="gumroad">Gumroad</h2>
 <p>The 3D printing files for Remo are sold through Gumroad, Inc., San Francisco, USA.
-The home page loads a script from gumroad.com so the purchase opens in a window on this page; Gumroad receives your IP address when the home page loads.
+Pages with a Gumroad button (the home page and the Remo description page) load a script from gumroad.com that shows the Gumroad checkout. Gumroad receives your IP address when such a page loads.
 If you buy, Gumroad processes the purchase and your payment and e-mail address as its own controller; we receive your e-mail address and the order details.
 The legal basis is our legitimate interest in selling the files and, for a purchase, the performance of the contract (Art. 6(1)(b) and (f) GDPR).
 See <a href="https://gumroad.com/privacy">Gumroad's privacy policy</a>.</p>
-<h2 id="youtube-videos">YouTube videos</h2>
-<p>Some pages embed YouTube videos in the privacy-enhanced mode (youtube-nocookie.com) of Google Ireland Limited.
-When a page with a video loads, your browser connects to Google's servers, which receive your IP address and the page address.
-In this mode YouTube doesn't store cookies for advertising until you play the video; when you play it, YouTube may store cookies and similar identifiers.
-The legal basis is our legitimate interest in showing videos (Art. 6(1)(f) GDPR) and, for playback, your consent (§ 165(3) TKG 2021).
-See <a href="https://policies.google.com/privacy">Google's privacy policy</a>.</p>
+<h2 id="videos-and-the-3d-model-viewer">Videos and the 3D model viewer</h2>
+<p>Some pages embed videos from YouTube (Google Ireland Limited, in its privacy-enhanced mode youtube-nocookie.com) and Vimeo (Vimeo.com, Inc., USA), and a 3D model viewer from Autodesk (Autodesk, Inc., USA).
+They don't load with the page. Each one shows a notice and a <strong>Load video</strong> or <strong>Load 3D model</strong> button instead.
+After you click, your browser connects to the provider, which receives your IP address and the page address and may store cookies or similar data on your device (for Vimeo we request "do not track").
+The legal basis is your consent by clicking (Art. 6(1)(a) GDPR, § 165(3) TKG 2021).
+See the privacy policies of <a href="https://policies.google.com/privacy">Google</a>, <a href="https://vimeo.com/privacy">Vimeo</a> and <a href="https://www.autodesk.com/company/legal-notices-trademarks/privacy-statement">Autodesk</a>.</p>
 <h2 id="comments-giscus">Comments (giscus)</h2>
 <p>Comments on this website are discussions in the public GitHub repository <a href="https://github.com/ros-mobile-robots/diffbot/discussions">ros-mobile-robots/diffbot</a>, shown with giscus.
-Nothing loads until you click <strong>Show comments</strong>. After the click, your browser loads giscus from giscus.app and the discussion from GitHub, which receive your IP address.
+Nothing loads until you click <strong>Show comments</strong>. After the click, your browser loads giscus from giscus.app and the discussion from GitHub, which receive your IP address. giscus.app is run by the independent giscus project, which says it doesn't collect any data; it is hosted by Vercel, Inc., USA.
 To comment you sign in with your GitHub account; your comment and GitHub username are then public on GitHub.
 The legal basis is your consent by clicking (Art. 6(1)(a) GDPR).
 See <a href="https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md">giscus's privacy policy</a> and <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub's privacy statement</a>.</p>
@@ -3708,7 +3694,8 @@ We delete messages when they're no longer needed, unless legal retention periods
 <h2 id="transfers-to-the-united-states">Transfers to the United States</h2>
 <p>Google, GitHub (Microsoft), Amazon and Cloudflare may process data in the USA.
 They are certified under the EU-U.S. Data Privacy Framework, which the European Commission has found to provide an adequate level of protection (Art. 45 GDPR).
-Gumroad and giscus also process data in the USA; when you use them, your data is transferred there.</p>
+Gumroad transfers data to the USA on the basis of the European Commission's standard contractual clauses, as described in <a href="https://gumroad.com/privacy">its privacy policy</a>.
+For Vimeo, Autodesk and Vercel (giscus.app), which you load only by clicking, your data may be transferred to the USA. We have no contract with these providers; the notice next to each button tells you which provider the content comes from before you load it.</p>
 <h2 id="your-rights">Your rights</h2>
 <p>You have the right to access your personal data (Art. 15 GDPR), to have it corrected (Art. 16) or deleted (Art. 17), to restrict its processing (Art. 18), to data portability (Art. 20) and to object to processing based on legitimate interest (Art. 21).
 You can withdraw consent at any time with the <strong>Cookie settings</strong> link, with effect for the future.
@@ -3793,8 +3780,42 @@ In Austria this is the Österreichische Datenschutzbehörde, Barichgasse 40–42
       <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
-    <script src="https://gumroad.com/js/gumroad.js"></script>
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();
@@ -3812,6 +3833,18 @@ In Austria this is the Österreichische Datenschutzbehörde, Barichgasse 40–42
     </script>
 
   
-<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img && img.src) {
+            element.setAttribute('href', img.src);
+        } else {
+            console.log('No img element with src attribute found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
 </script></body></html>

@@ -42,34 +42,18 @@
     <script src="../../js/jquery-3.5.1.min.js"></script>
     <script src="../../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-        <!-- MathJax
-        <script src="../../js/mathjax.js"></script>
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        -->
         <!-- KaTeX -->
         <script src="../../js/katex.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
-        </script>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
-    <!-- Pseudocode -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
-    <script>
-        pseudocode.renderElement(document.getElementById("markov-localization"));
-    </script>
-    <!-- UML diagrams using Mermaid -->
-    <script src="https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });
-    </script>
+        <script src="../../js/katex-0.19.0/katex.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../../js/katex-0.19.0/katex.min.css">
+        
 
     
       
         
         
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        
+        <link rel="stylesheet" href="../../assets/external/fonts.googleapis.com/css.49ea35f2.css">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -1609,10 +1593,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#git-lfs-and-bandwith-quota" class="md-nav__link">
+  <a href="#git-lfs-and-bandwidth-quota" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Git LFS and Bandwith Quota
+        Git LFS and Bandwidth Quota
       
     </span>
   </a>
@@ -3525,10 +3509,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#git-lfs-and-bandwith-quota" class="md-nav__link">
+  <a href="#git-lfs-and-bandwidth-quota" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Git LFS and Bandwith Quota
+        Git LFS and Bandwidth Quota
       
     </span>
   </a>
@@ -3622,9 +3606,9 @@
 <p>ROS URDF description package of REMO robot (Research Education Mobile/Modular robot) a highly modifiable and extendable
 autonomous mobile robot based on <a href="https://github.com/NVIDIA-AI-IOT/jetbot">Nvidia's Jetbot</a>.
 This ROS package is found in the <a href="https://github.com/ros-mobile-robots/remo_description/blob/main"><code>remo_description</code> repository</a> contains the stl files to 3D print Remo robot.</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif" data-desc-position="bottom"><img alt="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif" src="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif"></a></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Remo spinning in RViz" src="/pr-preview/pr-25/resources/remo/remo-rviz-spin.gif"></a></p>
 <p>You can explore the model in more detail through the following Fusion 360 viewer:</p>
-<iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
+<iframe data-consent-src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
 
 <h2 id="usage">Usage</h2>
 <p>This is a ROS package which should be cloned in a catkin workspace.
@@ -3632,19 +3616,19 @@ To use <code>remo_description</code> inside a Gazebo simulation or on a real 3D 
 <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel">ros-mobile-robots/diffbot</a> repository.
 Most of the launch files you find in the <code>diffbot</code> repository
 accept a <code>model</code> argument. Just append <code>model:=remo</code> to the end of a <code>roslaunch</code> command to make use of this <code>remo_description</code> package.</p>
-<h3 id="git-lfs-and-bandwith-quota">Git LFS and Bandwith Quota</h3>
+<h3 id="git-lfs-and-bandwidth-quota">Git LFS and Bandwidth Quota</h3>
 <p>The binary stl files are hosted on GitHub using <a href="https://git-lfs.github.com/">Git Large File Storage (git lfs)</a> 
 to avoid increasing the total size of the repository because of possible stl file changes.
-For open source repositories, GitHub has a bandwith limit of 1 GB (up to 1.5 GB) per month. 
-Depending on how many users clone/pull the stl files using git lfs per month, this bandwith can be exhausted after a few days. 
-If you are not able to clone/pull the stl files and only get the pointer files, you have to wait until the bandwith quota resets back to zero. 
+For open source repositories, GitHub has a bandwidth limit of 1 GB (up to 1.5 GB) per month. 
+Depending on how many users clone/pull the stl files using git lfs per month, this bandwidth can be exhausted after a few days. 
+If you are not able to clone/pull the stl files and only get the pointer files, you have to wait until the bandwidth quota resets back to zero. 
 In case you need the stl files immediately, and to support this work you can get <a href="https://gumroad.com/l/GnMpU?wanted=true">immediate access to the stl files</a>:</p>
 <p><a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a></p>
 <p>Also if you find this work useful please consider the funding options to support the development and design of this robot.
-However, you will always be able to clone/pull and use the Remo stl files once the bandwith quota resets.</p>
+However, you will always be able to clone/pull and use the Remo stl files once the bandwidth quota resets.</p>
 <h3 id="assembly">Assembly</h3>
 <p>For assembly instructions please watch the video below:</p>
-<p><a href="https://youtu.be/6aAEbtfVbAk"><img alt="remo fusion animation" src="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo_fusion_animation.gif"></a></p>
+<p><a href="https://youtu.be/6aAEbtfVbAk"><img alt="remo fusion animation" src="/pr-preview/pr-25/resources/remo/remo_fusion_animation.gif"></a></p>
 <h2 id="camera-types">Camera Types</h2>
 <p>The <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro"><code>remo.urdf.xacro</code></a> accepts a <code>camera_type</code>
 <a href="http://wiki.ros.org/xacro#Rospack_commands">xacro arg</a> which lets you choose between the following different camera types</p>
@@ -3665,7 +3649,7 @@ However, you will always be able to clone/pull and use the Remo stl files once t
 </tbody>
 </table>
 <h2 id="single-board-computer-types">Single Board Computer Types</h2>
-<p>Another xacro argument is the <code>sbc_type</code> wher you can select between <code>jetson</code> and <code>rpi</code>.</p>
+<p>Another xacro argument is the <code>sbc_type</code> where you can select between <code>jetson</code> and <code>rpi</code>.</p>
 <table>
 <thead>
 <tr>
@@ -3705,6 +3689,56 @@ However, you will always be able to clone/pull and use the Remo stl files once t
 
 
 
+
+  <h2 id="__comments">Comments</h2>
+  <div data-giscus-consent="">
+    <p>
+      Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
+      shown with giscus. Loading them connects to giscus.app (hosted by Vercel, USA) and GitHub (USA); you need a GitHub account to comment.
+    </p>
+    <button class="md-button" type="button" data-giscus-load="">Show comments</button>
+  </div>
+  <div class="giscus"></div>
+  <script>
+    (function () {
+      var button = document.querySelector("[data-giscus-load]")
+      function theme() {
+        var palette = typeof __md_get === "function" ? __md_get("__palette") : null
+        if (palette && typeof palette.color === "object")
+          return palette.color.scheme === "slate" ? "dark" : "light"
+        return "preferred_color_scheme"
+      }
+      button.addEventListener("click", function () {
+        var script = document.createElement("script")
+        var config = {
+          "repo": "ros-mobile-robots/diffbot",
+          "repo-id": "MDEwOlJlcG9zaXRvcnkyMjQ3MTIzNDk=",
+          "category": "General",
+          "category-id": "MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDI1NTEx",
+          "mapping": "specific",
+          "term": "packages/remo_description/",
+          "strict": "1",
+          "reactions-enabled": "1",
+          "emit-metadata": "0",
+          "input-position": "top",
+          "theme": theme(),
+          "lang": "en"
+        }
+        for (var key in config) script.setAttribute("data-" + key, config[key])
+        script.src = "https://giscus.app/client.js"
+        script.crossOrigin = "anonymous"
+        script.async = true
+        document.querySelector(".giscus").appendChild(script)
+        document.querySelector("[data-giscus-consent]").hidden = true
+      })
+      /* Follow the palette toggle once giscus is loaded */
+      var toggle = document.querySelector("[data-md-component=palette]")
+      if (toggle) toggle.addEventListener("change", function () {
+        var frame = document.querySelector(".giscus-frame")
+        if (frame) frame.contentWindow.postMessage({ giscus: { setConfig: { theme: theme() } } }, "https://giscus.app")
+      })
+    })()
+  </script>
 
                 
 
@@ -3762,7 +3796,43 @@ However, you will always be able to clone/pull and use the Remo stl files once t
       
     
     <script src="https://gumroad.com/js/gumroad.js"></script>
+    
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();
@@ -3780,6 +3850,18 @@ However, you will always be able to clone/pull and use the Remo stl files once t
     </script>
 
   
-<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img && img.src) {
+            element.setAttribute('href', img.src);
+        } else {
+            console.log('No img element with src attribute found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
 </script></body></html>

@@ -42,34 +42,18 @@
     <script src="../js/jquery-3.5.1.min.js"></script>
     <script src="../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-        <!-- MathJax
-        <script src="../js/mathjax.js"></script>
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        -->
         <!-- KaTeX -->
         <script src="../js/katex.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
-        </script>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
-    <!-- Pseudocode -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
-    <script>
-        pseudocode.renderElement(document.getElementById("markov-localization"));
-    </script>
-    <!-- UML diagrams using Mermaid -->
-    <script src="https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });
-    </script>
+        <script src="../js/katex-0.19.0/katex.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../js/katex-0.19.0/katex.min.css">
+        
 
     
       
         
         
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        
+        <link rel="stylesheet" href="../assets/external/fonts.googleapis.com/css.49ea35f2.css">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -3575,9 +3559,9 @@ The following image shows the difference between counts, pulses (and cycles).</p
 
 <p><a href="https://www.cuidevices.com/blog/what-is-encoder-ppr-cpr-and-lpr">Source: cuidevices.com</a></p>
 <p>It is also possible to get the PPR from the number of magnetic polse, which you can see with a magnetic field paper:</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-25/resources/hardware/encoder/DG01D-E_exposed_encoder.jpg" data-desc-position="bottom"><img align="left" alt="DG01D-E exposed encoder" src="/pr-preview/pr-25/resources/hardware/encoder/DG01D-E_exposed_encoder.jpg"></a></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img align="left" alt="DG01D-E exposed encoder" src="/pr-preview/pr-25/resources/hardware/encoder/DG01D-E_exposed_encoder.jpg"></a></p>
 <p>There are six poles which results in three pulses per revolution.</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-25/resources/hardware/encoder/magnetic-field-paper.jpg" data-desc-position="bottom"><img align="right" alt="magnetic field paper" src="/pr-preview/pr-25/resources/hardware/encoder/magnetic-field-paper.jpg"></a> </p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img align="right" alt="magnetic field paper" src="/pr-preview/pr-25/resources/hardware/encoder/magnetic-field-paper.jpg"></a> </p>
 <h3 id="terminal-pin-layout">Terminal Pin Layout</h3>
 <p>The pins on the product are as follows, when looking at the connector on the housing, motor down/connector up, from right to left. The colors correspond to the included cable when plugged in to the connection slot.</p>
 <ul>
@@ -3590,19 +3574,19 @@ The following image shows the difference between counts, pulses (and cycles).</p
 </ul>
 <p>The following image shows the motor from its side with the corresponding pin descriptions:</p>
 <figure>
-    <a href="https://raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"><img src="https://raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"></a>
+    <a href="https://raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"><img src="../assets/external/raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"></a>
     <figcaption>DG01D-E Motor with encoder pin description.</figcaption>
 </figure>
 
 <h3 id="wheel-encoder-setup-with-ros">Wheel Encoder Setup with ROS</h3>
 <p>The following video gives an idea of what has to be done to get the motor and encoder working with ROS.</p>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/kNTMK3HlahQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/kNTMK3HlahQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <h3 id="wheel-encoder-measurements">Wheel Encoder Measurements</h3>
 <p>This section shows oscilloscope waveform measurements of the quadrature encoder in the DG01D-E motor. 
 The motor is connected to the <a href="https://fjp.at/projects/diffbot/components/#control">Grove I2C Motor Driver</a> that is powerd with 10 VDC. 
 The <code>motor_example.py</code> applies 50-100% of the 10 VDC which leads to the following output voltages on the motor:</p>
-<iframe src="https://www.youtube-nocookie.com/embed/5GlZtQ87Co8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe data-consent-src="https://www.youtube-nocookie.com/embed/5GlZtQ87Co8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <details>
 <summary>Voltage sweep measurements</summary>
@@ -3663,6 +3647,56 @@ To download and install Pico Scope software on Linux refer to the <a href="https
 
 
 
+  <h2 id="__comments">Comments</h2>
+  <div data-giscus-consent="">
+    <p>
+      Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
+      shown with giscus. Loading them connects to giscus.app (hosted by Vercel, USA) and GitHub (USA); you need a GitHub account to comment.
+    </p>
+    <button class="md-button" type="button" data-giscus-load="">Show comments</button>
+  </div>
+  <div class="giscus"></div>
+  <script>
+    (function () {
+      var button = document.querySelector("[data-giscus-load]")
+      function theme() {
+        var palette = typeof __md_get === "function" ? __md_get("__palette") : null
+        if (palette && typeof palette.color === "object")
+          return palette.color.scheme === "slate" ? "dark" : "light"
+        return "preferred_color_scheme"
+      }
+      button.addEventListener("click", function () {
+        var script = document.createElement("script")
+        var config = {
+          "repo": "ros-mobile-robots/diffbot",
+          "repo-id": "MDEwOlJlcG9zaXRvcnkyMjQ3MTIzNDk=",
+          "category": "General",
+          "category-id": "MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDI1NTEx",
+          "mapping": "specific",
+          "term": "DG01D-E-motor-with-encoder/",
+          "strict": "1",
+          "reactions-enabled": "1",
+          "emit-metadata": "0",
+          "input-position": "top",
+          "theme": theme(),
+          "lang": "en"
+        }
+        for (var key in config) script.setAttribute("data-" + key, config[key])
+        script.src = "https://giscus.app/client.js"
+        script.crossOrigin = "anonymous"
+        script.async = true
+        document.querySelector(".giscus").appendChild(script)
+        document.querySelector("[data-giscus-consent]").hidden = true
+      })
+      /* Follow the palette toggle once giscus is loaded */
+      var toggle = document.querySelector("[data-md-component=palette]")
+      if (toggle) toggle.addEventListener("change", function () {
+        var frame = document.querySelector(".giscus-frame")
+        if (frame) frame.contentWindow.postMessage({ giscus: { setConfig: { theme: theme() } } }, "https://giscus.app")
+      })
+    })()
+  </script>
+
                 
 
               </article>
@@ -3718,8 +3752,42 @@ To download and install Pico Scope software on Linux refer to the <a href="https
       <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
-    <script src="https://gumroad.com/js/gumroad.js"></script>
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();
@@ -3737,6 +3805,18 @@ To download and install Pico Scope software on Linux refer to the <a href="https
     </script>
 
   
-<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img && img.src) {
+            element.setAttribute('href', img.src);
+        } else {
+            console.log('No img element with src attribute found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
 </script></body></html>

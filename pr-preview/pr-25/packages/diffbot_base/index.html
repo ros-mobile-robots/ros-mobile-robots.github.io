@@ -44,34 +44,18 @@
     <script src="../../js/jquery-3.5.1.min.js"></script>
     <script src="../../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-        <!-- MathJax
-        <script src="../../js/mathjax.js"></script>
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        -->
         <!-- KaTeX -->
         <script src="../../js/katex.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
-        </script>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
-    <!-- Pseudocode -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
-    <script>
-        pseudocode.renderElement(document.getElementById("markov-localization"));
-    </script>
-    <!-- UML diagrams using Mermaid -->
-    <script src="https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });
-    </script>
+        <script src="../../js/katex-0.19.0/katex.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../../js/katex-0.19.0/katex.min.css">
+        
 
     
       
         
         
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        
+        <link rel="stylesheet" href="../../assets/external/fonts.googleapis.com/css.49ea35f2.css">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -3481,7 +3465,7 @@ velocities to compute suitable motor PWM signals using two separate PID controll
 one for each motor.</p>
 <p>Another part of this package is a launch file that will</p>
 <ul>
-<li>Load the robot description from <code>diffbot_description</code> to the paramter server</li>
+<li>Load the robot description from <code>diffbot_description</code> to the parameter server</li>
 <li>Run the hardware interface of this package <code>diffbot_base</code></li>
 <li>Load the controller configuration yaml from the <code>diffbot_control</code> package to the <a href="http://wiki.ros.org/Parameter%20Server">parameter server</a></li>
 <li>Load the controllers with the <a href="http://wiki.ros.org/controller_manager?distro=noetic">controller manager</a></li>
@@ -3490,7 +3474,7 @@ one for each motor.</p>
 <h2 id="low-level-vs-high-level-pid">Low-Level vs High-Level PID</h2>
 <p>There exist (at least) two commonly used approaches to control a robot base.</p>
 <p>The difference between the two presented approaches here is where the PID controller(s)
-that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the SBC and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are refered to as</p>
+that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the SBC and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are referred to as</p>
 <ul>
 <li>High-Level PIDs running on the hardware interface on the SBC</li>
 <li>Low-Level PIDs running on the firmware of the microcontroller</li>
@@ -3501,7 +3485,7 @@ The previous approach (high-level PID) is documented in <a href="high-level/">Hi
 <h2 id="developing-a-low-level-controller-firmware-and-a-high-level-ros-control-hardware-interface-for-a-differential-drive-robot">Developing a low-level controller firmware and a high-level ROS Control hardware interface for a differential drive robot</h2>
 <p>In the following two sections, the base controller, mentioned in the Navigation
 Stack, will be developed.</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-25/resources/navigation/navigation_stack.png" data-desc-position="bottom"><img alt="Navigation Stack" src="/pr-preview/pr-25/resources/navigation/navigation_stack.png"></a></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Navigation Stack" src="/pr-preview/pr-25/resources/navigation/navigation_stack.png"></a></p>
 <p>For DiffBot/Remo, this platform-specific node is split into two software
 components.</p>
 <p>The first component is the high-level <code>diffbot::DiffBotHWInterface</code> that
@@ -3515,7 +3499,7 @@ simulation and the real robot.</p>
 <p>An overview of ROS Control in simulation and the real world is given in the
 following figure (<a href="http://gazebosim.org/tutorials/?tut=ros_control">http://gazebosim.org/tutorials/?tut=ros_control</a>):</p>
 <figure>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-25/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg" data-desc-position="bottom"><img alt="ROS Control simulation and reality" src="/pr-preview/pr-25/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg"></a>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ROS Control simulation and reality" src="/pr-preview/pr-25/resources/packages/diffbot_base/ros-control-simulation-and-reality.svg"></a>
   </p>
 <figcaption>ROS Control in Simulation and Reality</figcaption>
 </figure>
@@ -3524,7 +3508,7 @@ wheel joint positions and velocities and applies the commands from the
 high-level interface to the wheel joints. The following figure shows the
 communication between the two components:</p>
 <figure>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="/pr-preview/pr-25/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg" data-desc-position="bottom"><img alt="Block diagram of low-level controller and high-level hardware interface" src="/pr-preview/pr-25/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg"></a>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Block diagram of low-level controller and high-level hardware interface" src="/pr-preview/pr-25/resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg"></a>
   </p>
 <figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
 Control)</figcaption>
@@ -3615,6 +3599,56 @@ Controllers</a>.</p>
 
 
 
+  <h2 id="__comments">Comments</h2>
+  <div data-giscus-consent="">
+    <p>
+      Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
+      shown with giscus. Loading them connects to giscus.app (hosted by Vercel, USA) and GitHub (USA); you need a GitHub account to comment.
+    </p>
+    <button class="md-button" type="button" data-giscus-load="">Show comments</button>
+  </div>
+  <div class="giscus"></div>
+  <script>
+    (function () {
+      var button = document.querySelector("[data-giscus-load]")
+      function theme() {
+        var palette = typeof __md_get === "function" ? __md_get("__palette") : null
+        if (palette && typeof palette.color === "object")
+          return palette.color.scheme === "slate" ? "dark" : "light"
+        return "preferred_color_scheme"
+      }
+      button.addEventListener("click", function () {
+        var script = document.createElement("script")
+        var config = {
+          "repo": "ros-mobile-robots/diffbot",
+          "repo-id": "MDEwOlJlcG9zaXRvcnkyMjQ3MTIzNDk=",
+          "category": "General",
+          "category-id": "MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDI1NTEx",
+          "mapping": "specific",
+          "term": "packages/diffbot_base/",
+          "strict": "1",
+          "reactions-enabled": "1",
+          "emit-metadata": "0",
+          "input-position": "top",
+          "theme": theme(),
+          "lang": "en"
+        }
+        for (var key in config) script.setAttribute("data-" + key, config[key])
+        script.src = "https://giscus.app/client.js"
+        script.crossOrigin = "anonymous"
+        script.async = true
+        document.querySelector(".giscus").appendChild(script)
+        document.querySelector("[data-giscus-consent]").hidden = true
+      })
+      /* Follow the palette toggle once giscus is loaded */
+      var toggle = document.querySelector("[data-md-component=palette]")
+      if (toggle) toggle.addEventListener("change", function () {
+        var frame = document.querySelector(".giscus-frame")
+        if (frame) frame.contentWindow.postMessage({ giscus: { setConfig: { theme: theme() } } }, "https://giscus.app")
+      })
+    })()
+  </script>
+
                 
 
               </article>
@@ -3670,8 +3704,42 @@ Controllers</a>.</p>
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
-    <script src="https://gumroad.com/js/gumroad.js"></script>
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();
@@ -3689,6 +3757,18 @@ Controllers</a>.</p>
     </script>
 
   
-<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img && img.src) {
+            element.setAttribute('href', img.src);
+        } else {
+            console.log('No img element with src attribute found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
 </script></body></html>

@@ -44,34 +44,18 @@
     <script src="../../../js/jquery-3.5.1.min.js"></script>
     <script src="../../../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-        <!-- MathJax
-        <script src="../../../js/mathjax.js"></script>
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        -->
         <!-- KaTeX -->
         <script src="../../../js/katex.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
-        </script>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
-    <!-- Pseudocode -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
-    <script>
-        pseudocode.renderElement(document.getElementById("markov-localization"));
-    </script>
-    <!-- UML diagrams using Mermaid -->
-    <script src="https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });
-    </script>
+        <script src="../../../js/katex-0.19.0/katex.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../../../js/katex-0.19.0/katex.min.css">
+        
 
     
       
         
         
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        
+        <link rel="stylesheet" href="../../../assets/external/fonts.googleapis.com/css.49ea35f2.css">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -3683,7 +3667,7 @@
 <p>In the simpleste case all that is needed in this package is to write a class that inherits from <code>hardware_interface::RobotHW</code> and provide a launch
 file. The launch file will </p>
 <ul>
-<li>Load the robot description from <code>diffbot_description</code> to the paramter server</li>
+<li>Load the robot description from <code>diffbot_description</code> to the parameter server</li>
 <li>Run the hardware interface of this package <code>diffbot_base</code></li>
 <li>Load the controller configuration yaml from the <code>diffbot_control</code> package to the <a href="http://wiki.ros.org/Parameter%20Server">parameter server</a></li>
 <li>Load the controllers with the <a href="http://wiki.ros.org/controller_manager?distro=noetic">controller manager</a></li>
@@ -3741,7 +3725,10 @@ file. The launch file will </p>
 <span class="go">ls build                  # Show the resulting build space</span>
 <span class="go">ls devel                  # Show the resulting devel space</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p class="notice">Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for <a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure to clone/download the source files suitable for the ROS distribution you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for <a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
+</div>
 <h3 id="hardware-interface">Hardware Interface</h3>
 <p>See the <a href="../diffbot_base/include"><code>include</code></a> and <a href="../diffbot_base/src"><code>src</code></a> folders of this package and the details on the hardware interface implementation.
 For more details on the hardware interface also refer to the section <a href="https://fjp.at/projects/diffbot/ros-integration/#ros-control">ROS Integration: Control</a>, it gives more details and also this <a href="https://fjp.at/posts/ros/ros-control/">overview article about ROS Control</a>.</p>
@@ -4077,8 +4064,7 @@ the robot's description from the ROS parameter server:</p>
 
 <span class="p">};</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
-and to command it. When the controller manager runs, the controllers will read from the <code>pos</code>, <code>vel</code> and <code>eff</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>cmd</code> variable. It's mandatory to make sure the <code>pos</code>, <code>vel</code> and <code>eff</code> variables always have the latest joint state available, and to make sure that whatever is written into the <code>cmd</code> variable gets executed by the robot. This can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
+<p>The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, and to command it. When the controller manager runs, the controllers will read from the <code>pos</code>, <code>vel</code> and <code>eff</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>cmd</code> variable. It's mandatory to make sure the <code>pos</code>, <code>vel</code> and <code>eff</code> variables always have the latest joint state available, and to make sure that whatever is written into the <code>cmd</code> variable gets executed by the robot. This can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
 <p>The <code>write()</code> method also contains the output interface to the motor driver. In this case it is publishing <code>/diffbot/motor_left</code> and <code>/diffbot/motor_right</code> topics, which are subscribed by the <a href="https://github.com/ros-mobile-robots/grove_motor_driver/blob/main/src/motor_driver.py">grove_i2c motor_driver python node</a> that is running on the SBC.</p>
 <p>The main node that will be executed uses the <code>controller_manager</code> to operate the so called control loop. 
 In the case of  DiffBot a simple example looks like the following, 
@@ -4161,7 +4147,7 @@ refer to the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-d
 <span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">prev_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
 <span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Rate</span><span class="w"> </span><span class="n">rate</span><span class="p">(</span><span class="mf">10.0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 10 Hz rate</span>
 
-<span class="w">    </span><span class="c1">// Blocks until shutdown signal recieved</span>
+<span class="w">    </span><span class="c1">// Blocks until shutdown signal received</span>
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">())</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Basic bookkeeping to get the system time in order to compute the control period.</span>
@@ -4199,22 +4185,25 @@ without conflicting with other controllers, is the <a href="http://docs.ros.org/
 ROS Control uses the <code>hardware_interface::VelocityJointInterface</code> (part of the <a href="http://docs.ros.org/en/noetic/api/hardware_interface/html/c++/joint__command__interface_8h_source.html"><code>joint_command_interface.h</code></a>) 
 that registers the command member variable of the controller with the hardware interface to provide it the command that should be written to the actuators.</p>
 <p>When the controller manager runs, the controllers will read from the <code>joint_position</code>, <code>joint_velocity</code> and <code>joint_effort</code> variables of the custom robot hardware interface, and the controller will write the desired command into the <code>joint_velocity_command</code> variable. It's mandatory to make sure the position, velocity and effort (effort is not needed in the case of the <code>diff_drive_controller</code>) variables always have the latest joint state available, and to make sure that whatever is written into the <code>joint_velocity_command</code> variable gets executed by the robot. As mentioned this can be done by implementing <code>hardware_interface::RobotHW::read()</code> and a <code>hardware_interface::RobotHW::write()</code> methods.</p>
-<p>In the control loop the <a href="https://github.com/fjp/diffbot/blob/522cba34117ea4cf90e3e0b5b9b70f0824e226fc/diffbot_base/src/diffbot_hw_interface.cpp#L106">overriden <code>hardware_interface::RobotHW::read()</code> method of DiffBot</a> is used to read the joint states. The <code>diff_drive_controller</code> works with a VelocityInterface which is why the <code>joint_position</code>, defined in rad, and <code>joint_velocity</code>, defined in rad/s, are calculated from the encoder ticks.</p>
+<p>In the control loop the <a href="https://github.com/fjp/diffbot/blob/522cba34117ea4cf90e3e0b5b9b70f0824e226fc/diffbot_base/src/diffbot_hw_interface.cpp#L106">overridden <code>hardware_interface::RobotHW::read()</code> method of DiffBot</a> is used to read the joint states. The <code>diff_drive_controller</code> works with a VelocityInterface which is why the <code>joint_position</code>, defined in rad, and <code>joint_velocity</code>, defined in rad/s, are calculated from the encoder ticks.</p>
 <h2 id="pid-controller">PID Controller</h2>
-<p :=":" class="notice">Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders 
-and the target velocity computed by the <code>diff_drive_controller</code> for a specific wheel joint. 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders
+and the target velocity computed by the <code>diff_drive_controller</code> for a specific wheel joint.
 The <code>diff_drive_controller</code> doesn't have a PID controller integrated, and doesn't take care if the wheels of the robot are actually turning.
 As mentioned above, ROS Control expects that the commands sent by the controller are actually implemented on the real robot hardware and that the
-joint states are always up to date. This means that the <code>diff_drive_controller</code> just uses the <code>twist_msg</code> on the <code>cmd_vel</code> topic for example from the <code>rqt_robot_steering</code> and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account. 
-See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated. </p>
-<p>This is why a PID controller is needed to avoid situations like the following where the robot moves not straigth although it is commanded to do so:</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+joint states are always up to date. This means that the <code>diff_drive_controller</code> just uses the <code>twist_msg</code> on the <code>cmd_vel</code> topic for example from the <code>rqt_robot_steering</code> and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account.
+See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated.</p>
+</div>
+<p>This is why a PID controller is needed to avoid situations like the following where the robot moves not straight although it is commanded to do so:</p>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>The PID used here inherits from the ROS Control <a href="http://wiki.ros.org/control_toolbox"><code>control_toolbox::Pid</code></a> that provides Dynamic Reconfigure out of the box to tune the proportional, integral and derivative gains. The behaviour when using only the P, I and D gains is that the output can overshoot and even change between positive and negative motor percent values because of a P gain that is too high. To avoid this, a feed forward gain can help to reach the setpoint faster.
 To add this feed forward gain to the dynamic reconfigure parameters it is necessary to add a new parameter configuration file in this package inside a <code>cfg</code> folder. </p>
 <p>For more details on ROS dynamic reconfigure see <a href="http://wiki.ros.org/dynamic_reconfigure/Tutorials">the official tutorials</a>.</p>
 <p>With the use of the PID controller the robot is able to drive straight:</p>
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/fdn5Mu0Qhl8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/fdn5Mu0Qhl8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>In case of using inexpensive motors like the <a href="https://www.sparkfun.com/products/16413">DG01D-E</a> of DiffBot,
 you have to take inaccurate driving behaviour into account. The straight driving behaviour can be improved
@@ -4255,8 +4244,11 @@ note the voltage level where each motor starts to rotate. Such a test was done o
 </tr>
 </tbody>
 </table>
-<p class="notice">In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
-Using the motors 04 and 05 improved the driving behaviour significantly. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
+Using the motors 04 and 05 improved the driving behaviour significantly.</p>
+</div>
 <p>To deal with significant differences in the motors it would also help to tune the two PIDs individually,
 which is not shown in the <a href="https://youtu.be/fdn5Mu0Qhl8">video above</a>.</p>
 <div class="admonition note">
@@ -4445,6 +4437,56 @@ This launch file is just loading and starting all controllers again. Note that u
 
 
 
+  <h2 id="__comments">Comments</h2>
+  <div data-giscus-consent="">
+    <p>
+      Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
+      shown with giscus. Loading them connects to giscus.app (hosted by Vercel, USA) and GitHub (USA); you need a GitHub account to comment.
+    </p>
+    <button class="md-button" type="button" data-giscus-load="">Show comments</button>
+  </div>
+  <div class="giscus"></div>
+  <script>
+    (function () {
+      var button = document.querySelector("[data-giscus-load]")
+      function theme() {
+        var palette = typeof __md_get === "function" ? __md_get("__palette") : null
+        if (palette && typeof palette.color === "object")
+          return palette.color.scheme === "slate" ? "dark" : "light"
+        return "preferred_color_scheme"
+      }
+      button.addEventListener("click", function () {
+        var script = document.createElement("script")
+        var config = {
+          "repo": "ros-mobile-robots/diffbot",
+          "repo-id": "MDEwOlJlcG9zaXRvcnkyMjQ3MTIzNDk=",
+          "category": "General",
+          "category-id": "MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDI1NTEx",
+          "mapping": "specific",
+          "term": "packages/diffbot_base/high-level/",
+          "strict": "1",
+          "reactions-enabled": "1",
+          "emit-metadata": "0",
+          "input-position": "top",
+          "theme": theme(),
+          "lang": "en"
+        }
+        for (var key in config) script.setAttribute("data-" + key, config[key])
+        script.src = "https://giscus.app/client.js"
+        script.crossOrigin = "anonymous"
+        script.async = true
+        document.querySelector(".giscus").appendChild(script)
+        document.querySelector("[data-giscus-consent]").hidden = true
+      })
+      /* Follow the palette toggle once giscus is loaded */
+      var toggle = document.querySelector("[data-md-component=palette]")
+      if (toggle) toggle.addEventListener("change", function () {
+        var frame = document.querySelector(".giscus-frame")
+        if (frame) frame.contentWindow.postMessage({ giscus: { setConfig: { theme: theme() } } }, "https://giscus.app")
+      })
+    })()
+  </script>
+
                 
 
               </article>
@@ -4500,8 +4542,42 @@ This launch file is just loading and starting all controllers again. Note that u
       <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
-    <script src="https://gumroad.com/js/gumroad.js"></script>
+    <style>
+      .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+        max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
+        background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+      .consent-embed p { margin: 0; max-width: 32rem; }
+    </style>
     <script>
+        // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
+        // data-consent-src instead of src, so nothing is requested from these hosts until the visitor agrees.
+        document.addEventListener("DOMContentLoaded", function () {
+            var names = { "www.youtube-nocookie.com": "YouTube (Google)", "player.vimeo.com": "Vimeo (USA)", "myhub.autodesk360.com": "Autodesk (USA)" };
+            document.querySelectorAll("iframe[data-consent-src]").forEach(function (frame) {
+                var url = new URL(frame.getAttribute("data-consent-src"), location.href);
+                var name = names[url.hostname] || url.hostname;
+                var box = document.createElement("div");
+                box.className = "consent-embed";
+                var width = frame.getAttribute("width");
+                if (width) box.style.width = /%$/.test(width) ? width : width + "px";
+                var note = document.createElement("p");
+                note.textContent = "This content is hosted by " + name + ". Loading it sends your IP address to " + name + ", which may store cookies.";
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "md-button";
+                button.textContent = "Load " + (url.hostname === "myhub.autodesk360.com" ? "3D model" : "video");
+                button.addEventListener("click", function () {
+                    if (url.hostname === "player.vimeo.com") url.searchParams.set("dnt", "1");
+                    frame.src = url.href;
+                    frame.hidden = false;
+                    box.remove();
+                    if (window.jQuery && jQuery.fn.fitVids) jQuery(frame.parentNode).fitVids();
+                });
+                box.append(note, button);
+                frame.hidden = true;
+                frame.parentNode.insertBefore(box, frame);
+            });
+        });
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
             $(".md-main").fitVids();
@@ -4519,6 +4595,18 @@ This launch file is just loading and starting all controllers again. Note that u
     </script>
 
   
-<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img && img.src) {
+            element.setAttribute('href', img.src);
+        } else {
+            console.log('No img element with src attribute found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
 </script></body></html>
