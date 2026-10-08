@@ -3829,10 +3829,10 @@
 <h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
 <p>A few terms first:</p>
 <ul>
-<li><strong>Host:</strong> the computer that runs Docker and the container. That's your Linux PC, or on Windows the Ubuntu that runs in <a href="https://learn.microsoft.com/en-us/windows/wsl/">WSL 2</a> (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.</li>
+<li><strong>Host:</strong> the computer that runs Docker Engine and the container. That's your Linux PC, or on Windows the Ubuntu that runs in <a href="https://learn.microsoft.com/en-us/windows/wsl/">WSL 2</a> (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.</li>
 <li><strong>Container:</strong> a separate Ubuntu 20.04 with ROS Noetic that runs on the host (<a href="https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/">what is a container</a>). A <em>dev container</em> is a container set up for development, described by a <code>devcontainer.json</code> file (<a href="https://containers.dev/">containers.dev</a>). Your clone of the diffbot repository is shared with it, so you edit files on the host and build and run them in the container.</li>
 <li><strong>X server and X clients:</strong> Linux GUI programs use the <a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml">X Window System</a> (X11). The <em>X server</em> is the program that draws windows on your screen, so it runs where the screen is. The programs that want windows, like RViz, Gazebo and rqt, are <em>X clients</em>: each one connects to the X server and tells it what to draw. One X server serves many clients, and the clients may run somewhere else, for example in the container. The naming feels backwards at first: the server is on your desk, and the apps are its clients.</li>
-<li><strong>Which X server:</strong> on a Linux desktop, the desktop's own (Xwayland on <a href="https://wayland.freedesktop.org/">Wayland</a> desktops). On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and updated Windows 10) is the X server for Linux programs and shows their windows on the Windows desktop.</li>
+<li><strong>Which X server:</strong> on a Linux desktop, the desktop's own (Xwayland on <a href="https://wayland.freedesktop.org/">Wayland</a> desktops). On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later, see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>) is the X server for Linux programs and shows their windows on the Windows desktop.</li>
 </ul>
 <p>How VS Code works with a dev container: its window runs on your PC, while a VS Code server, the terminals, the build and the running programs are in the container. The source code stays on your PC and is mounted into the container.</p>
 <figure>
@@ -3841,40 +3841,43 @@
 </figure>
 
 <p><strong>Simulation, no robot needed:</strong> everything runs in the container. Gazebo simulates the robot, RViz shows what it sees. They are X clients, and their windows appear on your screen through the host's X server:</p>
-<div class="mermaid">graph LR
+<div class="mermaid">graph TB
   subgraph HOST [Host: Linux PC, or Ubuntu in WSL 2]
     subgraph DC [Dev container: ROS Noetic]
-      NODES[roscore and DiffBot nodes]
-      GZ[X client: Gazebo]
-      RV[X clients: RViz, rqt]
+      NODES[roscore and&lt;br/&gt;DiffBot nodes]
+      GZ[X client:&lt;br/&gt;Gazebo]
+      RV[X clients:&lt;br/&gt;RViz, rqt]
     end
-    XS[X server: your desktop, or WSLg on Windows]
+    XS[X server: your desktop,&lt;br/&gt;or WSLg on Windows]
   end
-  GZ --&gt;|X11 socket and DISPLAY| XS
-  RV --&gt;|X11 socket and DISPLAY| XS
-  XS --&gt; SCREEN[Windows on your screen]</div>
+  GZ --&gt;|X11 socket| XS
+  RV --&gt;|X11 socket| XS
+  XS --&gt; SCREEN[Windows on&lt;br/&gt;your screen]</div>
 <p><strong>With the real robot:</strong> the robot runs ROS natively on its Raspberry Pi (see <a href="../../packages/packages-setup/">Packages Setup</a>), and the container on your PC joins its ROS network. RViz, mapping and navigation can then run on the PC:</p>
-<div class="mermaid">graph LR
-  subgraph PC [Your PC: host network]
-    C[Dev container: RViz, SLAM, navigation]
+<div class="mermaid">graph TB
+  subgraph PC [Your PC: dev container]
+    C[RViz, SLAM,&lt;br/&gt;navigation]
   end
-  subgraph ROBOT [Robot: Raspberry Pi with ROS Noetic]
-    M[roscore: ROS master]
-    B[Bringup: drivers, hardware interface]
+  subgraph ROBOT [Robot: Raspberry Pi, ROS Noetic]
+    M[roscore:&lt;br/&gt;ROS master]
+    B[Bringup: drivers,&lt;br/&gt;hardware interface]
   end
-  T[Teensy: motors and encoders]
-  C ---|Wi-Fi or LAN, ROS_MASTER_URI and ROS_IP| M
+  T[Teensy: motors&lt;br/&gt;and encoders]
+  C -. 1. register, look up .-&gt; M
+  B -. 1. register, look up .-&gt; M
+  C ---|2. topics and services,&lt;br/&gt;directly, both ways| B
   B ---|USB, rosserial| T</div>
-<p>The container shares the host's network (see <a href="#network">Network</a>), and the windows reach your screen as described in <a href="#gui-apps-x11-and-wslg">GUI apps</a>.</p>
+<p>Every node first registers with the ROS master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). That's why the robot must be able to reach your PC, not only the other way round. Both kinds of traffic go over Wi-Fi or your LAN. The container shares the host's network (see <a href="#network">Network</a>), and the windows reach your screen as described in <a href="#gui-apps-x11-and-wslg">GUI apps</a>.</p>
 <h2 id="requirements">Requirements</h2>
 <ul>
 <li>
-<p><strong>Docker on the host:</strong> <a href="https://docs.docker.com/engine/">Docker Engine</a> on Linux or in WSL 2, or <a href="https://docs.docker.com/desktop/">Docker Desktop</a>. On Ubuntu, including the Ubuntu in WSL 2:</p>
+<p><strong>Docker Engine on the host:</strong> <a href="https://docs.docker.com/engine/">Docker Engine</a> on your Linux PC, or inside the Ubuntu in WSL 2. That's the tested setup. To install it on Ubuntu, including the Ubuntu in WSL 2:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker.io docker-compose-v2 docker-buildx</span>
 <span class="go">sudo usermod -aG docker $USER</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Log out and in again so the new <code>docker</code> group applies (see Docker's <a href="https://docs.docker.com/engine/install/linux-postinstall/">post-installation steps</a>). On WSL 2, run <code>wsl --shutdown</code> in Windows PowerShell and open Ubuntu again.</p>
+<p><a href="https://docs.docker.com/desktop/">Docker Desktop</a> runs Docker in its own separate virtual machine, so its "host" isn't your Ubuntu. Its host network, which this setup uses, is an opt-in feature from version 4.34 (Settings → Resources → Network → <strong>Enable host networking</strong>) and only carries TCP and UDP, unlike on Linux (<a href="https://docs.docker.com/engine/network/drivers/host/#docker-desktop">Docker docs</a>). Docker Desktop isn't tested with this setup, and especially not with the robot.</p>
 </li>
 <li>
 <p><strong>A way to start the container:</strong> <a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a>, the <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> (<code>npm install -g @devcontainers/cli</code>), or plain Docker.</p>
@@ -3920,7 +3923,7 @@
 </div>
 </div>
 </div>
-<p>Inside the container, the workspace is <code>~/catkin_ws</code>, already built and sourced. This happens automatically: the image adds <code>source /opt/ros/noetic/setup.bash</code> to <code>~/.bashrc</code>, and when the container is created, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> builds the workspace with <code>catkin build</code> and adds <code>source ~/catkin_ws/devel/setup.bash</code>. Every new terminal in the container reads <code>~/.bashrc</code>, so ROS and the workspace are ready. Your clone is mounted at <code>~/catkin_ws/src/diffbot</code>, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:</p>
+<p>Inside the container, the workspace is <code>~/catkin_ws</code>, already built and sourced. This happens automatically: the image adds <code>source /opt/ros/noetic/setup.bash</code> to <code>~/.bashrc</code>, and when the container is created, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> builds the workspace with <code>catkin build</code> and adds <code>source ~/catkin_ws/devel/setup.bash</code>. Every new interactive Bash terminal in the container reads <code>~/.bashrc</code>, so ROS and the workspace are ready there. Scripts and other non-interactive commands don't read it; they need to source the two files themselves. Your clone is mounted at <code>~/catkin_ws/src/diffbot</code>, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_control diffbot.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>After changing code, rebuild with <code>catkin build</code> in <code>~/catkin_ws</code>.</p>
