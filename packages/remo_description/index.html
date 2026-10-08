@@ -42,34 +42,18 @@
     <script src="../../js/jquery-3.5.1.min.js"></script>
     <script src="../../js/jquery.fitvids.js"></script>
     <!-- Arithmatex -->
-        <!-- MathJax
-        <script src="../../js/mathjax.js"></script>
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        -->
         <!-- KaTeX -->
         <script src="../../js/katex.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js" integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
-        </script>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
-    <!-- Pseudocode -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js"></script>
-    <script>
-        pseudocode.renderElement(document.getElementById("markov-localization"));
-    </script>
-    <!-- UML diagrams using Mermaid -->
-    <script src="https://unpkg.com/mermaid@8.8.0/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });
-    </script>
+        <script src="../../js/katex-0.19.0/katex.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../../js/katex-0.19.0/katex.min.css">
+        
 
     
       
         
         
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        
+        <link rel="stylesheet" href="../../assets/external/fonts.googleapis.com/css.49ea35f2.css">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -3622,7 +3606,7 @@
 <p>ROS URDF description package of REMO robot (Research Education Mobile/Modular robot) a highly modifiable and extendable
 autonomous mobile robot based on <a href="https://github.com/NVIDIA-AI-IOT/jetbot">Nvidia's Jetbot</a>.
 This ROS package is found in the <a href="https://github.com/ros-mobile-robots/remo_description/blob/main"><code>remo_description</code> repository</a> contains the stl files to 3D print Remo robot.</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif" data-desc-position="bottom"><img alt="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif" src="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo-rviz-spin.gif"></a></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Remo spinning in RViz" src="/resources/remo/remo-rviz-spin.gif"></a></p>
 <p>You can explore the model in more detail through the following Fusion 360 viewer:</p>
 <iframe src="https://myhub.autodesk360.com/ue2da69dd/g/shares/SH56a43QTfd62c1cd96877645745238409cb?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" frameborder="0"></iframe>
 
@@ -3644,7 +3628,7 @@ In case you need the stl files immediately, and to support this work you can get
 However, you will always be able to clone/pull and use the Remo stl files once the bandwith quota resets.</p>
 <h3 id="assembly">Assembly</h3>
 <p>For assembly instructions please watch the video below:</p>
-<p><a href="https://youtu.be/6aAEbtfVbAk"><img alt="remo fusion animation" src="https://raw.githubusercontent.com/ros-mobile-robots/ros-mobile-robots.github.io/main/docs/resources/remo/remo_fusion_animation.gif"></a></p>
+<p><a href="https://youtu.be/6aAEbtfVbAk"><img alt="remo fusion animation" src="/resources/remo/remo_fusion_animation.gif"></a></p>
 <h2 id="camera-types">Camera Types</h2>
 <p>The <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro"><code>remo.urdf.xacro</code></a> accepts a <code>camera_type</code>
 <a href="http://wiki.ros.org/xacro#Rospack_commands">xacro arg</a> which lets you choose between the following different camera types</p>
@@ -3762,6 +3746,7 @@ However, you will always be able to clone/pull and use the Remo stl files once t
       
     
     <script src="https://gumroad.com/js/gumroad.js"></script>
+    
     <script>
         $(document).ready(function(){
             // Target your .container, .wrapper, .post, etc.
@@ -3780,6 +3765,18 @@ However, you will always be able to clone/pull and use the Remo stl files once t
     </script>
 
   
-<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img && img.src) {
+            element.setAttribute('href', img.src);
+        } else {
+            console.log('No img element with src attribute found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
 </script></body></html>
