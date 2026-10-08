@@ -31,7 +31,7 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 The packages have no test cases yet, so the checks prove that everything builds, not that it behaves correctly. Tests are planned as part of the [roadmap](index.md#roadmap).
 
-### Action versions
+### GitHub Actions versions
 
 The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the CI workflow failed before building anything because `actions/cache@v2` had been switched off, and Node 20 actions were retired in September 2026. When a check fails during "Set up job", an outdated action is the likely cause.
 
