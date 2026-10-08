@@ -18,7 +18,7 @@
     (function () {
       var button = document.querySelector("[data-giscus-load]")
       function theme() {
-        var palette = __md_get("__palette")
+        var palette = typeof __md_get === "function" ? __md_get("__palette") : null
         if (palette && typeof palette.color === "object")
           return palette.color.scheme === "slate" ? "dark" : "light"
         return "preferred_color_scheme"
