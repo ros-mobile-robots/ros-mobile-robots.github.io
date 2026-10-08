@@ -160,7 +160,7 @@ with 4 GB of RAM.
 
 ### Case and Cooling
 
-To protect the Rasbperry Pi 4 B we choose a case that provides access to all its ports.
+To protect the Raspberry Pi 4 B we choose a case that provides access to all its ports.
 The following images show a stackable acrylic case in rainbow colors.
 
 <figure class="half">
@@ -310,7 +310,7 @@ As an alternative we could use the [HC SR04](https://www.seeedstudio.com/blog/20
 
 #### Inertial Measurement Unit
 
-An intertial measurement unit (IMU) measures the acceleration and orientation through gyroscopes directly.
+An inertial measurement unit (IMU) measures the acceleration and orientation through gyroscopes directly.
 Other states such as the velocity can then be calculated.
 For this the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout - BNO055]((https://www.adafruit.com/product/2472)) is used.
 
@@ -393,7 +393,7 @@ The human machine interface is the layer between the user and the robot.
 
 ### OLED Display
 
-To update the user with status messages the robot has a 0.96 inch oled (organic ligth emitting diode) display.
+To update the user with status messages the robot has a 0.96 inch oled (organic light emitting diode) display.
 The oled display used is the [Grove I2C 0.96 inch OLED display](http://wiki.seeedstudio.com/Grove-OLED_Display_0.96inch/) 
 from Seeed Studio.
 
@@ -404,6 +404,6 @@ from Seeed Studio.
     <figcaption>Grove - I2C 0.96 inch OLED Display.</figcaption>
 </figure>
 
-The display is connected to the RPi via I2C on the physical pins 27 (scl) and 28 (sda), refere to the [pinout](https://pinout.xyz/pinout/i2c).
+The display is connected to the RPi via I2C on the physical pins 27 (scl) and 28 (sda), refer to the [pinout](https://pinout.xyz/pinout/i2c).
 
 [Library](https://github.com/DexterInd/GrovePi/blob/master/Software/Python/grove_i2c_oled_128_64/grove_128_64_oled.py)

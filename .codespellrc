@@ -1,0 +1,4 @@
+[codespell]
+skip = *.ipynb,*.svg,*.js,*.css,*.json,*.woff2,*.png,*.jpg,*.gif,./site,./.cache,./venv,./scripts/stl-renders/node_modules,./scripts/stl-renders/build
+# Van Gool (SURF), British spelling in the privacy policy
+ignore-words-list = gool,fulfilment

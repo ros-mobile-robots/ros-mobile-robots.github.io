@@ -11,7 +11,7 @@ everything the application needs to run:
 - source code
 - runtime libraries
 - system tools
-- configruation files
+- configuration files
 
 The result is that a containerzied application will run identically on any host. 
 And there are no incompatibilieties of any kind.
@@ -19,7 +19,7 @@ And there are no incompatibilieties of any kind.
 ## Why Containerization
 
 In the traditional operating systems like Linux Ubuntu a package manager install apps.
-These apps run on shared runtime libraries. Therfore, applications are coupled,
+These apps run on shared runtime libraries. Therefore, applications are coupled,
 because they share the same dependencies. This can can lead to **compatibility issues**,
 when, for example, two or more applications requires a different version of the same shared library.
 

@@ -53,7 +53,7 @@ The following list shows the most popular detectors belonging to this group:
 #### Features from Accelerated Segments Test (FAST)
 
 Finds keypoints by comparing the brightness levels in a given pixel area.
-Given a pixel $p$ in an image, FAST compares the brigthness of $p$ to a set of 16 surrounding pixels that are in a small circle around $p$.
+Given a pixel $p$ in an image, FAST compares the brightness of $p$ to a set of 16 surrounding pixels that are in a small circle around $p$.
 
 ![Source: https://en.wikipedia.org/wiki/Features_from_accelerated_segment_test](https://upload.wikimedia.org/wikipedia/commons/4/47/FAST_Corner_Detector.jpg){ align=left }
 
@@ -66,7 +66,7 @@ Each pixel in this circle is then sorted into three classes, depending on the br
 
 So if the brithness of a pixel is $I_p$, then for a given threshold $h$ brither pixels will be those, whose brithness exceeds $I_p + h$.
 Darker pixels will be those whose brithness is below $I_p - h$, and similar pixels will be those whose brithness lie in-between those values.
-Once the pixels are classified into the three classes mentiond above, 
+Once the pixels are classified into the three classes mentioned above, 
 pixel $p$ is selected as a keypoint if more than eight connected pixels on the circle are either darker or brighter than $p$.
 
 The reason FAST is so efficient, is that it takes advantage of the fact that the same result can be achieved by comparing $p$ to only four
@@ -85,7 +85,7 @@ to convert these keypoints into feature vectors, also known as keypoint descript
 
 ### Descriptors (Feature Vectors)
 
-Descriptors also known als feature vectors provide distinctive information on the surrounding area of a keypoint.
+Descriptors also known as feature vectors provide distinctive information on the surrounding area of a keypoint.
 The literature differentiates between gradient-based descriptors and binary descriptors, 
 with the latter being a relatively new addition with the clear advantage of computational speed. 
 

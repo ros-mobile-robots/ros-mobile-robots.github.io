@@ -4,7 +4,7 @@ As mentioned previously, the pin-hole camera model describes a light-proof box w
 reflecting off of objects in the scene to pass through and strike the sensor plane. The result is an idealized, yet surprisingly useful approximation
 of the cameras commonly used on a variety of robots.
 
-The model describes how points in the world are mapped to image-space coordinates. This is done, by first transorming points given in
+The model describes how points in the world are mapped to image-space coordinates. This is done, by first transforming points given in
 world coordinates into the camera's reference frame, and then projecting the points onto the image plane. 
 In order to use this model, we need to know its parameters, such as the focal length $f$ and skew $s$ of the camera (intrinsic parameters),
 and its pose relative to the frame of the world or the robot (extrinsic parameters). Calibration refers to the process of estimating these parameters.
@@ -29,7 +29,7 @@ $$
 Having a mathematical expression for perspective projection allows us to reason over a robot's three-dimensional world from two-dimensional images.
 
 Suppose an algorithm that detects lane markings in an image received from the robot's camera. In order to use these detections to keep the robot in its lane,
-it would be useful to understand where tehy are in relation to the robot. 
+it would be useful to understand where they are in relation to the robot. 
 As we will see, calibrating the camera allows us to transform these detections into the robot's reference frame.
 The result can then be used to understand the lane geometry and where the robot is relative to the lane.
 

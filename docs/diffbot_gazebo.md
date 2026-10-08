@@ -17,7 +17,7 @@ Created file diffbot_gazebo/CMakeLists.txt
 Successfully created package files in /home/fjp/git/diffbot/ros/src/diffbot_gazebo.
 ```
  
-The `diffbot_gazebo` package contains a launch file to lauch a world in Gazebo and spawn the robot model, 
+The `diffbot_gazebo` package contains a launch file to launch a world in Gazebo and spawn the robot model, 
 which is defined in the previously created `diffbot_description` package. 
 For the launch files the convention is to have a folder named `launch` and for Gazebo world files a folder named `world` inside a package.
  

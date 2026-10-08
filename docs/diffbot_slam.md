@@ -34,7 +34,7 @@ sudo apt install ros-noetic-slam-karto
 
 ### SLAM
 
-SLAM stands for Simultaneous Localization and Mapping sometimes refered to as Concurrent Localization and Mappping (CLAM). The SLAM algorithm combines localization and mapping, where a robot has access only to its own movement and sensory data. The robot must build a map while simultaneously localizing itself relative to the map. See also this [blog post on FastSLAM](https://fjp.at/posts/slam/fastslam/).
+SLAM stands for Simultaneous Localization and Mapping sometimes referred to as Concurrent Localization and Mapping (CLAM). The SLAM algorithm combines localization and mapping, where a robot has access only to its own movement and sensory data. The robot must build a map while simultaneously localizing itself relative to the map. See also this [blog post on FastSLAM](https://fjp.at/posts/slam/fastslam/).
 
 To use the following slam algorithms, we need a mobile robot that provides odometry data and is equipped with a horizontally-mounted, 
 fixed, laser range-finder. Viewed on a higher level, every specific slam node of these algorithms will attempt to transform each incoming scan into the odom (odometry) [tf](http://wiki.ros.org/tf2) frame. Therefore the node will subscribe to the laser `/scan` and the `/tf` topics. 
@@ -56,7 +56,7 @@ Unlike `gmapping` which uses a [particle filter](https://en.wikipedia.org/wiki/P
 The least accurate SLAM algorithm is `gmapping` but it works fine for smaller maps. Use other algorithms, such as `karto` if you operate your robot in
 larger environments or you want more accuracy.
 
-Another interesing package is [`slam_toolbox`](https://github.com/SteveMacenski/slam_toolbox) which provides ROS1 and ROS2 
+Another interesting package is [`slam_toolbox`](https://github.com/SteveMacenski/slam_toolbox) which provides ROS1 and ROS2 
 support and is based on the easy to use `karto` algorithm. `karto` is the basis for many companies because it provides an excellent scan matcher
 and can operate in large environments. Additionally, `slam_toolbox` provides tools to edit a generated map and even create a high quality 
 map using stored data (offline).
@@ -73,7 +73,7 @@ map using stored data (offline).
 This package provides a main launch file named `diffbot_slam.launch` which accepts an argument `slam_method`.
 Depending on its value, different launch files will be included that execute the specified SLAM algorithm using its configuration in the `config` folder.
 
-As mentioned above, every ROS slam package requries messages from the laser-range finder topic. Usually this topic is named `/scan`.
+As mentioned above, every ROS slam package requires messages from the laser-range finder topic. Usually this topic is named `/scan`.
 To distinguish possible multiple lidars, the topic of DiffBot resides in its namespace `/diffbot/scan`.
 Therefore, its necessary to remap the `/scan` topic to `/diffbot/scan`. The following shows how this was done for the `gmapping` launch file.
 
@@ -99,7 +99,7 @@ Remappings are done in the [node tag](http://wiki.ros.org/roslaunch/XML/node). H
 
 #### Parameter Configurations
 
-Most of the configrations are the same as [`turtlebot3_slam/config`](https://github.com/ROBOTIS-GIT/turtlebot3/tree/master/turtlebot3_slam/config).
+Most of the configurations are the same as [`turtlebot3_slam/config`](https://github.com/ROBOTIS-GIT/turtlebot3/tree/master/turtlebot3_slam/config).
 For detailed description of what each parameter does, please check the individual package documentation of the different SLAM methods. 
 
 
@@ -133,7 +133,7 @@ In the figure we can see that `gmapping` subscribes and publishes to `tf`.
 
 It requires the transformation from `<the frame attached to incoming scans>` to the `base_link`, which is usually a fixed value, 
 broadcast periodically by the `robot_state_publisher`.
-Aditionally, it requires the transform from `base_link` to `odom`. This is provided by the odometry system (e.g., the driver for the mobile base).
+Additionally, it requires the transform from `base_link` to `odom`. This is provided by the odometry system (e.g., the driver for the mobile base).
 In the case of DiffBot the odometry system consists of EKF fusion data from the motor encoders and the IMU. 
 The provided tf transforms are `map` to `odom` that describes the current estimate of the robot's pose within the map frame.
 You can read more about the [required and provided transforms](http://wiki.ros.org/gmapping#Required_tf_Transforms) in the documentation.

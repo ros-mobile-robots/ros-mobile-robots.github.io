@@ -2,7 +2,7 @@
 
 As mentioned before, the nodes in ROS communicate with each other by publishing [messages](http://wiki.ros.org/Messages) to [topics](http://wiki.ros.org/Topics). 
 ROS provides the [`std_msgs`](http://wiki.ros.org/std_msgs) package that includes ROS' common message types to represent primitive data types (see the ROS [msg specification](http://wiki.ros.org/msg) for primitive types) and other basic message constructs, such as multiarrays. 
-Note howerver, the following from the [`std_msgs` documentation](http://wiki.ros.org/std_msgs):
+Note however, the following from the [`std_msgs` documentation](http://wiki.ros.org/std_msgs):
 
 !!! quote
     The types in `std_msgs` do not convey semantic meaning about their contents: every message simply has a field called "data". 
@@ -40,14 +40,14 @@ named [`Encoders.msg`]({{ diffbot_repo_url }}/diffbot_msgs/msg/Encoders.msg) is 
 Header header
 
 # Use an array of size two of type int32 for the two encoders.
-# int32 is used instead of int64 because it is not supporte by Arduino/Teensy.
+# int32 is used instead of int64 because it is not supported by Arduino/Teensy.
 # An overflow is also unlikely with the encoders of the DG01D-E 
 # motor with its encoder because of its low encoder resolution
 int32[2] ticks
 ```
 
 The message includes the message type [`Header`](http://docs.ros.org/en/api/std_msgs/html/msg/Header.html) 
-(see also [Header msg](http://wiki.ros.org/msg#headerSect)) which includes common metadata fileds such as timestamp that is automatically 
+(see also [Header msg](http://wiki.ros.org/msg#headerSect)) which includes common metadata fields such as timestamp that is automatically 
 set by [ROS client libraries](http://wiki.ros.org/Client%20Libraries).
 
 Having this encoder message description gives semantic meaning to the encoder messages 
@@ -70,7 +70,7 @@ This specifies the `Header` and a float64 array for the angular wheel joint velo
 Header header
 
 # Use an array of type float32 for the two wheel joint velocities.
-# float32 is used instead of float64 because it is not supporte by Arduino/Teensy.
+# float32 is used instead of float64 because it is not supported by Arduino/Teensy.
 float32[] velocities
 ```
 

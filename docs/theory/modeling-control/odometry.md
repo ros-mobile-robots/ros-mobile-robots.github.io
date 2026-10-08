@@ -298,7 +298,7 @@ we will need to perform an odometry calibration procedure.
 - Wheel encoders can be used to update the robot's pose in time:
   
     1. Measure the motor's angular displacements $\Delta \phi$ in $\Delta t$
-    2. Use the kinematics mdoel to find the robot's $\Delta x$, $\Delta y$, $\Delta \theta$
+    2. Use the kinematics model to find the robot's $\Delta x$, $\Delta y$, $\Delta \theta$
     3. Update the pose by adding the calculated increments
 
 - Subject to dfit in time due to accumulation of numerical, slipping/skidding and calibration impercision errors.

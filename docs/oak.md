@@ -12,7 +12,7 @@ The hardware can basically be separated into two devices:
 !!! note
     There are also options for onboard Wifi and Power over Ethernet (POE).
 
-!!! quote What is spacial AI and 3D Object Localization?
+!!! quote What is spatial AI and 3D Object Localization?
     First, it is necessary to define what 'Object Detection' is:
     It is the technical term for finding the bounding box of an object of interest, in pixel space (i.e. pixel coordinates), in an image.
     

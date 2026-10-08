@@ -22,7 +22,7 @@ Alternatively you can get the Jetpack from the [Jetson Download Center](https://
 Next use a tool to flash the image onto the SD card. One option is to use [balenaEtcher](https://www.balena.io/etcher/) that is available on Ubuntu, Mac and Windows.
 
 !!! info
-    [Flashing](https://en.wikipedia.org/wiki/Firmware#Flashing) in this context, means the transfer of software data, also refered to as Firmware, 
+    [Flashing](https://en.wikipedia.org/wiki/Firmware#Flashing) in this context, means the transfer of software data, also referred to as Firmware, 
     from your computer to a device, such as a the sd card in this case. The term “to flash” comes from the Flash storage component of a 
     device where the Firmware is stored.
 
@@ -93,7 +93,7 @@ TODO add image of Jumper location
 
 ## Prepare Ubuntu
 
-After flashing the image to the sd card insert it to the Jetson Nano, hook it up to a monitor via HDMI and power it up by pluggin in the micro USB or even better barrel jack connector (don't forget the jumper on J48). The follow the instructions on the screen to setup Ubuntu 18.04 Bionic Beaver.
+After flashing the image to the sd card insert it to the Jetson Nano, hook it up to a monitor via HDMI and power it up by plugging in the micro USB or even better barrel jack connector (don't forget the jumper on J48). The follow the instructions on the screen to setup Ubuntu 18.04 Bionic Beaver.
 For this you will need to accept the Nvidia End User License Agreement, set the desired language, keyboard, time zone, login credentials, APP Partition size (choose max possible), 
 and delete unused bootloader that is done automatically with the new QSPI image (MaxSPI) of Jetpack 4.5. This QSPI update will take about two mins.
 Finally select the NVPModel mode explained [above](./jetson-nano-setup.md#power-supply). First we go with the default MAXN 10 Watts mode ('mode 0').

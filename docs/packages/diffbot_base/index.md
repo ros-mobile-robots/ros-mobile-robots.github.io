@@ -33,7 +33,7 @@ one for each motor.
 
 Another part of this package is a launch file that will
 
-- Load the robot description from `diffbot_description` to the paramter server
+- Load the robot description from `diffbot_description` to the parameter server
 - Run the hardware interface of this package `diffbot_base`
 - Load the controller configuration yaml from the `diffbot_control` package to the [parameter server](http://wiki.ros.org/Parameter%20Server)
 - Load the controllers with the [controller manager](http://wiki.ros.org/controller_manager?distro=noetic)
@@ -45,7 +45,7 @@ Another part of this package is a launch file that will
 There exist (at least) two commonly used approaches to control a robot base.
 
 The difference between the two presented approaches here is where the PID controller(s)
-that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the SBC and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are refered to as
+that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the SBC and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are referred to as
 
 - High-Level PIDs running on the hardware interface on the SBC
 - Low-Level PIDs running on the firmware of the microcontroller
