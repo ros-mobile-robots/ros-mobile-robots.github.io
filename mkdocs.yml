@@ -148,29 +148,29 @@ nav:
       - Features and Segmentation: theory/robot-vision/features-and-segmentation.md
       - Tracking Image Features: theory/robot-vision/tracking-image-features.md
       - Combining Camera and Lidar: theory/robot-vision/combining-camera-and-lidar.md
-    - Object Detection: theory/object-detection/overview.md
+    # - Object Detection: theory/object-detection/overview.md  # planned, not written yet
     - State Estimation: 
       - Recursive State Estimation: theory/state-estimation/recursive-state-estimation.md
-      - Gaussian Filters (Kalman Filter): theory/state-estimation/gaussian-filters.md
+      # - Gaussian Filters (Kalman Filter): theory/state-estimation/gaussian-filters.md  # planned, not written yet
       - Nonparametric Filters (Particle Filter): theory/state-estimation/nonparametric-filters.md
     - Localization:
       - Markov and Gaussian Localization: theory/localization/markov-and-gaussian-localization.md
-      - Grid and Monte Carlo Localization: theory/localization/grid-and-monte-carlo-localization.md
-    - Mapping:
-      - Occupancy Grid Mapping: theory/mapping/occupancy-grid-mapping.md
+      # - Grid and Monte Carlo Localization: theory/localization/grid-and-monte-carlo-localization.md  # planned, not written yet
+    # - Mapping:  # planned, not written yet
+      # - Occupancy Grid Mapping: theory/mapping/occupancy-grid-mapping.md
     - Simultaneous Localization and Mapping (SLAM): 
       - SLAM Overview: theory/slam/slam-overview.md
       - Robot Moving and Sensing Notebook: theory/slam/1. Robot Moving and Sensing.ipynb
       - Omega and Xi Constraints Notebook: theory/slam/2. Omega and Xi, Constraints.ipynb
       - Landmark Detection and Tracking: theory/slam/3. Landmark Detection and Tracking.ipynb
-      - EKF SLAM: theory/slam/ekf-slam.md
-      - GraphSLAM: theory/slam/graphslam.md
-      - FastSLAM: theory/slam/fastslam.md
-      - GMapping: theory/slam/gmapping.md
-    - Planning I: theory/planning1/overview.md
-    - Planning II: theory/planning2/overview.md
-    - Learning by Reinforcement: theory/reinforcement-learning/overview.md
-    - Learning by Imitation: theory/imitation-learning/overview.md
+      # - EKF SLAM: theory/slam/ekf-slam.md  # planned, not written yet
+      # - GraphSLAM: theory/slam/graphslam.md  # planned, not written yet
+      # - FastSLAM: theory/slam/fastslam.md  # planned, not written yet
+      # - GMapping: theory/slam/gmapping.md  # planned, not written yet
+    # - Planning I: theory/planning1/overview.md  # planned, not written yet
+    # - Planning II: theory/planning2/overview.md  # planned, not written yet
+    # - Learning by Reinforcement: theory/reinforcement-learning/overview.md  # planned, not written yet
+    # - Learning by Imitation: theory/imitation-learning/overview.md  # planned, not written yet
   - Hardware and Theory:
     - Motion and Odometry: theory/motion-and-odometry.md
     - Power Supply: power-supply.md

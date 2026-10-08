@@ -1,7 +1,7 @@
 ## Mobile Robot Localization: Markov and Gaussian
 
 Mobile robot localilzation is the problem of determining the pose of a robot relative to a given map of the environment.
-It is also refered to as [position estimation](theory/state-estimation/recursive-state-estimation.md).
+It is also refered to as [position estimation](../state-estimation/recursive-state-estimation.md).
 
 
 

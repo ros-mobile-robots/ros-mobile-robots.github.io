@@ -25,7 +25,7 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: build documentation
-        run: mkdocs build
+        run: mkdocs build --strict
 
   deploy:
     # Only pushes to main publish the site, not pull requests or manual runs
@@ -48,7 +48,7 @@ jobs:
       - run: pip install -r requirements.txt
       - name: build documentation
         run: |
-          mkdocs build
+          mkdocs build --strict
           # The site is already built, GitHub Pages must not run Jekyll on it
           touch site/.nojekyll
       # Unlike mkdocs gh-deploy, this keeps the pr-preview folder on gh-pages (preview.yml)

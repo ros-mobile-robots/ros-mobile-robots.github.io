@@ -7,7 +7,7 @@ The following steps will be performed on both, the workstation/development PC an
 
 ## Git: clone diffbot repository
 
-After setting up ROS on your workstation PC and the SBC (either [Raspberry Pi 4B](https://ros-mobile-robots.com/rpi-setup/) or [Jetson Nano](https://ros-mobile-robots.com/jetson-nano-setup/)),
+After setting up ROS on your workstation PC and the SBC (either [Raspberry Pi 4B](../processing_units/rpi-setup.md) or [Jetson Nano](../processing_units/jetson-nano-setup.md)),
 create a ros workspace in your users home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}):
 
 ```
@@ -79,7 +79,7 @@ Inside the workspace use [`catkin-tools`](https://catkin-tools.readthedocs.io/en
 catkin build
 ```
 
-Now source the catkin workspace either using the [created alias](../ros-setup.md#environment-setup) or the full command for the bash shell:
+Now source the catkin workspace either using the [created alias](../processing_units/ros-setup.md#environment-setup) or the full command for the bash shell:
 
 ```
 source devel/setup.bash

@@ -242,7 +242,7 @@ namespace diffbot_base
 The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
 and to command it. When the controller manager runs, the controllers will read from the `pos`, `vel` and `eff` variables of the custom robot hardware interface, and the controller will write the desired command into the `cmd` variable. It's mandatory to make sure the `pos`, `vel` and `eff` variables always have the latest joint state available, and to make sure that whatever is written into the `cmd` variable gets executed by the robot. This can be done by implementing `hardware_interface::RobotHW::read()` and a `hardware_interface::RobotHW::write()` methods.
 
-The `write()` method also contains the output interface to the motor driver. In this case it is publishing `/diffbot/motor_left` and `/diffbot/motor_right` topics, which are subscribed by the [grove_i2c motor_driver python node]([https://github.com/ros-mobile-robots/grove_motor_driver](https://github.com/ros-mobile-robots/grove_motor_driver/blob/main/src/motor_driver.py)) that is running on the SBC.
+The `write()` method also contains the output interface to the motor driver. In this case it is publishing `/diffbot/motor_left` and `/diffbot/motor_right` topics, which are subscribed by the [grove_i2c motor_driver python node](https://github.com/ros-mobile-robots/grove_motor_driver/blob/main/src/motor_driver.py) that is running on the SBC.
 
 
 

@@ -28,7 +28,7 @@ Use the menu to learn more about the ROS packages and other components of the ro
 
 !!! note
     Using a [Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) instead of a Raspberry Pi is also possible.
-    See the [Jetson Nano Setup section](./jetson-nano-setup.md) in this documentation for more details. 
+    See the [Jetson Nano Setup section](processing_units/jetson-nano-setup.md) in this documentation for more details. 
     To run ROS Noetic [Docker](https://www.docker.com/) is needed.
 
 

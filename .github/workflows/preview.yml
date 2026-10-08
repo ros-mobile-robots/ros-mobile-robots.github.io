@@ -41,7 +41,7 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           pip install -r requirements.txt
-          mkdocs build
+          mkdocs build --strict
           # Content links and images with root-relative URLs such as /resources/... or
           # /packages/... would load the live site; point them into the preview
           find site -name '*.html' -print0 | xargs -0 perl -pi -e \

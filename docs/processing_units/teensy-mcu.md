@@ -63,9 +63,7 @@ If the output is empty it might be the case that the board is connected to anoth
 When installing Teensyduino new example programs are provided. One of them is to test Encoders. 
 The code for the motor encoders uses it as basis together with a pubsub example from rosserial:
 
-TODO link to code encoders.ino
-
---8<-- "../diffbot_base/scripts/encoders/encoders/encoders.ino"
+The program is [`encoders.ino`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/encoders/encoders/encoders.ino) in the diffbot repository.
 
 
 After the program is flashed to the Teensy board it can be tested with the following procedure:
@@ -107,11 +105,11 @@ The bread board view of [Fritzing](https://fritzing.org/) shows the connection s
 
 === "DiffBot"
 
-    ![DiffBot Fritzing](fritzing/diffbot_architecture.svg)
+    ![DiffBot Fritzing](../fritzing/diffbot_architecture.svg)
 
 === "Remo"
 
-    ![DiffBot Fritzing](fritzing/remo_architecture.svg)
+    ![Remo Fritzing](../fritzing/remo_architecture.svg)
         
 
 
