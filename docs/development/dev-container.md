@@ -63,12 +63,12 @@ After changing code, rebuild with `catkin build` in `~/catkin_ws`.
 
 | File in diffbot | Purpose |
 |:----------------|:--------|
-| `.devcontainer/noetic/Dockerfile` | The image: ROS, Gazebo, tools and the packages' dependencies |
-| `.devcontainer/noetic/devcontainer.json` | How the container runs: mounts, network, display, what runs when |
-| `.devcontainer/noetic/setup.sh` | Runs once in a new container: fetches repositories, installs dependencies, builds the workspace |
-| `.devcontainer/noetic/host-x11.sh` | Runs on the host before the container starts: prepares the display access |
-| `.dockerignore` | Keeps `.git` and the display cookie out of the image build |
-| `.github/workflows/devcontainer.yml` | CI builds the same container on every pull request |
+| [`.devcontainer/noetic/Dockerfile`]({{ diffbot_repo_url }}/.devcontainer/noetic/Dockerfile) | The image: ROS, Gazebo, tools and the packages' dependencies |
+| [`.devcontainer/noetic/devcontainer.json`]({{ diffbot_repo_url }}/.devcontainer/noetic/devcontainer.json) | How the container runs: mounts, network, display, what runs when |
+| [`.devcontainer/noetic/setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) | Runs once in a new container: fetches repositories, installs dependencies, builds the workspace |
+| [`.devcontainer/noetic/host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) | Runs on the host before the container starts: prepares the display access |
+| [`.dockerignore`]({{ diffbot_repo_url }}/.dockerignore) | Keeps `.git` and the display cookie out of the image build |
+| [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | CI builds the same container on every pull request |
 
 ### The image
 
@@ -90,7 +90,7 @@ When the container is created, the [devcontainer.json]({{ diffbot_repo_url }}/.d
 
 1. **On the host:** `host-x11.sh` prepares the display access (see below).
 2. **Build and start:** the image is built, and the container starts with your clone mounted at `~/catkin_ws/src/diffbot`. VS Code and the CLI change the UID and GID of the user `ros` to yours, so files created in the container belong to you on the host.
-3. **In the container:** [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) runs once. It imports `rplidar_ros` and `remo_description` with `vcs import` from `diffbot_dev.repos`, runs `rosdep install` again for anything added since the image was built, builds the workspace with `catkin build` and adds the workspace to `~/.bashrc`.
+3. **In the container:** [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) runs once. It imports `rplidar_ros` and `remo_description` with `vcs import` from [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), runs `rosdep install` again for anything added since the image was built, builds the workspace with `catkin build` and adds the workspace to `~/.bashrc`.
 
 `remo_description` contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its [README](https://github.com/ros-mobile-robots/remo_description#stl-mesh-files). DiffBot's own meshes are part of `diffbot_description`.
 
@@ -124,7 +124,7 @@ This avoids `xhost +`, which would allow every local user and process to connect
     devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json --remove-existing-container
     ```
 
-- **New source dependency:** add the repository to `diffbot_dev.repos`, and to the robot's `.repos` file if the robot needs it too.
+- **New source dependency:** add the repository to [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), and to the robot's `.repos` file if the robot needs it too.
 - **Tools in the image:** add them to the `apt-get install` list in the Dockerfile.
 
 ## Troubleshooting

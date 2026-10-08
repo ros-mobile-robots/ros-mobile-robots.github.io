@@ -6,9 +6,9 @@ Every pull request and every push to the default branch runs automated checks wi
 
 | Workflow | File | What it checks |
 |:---------|:-----|:---------------|
-| CI | `.github/workflows/diffbot_ci_action.yml` | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
-| Build base controller | `.github/workflows/build_base_controller.yml` | Builds the Teensy firmware in `diffbot_base/scripts/base_controller` with [PlatformIO](https://platformio.org/), once for each board in its `platformio.ini`: `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
-| Dev container | `.github/workflows/devcontainer.yml` | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
+| CI | [`.github/workflows/diffbot_ci_action.yml`]({{ diffbot_repo_url }}/.github/workflows/diffbot_ci_action.yml) | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
+| Build base controller | [`.github/workflows/build_base_controller.yml`]({{ diffbot_repo_url }}/.github/workflows/build_base_controller.yml) | Builds the Teensy firmware in [`diffbot_base/scripts/base_controller`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/scripts/base_controller) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_base/scripts/base_controller/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
+| Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
 
 ### industrial_ci
 
@@ -18,7 +18,7 @@ industrial_ci starts a ROS Docker image, installs the packages' dependencies wit
 
 ### Dev container workflow
 
-[`devcontainers/ci`](https://github.com/devcontainers/ci) creates the container exactly as VS Code or the Dev Container CLI would, including `setup.sh`, which builds the workspace. Then it runs:
+[`devcontainers/ci`](https://github.com/devcontainers/ci) creates the container exactly as VS Code or the Dev Container CLI would, including [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh), which builds the workspace. Then it runs:
 
 ```console
 catkin build --catkin-make-args run_tests
@@ -65,9 +65,9 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 
 | Workflow | File | What it does |
 |:---------|:-----|:-------------|
-| Documentation CI | `.github/workflows/ci.yml` | Builds the site with `mkdocs build --strict`, which fails on any warning, such as a broken link. On a push to `main` it also publishes the site to the `gh-pages` branch, which GitHub Pages serves at ros-mobile-robots.com. |
-| Lint | `.github/workflows/lint.yml` | Checks the spelling with [codespell](https://github.com/codespell-project/codespell); its settings are in `.codespellrc`. |
-| PR preview | `.github/workflows/preview.yml` | Builds each pull request from a branch in this repository and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. Pull requests from forks get no preview, only the build and spelling checks. |
+| Documentation CI | [`.github/workflows/ci.yml`]({{ docs_repo_url }}/.github/workflows/ci.yml) | Builds the site with `mkdocs build --strict`, which fails on any warning, such as a broken link. On a push to `main` it also publishes the site to the `gh-pages` branch, which GitHub Pages serves at ros-mobile-robots.com. |
+| Lint | [`.github/workflows/lint.yml`]({{ docs_repo_url }}/.github/workflows/lint.yml) | Checks the spelling with [codespell](https://github.com/codespell-project/codespell); its settings are in [`.codespellrc`]({{ docs_repo_url }}/.codespellrc). |
+| PR preview | [`.github/workflows/preview.yml`]({{ docs_repo_url }}/.github/workflows/preview.yml) | Builds each pull request from a branch in this repository and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. Pull requests from forks get no preview, only the build and spelling checks. |
 
 To build the site locally:
 
