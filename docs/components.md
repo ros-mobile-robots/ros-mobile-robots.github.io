@@ -70,7 +70,7 @@ You need the following parts to build REMO. They come in packs, so order the qua
 | --- | --- | --: | --: | --: | --- |
 |  Adhesive pads | 2 | 48 | $0.14 |  | optional |
 |  Velcro strap | 2 | 48 | $0.14 |  | To fix the battery pack and the breadboard |
-|  M2 screw (self tapping) | 22 | 100 | $1.42 | [Amazon][amazon_m2x10_self_tapping_screw_ger]  | 8mm long, self tapping |
+|  M2 screw (self tapping) | 22 | 100 | $1.42 | [Amazon][amazon_m2x10_self_tapping_screw_ger]  | 8mm long, self tapping; 4 more if you screw the camera into its adapter |
 |  M2 screw | 8 | 60 | $0.94 | [Amazon][amazon_m2_m3_m4_screw_assortment_ger] | 8mm long, for the deck and the Raspberry Pi |
 |  M3 screw | 4 | 60 | $0.47 | [Amazon][amazon_m4_screw_nut_box_ger] | 25mm long, to fix the motors to the base frame |
 |  M3 screw | 4 | 60 | $0.47 | [Amazon][amazon_m4_screw_nut_box_ger] | 6mm long, to fix the LiDAR to its platform |

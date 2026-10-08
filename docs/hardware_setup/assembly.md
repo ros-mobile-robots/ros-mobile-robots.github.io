@@ -219,19 +219,19 @@ Put the SLAMTEC USB adapter into the printed holder, then clip the holder onto t
 
 Each camera has its own printed adapter.
 Screw the adapter onto the camera mount from step 11 with four M2 self-tapping screws.
-Then fix the camera in the adapter with M2 self-tapping screws, or just set it into the adapter, where its weight holds it.
+Then set the camera into the adapter, where its weight holds it, or fix it with four more M2 self-tapping screws (optional).
 
 === "Raspberry Pi Camera v2"
 
     ![Step 22: the Raspberry Pi Camera holder goes on top of the camera mount](images/decks/22-camera-raspi-cam.jpg)
 
-    **Parts:** Raspberry Pi Camera holder (printed, `Raspberry_pi_CAM_holder.stl`), Raspberry Pi Camera v2, 4 × M2 self-tapping screw
+    **Parts:** Raspberry Pi Camera holder (printed, `Raspberry_pi_CAM_holder.stl`), Raspberry Pi Camera v2, 4 × M2 self-tapping screw (4 more to screw the camera in, optional)
 
 === "OAK-1"
 
     ![Step 22: the OAK-1 adjustment mount goes on top of the camera mount](images/decks/22-camera-oak-1.jpg)
 
-    **Parts:** OAK-1 adjustment mount (printed, `OAK-1_adjustment_mount.stl`), OAK-1, 4 × M2 self-tapping screw
+    **Parts:** OAK-1 adjustment mount (printed, `OAK-1_adjustment_mount.stl`), OAK-1, 4 × M2 self-tapping screw (4 more to screw the camera in, optional)
 
 === "OAK-D"
 
@@ -239,5 +239,5 @@ Then fix the camera in the adapter with M2 self-tapping screws, or just set it i
 
     The OAK-D covers the adapter's screw holes, so screw the adapter on before you attach the camera.
 
-    **Parts:** OAK-D adjustment mount (printed, `OAK-D_adjustment_mount.stl`), OAK-D, 4 × M2 self-tapping screw
+    **Parts:** OAK-D adjustment mount (printed, `OAK-D_adjustment_mount.stl`), OAK-D, 4 × M2 self-tapping screw (4 more to screw the camera in, optional)
 
