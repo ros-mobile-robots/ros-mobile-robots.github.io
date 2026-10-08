@@ -4,19 +4,65 @@ The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with
 
 It's the recommended setup for the development PC. The robot's single board computer is still set up natively, see [Packages Setup](../packages/packages-setup.md).
 
+## How the pieces fit together
+
+A few terms first:
+
+- **Host:** the computer that runs Docker and the container. That's your Linux PC, or on Windows the Ubuntu that runs in [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.
+- **Container:** a separate Ubuntu 20.04 with ROS Noetic that runs on the host. Your clone of the diffbot repository is shared with it, so you edit files on the host and build and run them in the container.
+- **Display server:** the program that draws windows on your screen. On a Linux desktop that's the X server (or Xwayland on Wayland desktops). On Windows, [WSLg](https://github.com/microsoft/wslg) (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and updated Windows 10) is the display server for Linux apps and shows their windows on the Windows desktop.
+
+**Simulation, no robot needed:** everything runs in the container. Gazebo simulates the robot, RViz shows what it sees, and their windows appear on your screen through the host's display server:
+
+```mermaid
+graph LR
+  subgraph HOST [Host: Linux PC, or Ubuntu in WSL 2]
+    subgraph DC [Dev container: ROS Noetic]
+      NODES[roscore and DiffBot nodes]
+      GZ[Gazebo]
+      RV[RViz and rqt]
+    end
+    XS[Display server: your desktop, or WSLg on Windows]
+  end
+  GZ -->|X11 socket and DISPLAY| XS
+  RV -->|X11 socket and DISPLAY| XS
+  XS --> SCREEN[Windows on your screen]
+```
+
+**With the real robot:** the robot runs ROS natively on its Raspberry Pi (see [Packages Setup](../packages/packages-setup.md)), and the container on your PC joins its ROS network. RViz, mapping and navigation can then run on the PC:
+
+```mermaid
+graph LR
+  subgraph PC [Your PC: host network]
+    C[Dev container: RViz, SLAM, navigation]
+  end
+  subgraph ROBOT [Robot: Raspberry Pi with ROS Noetic]
+    M[roscore: ROS master]
+    B[Bringup: drivers, hardware interface]
+  end
+  T[Teensy: motors and encoders]
+  C ---|Wi-Fi or LAN, ROS_MASTER_URI and ROS_IP| M
+  B ---|USB, rosserial| T
+```
+
+The container shares the host's network (see [Network](#network)), and the windows reach your screen as described in [GUI apps](#gui-apps-x11-and-wslg).
+
 ## Requirements
 
-- **Docker:** Docker Engine on Linux or in WSL 2, or Docker Desktop. On Ubuntu, including WSL 2:
+- **Docker on the host:** Docker Engine on Linux or in WSL 2, or Docker Desktop. On Ubuntu, including the Ubuntu in WSL 2:
 
     ```console
     sudo apt install docker.io docker-compose-v2 docker-buildx
     sudo usermod -aG docker $USER
     ```
 
-    Log out and in again, or on WSL 2 run `wsl --shutdown` in Windows PowerShell, so the new `docker` group applies.
+    Log out and in again so the new `docker` group applies. On WSL 2, run `wsl --shutdown` in Windows PowerShell and open Ubuntu again.
 
 - **A way to start the container:** [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers), the [Dev Container CLI](https://github.com/devcontainers/cli) (`npm install -g @devcontainers/cli`), or plain Docker.
-- **GUI apps on a native Linux desktop:** `xauth` on the host (`sudo apt install xauth`), see [GUI apps](#gui-apps-x11-and-wslg). On Windows, WSLg needs nothing extra.
+- **For windows like RViz and Gazebo:**
+    - On Windows with WSL 2: nothing to install, WSLg shows them on the Windows desktop.
+    - On a Linux desktop: install `xauth` on the host (`sudo apt install xauth`). The display server only accepts programs that show it a secret "cookie", and `xauth` is the tool that reads and copies that cookie for the container (see [GUI apps](#gui-apps-x11-and-wslg)).
+- **For the real robot from WSL 2:** WSL's mirrored networking, so the robot can reach your PC (see [Network](#network)). Simulation doesn't need it.
 
 ## Usage
 
@@ -51,7 +97,7 @@ cd diffbot
       bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
     ```
 
-Inside the container, the workspace is `~/catkin_ws`, already built and sourced. Your clone is mounted at `~/catkin_ws/src/diffbot`, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:
+Inside the container, the workspace is `~/catkin_ws`, already built and sourced. This happens automatically: the image adds `source /opt/ros/noetic/setup.bash` to `~/.bashrc`, and when the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new terminal in the container reads `~/.bashrc`, so ROS and the workspace are ready. Your clone is mounted at `~/catkin_ws/src/diffbot`, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:
 
 ```console
 roslaunch diffbot_control diffbot.launch
@@ -96,15 +142,20 @@ When the container is created, the [devcontainer.json]({{ diffbot_repo_url }}/.d
 
 ### Network
 
-The container uses the host network (`--network=host`), so ROS nodes in the container are reachable at the host's IP address. Set up `ROS_MASTER_URI` and `ROS_IP` as described in [ROS Network Setup](../processing_units/ros-network-setup.md) to talk to the robot.
+The container uses the host's network (`--network=host`): it has no network of its own, and ROS nodes in the container are reachable at the host's IP address. For the real robot, set `ROS_MASTER_URI` and `ROS_IP` as described in [ROS Network Setup](../processing_units/ros-network-setup.md).
+
+ROS 1 nodes connect to each other directly, in both directions, so the robot must be able to reach your PC too:
+
+- **Linux PC:** the host's IP address is the PC's address on your network, so this works as usual.
+- **Windows with WSL 2:** by default, WSL 2 sits behind its own network translation (NAT) with a private IP address, and devices on your network can't connect to it. Switch on [mirrored networking](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking) (Windows 11 22H2 or later): add `networkingMode=mirrored` under `[wsl2]` in `%UserProfile%\.wslconfig` and run `wsl --shutdown`. WSL then shares Windows' network addresses, and the robot can reach it. Windows' Hyper-V firewall may also need to allow incoming connections, as described on that page. This setup isn't tested with the robot yet.
 
 ### GUI apps: X11 and WSLg
 
-RViz, Gazebo and rqt open their windows on the host's display. The container gets the X11 socket directory `/tmp/.X11-unix` and the `DISPLAY` variable from the host.
+The container has no screen of its own; it's "headless". Linux GUI apps don't need one: a program like RViz connects to a display server and sends it what to draw, and the display server shows the window. The container borrows the host's display server. It gets the socket folder `/tmp/.X11-unix`, through which programs reach the X server, and the `DISPLAY` variable, which says which display to use. So RViz runs in the container, but its window opens on your desktop like any other.
 
-On Windows, [WSLg](https://github.com/microsoft/wslg) provides the X server and accepts local connections without authentication.
+On Windows, [WSLg](https://github.com/microsoft/wslg) provides the X server and accepts local connections without a cookie, so nothing else is needed.
 
-A native Linux desktop (X11, or Wayland with Xwayland) only accepts clients that present the display's cookie (`MIT-MAGIC-COOKIE-1`). [`host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) copies that cookie for the container:
+A native Linux desktop (X11, or Wayland with Xwayland) only accepts programs that present the display's secret cookie (`MIT-MAGIC-COOKIE-1`), so no other user on the machine can draw on your screen. `xauth` is the standard tool to read and write these cookies. [`host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) copies that cookie for the container:
 
 ```bash
 xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f "$tmp_file" nmerge -
