@@ -3843,7 +3843,7 @@ file. The launch file will </p>
 <span class="go">Created folder diffbot_base/src</span>
 <span class="go">Successfully created package files in /home/fjp/catkin_ws/src/diffbot_base.</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or they have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section <a href="https://fjp.at/projects/diffbot/ros-noetic/">ROS Noetic Setup</a> for how this was done. </p>
+<p>To work with this package the specified dependencies must be installed either using the available Ubuntu/Debian packages for ROS Noetic or they have to be built from source first. The following table lists the dependencies that we have to install because they are not already part of the ROS Noetic desktop full installation. Refer to the section <a href="../../../processing_units/ros-setup/">ROS Noetic Setup</a> for how this was done. </p>
 <table>
 <thead>
 <tr>
@@ -3884,7 +3884,7 @@ file. The launch file will </p>
 <p>Make sure to clone/download the source files suitable for the ROS distribution you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for <a href="http://wiki.ros.org/kinetic">kinetic</a> it is possible that it will work with a ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
 </div>
 <h3 id="hardware-interface">Hardware Interface</h3>
-<p>See the <a href="../diffbot_base/include"><code>include</code></a> and <a href="../diffbot_base/src"><code>src</code></a> folders of this package and the details on the hardware interface implementation.
+<p>See the <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/include"><code>include</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/src"><code>src</code></a> folders of this package and the details on the hardware interface implementation.
 For more details on the hardware interface also refer to the section <a href="https://fjp.at/projects/diffbot/ros-integration/#ros-control">ROS Integration: Control</a>, it gives more details and also this <a href="https://fjp.at/posts/ros/ros-control/">overview article about ROS Control</a>.</p>
 <p>The hardware interface provides an interface between the real robot hardware and the controllers provided by ROS Control (or even custom controllers).
 DiffBot works with the <code>diff_drive_controller</code> that is configured in the <code>diffbot_control</code> package, which is also relevant for the simulation in Gazebo.
