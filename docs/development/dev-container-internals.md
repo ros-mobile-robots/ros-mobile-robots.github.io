@@ -55,10 +55,10 @@ On Windows, [WSLg](https://github.com/microsoft/wslg) provides the X server and 
 
     <figure>
       <img src="../images/wslg-architecture.png" alt="WSLg architecture: X11 and Wayland apps in the user distro connect to XWayland and Weston in the WSLg system distro, which sends windows to the Windows host over RDP">
-      <figcaption>Diagram: <a href="https://github.com/microsoft/wslg">WSLg</a>, Microsoft, <a href="https://github.com/microsoft/wslg/blob/main/LICENSE">MIT License</a></figcaption>
+      <figcaption>Diagram: <a href="https://github.com/microsoft/wslg">WSLg</a>, Microsoft, <a href="https://github.com/microsoft/wslg/blob/main/LICENSE">MIT License</a> (<a href="../images/WSLg-LICENSE.txt">license text</a>)</figcaption>
     </figure>
 
-A native Linux desktop (X11, or Wayland with Xwayland) only accepts clients that present the display's cookie (`MIT-MAGIC-COOKIE-1`, see [Requirements](dev-container.md#requirements)). [`host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) copies that cookie for the container, the method from the [ROS Docker GUI tutorial](http://wiki.ros.org/docker/Tutorials/GUI):
+A native Linux desktop (X11, or Wayland with Xwayland) usually uses cookie-based access control: it only accepts clients that present the display's cookie (`MIT-MAGIC-COOKIE-1`, see [Requirements](dev-container.md#requirements)). [`host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) copies that cookie for the container, the method from the [ROS Docker GUI tutorial](http://wiki.ros.org/docker/Tutorials/GUI):
 
 ```bash
 xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f "$tmp_file" nmerge -
