@@ -3986,6 +3986,9 @@
 <p>This page provides help to 3D print the parts of Remo robot. It contains information
 about configuring your slicer, suggestions to orient the parts and where support material is recommended to avoid
 failing prints and wasted PLA material.</p>
+<p>The STL files come with the <a href="https://gumroad.com/l/GnMpU">Remo STL files on Gumroad</a>.
+The <a href="https://github.com/ros-mobile-robots/remo_description">remo_description</a> repository on GitHub only has empty placeholders for them.
+The images on this page are renders of the STL files.</p>
 <p>The table below gives an overview of the required parts of Remo and the average printing time:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -4000,7 +4003,7 @@ It is often possible to choose between different variants. For example:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: center;">Qt</th>
+<th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
 <th style="text-align: left;">File</th>
 <th style="text-align: left;">Material</th>
@@ -4027,61 +4030,66 @@ It is often possible to choose between different variants. For example:</p>
 </tr>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="#sbc-decks">SBC Decks</a></td>
+<td style="text-align: left;"><a href="#sbc-decks">SBC deck</a></td>
 <td style="text-align: left;"><code>raspberry_pi_deck.stl</code> or <code>jetson_nano_deck.stl</code></td>
 <td style="text-align: left;">PLA</td>
 <td style="text-align: center;"></td>
-<td style="text-align: left;">Select one depending on used SBC</td>
+<td style="text-align: left;">Select one depending on your SBC</td>
 </tr>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="#lidar-platform">LiDAR Platform</a></td>
-<td style="text-align: left;"><code>platfom_rplidar_a2.stl</code> or <code>platfom_rplidar_a1.stl</code></td>
+<td style="text-align: left;"><a href="#lidar-platform">LiDAR platform</a></td>
+<td style="text-align: left;"><code>platfom_rplidar_a2.stl</code> or <code>platform_rplidar_a1.stl</code></td>
 <td style="text-align: left;">PLA</td>
 <td style="text-align: center;"></td>
-<td style="text-align: left;">Select one dependin on used LiDAR</td>
+<td style="text-align: left;">Select one depending on your LiDAR</td>
 </tr>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="#lidar-platform">SLAMTEC USB to Serial holder</a></td>
-<td style="text-align: left;"><code>slamtec_holder.stl</code> or <code>jetson_nano_deck.stl</code></td>
-<td style="text-align: left;">PLA</td>
-<td style="text-align: center;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="#camera-mount">Camera Mount</a></td>
-<td style="text-align: left;"><code>camera_mount.stl</code></td>
+<td style="text-align: left;"><a href="#lidar-platform">SLAMTEC USB adapter holder</a></td>
+<td style="text-align: left;"><code>slamtec_holder.stl</code></td>
 <td style="text-align: left;">PLA</td>
 <td style="text-align: center;"></td>
 <td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><a href="#camera-mount">Camera mount</a></td>
+<td style="text-align: left;"><code>camera_mount.stl</code> and one camera adapter</td>
+<td style="text-align: left;">PLA</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Select the adapter for your camera</td>
 </tr>
 </tbody>
 </table>
 <h2 id="chassis">Chassis</h2>
-<script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/chassis.stl"></script>
-
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/chassis.jpg" data-desc-position="bottom"><img alt="Chassis: render of chassis.stl" src="../images/3d_print/chassis.jpg"></a></p>
 <h2 id="caster-wheel">Caster Wheel</h2>
 <table>
 <thead>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/caster/caster_base_65mm.stl"><code>caster_base_65mm.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/caster/caster_base_65mm.stl"></script></td>
+<td style="text-align: left;"><code>caster_base_65mm.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/caster_base_65mm.jpg" data-desc-position="bottom"><img alt="Caster base: render of caster_base_65mm.stl" src="../images/3d_print/caster_base_65mm.jpg"></a></td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><code>caster_shroud_65mm.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/caster_shroud_65mm.jpg" data-desc-position="bottom"><img alt="Caster shroud: render of caster_shroud_65mm.stl" src="../images/3d_print/caster_shroud_65mm.jpg"></a></td>
 </tr>
 </tbody>
 </table>
+<p>The caster needs a 25.4 mm (1 inch) ball, see the <a href="../../components/">components</a>.</p>
 <h2 id="sbc-decks">SBC Decks</h2>
-<p>Currently there are two different decks you can print, depending on which SBC you are will use:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">RPi Deck</label><label for="__tabbed_1_2">Jetson Nano Deck</label></div>
+<p>There are two decks, one for each single-board computer:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Raspberry Pi deck</label><label for="__tabbed_1_2">Jetson Nano deck</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <table>
@@ -4089,14 +4097,14 @@ It is often possible to choose between different variants. For example:</p>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/deck/raspberry_pi_deck.stl"><code>platfom_rplidar_a2.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/deck/raspberry_pi_deck.stl"></script></td>
+<td style="text-align: left;"><code>raspberry_pi_deck.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/raspberry_pi_deck.jpg" data-desc-position="bottom"><img alt="Raspberry Pi deck: render of raspberry_pi_deck.stl" src="../images/3d_print/raspberry_pi_deck.jpg"></a></td>
 </tr>
 </tbody>
 </table>
@@ -4107,14 +4115,14 @@ It is often possible to choose between different variants. For example:</p>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/deck/jetson_nano_deck.stl"><code>jetson_nano_deck.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/deck/jetson_nano_deck.stl"></script></td>
+<td style="text-align: left;"><code>jetson_nano_deck.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/jetson_nano_deck.jpg" data-desc-position="bottom"><img alt="Jetson Nano deck: render of jetson_nano_deck.stl" src="../images/3d_print/jetson_nano_deck.jpg"></a></td>
 </tr>
 </tbody>
 </table>
@@ -4130,36 +4138,40 @@ It is often possible to choose between different variants. For example:</p>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/lidar_platform/platfom_rplidar_a2.stl"><code>platfom_rplidar_a2.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/lidar_platform/platfom_rplidar_a2.stl"></script></td>
+<td style="text-align: left;"><code>platfom_rplidar_a2.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/platfom_rplidar_a2.jpg" data-desc-position="bottom"><img alt="LiDAR platform for the RPLiDAR A2: render of platfom_rplidar_a2.stl" src="../images/3d_print/platfom_rplidar_a2.jpg"></a></td>
 </tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Qty</th>
-<th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
-</tr>
-</thead>
-<tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/lidar_platform/slamtec_holder.stl"><code>slamtec_holder.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/lidar_platform/slamtec_holder.stl"></script></td>
+<td style="text-align: left;"><code>slamtec_holder.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/slamtec_holder.jpg" data-desc-position="bottom"><img alt="SLAMTEC USB adapter holder: render of slamtec_holder.stl" src="../images/3d_print/slamtec_holder.jpg"></a></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="tabbed-block">
-<p>To be announced.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Qty</th>
+<th style="text-align: left;">Part</th>
+<th style="text-align: center;">Render</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><code>platform_rplidar_a1.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/platform_rplidar_a1.jpg" data-desc-position="bottom"><img alt="LiDAR platform for the RPLiDAR A1: render of platform_rplidar_a1.stl" src="../images/3d_print/platform_rplidar_a1.jpg"></a></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -4169,19 +4181,19 @@ It is often possible to choose between different variants. For example:</p>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/camera_mount/camera_mount.stl"><code>camera_mount.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/camera_mount/camera_mount.stl"></script></td>
+<td style="text-align: left;"><code>camera_mount.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/camera_mount.jpg" data-desc-position="bottom"><img alt="Camera mount: render of camera_mount.stl" src="../images/3d_print/camera_mount.jpg"></a></td>
 </tr>
 </tbody>
 </table>
-<p>You can choose between the following camera adjustment mounts:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><input id="__tabbed_3_3" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">Raspi Camera v2</label><label for="__tabbed_3_2">OAK 1</label><label for="__tabbed_3_3">OAK D</label></div>
+<p>The camera mount takes an adapter for your camera:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><input id="__tabbed_3_3" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">Raspberry Pi Camera v2</label><label for="__tabbed_3_2">OAK-1</label><label for="__tabbed_3_3">OAK-D</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <table>
@@ -4189,14 +4201,14 @@ It is often possible to choose between different variants. For example:</p>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/camera_mount/Raspberry_pi_CAM_holder.stl"><code>Raspberry_pi_CAM_holder.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/camera_mount/Raspberry_pi_CAM_holder.stl"></script></td>
+<td style="text-align: left;"><code>Raspberry_pi_CAM_holder.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/Raspberry_pi_CAM_holder.jpg" data-desc-position="bottom"><img alt="Raspberry Pi Camera holder: render of Raspberry_pi_CAM_holder.stl" src="../images/3d_print/Raspberry_pi_CAM_holder.jpg"></a></td>
 </tr>
 </tbody>
 </table>
@@ -4207,14 +4219,14 @@ It is often possible to choose between different variants. For example:</p>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/camera_mount/OAK-1_adjustment_mount.stl"><code>OAK-1_adjustment_mount.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/camera_mount/OAK-1_adjustment_mount.stl"></script></td>
+<td style="text-align: left;"><code>OAK-1_adjustment_mount.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/OAK-1_adjustment_mount.jpg" data-desc-position="bottom"><img alt="OAK-1 adjustment mount: render of OAK-1_adjustment_mount.stl" src="../images/3d_print/OAK-1_adjustment_mount.jpg"></a></td>
 </tr>
 </tbody>
 </table>
@@ -4225,14 +4237,14 @@ It is often possible to choose between different variants. For example:</p>
 <tr>
 <th style="text-align: center;">Qty</th>
 <th style="text-align: left;">Part</th>
-<th style="text-align: center;">3D View</th>
+<th style="text-align: center;">Render</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description/blob/main/meshes/remo/camera_mount/OAK-D_adjustment_mount.stl"><code>OAK-D_adjustment_mount.stl</code></a></td>
-<td style="text-align: center;"><script src="https://embed.github.com/view/3d/ros-mobile-robots/remo_description/main/meshes/remo/camera_mount/OAK-D_adjustment_mount.stl"></script></td>
+<td style="text-align: left;"><code>OAK-D_adjustment_mount.stl</code></td>
+<td style="text-align: center;"><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/3d_print/OAK-D_adjustment_mount.jpg" data-desc-position="bottom"><img alt="OAK-D adjustment mount: render of OAK-D_adjustment_mount.stl" src="../images/3d_print/OAK-D_adjustment_mount.jpg"></a></td>
 </tr>
 </tbody>
 </table>
