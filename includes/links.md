@@ -53,7 +53,7 @@
 <!-- Mechanical parts and tools -->
 [amazon_m2x10_self_tapping_screw_ger]: https://amzn.to/3xKYmwg
 [amazon_m2_m3_m4_screw_assortment_ger]: https://amzn.to/3xwPmuE
-[amazon_m4_screw_nut_box_ger]: https://amzn.to/4bwD9nF
+[amazon_m3_screw_nut_set_ger]: https://www.amazon.de/dp/B07FXGBGJC?tag=fjp-21
 [amazon_threaded_inserts_ger]: https://amzn.to/4cLRDkt
 [amazon_jumper_wires_ff_us]: https://www.amazon.com/dp/B077NH83CJ?tag=fjp033-20
 [amazon_picoscope_3203d_ger]: https://amzn.to/33I5tUb
