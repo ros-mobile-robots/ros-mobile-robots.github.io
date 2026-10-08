@@ -30,10 +30,10 @@ pip3 install RPi.GPIO
 pip3 install smbus
 ```
 
-Note that this will install these packages system wide. This is ok because they are installed on the Raspberry Pi which is dedicated to 
-operate for this purpose. For a development environment it is best practice to use a python virtual environment like 
-[`venv`](https://docs.python.org/3/library/venv.html) and install the packages inside it.
-{: .notice }
+!!! note
+    Note that this will install these packages system wide. This is ok because they are installed on the Raspberry Pi which is dedicated to
+    operate for this purpose. For a development environment it is best practice to use a python virtual environment like
+    [`venv`](https://docs.python.org/3/library/venv.html) and install the packages inside it.
 
 ### Connection
 

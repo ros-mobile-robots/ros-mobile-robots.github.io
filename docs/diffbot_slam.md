@@ -25,8 +25,8 @@ sudo apt install ros-noetic-gmapping
 In case you want to try more advanced SLAM algorithms, such as `karto_slam` or `cartographer_ros` you need the following Ubuntu package dependencies.
 Alternatively you can install from source by building the cloned git repository in your catkin workspace.
 
-Take the required installation size into account. For example `karto_slam` needs approximately 125MB because it will also install `ros-noetic-open-karto`.
-{: .notice }
+!!! note
+    Take the required installation size into account. For example `karto_slam` needs approximately 125MB because it will also install `ros-noetic-open-karto`.
 
 ```console
 sudo apt install ros-noetic-slam-karto
@@ -62,9 +62,9 @@ and can operate in large environments. Additionally, `slam_toolbox` provides too
 map using stored data (offline).
 
 
-The `cartographer` package is currently supported by OpenRobotics and not by Google where it was originally developed.
-It is currently also not setup correctly for DiffBot. Using it will result in errors.
-{: .notice }
+!!! note
+    The `cartographer` package is currently supported by OpenRobotics and not by Google where it was originally developed.
+    It is currently also not setup correctly for DiffBot. Using it will result in errors.
 
 
 

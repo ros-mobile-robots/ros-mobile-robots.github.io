@@ -56,8 +56,8 @@ ls build                  # Show the resulting build space
 ls devel                  # Show the resulting devel space
 ```
 
-Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a ROS [noetic](http://wiki.ros.org/noetic) install.
-{: .notice }
+!!! note
+    Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a ROS [noetic](http://wiki.ros.org/noetic) install.
 
 ### Hardware Interface
 
@@ -239,11 +239,9 @@ namespace diffbot_base
 };
 ```
 
-The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, 
-and to command it. When the controller manager runs, the controllers will read from the `pos`, `vel` and `eff` variables of the custom robot hardware interface, and the controller will write the desired command into the `cmd` variable. It's mandatory to make sure the `pos`, `vel` and `eff` variables always have the latest joint state available, and to make sure that whatever is written into the `cmd` variable gets executed by the robot. This can be done by implementing `hardware_interface::RobotHW::read()` and a `hardware_interface::RobotHW::write()` methods.
+The functions above are designed to give the controller manager (and the controllers inside the controller manager) access to the joint state of custom robot, and to command it. When the controller manager runs, the controllers will read from the `pos`, `vel` and `eff` variables of the custom robot hardware interface, and the controller will write the desired command into the `cmd` variable. It's mandatory to make sure the `pos`, `vel` and `eff` variables always have the latest joint state available, and to make sure that whatever is written into the `cmd` variable gets executed by the robot. This can be done by implementing `hardware_interface::RobotHW::read()` and a `hardware_interface::RobotHW::write()` methods.
 
 The `write()` method also contains the output interface to the motor driver. In this case it is publishing `/diffbot/motor_left` and `/diffbot/motor_right` topics, which are subscribed by the [grove_i2c motor_driver python node](https://github.com/ros-mobile-robots/grove_motor_driver/blob/main/src/motor_driver.py) that is running on the SBC.
-
 
 
 The main node that will be executed uses the `controller_manager` to operate the so called control loop. 
@@ -325,13 +323,13 @@ In the control loop the [overriden `hardware_interface::RobotHW::read()` method 
 
 ## PID Controller
 
-Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders 
-and the target velocity computed by the `diff_drive_controller` for a specific wheel joint. 
-The `diff_drive_controller` doesn't have a PID controller integrated, and doesn't take care if the wheels of the robot are actually turning.
-As mentioned above, ROS Control expects that the commands sent by the controller are actually implemented on the real robot hardware and that the
-joint states are always up to date. This means that the `diff_drive_controller` just uses the `twist_msg` on the `cmd_vel` topic for example from the `rqt_robot_steering` and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account. 
-See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated. 
-{: .notice :}
+!!! note
+    Note the two PID controllers inside the hardware interface, where each PID is passed the error between velocity measured by the encoders
+    and the target velocity computed by the `diff_drive_controller` for a specific wheel joint.
+    The `diff_drive_controller` doesn't have a PID controller integrated, and doesn't take care if the wheels of the robot are actually turning.
+    As mentioned above, ROS Control expects that the commands sent by the controller are actually implemented on the real robot hardware and that the
+    joint states are always up to date. This means that the `diff_drive_controller` just uses the `twist_msg` on the `cmd_vel` topic for example from the `rqt_robot_steering` and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account.
+    See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated.
 
 This is why a PID controller is needed to avoid situations like the following where the robot moves not straigth although it is commanded to do so:
 
@@ -363,19 +361,17 @@ Using six [DG01D-E](https://www.sparkfun.com/products/16413) motors the followin
 | 06    |  3.3        |
 
 
-In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
-Using the motors 04 and 05 improved the driving behaviour significantly. 
-{: .notice } 
+!!! note
+    In the videos above, motors numbered 01 and 03 were used coincidencely and I wasn't aware of the remarkable differences in voltage levels.
+    Using the motors 04 and 05 improved the driving behaviour significantly.
 
 To deal with significant differences in the motors it would also help to tune the two PIDs individually,
 which is not shown in the [video above](https://youtu.be/fdn5Mu0Qhl8).
-
 
 !!! note
     Make also sure that the motor driver outputs the same voltage level on both channels when the robot is commanded to move straight.
     The used [Grove i2c motor driver](https://github.com/ros-mobile-robots/grove_motor_driver) was tested to do this.
     Another problem of not driving straight can be weight distribution or the orientation of the caster wheel.
-
 
 A good test to check the accuracy is to fix two meters of adhesive tape on the floor in a straight line. 
 Then, place the robot on one end oriented in the direction to the other end. Now command it to move straight along the line

@@ -18,18 +18,18 @@ To provide perception capabilities to your mobile robot you need a sensor like a
 
 When working with OpenCV and ROS we have to install required dependency using `ros-noetic-vision-opencv`. This will install additional dependencies like OpenCV (`libopencv-dv`) and `ros-noetic-cv-bridge`. There is no need to install OpenCV from source or the Ubuntu binaries (deb package).
 
-If you want to use OpenCV without ROS you should consider installing it from [source using CMake](https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html). 
-This will allow you to configure what features should be installed, e.g., example code.
-Otherwise you can install a pre compiled binary `libopencv-dev`.
-{: .notice }
+!!! note
+    If you want to use OpenCV without ROS you should consider installing it from [source using CMake](https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html).
+    This will allow you to configure what features should be installed, e.g., example code.
+    Otherwise you can install a pre compiled binary `libopencv-dev`.
 
 Similar to work with PCL and ROS you need to install the dependency `ros-noetic-perception-pcl`, which is the interface between ROS and PCL.
 
 
-To work with PCL without ROS you should consider installing it from [source using CMake](https://pointclouds.org/documentation/tutorials/building_pcl.html). 
-This will allow you to configure what features should be installed, e.g., example code.
-Otherwise you can install a pre compiled binary `libpcl-dev`.
-{: .notice }
+!!! note
+    To work with PCL without ROS you should consider installing it from [source using CMake](https://pointclouds.org/documentation/tutorials/building_pcl.html).
+    This will allow you to configure what features should be installed, e.g., example code.
+    Otherwise you can install a pre compiled binary `libpcl-dev`.
 
 [`perception_pcl`](https://wiki.ros.org/perception_pcl) is a meta package for PCL (Point Cloud Library) ROS interface stack. 
 PCL-ROS is the preferred bridge for 3D applications involving n-D Point Clouds and 3D geometry processing in ROS.
