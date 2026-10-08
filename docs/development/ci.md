@@ -1,4 +1,4 @@
-# Continuous Integration
+# Testing and CI
 
 Every pull request and every push to the default branch runs automated checks with [GitHub Actions](https://docs.github.com/actions). A PR is only merged when they pass.
 
@@ -34,6 +34,17 @@ The packages have no test cases yet, so the checks prove that everything builds,
 ### Action versions
 
 The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the CI workflow failed before building anything because `actions/cache@v2` had been switched off, and Node 20 actions were retired in September 2026. When a check fails during "Set up job", an outdated action is the likely cause.
+
+### Writing tests and debugging
+
+- **Tests:** ROS 1 packages use [gtest](https://github.com/google/googletest) for C++ unit tests and [rostest](http://wiki.ros.org/rostest) for tests that start ROS nodes. [Ros-Test-Example](https://github.com/steup/Ros-Test-Example) shows both in a catkin workspace ([slides](https://github.com/steup/Ros-Test-Example/blob/master/src/cars/doc/slides/slides.pdf)). catkin-tools explains [building and running tests](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html#building-and-running-tests).
+- **Debugging:** a debugger can only stop at breakpoints in a workspace built with debug symbols:
+
+    ```console
+    catkin build --save-config --cmake-args -DCMAKE_BUILD_TYPE=Debug
+    ```
+
+    See the [catkin-tools cheat sheet](https://catkin-tools.readthedocs.io/en/latest/cheat_sheet.html) for more.
 
 ### Running the checks locally
 

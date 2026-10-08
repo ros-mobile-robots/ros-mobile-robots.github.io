@@ -47,37 +47,10 @@ To support this work and in case you need the files immediately, you can access 
 
 <a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a>
 
-## Best Practices and REP
+## Contributing
 
-The project tries to follow the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) as good as possible. 
-This includes examples and patterns on producing and contributing high quality code, 
-as well as on testing, and other quality oriented practices, like continuous integration. 
-You can read more about it on the [ROS Quality wiki](http://wiki.ros.org/Quality). This includes also following the advice given
-in the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Throughout the documentation links to corresponding REPs are given.
-
-The wiki section [ROS developer's guide](http://wiki.ros.org/DevelopersGuide) is a good starting point for getting used to the common practices for developing components to be shared with the community. It includes links to [naming conventions](http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources) (e.g. for packages) and ROS [C++](http://wiki.ros.org/CppStyleGuide) and [Python](http://wiki.ros.org/PyStyleGuide) style guides.
-
-Other good resources to learn more about ROS best practices is the [Autonomous Systems Lab](https://github.com/ethz-asl/ros_best_practices/wiki) of ETH Zurich.
-
-!!! Note
-    Your contributions to the code or documentation are most welcome but please try to follow the mentioned best pratices where possible.
-
-## Testing, Debugging and CI
-
-For a ROS catkin workspace explaining gTest and [rostest](http://wiki.ros.org/rostest) see [Ros-Test-Example](https://github.com/steup/Ros-Test-Example) and its [documentation](https://github.com/steup/Ros-Test-Example/blob/master/src/cars/doc/slides/slides.pdf).
-To run tests with catkin-tools, see [Building and running tests](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html#building-and-running-tests).
-
-To get a workspace that allows a debugger to stop at breakpoints, it is required to build the catkin workspace with Debug Symbols. 
-For this the command `catkin build --save-config --cmake-args -DCMAKE_BUILD_TYPE=Debug` is used, mentioned in the [catkin-tools cheat sheet](https://catkin-tools.readthedocs.io/en/latest/cheat_sheet.html).
-
-
-This repository makes use of automated builds when new code is pushed or a pull request is made to this repository.
-For this the Travis and GitHub actions configurations (yml files) from [ROS Industrial CI](https://github.com/ros-industrial/industrial_ci) are used.
-
-## Documentation
-
-The documentation is using [material design theme](https://squidfunk.github.io/mkdocs-material/), which is based on [MkDocs](https://www.mkdocs.org/).
-Future code documentation will make use of [doxygen](http://wiki.ros.org/Doxygen) and [rosdoc_lite](http://wiki.ros.org/rosdoc_lite).
+Contributions to the code and the documentation are welcome. The [Contributing](development/index.md) section explains how changes get in,
+the best practices the project follows, testing and debugging, the CI checks, and how these docs are written.
 
 ## References
 

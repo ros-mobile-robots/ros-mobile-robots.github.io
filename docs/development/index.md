@@ -1,4 +1,4 @@
-# Development
+# Contributing
 
 This section explains how DiffBot and Remo are developed: where the code lives, how changes get in, and how the development environment and the automated checks work.
 
@@ -31,7 +31,24 @@ Issues labelled `good first issue` or `help wanted` are good places to start.
 
 A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site.
 
+## Best practices
+
+The code follows the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) and the [ROS Quality](http://wiki.ros.org/Quality) guidelines where possible, including the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Pages on this site link to the REPs that apply.
+
+Good starting points:
+
+- [ROS developer's guide](http://wiki.ros.org/DevelopersGuide): common practices for components shared with the community, with the [naming conventions](http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources) and the [C++](http://wiki.ros.org/CppStyleGuide) and [Python](http://wiki.ros.org/PyStyleGuide) style guides.
+- [ROS best practices](https://github.com/ethz-asl/ros_best_practices/wiki) of the Autonomous Systems Lab at ETH Zurich.
+
+How the code is built, tested and debugged is described in [Testing and CI](ci.md).
+
+## Writing docs
+
+This site is built with [MkDocs](https://www.mkdocs.org/) and the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme. Its source is the [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) repository: one Markdown file per page in `docs/`, and the navigation in `mkdocs.yml`. Every pull request gets a preview on the real site, see [Testing and CI](ci.md#this-documentation-site).
+
+The packages have no generated API documentation (such as Doxygen) yet.
+
 ## Development environment
 
-- **Development PC:** use the [dev container](dev-container.md). It has ROS Noetic, Gazebo, RViz and all dependencies, on Linux and on Windows with WSL 2.
+- **Development PC:** use the [dev container](dev-container.md) from Getting Started. It has ROS Noetic, Gazebo, RViz and all dependencies, on Linux and on Windows with WSL 2.
 - **Robot:** the Raspberry Pi or Jetson Nano is set up natively, see [Packages Setup](../packages/packages-setup.md).

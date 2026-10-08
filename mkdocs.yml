@@ -105,6 +105,7 @@ nav:
   - Getting Started:
     - Technical Requirements: technical_requirements.md
     - Components: components.md
+    - Development Environment: development/dev-container.md
   - Hardware Setup:
     - hardware_setup/overview.md
     - 3D Printing: hardware_setup/3D_print.md
@@ -146,10 +147,9 @@ nav:
     - Inertial Measurement Unit:
       - Robot Localization: packages/imu/robot_localization.md
       - BNO055 Driver: packages/imu/driver-bno055.md
-  - Development:
+  - Contributing:
     - development/index.md
-    - Dev Container: development/dev-container.md
-    - Continuous Integration: development/ci.md
+    - Testing and CI: development/ci.md
   - Robotics Theory:
     - theory/index.md
     - Preliminaries:
