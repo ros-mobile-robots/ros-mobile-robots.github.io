@@ -3846,6 +3846,7 @@
 
 
 <h1 id="contributing">Contributing</h1>
+<p>Contributions to the code and the documentation are welcome. Please follow the <a href="#best-practices">best practices</a> below where you can.</p>
 <p>This section explains how DiffBot and Remo are developed: where the code lives, how changes get in, and how the development environment and the automated checks work.</p>
 <h2 id="repositories">Repositories</h2>
 <table>
@@ -3882,7 +3883,7 @@
 <li><strong>ROS 2:</strong> the port, in phases for the model and simulation, ros2_control, and the Teensy firmware. It will live in the same repository, on a new branch.</li>
 <li><strong>IMU, filter and navigation:</strong> IMU, Kalman filter (robot_localization) and navigation, for ROS 1 and ROS 2.</li>
 </ol>
-<p>Issues labelled <code>good first issue</code> or <code>help wanted</code> are good places to start.</p>
+<p>Issues labelled <a href="https://github.com/ros-mobile-robots/diffbot/labels/good%20first%20issue"><code>good first issue</code></a> or <a href="https://github.com/ros-mobile-robots/diffbot/labels/help%20wanted"><code>help wanted</code></a> are good places to start.</p>
 <h2 id="how-changes-get-in">How changes get in</h2>
 <ol>
 <li><strong>Issue:</strong> describe the bug or feature, or pick an existing issue and comment that you're on it.</li>
@@ -3891,7 +3892,7 @@
 <li><strong>Checks and review:</strong> the <a href="ci/">CI checks</a> must pass, and every PR gets a review.</li>
 <li><strong>Merge:</strong> PRs are squash-merged. The PR title and description become the commit message, so they should read like one. The branch is deleted after the merge.</li>
 </ol>
-<p>A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site.</p>
+<p>A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site (see <a href="#writing-docs">Writing docs</a>).</p>
 <h2 id="best-practices">Best practices</h2>
 <p>The code follows the <a href="http://wiki.ros.org/Tutorials/Best%20Practices">ROS best practices</a> and the <a href="http://wiki.ros.org/Quality">ROS Quality</a> guidelines where possible, including the <a href="https://www.ros.org/reps/rep-0000.html">ROS Enhancement Proposals (REPs)</a>. Pages on this site link to the REPs that apply.</p>
 <p>Good starting points:</p>
@@ -3901,8 +3902,8 @@
 </ul>
 <p>How the code is built, tested and debugged is described in <a href="ci/">Testing and CI</a>.</p>
 <h2 id="writing-docs">Writing docs</h2>
-<p>This site is built with <a href="https://www.mkdocs.org/">MkDocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> theme. Its source is the <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io">ros-mobile-robots.github.io</a> repository: one Markdown file per page in <code>docs/</code>, and the navigation in <code>mkdocs.yml</code>. Pull requests from branches in this repository get a preview on the real site, see <a href="ci/#this-documentation-site">Testing and CI</a>.</p>
-<p>The packages have no generated API documentation (such as Doxygen) yet.</p>
+<p>This site is built with <a href="https://www.mkdocs.org/">MkDocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> theme. Its source is the <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io">ros-mobile-robots.github.io</a> repository: one Markdown file per page in <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs"><code>docs/</code></a>, and the navigation in <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/mkdocs.yml"><code>mkdocs.yml</code></a>. Pull requests from branches in this repository get a preview on the real site, see <a href="ci/#this-documentation-site">Testing and CI</a>.</p>
+<p>The packages have no generated API documentation yet. For ROS packages that's usually done with <a href="http://wiki.ros.org/Doxygen">Doxygen</a>.</p>
 <h2 id="development-environment">Development environment</h2>
 <ul>
 <li><strong>Development PC:</strong> use the <a href="dev-container/">dev container</a> from Getting Started. It has ROS Noetic, Gazebo, RViz and all dependencies, on Linux and on Windows with WSL 2.</li>

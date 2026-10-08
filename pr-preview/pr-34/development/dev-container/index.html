@@ -4039,7 +4039,7 @@
 
 
 <h1 id="dev-container">Dev Container</h1>
-<p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
+<p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/#dev-container-workflow">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
 <p>It's the recommended setup for the development PC. The robot's single board computer is still set up natively, see <a href="../../packages/packages-setup/">Packages Setup</a>.</p>
 <h2 id="requirements">Requirements</h2>
 <ul>
@@ -4054,7 +4054,7 @@
 <li>
 <p><strong>A way to start the container:</strong> <a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a>, the <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> (<code>npm install -g @devcontainers/cli</code>), or plain Docker.</p>
 </li>
-<li><strong>GUI apps on a native Linux desktop:</strong> <code>xauth</code> on the host (<code>sudo apt install xauth</code>). On Windows, WSLg needs nothing extra.</li>
+<li><strong>GUI apps on a native Linux desktop:</strong> <code>xauth</code> on the host (<code>sudo apt install xauth</code>), see <a href="#gui-apps-x11-and-wslg">GUI apps</a>. On Windows, WSLg needs nothing extra.</li>
 </ul>
 <h2 id="usage">Usage</h2>
 <p>Clone the repository on the host first:</p>
@@ -4074,7 +4074,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </div>
 <div class="tabbed-block">
-<p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it.</p>
+<p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see <a href="#creating-the-container">Creating the container</a>).</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -4104,27 +4104,27 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/Dockerfile</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/Dockerfile"><code>.devcontainer/noetic/Dockerfile</code></a></td>
 <td style="text-align: left;">The image: ROS, Gazebo, tools and the packages' dependencies</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/devcontainer.json</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/devcontainer.json"><code>.devcontainer/noetic/devcontainer.json</code></a></td>
 <td style="text-align: left;">How the container runs: mounts, network, display, what runs when</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/setup.sh</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>.devcontainer/noetic/setup.sh</code></a></td>
 <td style="text-align: left;">Runs once in a new container: fetches repositories, installs dependencies, builds the workspace</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/host-x11.sh</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>.devcontainer/noetic/host-x11.sh</code></a></td>
 <td style="text-align: left;">Runs on the host before the container starts: prepares the display access</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.dockerignore</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.dockerignore"><code>.dockerignore</code></a></td>
 <td style="text-align: left;">Keeps <code>.git</code> and the display cookie out of the image build</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.github/workflows/devcontainer.yml</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/devcontainer.yml"><code>.github/workflows/devcontainer.yml</code></a></td>
 <td style="text-align: left;">CI builds the same container on every pull request</td>
 </tr>
 </tbody>
@@ -4144,9 +4144,9 @@
 <h3 id="creating-the-container">Creating the container</h3>
 <p>When the container is created, the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/devcontainer.json">devcontainer.json</a> settings apply in this order:</p>
 <ol>
-<li><strong>On the host:</strong> <code>host-x11.sh</code> prepares the display access (see below).</li>
+<li><strong>On the host:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> prepares the display access (see <a href="#gui-apps-x11-and-wslg">GUI apps</a> below).</li>
 <li><strong>Build and start:</strong> the image is built, and the container starts with your clone mounted at <code>~/catkin_ws/src/diffbot</code>. VS Code and the CLI change the UID and GID of the user <code>ros</code> to yours, so files created in the container belong to you on the host.</li>
-<li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <code>vcs import</code> from <code>diffbot_dev.repos</code>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
+<li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <code>vcs import</code> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
 </ol>
 <p><code>remo_description</code> contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its <a href="https://github.com/ros-mobile-robots/remo_description#stl-mesh-files">README</a>. DiffBot's own meshes are part of <code>diffbot_description</code>.</p>
 <h3 id="network">Network</h3>
@@ -4171,7 +4171,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </li>
 <li>
-<p><strong>New source dependency:</strong> add the repository to <code>diffbot_dev.repos</code>, and to the robot's <code>.repos</code> file if the robot needs it too.</p>
+<p><strong>New source dependency:</strong> add the repository to <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, and to the robot's <code>.repos</code> file if the robot needs it too.</p>
 </li>
 <li><strong>Tools in the image:</strong> add them to the <code>apt-get install</code> list in the Dockerfile.</li>
 </ul>
@@ -4190,11 +4190,11 @@
 </tr>
 <tr>
 <td style="text-align: left;"><code>No protocol specified</code> or <code>cannot open display</code> on native Linux</td>
-<td style="text-align: left;">Install <code>xauth</code> on the host and recreate the container. Check that <code>echo $DISPLAY</code> shows a display on the host.</td>
+<td style="text-align: left;">Install <code>xauth</code> on the host and recreate the container (see <a href="#gui-apps-x11-and-wslg">GUI apps</a>). Check that <code>echo $DISPLAY</code> shows a display on the host.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Files in the clone belong to another user (plain Docker)</td>
-<td style="text-align: left;">Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID.</td>
+<td style="text-align: left;">Your UID isn't 1000. Use VS Code or the CLI, which adapt the UID (see <a href="#creating-the-container">Creating the container</a>).</td>
 </tr>
 <tr>
 <td style="text-align: left;">Gazebo is slow</td>
