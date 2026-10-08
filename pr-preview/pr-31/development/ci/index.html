@@ -3806,7 +3806,7 @@
 </tbody>
 </table>
 <h3 id="industrial_ci">industrial_ci</h3>
-<p>industrial_ci starts a ROS Docker image, installs the packages' dependencies with rosdep, builds the workspace with catkin and runs the tests. The workflow runs it twice: with ROS packages from the <code>main</code> repository, which users install, and from <code>testing</code>, where new package versions appear first.</p>
+<p>industrial_ci starts a ROS Docker image, installs the packages' dependencies with rosdep, builds the workspace with catkin and runs the tests. The workflow runs it twice: with ROS packages from the <code>main</code> repository, which users install, and from <code>testing</code>, where new package versions appear first (<a href="http://wiki.ros.org/ShadowRepository">ROS testing repository</a>).</p>
 <p><a href="https://ccache.dev/">ccache</a> speeds up the C++ builds. The workflow stores its cache with <code>actions/cache</code>. The cache key contains the run ID, so each successful run saves a new cache, and <code>restore-keys</code> loads the newest one at the start of the next run.</p>
 <h3 id="dev-container-workflow">Dev container workflow</h3>
 <p><a href="https://github.com/devcontainers/ci"><code>devcontainers/ci</code></a> creates the container exactly as VS Code or the Dev Container CLI would, including <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a>, which builds the workspace. Then it runs:</p>
@@ -3818,7 +3818,7 @@
 <h3 id="tests">Tests</h3>
 <p>The packages have no test cases yet, so the checks prove that everything builds, not that it behaves correctly. Tests are planned as part of the <a href="../#roadmap">roadmap</a>.</p>
 <h3 id="github-actions-versions">GitHub Actions versions</h3>
-<p>The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the CI workflow failed before building anything because <code>actions/cache@v2</code> had been switched off, and Node 20 actions were retired in September 2026. When a check fails during "Set up job", an outdated action is the likely cause.</p>
+<p>The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the CI workflow failed before building anything because <code>actions/cache@v2</code> had been switched off (<a href="https://github.blog/changelog/2024-12-05-notice-of-upcoming-releases-and-breaking-changes-for-github-actions/">GitHub notice</a>), and Node 20 actions were retired in September 2026 (<a href="https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/">GitHub changelog</a>). When a check fails during "Set up job", an outdated action is the likely cause.</p>
 <h3 id="writing-tests-and-debugging">Writing tests and debugging</h3>
 <ul>
 <li><strong>Tests:</strong> ROS 1 packages use <a href="https://github.com/google/googletest">gtest</a> for C++ unit tests and <a href="http://wiki.ros.org/rostest">rostest</a> for tests that start ROS nodes. <a href="https://github.com/steup/Ros-Test-Example">Ros-Test-Example</a> shows both in a catkin workspace (<a href="https://github.com/steup/Ros-Test-Example/blob/master/src/cars/doc/slides/slides.pdf">slides</a>). catkin-tools explains <a href="https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html#building-and-running-tests">building and running tests</a>.</li>
@@ -3833,7 +3833,7 @@
 <ul>
 <li><strong>Workspace build and tests:</strong> in the <a href="../dev-container/">dev container</a>, in <code>~/catkin_ws</code>, run the two commands from the <a href="#dev-container-workflow">dev container workflow</a> above.</li>
 <li>
-<p><strong>Firmware:</strong> build it on the host, not in the <a href="../dev-container/">ROS container</a>: the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. CI builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:</p>
+<p><strong>Firmware:</strong> build it on the host, not in the <a href="../dev-container/">ROS container</a>: the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. In our test, the Teensy tool <code>teensy_size</code> stopped with a missing <code>GLIBC_2.34</code> in the ROS container. CI builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -3860,7 +3860,7 @@
 <tr>
 <td style="text-align: left;">Documentation CI</td>
 <td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/.github/workflows/ci.yml"><code>.github/workflows/ci.yml</code></a></td>
-<td style="text-align: left;">Builds the site with <code>mkdocs build --strict</code>, which fails on any warning, such as a broken link. On a push to <code>main</code> it also publishes the site to the <code>gh-pages</code> branch, which GitHub Pages serves at ros-mobile-robots.com.</td>
+<td style="text-align: left;">Builds the site with <code>mkdocs build --strict</code>, which fails on any warning (<a href="https://www.mkdocs.org/user-guide/configuration/#strict">strict mode</a>), such as a broken link or anchor (<a href="https://www.mkdocs.org/user-guide/configuration/#validation">link validation</a>). On a push to <code>main</code> it also publishes the site to the <code>gh-pages</code> branch, which GitHub Pages serves at ros-mobile-robots.com.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Lint</td>
