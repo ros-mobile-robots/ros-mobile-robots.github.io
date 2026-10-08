@@ -3864,27 +3864,27 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/Dockerfile</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/Dockerfile"><code>.devcontainer/noetic/Dockerfile</code></a></td>
 <td style="text-align: left;">The image: ROS, Gazebo, tools and the packages' dependencies</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/devcontainer.json</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/devcontainer.json"><code>.devcontainer/noetic/devcontainer.json</code></a></td>
 <td style="text-align: left;">How the container runs: mounts, network, display, what runs when</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/setup.sh</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>.devcontainer/noetic/setup.sh</code></a></td>
 <td style="text-align: left;">Runs once in a new container: fetches repositories, installs dependencies, builds the workspace</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.devcontainer/noetic/host-x11.sh</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>.devcontainer/noetic/host-x11.sh</code></a></td>
 <td style="text-align: left;">Runs on the host before the container starts: prepares the display access</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.dockerignore</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.dockerignore"><code>.dockerignore</code></a></td>
 <td style="text-align: left;">Keeps <code>.git</code> and the display cookie out of the image build</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>.github/workflows/devcontainer.yml</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/devcontainer.yml"><code>.github/workflows/devcontainer.yml</code></a></td>
 <td style="text-align: left;">CI builds the same container on every pull request</td>
 </tr>
 </tbody>
@@ -3906,7 +3906,7 @@
 <ol>
 <li><strong>On the host:</strong> <code>host-x11.sh</code> prepares the display access (see below).</li>
 <li><strong>Build and start:</strong> the image is built, and the container starts with your clone mounted at <code>~/catkin_ws/src/diffbot</code>. VS Code and the CLI change the UID and GID of the user <code>ros</code> to yours, so files created in the container belong to you on the host.</li>
-<li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <code>vcs import</code> from <code>diffbot_dev.repos</code>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
+<li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <code>vcs import</code> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
 </ol>
 <p><code>remo_description</code> contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its <a href="https://github.com/ros-mobile-robots/remo_description#stl-mesh-files">README</a>. DiffBot's own meshes are part of <code>diffbot_description</code>.</p>
 <h3 id="network">Network</h3>
@@ -3931,7 +3931,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </li>
 <li>
-<p><strong>New source dependency:</strong> add the repository to <code>diffbot_dev.repos</code>, and to the robot's <code>.repos</code> file if the robot needs it too.</p>
+<p><strong>New source dependency:</strong> add the repository to <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, and to the robot's <code>.repos</code> file if the robot needs it too.</p>
 </li>
 <li><strong>Tools in the image:</strong> add them to the <code>apt-get install</code> list in the Dockerfile.</li>
 </ul>
