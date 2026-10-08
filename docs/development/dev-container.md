@@ -118,7 +118,12 @@ This avoids `xhost +`, which would allow every local user and process to connect
 
 ## Updating
 
-- **New ROS or system dependency:** add it to the package's `package.xml`. Then rebuild the container: **Dev Containers: Rebuild Container** in VS Code, or `devcontainer up --remove-existing-container` with the CLI.
+- **New ROS or system dependency:** add it to the package's `package.xml`. Then rebuild the container: **Dev Containers: Rebuild Container** in VS Code, or with the CLI, from the diffbot folder:
+
+    ```console
+    devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json --remove-existing-container
+    ```
+
 - **New source dependency:** add the repository to `diffbot_dev.repos`, and to the robot's `.repos` file if the robot needs it too.
 - **Tools in the image:** add them to the `apt-get install` list in the Dockerfile.
 

@@ -38,14 +38,17 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 ### Running the checks locally
 
 - **Workspace build and tests:** in the dev container, in `~/catkin_ws`, run the two commands from the dev container workflow above.
-- **Firmware:**
+- **Firmware:** build it on the host, not in the ROS container: the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. CI builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:
 
     ```console
-    pip install platformio
+    sudo apt install python3-venv
+    python3 -m venv ~/.venvs/platformio
+    ~/.venvs/platformio/bin/pip install platformio
     cd diffbot_base/scripts/base_controller
-    pio run                # Teensy 4.0
-    pio run -e teensy31    # Teensy 3.1/3.2
+    ~/.venvs/platformio/bin/pio run
     ```
+
+    `pio run` builds the Teensy 4.0, the default environment. The Teensy 3.1/3.2 environment (`pio run -e teensy31`) currently fails to link with the latest PlatformIO Teensy platform (`undefined reference to _write`).
 
 ## This documentation site
 
@@ -53,7 +56,7 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 |:---------|:-----|:-------------|
 | Documentation CI | `.github/workflows/ci.yml` | Builds the site with `mkdocs build --strict`, which fails on any warning, such as a broken link. On a push to `main` it also publishes the site to the `gh-pages` branch, which GitHub Pages serves at ros-mobile-robots.com. |
 | Lint | `.github/workflows/lint.yml` | Checks the spelling with [codespell](https://github.com/codespell-project/codespell); its settings are in `.codespellrc`. |
-| PR preview | `.github/workflows/preview.yml` | Builds every pull request and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. |
+| PR preview | `.github/workflows/preview.yml` | Builds each pull request from a branch in this repository and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. Pull requests from forks get no preview, only the build and spelling checks. |
 
 To build the site locally:
 
