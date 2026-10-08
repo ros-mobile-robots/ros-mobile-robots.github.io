@@ -14,7 +14,7 @@ Successfully created package files in /home/fjp/git/diffbot/ros/src/diffbot_brin
 
 The package provides a `launch` folder which includes `minimal.launch` and `bringup.launch`.
 
-The `minimal.launch` is used to load DiffBot's robot descripton and the controller configuration
+The `minimal.launch` is used to load DiffBot's robot description and the controller configuration
 onto the ROS parameter server using the launch file from the [`diffbot_base` package](https://fjp.at/projects/diffbot/ros-packages/base/). 
 It will also setup the ROS [controller manager](http://wiki.ros.org/controller_manager) with 
 [DiffBot's hardware interface](https://fjp.at/projects/diffbot/ros-packages/base/#hardware-interface).
@@ -65,7 +65,7 @@ To do this the `bringup.launch` includes the `minimal.launch` and then runs the 
 
     <!-- Starting robot state publish which will publish tf -->
     <!-- This is needed to publish transforms between all links -->
-    <!-- diff_drive_controller publishes only a single transfrom between odom and base_footprint -->
+    <!-- diff_drive_controller publishes only a single transform between odom and base_footprint -->
     <!-- The robot_state_publisher reads the joint states published by ros control's joint_state_controller -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
         output="screen" ns="diffbot" />

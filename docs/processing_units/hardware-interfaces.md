@@ -9,7 +9,7 @@ The hardware interfaces provide an interface between the components (sensors and
 
 ## USB
 
-The Universial Serial Bus (USB) connections are required to connect the Single Board Computer (SBC) with the microcontroller. Using this connection, it is possible to communicate via [`rosserial`](http://wiki.ros.org/rosserial).
+The Universal Serial Bus (USB) connections are required to connect the Single Board Computer (SBC) with the microcontroller. Using this connection, it is possible to communicate via [`rosserial`](http://wiki.ros.org/rosserial).
 
 Another USB connector is used for the RPLidar laser scanner. 
 
@@ -65,7 +65,7 @@ fjp@remo:~$ sudo apt install i2c-tools
 
 This `i2cdetect` tool is  a  userspace program to scan an I2C bus for devices
 given a specific i2cbus argument which indicates  the number or name of the I2C bus to be scanned, 
-and should correspond to one of the busses listed by `i2cdetect -l`. See also `info i2cdetect` for the manual page.
+and should correspond to one of the buses listed by `i2cdetect -l`. See also `info i2cdetect` for the manual page.
 
 To test if the i2c ports are working we use the following commands:
 
@@ -117,7 +117,7 @@ crw-rw---- 1 root i2c 89, 0 Apr  1  2020 /dev/i2c-0
 ```
 
 we see that the `/dev/i2c-0` device belongs to user `root` and `i2c` user group. 
-To get access without `sudo` we can add other users, requiering access to the `i2c` group with:
+To get access without `sudo` we can add other users, requiring access to the `i2c` group with:
 
 ```console
 sudo adduser fjp i2c

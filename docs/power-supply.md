@@ -7,7 +7,7 @@ Voltage of 1.5 V. This means that with four batteries in series the total Voltag
 be 6 V. The voltage drop on the motor driver is roughly 2.12 V which means that each motor would operate on 3.88 V.
 According to the [datasheet](https://cdn.sparkfun.com/assets/8/3/b/e/4/DS-16413-DG01D-E_Motor_with_Encoder.pdf) the 
 [DG01D-E motor](https://www.sparkfun.com/products/16413) requires a voltage between 3-9 V, has a gearbox ratio of 1:48 and a speed of 90RPM at 4.5V.
-Therefore 3.88 V is at the lower operating range of this motor, hence a higher input source to the motor driver is requried to provide
+Therefore 3.88 V is at the lower operating range of this motor, hence a higher input source to the motor driver is required to provide
 higher output voltage to the motors. The maximum allowed input Voltage to the motor driver is 15 V, hence a power source between 6 V to 15 V should be used,
 in the range of 10 V to 15 V to drive with different speeds.
 
@@ -22,6 +22,6 @@ with a suitable battery charchger such as the [Nitecore UMS4](https://charger.ni
 
 
 !!! note
-    Note that four standard AA bateries with 1.5 V each is perfectly fine.
+    Note that four standard AA batteries with 1.5 V each is perfectly fine.
     Only the motor driver has to provide 100% of its input voltage to avoid stalling the motors.
     With higher Voltage rated batteries more different speeds will be possible.

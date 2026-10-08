@@ -13,7 +13,7 @@ to interface the [Raspberry Pi Camera v2](https://www.raspberrypi.org/products/c
 
 Currently there exists  no binary of the `raspicam_node` for ROS noetic (only for kinetic there is the `ros-kinetic-raspicam-node`).
 To work with the `raspicam_node` for ROS Noetic, you have to build it from source with steps 
-outlined in the build intstructions of the [readme](https://github.com/UbiquityRobotics/raspicam_node#build-intructions).
+outlined in the build instructions of the [readme](https://github.com/UbiquityRobotics/raspicam_node#build-intructions).
 For completeness, these steps are listed here:
 
 First go to your catkin_ws cd `~/ros_ws/src` and download the source for this node by running

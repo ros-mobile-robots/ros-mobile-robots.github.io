@@ -1334,7 +1334,7 @@ Increasing version of package(s) in repository `diffbot` to `1.1.0-1`:
   This solves issues in RViz:
   Transform [sender=unknown_publisher]
   For frame [rplidar_gpu_laser_link]: Frame [rplidar_gpu_laser_link] does not exist
-  and in the terminal from whic diffbot_slam is launched:
+  and in the terminal from which diffbot_slam is launched:
   [ WARN] [1635345613.864692611]: MessageFilter [target=odom ]: Dropped 100.00% of messages so far. Please turn the [ros.gmapping.message_filter] rosconsole logger to DEBUG for more information.
 * Contributors: Franz Pucher
 ```

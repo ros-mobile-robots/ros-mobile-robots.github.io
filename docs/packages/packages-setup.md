@@ -27,7 +27,7 @@ git clone --depth 1 --branch 1.1.0 https://github.com/ros-mobile-robots/diffbot.
 The `diffbot` repository relies on two sorts of dependencies:
 
 - Source (non binary) dependencies from other (git) repositories.
-- System dependencies available in the (ROS) Ubuntu package repositories. Also refered to as pre built binaries.
+- System dependencies available in the (ROS) Ubuntu package repositories. Also referred to as pre built binaries.
 
 
 ### Source Dependencies
@@ -105,7 +105,7 @@ ls devel                  # Show the resulting devel space
 
 !!! note
 
-    Make sure to clone/download the source files suitable for the ROS distribtion
+    Make sure to clone/download the source files suitable for the ROS distribution
     you are using. If the sources are not available for the distribution you are
     working with, it is worth to try building anyway. Chances are that the package
     you want to use is suitable for multiple ROS distros. For example if a package

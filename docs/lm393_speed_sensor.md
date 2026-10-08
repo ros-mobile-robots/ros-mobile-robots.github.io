@@ -5,7 +5,7 @@
     Instead, the [DG01D-E](https://www.sparkfun.com/products/16413) motor includes a quadrature encoder that can measure ticks (can be converted to speed)
     and the direction the motor is turning (clock-wise or anti-clock-wise).
     The LM393 speed sensor could be used in combination with an additional information about the current driving direction, for example coming from
-    the software. Howerver, this won't be as accurate as using a quadrature encoder that provides this information.
+    the software. However, this won't be as accurate as using a quadrature encoder that provides this information.
 
 To measure how far the robot has driven, we use the [LM393 speed sensor](https://joy-it.net/en/products/SEN-Speed) from Joy-IT as [odometry](https://en.wikipedia.org/wiki/Odometry) sensor. 
 First, we will create a ROS package with [`catkin create pkg PKG_NAME [--catkin-deps [DEP [DEP ...]]]`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_create.html#catkin-create-pkg):
@@ -20,7 +20,7 @@ Created folder lm393_speed_sensor/src
 Successfully created package files in /home/fjp/git/2wd-robot/ros/src/lm393_speed_sensor.
 ```
 
-The package depends on the two ROS [client libraries](http://wiki.ros.org/Client%20Libraries) [`rospy`](http://wiki.ros.org/rospy) and [`roscpp`](http://wiki.ros.org/roscpp). The current implementation uses python and the RPi.GPIO library for interrupts. To achieve more percise results, C++ should be used instead. 
+The package depends on the two ROS [client libraries](http://wiki.ros.org/Client%20Libraries) [`rospy`](http://wiki.ros.org/rospy) and [`roscpp`](http://wiki.ros.org/roscpp). The current implementation uses python and the RPi.GPIO library for interrupts. To achieve more precise results, C++ should be used instead. 
 To signalise the current pose of the robot in the odometry frame, the [`nav_msgs/Range`](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Range.html) message is used.
 
 #### Connection
@@ -29,7 +29,7 @@ To get the speed sensors working, we connect the signal pins to [(physical) GPIO
 
 #### LM393 Speed Sensor Library
 
-To use the LM393 speed sensor as a ROS node the sensor functionality is wraped in a class.
+To use the LM393 speed sensor as a ROS node the sensor functionality is wrapped in a class.
 This provides an easy to extend interface for the speed sensor ([API](https://en.wikipedia.org/wiki/Application_programming_interface))
 The code consists of a class LM393SpeedSensor which has two interrupt service routines (ISR) methods.
 Using the RPi.GPIO interrupt capabilities, these ISR methods are used as callback functions when the sensor measures a falling

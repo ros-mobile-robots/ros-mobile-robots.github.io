@@ -12,7 +12,7 @@ abstract the sensor fusion and real time requirements away, and spit out data yo
 
 ## High level Driver (I2C)
 
-When connecting the IMU directly via i2c to the single board computer (SBC), which is refered to as the high level approach, we can make use of
+When connecting the IMU directly via i2c to the single board computer (SBC), which is referred to as the high level approach, we can make use of
 [`ros-imu-bno055`](https://github.com/dheera/ros-imu-bno055) ROS package.
 
 

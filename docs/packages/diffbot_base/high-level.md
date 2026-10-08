@@ -19,7 +19,7 @@ This package contains the so called hardware interface of DiffBot which represen
 In the simpleste case all that is needed in this package is to write a class that inherits from `hardware_interface::RobotHW` and provide a launch
 file. The launch file will 
 
-- Load the robot description from `diffbot_description` to the paramter server
+- Load the robot description from `diffbot_description` to the parameter server
 - Run the hardware interface of this package `diffbot_base`
 - Load the controller configuration yaml from the `diffbot_control` package to the [parameter server](http://wiki.ros.org/Parameter%20Server)
 - Load the controllers with the [controller manager](http://wiki.ros.org/controller_manager?distro=noetic)
@@ -57,7 +57,7 @@ ls devel                  # Show the resulting devel space
 ```
 
 !!! note
-    Make sure to clone/download the source files suitable for the ROS distribtion you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a ROS [noetic](http://wiki.ros.org/noetic) install.
+    Make sure to clone/download the source files suitable for the ROS distribution you are using. If the sources are not available for the distribution you are working with, it is worth to try building anyway. Chances are that the package you want to use is suitable for multiple ROS distros. For example if a package states in its docs, that it is only available for [kinetic](http://wiki.ros.org/kinetic) it is possible that it will work with a ROS [noetic](http://wiki.ros.org/noetic) install.
 
 ### Hardware Interface
 
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
     ros::Time prev_time = ros::Time::now();
     ros::Rate rate(10.0); // 10 Hz rate
     
-    // Blocks until shutdown signal recieved
+    // Blocks until shutdown signal received
     while (ros::ok())
     {
         // Basic bookkeeping to get the system time in order to compute the control period.
@@ -318,7 +318,7 @@ that registers the command member variable of the controller with the hardware i
 
 When the controller manager runs, the controllers will read from the `joint_position`, `joint_velocity` and `joint_effort` variables of the custom robot hardware interface, and the controller will write the desired command into the `joint_velocity_command` variable. It's mandatory to make sure the position, velocity and effort (effort is not needed in the case of the `diff_drive_controller`) variables always have the latest joint state available, and to make sure that whatever is written into the `joint_velocity_command` variable gets executed by the robot. As mentioned this can be done by implementing `hardware_interface::RobotHW::read()` and a `hardware_interface::RobotHW::write()` methods.
 
-In the control loop the [overriden `hardware_interface::RobotHW::read()` method of DiffBot](https://github.com/fjp/diffbot/blob/522cba34117ea4cf90e3e0b5b9b70f0824e226fc/diffbot_base/src/diffbot_hw_interface.cpp#L106) is used to read the joint states. The `diff_drive_controller` works with a VelocityInterface which is why the `joint_position`, defined in rad, and `joint_velocity`, defined in rad/s, are calculated from the encoder ticks.
+In the control loop the [overridden `hardware_interface::RobotHW::read()` method of DiffBot](https://github.com/fjp/diffbot/blob/522cba34117ea4cf90e3e0b5b9b70f0824e226fc/diffbot_base/src/diffbot_hw_interface.cpp#L106) is used to read the joint states. The `diff_drive_controller` works with a VelocityInterface which is why the `joint_position`, defined in rad, and `joint_velocity`, defined in rad/s, are calculated from the encoder ticks.
 
 
 ## PID Controller
@@ -331,7 +331,7 @@ In the control loop the [overriden `hardware_interface::RobotHW::read()` method 
     joint states are always up to date. This means that the `diff_drive_controller` just uses the `twist_msg` on the `cmd_vel` topic for example from the `rqt_robot_steering` and converts it to a velocity command for the motors. It doesn't take the actual velocity of the motors into account.
     See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated.
 
-This is why a PID controller is needed to avoid situations like the following where the robot moves not straigth although it is commanded to do so:
+This is why a PID controller is needed to avoid situations like the following where the robot moves not straight although it is commanded to do so:
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 

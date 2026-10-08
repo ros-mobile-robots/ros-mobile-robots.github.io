@@ -1,6 +1,6 @@
 ## Image Filtering
 
-The concept of (spacial) frequency in images is important to filter certain frequencies and thus enhance or dampen certain features of an image,
+The concept of (spatial) frequency in images is important to filter certain frequencies and thus enhance or dampen certain features of an image,
 such as corners or edges.
 
 ### Frequency in Images
@@ -101,7 +101,7 @@ and also see the OpenCV documentation of the [`GaussianBlur`](https://docs.openc
 ### Convolutional Neural Networks
 
 Convolutional neural networks consist of convolutional layers which are made up of similar filters defined previously.
-The only difference is that neural networks learn to create filters themselfes through gradient descent and error back propagation.
+The only difference is that neural networks learn to create filters themselves through gradient descent and error back propagation.
 The weights of a convolutional neural network that it updates during training are the values inside the filter kernels.
 
 In deep convolutional neural networks the individual filter kernels are stacked which increases the depth of a convolutional filter (or kernel), 

@@ -27,7 +27,7 @@ motors into account.
 
     See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated. 
 
-For this reason a PID controller can help to avoid situations such as the following where the robot moves not straigth although it's commanded to do so:
+For this reason a PID controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
@@ -199,7 +199,7 @@ definition of $d_{l/r}$, we can derive $t = \frac{R_r - R_l}{R_r + R_l}$, which 
     course](http://underactuated.mit.edu/sysid.html).
 
 
-After the robot can drive on the straight line without deviating from it too far the final error can be overcome with addtional sensors, such as IMUs, cameras and LiDARs, and then fuse those sensor data to follow a goal location more accurately by constantly adjusting wheel velocities. An even simpler example are IR sensors to follow the line and adjust the wheel velocities according to stay near the line. 
+After the robot can drive on the straight line without deviating from it too far the final error can be overcome with additional sensors, such as IMUs, cameras and LiDARs, and then fuse those sensor data to follow a goal location more accurately by constantly adjusting wheel velocities. An even simpler example are IR sensors to follow the line and adjust the wheel velocities according to stay near the line. 
 
 ### PID Tuning
 
@@ -234,7 +234,7 @@ D = 0
 
 To overcome oscillations increase the D gain first but usually it will be a value below P (might be one or more magnitudes lower). The derivative term tracks how fast the velocity changes over time. A higher D gain can dampen oscillations and therefore lead to more stable behavior. The D term best estimate of the future trend of the error $e(t)$.
 If the derivative gain is too low then the system is called underdamped and will pull too quickly towards the desired velocity, which can easily result in overshooting the target value. On the other hand if the D gain is too high the system is known to be overdamped and it will take a long time to reach the desired velocity.
-A properlly chosen D gain will allow to reach the desired velocity quickly with reduced overshoot and therefore a near zero error rate (known as critically damped).
+A properly chosen D gain will allow to reach the desired velocity quickly with reduced overshoot and therefore a near zero error rate (known as critically damped).
 
 Term I accounts for past values of the error and integrates them over time. This term should be adjust last and increased slightly to tune the behavior further.
 

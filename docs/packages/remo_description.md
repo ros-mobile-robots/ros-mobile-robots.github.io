@@ -18,19 +18,19 @@ To use `remo_description` inside a Gazebo simulation or on a real 3D printed Rem
 Most of the launch files you find in the `diffbot` repository
 accept a `model` argument. Just append `model:=remo` to the end of a `roslaunch` command to make use of this `remo_description` package.
 
-### Git LFS and Bandwith Quota
+### Git LFS and Bandwidth Quota
 
 The binary stl files are hosted on GitHub using [Git Large File Storage (git lfs)](https://git-lfs.github.com/) 
 to avoid increasing the total size of the repository because of possible stl file changes.
-For open source repositories, GitHub has a bandwith limit of 1 GB (up to 1.5 GB) per month. 
-Depending on how many users clone/pull the stl files using git lfs per month, this bandwith can be exhausted after a few days. 
-If you are not able to clone/pull the stl files and only get the pointer files, you have to wait until the bandwith quota resets back to zero. 
+For open source repositories, GitHub has a bandwidth limit of 1 GB (up to 1.5 GB) per month. 
+Depending on how many users clone/pull the stl files using git lfs per month, this bandwidth can be exhausted after a few days. 
+If you are not able to clone/pull the stl files and only get the pointer files, you have to wait until the bandwidth quota resets back to zero. 
 In case you need the stl files immediately, and to support this work you can get [immediate access to the stl files](https://gumroad.com/l/GnMpU?wanted=true):
 
 <a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a>
 
 Also if you find this work useful please consider the funding options to support the development and design of this robot.
-However, you will always be able to clone/pull and use the Remo stl files once the bandwith quota resets.
+However, you will always be able to clone/pull and use the Remo stl files once the bandwidth quota resets.
 
 ### Assembly
 
@@ -49,7 +49,7 @@ The [`remo.urdf.xacro`]({{ remo_repo_url }}/urdf/remo.urdf.xacro) accepts a `cam
 
 ## Single Board Computer Types
 
-Another xacro argument is the `sbc_type` wher you can select between `jetson` and `rpi`.
+Another xacro argument is the `sbc_type` where you can select between `jetson` and `rpi`.
 
 | Jetson Nano | Raspberry Pi 4 B |
 |:-----------------------:|:-----:|

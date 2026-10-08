@@ -60,4 +60,4 @@ We define the robot body frame so that the origin, $A$, is in the mid-axle point
 **Assumption 2**: robot chassis is **rigid body**.
 
 - Distance between any two points of the robot does not change in time.
-- in particular $\dot{c} = 0$, whre $(\dot{\star}) = \frac{d(\star)}{dt}$.
+- in particular $\dot{c} = 0$, where $(\dot{\star}) = \frac{d(\star)}{dt}$.

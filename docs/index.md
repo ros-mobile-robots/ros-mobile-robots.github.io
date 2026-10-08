@@ -4,15 +4,15 @@ This project guides you on how to build an autonomous two wheel differential dri
 The robot can operate on a [Raspberry Pi 4 B](https://de.aliexpress.com/item/32858825148.html?spm=a2g0o.productlist.0.0.5d232e8bvlKM7l&algo_pvid=2c45d347-5783-49a6-a0a8-f104d0b78232&algo_expid=2c45d347-5783-49a6-a0a8-f104d0b78232-0&btsid=0100feb4-37d7-453a-8ff8-47a0e2fbdef7&ws_ab_test=searchweb0_0,searchweb201602_9,searchweb201603_52) or [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) 
 running [ROS Noetic](http://wiki.ros.org/noetic) or [ROS Melodic](http://wiki.ros.org/melodic) middleware on Ubuntu Mate 20.04 and Ubuntu 18.04, respectively.
 With a motor driver that actuates two brushed motors the robot can drive autonomously to a desired location while sensing its environment using sensors, 
-such as a laser scanner to avoid obstacles and a camera to detect objects. Odometry wheel encoders (also refered to as speed sensors) 
+such as a laser scanner to avoid obstacles and a camera to detect objects. Odometry wheel encoders (also referred to as speed sensors) 
 combined with an inertial measurement unit (IMU) are used together with the laser scanner for localization in a previously stored map. 
-Unseen enviornments can be mapped with the laser scanner, making use of open source SLAM algorithms such as `gmapping`. 
+Unseen environments can be mapped with the laser scanner, making use of open source SLAM algorithms such as `gmapping`. 
 
 The following video gives an overview of the robot's components:
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/6aAEbtfVbAk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-The project is split into multiple parts, to adress the following main aspects of the robot.
+The project is split into multiple parts, to address the following main aspects of the robot.
 
 - [Bill of Materials (BOM)](./components.md) and the theory behind the parts.
 - [Theory of (mobile) robots](./theory/index.md).
@@ -39,8 +39,8 @@ The source code for this project can be found in the [ros-mobile-robots/diffbot]
 ## Remo Robot
 
 You can find Remo robot (Research Education Modular/Mobile Open robot), a 3D printable and modular robot description package available at [ros-mobile-robots/remo_description](https://github.com/ros-mobile-robots/remo_description). 
-The stl files are freely availabe from the repository and stored inside the git lfs (Git large file system) on GitHub. 
-The bandwith limit for open source projects on GitHub is 1.0 GB per month, 
+The stl files are freely available from the repository and stored inside the git lfs (Git large file system) on GitHub. 
+The bandwidth limit for open source projects on GitHub is 1.0 GB per month, 
 which is why you might not be able to clone/pull the files because the quota is already exhausted this month. 
 To support this work and in case you need the files immediately, you can access them through the following link:
 
@@ -52,7 +52,7 @@ To support this work and in case you need the files immediately, you can access 
 The project tries to follow the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) as good as possible. 
 This includes examples and patterns on producing and contributing high quality code, 
 as well as on testing, and other quality oriented practices, like continuous integration. 
-You can read more about it on the [ROS Quality wiki](http://wiki.ros.org/Quality). This includes also following the advices given
+You can read more about it on the [ROS Quality wiki](http://wiki.ros.org/Quality). This includes also following the advice given
 in the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Throughout the documentation links to corresponding REPs are given.
 
 The wiki section [ROS developer's guide](http://wiki.ros.org/DevelopersGuide) is a good starting point for getting used to the common practices for developing components to be shared with the community. It includes links to [naming conventions](http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources) (e.g. for packages) and ROS [C++](http://wiki.ros.org/CppStyleGuide) and [Python](http://wiki.ros.org/PyStyleGuide) style guides.
@@ -71,7 +71,7 @@ To get a workspace that allows a debugger to stop at breakpoints, it is required
 For this the command `catkin build --save-config --cmake-args -DCMAKE_BUILD_TYPE=Debug` is used, mentioned in the [catkin-tools cheat sheet](https://catkin-tools.readthedocs.io/en/latest/cheat_sheet.html).
 
 
-This repository makes use of automated builds when new code is pushed or a pull reuqest is made to this repository.
+This repository makes use of automated builds when new code is pushed or a pull request is made to this repository.
 For this the Travis and GitHub actions configurations (yml files) from [ROS Industrial CI](https://github.com/ros-industrial/industrial_ci) are used.
 
 ## Documentation

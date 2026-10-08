@@ -52,7 +52,7 @@ instead of [`catkin_make`](http://wiki.ros.org/catkin/commands/catkin_make). `ca
     ```
     For your reference, you can read more about it in [this open issue](https://github.com/catkin/catkin_tools/issues/594).
 
-After sucessfully installing `catkin_tools` we can create and initialize a workspace (called `ros` for this project) with the [commands listed in the build_tools documentation](https://catkin-tools.readthedocs.io/en/latest/quick_start.html):
+After successfully installing `catkin_tools` we can create and initialize a workspace (called `ros` for this project) with the [commands listed in the build_tools documentation](https://catkin-tools.readthedocs.io/en/latest/quick_start.html):
 
 !!! note
     Note that we already `source`d the `setup.bash` while following the [ROS installation instructions](http://wiki.ros.org/melodic/Installation/Ubuntu).

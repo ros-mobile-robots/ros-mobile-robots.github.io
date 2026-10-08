@@ -15,7 +15,7 @@ Download the latest release of the image and flash it to an empty sd card. To do
 Another way is to use the [Raspberry Pi Imager](https://www.raspberrypi.org/downloads/) explained [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-imaging-utility/).
 
 !!! info
-    [Flashing](https://en.wikipedia.org/wiki/Firmware#Flashing) in this context, means the transfer of software data, also refered to as Firmware, 
+    [Flashing](https://en.wikipedia.org/wiki/Firmware#Flashing) in this context, means the transfer of software data, also referred to as Firmware, 
     from your computer to a device, such as a the sd card in this case. The term “to flash” comes from the Flash storage component of a 
     device where the Firmware is stored.
 
@@ -92,7 +92,7 @@ This is the output when there is one external usb WiFi dongle connected to the R
 
 In case you use a Realtek USB Wifi dongle it might not be directly supported by the linux kernel.
 To install the correct driver, you first have to figure out the driver id. When plugging in the USB Wifi dongle and running `dmesg` afterwards
-shoud output something similar to:
+should output something similar to:
 
 ```
 [ 1430.931258] usb 1-1.3: new high-speed USB device number 13 using xhci_hcd
@@ -151,7 +151,7 @@ Sources
 
 ## Prepare Ubuntu
 
-After flashing the image to the sd card insert it to the Pi, hook it up to a monitor via HDMI and power it up by pluggin in the USB-C connector.
+After flashing the image to the sd card insert it to the Pi, hook it up to a monitor via HDMI and power it up by plugging in the USB-C connector.
 Then you should follow the [installation instructions](https://ubuntu-mate.org/raspberry-pi/install/) on the screen.
 
 Once finished, follow the next steps to install ROS Noetic.
