@@ -133,7 +133,7 @@ nav:
     - Actuators:
       - Motor and Encoder: DG01D-E-motor-with-encoder.md
       - Motor Driver (Grove I2C): grove_motor_driver.md
-      - Actuator Basics: theory/actuation.md
+      - Actuator Notes (draft): theory/actuation.md
     - Sensors:
       - LiDAR: laser-range-scanner.md
       - IMU (BNO055): packages/imu/driver-bno055.md
