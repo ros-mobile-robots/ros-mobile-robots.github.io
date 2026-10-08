@@ -4113,7 +4113,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f0968100">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=7413b76d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4144,7 +4144,7 @@ import numpy as np</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=422757e8">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=5dca2bf3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4475,7 +4475,7 @@ class robot:
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=13d113e0">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a1c06605">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4502,7 +4502,7 @@ class robot:
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a30ef382">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0f8a94c1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4529,6 +4529,56 @@ class robot:
 
 
 
+
+  <h2 id="__comments">Comments</h2>
+  <div data-giscus-consent="">
+    <p>
+      Comments are <a href="https://github.com/ros-mobile-robots/diffbot/discussions">GitHub Discussions</a>,
+      shown with giscus. Loading them connects to giscus.app and GitHub; you need a GitHub account to comment.
+    </p>
+    <button class="md-button" type="button" data-giscus-load="">Show comments</button>
+  </div>
+  <div class="giscus"></div>
+  <script>
+    (function () {
+      var button = document.querySelector("[data-giscus-load]")
+      function theme() {
+        var palette = typeof __md_get === "function" ? __md_get("__palette") : null
+        if (palette && typeof palette.color === "object")
+          return palette.color.scheme === "slate" ? "dark" : "light"
+        return "preferred_color_scheme"
+      }
+      button.addEventListener("click", function () {
+        var script = document.createElement("script")
+        var config = {
+          "repo": "ros-mobile-robots/diffbot",
+          "repo-id": "MDEwOlJlcG9zaXRvcnkyMjQ3MTIzNDk=",
+          "category": "General",
+          "category-id": "MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDI1NTEx",
+          "mapping": "specific",
+          "term": "theory/slam/robot_class/",
+          "strict": "1",
+          "reactions-enabled": "1",
+          "emit-metadata": "0",
+          "input-position": "top",
+          "theme": theme(),
+          "lang": "en"
+        }
+        for (var key in config) script.setAttribute("data-" + key, config[key])
+        script.src = "https://giscus.app/client.js"
+        script.crossOrigin = "anonymous"
+        script.async = true
+        document.querySelector(".giscus").appendChild(script)
+        document.querySelector("[data-giscus-consent]").hidden = true
+      })
+      /* Follow the palette toggle once giscus is loaded */
+      var toggle = document.querySelector("[data-md-component=palette]")
+      if (toggle) toggle.addEventListener("change", function () {
+        var frame = document.querySelector(".giscus-frame")
+        if (frame) frame.contentWindow.postMessage({ giscus: { setConfig: { theme: theme() } } }, "https://giscus.app")
+      })
+    })()
+  </script>
 
                 
 
