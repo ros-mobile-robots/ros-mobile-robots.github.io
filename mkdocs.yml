@@ -102,6 +102,7 @@ plugins:
         projects/diffbot/components.md: components.md
         diffbot_base.md: packages/diffbot_base/index.md
         ros-network-setup.md: processing_units/ros-network-setup.md
+        processing_units/git-setup.md: getting-started/git-and-github.md
 
 nav:
   # Seven tabs, see the docs structure review. Only the menu changed: every page keeps its file
@@ -109,8 +110,10 @@ nav:
   - Home: index.md
   - Getting Started:
     - Overview: technical_requirements.md
+    - Set Up Your PC: getting-started/set-up-your-pc.md
+    - Git and GitHub: getting-started/git-and-github.md
     - Development Environment:
-      - development/dev-container.md
+      - Use the Dev Container: development/dev-container.md
       - How the Dev Container Works: development/dev-container-internals.md
       - Docker Basics: theory/architecture/docker.md
   - Hardware:
@@ -125,7 +128,6 @@ nav:
       - processing_units/index.md
       - Raspberry Pi Setup: processing_units/rpi-setup.md
       - Jetson Nano Setup: processing_units/jetson-nano-setup.md
-      - Git Setup: processing_units/git-setup.md
       - ROS Setup: processing_units/ros-setup.md
       - ROS Network Setup: processing_units/ros-network-setup.md
       - Microcontroller: processing_units/teensy-mcu.md
