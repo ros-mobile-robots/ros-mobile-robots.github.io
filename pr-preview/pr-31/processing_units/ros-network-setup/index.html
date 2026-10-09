@@ -47,6 +47,22 @@
         <script src="../../js/katex-0.19.0/katex.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../../js/katex-0.19.0/katex.min.css">
         
+        <script src="../../js/mermaid-8.8.0/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <style>
+          /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
+             give the diagrams dark fills with light lines and text, in the light theme's hues. Being
+             CSS, they also apply when visitors switch the scheme without reloading. */
+          [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel { background-color: #3a3c48 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
+        </style>
+        
 
     
       
@@ -3704,7 +3720,21 @@ on machines with more performance and sending goals to robots operating on less 
 <p>For detailed instructions see <a href="http://wiki.ros.org/ROS/NetworkSetup">ROS Network Setup</a> and the 
 <a href="http://wiki.ros.org/ROS/EnvironmentVariables">ROS Environment Variables</a>.</p>
 <p>The setup between the work machine that handles compute heavy tasks and DiffBot is as follows:</p>
-<p>TODO image</p>
+<div class="mermaid">graph TB
+  subgraph PC [Work machine: your PC]
+    M[roscore:&lt;br/&gt;ROS master]
+    C[RViz, SLAM,&lt;br/&gt;navigation]
+  end
+  subgraph ROBOT [Robot: Raspberry Pi]
+    B[Bringup: drivers,&lt;br/&gt;hardware interface]
+  end
+  T[Teensy: motors&lt;br/&gt;and encoders]
+  C -. 1. register, look up .-&gt; M
+  B -. 1. register, look up .-&gt; M
+  C ---|2. topics and services,&lt;br/&gt;directly, both ways| B
+  B ---|USB, rosserial| T</div>
+<p>The work machine runs the ROS master (<code>roscore</code>). Every node first registers with the master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). So the robot must be able to reach the work machine, and the work machine the robot: ROS needs "full bi-directional connectivity, on all ports" between them (<a href="http://wiki.ros.org/ROS/NetworkSetup">ROS NetworkSetup</a>). Both kinds of traffic go over Wi-Fi or your LAN.</p>
+<p>If the work machine runs the <a href="../../development/dev-container/">dev container</a>, the container shares the PC's network. On Windows with WSL 2, that needs WSL's mirrored networking, see <a href="../../development/dev-container-internals/#network">Network</a>.</p>
 <p>On DiffBot we configure the <code>ROS_MASTER_URI</code> to be the IP address of the work machine.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">export ROS_MASTER_URI=http://192.168.0.9:11311/</span>
 </code></pre></div></td></tr></tbody></table></div>

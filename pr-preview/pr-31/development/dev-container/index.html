@@ -3819,7 +3819,7 @@
 <li><strong>X server and X clients:</strong> Linux GUI programs use the <a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml">X Window System</a> (X11). The <em>X server</em> is the program that draws windows on your screen, so it runs where the screen is. The programs that want windows, like RViz, Gazebo and rqt, are <em>X clients</em>: each one connects to the X server and tells it what to draw. One X server serves many clients, and the clients may run somewhere else, for example in the container. The naming feels backwards at first: the server is on your desk, and the apps are its clients.</li>
 <li><strong>Which X server:</strong> on a Linux desktop, the desktop's own (Xwayland on <a href="https://wayland.freedesktop.org/">Wayland</a> desktops). On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later, see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>) is the X server for Linux programs and shows their windows on the Windows desktop.</li>
 </ul>
-<p><strong>Simulation, no robot needed:</strong> everything runs in the container. Gazebo simulates the robot, RViz shows what it sees. They are X clients, and their windows appear on your screen through the host's X server:</p>
+<p><strong>Simulation, no robot needed:</strong> everything runs in the container. Gazebo simulates the robot, RViz shows what it sees. They are X clients, and their windows appear on your screen through the host's X server (see <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>):</p>
 <div class="mermaid">graph TB
   subgraph HOST [Host: Linux PC, or Ubuntu in WSL 2]
     subgraph DC [Dev container: ROS Noetic]
@@ -3832,21 +3832,7 @@
   GZ --&gt;|X11 socket| XS
   RV --&gt;|X11 socket| XS
   XS --&gt; SCREEN[Windows on&lt;br/&gt;your screen]</div>
-<p><strong>With the real robot:</strong> the robot runs ROS natively on its Raspberry Pi (see <a href="../../packages/packages-setup/">Packages Setup</a>), and the container on your PC joins its ROS network. RViz, mapping and navigation can then run on the PC:</p>
-<div class="mermaid">graph TB
-  subgraph PC [Your PC: dev container]
-    C[RViz, SLAM,&lt;br/&gt;navigation]
-  end
-  subgraph ROBOT [Robot: Raspberry Pi, ROS Noetic]
-    M[roscore:&lt;br/&gt;ROS master]
-    B[Bringup: drivers,&lt;br/&gt;hardware interface]
-  end
-  T[Teensy: motors&lt;br/&gt;and encoders]
-  C -. 1. register, look up .-&gt; M
-  B -. 1. register, look up .-&gt; M
-  C ---|2. topics and services,&lt;br/&gt;directly, both ways| B
-  B ---|USB, rosserial| T</div>
-<p>Every node first registers with the ROS master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). That's why the robot must be able to reach your PC, not only the other way round. Both kinds of traffic go over Wi-Fi or your LAN. The container shares the host's network (see <a href="../dev-container-internals/#network">Network</a>), and the windows reach your screen as described in <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>.</p>
+<p><strong>With the real robot:</strong> the robot runs ROS natively on its Raspberry Pi (see <a href="../../packages/packages-setup/">Packages Setup</a>), and together with the container on your PC it forms one ROS network, with the ROS master on the PC. RViz, mapping and navigation run on the PC. How the PC and the robot connect is described in <a href="../../processing_units/ros-network-setup/">ROS Network Setup</a>.</p>
 <h2 id="requirements">Requirements</h2>
 <ul>
 <li>
