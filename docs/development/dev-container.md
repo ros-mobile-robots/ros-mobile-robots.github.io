@@ -98,46 +98,91 @@ You don't need it on Linux, where the container uses the PC's own network addres
 
 ## Usage
 
-Clone the repository on the host first:
+The steps depend on your PC. Choose your platform:
 
-```console
-git clone https://github.com/ros-mobile-robots/diffbot.git
-cd diffbot
-```
+=== "Linux"
 
-=== "VS Code"
+    1. **Clone the repository** in a terminal:
 
-    Open the `diffbot` folder and choose **Reopen in Container** (or run **Dev Containers: Reopen in Container** from the command palette). The first start builds the image and the workspace, which takes a few minutes.
+        ```console
+        git clone https://github.com/ros-mobile-robots/diffbot.git
+        cd diffbot
+        ```
 
-    **On Windows**, VS Code runs as a Windows program, while Docker Engine runs in the Ubuntu in WSL 2. So VS Code first has to connect to that Ubuntu:
+    2. **Start the container**, in the `diffbot` folder, with one of these:
 
-    1. Install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) next to Dev Containers.
-    2. Clone the repository in a terminal of the Ubuntu, as shown above, not in a Windows folder. In the `diffbot` folder, run `code .` to open it in VS Code ([VS Code and WSL](https://code.visualstudio.com/docs/remote/wsl#_from-the-wsl-terminal)).
-    3. The status bar at the bottom left now shows that the window is connected to WSL. Choose **Reopen in Container**.
+        === "VS Code"
 
-    VS Code documents this way of using Docker Engine in WSL ([Docker options](https://code.visualstudio.com/remote/advancedcontainers/docker-options#_windows-windows-subsystem-for-linux-wsl)). It isn't tested with this project yet; the Dev Container CLI in WSL is.
+            Run `code .` to open the folder in VS Code, or open it from VS Code's menu. Then choose **Reopen in Container** in the notification, or run **Dev Containers: Reopen in Container** from the command palette (++ctrl+shift+p++). The first start builds the image and the workspace, which takes a few minutes.
 
-    VS Code's window stays on your PC and works with a VS Code Server in the container, see [VS Code and the container](dev-container-internals.md#vs-code-and-the-container).
+        === "Dev Container CLI"
 
-=== "Dev Container CLI"
+            ```console
+            devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json
+            devcontainer exec --workspace-folder . --config .devcontainer/noetic/devcontainer.json bash
+            ```
 
-    ```console
-    devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json
-    devcontainer exec --workspace-folder . --config .devcontainer/noetic/devcontainer.json bash
-    ```
+            The first command builds the image and the workspace, which takes a few minutes. The second opens a shell in the container.
 
-=== "Plain Docker"
+        === "Plain Docker"
 
-    The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see [Creating the container](dev-container-internals.md#creating-the-container)).
+            The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see [Creating the container](dev-container-internals.md#creating-the-container)).
 
-    ```console
-    docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .
-    bash .devcontainer/noetic/host-x11.sh
-    docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
-      -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \
-      -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \
-      bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
-    ```
+            ```console
+            docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .
+            bash .devcontainer/noetic/host-x11.sh
+            docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
+              -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \
+              -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \
+              bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
+            ```
+
+=== "Windows (WSL 2)"
+
+    1. **Open the Ubuntu terminal:** start *Ubuntu* from the Start menu, or run `wsl` in PowerShell. Run all the following commands there, not in PowerShell.
+    2. **Clone the repository** into your Ubuntu home folder, not into a Windows folder under `/mnt/c`. Files in the WSL file system are much faster for Linux tools ([WSL file systems](https://learn.microsoft.com/en-us/windows/wsl/filesystems#file-storage-and-performance-across-file-systems)):
+
+        ```console
+        cd ~
+        git clone https://github.com/ros-mobile-robots/diffbot.git
+        cd diffbot
+        ```
+
+    3. **Start the container**, in the `diffbot` folder, with one of these:
+
+        === "VS Code"
+
+            VS Code runs as a Windows program, while Docker Engine runs in the Ubuntu. So VS Code first connects to the Ubuntu, and then to the container:
+
+            1. In VS Code, install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) next to Dev Containers.
+            2. In the Ubuntu terminal, in the `diffbot` folder, run `code .` ([VS Code and WSL](https://code.visualstudio.com/docs/remote/wsl#_from-the-wsl-terminal)). VS Code opens, and the status bar at the bottom left shows that the window is connected to WSL.
+            3. Choose **Reopen in Container** in the notification, or run **Dev Containers: Reopen in Container** from the command palette (++ctrl+shift+p++). The first start builds the image and the workspace, which takes a few minutes.
+
+            VS Code documents this way of using Docker Engine in WSL ([Docker options](https://code.visualstudio.com/remote/advancedcontainers/docker-options#_windows-windows-subsystem-for-linux-wsl)). It isn't tested with this project yet; the Dev Container CLI in WSL is.
+
+        === "Dev Container CLI"
+
+            ```console
+            devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json
+            devcontainer exec --workspace-folder . --config .devcontainer/noetic/devcontainer.json bash
+            ```
+
+            The first command builds the image and the workspace, which takes a few minutes. The second opens a shell in the container.
+
+        === "Plain Docker"
+
+            The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see [Creating the container](dev-container-internals.md#creating-the-container)).
+
+            ```console
+            docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .
+            bash .devcontainer/noetic/host-x11.sh
+            docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
+              -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \
+              -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \
+              bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
+            ```
+
+In VS Code, the window stays on your PC and works with a VS Code Server in the container, see [VS Code and the container](dev-container-internals.md#vs-code-and-the-container).
 
 Inside the container, the workspace is `~/catkin_ws`, already built and sourced. This happens automatically: the image adds `source /opt/ros/noetic/setup.bash` to `~/.bashrc`, and when the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new interactive Bash terminal in the container reads `~/.bashrc`, so ROS and the workspace are ready there. Scripts and other non-interactive commands don't read it; they need to source the two files themselves. Your clone is mounted at `~/catkin_ws/src/diffbot`, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:
 

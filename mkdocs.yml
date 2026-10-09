@@ -4,6 +4,7 @@ theme:
   highlightjs: true
   custom_dir: docs/custom_theme
   features:
+    - content.tabs.link
     - navigation.tabs
     - navigation.top
     - navigation.indexes
