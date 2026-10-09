@@ -182,28 +182,74 @@ The steps depend on your PC. Choose your platform:
               bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
             ```
 
-In VS Code, the window stays on your PC and works with a VS Code Server in the container, see [VS Code and the container](dev-container-internals.md#vs-code-and-the-container).
+### In the container
 
-Inside the container, the workspace is `~/catkin_ws`, already built and sourced. This happens automatically: the image adds `source /opt/ros/noetic/setup.bash` to `~/.bashrc`, and when the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new interactive Bash terminal in the container reads `~/.bashrc`, so ROS and the workspace are ready there. Scripts and other non-interactive commands don't read it; they need to source the two files themselves. Your clone is mounted at `~/catkin_ws/src/diffbot`, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:
+Once the container runs, open a terminal in it: in VS Code with **Terminal → New Terminal**, with the CLI or plain Docker in the shell the commands above opened. ROS and the workspace `~/catkin_ws` are ready. Start the simulation:
 
 ```console
 roslaunch diffbot_control diffbot.launch
 ```
 
-After changing code, rebuild with `catkin build` in `~/catkin_ws`.
+Three windows open:
+
+- **Gazebo** simulates DiffBot in a small test world. The blue rays are its laser scanner.
+- **RViz** shows what the robot knows: its model, its position and the laser scan.
+- **Robot Steering** drives the robot: move the sliders to set its speed and rotation.
+
+<figure>
+  <img src="../images/simulation-gazebo-rviz.png" alt="Gazebo with DiffBot and its laser rays in a test world, RViz with the Displays panel and the laser scan, and the Robot Steering window with speed sliders">
+  <figcaption>Gazebo, RViz and Robot Steering after <code>roslaunch diffbot_control diffbot.launch</code> in the dev container</figcaption>
+</figure>
+
+RViz first shows a notice that ROS 1 has reached its end of life; close it with **OK**. Gazebo shows a similar note in its menu bar.
+
+Your clone is mounted at `~/catkin_ws/src/diffbot`, so edits on the host show up in the container and the other way round. After changing code, rebuild in `~/catkin_ws`:
+
+```console
+catkin build
+```
+
+??? info "Why ROS and the workspace are ready in every terminal"
+    The image adds `source /opt/ros/noetic/setup.bash` to `~/.bashrc`. When the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new interactive Bash terminal reads `~/.bashrc`. Scripts and other non-interactive commands don't; they need to source the two files themselves.
 
 How the image, the container, VS Code, the network and the display access work in detail: [How the Dev Container Works](dev-container-internals.md).
 
 ## Updating
 
-- **New ROS or system dependency:** add it to the package's `package.xml`. Then rebuild the container: **Dev Containers: Rebuild Container** in VS Code, or with the CLI, from the diffbot folder:
+### A new ROS or system dependency
+
+Add it to the package's `package.xml`. Then rebuild the container, so the image installs it with rosdep:
+
+=== "VS Code"
+
+    Run **Dev Containers: Rebuild Container** from the command palette (++ctrl+shift+p++).
+
+=== "Dev Container CLI"
+
+    From the `diffbot` folder on the host:
 
     ```console
-    devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json --remove-existing-container
+    devcontainer up --workspace-folder . \
+      --config .devcontainer/noetic/devcontainer.json \
+      --remove-existing-container
     ```
 
-- **New source dependency:** add the repository to [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), and to the robot's `.repos` file if the robot needs it too.
-- **Tools in the image:** add them to the `apt-get install` list in the Dockerfile.
+=== "Plain Docker"
+
+    Run the `docker build` and `docker run` commands from [Usage](#usage) again.
+
+### A new source dependency
+
+Add the repository to [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), and to the robot's `.repos` file if the robot needs it too. A new container imports it automatically. In a running container, import it and build in `~/catkin_ws`:
+
+```console
+vcs import --skip-existing src < src/diffbot/diffbot_dev.repos
+catkin build
+```
+
+### Tools in the image
+
+Add them to the `apt-get install` list in the [Dockerfile]({{ diffbot_repo_url }}/.devcontainer/noetic/Dockerfile), then rebuild the container as described [above](#a-new-ros-or-system-dependency).
 
 ## Troubleshooting
 
