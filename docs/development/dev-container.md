@@ -73,6 +73,8 @@ The dev container runs on [Docker Engine](https://docs.docker.com/engine/), the 
 
 ### For windows like RViz and Gazebo
 
+RViz, Gazebo and other GUI programs run inside the container, which has no screen of its own. They show their windows on your desktop through your host's X server (see [How the pieces fit together](#how-the-pieces-fit-together)), and the X server has to let them in. This is set up once, depending on your host. It's only needed for the container: with ROS installed directly on your PC, its windows open like those of any other program.
+
 === "Linux"
 
     Install `xauth` on the host:
