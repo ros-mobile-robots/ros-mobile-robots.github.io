@@ -136,7 +136,7 @@ If your work machine runs Windows and ROS runs in WSL 2, for example in the [dev
     export ROS_IP=192.168.0.20
     ```
 
-5. Run the talker and listener test from above in both directions: the talker on the robot with the listener on the PC, and the talker on the PC with the listener on the robot. The second direction is the one that fails behind NAT, because there the robot has to connect to your PC.
+5. Run the talker and listener test from above in both directions: the talker on the robot with the listener on the PC, and the talker on the PC with the listener on the robot. In both, the robot's node has to reach the master on your PC, so behind NAT neither works. The second direction also checks that the robot can connect to a node on your PC, on the random ports ROS picks for it.
 
 !!! warning "Not tested with the robot yet"
     Mirrored networking is Microsoft's fix for exactly this problem, but nobody has tested this setup with DiffBot or Remo yet. If you try it, please tell us in the comments below whether it works.

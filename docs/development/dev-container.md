@@ -63,7 +63,7 @@ The dev container runs on [Docker Engine](https://docs.docker.com/engine/), the 
     Two things are different from Docker Engine:
 
     - The container's "host" is Docker Desktop's virtual machine, not your Ubuntu. Its host network, which this setup uses, is an opt-in feature from version 4.34 (Settings → Resources → Network → **Enable host networking**) and only carries TCP and UDP ([Docker docs](https://docs.docker.com/engine/network/drivers/host/#docker-desktop)).
-    - Docker Desktop is free for personal use, education, non-commercial open source projects and small businesses. Larger companies need a paid subscription ([Docker Desktop license](https://docs.docker.com/subscription/desktop-license/)).
+    - Docker Desktop is free for personal use, education, non-commercial open source projects and small businesses. Larger companies need a paid subscription ([Docker Desktop license](https://docs.docker.com/subscription-billing/desktop-license/)).
 
     Docker Desktop isn't tested with this setup, and especially not with the robot.
 
