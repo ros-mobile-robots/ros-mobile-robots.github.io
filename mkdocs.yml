@@ -104,30 +104,47 @@ plugins:
         ros-network-setup.md: processing_units/ros-network-setup.md
 
 nav:
+  # Seven tabs, see the docs structure review. Only the menu changed: every page keeps its file
+  # and its URL. Pages that aren't listed (the nearly empty theory pages) are still built.
   - Home: index.md
   - Getting Started:
-    - Technical Requirements: technical_requirements.md
-    - Components: components.md
+    - Overview: technical_requirements.md
     - Development Environment:
       - development/dev-container.md
       - How the Dev Container Works: development/dev-container-internals.md
-  - Hardware Setup:
+      - Docker Basics: theory/architecture/docker.md
+  - Hardware:
     - hardware_setup/overview.md
-    - 3D Printing: hardware_setup/3D_print.md
-    - Electronics: hardware_setup/electronics.md
-    - Assembly: hardware_setup/assembly.md
-    - Install: hardware_setup/install.md
-  - Processing Units:
-    - processing_units/index.md
-    - Single Board Computer:
+    - Components (BOM): components.md
+    - Build Remo:
+      - 3D Printing: hardware_setup/3D_print.md
+      - Electronics: hardware_setup/electronics.md
+      - Assembly: hardware_setup/assembly.md
+      - Install: hardware_setup/install.md
+    - Processing Units:
+      - processing_units/index.md
       - Raspberry Pi Setup: processing_units/rpi-setup.md
       - Jetson Nano Setup: processing_units/jetson-nano-setup.md
       - Git Setup: processing_units/git-setup.md
       - ROS Setup: processing_units/ros-setup.md
-    - Microcontroller: processing_units/teensy-mcu.md
-    - Hardware Interfaces: processing_units/hardware-interfaces.md
-    - ROS Network Setup: processing_units/ros-network-setup.md
-  - ROS Software Packages:
+      - ROS Network Setup: processing_units/ros-network-setup.md
+      - Microcontroller: processing_units/teensy-mcu.md
+      - Hardware Interfaces: processing_units/hardware-interfaces.md
+    - Actuators:
+      - Motor and Encoder: DG01D-E-motor-with-encoder.md
+      - Motor Driver (Grove I2C): grove_motor_driver.md
+      - Actuator Basics: theory/actuation.md
+    - Sensors:
+      - LiDAR: laser-range-scanner.md
+      - IMU (BNO055): packages/imu/driver-bno055.md
+      - Cameras:
+        - Raspberry Pi Camera: packages/raspicam_node.md
+        - OAK: oak.md
+      - Ultrasonic Ranger: grove_ultrasonic_ranger.md
+      - Wheel Encoders (LM393): lm393_speed_sensor.md
+    - Power:
+      - Power Supply: power-supply.md
+  - ROS Packages:
     - packages/index.md
     - Packages Setup: packages/packages-setup.md
     - Robot Package: diffbot_robot.md
@@ -142,40 +159,32 @@ nav:
       - Low-Level PID Approach: packages/diffbot_base/low-level.md
       - High-Level PID Approach: packages/diffbot_base/high-level.md
     - Messages: diffbot_msgs.md
-    - Motor Driver: grove_motor_driver.md
-    - Motor and Encoder: DG01D-E-motor-with-encoder.md
+    - Hardware Bringup: diffbot_bringup.md
     - Navigation: diffbot_navigation.md
     - SLAM: diffbot_slam.md
     - Move Base Flex: diffbot_mbf.md
-    - Hardware Bringup: diffbot_bringup.md
-    - Rasperry Pi Camera: packages/raspicam_node.md
-    - Inertial Measurement Unit:
-      - Robot Localization: packages/imu/robot_localization.md
-      - BNO055 Driver: packages/imu/driver-bno055.md
-  - Contributing:
-    - development/index.md
-    - Testing and CI: development/ci.md
+    - Perception: diffbot_perception.md
+    - Localization (robot_localization): packages/imu/robot_localization.md
   - Robotics Theory:
     - theory/index.md
+    # Hidden until written: Linear Algebra, Programming, Pinhole Camera Model, Recursive State Estimation
     - Preliminaries:
-      - Linear Algebra: theory/preliminaries/linear-algebra.md
       - Probability: theory/preliminaries/probability.md
-      - Programming: theory/preliminaries/programming.md
     - Modeling and Control:
       - Introduction to Control Systems: theory/modeling-control/control-systems-introduction.md
       - Representations and models: theory/modeling-control/robot-representations.md
       - Modeling a Differential Drive Robot: theory/modeling-control/modeling-differential-drive-robot.md
       - Odometry: theory/modeling-control/odometry.md
+      - Motion and Odometry: theory/motion-and-odometry.md
     - Robot Vision:
-      - Pinhole Camera Model: theory/robot-vision/pinhole-camera-model.md
       - Camera Calibration: theory/robot-vision/camera-calibration.md
       - Image Processing: theory/robot-vision/image-processing.md
       - Features and Segmentation: theory/robot-vision/features-and-segmentation.md
       - Tracking Image Features: theory/robot-vision/tracking-image-features.md
       - Combining Camera and Lidar: theory/robot-vision/combining-camera-and-lidar.md
+      - Introduction to Neural Networks: theory/object-detection/introduction-to-neural-networks.md
     # - Object Detection: theory/object-detection/overview.md  # planned, not written yet
-    - State Estimation: 
-      - Recursive State Estimation: theory/state-estimation/recursive-state-estimation.md
+    - State Estimation:
       # - Gaussian Filters (Kalman Filter): theory/state-estimation/gaussian-filters.md  # planned, not written yet
       - Nonparametric Filters (Particle Filter): theory/state-estimation/nonparametric-filters.md
     - Localization:
@@ -183,7 +192,7 @@ nav:
       # - Grid and Monte Carlo Localization: theory/localization/grid-and-monte-carlo-localization.md  # planned, not written yet
     # - Mapping:  # planned, not written yet
       # - Occupancy Grid Mapping: theory/mapping/occupancy-grid-mapping.md
-    - Simultaneous Localization and Mapping (SLAM): 
+    - Simultaneous Localization and Mapping (SLAM):
       - SLAM Overview: theory/slam/slam-overview.md
       - Robot Moving and Sensing Notebook: theory/slam/1. Robot Moving and Sensing.ipynb
       - Omega and Xi Constraints Notebook: theory/slam/2. Omega and Xi, Constraints.ipynb
@@ -196,10 +205,9 @@ nav:
     # - Planning II: theory/planning2/overview.md  # planned, not written yet
     # - Learning by Reinforcement: theory/reinforcement-learning/overview.md  # planned, not written yet
     # - Learning by Imitation: theory/imitation-learning/overview.md  # planned, not written yet
-  - Hardware and Theory:
-    - Motion and Odometry: theory/motion-and-odometry.md
-    - Power Supply: power-supply.md
-    - Laser Range Scanner: laser-range-scanner.md
+  - Contributing:
+    - development/index.md
+    - Testing and CI: development/ci.md
   - Insiders: insiders/index.md
 
 # Fail the strict build on links that MkDocs can check: missing pages, missing #anchors,
