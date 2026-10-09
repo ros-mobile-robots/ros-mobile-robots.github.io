@@ -71,7 +71,7 @@ It downloads a small test image and prints a message from the container.
 
 ## For windows like RViz and Gazebo
 
-GUI programs in the container, like RViz and Gazebo, are X clients: they open their windows through the X server on your host.
+RViz, Gazebo and other GUI programs run inside the container, which has no screen of its own. They are X clients: they show their windows on your desktop through your host's X server (see [How the pieces fit together](../development/dev-container.md#how-the-pieces-fit-together)), and the X server has to let them in. This is set up once, depending on your host. It's only needed for the container: with ROS installed directly on your PC, its windows open like those of any other program.
 
 === "Linux"
 
