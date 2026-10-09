@@ -4159,29 +4159,31 @@
 <p>Mirrored networking is Microsoft's fix for exactly this problem, but nobody has tested this setup with DiffBot or Remo yet.</p>
 </div>
 <h2 id="usage">Usage</h2>
-<p>Clone the repository on the host first:</p>
+<p>The steps depend on your PC. Choose your platform:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">Linux</label><label for="__tabbed_3_2">Windows (WSL 2)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ol>
+<li>
+<p><strong>Clone the repository</strong> in a terminal:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
 <span class="go">cd diffbot</span>
 </code></pre></div></td></tr></tbody></table></div>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><input id="__tabbed_3_3" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">VS Code</label><label for="__tabbed_3_2">Dev Container CLI</label><label for="__tabbed_3_3">Plain Docker</label></div>
+</li>
+<li>
+<p><strong>Start the container</strong>, in the <code>diffbot</code> folder, with one of these:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio"><input id="__tabbed_4_2" name="__tabbed_4" type="radio"><input id="__tabbed_4_3" name="__tabbed_4" type="radio"><div class="tabbed-labels"><label for="__tabbed_4_1">VS Code</label><label for="__tabbed_4_2">Dev Container CLI</label><label for="__tabbed_4_3">Plain Docker</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>Open the <code>diffbot</code> folder and choose <strong>Reopen in Container</strong> (or run <strong>Dev Containers: Reopen in Container</strong> from the command palette). The first start builds the image and the workspace, which takes a few minutes.</p>
-<p><strong>On Windows</strong>, VS Code runs as a Windows program, while Docker Engine runs in the Ubuntu in WSL 2. So VS Code first has to connect to that Ubuntu:</p>
-<ol>
-<li>Install the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl">WSL extension</a> next to Dev Containers.</li>
-<li>Clone the repository in a terminal of the Ubuntu, as shown above, not in a Windows folder. In the <code>diffbot</code> folder, run <code>code .</code> to open it in VS Code (<a href="https://code.visualstudio.com/docs/remote/wsl#_from-the-wsl-terminal">VS Code and WSL</a>).</li>
-<li>The status bar at the bottom left now shows that the window is connected to WSL. Choose <strong>Reopen in Container</strong>.</li>
-</ol>
-<p>VS Code documents this way of using Docker Engine in WSL (<a href="https://code.visualstudio.com/remote/advancedcontainers/docker-options#_windows-windows-subsystem-for-linux-wsl">Docker options</a>). It isn't tested with this project yet; the Dev Container CLI in WSL is.</p>
-<p>VS Code's window stays on your PC and works with a VS Code Server in the container, see <a href="../dev-container-internals/#vs-code-and-the-container">VS Code and the container</a>.</p>
+<p>Run <code>code .</code> to open the folder in VS Code, or open it from VS Code's menu. Then choose <strong>Reopen in Container</strong> in the notification, or run <strong>Dev Containers: Reopen in Container</strong> from the command palette (<span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-shift">Shift</kbd><span>+</span><kbd class="key-p">P</kbd></span>). The first start builds the image and the workspace, which takes a few minutes.</p>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json</span>
 <span class="go">devcontainer exec --workspace-folder . --config .devcontainer/noetic/devcontainer.json bash</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>The first command builds the image and the workspace, which takes a few minutes. The second opens a shell in the container.</p>
 </div>
 <div class="tabbed-block">
 <p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see <a href="../dev-container-internals/#creating-the-container">Creating the container</a>).</p>
@@ -4200,6 +4202,64 @@
 </div>
 </div>
 </div>
+</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<ol>
+<li><strong>Open the Ubuntu terminal:</strong> start <em>Ubuntu</em> from the Start menu, or run <code>wsl</code> in PowerShell. Run all the following commands there, not in PowerShell.</li>
+<li>
+<p><strong>Clone the repository</strong> into your Ubuntu home folder, not into a Windows folder under <code>/mnt/c</code>. Files in the WSL file system are much faster for Linux tools (<a href="https://learn.microsoft.com/en-us/windows/wsl/filesystems#file-storage-and-performance-across-file-systems">WSL file systems</a>):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~</span>
+<span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
+<span class="go">cd diffbot</span>
+</code></pre></div></td></tr></tbody></table></div>
+</li>
+<li>
+<p><strong>Start the container</strong>, in the <code>diffbot</code> folder, with one of these:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio"><input id="__tabbed_5_2" name="__tabbed_5" type="radio"><input id="__tabbed_5_3" name="__tabbed_5" type="radio"><div class="tabbed-labels"><label for="__tabbed_5_1">VS Code</label><label for="__tabbed_5_2">Dev Container CLI</label><label for="__tabbed_5_3">Plain Docker</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>VS Code runs as a Windows program, while Docker Engine runs in the Ubuntu. So VS Code first connects to the Ubuntu, and then to the container:</p>
+<ol>
+<li>In VS Code, install the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl">WSL extension</a> next to Dev Containers.</li>
+<li>In the Ubuntu terminal, in the <code>diffbot</code> folder, run <code>code .</code> (<a href="https://code.visualstudio.com/docs/remote/wsl#_from-the-wsl-terminal">VS Code and WSL</a>). VS Code opens, and the status bar at the bottom left shows that the window is connected to WSL.</li>
+<li>Choose <strong>Reopen in Container</strong> in the notification, or run <strong>Dev Containers: Reopen in Container</strong> from the command palette (<span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-shift">Shift</kbd><span>+</span><kbd class="key-p">P</kbd></span>). The first start builds the image and the workspace, which takes a few minutes.</li>
+</ol>
+<p>VS Code documents this way of using Docker Engine in WSL (<a href="https://code.visualstudio.com/remote/advancedcontainers/docker-options#_windows-windows-subsystem-for-linux-wsl">Docker options</a>). It isn't tested with this project yet; the Dev Container CLI in WSL is.</p>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json</span>
+<span class="go">devcontainer exec --workspace-folder . --config .devcontainer/noetic/devcontainer.json bash</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The first command builds the image and the workspace, which takes a few minutes. The second opens a shell in the container.</p>
+</div>
+<div class="tabbed-block">
+<p>The image's user has UID 1000, which is the usual UID of the first user on Linux. With another UID, use VS Code or the CLI, which adapt it (see <a href="../dev-container-internals/#creating-the-container">Creating the container</a>).</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
+<span class="go">bash .devcontainer/noetic/host-x11.sh</span>
+<span class="go">docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \</span>
+<span class="go">  -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \</span>
+<span class="go">  -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \</span>
+<span class="go">  bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh &amp;&amp; bash"</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p>In VS Code, the window stays on your PC and works with a VS Code Server in the container, see <a href="../dev-container-internals/#vs-code-and-the-container">VS Code and the container</a>.</p>
 <p>Inside the container, the workspace is <code>~/catkin_ws</code>, already built and sourced. This happens automatically: the image adds <code>source /opt/ros/noetic/setup.bash</code> to <code>~/.bashrc</code>, and when the container is created, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> builds the workspace with <code>catkin build</code> and adds <code>source ~/catkin_ws/devel/setup.bash</code>. Every new interactive Bash terminal in the container reads <code>~/.bashrc</code>, so ROS and the workspace are ready there. Scripts and other non-interactive commands don't read it; they need to source the two files themselves. Your clone is mounted at <code>~/catkin_ws/src/diffbot</code>, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_control diffbot.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4318,6 +4378,8 @@
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
@@ -4360,7 +4422,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "navigation.tabs", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
