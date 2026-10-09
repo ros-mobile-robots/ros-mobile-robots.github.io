@@ -3992,6 +3992,13 @@
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Open the <code>diffbot</code> folder and choose <strong>Reopen in Container</strong> (or run <strong>Dev Containers: Reopen in Container</strong> from the command palette). The first start builds the image and the workspace, which takes a few minutes.</p>
+<p><strong>On Windows</strong>, VS Code runs as a Windows program, while Docker Engine runs in the Ubuntu in WSL 2. So VS Code first has to connect to that Ubuntu:</p>
+<ol>
+<li>Install the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl">WSL extension</a> next to Dev Containers.</li>
+<li>Clone the repository in a terminal of the Ubuntu, as shown above, not in a Windows folder. In the <code>diffbot</code> folder, run <code>code .</code> to open it in VS Code (<a href="https://code.visualstudio.com/docs/remote/wsl#_from-the-wsl-terminal">VS Code and WSL</a>).</li>
+<li>The status bar at the bottom left now shows that the window is connected to WSL. Choose <strong>Reopen in Container</strong>.</li>
+</ol>
+<p>VS Code documents this way of using Docker Engine in WSL (<a href="https://code.visualstudio.com/remote/advancedcontainers/docker-options#_windows-windows-subsystem-for-linux-wsl">Docker options</a>). It isn't tested with this project yet; the Dev Container CLI in WSL is.</p>
 <p>VS Code's window stays on your PC and works with a VS Code Server in the container, see <a href="../dev-container-internals/#vs-code-and-the-container">VS Code and the container</a>.</p>
 </div>
 <div class="tabbed-block">
