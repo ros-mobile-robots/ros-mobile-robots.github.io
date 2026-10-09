@@ -184,6 +184,9 @@ The steps depend on your PC. Choose your platform:
 
 ### In the container
 
+!!! todo "Screenshot: VS Code in the dev container"
+    A screenshot of VS Code connected to the dev container will follow here: the "Dev Container" item in the status bar, the workspace in the file tree, and a terminal.
+
 Once the container runs, open a terminal in it: in VS Code with **Terminal → New Terminal**, with the CLI or plain Docker in the shell the commands above opened. ROS and the workspace `~/catkin_ws` are ready. Start the simulation:
 
 ```console
