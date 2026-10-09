@@ -55,7 +55,10 @@ The following list shows the most popular detectors belonging to this group:
 Finds keypoints by comparing the brightness levels in a given pixel area.
 Given a pixel $p$ in an image, FAST compares the brightness of $p$ to a set of 16 surrounding pixels that are in a small circle around $p$.
 
-![Source: https://en.wikipedia.org/wiki/Features_from_accelerated_segment_test](https://upload.wikimedia.org/wikipedia/commons/4/47/FAST_Corner_Detector.jpg){ align=left }
+<figure>
+  <img src="../images/FAST_Corner_Detector.jpg" alt="FAST corner detection: the 16 pixels on a circle around the candidate pixel p">
+  <figcaption>Image: Jingjin Huang, Guoqing Zhou, Xiang Zhou and Rongting Zhang, from <a href="https://doi.org/10.3390/s18041014">A New FPGA Architecture of FAST and BRIEF Algorithm for On-Board Corner Detection and Matching</a> (Sensors, 2018), via <a href="https://commons.wikimedia.org/wiki/File:FAST_Corner_Detector.jpg">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></figcaption>
+</figure>
 
 
 Each pixel in this circle is then sorted into three classes, depending on the brightness of the pixel $I_p$ (intensity of pixel $p$):
