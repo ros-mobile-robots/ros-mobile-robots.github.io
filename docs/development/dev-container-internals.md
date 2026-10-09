@@ -51,7 +51,7 @@ The container uses the host's network ([`--network=host`](https://docs.docker.co
 ROS 1 nodes connect to each other directly, in both directions: the machines need "full bi-directional connectivity, on all ports" ([ROS NetworkSetup](http://wiki.ros.org/ROS/NetworkSetup)). So the robot must be able to reach your PC too:
 
 - **Linux PC:** the host's IP address is the PC's address on your network, so this works as usual.
-- **Windows with WSL 2:** by default, WSL 2 sits behind its own network translation (NAT) with a private IP address, and devices on your network can't connect to it. Switch on [mirrored networking](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking) (Windows 11 22H2 or later): add `networkingMode=mirrored` under `[wsl2]` in `%UserProfile%\.wslconfig` ([WSL settings](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)) and run `wsl --shutdown`. WSL then shares Windows' network addresses, and the robot can reach it. Windows' Hyper-V firewall may also need to allow incoming connections, as described on that page. This setup isn't tested with the robot yet.
+- **Windows with WSL 2:** by default, WSL 2 has its own private IP address behind network translation (NAT), and devices on your network can't connect to it. WSL's mirrored networking changes that, see [Work machine on Windows (WSL 2)](../processing_units/ros-network-setup.md#work-machine-on-windows-wsl-2). This isn't tested with the robot yet.
 
 ## GUI apps: X11 and WSLg
 

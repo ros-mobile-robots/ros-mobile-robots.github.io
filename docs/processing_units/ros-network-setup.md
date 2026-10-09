@@ -26,7 +26,7 @@ graph TB
 
 The work machine runs the ROS master (`roscore`). Every node first registers with the master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). So the robot must be able to reach the work machine, and the work machine the robot: ROS needs "full bi-directional connectivity, on all ports" between them ([ROS NetworkSetup](http://wiki.ros.org/ROS/NetworkSetup)). Both kinds of traffic go over Wi-Fi or your LAN.
 
-If the work machine runs the [dev container](../development/dev-container.md), the container shares the PC's network. On Windows with WSL 2, that needs WSL's mirrored networking, see [Network](../development/dev-container-internals.md#network).
+If the work machine runs the [dev container](../development/dev-container.md), the container shares the PC's network ([Network](../development/dev-container-internals.md#network)). On Windows with WSL 2, the robot can't reach it without extra setup, see [Work machine on Windows (WSL 2)](#work-machine-on-windows-wsl-2) below.
 
 
 On DiffBot we configure the `ROS_MASTER_URI` to be the IP address of the work machine.
@@ -97,3 +97,46 @@ fjp.github.io git:(master) rosrun roscpp_tutorials listener
 ```
 
 Note that it can take some time receiving the messages from DiffBot on the work machine, which we can see from the time stamps in the outputs above.
+
+### Work machine on Windows (WSL 2)
+
+If your work machine runs Windows and ROS runs in WSL 2, for example in the [dev container](../development/dev-container.md), the robot usually can't connect to it.
+
+**Why:** by default, WSL 2 runs behind network address translation (NAT). The Ubuntu in WSL gets its own private IP address, often `172.x.x.x`, which only Windows itself can reach ([WSL networking](https://learn.microsoft.com/en-us/windows/wsl/networking)). Connections from WSL to the robot work, but not from the robot to WSL. ROS 1 needs both directions: the robot's nodes connect to the master on your PC, and to your PC's nodes to receive their topics, for example the velocity commands from navigation. Forwarding single ports from Windows to WSL doesn't help either, because every ROS node listens on random ports.
+
+**Fix: mirrored networking.** On Windows 11 22H2 or later, WSL can mirror Windows' network interfaces. The Ubuntu in WSL then has the same IP address as Windows, and devices on your network can connect to it directly ([mirrored mode](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking)). The dev container uses this network too, because it shares WSL's network.
+
+1. In Windows, create or edit the file `%UserProfile%\.wslconfig` ([WSL settings](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)):
+
+    ```ini
+    [wsl2]
+    networkingMode=mirrored
+    ```
+
+2. Run `wsl --shutdown` in PowerShell and open Ubuntu again. `hostname -I` in Ubuntu should now show your PC's address on the network, for example `192.168.0.9`.
+3. Allow the robot through the Hyper-V firewall, which filters connections to WSL. In PowerShell as administrator, with the robot's IP address:
+
+    ```powershell
+    New-NetFirewallHyperVRule -Name ROS-robot -DisplayName "ROS robot" `
+      -Direction Inbound -Action Allow -RemoteAddresses 192.168.0.20 `
+      -VMCreatorId '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}'
+    ```
+
+    This only lets the robot in. The `-VMCreatorId` is WSL's fixed ID ([Hyper-V firewall](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/hyper-v-firewall)). Microsoft's [mirrored mode](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking) section also shows how to allow all incoming connections to WSL.
+
+4. Tell ROS which addresses to use ([ROS environment variables](http://wiki.ros.org/ROS/EnvironmentVariables)):
+
+    ```bash
+    # On the PC, in the container
+    export ROS_MASTER_URI=http://192.168.0.9:11311
+    export ROS_IP=192.168.0.9
+
+    # On the robot
+    export ROS_MASTER_URI=http://192.168.0.9:11311
+    export ROS_IP=192.168.0.20
+    ```
+
+5. Run the talker and listener test from above in both directions: the talker on the robot with the listener on the PC, and the talker on the PC with the listener on the robot. The second direction is the one that fails behind NAT, because there the robot has to connect to your PC.
+
+!!! warning "Not tested with the robot yet"
+    Mirrored networking is Microsoft's fix for exactly this problem, but nobody has tested this setup with DiffBot or Remo yet. If you try it, please tell us in the comments below whether it works.
