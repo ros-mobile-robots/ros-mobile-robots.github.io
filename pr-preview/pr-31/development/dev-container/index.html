@@ -4074,6 +4074,7 @@
 <h3 id="a-way-to-start-the-container">A way to start the container</h3>
 <p><a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a> is the easiest. The <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> works from a terminal (<code>npm install -g @devcontainers/cli</code>, which needs Node.js). Plain Docker works too. All three are shown under <a href="#usage">Usage</a>.</p>
 <h3 id="for-windows-like-rviz-and-gazebo">For windows like RViz and Gazebo</h3>
+<p>RViz, Gazebo and other GUI programs run inside the container, which has no screen of its own. They show their windows on your desktop through your host's X server (see <a href="#how-the-pieces-fit-together">How the pieces fit together</a>), and the X server has to let them in. This is set up once, depending on your host. It's only needed for the container: with ROS installed directly on your PC, its windows open like those of any other program.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Linux</label><label for="__tabbed_2_2">Windows (WSL 2)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
