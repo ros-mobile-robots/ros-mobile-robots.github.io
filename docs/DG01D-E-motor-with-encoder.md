@@ -54,7 +54,7 @@ The pins on the product are as follows, when looking at the connector on the hou
 The following image shows the motor from its side with the corresponding pin descriptions:
 
 <figure>
-    <a href="https://raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"><img src="https://raw.githubusercontent.com/fjp/fjp.github.io/master/assets/collections/diffbot/components/dg01d-e-motor-with-encoder-pins.png"></a>
+    <a href="{{ asset_dir }}/hardware/dg01d-e-motor-with-encoder-pins.png"><img src="{{ asset_dir }}/hardware/dg01d-e-motor-with-encoder-pins.png" alt="DG01D-E motor with encoder: pin descriptions"></a>
     <figcaption>DG01D-E Motor with encoder pin description.</figcaption>
 </figure>
 

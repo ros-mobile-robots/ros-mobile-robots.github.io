@@ -13,6 +13,6 @@ In the figure below we can see, that the side with the communication cable is po
 In case the cable should be mounted in the opposite direction, it is necessary to adapt the origin of the laser link in the robot description.
 
 <figure>
-    <a href="https://raw.githubusercontent.com/robopeak/rplidar_ros/master/rplidar_A2.png"><img src="https://raw.githubusercontent.com/robopeak/rplidar_ros/master/rplidar_A2.png"></a>
-    <figcaption>Installation manual for RPLidar A2 (source: [robopeak/rplidar_ros/](https://github.com/robopeak/rplidar_ros/wiki/How-to-use-rplidar).</figcaption>
+    <a href="{{ asset_dir }}/hardware/lidar/rplidar_A2.png"><img src="{{ asset_dir }}/hardware/lidar/rplidar_A2.png" alt="RPLidar A2 installation drawing"></a>
+    <figcaption>Installation manual for RPLidar A2 (source: <a href="https://github.com/robopeak/rplidar_ros/wiki/How-to-use-rplidar">robopeak/rplidar_ros</a>, RoboPeak Team and Shanghai Slamtec, <a href="{{ asset_dir }}/hardware/lidar/rplidar_ros-LICENSE.txt">BSD 2-Clause License</a>).</figcaption>
 </figure>
