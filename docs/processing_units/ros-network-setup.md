@@ -8,7 +8,25 @@ For detailed instructions see [ROS Network Setup](http://wiki.ros.org/ROS/Networ
 
 The setup between the work machine that handles compute heavy tasks and DiffBot is as follows:
 
-TODO image
+```mermaid
+graph TB
+  subgraph PC [Work machine: your PC]
+    M[roscore:<br/>ROS master]
+    C[RViz, SLAM,<br/>navigation]
+  end
+  subgraph ROBOT [Robot: Raspberry Pi]
+    B[Bringup: drivers,<br/>hardware interface]
+  end
+  T[Teensy: motors<br/>and encoders]
+  C -. 1. register, look up .-> M
+  B -. 1. register, look up .-> M
+  C ---|2. topics and services,<br/>directly, both ways| B
+  B ---|USB, rosserial| T
+```
+
+The work machine runs the ROS master (`roscore`). Every node first registers with the master and asks it where the other nodes are (1). After that, the nodes send their topics and services directly to each other, in both directions (2). So the robot must be able to reach the work machine, and the work machine the robot: ROS needs "full bi-directional connectivity, on all ports" between them ([ROS NetworkSetup](http://wiki.ros.org/ROS/NetworkSetup)). Both kinds of traffic go over Wi-Fi or your LAN.
+
+If the work machine runs the [dev container](../development/dev-container.md), the container shares the PC's network. On Windows with WSL 2, that needs WSL's mirrored networking, see [Network](../development/dev-container-internals.md#network).
 
 
 On DiffBot we configure the `ROS_MASTER_URI` to be the IP address of the work machine.

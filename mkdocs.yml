@@ -100,6 +100,7 @@ plugins:
         projects/diffbot/URDF.md: robot-description.md
         projects/diffbot/components.md: components.md
         diffbot_base.md: packages/diffbot_base/index.md
+        ros-network-setup.md: processing_units/ros-network-setup.md
 
 nav:
   - Home: index.md
