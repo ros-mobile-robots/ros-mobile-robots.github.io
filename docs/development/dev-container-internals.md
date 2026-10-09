@@ -1,6 +1,6 @@
 # How the Dev Container Works
 
-What the files in diffbot's `.devcontainer/noetic/` folder do, and how the image, the container, the network and the display access are set up. To install and use the dev container, see [Development Environment](dev-container.md).
+What the files in diffbot's `.devcontainer/noetic/` folder do, and how the image, the container, VS Code, the network and the display access are set up. To install and use the dev container, see [Development Environment](dev-container.md).
 
 | File in diffbot | Purpose |
 |:----------------|:--------|
@@ -34,6 +34,15 @@ When the container is created, the [devcontainer.json]({{ diffbot_repo_url }}/.d
 3. **In the container:** [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) runs once. It imports `rplidar_ros` and `remo_description` with [`vcs import`](https://github.com/dirk-thomas/vcstool) from [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), runs `rosdep install` again for anything added since the image was built, builds the workspace with `catkin build` and adds the workspace to `~/.bashrc`.
 
 `remo_description` contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its [README](https://github.com/ros-mobile-robots/remo_description#stl-mesh-files). DiffBot's own meshes are part of `diffbot_description`.
+
+## VS Code and the container
+
+With the [Dev Containers extension](https://code.visualstudio.com/docs/devcontainers/containers), VS Code is split in two. Its window, with the editor, the theme and other UI extensions, runs on your PC as a normal program (on Windows, as a Windows program). The extension installs a VS Code Server in the container ([Remote Development](https://code.visualstudio.com/docs/remote/remote-overview)), and the workspace extensions, the terminals, the build, the running programs and the debugger run there, with full access to ROS and the container's tools. The source code stays on the host and is mounted into the container (see [Creating the container](#creating-the-container) above), so your files remain when the container is removed.
+
+<figure>
+  <img src="../images/vscode-dev-container-architecture.png" alt="VS Code dev container architecture: VS Code on the local OS, VS Code Server and tools in the container, source code mounted from the local OS into the container">
+  <figcaption>Diagram: <a href="https://code.visualstudio.com/docs/devcontainers/containers">Visual Studio Code documentation</a>, Microsoft, <a href="https://creativecommons.org/licenses/by/3.0/us/">CC BY 3.0 US</a></figcaption>
+</figure>
 
 ## Network
 

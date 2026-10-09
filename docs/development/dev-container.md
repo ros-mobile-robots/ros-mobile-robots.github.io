@@ -13,13 +13,6 @@ A few terms first:
 - **X server and X clients:** Linux GUI programs use the [X Window System](https://www.x.org/releases/current/doc/man/man7/X.7.xhtml) (X11). The *X server* is the program that draws windows on your screen, so it runs where the screen is. The programs that want windows, like RViz, Gazebo and rqt, are *X clients*: each one connects to the X server and tells it what to draw. One X server serves many clients, and the clients may run somewhere else, for example in the container. The naming feels backwards at first: the server is on your desk, and the apps are its clients.
 - **Which X server:** on a Linux desktop, the desktop's own (Xwayland on [Wayland](https://wayland.freedesktop.org/) desktops). On Windows, [WSLg](https://github.com/microsoft/wslg) (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later, see the [prerequisites](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps)) is the X server for Linux programs and shows their windows on the Windows desktop.
 
-How VS Code works with a dev container: its window runs on your PC, while a VS Code server, the terminals, the build and the running programs are in the container. The source code stays on your PC and is mounted into the container.
-
-<figure>
-  <img src="../images/vscode-dev-container-architecture.png" alt="VS Code dev container architecture: VS Code on the local OS, VS Code Server and tools in the container, source code mounted from the local OS into the container">
-  <figcaption>Diagram: <a href="https://code.visualstudio.com/docs/devcontainers/containers">Visual Studio Code documentation</a>, Microsoft, <a href="https://creativecommons.org/licenses/by/3.0/us/">CC BY 3.0 US</a></figcaption>
-</figure>
-
 **Simulation, no robot needed:** everything runs in the container. Gazebo simulates the robot, RViz shows what it sees. They are X clients, and their windows appear on your screen through the host's X server:
 
 ```mermaid
@@ -89,6 +82,8 @@ cd diffbot
 
     Open the `diffbot` folder and choose **Reopen in Container** (or run **Dev Containers: Reopen in Container** from the command palette). The first start builds the image and the workspace, which takes a few minutes.
 
+    VS Code's window stays on your PC and works with a VS Code Server in the container, see [VS Code and the container](dev-container-internals.md#vs-code-and-the-container).
+
 === "Dev Container CLI"
 
     ```console
@@ -117,7 +112,7 @@ roslaunch diffbot_control diffbot.launch
 
 After changing code, rebuild with `catkin build` in `~/catkin_ws`.
 
-How the image, the container, the network and the display access work in detail: [How the Dev Container Works](dev-container-internals.md).
+How the image, the container, VS Code, the network and the display access work in detail: [How the Dev Container Works](dev-container-internals.md).
 
 ## Updating
 
