@@ -1,6 +1,6 @@
 # How the Dev Container Works
 
-What the files in diffbot's `.devcontainer/noetic/` folder do, and how the image, the container, VS Code, the network and the display access are set up. To install and use the dev container, see [Development Environment](dev-container.md).
+What the files in diffbot's [`.devcontainer/noetic/`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/.devcontainer/noetic) folder do, and how the image, the container, VS Code, the network and the display access are set up. To install and use the dev container, see [Development Environment](dev-container.md).
 
 | File in diffbot | Purpose |
 |:----------------|:--------|
