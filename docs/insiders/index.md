@@ -126,7 +126,7 @@ The following features are solely available via DiffBot and Remo Insiders:
 
 <div class="mdx-columns" markdown>
 
-- [x] [Remo STL files](#remo-stl-files) :material-new-box:
+- [x] [Remo's STL files in a private Git repository](#remo-stl-files) :material-new-box:
 - [x] [TBA] :material-new-box:
 - [x] [TBA]
 
@@ -134,7 +134,7 @@ The following features are solely available via DiffBot and Remo Insiders:
 
 ### Remo STL files
 
-Remo Insiders, the private repository `remo_description_insiders`, is a version of [Remo Description](../packages/remo_description.md) with all of Remo's STL files. The public repository only has empty placeholders for them. The STL files are stored with Git LFS.
+Remo Insiders, the private repository `remo_description_insiders`, is a version of [Remo Description](../packages/remo_description.md) with all of Remo's STL files. The public repository only has empty placeholders for them. The STL files are stored with Git LFS. The files themselves are also sold on Gumroad (see below); what Insiders adds is a Git repository you can clone and pull.
 
 With access to Remo Insiders (see [how to become a sponsor]):
 
