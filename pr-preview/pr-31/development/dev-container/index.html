@@ -901,6 +901,56 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker on the host
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-way-to-start-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A way to start the container
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-windows-like-rviz-and-gazebo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        For windows like RViz and Gazebo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-robot-from-windows-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real robot from Windows (optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3750,6 +3800,56 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker on the host
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-way-to-start-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A way to start the container
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-windows-like-rviz-and-gazebo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        For windows like RViz and Gazebo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-robot-from-windows-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real robot from Windows (optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3834,33 +3934,61 @@
   XS --&gt; SCREEN[Windows on&lt;br/&gt;your screen]</div>
 <p><strong>With the real robot:</strong> the robot runs ROS natively on its Raspberry Pi (see <a href="../../packages/packages-setup/">Packages Setup</a>), and together with the container on your PC it forms one ROS network, with the ROS master on the PC. RViz, mapping and navigation run on the PC. How the PC and the robot connect is described in <a href="../../processing_units/ros-network-setup/">ROS Network Setup</a>.</p>
 <h2 id="requirements">Requirements</h2>
-<ul>
-<li>
-<p><strong>Docker Engine on the host:</strong> <a href="https://docs.docker.com/engine/">Docker Engine</a> on your Linux PC, or inside the Ubuntu in WSL 2. That's the tested setup. To install it on Ubuntu, including the Ubuntu in WSL 2:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker.io docker-compose-v2 docker-buildx</span>
-<span class="go">sudo usermod -aG docker $USER</span>
+<h3 id="docker-on-the-host">Docker on the host</h3>
+<p>The dev container runs on <a href="https://docs.docker.com/engine/">Docker Engine</a>, the part of Docker that builds images and runs containers. There are two ways to get it: install Docker Engine directly in your Linux (on Windows, in the Ubuntu in WSL 2), or install Docker Desktop, an app that brings its own Docker Engine. Use one of them, not both. Docker Engine is the tested setup.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Docker Engine (tested)</label><label for="__tabbed_1_2">Docker Desktop (untested)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Install Docker Engine as described in Docker's guide <a href="https://docs.docker.com/engine/install/ubuntu/">Install Docker Engine on Ubuntu</a>, with Docker's apt repository. This works the same in the Ubuntu in WSL 2.</p>
+<p>Ubuntu's own packages work too, and this setup was tested with them (Docker 29 on Ubuntu 24.04). Docker calls them unofficial, and they can be older than Docker's releases:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker.io docker-buildx</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Log out and in again so the new <code>docker</code> group applies (see Docker's <a href="https://docs.docker.com/engine/install/linux-postinstall/">post-installation steps</a>). On WSL 2, run <code>wsl --shutdown</code> in Windows PowerShell and open Ubuntu again.</p>
-<p><a href="https://docs.docker.com/desktop/">Docker Desktop</a> runs Docker in its own separate virtual machine, so its "host" isn't your Ubuntu. Its host network, which this setup uses, is an opt-in feature from version 4.34 (Settings → Resources → Network → <strong>Enable host networking</strong>) and only carries TCP and UDP, unlike on Linux (<a href="https://docs.docker.com/engine/network/drivers/host/#docker-desktop">Docker docs</a>). Docker Desktop isn't tested with this setup, and especially not with the robot.</p>
-</li>
-<li>
-<p><strong>A way to start the container:</strong> <a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a>, the <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> (<code>npm install -g @devcontainers/cli</code>), or plain Docker.</p>
-</li>
-<li><strong>For windows like RViz and Gazebo:</strong><ul>
-<li>On Windows with WSL 2: nothing to install, WSLg shows them on the Windows desktop.</li>
-<li>On a Linux desktop: install <code>xauth</code> on the host (<code>sudo apt install xauth</code>). With the usual cookie-based setup, the X server only accepts clients that present the display's <em>cookie</em>. In X11, a cookie is a secret: a random 128-bit value that your desktop creates when you log in. Clients without it, for example other users' programs, can't draw on your screen or read it. Any client that has the cookie can connect, which is how the container gets access (<a href="https://www.x.org/releases/current/doc/man/man7/Xsecurity.7.xhtml">X security</a>). It has nothing to do with web cookies. <a href="https://www.x.org/releases/current/doc/man/man1/xauth.1.xhtml"><code>xauth</code></a> is the standard tool for these cookies, and the setup uses it to hand yours to the container (see <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>).</li>
+<p>Either way, then follow Docker's <a href="https://docs.docker.com/engine/install/linux-postinstall/">post-installation steps</a>, so you can use Docker without <code>sudo</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo usermod -aG docker $USER</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Log out and in again so the new <code>docker</code> group applies. On WSL 2, run <code>wsl --shutdown</code> in Windows PowerShell and open Ubuntu again. Docker runs as a systemd service, which WSL turns on by default for current Ubuntu versions (<a href="https://learn.microsoft.com/en-us/windows/wsl/systemd">systemd in WSL</a>).</p>
+</div>
+<div class="tabbed-block">
+<p><a href="https://docs.docker.com/desktop/">Docker Desktop</a> is an app for Windows, macOS and Linux that runs Docker Engine in its own virtual machine. On Windows, that's a separate WSL distribution called <code>docker-desktop</code>, and its <a href="https://docs.docker.com/desktop/features/wsl/">WSL integration</a> makes the <code>docker</code> command available in your Ubuntu. Uninstall Docker Engine from your Ubuntu first, because the two conflict.</p>
+<p>Two things are different from Docker Engine:</p>
+<ul>
+<li>The container's "host" is Docker Desktop's virtual machine, not your Ubuntu. Its host network, which this setup uses, is an opt-in feature from version 4.34 (Settings → Resources → Network → <strong>Enable host networking</strong>) and only carries TCP and UDP (<a href="https://docs.docker.com/engine/network/drivers/host/#docker-desktop">Docker docs</a>).</li>
+<li>Docker Desktop is free for personal use, education, non-commercial open source projects and small businesses. Larger companies need a paid subscription (<a href="https://docs.docker.com/subscription-billing/desktop-license/">Docker Desktop license</a>).</li>
 </ul>
-</li>
-<li><strong>For the real robot from WSL 2:</strong> WSL's mirrored networking, so the robot can reach your PC (see <a href="../dev-container-internals/#network">Network</a>). Simulation doesn't need it.</li>
-</ul>
+<p>Docker Desktop isn't tested with this setup, and especially not with the robot.</p>
+</div>
+</div>
+</div>
+<h3 id="a-way-to-start-the-container">A way to start the container</h3>
+<p><a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a> is the easiest. The <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> works from a terminal (<code>npm install -g @devcontainers/cli</code>, which needs Node.js). Plain Docker works too. All three are shown under <a href="#usage">Usage</a>.</p>
+<h3 id="for-windows-like-rviz-and-gazebo">For windows like RViz and Gazebo</h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Linux</label><label for="__tabbed_2_2">Windows (WSL 2)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Install <code>xauth</code> on the host:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install xauth</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>With the usual cookie-based setup, the X server only accepts clients that present the display's <em>cookie</em>. In X11, a cookie is a secret: a random 128-bit value that your desktop creates when you log in. Clients without it, for example other users' programs, can't draw on your screen or read it. Any client that has the cookie can connect, which is how the container gets access (<a href="https://www.x.org/releases/current/doc/man/man7/Xsecurity.7.xhtml">X security</a>). It has nothing to do with web cookies. <a href="https://www.x.org/releases/current/doc/man/man1/xauth.1.xhtml"><code>xauth</code></a> is the standard tool for these cookies, and the setup uses it to hand yours to the container (see <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>).</p>
+</div>
+<div class="tabbed-block">
+<p>Nothing to install: WSLg shows the windows on the Windows desktop. It's part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later (see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>).</p>
+</div>
+</div>
+</div>
+<h3 id="real-robot-from-windows-optional">Real robot from Windows (optional)</h3>
+<p>Only needed if your PC runs Windows and you want to connect to the real robot. By default, WSL 2 sits behind its own network translation (NAT), so the robot can't connect to your PC, and ROS 1 needs connections in both directions. WSL's <em>mirrored networking</em> removes that barrier. Why, how to set it up and how to test it: <a href="../../processing_units/ros-network-setup/#work-machine-on-windows-wsl-2">Work machine on Windows (WSL 2)</a>.</p>
+<p>You don't need it on Linux, where the container uses the PC's own network address. You also don't need it for simulation, because then all ROS nodes run in the container on your PC, and no other device has to connect to it.</p>
+<div class="admonition warning">
+<p class="admonition-title">Not tested with the robot yet</p>
+<p>Mirrored networking is Microsoft's fix for exactly this problem, but nobody has tested this setup with DiffBot or Remo yet.</p>
+</div>
 <h2 id="usage">Usage</h2>
 <p>Clone the repository on the host first:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
 <span class="go">cd diffbot</span>
 </code></pre></div></td></tr></tbody></table></div>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">VS Code</label><label for="__tabbed_1_2">Dev Container CLI</label><label for="__tabbed_1_3">Plain Docker</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><input id="__tabbed_3_3" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">VS Code</label><label for="__tabbed_3_2">Dev Container CLI</label><label for="__tabbed_3_3">Plain Docker</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Open the <code>diffbot</code> folder and choose <strong>Reopen in Container</strong> (or run <strong>Dev Containers: Reopen in Container</strong> from the command palette). The first start builds the image and the workspace, which takes a few minutes.</p>
