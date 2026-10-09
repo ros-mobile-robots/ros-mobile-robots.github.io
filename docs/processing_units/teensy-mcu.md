@@ -1,6 +1,22 @@
+## Why a Microcontroller?
+
+A [microcontroller](https://en.wikipedia.org/wiki/Microcontroller) (MCU) is a small computer on a single chip, with its own processor, memory and input and output pins. It runs one program, usually without an operating system, so it can react to a signal within microseconds.
+
+The robot's single board computer, a Raspberry Pi, runs Linux and ROS: mapping, navigation and the connection to your PC. But Linux isn't a [real-time operating system](https://en.wikipedia.org/wiki/Real-time_operating_system): many processes share the processor, and Linux doesn't guarantee when a program gets its turn. Driving the motors needs exactly that:
+
+- **Counting encoder pulses:** every pulse from the wheel encoders has to be counted, also while Linux is busy with other work. A missed pulse means a wrong distance.
+- **Speed control:** the PID controllers that keep the wheels at the commanded speed have to run at a steady rate (see the [low-level PID approach](../packages/diffbot_base/low-level.md)).
+
+So the microcontroller does this time-critical work: it counts the encoder pulses, runs the speed control and drives the motors through the motor driver. Over USB, it reports the encoder counts to the Raspberry Pi and receives the commanded wheel speeds.
+
 ## Which Microcontroller?
 
-The firmware in [`diffbot_base/scripts/base_controller`]({{ diffbot_repo_url }}/diffbot_base/scripts/base_controller) runs on a Teensy. It has two PlatformIO environments, and CI builds both:
+The firmware in [`diffbot_base/scripts/base_controller`]({{ diffbot_repo_url }}/diffbot_base/scripts/base_controller) runs on a [Teensy](https://www.pjrc.com/teensy/), a small board by PJRC with a 32-bit ARM processor. It's programmed like an Arduino, with the [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html) add-on or PlatformIO, so most Arduino code works on it. Two things make it a good fit here:
+
+- **Interrupts on every digital pin:** the firmware counts the encoders with PJRC's [Encoder library](https://www.pjrc.com/teensy/td_libs_Encoder.html), which works best when both signals of an encoder are on interrupt pins. On the Teensy, all digital pins are; an Arduino Uno has only two, pins 2 and 3.
+- **Speed and memory to spare:** a faster processor and much more RAM than the classic Arduinos, which leaves room for rosserial (see [below](#other-boards-such-as-an-arduino)).
+
+The firmware has two PlatformIO environments, and CI builds both:
 
 | Board | Robot | PlatformIO environment |
 |:------|:------|:-----------------------|
@@ -22,14 +38,20 @@ The firmware talks to ROS with [rosserial](http://wiki.ros.org/rosserial): the b
 
 [Discussion #94](https://github.com/ros-mobile-robots/diffbot/discussions/94) is one attempt. A port to an Arduino Mega 2560 kept failing with "Unable to sync with device", "Mismatched protocol version" and checksum errors. Tight memory was one suspected cause, alongside message rates, baud rate and the ported code, but the cause wasn't confirmed. Ports to STM32 boards with 64 KB and 128 KB RAM then connected, but still had sync and checksum errors, and the builder ordered a Teensy.
 
-### Without rosserial: the Andino approach
+### Without rosserial: a simple serial protocol
 
-[Andino](https://github.com/Ekumen-OS/andino), a ROS 2 robot similar to DiffBot, runs no ROS code on its Arduino. Instead:
+A different design avoids running ROS on the board at all. In [ros_arduino_bridge](https://github.com/hbrobotics/ros_arduino_bridge), a ROS 1 project, the Arduino firmware only understands a few short text commands over the serial port ([`commands.h`](https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/commands.h)), and a Python node on the computer translates between them and ROS topics. For example:
 
-- The single board computer runs the ros2_control hardware interface. It talks to the Arduino over USB with [libserial](https://libserial.readthedocs.io/) ([`motor_driver.cpp`](https://github.com/Ekumen-OS/andino/blob/humble/andino_base/src/motor_driver.cpp)).
-- The Arduino firmware only understands a few short text commands ([`commands.h`](https://github.com/Ekumen-OS/andino/blob/humble/andino_firmware/src/commands.h)), an idea from [ros_arduino_bridge](https://github.com/hbrobotics/ros_arduino_bridge). For example, `e` reads the encoders, `o <left> <right>` sets the PWM, `m <left> <right>` sets a closed-loop speed in ticks per second, and `u <kp>:<kd>:<ki>:<ko>` sets the PID gains, where Ko divides the PID output to scale it.
+| Command | Meaning |
+|:--------|:--------|
+| `e` | Read both encoder counts |
+| `r` | Reset the encoder counts |
+| `m <left> <right>` | Set the wheel speeds, in encoder ticks per second; the firmware's PID controllers keep them |
+| `u <kp>:<kd>:<ki>:<ko>` | Set the PID gains; `ko` divides the PID output to scale it |
 
-Because the board only parses short commands and runs no ROS node, a small Arduino is enough. This is an option for the ROS 2 firmware on the [roadmap](https://github.com/orgs/ros-mobile-robots/projects/3).
+For safety, the motors stop by default when no new speed command arrives for two seconds. Because the board only parses short commands and keeps no ROS message buffers, a small Arduino is enough.
+
+The same protocol also works with ROS 2: [diffdrive_arduino](https://github.com/joshnewans/diffdrive_arduino) is a ros2_control hardware interface for this firmware, and its author's [fork of ros_arduino_bridge](https://github.com/joshnewans/ros_arduino_bridge) adds a command for raw PWM values (`o <left> <right>`). It's an option for DiffBot's ROS 2 firmware, which is on the [roadmap](https://github.com/orgs/ros-mobile-robots/projects/3).
 
 ## Teensy Setup
 
