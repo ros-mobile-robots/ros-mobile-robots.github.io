@@ -11,7 +11,7 @@ The following steps will be performed on both, the workstation/development PC an
 ## Git: clone diffbot repository
 
 After setting up ROS on your workstation PC and the SBC (either [Raspberry Pi 4B](../processing_units/rpi-setup.md) or [Jetson Nano](../processing_units/jetson-nano-setup.md)),
-create a ros workspace in your users home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}):
+create a ros workspace in your users home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}). Git is described in [Git and GitHub](../getting-started/git-and-github.md):
 
 ```
 mkdir -p ~/ros_ws/src
