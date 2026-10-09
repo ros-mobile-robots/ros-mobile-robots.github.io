@@ -1,6 +1,6 @@
 # How the Dev Container Works
 
-What the files in diffbot's [`.devcontainer/noetic/`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/.devcontainer/noetic) folder do, and how the image, the container, VS Code, the network and the display access are set up. To install and use the dev container, see [Development Environment](dev-container.md).
+What the files in diffbot's [`.devcontainer/noetic/`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/.devcontainer/noetic) folder do, and how the image, the container, VS Code, the network and the display access are set up. To install and use the dev container, see [Use the Dev Container](dev-container.md).
 
 | File in diffbot | Purpose |
 |:----------------|:--------|
@@ -33,7 +33,7 @@ When the container is created, the [devcontainer.json]({{ diffbot_repo_url }}/.d
 2. **Build and start:** the image is built, and the container starts with your clone mounted at `~/catkin_ws/src/diffbot`. VS Code and the CLI change the UID and GID of the user `ros` to yours, so files created in the container belong to you on the host ([`updateRemoteUserUID`](https://containers.dev/implementors/json_reference/)).
 3. **In the container:** [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) runs once. It imports `rplidar_ros` and `remo_description` with [`vcs import`](https://github.com/dirk-thomas/vcstool) from [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), runs `rosdep install` again for anything added since the image was built, builds the workspace with `catkin build` and adds the workspace to `~/.bashrc`.
 
-`remo_description` contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its [README](https://github.com/ros-mobile-robots/remo_description#stl-mesh-files). DiffBot's own meshes are part of `diffbot_description`.
+The container imports the public `remo_description`, which has empty placeholder STL files, so Remo has no meshes in RViz and Gazebo. The real files come from the Gumroad download described in its [README](https://github.com/ros-mobile-robots/remo_description#stl-mesh-files), or from [Remo Insiders](../insiders/index.md#remo-stl-files). The dev container doesn't fetch them for you yet ([diffbot#104](https://github.com/ros-mobile-robots/diffbot/issues/104)). DiffBot's own meshes are part of `diffbot_description`.
 
 ## VS Code and the container
 
@@ -67,7 +67,7 @@ On Windows, [WSLg](https://github.com/microsoft/wslg) provides the X server and 
       <figcaption>Diagram: <a href="https://github.com/microsoft/wslg">WSLg</a>, Microsoft, <a href="https://github.com/microsoft/wslg/blob/main/LICENSE">MIT License</a> (<a href="../images/WSLg-LICENSE.txt">license text</a>)</figcaption>
     </figure>
 
-A native Linux desktop (X11, or Wayland with Xwayland) usually uses cookie-based access control: it only accepts clients that present the display's cookie (`MIT-MAGIC-COOKIE-1`, see [Requirements](dev-container.md#requirements)). [`host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) copies that cookie for the container, the method from the [ROS Docker GUI tutorial](http://wiki.ros.org/docker/Tutorials/GUI):
+A native Linux desktop (X11, or Wayland with Xwayland) usually uses cookie-based access control: it only accepts clients that present the display's cookie (`MIT-MAGIC-COOKIE-1`, see [Set Up Your PC](../getting-started/set-up-your-pc.md#for-windows-like-rviz-and-gazebo)). [`host-x11.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/host-x11.sh) copies that cookie for the container, the method from the [ROS Docker GUI tutorial](http://wiki.ros.org/docker/Tutorials/GUI):
 
 ```bash
 xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f "$tmp_file" nmerge -

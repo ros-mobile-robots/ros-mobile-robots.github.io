@@ -126,11 +126,28 @@ The following features are solely available via DiffBot and Remo Insiders:
 
 <div class="mdx-columns" markdown>
 
-- [x] [TBA] :material-new-box:
+- [x] [Remo STL files](#remo-stl-files) :material-new-box:
 - [x] [TBA] :material-new-box:
 - [x] [TBA]
 
 </div>
+
+### Remo STL files
+
+Remo Insiders, the private repository `remo_description_insiders`, is a version of [Remo Description](../packages/remo_description.md) with all of Remo's STL files. The public repository only has empty placeholders for them. The STL files are stored with Git LFS.
+
+With access to Remo Insiders (see [how to become a sponsor]):
+
+1. Set up Git LFS and GitHub authentication, as described in [Git and GitHub](../getting-started/git-and-github.md#private-repositories-and-git-lfs-optional).
+2. Clone it into your ROS workspace's `src` folder instead of the public `remo_description`. Both contain a package named `remo_description`, so keep only one of them in the workspace:
+
+    ```console
+    git clone https://github.com/ros-mobile-robots/remo_description_insiders.git
+    ```
+
+The dev container imports the public repository; using Remo Insiders there is planned in [diffbot#104](https://github.com/ros-mobile-robots/diffbot/issues/104).
+
+Without a sponsorship, you can buy the STL files on Gumroad instead, see [3D Printing](../hardware_setup/3D_print.md).
 
 ## Funding <span class="mdx-sponsorship-total" data-mdx-component="sponsorship-total"></span>
 
