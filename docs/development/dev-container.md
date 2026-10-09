@@ -240,10 +240,12 @@ Add it to the package's `package.xml`. Then rebuild the container, so the image 
 
 ### A new source dependency
 
-Add the repository to [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), and to the robot's `.repos` file if the robot needs it too. A new container imports it automatically. In a running container, import it and build in `~/catkin_ws`:
+Add the repository to [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), and to the robot's `.repos` file if the robot needs it too. A new container imports it automatically. In a running container, run the same steps as [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) in `~/catkin_ws`: import the repository, install its dependencies with rosdep, and build:
 
 ```console
 vcs import --skip-existing src < src/diffbot/diffbot_dev.repos
+sudo apt-get update
+rosdep install --from-paths src --ignore-src --rosdistro noetic -y
 catkin build
 ```
 
