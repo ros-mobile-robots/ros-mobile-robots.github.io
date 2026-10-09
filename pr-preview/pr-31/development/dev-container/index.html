@@ -962,6 +962,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In the container
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -972,6 +989,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Updating">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-new-ros-or-system-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A new ROS or system dependency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-new-source-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A new source dependency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tools-in-the-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tools in the image
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3861,6 +3917,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In the container
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3871,6 +3944,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Updating">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-new-ros-or-system-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A new ROS or system dependency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-new-source-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A new source dependency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tools-in-the-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tools in the image
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -4083,24 +4195,64 @@
 </div>
 </div>
 </div>
-<p>In VS Code, the window stays on your PC and works with a VS Code Server in the container, see <a href="../dev-container-internals/#vs-code-and-the-container">VS Code and the container</a>.</p>
-<p>Inside the container, the workspace is <code>~/catkin_ws</code>, already built and sourced. This happens automatically: the image adds <code>source /opt/ros/noetic/setup.bash</code> to <code>~/.bashrc</code>, and when the container is created, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> builds the workspace with <code>catkin build</code> and adds <code>source ~/catkin_ws/devel/setup.bash</code>. Every new interactive Bash terminal in the container reads <code>~/.bashrc</code>, so ROS and the workspace are ready there. Scripts and other non-interactive commands don't read it; they need to source the two files themselves. Your clone is mounted at <code>~/catkin_ws/src/diffbot</code>, so edits on the host show up in the container and the other way round. For example, start the simulation with Gazebo and RViz:</p>
+<h3 id="in-the-container">In the container</h3>
+<p>Once the container runs, open a terminal in it: in VS Code with <strong>Terminal → New Terminal</strong>, with the CLI or plain Docker in the shell the commands above opened. ROS and the workspace <code>~/catkin_ws</code> are ready. Start the simulation:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_control diffbot.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>After changing code, rebuild with <code>catkin build</code> in <code>~/catkin_ws</code>.</p>
+<p>Three windows open:</p>
+<ul>
+<li><strong>Gazebo</strong> simulates DiffBot in a small test world. The blue rays are its laser scanner.</li>
+<li><strong>RViz</strong> shows what the robot knows: its model, its position and the laser scan.</li>
+<li><strong>Robot Steering</strong> drives the robot: move the sliders to set its speed and rotation.</li>
+</ul>
+<figure>
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="../images/simulation-gazebo-rviz.png" alt="Gazebo with DiffBot and its laser rays in a test world, RViz with the Displays panel and the laser scan, and the Robot Steering window with speed sliders"></a>
+  <figcaption>Gazebo, RViz and Robot Steering after <code>roslaunch diffbot_control diffbot.launch</code> in the dev container</figcaption>
+</figure>
+
+<p>RViz first shows a notice that ROS 1 has reached its end of life; close it with <strong>OK</strong>. Gazebo shows a similar note in its menu bar.</p>
+<p>Your clone is mounted at <code>~/catkin_ws/src/diffbot</code>, so edits on the host show up in the container and the other way round. After changing code, rebuild in <code>~/catkin_ws</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">catkin build</span>
+</code></pre></div></td></tr></tbody></table></div>
+<details class="info">
+<summary>Why ROS and the workspace are ready in every terminal</summary>
+<p>The image adds <code>source /opt/ros/noetic/setup.bash</code> to <code>~/.bashrc</code>. When the container is created, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> builds the workspace with <code>catkin build</code> and adds <code>source ~/catkin_ws/devel/setup.bash</code>. Every new interactive Bash terminal reads <code>~/.bashrc</code>. Scripts and other non-interactive commands don't; they need to source the two files themselves.</p>
+</details>
 <p>How the image, the container, VS Code, the network and the display access work in detail: <a href="../dev-container-internals/">How the Dev Container Works</a>.</p>
 <h2 id="updating">Updating</h2>
-<ul>
-<li>
-<p><strong>New ROS or system dependency:</strong> add it to the package's <code>package.xml</code>. Then rebuild the container: <strong>Dev Containers: Rebuild Container</strong> in VS Code, or with the CLI, from the diffbot folder:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">devcontainer up --workspace-folder . --config .devcontainer/noetic/devcontainer.json --remove-existing-container</span>
+<h3 id="a-new-ros-or-system-dependency">A new ROS or system dependency</h3>
+<p>Add it to the package's <code>package.xml</code>. Then rebuild the container, so the image installs it with rosdep:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio"><input id="__tabbed_6_2" name="__tabbed_6" type="radio"><input id="__tabbed_6_3" name="__tabbed_6" type="radio"><div class="tabbed-labels"><label for="__tabbed_6_1">VS Code</label><label for="__tabbed_6_2">Dev Container CLI</label><label for="__tabbed_6_3">Plain Docker</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Run <strong>Dev Containers: Rebuild Container</strong> from the command palette (<span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-shift">Shift</kbd><span>+</span><kbd class="key-p">P</kbd></span>).</p>
+</div>
+<div class="tabbed-block">
+<p>From the <code>diffbot</code> folder on the host:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">devcontainer up --workspace-folder . \</span>
+<span class="go">  --config .devcontainer/noetic/devcontainer.json \</span>
+<span class="go">  --remove-existing-container</span>
 </code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p><strong>New source dependency:</strong> add the repository to <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, and to the robot's <code>.repos</code> file if the robot needs it too.</p>
-</li>
-<li><strong>Tools in the image:</strong> add them to the <code>apt-get install</code> list in the Dockerfile.</li>
-</ul>
+</div>
+<div class="tabbed-block">
+<p>Run the <code>docker build</code> and <code>docker run</code> commands from <a href="#usage">Usage</a> again.</p>
+</div>
+</div>
+</div>
+<h3 id="a-new-source-dependency">A new source dependency</h3>
+<p>Add the repository to <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, and to the robot's <code>.repos</code> file if the robot needs it too. A new container imports it automatically. In a running container, run the same steps as <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> in <code>~/catkin_ws</code>: import the repository, install its dependencies with rosdep, and build:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">vcs import --skip-existing src &lt; src/diffbot/diffbot_dev.repos</span>
+<span class="go">sudo apt-get update</span>
+<span class="go">rosdep install --from-paths src --ignore-src --rosdistro noetic -y</span>
+<span class="go">catkin build</span>
+</code></pre></div></td></tr></tbody></table></div>
+<h3 id="tools-in-the-image">Tools in the image</h3>
+<p>Add them to the <code>apt-get install</code> list in the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/Dockerfile">Dockerfile</a>, then rebuild the container as described <a href="#a-new-ros-or-system-dependency">above</a>.</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <table>
 <thead>
