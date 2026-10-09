@@ -34,8 +34,8 @@ There are several different types of Simultaneous Localization and Mapping (SLAM
 - Dense SLAM: These algorithms build a dense map of the environment, for example a volumetric (TSDF) or surfel map, usually from RGB-D cameras. Examples are KinectFusion and ElasticFusion.
 
 <figure markdown>
-  ![Visual SLAM Roadmap](https://raw.githubusercontent.com/changh95/visual-slam-roadmap/main/img/getting-familiar.png){ width="300" }
-  <figcaption markdown>Getting familiar with SLAM (https://github.com/changh95/visual-slam-roadmap)</figcaption>
+  ![Visual SLAM Roadmap](images/visual-slam-roadmap-getting-familiar.png){ width="300" }
+  <figcaption markdown>Getting familiar with SLAM, from Hyunggi Chang's [Visual SLAM Roadmap](https://github.com/changh95/visual-slam-roadmap), [MIT License](images/visual-slam-roadmap-LICENSE.txt)</figcaption>
   
 </figure>
 
