@@ -844,6 +844,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#vs-code-and-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VS Code and the container
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#network" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3902,6 +3913,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#vs-code-and-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VS Code and the container
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#network" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3947,7 +3969,7 @@
 
 
 <h1 id="how-the-dev-container-works">How the Dev Container Works</h1>
-<p>What the files in diffbot's <code>.devcontainer/noetic/</code> folder do, and how the image, the container, the network and the display access are set up. To install and use the dev container, see <a href="../dev-container/">Development Environment</a>.</p>
+<p>What the files in diffbot's <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/.devcontainer/noetic"><code>.devcontainer/noetic/</code></a> folder do, and how the image, the container, VS Code, the network and the display access are set up. To install and use the dev container, see <a href="../dev-container/">Development Environment</a>.</p>
 <table>
 <thead>
 <tr>
@@ -4002,12 +4024,19 @@
 <li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <a href="https://github.com/dirk-thomas/vcstool"><code>vcs import</code></a> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
 </ol>
 <p><code>remo_description</code> contains empty placeholder STL files. To see Remo's meshes in RViz and Gazebo, get the real files as described in its <a href="https://github.com/ros-mobile-robots/remo_description#stl-mesh-files">README</a>. DiffBot's own meshes are part of <code>diffbot_description</code>.</p>
+<h2 id="vs-code-and-the-container">VS Code and the container</h2>
+<p>With the <a href="https://code.visualstudio.com/docs/devcontainers/containers">Dev Containers extension</a>, VS Code is split in two. Its window, with the editor, the theme and other UI extensions, runs on your PC as a normal program (on Windows, as a Windows program). The extension installs a VS Code Server in the container (<a href="https://code.visualstudio.com/docs/remote/remote-overview">Remote Development</a>), and the workspace extensions, the terminals, the build, the running programs and the debugger run there, with full access to ROS and the container's tools. The source code stays on the host and is mounted into the container (see <a href="#creating-the-container">Creating the container</a> above), so your files remain when the container is removed.</p>
+<figure>
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="../images/vscode-dev-container-architecture.png" alt="VS Code dev container architecture: VS Code on the local OS, VS Code Server and tools in the container, source code mounted from the local OS into the container"></a>
+  <figcaption>Diagram: <a href="https://code.visualstudio.com/docs/devcontainers/containers">Visual Studio Code documentation</a>, Microsoft, <a href="https://creativecommons.org/licenses/by/3.0/us/">CC BY 3.0 US</a></figcaption>
+</figure>
+
 <h2 id="network">Network</h2>
 <p>The container uses the host's network (<a href="https://docs.docker.com/engine/network/drivers/host/"><code>--network=host</code></a>): it has no network of its own, and ROS nodes in the container are reachable at the host's IP address. For the real robot, set <a href="http://wiki.ros.org/ROS/EnvironmentVariables"><code>ROS_MASTER_URI</code> and <code>ROS_IP</code></a> as described in <a href="../../processing_units/ros-network-setup/">ROS Network Setup</a>.</p>
 <p>ROS 1 nodes connect to each other directly, in both directions: the machines need "full bi-directional connectivity, on all ports" (<a href="http://wiki.ros.org/ROS/NetworkSetup">ROS NetworkSetup</a>). So the robot must be able to reach your PC too:</p>
 <ul>
 <li><strong>Linux PC:</strong> the host's IP address is the PC's address on your network, so this works as usual.</li>
-<li><strong>Windows with WSL 2:</strong> by default, WSL 2 sits behind its own network translation (NAT) with a private IP address, and devices on your network can't connect to it. Switch on <a href="https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking">mirrored networking</a> (Windows 11 22H2 or later): add <code>networkingMode=mirrored</code> under <code>[wsl2]</code> in <code>%UserProfile%\.wslconfig</code> (<a href="https://learn.microsoft.com/en-us/windows/wsl/wsl-config">WSL settings</a>) and run <code>wsl --shutdown</code>. WSL then shares Windows' network addresses, and the robot can reach it. Windows' Hyper-V firewall may also need to allow incoming connections, as described on that page. This setup isn't tested with the robot yet.</li>
+<li><strong>Windows with WSL 2:</strong> by default, WSL 2 has its own private IP address behind network translation (NAT), and devices on your network can't connect to it. WSL's mirrored networking changes that, see <a href="../../processing_units/ros-network-setup/#work-machine-on-windows-wsl-2">Work machine on Windows (WSL 2)</a>. This isn't tested with the robot yet.</li>
 </ul>
 <h2 id="gui-apps-x11-and-wslg">GUI apps: X11 and WSLg</h2>
 <p>The container has no screen of its own; it's "headless". Linux GUI apps don't need one: a program like RViz is an X client: it connects to an X server and sends it what to draw, and the X server shows the window (<a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml">X Window System</a>). The container borrows the host's X server. It gets the socket folder <code>/tmp/.X11-unix</code>, through which clients reach the X server, and the <a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml#heading5"><code>DISPLAY</code></a> variable, which says which display to use. So RViz runs in the container, but its window opens on your desktop like any other.</p>
@@ -4017,10 +4046,10 @@
 <p>An X11 program like RViz connects through the X socket to XWayland, WSLg's X server. Weston, a Wayland compositor, collects the windows and sends them over a remote desktop (RDP) connection to Windows, which shows each one as a normal window. All of this runs in a small "system distro" next to your Ubuntu.</p>
 <p></p><figure>
   <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="../images/wslg-architecture.png" alt="WSLg architecture: X11 and Wayland apps in the user distro connect to XWayland and Weston in the WSLg system distro, which sends windows to the Windows host over RDP"></a>
-  <figcaption>Diagram: <a href="https://github.com/microsoft/wslg">WSLg</a>, Microsoft, <a href="https://github.com/microsoft/wslg/blob/main/LICENSE">MIT License</a></figcaption>
+  <figcaption>Diagram: <a href="https://github.com/microsoft/wslg">WSLg</a>, Microsoft, <a href="https://github.com/microsoft/wslg/blob/main/LICENSE">MIT License</a> (<a href="../images/WSLg-LICENSE.txt">license text</a>)</figcaption>
 </figure><p></p>
 </details>
-<p>A native Linux desktop (X11, or Wayland with Xwayland) only accepts clients that present the display's cookie (<code>MIT-MAGIC-COOKIE-1</code>, see <a href="../dev-container/#requirements">Requirements</a>). <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> copies that cookie for the container, the method from the <a href="http://wiki.ros.org/docker/Tutorials/GUI">ROS Docker GUI tutorial</a>:</p>
+<p>A native Linux desktop (X11, or Wayland with Xwayland) usually uses cookie-based access control: it only accepts clients that present the display's cookie (<code>MIT-MAGIC-COOKIE-1</code>, see <a href="../dev-container/#requirements">Requirements</a>). <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/host-x11.sh"><code>host-x11.sh</code></a> copies that cookie for the container, the method from the <a href="http://wiki.ros.org/docker/Tutorials/GUI">ROS Docker GUI tutorial</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>xauth<span class="w"> </span>nlist<span class="w"> </span><span class="s2">"</span><span class="nv">$DISPLAY</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">'s/^..../ffff/'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xauth<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$tmp_file</span><span class="s2">"</span><span class="w"> </span>nmerge<span class="w"> </span>-
 </code></pre></div></td></tr></tbody></table></div>
 <ul>

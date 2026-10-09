@@ -49,6 +49,19 @@
         
         <script src="../../../js/mermaid-8.8.0/mermaid.min.js"></script>
         <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <style>
+          /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
+             give the diagrams dark fills with light lines and text, in the light theme's hues. Being
+             CSS, they also apply when visitors switch the scheme without reloading. */
+          [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel { background-color: #3a3c48 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
+        </style>
         
 
     
