@@ -49,6 +49,19 @@
         
         <script src="../../js/mermaid-8.8.0/mermaid.min.js"></script>
         <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <style>
+          /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
+             give the diagrams dark fills with light lines and text, in the light theme's hues. Being
+             CSS, they also apply when visitors switch the scheme without reloading. */
+          [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel { background-color: #3a3c48 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
+        </style>
         
 
     
@@ -3806,12 +3819,6 @@
 <li><strong>X server and X clients:</strong> Linux GUI programs use the <a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml">X Window System</a> (X11). The <em>X server</em> is the program that draws windows on your screen, so it runs where the screen is. The programs that want windows, like RViz, Gazebo and rqt, are <em>X clients</em>: each one connects to the X server and tells it what to draw. One X server serves many clients, and the clients may run somewhere else, for example in the container. The naming feels backwards at first: the server is on your desk, and the apps are its clients.</li>
 <li><strong>Which X server:</strong> on a Linux desktop, the desktop's own (Xwayland on <a href="https://wayland.freedesktop.org/">Wayland</a> desktops). On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later, see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>) is the X server for Linux programs and shows their windows on the Windows desktop.</li>
 </ul>
-<p>How VS Code works with a dev container: its window runs on your PC, while a VS Code server, the terminals, the build and the running programs are in the container. The source code stays on your PC and is mounted into the container.</p>
-<figure>
-  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="../images/vscode-dev-container-architecture.png" alt="VS Code dev container architecture: VS Code on the local OS, VS Code Server and tools in the container, source code mounted from the local OS into the container"></a>
-  <figcaption>Diagram: <a href="https://code.visualstudio.com/docs/devcontainers/containers">Visual Studio Code documentation</a>, Microsoft, <a href="https://creativecommons.org/licenses/by/3.0/us/">CC BY 3.0 US</a></figcaption>
-</figure>
-
 <p><strong>Simulation, no robot needed:</strong> everything runs in the container. Gazebo simulates the robot, RViz shows what it sees. They are X clients, and their windows appear on your screen through the host's X server:</p>
 <div class="mermaid">graph TB
   subgraph HOST [Host: Linux PC, or Ubuntu in WSL 2]
@@ -3871,6 +3878,7 @@
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Open the <code>diffbot</code> folder and choose <strong>Reopen in Container</strong> (or run <strong>Dev Containers: Reopen in Container</strong> from the command palette). The first start builds the image and the workspace, which takes a few minutes.</p>
+<p>VS Code's window stays on your PC and works with a VS Code Server in the container, see <a href="../dev-container-internals/#vs-code-and-the-container">VS Code and the container</a>.</p>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -3899,7 +3907,7 @@
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_control diffbot.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>After changing code, rebuild with <code>catkin build</code> in <code>~/catkin_ws</code>.</p>
-<p>How the image, the container, the network and the display access work in detail: <a href="../dev-container-internals/">How the Dev Container Works</a>.</p>
+<p>How the image, the container, VS Code, the network and the display access work in detail: <a href="../dev-container-internals/">How the Dev Container Works</a>.</p>
 <h2 id="updating">Updating</h2>
 <ul>
 <li>
