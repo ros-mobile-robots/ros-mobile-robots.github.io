@@ -4,6 +4,7 @@ theme:
   highlightjs: true
   custom_dir: docs/custom_theme
   features:
+    - content.tabs.link
     - navigation.tabs
     - navigation.top
     - navigation.indexes
@@ -41,6 +42,7 @@ extra:
   asset_dir: /resources # /assets
   diffbot_repo_url: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
+  docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
   analytics:
     provider: google
@@ -99,12 +101,16 @@ plugins:
         projects/diffbot/URDF.md: robot-description.md
         projects/diffbot/components.md: components.md
         diffbot_base.md: packages/diffbot_base/index.md
+        ros-network-setup.md: processing_units/ros-network-setup.md
 
 nav:
   - Home: index.md
   - Getting Started:
     - Technical Requirements: technical_requirements.md
     - Components: components.md
+    - Development Environment:
+      - development/dev-container.md
+      - How the Dev Container Works: development/dev-container-internals.md
   - Hardware Setup:
     - hardware_setup/overview.md
     - 3D Printing: hardware_setup/3D_print.md
@@ -146,6 +152,9 @@ nav:
     - Inertial Measurement Unit:
       - Robot Localization: packages/imu/robot_localization.md
       - BNO055 Driver: packages/imu/driver-bno055.md
+  - Contributing:
+    - development/index.md
+    - Testing and CI: development/ci.md
   - Robotics Theory:
     - theory/index.md
     - Preliminaries:

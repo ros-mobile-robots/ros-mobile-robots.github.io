@@ -5,6 +5,9 @@ repository.
 
 The following steps will be performed on both, the workstation/development PC and the single board computer (SBC).
 
+!!! tip "Development PC: use the dev container"
+    On the development PC, the [dev container](../development/dev-container.md) does all of the following steps for you, in a Docker image with ROS Noetic, Gazebo and RViz. The steps below are still needed on the robot's SBC.
+
 ## Git: clone diffbot repository
 
 After setting up ROS on your workstation PC and the SBC (either [Raspberry Pi 4B](../processing_units/rpi-setup.md) or [Jetson Nano](../processing_units/jetson-nano-setup.md)),
