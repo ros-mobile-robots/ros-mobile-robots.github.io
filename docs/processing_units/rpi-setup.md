@@ -154,7 +154,21 @@ Sources
 After flashing the image to the sd card insert it to the Pi, hook it up to a monitor via HDMI and power it up by plugging in the USB-C connector.
 Then you should follow the [installation instructions](https://ubuntu-mate.org/raspberry-pi/install/) on the screen.
 
-Once finished, follow the next steps to install ROS Noetic.
+## Remote access with SSH
+
+To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH ([OpenSSH server](https://ubuntu.com/server/docs/how-to/security/openssh-server/)). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server:
+
+```console
+sudo apt install openssh-server
+```
+
+On your PC, in Linux or in the Ubuntu in WSL 2, the `ssh` client is usually already installed. Log in with your user name on the robot and its IP address, which `hostname -I` on the robot shows. For example:
+
+```console
+ssh your-user@192.168.0.20
+```
+
+Then follow the next steps to install ROS Noetic.
 
 !!! note
     To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.
