@@ -4418,9 +4418,13 @@
 </div>
 </div>
 <h3 id="a-new-source-dependency">A new source dependency</h3>
-<p>Add the repository to <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, and to the robot's <code>.repos</code> file if the robot needs it too. A new container imports it automatically. In a running container, import it and build in <code>~/catkin_ws</code>:</p>
+<p>Add the repository to <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, and to the robot's <code>.repos</code> file if the robot needs it too. A new container imports it automatically. In a running container, run the same steps as <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> in <code>~/catkin_ws</code>: import the repository, install its dependencies with rosdep, and build:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">vcs import --skip-existing src &lt; src/diffbot/diffbot_dev.repos</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">vcs import --skip-existing src &lt; src/diffbot/diffbot_dev.repos</span>
+<span class="go">sudo apt-get update</span>
+<span class="go">rosdep install --from-paths src --ignore-src --rosdistro noetic -y</span>
 <span class="go">catkin build</span>
 </code></pre></div></td></tr></tbody></table></div>
 <h3 id="tools-in-the-image">Tools in the image</h3>
