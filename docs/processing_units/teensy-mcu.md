@@ -2,12 +2,12 @@
 
 A [microcontroller](https://en.wikipedia.org/wiki/Microcontroller) (MCU) is a small computer on a single chip, with its own processor, memory and input and output pins. It runs one program, usually without an operating system, so it can react to a signal within microseconds.
 
-The robot's single board computer, a Raspberry Pi, runs Linux and ROS: mapping, navigation and the connection to your PC. But Linux isn't a [real-time operating system](https://en.wikipedia.org/wiki/Real-time_operating_system): many processes share the processor, and Linux doesn't guarantee when a program gets its turn. Driving the motors needs exactly that:
+The robot's single board computer, a Raspberry Pi, runs Linux and ROS: mapping, navigation and the connection to your PC. But the standard Linux setup used here doesn't guarantee when an ordinary program gets its turn, because many processes share the processor. Linux can be configured for [real-time](https://en.wikipedia.org/wiki/Real-time_operating_system) work, but this setup isn't. Driving the motors needs exactly that guarantee:
 
 - **Counting encoder pulses:** every pulse from the wheel encoders has to be counted, also while Linux is busy with other work. A missed pulse means a wrong distance.
 - **Speed control:** the PID controllers that keep the wheels at the commanded speed have to run at a steady rate (see the [low-level PID approach](../packages/diffbot_base/low-level.md)).
 
-So the microcontroller does this time-critical work: it counts the encoder pulses, runs the speed control and drives the motors through the motor driver. Over USB, it reports the encoder counts to the Raspberry Pi and receives the commanded wheel speeds.
+So the microcontroller does this time-critical work: it counts the encoder pulses, runs the speed control and drives the motors through the motor driver. Over USB, it receives the commanded wheel speeds from the Raspberry Pi and sends back the wheels' measured positions and speeds, computed from the encoder counts.
 
 ## Which Microcontroller?
 
@@ -36,17 +36,18 @@ The firmware talks to ROS with [rosserial](http://wiki.ros.org/rosserial): the b
 | Teensy 3.2 | MK20DX256 | 72 MHz | 64 KB |
 | Teensy 4.0 | i.MX RT1062 | 600 MHz | 1024 KB |
 
-[Discussion #94](https://github.com/ros-mobile-robots/diffbot/discussions/94) is one attempt. A port to an Arduino Mega 2560 kept failing with "Unable to sync with device", "Mismatched protocol version" and checksum errors. Tight memory was one suspected cause, alongside message rates, baud rate and the ported code, but the cause wasn't confirmed. Ports to STM32 boards with 64 KB and 128 KB RAM then connected, but still had sync and checksum errors, and the builder ordered a Teensy.
+??? note "One attempt with an Arduino Mega and STM32 boards"
+    In [discussion #94](https://github.com/ros-mobile-robots/diffbot/discussions/94), a port to an Arduino Mega 2560 kept failing with "Unable to sync with device", "Mismatched protocol version" and checksum errors. Tight memory was one suspected cause, alongside message rates, baud rate and the ported code, but the cause wasn't confirmed. Ports to STM32 boards with 64 KB and 128 KB RAM then connected, but still had sync and checksum errors, and the builder ordered a Teensy.
 
 ### Without rosserial: a simple serial protocol
 
-A different design avoids running ROS on the board at all. In [ros_arduino_bridge](https://github.com/hbrobotics/ros_arduino_bridge), a ROS 1 project, the Arduino firmware only understands a few short text commands over the serial port ([`commands.h`](https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/commands.h)), and a Python node on the computer translates between them and ROS topics. For example:
+A different design avoids running ROS on the board at all. In [ros_arduino_bridge](https://github.com/hbrobotics/ros_arduino_bridge), a ROS 1 project, the Arduino firmware only understands a few short text commands over the serial port ([`commands.h`](https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/commands.h), handled in [`ROSArduinoBridge.ino`](https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/ROSArduinoBridge.ino)), and a Python node on the computer translates between them and ROS topics; it also converts speeds from metres per second to ticks per PID cycle. The main commands:
 
 | Command | Meaning |
 |:--------|:--------|
 | `e` | Read both encoder counts |
 | `r` | Reset the encoder counts |
-| `m <left> <right>` | Set the wheel speeds, in encoder ticks per second; the firmware's PID controllers keep them |
+| `m <left> <right>` | Set the wheel speeds, in encoder ticks per PID cycle; the firmware's PID controllers keep them. The PID runs 30 times a second by default, so `m 20 20` means about 600 ticks per second |
 | `u <kp>:<kd>:<ki>:<ko>` | Set the PID gains; `ko` divides the PID output to scale it |
 
 For safety, the motors stop by default when no new speed command arrives for two seconds. Because the board only parses short commands and keeps no ROS message buffers, a small Arduino is enough.
