@@ -10,6 +10,8 @@ The images on this page are renders of the STL files.
 
 <a class="md-button md-button--primary" href="https://fjp.gumroad.com/l/GnMpU">Get the Remo STL files</a>
 
+Sponsors with access to Remo Insiders get the STL files in a private Git repository instead, see [Remo STL files](../insiders/index.md#remo-stl-files).
+
 The table below gives an overview of the required parts of Remo and the average printing time:
 
 !!! note

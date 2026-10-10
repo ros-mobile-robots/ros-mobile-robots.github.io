@@ -1,95 +1,45 @@
-# Technical requirements
+# Getting Started
 
-To get started with building a ROS-based mobile robot, this section outlines the essential software and hardware you'll need. We'll explore key resources from the https://github.com/ros-mobile-robots organization on GitHub and provide options for building your own robot or using a pre-designed platform. Later sections will delve deeper into specific software installation and hardware components.
+DiffBot and Remo are differential drive robots that run [ROS 1 Noetic](https://wiki.ros.org/noetic). DiffBot is a two- or four-wheeled robot you build yourself; Remo is a modular, 3D printed platform based on NVIDIA's JetBot. The code for both is in the [diffbot](https://github.com/ros-mobile-robots/diffbot) repository. It includes the simulation, the software for the real robot, and the tools to work with it from your PC.
 
-!!! info
-    This technical requirements page is here to give you an overview of what is required to get your robot up and running.
-    You can already follow the steps in practice but they will be also mentioned in later sections (in more detail) when they are really needed.
+This page shows which steps you need, depending on what you want to do.
 
-## Software requirements
+## Choose your path
 
-One of the main software repositories is https://github.com/ros-mobile-robots/diffbot.
-It includes packages for simulation and the configurations and software to operate a real
-robot and interact with it from a development PC (or dev machine).
+### Simulation
 
-The following sections give an overview about which software will be used:
+No robot needed: the robot runs in Gazebo on your PC.
 
-- [Operating Systems](#operating-system)
-- [Git](#git)
-- [Remote Control](#remote-control)
-- [Hardware Interfaces](processing_units/hardware-interfaces.md)
-- [Source Dependencies](packages/packages-setup.md#source-dependencies)
-- [System Dependencies](packages/packages-setup.md#system-dependencies)
-- [Build the ROS Workspace](packages/packages-setup.md)
+1. [Set Up Your PC](getting-started/set-up-your-pc.md): Linux, or Windows with WSL 2, and Docker.
+2. <a id="git"></a>[Git and GitHub](getting-started/git-and-github.md): install Git and clone diffbot.
+3. [Use the Dev Container](development/dev-container.md): it has ROS Noetic, Gazebo and RViz, and builds the workspace. Then start the simulation.
 
-More detailed software setup instructions are found in the chapter about
-[Processing Units](processing_units/index.md).
+### Real robot
 
-### Operating System
+Do the simulation path first; your PC then works with the robot. In addition:
 
-For the development PC, you should have ROS Noetic installed on
-[Ubuntu 20.04](https://releases.ubuntu.com/20.04/) or using
-[Windows Subsystem for Linux (WSL) 2](https://docs.microsoft.com/en-us/windows/wsl/)
-running on **Windows 11**.
+1. **Hardware:** the [Components](components.md) to buy, and for Remo the [hardware setup](hardware_setup/overview.md): 3D printing, electronics, assembly.
+2. <a id="remote-control"></a>**The robot's computer**, a Raspberry Pi 4 B:
+    1. [Raspberry Pi Setup](processing_units/rpi-setup.md): Ubuntu MATE 20.04, and an SSH server so you can log in from your PC.
+    2. [Git and GitHub](getting-started/git-and-github.md): install Git and clone, without login.
+    3. [ROS Setup](processing_units/ros-setup.md): ROS Noetic and catkin tools.
+    4. [Packages Setup](packages/packages-setup.md): the workspace with diffbot and its dependencies.
 
-!!! note
-    [Windows 11 is required for GUI features](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps),
-    such as Gazebo and RViz. WSL 2 on Windows 10 only provides command line support, although you
-    can install an X11 server, such as [VcXsrv](https://sourceforge.net/projects/vcxsrv/),
-    explained [here](https://jack-kawell.com/2020/06/12/ros-wsl2/).
+    [Jetson Nano Setup](processing_units/jetson-nano-setup.md) describes an older setup with Ubuntu 18.04 and ROS Melodic.
 
-On the Single Board Computer (SBC) (e.g. Raspberry Pi 4 B) that is mounted on Remo,
-we use [Ubuntu Mate 20.04](https://ubuntu-mate.org/download/arm64/focal/) for arm64 architecture.
+3. **The firmware** for the [microcontroller](processing_units/teensy-mcu.md), a Teensy, which drives the motors and reads the encoders.
+4. [ROS Network Setup](processing_units/ros-network-setup.md): connect your PC and the robot.
 
-### Git
+### ROS on your PC without the container
 
-As the software is hosted on GitHub which uses git as a version control system it needs to be
-present in your used operating system. 
+If you prefer to install ROS directly on an Ubuntu 20.04 PC: [ROS Setup](processing_units/ros-setup.md), then [Packages Setup](packages/packages-setup.md). The dev container is the recommended way, because it sets up the same environment for everyone.
 
-=== "Ubuntu"
+## What you need
 
-    On Ubuntu this is usually the case, which you can check with:
+<a id="operating-system"></a>
 
-    ```console
-    $ git --version
-    git version 2.25.1
-    ```
-
-=== "Windows"
-
-    On Windows you need to install Git using a package manager such as
-    [chocolatey](https://chocolatey.org/) or downloading it from https://git-scm.com/downloads.
-
-To clone large stl files from the Git repository we use [git-lfs](https://git-lfs.github.com/). 
-On both Ubuntu flavors it needs to be installed with the following terminal command:
-
-```console
-sudo apt install git-lfs
-```
-
-### Remote Control
-
-On both the development PC and the SBC of the robot, you need a connection to the
-same local network and to enable the ssh protocol, to connect from the development PC
-(client) to the robot, which is running an open-ssh server. Install it on Ubuntu Mate
-20.04 with the following:
-
-```console
-sudo apt install openssh-server
-```
-
-## Hardware requirements
-
-For the hardware, you can build your
-own two- or four-wheeled differential drive robot similar to the one present in the 
-`diffbot_description` package or 3D print a more stable Remo robot with the stl files in
-https://github.com/ros-mobile-robots/remo_description.
-
-The repository at https://github.com/ros-mobile-robots/remo_description contains the 
-robot description of Remo. Remo is a modular mobile robot platform, which is based on 
-NVIDIA's JetBot. The currently available parts can be 3D printed using the provided 
-stl files in the [`remo_description`](https://github.com/ros-mobile-robots/remo_description) repository. 
-To do this, you either need a 3D printer with a recommended build volume of 15x15x15 cm or to use
-a local or online 3D print service. Further details are found in [hardware setup](hardware_setup/3D_print.md).
-
-On the following [components](components.md) page you find a bill of materials and more details about each part.
+| | Simulation | Real robot |
+|:--|:--|:--|
+| **PC** | Linux, for example Ubuntu 24.04; or Windows 10 build 19044 or later, or Windows 11, with WSL 2 | The same. With Windows, connecting to the robot needs Windows 11 22H2 or later ([why](getting-started/set-up-your-pc.md#real-robot-from-windows-optional)) |
+| **Robot** | – | DiffBot or Remo parts, a Raspberry Pi 4 B and a Teensy, see [Components](components.md) |
+| **3D printing** | – | For Remo: a 3D printer with a build volume of about 15×15×15 cm, or a print service. The STL files come from the [Gumroad download](hardware_setup/3D_print.md) or [Remo Insiders](insiders/index.md#remo-stl-files) |

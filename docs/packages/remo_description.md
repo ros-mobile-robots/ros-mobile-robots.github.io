@@ -2,7 +2,7 @@
 
 ROS URDF description package of REMO robot (Research Education Mobile/Modular robot) a highly modifiable and extendable
 autonomous mobile robot based on [Nvidia's Jetbot](https://github.com/NVIDIA-AI-IOT/jetbot).
-This ROS package is found in the [`remo_description` repository]({{ remo_repo_url }}) contains the stl files to 3D print Remo robot.
+This ROS package is in the [`remo_description` repository]({{ remo_repo_url }}). It describes Remo for RViz and Gazebo; the STL files to 3D print it are described [below](#stl-files).
 
 ![Remo spinning in RViz]({{ asset_dir }}/remo/remo-rviz-spin.gif)
 
@@ -18,19 +18,17 @@ To use `remo_description` inside a Gazebo simulation or on a real 3D printed Rem
 Most of the launch files you find in the `diffbot` repository
 accept a `model` argument. Just append `model:=remo` to the end of a `roslaunch` command to make use of this `remo_description` package.
 
-### Git LFS and Bandwidth Quota
+### STL files
 
-The binary stl files are hosted on GitHub using [Git Large File Storage (git lfs)](https://git-lfs.github.com/) 
-to avoid increasing the total size of the repository because of possible stl file changes.
-For open source repositories, GitHub has a bandwidth limit of 1 GB (up to 1.5 GB) per month. 
-Depending on how many users clone/pull the stl files using git lfs per month, this bandwidth can be exhausted after a few days. 
-If you are not able to clone/pull the stl files and only get the pointer files, you have to wait until the bandwidth quota resets back to zero. 
-In case you need the stl files immediately, and to support this work you can get [immediate access to the stl files](https://gumroad.com/l/GnMpU?wanted=true):
+The public `remo_description` repository has empty placeholder STL files, so Remo has no meshes in RViz and Gazebo, and there is nothing to print. There are two ways to get the real files:
 
-<a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a>
+- **Gumroad download:** buy the STL files, then download them with the configuration file as described in the repository's [README](https://github.com/ros-mobile-robots/remo_description#stl-mesh-files).
 
-Also if you find this work useful please consider the funding options to support the development and design of this robot.
-However, you will always be able to clone/pull and use the Remo stl files once the bandwidth quota resets.
+    <a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a>
+
+- **Remo Insiders:** a private version of this repository that contains the STL files, stored with Git LFS. See [Remo STL files](../insiders/index.md#remo-stl-files).
+
+Which parts to print and how: [3D Printing](../hardware_setup/3D_print.md).
 
 ### Assembly
 

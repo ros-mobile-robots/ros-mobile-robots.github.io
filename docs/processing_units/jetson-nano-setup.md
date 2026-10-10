@@ -100,7 +100,21 @@ Finally select the NVPModel mode explained [above](./jetson-nano-setup.md#power-
 We will changed this later at runtime - when powering the robot over the power bank - using the nvpmodel GUI or nvpmodel command line utility. 
 Refer to the NVIDIA Jetson Linux Developer Guide for further information. 
 
-Once finished, follow the next steps to install ROS Melodic.
+## Remote access with SSH
+
+To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH ([OpenSSH server](https://ubuntu.com/server/docs/how-to/security/openssh-server/)). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server:
+
+```console
+sudo apt install openssh-server
+```
+
+On your PC, in Linux or in the Ubuntu in WSL 2, the `ssh` client is usually already installed. Log in with your user name on the robot and its IP address, which `hostname -I` on the robot shows. For example:
+
+```console
+ssh your-user@192.168.0.20
+```
+
+Then follow the next steps to install ROS Melodic.
 
 !!! note
     To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.
