@@ -4428,6 +4428,10 @@
 </div>
 <h3 id="a-new-source-dependency">A new source dependency</h3>
 <p>Add the repository to <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, and to the robot's <code>.repos</code> file if the robot needs it too. A new container imports it automatically. In a running container, run the same steps as <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> in <code>~/catkin_ws</code>: import the repository, install its dependencies with rosdep, and build:</p>
+<div class="admonition warning">
+<p class="admonition-title">If your container has a folder <code>~/catkin_ws/src/src</code></p>
+<p>Containers created with an older <code>setup.sh</code> have <code>rplidar_ros</code> and <code>remo_description</code> in <code>~/catkin_ws/src/src/</code>. In such a container, the command below clones them a second time into <code>src/</code>, and <code>catkin build</code> fails because it finds each package twice. Rebuild the container once first, as described <a href="#a-new-ros-or-system-dependency">above</a>. Rebuilding discards changes in the container outside your <code>diffbot</code> clone, for example in those two repositories.</p>
+</div>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
