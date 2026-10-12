@@ -12,7 +12,7 @@
 
     ---
 
-    From $10 a month on GitHub Sponsors. You get [Remo Insiders](/insiders/#remo-stl-files), a private Git repository with the STL files that you clone and pull, and new features first.
+    From $10 a month on GitHub Sponsors. You get [Remo Insiders](/insiders/index.md#remo-stl-files), a private Git repository with the STL files that you clone and pull, and new features first.
 
     [Become a sponsor](https://github.com/sponsors/fjp){ .md-button }
 
