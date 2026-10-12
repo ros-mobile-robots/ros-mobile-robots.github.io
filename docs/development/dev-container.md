@@ -249,9 +249,6 @@ Add it to the package's `package.xml`. Then rebuild the container, so the image 
 
 Add the repository to [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), and to the robot's `.repos` file if the robot needs it too. A new container imports it automatically. In a running container, run the same steps as [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) in `~/catkin_ws`: import the repository, install its dependencies with rosdep, and build:
 
-!!! warning "If your container has a folder `~/catkin_ws/src/src`"
-    Containers created with an older `setup.sh` have `rplidar_ros` and `remo_description` in `~/catkin_ws/src/src/`. In such a container, the command below clones them a second time into `src/`, and `catkin build` fails because it finds each package twice. Rebuild the container once first, as described [above](#a-new-ros-or-system-dependency). Rebuilding discards changes in the container outside your `diffbot` clone, for example in those two repositories.
-
 ```console
 vcs import --skip-existing < src/diffbot/diffbot_dev.repos
 sudo apt-get update
