@@ -91,6 +91,10 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.magiclink
+  # Icons such as :material-cart-outline: and :octicons-heart-fill-24:, for buttons and cards
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 plugins:
   - search

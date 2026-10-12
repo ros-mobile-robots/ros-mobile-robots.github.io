@@ -4,13 +4,11 @@ This page provides help to 3D print the parts of Remo robot. It contains informa
 about configuring your slicer, suggestions to orient the parts and where support material is recommended to avoid
 failing prints and wasted PLA material.
 
-The STL files for all parts below are available on Gumroad; buying them also supports this project.
-The [remo_description](https://github.com/ros-mobile-robots/remo_description) repository on GitHub only has empty placeholders for them.
+The [remo_description](https://github.com/ros-mobile-robots/remo_description) repository on GitHub only has empty placeholders for the STL files. There are two ways to get them:
+
+--8<-- "includes/remo-stl-options.md"
+
 The images on this page are renders of the STL files.
-
-<a class="md-button md-button--primary" href="https://fjp.gumroad.com/l/GnMpU">Get the Remo STL files</a>
-
-Sponsors with access to Remo Insiders get the STL files in a private Git repository instead, see [Remo STL files](../insiders/index.md#remo-stl-files).
 
 The table below gives an overview of the required parts of Remo and the average printing time:
 

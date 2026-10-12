@@ -28,7 +28,7 @@ See also the [legal notice](legal-notice.md).
 | Google AdSense | Advertising | Always; in the EEA, UK and Switzerland ads only with your consent | Consent; legitimate interest elsewhere | Google Ireland Ltd. |
 | Google Analytics | Visitor statistics | In the EEA, UK and Switzerland only with consent | Consent; legitimate interest elsewhere | Google Ireland Ltd. |
 | Amazon affiliate links | Commission on purchases | Only when you follow a link | Legitimate interest | Amazon Europe Core S.à r.l., Amazon.com, Inc. |
-| Gumroad | Selling the Remo STL files | Pages with a Gumroad button (home page, Remo description) | Legitimate interest | Gumroad, Inc., USA |
+| Gumroad | Selling the Remo STL files | Pages with a Gumroad button (home page, Remo Description, 3D Printing, Insiders) | Legitimate interest | Gumroad, Inc., USA |
 | YouTube, Vimeo, Autodesk | Videos and a 3D model viewer | Only after you click "Load video" or "Load 3D model" | Consent | Google Ireland Ltd.; Vimeo.com, Inc., USA; Autodesk, Inc., USA |
 | giscus | Comments from GitHub Discussions | Only after you click "Show comments" | Consent | giscus project (hosted by Vercel, Inc., USA); GitHub, Inc., USA |
 
@@ -96,7 +96,7 @@ See the privacy notices of [Amazon.de](https://www.amazon.de/gp/help/customer/di
 ## Gumroad
 
 The 3D printing files for Remo are sold through Gumroad, Inc., San Francisco, USA.
-Pages with a Gumroad button (the home page and the Remo description page) load a script from gumroad.com that shows the Gumroad checkout. Gumroad receives your IP address when such a page loads.
+Pages with a Gumroad button (the home page, Remo Description, 3D Printing and Insiders) load a script from gumroad.com that shows the Gumroad checkout. Gumroad receives your IP address when such a page loads.
 If you buy, Gumroad processes the purchase and your payment and e-mail address as its own controller; we receive your e-mail address and the order details.
 The legal basis is our legitimate interest in selling the files and, for a purchase, the performance of the contract (Art. 6(1)(b) and (f) GDPR).
 See [Gumroad's privacy policy](https://gumroad.com/privacy).
