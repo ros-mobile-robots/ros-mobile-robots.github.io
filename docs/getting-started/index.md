@@ -1,8 +1,8 @@
 # Getting Started
 
-DiffBot and Remo are differential drive robots that run [ROS 1 Noetic](https://wiki.ros.org/noetic). DiffBot is a two- or four-wheeled robot you build yourself; Remo is a modular, 3D printed platform based on NVIDIA's JetBot. The code for both is in the [diffbot](https://github.com/ros-mobile-robots/diffbot) repository. It includes the simulation, the software for the real robot, and the tools to work with it from your PC.
+This page takes you from a new PC to a driving robot. The steps are the same for both robots, [DiffBot and Remo](../hardware_setup/overview.md), because they share their code: the [diffbot](https://github.com/ros-mobile-robots/diffbot) repository has the simulation, the software for the real robot, and the tools for your PC. Both run [ROS 1 Noetic](https://wiki.ros.org/noetic).
 
-The steps build on each other. Steps 1 to 3 set up your PC and run the robot in simulation, without any hardware. The real robot continues from there, because your PC then works with the robot.
+The steps below build on each other. The first three set up your PC and run the robot in simulation, without any hardware. The real robot continues with step 4, and your PC is then already prepared for it.
 
 !!! tip "Quick start, if Docker and VS Code are already set up"
     In a Linux terminal, or on Windows in the Ubuntu in WSL 2:
