@@ -401,7 +401,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../technical_requirements/" class="md-tabs__link">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -606,6 +606,8 @@
     
       
         
+          
+        
       
         
       
@@ -630,8 +632,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked="">
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting-started/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -645,8 +648,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
@@ -659,32 +668,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../technical_requirements/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -4128,7 +4111,7 @@
 
 <h1 id="use-the-dev-container">Use the Dev Container</h1>
 <p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/#dev-container-workflow">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
-<p>It's the recommended setup for the development PC. Prepare the PC first, as described in <a href="../../getting-started/set-up-your-pc/">Set Up Your PC</a>. The robot's single board computer is still set up natively, see <a href="../../technical_requirements/#real-robot">Getting Started</a>.</p>
+<p>It's the recommended setup for the development PC. Prepare the PC first, as described in <a href="../../getting-started/set-up-your-pc/">Set Up Your PC</a>. The robot's single board computer is still set up natively, see <a href="../../getting-started/#real-robot">Getting Started</a>.</p>
 <h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
 <p>A few terms first:</p>
 <ul>
@@ -4158,7 +4141,7 @@
 <li><a href="../../getting-started/set-up-your-pc/#a-way-to-start-the-container">A way to start the container</a>: VS Code with the Dev Containers extension, the Dev Container CLI, or plain Docker.</li>
 <li><a href="../../getting-started/set-up-your-pc/#for-windows-like-rviz-and-gazebo">Display access for windows like RViz and Gazebo</a>: <code>xauth</code> on Linux, WSLg on Windows.</li>
 <li><a href="../../getting-started/git-and-github/#install-git-and-clone">Git</a>, to clone the repository.</li>
-<li>Only for the real robot from Windows: <a href="../../getting-started/set-up-your-pc/#real-robot-from-windows-optional">mirrored networking</a>.</li>
+<li>Only for the real robot from Windows: <a href="../../getting-started/set-up-your-pc/#real-robot-from-windows-with-wsl-2-optional">mirrored networking</a>.</li>
 </ul>
 <h2 id="usage">Usage</h2>
 <p>The steps depend on your PC. Choose your platform:</p>

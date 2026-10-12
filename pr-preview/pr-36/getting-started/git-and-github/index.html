@@ -385,7 +385,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../technical_requirements/" class="md-tabs__link">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -590,6 +590,8 @@
     
       
         
+          
+        
       
         
       
@@ -614,8 +616,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked="">
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -629,8 +632,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
@@ -643,32 +652,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../technical_requirements/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -3956,10 +3939,21 @@
 <p><a id="git-setup"></a></p>
 <p>DiffBot's and Remo's code is on <a href="https://github.com/ros-mobile-robots">GitHub</a>, in <a href="https://git-scm.com/">Git</a> repositories. Both your PC and the robot need Git to get the code. Reading and running the code only takes the first section; the others are optional.</p>
 <h2 id="install-git-and-clone">Install Git and clone</h2>
-<p>Install Git on your Linux, on the robot, or on Windows in the Ubuntu in WSL 2. Ubuntu usually has it already, which <code>git --version</code> shows. Otherwise:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (WSL 2)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>On your Linux PC and on the robot, Ubuntu usually has Git already, which <code>git --version</code> shows. Otherwise:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install git</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>On Windows, use this Git in the Ubuntu. Git for Windows isn't needed for the dev container.</p>
+</div>
+<div class="tabbed-block">
+<p>Install Git in the Ubuntu in WSL 2, not in Windows: open the Ubuntu terminal and check with <code>git --version</code>. Ubuntu usually has it already. Otherwise:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install git</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Git for Windows isn't needed, because VS Code and the dev container use the Git in the Ubuntu.</p>
+</div>
+</div>
+</div>
 <p>The repositories are public, so cloning needs no GitHub account and no login:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
 </code></pre></div></td></tr></tbody></table></div>
