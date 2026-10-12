@@ -6,13 +6,23 @@ DiffBot's and Remo's code is on [GitHub](https://github.com/ros-mobile-robots), 
 
 ## Install Git and clone
 
-Install Git on your Linux, on the robot, or on Windows in the Ubuntu in WSL 2. Ubuntu usually has it already, which `git --version` shows. Otherwise:
+=== "Linux"
 
-```console
-sudo apt install git
-```
+    On your Linux PC and on the robot, Ubuntu usually has Git already, which `git --version` shows. Otherwise:
 
-On Windows, use this Git in the Ubuntu. Git for Windows isn't needed for the dev container.
+    ```console
+    sudo apt install git
+    ```
+
+=== "Windows (WSL 2)"
+
+    Install Git in the Ubuntu in WSL 2, not in Windows: open the Ubuntu terminal and check with `git --version`. Ubuntu usually has it already. Otherwise:
+
+    ```console
+    sudo apt install git
+    ```
+
+    Git for Windows isn't needed, because VS Code and the dev container use the Git in the Ubuntu.
 
 The repositories are public, so cloning needs no GitHub account and no login:
 

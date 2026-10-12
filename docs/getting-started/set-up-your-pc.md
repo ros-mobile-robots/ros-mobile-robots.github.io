@@ -2,7 +2,7 @@
 
 Your PC, the development PC, runs the simulation and the tools for the real robot in a [dev container](../development/dev-container.md). This page prepares it once: the operating system, Docker, a tool to start the container, and the display access for windows like RViz and Gazebo. After that, install Git as described in [Git and GitHub](git-and-github.md), and start the container as described in [Use the Dev Container](../development/dev-container.md).
 
-The commands on this page run on the *host*: your Linux, or on Windows the Ubuntu in WSL 2. [How the pieces fit together](../development/dev-container.md#how-the-pieces-fit-together) explains the terms host, container, X server and X clients.
+The commands on this page run on the *host*: your Linux, or on Windows the Ubuntu in WSL 2. If the terms host, container, X server and X client are new to you, the diagrams in [How the pieces fit together](../development/dev-container.md#how-the-pieces-fit-together) explain them.
 
 ## Operating system
 
@@ -26,7 +26,7 @@ The commands on this page run on the *host*: your Linux, or on Windows the Ubunt
 
 ## Docker
 
-The dev container runs on [Docker Engine](https://docs.docker.com/engine/), the part of Docker that builds images and runs containers. There are two ways to get it: install Docker Engine directly in your Linux (on Windows, in the Ubuntu in WSL 2), or install Docker Desktop, an app that brings its own Docker Engine. Use one of them, not both. Docker Engine is the tested setup.
+The dev container runs on [Docker Engine](https://docs.docker.com/engine/), the part of Docker that builds images and runs containers. There are two ways to get it: install Docker Engine directly in your Linux (on Windows, in the Ubuntu in WSL 2), or, on Windows, install Docker Desktop, an app that brings its own Docker Engine. Use one of them, not both. Docker Engine is the tested setup. On Linux, use Docker Engine: Docker Desktop for Linux also exists, but it runs the containers in a virtual machine, so they don't get your PC's network and display directly.
 
 === "Docker Engine (tested)"
 
@@ -87,11 +87,11 @@ RViz, Gazebo and other GUI programs run inside the container, which has no scree
 
     Nothing to install: WSLg shows the windows on the Windows desktop. It's part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later (see the [prerequisites](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps)).
 
-## Real robot from Windows (optional)
+## Real robot from Windows with WSL 2 (optional)
 
 Only needed if your PC runs Windows and you want to connect to the real robot. By default, WSL 2 sits behind its own network translation (NAT), so the robot can't connect to your PC, and ROS 1 needs connections in both directions. WSL's *mirrored networking* removes that barrier; it needs Windows 11 22H2 or later. Why, how to set it up and how to test it: [Work machine on Windows (WSL 2)](../processing_units/ros-network-setup.md#work-machine-on-windows-wsl-2).
 
 You don't need it on Linux, where the container uses the PC's own network address. You also don't need it for simulation, because then all ROS nodes run in the container on your PC, and no other device has to connect to it.
 
 !!! warning "Not tested with the robot yet"
-    Mirrored networking is Microsoft's fix for exactly this problem, but nobody has tested this setup with DiffBot or Remo yet.
+    Microsoft lists "Connect to WSL directly from your local area network (LAN)" as a benefit of mirrored networking ([Mirrored mode networking](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking)), but nobody has tested this setup with DiffBot or Remo yet.
