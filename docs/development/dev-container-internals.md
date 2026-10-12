@@ -78,3 +78,5 @@ xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f "$tmp_file" nmerge -
 - **How the container finds it:** the container reads the cookie through the workspace mount (`XAUTHORITY` points there). A refreshed cookie is therefore visible in a running container too.
 
 This avoids [`xhost +`](https://www.x.org/releases/current/doc/man/man1/xhost.1.xhtml), which switches off the access control, so every local user and process could connect to your display. The ROS tutorial also calls that "not the safest way".
+
+Qt programs such as RViz and rqt also try to share memory with the X server (the [MIT-SHM extension](https://www.x.org/releases/current/doc/xextproto/shm.html)) to draw faster. That fails from the container: it has its own System V shared memory ([IPC namespace](https://docs.docker.com/reference/cli/docker/container/run/#ipc)), which the host's X server can't see. The dev container therefore sets `QT_XCB_NO_MITSHM=1`, so Qt doesn't try. That's the variable for Qt 5, which RViz, Gazebo and rqt use on ROS Noetic (Qt 5.12 on Ubuntu 20.04). Many guides set `QT_X11_NO_MITSHM=1` instead, but only Qt 4 reads that one.

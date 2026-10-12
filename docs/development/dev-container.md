@@ -135,6 +135,7 @@ The steps depend on your PC. Choose your platform:
             bash .devcontainer/noetic/host-x11.sh
             docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
               -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \
+              -e QT_XCB_NO_MITSHM=1 \
               -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \
               bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
             ```
@@ -180,6 +181,7 @@ The steps depend on your PC. Choose your platform:
             bash .devcontainer/noetic/host-x11.sh
             docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
               -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \
+              -e QT_XCB_NO_MITSHM=1 \
               -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \
               bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh && bash"
             ```
@@ -248,7 +250,7 @@ Add it to the package's `package.xml`. Then rebuild the container, so the image 
 Add the repository to [`diffbot_dev.repos`]({{ diffbot_repo_url }}/diffbot_dev.repos), and to the robot's `.repos` file if the robot needs it too. A new container imports it automatically. In a running container, run the same steps as [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) in `~/catkin_ws`: import the repository, install its dependencies with rosdep, and build:
 
 ```console
-vcs import --skip-existing src < src/diffbot/diffbot_dev.repos
+vcs import --skip-existing < src/diffbot/diffbot_dev.repos
 sudo apt-get update
 rosdep install --from-paths src --ignore-src --rosdistro noetic -y
 catkin build
