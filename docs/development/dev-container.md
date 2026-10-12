@@ -2,7 +2,7 @@
 
 The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and [CI](ci.md#dev-container-workflow), gets the same environment, on Linux and on Windows with WSL 2.
 
-It's the recommended setup for the development PC. Prepare the PC first, as described in [Set Up Your PC](../getting-started/set-up-your-pc.md). The robot's single board computer is still set up natively, see [Getting Started](../technical_requirements.md#real-robot).
+It's the recommended setup for the development PC. Prepare the PC first, as described in [Set Up Your PC](../getting-started/set-up-your-pc.md). The robot's single board computer is still set up natively, see [Getting Started](../getting-started/index.md#real-robot).
 
 ## How the pieces fit together
 
@@ -40,7 +40,7 @@ Set up once, as described in [Set Up Your PC](../getting-started/set-up-your-pc.
 - [A way to start the container](../getting-started/set-up-your-pc.md#a-way-to-start-the-container): VS Code with the Dev Containers extension, the Dev Container CLI, or plain Docker.
 - [Display access for windows like RViz and Gazebo](../getting-started/set-up-your-pc.md#for-windows-like-rviz-and-gazebo): `xauth` on Linux, WSLg on Windows.
 - [Git](../getting-started/git-and-github.md#install-git-and-clone), to clone the repository.
-- Only for the real robot from Windows: [mirrored networking](../getting-started/set-up-your-pc.md#real-robot-from-windows-optional).
+- Only for the real robot from Windows: [mirrored networking](../getting-started/set-up-your-pc.md#real-robot-from-windows-with-wsl-2-optional).
 
 ## Usage
 

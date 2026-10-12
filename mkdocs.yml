@@ -103,13 +103,14 @@ plugins:
         diffbot_base.md: packages/diffbot_base/index.md
         ros-network-setup.md: processing_units/ros-network-setup.md
         processing_units/git-setup.md: getting-started/git-and-github.md
+        technical_requirements.md: getting-started/index.md
 
 nav:
   # Seven tabs, see the docs structure review. Only the menu changed: every page keeps its file
   # and its URL. Pages that aren't listed (the nearly empty theory pages) are still built.
   - Home: index.md
   - Getting Started:
-    - Overview: technical_requirements.md
+    - getting-started/index.md
     - Set Up Your PC: getting-started/set-up-your-pc.md
     - Git and GitHub: getting-started/git-and-github.md
     - Development Environment:
