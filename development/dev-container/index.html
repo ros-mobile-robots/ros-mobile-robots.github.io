@@ -4305,10 +4305,12 @@
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span>
-<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
 <span class="go">bash .devcontainer/noetic/host-x11.sh</span>
 <span class="go">docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \</span>
 <span class="go">  -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \</span>
+<span class="go">  -e QT_XCB_NO_MITSHM=1 \</span>
 <span class="go">  -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \</span>
 <span class="go">  bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh &amp;&amp; bash"</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4357,10 +4359,12 @@
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span>
-<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
 <span class="go">bash .devcontainer/noetic/host-x11.sh</span>
 <span class="go">docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \</span>
 <span class="go">  -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \</span>
+<span class="go">  -e QT_XCB_NO_MITSHM=1 \</span>
 <span class="go">  -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \</span>
 <span class="go">  bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh &amp;&amp; bash"</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4427,7 +4431,7 @@
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">vcs import --skip-existing src &lt; src/diffbot/diffbot_dev.repos</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">vcs import --skip-existing &lt; src/diffbot/diffbot_dev.repos</span>
 <span class="go">sudo apt-get update</span>
 <span class="go">rosdep install --from-paths src --ignore-src --rosdistro noetic -y</span>
 <span class="go">catkin build</span>
