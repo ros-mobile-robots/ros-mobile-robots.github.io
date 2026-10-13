@@ -1,6 +1,6 @@
 # ROS Installation
 
-The robot's computer runs [ROS Noetic](https://wiki.ros.org/noetic) on Ubuntu MATE 20.04 Focal Fossa. Both reached their end of life in May 2025. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. The way to ROS 2 is planned in [diffbot#107](https://github.com/ros-mobile-robots/diffbot/issues/107).
+The robot's computer runs [ROS Noetic](https://wiki.ros.org/noetic) on Ubuntu MATE 20.04 Focal Fossa. ROS Noetic reached its end of life in May 2025, at the same time as the standard support of [Ubuntu 20.04](https://ubuntu.com/20-04); Ubuntu MATE's own support for 20.04 [ended in April 2023](https://ubuntu-mate.community/t/ubuntu-mate-20-04-lts-reaches-end-of-life/26477). This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. The way to ROS 2 is planned in [diffbot#107](https://github.com/ros-mobile-robots/diffbot/issues/107).
 
 !!! tip "All in one: `raspi-setup.sh`"
     The diffbot repository's [`raspi-setup.sh`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh) runs the commands of this page and of [Packages Setup](../packages/packages-setup.md) in one go, for Remo or DiffBot. On the robot:
@@ -14,7 +14,17 @@ The robot's computer runs [ROS Noetic](https://wiki.ros.org/noetic) on Ubuntu MA
 
 ## Install ROS Noetic
 
-The key that signs the ROS packages expired on 1 June 2025 and was renewed. The [`ros-apt-source`](https://github.com/ros-infrastructure/ros-apt-source) package sets up the package source together with the current key, as the [ROS signing key migration guide](https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937) recommends. Download and install it:
+The key that signs the ROS packages expired on 1 June 2025 and was renewed. The [`ros-apt-source`](https://github.com/ros-infrastructure/ros-apt-source) package sets up the package source together with the current key, as the [ROS signing key migration guide](https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937) recommends.
+
+??? warning "Robot set up before June 2025? Remove the old package source first"
+    Older instructions, including the [ROS wiki](https://wiki.ros.org/noetic/Installation/Ubuntu) and earlier versions of this page, add the package source to `/etc/apt/sources.list.d/ros-latest.list` and the key with `apt-key`. If your robot has that file, `sudo apt update` fails because the key from back then has expired (`EXPKEYSIG`). Remove the old entry and key before the commands below, as the [migration guide](https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937) describes:
+
+    ```console
+    sudo rm /etc/apt/sources.list.d/ros-latest.list
+    sudo apt-key del "C1CF 6E31 E6BA DE88 68B1 72B4 F42E D6FB AB17 C654"
+    ```
+
+Download and install `ros-apt-source`:
 
 ```console
 sudo apt update && sudo apt install curl -y
@@ -36,15 +46,6 @@ Load ROS in every new terminal:
 echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
-
-??? note "Robot set up before 2025, with `ros-latest.list`"
-    Older instructions, including the [ROS wiki](https://wiki.ros.org/noetic/Installation/Ubuntu) and earlier versions of this page, add the package source to `/etc/apt/sources.list.d/ros-latest.list` and the key with `apt-key`. With the key from back then, `sudo apt update` reports it as expired (`EXPKEYSIG`) for the ROS packages. Install `ros-apt-source` as above, then remove the old entry and key, as the [migration guide](https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937) describes:
-
-    ```console
-    sudo rm /etc/apt/sources.list.d/ros-latest.list
-    sudo apt-key del "C1CF 6E31 E6BA DE88 68B1 72B4 F42E D6FB AB17 C654"
-    sudo apt update
-    ```
 
 ## Dependencies: rosdep
 
@@ -80,7 +81,7 @@ fjp@ubuntu:~/catkin_ws$ catkin init                         # Initialize it with
 Initializing catkin workspace in `/home/fjp/catkin_ws`.
 ----------------------------------------------------------------
 Profile:                     default
-Extending:             [env] /opt/ros/melodic
+Extending:             [env] /opt/ros/noetic
 Workspace:                   /home/fjp/catkin_ws
 ----------------------------------------------------------------
 Build Space:       [missing] /home/fjp/catkin_ws/build
@@ -116,7 +117,7 @@ Building the workspace is done with [`catkin build`](https://catkin-tools.readth
 fjp@ubuntu:~/catkin_ws$ catkin build
 ----------------------------------------------------------------
 Profile:                     default
-Extending:             [env] /opt/ros/melodic
+Extending:             [env] /opt/ros/noetic
 Workspace:                   /home/fjp/catkin_ws
 ----------------------------------------------------------------
 Build Space:        [exists] /home/fjp/catkin_ws/build

@@ -16,7 +16,7 @@ To work with the `raspicam_node` for ROS Noetic, you have to build it from sourc
 outlined in the build instructions of the [readme](https://github.com/UbiquityRobotics/raspicam_node#build-intructions).
 For completeness, these steps are listed here:
 
-First go to your catkin_ws cd `~/ros_ws/src` and download the source for this node by running
+First go to your catkin_ws cd `~/catkin_ws/src` and download the source for this node by running
 
 ```console
 git clone https://github.com/UbiquityRobotics/raspicam_node.git
@@ -72,13 +72,13 @@ libpigpiod-if:
 To make use of these sources run 
 
 ```console
-rosdep update
+rosdep update --rosdistro noetic
 ```
 
 Next, we parse the `package.xml` file for required dependencies and also install them with the `rosdep` command:
 
 ```console
-cd ~/ros_ws
+cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src --rosdistro=noetic -y
 ```
 
