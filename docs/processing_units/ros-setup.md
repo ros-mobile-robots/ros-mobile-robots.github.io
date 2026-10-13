@@ -13,11 +13,11 @@ curl -L -o /tmp/ros-apt-source.deb "https://github.com/ros-infrastructure/ros-ap
 sudo dpkg -i /tmp/ros-apt-source.deb
 ```
 
-Then install ROS for the robot, `ros-noetic-robot`, without the GUI tools: RViz, Gazebo and rqt run on your PC, in the [dev container](../development/dev-container.md). Install the tools to set up and build the workspace with it, and `python-is-python3`, which nodes written with `rospy` need:
+Then install ROS for the robot, `ros-noetic-robot`, without the GUI tools: RViz, Gazebo and rqt run on your PC, in the [dev container](../development/dev-container.md). Install the tools to set up and build the workspace with it, among them the C++ compiler (`build-essential`), and `python-is-python3`, which nodes written with `rospy` need:
 
 ```console
 sudo apt update
-sudo apt install ros-noetic-robot python3-rosdep python3-catkin-tools python3-vcstool python-is-python3
+sudo apt install ros-noetic-robot python3-rosdep python3-catkin-tools python3-vcstool build-essential python-is-python3
 ```
 
 Load ROS in every new terminal:
