@@ -85,10 +85,6 @@
          <lastmod>2026-10-13</lastmod>
     </url>
     <url>
-         <loc>https://ros-mobile-robots.com/technical_requirements/</loc>
-         <lastmod>2026-10-13</lastmod>
-    </url>
-    <url>
          <loc>https://ros-mobile-robots.com/development/</loc>
          <lastmod>2026-10-13</lastmod>
     </url>
@@ -102,6 +98,18 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/development/dev-container/</loc>
+         <lastmod>2026-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/getting-started/</loc>
+         <lastmod>2026-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/getting-started/git-and-github/</loc>
+         <lastmod>2026-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/getting-started/set-up-your-pc/</loc>
          <lastmod>2026-10-13</lastmod>
     </url>
     <url>
@@ -170,10 +178,6 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/processing_units/</loc>
-         <lastmod>2026-10-13</lastmod>
-    </url>
-    <url>
-         <loc>https://ros-mobile-robots.com/processing_units/git-setup/</loc>
          <lastmod>2026-10-13</lastmod>
     </url>
     <url>

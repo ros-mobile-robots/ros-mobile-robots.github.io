@@ -385,7 +385,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../technical_requirements/" class="md-tabs__link">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -590,6 +590,12 @@
     
       
         
+          
+        
+      
+        
+      
+        
       
         
       
@@ -609,8 +615,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2">
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting-started/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -624,8 +631,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
@@ -639,20 +652,50 @@
           <ul class="md-nav__list" data-md-scrollfix="">
             
               
+            
+              
                 
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../technical_requirements/" class="md-nav__link">
+      <a href="../../getting-started/set-up-your-pc/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Overview
+    Set Up Your PC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/git-and-github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git and GitHub
   
 
     
@@ -694,10 +737,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4">
         
           
-          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
             
   
   
@@ -715,8 +758,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -740,7 +783,7 @@
   <span class="md-ellipsis">
     
   
-    Development Environment
+    Use the Dev Container
   
 
     
@@ -1166,8 +1209,6 @@
       
         
       
-        
-      
     
     
     
@@ -1331,6 +1372,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#remote-access-with-ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote access with SSH
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1355,34 +1407,6 @@
     
   
     Jetson Nano Setup
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../git-setup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Git Setup
   
 
     
@@ -3974,6 +3998,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#remote-access-with-ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote access with SSH
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4220,7 +4255,14 @@ sudo make
 <h2 id="prepare-ubuntu">Prepare Ubuntu</h2>
 <p>After flashing the image to the sd card insert it to the Pi, hook it up to a monitor via HDMI and power it up by plugging in the USB-C connector.
 Then you should follow the <a href="https://ubuntu-mate.org/raspberry-pi/install/">installation instructions</a> on the screen.</p>
-<p>Once finished, follow the next steps to install ROS Noetic.</p>
+<h2 id="remote-access-with-ssh">Remote access with SSH</h2>
+<p>To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH (<a href="https://ubuntu.com/server/docs/how-to/security/openssh-server/">OpenSSH server</a>). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install openssh-server</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>On your PC, in Linux or in the Ubuntu in WSL 2, the <code>ssh</code> client is usually already installed. Log in with your user name on the robot and its IP address, which <code>hostname -I</code> on the robot shows. For example:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh your-user@192.168.0.20</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Next, on the robot: install ROS Noetic, as described in <a href="../ros-setup/">ROS Setup</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.

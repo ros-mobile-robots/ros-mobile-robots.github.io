@@ -8,7 +8,7 @@
         <link rel="canonical" href="https://ros-mobile-robots.com/development/dev-container/">
       
       
-        <link rel="prev" href="../../technical_requirements/">
+        <link rel="prev" href="../../getting-started/git-and-github/">
       
       
         <link rel="next" href="../dev-container-internals/">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Development Environment - DiffBot Differential Drive Mobile Robot</title>
+        <title>Use the Dev Container - DiffBot Differential Drive Mobile Robot</title>
       
     
     
@@ -233,7 +233,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#development-environment" class="md-skip">
+        <a href="#use-the-dev-container" class="md-skip">
           Skip to content
         </a>
       
@@ -267,7 +267,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Development Environment
+              Use the Dev Container
             
           </span>
         </div>
@@ -403,7 +403,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../technical_requirements/" class="md-tabs__link">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -608,6 +608,12 @@
     
       
         
+          
+        
+      
+        
+      
+        
       
         
       
@@ -630,8 +636,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked="">
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting-started/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -645,8 +652,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
@@ -660,20 +673,50 @@
           <ul class="md-nav__list" data-md-scrollfix="">
             
               
+            
+              
                 
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../technical_requirements/" class="md-nav__link">
+      <a href="../../getting-started/set-up-your-pc/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Overview
+    Set Up Your PC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/git-and-github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git and GitHub
   
 
     
@@ -720,10 +763,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked="">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" checked="">
         
           
-          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="">
             
   
   
@@ -741,8 +784,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_2_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -775,7 +818,7 @@
   <span class="md-ellipsis">
     
   
-    Development Environment
+    Use the Dev Container
   
 
     
@@ -793,7 +836,7 @@
   <span class="md-ellipsis">
     
   
-    Development Environment
+    Use the Dev Container
   
 
     
@@ -837,56 +880,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Requirements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-on-the-host" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docker on the host
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#a-way-to-start-the-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A way to start the container
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#for-windows-like-rviz-and-gazebo" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For windows like RViz and Gazebo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#real-robot-from-windows-optional" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Real robot from Windows (optional)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1390,8 +1383,6 @@
       
         
       
-        
-      
     
     
     
@@ -1489,34 +1480,6 @@
     
   
     Jetson Nano Setup
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../processing_units/git-setup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Git Setup
   
 
     
@@ -4077,56 +4040,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Requirements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-on-the-host" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docker on the host
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#a-way-to-start-the-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A way to start the container
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#for-windows-like-rviz-and-gazebo" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For windows like RViz and Gazebo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#real-robot-from-windows-optional" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Real robot from Windows (optional)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -4261,7 +4174,7 @@
     
     
       <li class="md-path__item">
-        <a href="../../technical_requirements/" class="md-path__link">
+        <a href="../../getting-started/" class="md-path__link">
           
   <span class="md-ellipsis">
     Getting Started
@@ -4312,9 +4225,9 @@
   
 
 
-<h1 id="development-environment">Development Environment</h1>
+<h1 id="use-the-dev-container">Use the Dev Container</h1>
 <p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/#dev-container-workflow">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
-<p>It's the recommended setup for the development PC. The robot's single board computer is still set up natively, see <a href="../../packages/packages-setup/">Packages Setup</a>.</p>
+<p>It's the recommended setup for the development PC. Prepare the PC first, as described in <a href="../../getting-started/set-up-your-pc/">Set Up Your PC</a>. The robot's single board computer is still set up natively, see <a href="../../getting-started/#real-robot">Getting Started</a>.</p>
 <h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
 <p>A few terms first:</p>
 <ul>
@@ -4338,58 +4251,17 @@
   XS --&gt; SCREEN[Windows on&lt;br/&gt;your screen]</div>
 <p><strong>With the real robot:</strong> the robot runs ROS natively on its Raspberry Pi (see <a href="../../packages/packages-setup/">Packages Setup</a>), and together with the container on your PC it forms one ROS network, with the ROS master on the PC. RViz, mapping and navigation run on the PC. How the PC and the robot connect is described in <a href="../../processing_units/ros-network-setup/">ROS Network Setup</a>.</p>
 <h2 id="requirements">Requirements</h2>
-<h3 id="docker-on-the-host">Docker on the host</h3>
-<p>The dev container runs on <a href="https://docs.docker.com/engine/">Docker Engine</a>, the part of Docker that builds images and runs containers. There are two ways to get it: install Docker Engine directly in your Linux (on Windows, in the Ubuntu in WSL 2), or install Docker Desktop, an app that brings its own Docker Engine. Use one of them, not both. Docker Engine is the tested setup.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Docker Engine (tested)</label><label for="__tabbed_1_2">Docker Desktop (untested)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>Install Docker Engine as described in Docker's guide <a href="https://docs.docker.com/engine/install/ubuntu/">Install Docker Engine on Ubuntu</a>, with Docker's apt repository. This works the same in the Ubuntu in WSL 2.</p>
-<p>Ubuntu's own packages work too, and this setup was tested with them (Docker 29 on Ubuntu 24.04). Docker calls them unofficial, and they can be older than Docker's releases:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker.io docker-buildx</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>Either way, then follow Docker's <a href="https://docs.docker.com/engine/install/linux-postinstall/">post-installation steps</a>, so you can use Docker without <code>sudo</code>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo usermod -aG docker $USER</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>Log out and in again so the new <code>docker</code> group applies. On WSL 2, run <code>wsl --shutdown</code> in Windows PowerShell and open Ubuntu again. Docker runs as a systemd service, which WSL turns on by default for current Ubuntu versions (<a href="https://learn.microsoft.com/en-us/windows/wsl/systemd">systemd in WSL</a>).</p>
-</div>
-<div class="tabbed-block">
-<p><a href="https://docs.docker.com/desktop/">Docker Desktop</a> is an app for Windows, macOS and Linux that runs Docker Engine in its own virtual machine. On Windows, that's a separate WSL distribution called <code>docker-desktop</code>, and its <a href="https://docs.docker.com/desktop/features/wsl/">WSL integration</a> makes the <code>docker</code> command available in your Ubuntu. Uninstall Docker Engine from your Ubuntu first, because the two conflict.</p>
-<p>Two things are different from Docker Engine:</p>
+<p>Set up once, as described in <a href="../../getting-started/set-up-your-pc/">Set Up Your PC</a>:</p>
 <ul>
-<li>The container's "host" is Docker Desktop's virtual machine, not your Ubuntu. Its host network, which this setup uses, is an opt-in feature from version 4.34 (Settings → Resources → Network → <strong>Enable host networking</strong>) and only carries TCP and UDP (<a href="https://docs.docker.com/engine/network/drivers/host/#docker-desktop">Docker docs</a>).</li>
-<li>Docker Desktop is free for personal use, education, non-commercial open source projects and small businesses. Larger companies need a paid subscription (<a href="https://docs.docker.com/subscription-billing/desktop-license/">Docker Desktop license</a>).</li>
+<li><a href="../../getting-started/set-up-your-pc/#docker">Docker</a> on the host: Docker Engine, the tested setup, or Docker Desktop.</li>
+<li><a href="../../getting-started/set-up-your-pc/#a-way-to-start-the-container">A way to start the container</a>: VS Code with the Dev Containers extension, the Dev Container CLI, or plain Docker.</li>
+<li><a href="../../getting-started/set-up-your-pc/#for-windows-like-rviz-and-gazebo">Display access for windows like RViz and Gazebo</a>: <code>xauth</code> on Linux, WSLg on Windows.</li>
+<li><a href="../../getting-started/git-and-github/#install-git-and-clone">Git</a>, to clone the repository.</li>
+<li>Only for the real robot from Windows: <a href="../../getting-started/set-up-your-pc/#real-robot-from-windows-with-wsl-2-optional">mirrored networking</a>.</li>
 </ul>
-<p>Docker Desktop isn't tested with this setup, and especially not with the robot.</p>
-</div>
-</div>
-</div>
-<h3 id="a-way-to-start-the-container">A way to start the container</h3>
-<p><a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a> is the easiest. The <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> works from a terminal (<code>npm install -g @devcontainers/cli</code>, which needs Node.js). Plain Docker works too. All three are shown under <a href="#usage">Usage</a>.</p>
-<h3 id="for-windows-like-rviz-and-gazebo">For windows like RViz and Gazebo</h3>
-<p>RViz, Gazebo and other GUI programs run inside the container, which has no screen of its own. They show their windows on your desktop through your host's X server (see <a href="#how-the-pieces-fit-together">How the pieces fit together</a>), and the X server has to let them in. This is set up once, depending on your host. It's only needed for the container: with ROS installed directly on your PC, its windows open like those of any other program.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Linux</label><label for="__tabbed_2_2">Windows (WSL 2)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>Install <code>xauth</code> on the host:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install xauth</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>With the usual cookie-based setup, the X server only accepts clients that present the display's <em>cookie</em>. In X11, a cookie is a secret: a random 128-bit value that your desktop creates when you log in. Clients without it, for example other users' programs, can't draw on your screen or read it. Any client that has the cookie can connect, which is how the container gets access (<a href="https://www.x.org/releases/current/doc/man/man7/Xsecurity.7.xhtml">X security</a>). It has nothing to do with web cookies. <a href="https://www.x.org/releases/current/doc/man/man1/xauth.1.xhtml"><code>xauth</code></a> is the standard tool for these cookies, and the setup uses it to hand yours to the container (see <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>).</p>
-</div>
-<div class="tabbed-block">
-<p>Nothing to install: WSLg shows the windows on the Windows desktop. It's part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later (see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>).</p>
-</div>
-</div>
-</div>
-<h3 id="real-robot-from-windows-optional">Real robot from Windows (optional)</h3>
-<p>Only needed if your PC runs Windows and you want to connect to the real robot. By default, WSL 2 sits behind its own network translation (NAT), so the robot can't connect to your PC, and ROS 1 needs connections in both directions. WSL's <em>mirrored networking</em> removes that barrier. Why, how to set it up and how to test it: <a href="../../processing_units/ros-network-setup/#work-machine-on-windows-wsl-2">Work machine on Windows (WSL 2)</a>.</p>
-<p>You don't need it on Linux, where the container uses the PC's own network address. You also don't need it for simulation, because then all ROS nodes run in the container on your PC, and no other device has to connect to it.</p>
-<div class="admonition warning">
-<p class="admonition-title">Not tested with the robot yet</p>
-<p>Mirrored networking is Microsoft's fix for exactly this problem, but nobody has tested this setup with DiffBot or Remo yet.</p>
-</div>
 <h2 id="usage">Usage</h2>
 <p>The steps depend on your PC. Choose your platform:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">Linux</label><label for="__tabbed_3_2">Windows (WSL 2)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (WSL 2)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <ol>
@@ -4402,7 +4274,7 @@
 </li>
 <li>
 <p><strong>Start the container</strong>, in the <code>diffbot</code> folder, with one of these:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio"><input id="__tabbed_4_2" name="__tabbed_4" type="radio"><input id="__tabbed_4_3" name="__tabbed_4" type="radio"><div class="tabbed-labels"><label for="__tabbed_4_1">VS Code</label><label for="__tabbed_4_2">Dev Container CLI</label><label for="__tabbed_4_3">Plain Docker</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><input id="__tabbed_2_3" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">VS Code</label><label for="__tabbed_2_2">Dev Container CLI</label><label for="__tabbed_2_3">Plain Docker</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Run <code>code .</code> to open the folder in VS Code, or open it from VS Code's menu. Then choose <strong>Reopen in Container</strong> in the notification, or run <strong>Dev Containers: Reopen in Container</strong> from the command palette (<span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-shift">Shift</kbd><span>+</span><kbd class="key-p">P</kbd></span>). The first start builds the image and the workspace, which takes a few minutes.</p>
@@ -4450,7 +4322,7 @@
 </li>
 <li>
 <p><strong>Start the container</strong>, in the <code>diffbot</code> folder, with one of these:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio"><input id="__tabbed_5_2" name="__tabbed_5" type="radio"><input id="__tabbed_5_3" name="__tabbed_5" type="radio"><div class="tabbed-labels"><label for="__tabbed_5_1">VS Code</label><label for="__tabbed_5_2">Dev Container CLI</label><label for="__tabbed_5_3">Plain Docker</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><input id="__tabbed_3_3" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">VS Code</label><label for="__tabbed_3_2">Dev Container CLI</label><label for="__tabbed_3_3">Plain Docker</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>VS Code runs as a Windows program, while Docker Engine runs in the Ubuntu. So VS Code first connects to the Ubuntu, and then to the container:</p>
@@ -4523,7 +4395,7 @@
 <h2 id="updating">Updating</h2>
 <h3 id="a-new-ros-or-system-dependency">A new ROS or system dependency</h3>
 <p>Add it to the package's <code>package.xml</code>. Then rebuild the container, so the image installs it with rosdep:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio"><input id="__tabbed_6_2" name="__tabbed_6" type="radio"><input id="__tabbed_6_3" name="__tabbed_6" type="radio"><div class="tabbed-labels"><label for="__tabbed_6_1">VS Code</label><label for="__tabbed_6_2">Dev Container CLI</label><label for="__tabbed_6_3">Plain Docker</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio"><input id="__tabbed_4_2" name="__tabbed_4" type="radio"><input id="__tabbed_4_3" name="__tabbed_4" type="radio"><div class="tabbed-labels"><label for="__tabbed_4_1">VS Code</label><label for="__tabbed_4_2">Dev Container CLI</label><label for="__tabbed_4_3">Plain Docker</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Run <strong>Dev Containers: Rebuild Container</strong> from the command palette (<span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-shift">Shift</kbd><span>+</span><kbd class="key-p">P</kbd></span>).</p>
@@ -4675,7 +4547,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer">
         
           
-          <a href="../../technical_requirements/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+          <a href="../../getting-started/git-and-github/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Git and GitHub">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
@@ -4685,7 +4557,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Overview
+                Git and GitHub
               </div>
             </div>
           </a>

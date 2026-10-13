@@ -383,7 +383,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../technical_requirements/" class="md-tabs__link">
+        <a href="../getting-started/" class="md-tabs__link">
           
   
   
@@ -588,6 +588,12 @@
     
       
         
+          
+        
+      
+        
+      
+        
       
         
       
@@ -607,8 +613,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2">
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../getting-started/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -622,8 +629,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
@@ -637,20 +650,50 @@
           <ul class="md-nav__list" data-md-scrollfix="">
             
               
+            
+              
                 
   
   
   
   
     <li class="md-nav__item">
-      <a href="../technical_requirements/" class="md-nav__link">
+      <a href="../getting-started/set-up-your-pc/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Overview
+    Set Up Your PC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/git-and-github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git and GitHub
   
 
     
@@ -692,10 +735,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4">
         
           
-          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
             
   
   
@@ -713,8 +756,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -738,7 +781,7 @@
   <span class="md-ellipsis">
     
   
-    Development Environment
+    Use the Dev Container
   
 
     
@@ -1154,8 +1197,6 @@
       
         
       
-        
-      
     
     
     
@@ -1253,34 +1294,6 @@
     
   
     Jetson Nano Setup
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../processing_units/git-setup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Git Setup
   
 
     
@@ -3876,6 +3889,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Available features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#remo-stl-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remo STL files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4109,6 +4139,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Available features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#remo-stl-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remo STL files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -4381,11 +4428,24 @@ collaborator.[^4] -->
 <p>The following features are solely available via DiffBot and Remo Insiders:</p>
 <div class="mdx-columns">
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> [TBA] :material-new-box:</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> <a href="#remo-stl-files">Remo's STL files in a private Git repository</a> :material-new-box:</li>
 <li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> [TBA] :material-new-box:</li>
 <li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> [TBA]</li>
 </ul>
 </div>
+<h3 id="remo-stl-files">Remo STL files</h3>
+<p>Remo Insiders, the private repository <code>remo_description_insiders</code>, is a version of <a href="../packages/remo_description/">Remo Description</a> with all of Remo's STL files. The public repository only has empty placeholders for them. The STL files are stored with Git LFS. The files themselves are also sold on Gumroad (see below); what Insiders adds is a Git repository you can clone and pull.</p>
+<p>With access to Remo Insiders (see <a href="#how-to-become-a-sponsor">how to become a sponsor</a>):</p>
+<ol>
+<li>Set up Git LFS and GitHub authentication, as described in <a href="../getting-started/git-and-github/#private-repositories-and-git-lfs-optional">Git and GitHub</a>.</li>
+<li>
+<p>Clone it into your ROS workspace's <code>src</code> folder instead of the public <code>remo_description</code>. Both contain a package named <code>remo_description</code>, so keep only one of them in the workspace:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git clone https://github.com/ros-mobile-robots/remo_description_insiders.git</span>
+</code></pre></div></td></tr></tbody></table></div>
+</li>
+</ol>
+<p>The dev container imports the public repository; using Remo Insiders there is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/104">diffbot#104</a>.</p>
+<p>Without a sponsorship, you can buy the STL files on Gumroad instead, see <a href="../hardware_setup/3D_print/">3D Printing</a>.</p>
 <h2 id="funding">Funding <span class="mdx-sponsorship-total" data-mdx-component="sponsorship-total"></span></h2>
 <h3 id="goals">Goals</h3>
 <p>The following section lists all funding goals. Each goal contains a list of
