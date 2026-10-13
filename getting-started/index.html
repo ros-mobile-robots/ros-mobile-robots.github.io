@@ -4037,8 +4037,21 @@
 
 
 <h1 id="getting-started">Getting Started</h1>
-<p>This page takes you from a new PC to a driving robot. The steps are the same for both robots, <a href="../hardware/">DiffBot and Remo</a>, because they share their code: the <a href="https://github.com/ros-mobile-robots/diffbot">diffbot</a> repository has the simulation, the software for the real robot, and the tools for your PC. Both run <a href="https://wiki.ros.org/noetic">ROS 1 Noetic</a>.</p>
-<p>The steps below build on each other. The first three set up your PC and run the robot in simulation, without any hardware. The real robot continues with step 4, and your PC is then already prepared for it.</p>
+<p>This page takes you from a new PC to a driving robot. The steps are the same for both robots, because they share their code in the <a href="https://github.com/ros-mobile-robots/diffbot">diffbot</a> repository, and both run <a href="https://wiki.ros.org/noetic">ROS 1 Noetic</a>:</p>
+<div class="grid cards robot-cards">
+<ul>
+<li>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="DiffBot from the front, with its RPLidar, camera and ultrasonic sensor" src="../resources/diffbot/diffbot-front-900.jpg"></a></p>
+<p><strong>DiffBot</strong>: your own two- or four-wheeled differential drive robot.</p>
+</li>
+<li>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Remo with its 3D printed frame, RPLidar, Raspberry Pi and camera" src="../resources/remo/remo-front-side-900.jpg"></a></p>
+<p><strong>Remo</strong>: a modular platform based on NVIDIA's JetBot, with a 3D printed frame.</p>
+</li>
+</ul>
+</div>
+<p><a href="../hardware/">Hardware</a> describes both robots and what you need to build them.</p>
+<p>The steps below build on each other. The first three set up your PC and run the robot in simulation, without any hardware. The real robot continues with step 4, and your PC is then already prepared for it. <a href="#1-set-up-your-pc">Go to step 1</a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Quick start, if Docker and VS Code are already set up</p>
 <p>In a Linux terminal, or on Windows in the Ubuntu in WSL 2:</p>
@@ -4052,16 +4065,16 @@
 <p>If something is missing, follow the steps below.</p>
 </div>
 <h2 id="simulation">Simulation</h2>
-<h3 id="1-set-up-your-pc">1. Set up your PC</h3>
+<h3 id="1-set-up-your-pc"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 6h16v10H4m16 2a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4c-1.11 0-2 .89-2 2v10a2 2 0 0 0 2 2H0v2h24v-2z"></path></svg></span> 1. Set up your PC</h3>
 <p><a id="operating-system"></a>Linux, or Windows with WSL 2, and Docker: see <a href="set-up-your-pc/">Set Up Your PC</a>.</p>
-<h3 id="2-get-the-code">2. Get the code</h3>
+<h3 id="2-get-the-code"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m6.75 11.5c2.75 0 3.49-2.03 3.68-3.1.91-.29 1.57-1.14 1.57-2.15C18 7 17 6 15.75 6S13.5 7 13.5 8.25c0 .94.57 1.75 1.39 2.08C14.67 11 14 12 12 12c-1.38 0-2.34.35-3 .84V8.87c.87-.31 1.5-1.14 1.5-2.12 0-1.25-1-2.25-2.25-2.25S6 5.5 6 6.75c0 .98.63 1.81 1.5 2.12v6.26c-.87.31-1.5 1.14-1.5 2.12 0 1.25 1 2.25 2.25 2.25s2.25-1 2.25-2.25c0-.93-.56-1.75-1.37-2.07.28-.68 1.1-1.68 3.62-1.68m-4.5 3a.75.75 0 0 1 .75.75.75.75 0 0 1-.75.75.75.75 0 0 1-.75-.75.75.75 0 0 1 .75-.75m0-10.5a.75.75 0 0 1 .75.75.75.75 0 0 1-.75.75.75.75 0 0 1-.75-.75.75.75 0 0 1 .75-.75m7.5 1.5a.75.75 0 0 1 .75.75.75.75 0 0 1-.75.75.75.75 0 0 1-.75-.75.75.75 0 0 1 .75-.75"></path></svg></span> 2. Get the code</h3>
 <p><a id="git"></a>Install Git and clone diffbot: see <a href="git-and-github/">Git and GitHub</a>.</p>
-<h3 id="3-run-the-simulation">3. Run the simulation</h3>
+<h3 id="3-run-the-simulation"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-18A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2m-2 14.5 6-4.5-6-4.5z"></path></svg></span> 3. Run the simulation</h3>
 <p>The dev container has ROS Noetic, Gazebo and RViz, and builds the workspace: see <a href="../development/dev-container/">Use the Dev Container</a>. With that, your PC is also ready for the real robot.</p>
 <h2 id="real-robot">Real robot</h2>
-<h3 id="4-build-the-robot">4. Build the robot</h3>
+<h3 id="4-build-the-robot"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"></path></svg></span> 4. Build the robot</h3>
 <p>The <a href="../components/">Components</a> to buy, and for Remo the <a href="../hardware/">hardware setup</a>: 3D printing, electronics and assembly.</p>
-<h3 id="5-set-up-the-robots-computer">5. Set up the robot's computer</h3>
+<h3 id="5-set-up-the-robots-computer"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 9V7h-2V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2h2v-2h-2v-2h2v-2h-2V9zm-4 10H4V5h14zM6 13h5v4H6zm6-6h4v3h-4zM6 7h5v5H6zm6 4h4v6h-4z"></path></svg></span> 5. Set up the robot's computer</h3>
 <p><a id="remote-control"></a>The robot's computer is a Raspberry Pi 4 B:</p>
 <ol>
 <li><a href="../processing_units/rpi-setup/">Raspberry Pi Setup</a>: Ubuntu MATE 20.04, and an SSH server so you can log in from your PC.</li>
@@ -4070,11 +4083,11 @@
 <li><a href="../packages/packages-setup/">Packages Setup</a>: install Git, clone diffbot, and build the workspace with its dependencies.</li>
 </ol>
 <p><a href="../processing_units/jetson-nano-setup/">Jetson Nano Setup</a> describes an older setup with Ubuntu 18.04 and ROS Melodic.</p>
-<h3 id="6-flash-the-microcontroller">6. Flash the microcontroller</h3>
+<h3 id="6-flash-the-microcontroller"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 4h12v1h3v2h-3v2h3v2h-3v2h3v2h-3v2h3v2h-3v1H6v-1H3v-2h3v-2H3v-2h3v-2H3V9h3V7H3V5h3zm5 11v3h1v-3zm2 0v3h1v-3zm2 0v3h1v-3z"></path></svg></span> 6. Flash the microcontroller</h3>
 <p>The <a href="../processing_units/teensy-mcu/">microcontroller</a>, a Teensy, drives the motors and reads the encoders.</p>
-<h3 id="7-connect-your-pc-and-the-robot">7. Connect your PC and the robot</h3>
+<h3 id="7-connect-your-pc-and-the-robot"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 1c-1.11 0-2 .89-2 2v4c0 1.11.89 2 2 2H1v2h12V9h-3c1.11 0 2-.89 2-2V3c0-1.11-.89-2-2-2zm0 2h6v4H4zM3 13v7h7v-2H5v-5zm11 0c-1.11 0-2 .89-2 2v4c0 1.11.89 2 2 2h-3v2h12v-2h-3c1.11 0 2-.89 2-2v-4c0-1.11-.89-2-2-2zm0 2h6v4h-6z"></path></svg></span> 7. Connect your PC and the robot</h3>
 <p>See <a href="../processing_units/ros-network-setup/">ROS Network Setup</a>.</p>
-<h3 id="8-drive-the-robot">8. Drive the robot</h3>
+<h3 id="8-drive-the-robot"><span aria-hidden="true" class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"></path></svg></span> 8. Drive the robot</h3>
 <p>Bring up the hardware, then map and navigate, as described in the diffbot README under <a href="https://github.com/ros-mobile-robots/diffbot#navigating-and-mapping-on-the-real-robot">Navigating and Mapping on the real Robot</a>.</p>
 <h2 id="what-you-need">What you need</h2>
 <table>
@@ -4277,6 +4290,8 @@
         max-width: 100%; aspect-ratio: 16 / 9; padding: 1rem; box-sizing: border-box; text-align: center; font-size: .7rem;
         background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
       .consent-embed p { margin: 0; max-width: 32rem; }
+      /* Getting Started: small robot photos that show the whole robot */
+      .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
