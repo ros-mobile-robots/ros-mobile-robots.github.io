@@ -409,7 +409,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../hardware_setup/overview/" class="md-tabs__link">
+        <a href="../../hardware/" class="md-tabs__link">
           
   
   
@@ -880,6 +880,8 @@
     
       
         
+          
+        
       
         
       
@@ -912,8 +914,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked="">
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../hardware/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -927,8 +930,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
@@ -941,32 +950,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../hardware_setup/overview/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Hardware Setup Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -4080,7 +4063,7 @@
     
     
       <li class="md-path__item">
-        <a href="../../hardware_setup/overview/" class="md-path__link">
+        <a href="../../hardware/" class="md-path__link">
           
   <span class="md-ellipsis">
     Hardware
@@ -4132,7 +4115,7 @@
 
 
 <h1 id="ros-installation">ROS Installation</h1>
-<p>The robot's computer runs <a href="https://wiki.ros.org/noetic">ROS Noetic</a> on Ubuntu MATE 20.04 Focal Fossa. Both reached their end of life in May 2025. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. The way to ROS 2 is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/107">diffbot#107</a>.</p>
+<p>The robot's computer runs <a href="https://wiki.ros.org/noetic">ROS Noetic</a> on Ubuntu MATE 20.04 Focal Fossa. ROS Noetic reached its end of life in May 2025, at the same time as the standard support of <a href="https://ubuntu.com/20-04">Ubuntu 20.04</a>; Ubuntu MATE's own support for 20.04 <a href="https://ubuntu-mate.community/t/ubuntu-mate-20-04-lts-reaches-end-of-life/26477">ended in April 2023</a>. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. The way to ROS 2 is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/107">diffbot#107</a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">All in one: <code>raspi-setup.sh</code></p>
 <p>The diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh"><code>raspi-setup.sh</code></a> runs the commands of this page and of <a href="../../packages/packages-setup/">Packages Setup</a> in one go, for Remo or DiffBot. On the robot:</p>
@@ -4143,7 +4126,16 @@
 <p>For DiffBot, use <code>diffbot</code> instead of <code>remo</code>. The sections below explain what the script does. <a href="../hardware-interfaces/">Hardware Interfaces</a> is still needed: it gives your user access to I2C and the serial port.</p>
 </div>
 <h2 id="install-ros-noetic">Install ROS Noetic</h2>
-<p>The key that signs the ROS packages expired on 1 June 2025 and was renewed. The <a href="https://github.com/ros-infrastructure/ros-apt-source"><code>ros-apt-source</code></a> package sets up the package source together with the current key, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">ROS signing key migration guide</a> recommends. Download and install it:</p>
+<p>The key that signs the ROS packages expired on 1 June 2025 and was renewed. The <a href="https://github.com/ros-infrastructure/ros-apt-source"><code>ros-apt-source</code></a> package sets up the package source together with the current key, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">ROS signing key migration guide</a> recommends.</p>
+<details class="warning">
+<summary>Robot set up before June 2025? Remove the old package source first</summary>
+<p>Older instructions, including the <a href="https://wiki.ros.org/noetic/Installation/Ubuntu">ROS wiki</a> and earlier versions of this page, add the package source to <code>/etc/apt/sources.list.d/ros-latest.list</code> and the key with <code>apt-key</code>. If your robot has that file, <code>sudo apt update</code> fails because the key from back then has expired (<code>EXPKEYSIG</code>). Remove the old entry and key before the commands below, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">migration guide</a> describes:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo rm /etc/apt/sources.list.d/ros-latest.list</span>
+<span class="go">sudo apt-key del "C1CF 6E31 E6BA DE88 68B1 72B4 F42E D6FB AB17 C654"</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<p>Download and install <code>ros-apt-source</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -4162,16 +4154,6 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">echo "source /opt/ros/noetic/setup.bash" &gt;&gt; ~/.bashrc</span>
 <span class="go">source ~/.bashrc</span>
 </code></pre></div></td></tr></tbody></table></div>
-<details class="note">
-<summary>Robot set up before 2025, with <code>ros-latest.list</code></summary>
-<p>Older instructions, including the <a href="https://wiki.ros.org/noetic/Installation/Ubuntu">ROS wiki</a> and earlier versions of this page, add the package source to <code>/etc/apt/sources.list.d/ros-latest.list</code> and the key with <code>apt-key</code>. With the key from back then, <code>sudo apt update</code> reports it as expired (<code>EXPKEYSIG</code>) for the ROS packages. Install <code>ros-apt-source</code> as above, then remove the old entry and key, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">migration guide</a> describes:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo rm /etc/apt/sources.list.d/ros-latest.list</span>
-<span class="go">sudo apt-key del "C1CF 6E31 E6BA DE88 68B1 72B4 F42E D6FB AB17 C654"</span>
-<span class="go">sudo apt update</span>
-</code></pre></div></td></tr></tbody></table></div>
-</details>
 <h2 id="dependencies-rosdep">Dependencies: rosdep</h2>
 <p><a href="https://wiki.ros.org/rosdep"><code>rosdep</code></a> installs the system dependencies that ROS packages list in their <code>package.xml</code>. Set it up once:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4226,7 +4208,7 @@ fjp@ubuntu:~/catkin_ws$<span class="w"> </span>catkin<span class="w"> </span>ini
 Initializing<span class="w"> </span>catkin<span class="w"> </span>workspace<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="sb">`</span>/home/fjp/catkin_ws<span class="sb">`</span>.
 ----------------------------------------------------------------
 Profile:<span class="w">                     </span>default
-Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/melodic
+Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/noetic
 Workspace:<span class="w">                   </span>/home/fjp/catkin_ws
 ----------------------------------------------------------------
 Build<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/build
@@ -4296,7 +4278,7 @@ Workspace<span class="w"> </span>configuration<span class="w"> </span>appears<sp
 <span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code>fjp@ubuntu:~/catkin_ws$<span class="w"> </span>catkin<span class="w"> </span>build
 ----------------------------------------------------------------
 Profile:<span class="w">                     </span>default
-Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/melodic
+Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/noetic
 Workspace:<span class="w">                   </span>/home/fjp/catkin_ws
 ----------------------------------------------------------------
 Build<span class="w"> </span>Space:<span class="w">        </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/build
