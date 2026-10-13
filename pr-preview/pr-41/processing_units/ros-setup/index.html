@@ -4133,6 +4133,15 @@
 
 <h1 id="ros-installation">ROS Installation</h1>
 <p>The robot's computer runs <a href="https://wiki.ros.org/noetic">ROS Noetic</a> on Ubuntu MATE 20.04 Focal Fossa. Both reached their end of life in May 2025. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. The way to ROS 2 is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/107">diffbot#107</a>.</p>
+<div class="admonition tip">
+<p class="admonition-title">All in one: <code>raspi-setup.sh</code></p>
+<p>The diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh"><code>raspi-setup.sh</code></a> runs the commands of this page and of <a href="../../packages/packages-setup/">Packages Setup</a> in one go, for Remo or DiffBot. On the robot:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">curl -O https://raw.githubusercontent.com/ros-mobile-robots/diffbot/noetic-devel/raspi-setup.sh</span>
+<span class="go">bash raspi-setup.sh remo</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>For DiffBot, use <code>diffbot</code> instead of <code>remo</code>. The sections below explain what the script does. <a href="../hardware-interfaces/">Hardware Interfaces</a> is still needed: it gives your user access to I2C and the serial port.</p>
+</div>
 <h2 id="install-ros-noetic">Install ROS Noetic</h2>
 <p>The key that signs the ROS packages expired on 1 June 2025 and was renewed. The <a href="https://github.com/ros-infrastructure/ros-apt-source"><code>ros-apt-source</code></a> package sets up the package source together with the current key, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">ROS signing key migration guide</a> recommends. Download and install it:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
