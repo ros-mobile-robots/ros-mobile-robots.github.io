@@ -2,13 +2,15 @@
 
 <a id="git-setup"></a>
 
-DiffBot's and Remo's code is on [GitHub](https://github.com/ros-mobile-robots), in [Git](https://git-scm.com/) repositories. Both your PC and the robot need Git to get the code. Reading and running the code only takes the first section; the others are optional.
+DiffBot's and Remo's code is on [GitHub](https://github.com/ros-mobile-robots), in [Git](https://git-scm.com/) repositories. This page sets up Git on your PC, in [step 2](index.md#2-get-the-code) of Getting Started. Reading and running the code only takes the first section; the others are optional.
+
+The robot's computer needs Git too, but only later: in step 5, [Packages Setup](../packages/packages-setup.md#git-clone-diffbot-repository) installs it there and clones the code. The optional sections below work the same way on the robot.
 
 ## Install Git and clone
 
 === "Linux"
 
-    On your Linux PC and on the robot, Ubuntu usually has Git already, which `git --version` shows. Otherwise:
+    On your Linux PC, Ubuntu usually has Git already, which `git --version` shows. Otherwise:
 
     ```console
     sudo apt install git
@@ -30,7 +32,7 @@ The repositories are public, so cloning needs no GitHub account and no login:
 git clone https://github.com/ros-mobile-robots/diffbot.git
 ```
 
-Where to clone depends on the machine. On your PC, see [Use the Dev Container](../development/dev-container.md#usage). On the robot, see [Packages Setup](../packages/packages-setup.md).
+Where to clone on your PC: see [Use the Dev Container](../development/dev-container.md#usage).
 
 ## Commit and push changes (optional)
 
@@ -43,10 +45,28 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 ```
 
-**Authentication**, needed to push, or to clone a private repository such as [Remo Insiders](../insiders/index.md#remo-stl-files): GitHub doesn't accept your account password for Git ([since August 2021](https://github.blog/security/application-security/token-authentication-requirements-for-git-operations/)). Use one of these:
+**Authentication**, needed to push, or to clone a private repository such as [Remo Insiders](../insiders/index.md#remo-stl-files): GitHub doesn't accept your account password for Git ([since August 2021](https://github.blog/security/application-security/token-authentication-requirements-for-git-operations/)). Use HTTPS or SSH:
 
-- **HTTPS** with [GitHub CLI](https://cli.github.com/) (`gh auth login`) or Git Credential Manager, as GitHub recommends in [Caching your GitHub credentials in Git](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git).
-- **SSH** with a key protected by a passphrase ([Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)).
+=== "HTTPS"
+
+    [Install GitHub CLI](https://github.com/cli/cli/blob/trunk/docs/install_linux.md) and sign in:
+
+    ```console
+    gh auth login
+    ```
+
+    Choose GitHub.com and HTTPS, let it authenticate Git, and log in with a web browser. Git then uses the stored token when you push. [Git Credential Manager](https://github.com/git-ecosystem/git-credential-manager) works too; GitHub describes both in [Caching your GitHub credentials in Git](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git).
+
+=== "SSH"
+
+    Create a key protected by a passphrase, and add the public key to your GitHub account under Settings → SSH and GPG keys:
+
+    ```console
+    ssh-keygen -t ed25519 -C "you@example.com"
+    cat ~/.ssh/id_ed25519.pub
+    ```
+
+    `gh auth login` with SSH as the protocol does both steps for you. Then clone with the SSH address, `git@github.com:<owner>/<repository>.git`; in an existing clone, `git remote set-url origin` switches to it. GitHub's guide: [Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
 
 Set this up where Git runs: on Windows, in the Ubuntu in WSL 2. In the dev container, VS Code passes your Git credentials into the container ([Sharing Git credentials](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials)).
 

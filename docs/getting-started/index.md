@@ -45,10 +45,9 @@ The [Components](../components.md) to buy, and for Remo the [hardware setup](../
 <a id="remote-control"></a>The robot's computer is a Raspberry Pi 4 B:
 
 1. [Raspberry Pi Setup](../processing_units/rpi-setup.md): Ubuntu MATE 20.04, and an SSH server so you can log in from your PC.
-2. [Git and GitHub](git-and-github.md): install Git and clone, without login.
-3. [ROS Setup](../processing_units/ros-setup.md): ROS Noetic and catkin tools.
-4. [Hardware Interfaces](../processing_units/hardware-interfaces.md): USB, GPIO and I2C for the motor driver and the sensors.
-5. [Packages Setup](../packages/packages-setup.md): the workspace with diffbot and its dependencies.
+2. [ROS Setup](../processing_units/ros-setup.md): ROS Noetic and catkin tools.
+3. [Hardware Interfaces](../processing_units/hardware-interfaces.md): USB, GPIO and I2C for the motor driver and the sensors.
+4. [Packages Setup](../packages/packages-setup.md): install Git, clone diffbot, and build the workspace with its dependencies.
 
 [Jetson Nano Setup](../processing_units/jetson-nano-setup.md) describes an older setup with Ubuntu 18.04 and ROS Melodic.
 
