@@ -2,6 +2,16 @@
 
 The robot's computer runs [ROS Noetic](https://wiki.ros.org/noetic) on Ubuntu MATE 20.04 Focal Fossa. Both reached their end of life in May 2025. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. The way to ROS 2 is planned in [diffbot#107](https://github.com/ros-mobile-robots/diffbot/issues/107).
 
+!!! tip "All in one: `raspi-setup.sh`"
+    The diffbot repository's [`raspi-setup.sh`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh) runs the commands of this page and of [Packages Setup](../packages/packages-setup.md) in one go, for Remo or DiffBot. On the robot:
+
+    ```console
+    curl -O https://raw.githubusercontent.com/ros-mobile-robots/diffbot/noetic-devel/raspi-setup.sh
+    bash raspi-setup.sh remo
+    ```
+
+    For DiffBot, use `diffbot` instead of `remo`. The sections below explain what the script does. [Hardware Interfaces](hardware-interfaces.md) is still needed: it gives your user access to I2C and the serial port.
+
 ## Install ROS Noetic
 
 The key that signs the ROS packages expired on 1 June 2025 and was renewed. The [`ros-apt-source`](https://github.com/ros-infrastructure/ros-apt-source) package sets up the package source together with the current key, as the [ROS signing key migration guide](https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937) recommends. Download and install it:
