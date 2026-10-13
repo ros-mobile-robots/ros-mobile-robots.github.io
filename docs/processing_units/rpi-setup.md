@@ -169,7 +169,3 @@ ssh your-user@192.168.0.20
 ```
 
 Next, on the robot: install ROS Noetic, as described in [ROS Setup](ros-setup.md).
-
-!!! note
-    To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.
-    Just clone this repository: https://github.com/fjp/diffbot.git and run `ubuntu-setup.sh`. But to learn more, you should follow the instructions on the following pages.

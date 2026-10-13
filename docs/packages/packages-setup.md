@@ -16,11 +16,11 @@ After setting up ROS on the SBC ([Raspberry Pi 4B](../processing_units/rpi-setup
 sudo apt install git
 ```
 
-Then create a ROS workspace in your home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}). It's public, so this needs no GitHub account:
+Then go to the workspace from [ROS Setup](../processing_units/ros-setup.md#build-tool-catkin_tools), `~/catkin_ws`, or create it, and clone the [`diffbot` repository]({{ diffbot_repo_url }}). It's public, so this needs no GitHub account:
 
 ```
-mkdir -p ~/ros_ws/src
-cd ~/ros_ws/src
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
 git clone https://github.com/ros-mobile-robots/diffbot.git
 ```
 
@@ -68,7 +68,7 @@ To do this the recommended tool to use is [`vcstool`](http://wiki.ros.org/vcstoo
     [`vcstool`](http://wiki.ros.org/vcstool) replaces [`wstool`](http://wiki.ros.org/wstool).
 
 The `diffbot` repository has three `.repos` files that list these source dependencies.
-They clone into `src/`, so run `vcs import` from the root of the catkin workspace (`~/ros_ws`) and pass in the file for the machine you're on:
+They clone into `src/`, so run `vcs import` from the root of the catkin workspace (`~/catkin_ws`) and pass in the file for the machine you're on:
 
 | Machine | Command | Clones |
 |:--------|:--------|:-------|
