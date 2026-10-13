@@ -168,7 +168,7 @@ On your PC, in Linux or in the Ubuntu in WSL 2, the `ssh` client is usually alre
 ssh your-user@192.168.0.20
 ```
 
-Then follow the next steps to install ROS Noetic.
+Next, on the robot: install ROS Noetic, as described in [ROS Setup](ros-setup.md).
 
 !!! note
     To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.

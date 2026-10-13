@@ -271,3 +271,5 @@ Adding user `fjp' to group `dialout' ...
 Adding user fjp to group dialout
 Done.
 ```
+
+Next, on the robot: [Packages Setup](../packages/packages-setup.md), to install Git, clone diffbot and build the workspace.

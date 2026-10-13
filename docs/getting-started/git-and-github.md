@@ -4,7 +4,7 @@
 
 DiffBot's and Remo's code is on [GitHub](https://github.com/ros-mobile-robots), in [Git](https://git-scm.com/) repositories. This page sets up Git on your PC, in [step 2](index.md#2-get-the-code) of Getting Started. Reading and running the code only takes the first section, [Install Git and clone](#install-git-and-clone).
 
-The robot's computer needs Git too, but only later: in step 5, [Packages Setup](../packages/packages-setup.md#git-clone-diffbot-repository) installs it there and clones the code. The optional sections, [Commit and push changes](#commit-and-push-changes-optional) and [Private repositories and Git LFS](#private-repositories-and-git-lfs-optional), work the same way on your PC and on the robot.
+The robot's computer needs Git too, but only later: in [step 5](index.md#5-set-up-the-robots-computer), [Packages Setup](../packages/packages-setup.md#git-clone-diffbot-repository) installs it there and clones the code. The optional sections, [Commit and push changes](#commit-and-push-changes-optional) and [Private repositories and Git LFS](#private-repositories-and-git-lfs-optional), work the same way on your PC and on the robot.
 
 ## Install Git and clone
 
@@ -66,7 +66,13 @@ git config --global user.email "you@example.com"
     cat ~/.ssh/id_ed25519.pub
     ```
 
-    `gh auth login` with SSH as the protocol does both steps for you. Then clone with the SSH address, `git@github.com:<owner>/<repository>.git`; in an existing clone, `git remote set-url origin` switches to it. GitHub's guide: [Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
+    `gh auth login` with SSH as the protocol does both steps for you. GitHub's guide: [Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
+
+    Then use the SSH address of a repository you can push to: your fork (see [Contributing](../development/index.md)), or a private repository you have access to. Clone with it, or switch an existing clone to it:
+
+    ```console
+    git remote set-url origin git@github.com:YOUR-ACCOUNT/diffbot.git
+    ```
 
 Set this up where Git runs: on Windows, in the Ubuntu in WSL 2. In the dev container, VS Code passes your Git credentials into the container ([Sharing Git credentials](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials)).
 
