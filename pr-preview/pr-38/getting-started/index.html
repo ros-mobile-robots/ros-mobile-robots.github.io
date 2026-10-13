@@ -409,7 +409,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../hardware_setup/overview/" class="md-tabs__link">
+        <a href="../hardware/" class="md-tabs__link">
           
   
   
@@ -886,6 +886,8 @@
     
       
         
+          
+        
       
         
       
@@ -915,8 +917,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3">
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../hardware/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -930,8 +933,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
@@ -944,32 +953,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../hardware_setup/overview/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Hardware Setup Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -4054,7 +4037,7 @@
 
 
 <h1 id="getting-started">Getting Started</h1>
-<p>This page takes you from a new PC to a driving robot. The steps are the same for both robots, <a href="../hardware_setup/overview/">DiffBot and Remo</a>, because they share their code: the <a href="https://github.com/ros-mobile-robots/diffbot">diffbot</a> repository has the simulation, the software for the real robot, and the tools for your PC. Both run <a href="https://wiki.ros.org/noetic">ROS 1 Noetic</a>.</p>
+<p>This page takes you from a new PC to a driving robot. The steps are the same for both robots, <a href="../hardware/">DiffBot and Remo</a>, because they share their code: the <a href="https://github.com/ros-mobile-robots/diffbot">diffbot</a> repository has the simulation, the software for the real robot, and the tools for your PC. Both run <a href="https://wiki.ros.org/noetic">ROS 1 Noetic</a>.</p>
 <p>The steps below build on each other. The first three set up your PC and run the robot in simulation, without any hardware. The real robot continues with step 4, and your PC is then already prepared for it.</p>
 <div class="admonition tip">
 <p class="admonition-title">Quick start, if Docker and VS Code are already set up</p>
@@ -4077,7 +4060,7 @@
 <p>The dev container has ROS Noetic, Gazebo and RViz, and builds the workspace: see <a href="../development/dev-container/">Use the Dev Container</a>. With that, your PC is also ready for the real robot.</p>
 <h2 id="real-robot">Real robot</h2>
 <h3 id="4-build-the-robot">4. Build the robot</h3>
-<p>The <a href="../components/">Components</a> to buy, and for Remo the <a href="../hardware_setup/overview/">hardware setup</a>: 3D printing, electronics and assembly.</p>
+<p>The <a href="../components/">Components</a> to buy, and for Remo the <a href="../hardware/">hardware setup</a>: 3D printing, electronics and assembly.</p>
 <h3 id="5-set-up-the-robots-computer">5. Set up the robot's computer</h3>
 <p><a id="remote-control"></a>The robot's computer is a Raspberry Pi 4 B:</p>
 <ol>
