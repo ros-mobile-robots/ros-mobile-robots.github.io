@@ -5,9 +5,23 @@ theme:
   custom_dir: docs/custom_theme
   features:
     - content.tabs.link
+    # "Copy" button on code blocks, and "Edit this page" (edit_uri) on every page
+    - content.code.copy
+    - content.action.edit
     - navigation.tabs
     - navigation.top
     - navigation.indexes
+    # Groups in the sidebar instead of collapsed entries, breadcrumbs above the title,
+    # and previous/next links at the bottom of each page
+    - navigation.sections
+    - navigation.path
+    - navigation.footer
+    # Hovering an internal link shows the target section; no navigation.instant, because the
+    # consent, Analytics and Gumroad scripts in main.html expect full page loads
+    - navigation.instant.preview
+    - toc.follow
+    - search.suggest
+    - search.highlight
   palette:
     # Light mode
     - media: "(prefers-color-scheme: light)"
@@ -35,7 +49,7 @@ site_url: !ENV [SITE_URL, "https://ros-mobile-robots.com/"]
   
 repo_url: https://github.com/ros-mobile-robots/diffbot
 
-edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs
+edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/edit/main/docs/
 
 # Extra parameters
 extra:
@@ -94,6 +108,8 @@ plugins:
   - mkdocs-jupyter:
       execute: False
       include_source: True
+      # Only notebooks become pages; the SLAM notebooks' helper .py files stay plain files
+      include: ["*.ipynb"]
   # Old URLs that still get visits keep working: each one gets an HTML page that
   # redirects to the current page (source paths relative to docs/)
   - redirects:
