@@ -4172,11 +4172,23 @@ git clone https://github.com/ros-mobile-robots/diffbot.git
 </code></pre></div></td></tr></tbody></table></div>
 <details class="note">
 <summary>Push changes from the robot (optional)</summary>
-<p>Usually you change the code on your PC and pull it on the robot. To commit and push on the robot as well, set up your commit identity and authentication there as described in <a href="../../getting-started/git-and-github/#commit-and-push-changes-optional">Git and GitHub</a>. Two things differ, because you work on the robot over SSH, without a browser:</p>
-<ul>
-<li><strong>HTTPS:</strong> <code>gh auth login</code> shows a one-time code. Open <a href="https://github.com/login/device">https://github.com/login/device</a> on your PC and enter it there.</li>
-<li><strong>SSH:</strong> instead of creating a key on the robot, connect from your PC with <code>ssh -A</code>. The robot then uses your PC's key while you're logged in (<a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/using-ssh-agent-forwarding">Using SSH agent forwarding</a>).</li>
-</ul>
+<p>Usually you change the code on your PC and pull it on the robot. To commit and push on the robot as well, set up your commit identity and authentication there as described in <a href="../../getting-started/git-and-github/#commit-and-push-changes-optional">Git and GitHub</a>. Authentication differs a little, because you work on the robot over SSH, without a browser:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">HTTPS</label><label for="__tabbed_1_2">SSH</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><code>gh auth login</code> on the robot shows a one-time code. Open <a href="https://github.com/login/device">https://github.com/login/device</a> on your PC and enter it there. <code>gh</code> then stores a token on the robot, in a plain text file if no keyring is available; <code>gh auth status</code> shows where.</p>
+</div>
+<div class="tabbed-block">
+<p>Instead of creating a key on the robot, let it use your PC's key through SSH agent forwarding. On your PC, in Linux or in the Ubuntu in WSL 2, load the key into the SSH agent, and connect with <code>-A</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh-add ~/.ssh/id_ed25519</span>
+<span class="go">ssh -A your-user@192.168.0.20</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>If <code>ssh-add</code> can't connect to an agent, as in WSL 2, start one first with <code>eval "$(ssh-agent -s)"</code>. On the robot, the clone needs the SSH address (see <a href="../../getting-started/git-and-github/#commit-and-push-changes-optional">Git and GitHub</a>, SSH tab).</p>
+<p>The private key stays on your PC. But while you're connected, anyone with root access on the robot can use your agent to authenticate to GitHub as you. Forward it only to a robot you trust, such as your own (<a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/using-ssh-agent-forwarding">Using SSH agent forwarding</a>).</p>
+</div>
+</div>
+</div>
 </details>
 <h2 id="obtain-system-dependencies">Obtain (system) Dependencies</h2>
 <p>The <code>diffbot</code> repository relies on two sorts of dependencies:</p>
@@ -4243,6 +4255,7 @@ Inside the workspace use <a href="https://catkin-tools.readthedocs.io/en/latest/
 <p>Now source the catkin workspace either using the <a href="../../processing_units/ros-setup/#environment-setup">created alias</a> or the full command for the bash shell:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>source devel/setup.bash
 </code></pre></div></td></tr></tbody></table></div>
+<p>On the robot, the next step is to <a href="../../getting-started/#6-flash-the-microcontroller">flash the microcontroller</a>, step 6 in Getting Started.</p>
 <h2 id="examples">Examples</h2>
 <p>Now you are ready to follow the examples listed in the readme.</p>
 <div class="admonition info">

@@ -4036,7 +4036,7 @@
 <h1 id="git-and-github">Git and GitHub</h1>
 <p><a id="git-setup"></a></p>
 <p>DiffBot's and Remo's code is on <a href="https://github.com/ros-mobile-robots">GitHub</a>, in <a href="https://git-scm.com/">Git</a> repositories. This page sets up Git on your PC, in <a href="../#2-get-the-code">step 2</a> of Getting Started. Reading and running the code only takes the first section, <a href="#install-git-and-clone">Install Git and clone</a>.</p>
-<p>The robot's computer needs Git too, but only later: in step 5, <a href="../../packages/packages-setup/#git-clone-diffbot-repository">Packages Setup</a> installs it there and clones the code. The optional sections, <a href="#commit-and-push-changes-optional">Commit and push changes</a> and <a href="#private-repositories-and-git-lfs-optional">Private repositories and Git LFS</a>, work the same way on your PC and on the robot.</p>
+<p>The robot's computer needs Git too, but only later: in <a href="../#5-set-up-the-robots-computer">step 5</a>, <a href="../../packages/packages-setup/#git-clone-diffbot-repository">Packages Setup</a> installs it there and clones the code. The optional sections, <a href="#commit-and-push-changes-optional">Commit and push changes</a> and <a href="#private-repositories-and-git-lfs-optional">Private repositories and Git LFS</a>, work the same way on your PC and on the robot.</p>
 <h2 id="install-git-and-clone">Install Git and clone</h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (WSL 2)</label></div>
 <div class="tabbed-content">
@@ -4079,7 +4079,10 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh-keygen -t ed25519 -C "you@example.com"</span>
 <span class="go">cat ~/.ssh/id_ed25519.pub</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>gh auth login</code> with SSH as the protocol does both steps for you. Then clone with the SSH address, <code>git@github.com:&lt;owner&gt;/&lt;repository&gt;.git</code>; in an existing clone, <code>git remote set-url origin</code> switches to it. GitHub's guide: <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">Connecting to GitHub with SSH</a>.</p>
+<p><code>gh auth login</code> with SSH as the protocol does both steps for you. GitHub's guide: <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">Connecting to GitHub with SSH</a>.</p>
+<p>Then use the SSH address of a repository you can push to: your fork (see <a href="../../development/">Contributing</a>), or a private repository you have access to. Clone with it, or switch an existing clone to it:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git remote set-url origin git@github.com:YOUR-ACCOUNT/diffbot.git</span>
+</code></pre></div></td></tr></tbody></table></div>
 </div>
 </div>
 </div>
