@@ -409,7 +409,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../overview/" class="md-tabs__link">
+        <a href="../../hardware/" class="md-tabs__link">
           
   
   
@@ -880,6 +880,8 @@
     
       
         
+          
+        
       
         
       
@@ -912,8 +914,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked="">
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../hardware/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -927,8 +930,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
@@ -941,32 +950,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../overview/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Hardware Setup Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -4058,7 +4041,7 @@
     
     
       <li class="md-path__item">
-        <a href="../overview/" class="md-path__link">
+        <a href="../../hardware/" class="md-path__link">
           
   <span class="md-ellipsis">
     Hardware
@@ -4113,11 +4096,24 @@
 <p>This page provides help to 3D print the parts of Remo robot. It contains information
 about configuring your slicer, suggestions to orient the parts and where support material is recommended to avoid
 failing prints and wasted PLA material.</p>
-<p>The STL files for all parts below are available on Gumroad; buying them also supports this project.
-The <a href="https://github.com/ros-mobile-robots/remo_description">remo_description</a> repository on GitHub only has empty placeholders for them.
-The images on this page are renders of the STL files.</p>
-<p><a class="md-button md-button--primary" href="https://fjp.gumroad.com/l/GnMpU">Get the Remo STL files</a></p>
-<p>Sponsors with access to Remo Insiders get the STL files in a private Git repository instead, see <a href="../../insiders/#remo-stl-files">Remo STL files</a>.</p>
+<p>The <a href="https://github.com/ros-mobile-robots/remo_description">remo_description</a> repository on GitHub only has empty placeholders for the STL files. There are two ways to get them:</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2M1 2h3.27l.94 2H20a1 1 0 0 1 1 1c0 .17-.05.34-.12.5l-3.58 6.47c-.34.61-1 1.03-1.75 1.03H8.1l-.9 1.63-.03.12a.25.25 0 0 0 .25.25H19v2H7a2 2 0 0 1-2-2c0-.35.09-.68.24-.96l1.36-2.45L3 4H1zm6 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2m9-7 2.78-5H6.14l2.36 5z"></path></svg></span> <strong>Buy the STL files</strong></p>
+<hr>
+<p>A one-time payment on Gumroad. You download all of Remo's STL files and can start printing, and the purchase supports this project.</p>
+<p><a class="gumroad-button" href="https://fjp.gumroad.com/l/GnMpU" data-gumroad-single-product="true">Get the Remo STL files</a></p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 20.408c-.492.308-.903.546-1.192.709q-.23.129-.463.252h-.002a.75.75 0 0 1-.686 0 17 17 0 0 1-.465-.252 31 31 0 0 1-4.803-3.34C3.8 15.572 1 12.331 1 8.513 1 5.052 3.829 2.5 6.736 2.5 9.03 2.5 10.881 3.726 12 5.605 13.12 3.726 14.97 2.5 17.264 2.5 20.17 2.5 23 5.052 23 8.514c0 3.818-2.801 7.06-5.389 9.262A31 31 0 0 1 14 20.408"></path></svg></span> <strong>Sponsor and get Remo Insiders</strong></p>
+<hr>
+<p>From $10 a month on GitHub Sponsors. You get <a href="../../insiders/#remo-stl-files">Remo Insiders</a>, a private Git repository with the STL files that you clone and pull, and new features first.</p>
+<p><a class="md-button" href="https://github.com/sponsors/fjp">Become a sponsor</a></p>
+</li>
+</ul>
+</div>
+<p>The images on this page are renders of the STL files.</p>
 <p>The table below gives an overview of the required parts of Remo and the average printing time:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -4544,6 +4540,8 @@ It is often possible to choose between different variants. For example:</p>
     
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
+    
+    <script src="https://gumroad.com/js/gumroad.js"></script>
     
     <style>
       .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;

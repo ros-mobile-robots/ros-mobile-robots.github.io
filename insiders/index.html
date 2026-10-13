@@ -405,7 +405,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../hardware_setup/overview/" class="md-tabs__link">
+        <a href="../hardware/" class="md-tabs__link">
           
   
   
@@ -876,6 +876,8 @@
     
       
         
+          
+        
       
         
       
@@ -905,8 +907,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3">
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../hardware/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -920,8 +923,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
@@ -934,32 +943,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix="">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../hardware_setup/overview/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Hardware Setup Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -4412,7 +4395,7 @@ collaborator.[^4] -->
     organizations.
 -->
 
-<p><a class="md-button md-button--primary mdx-sponsorship-button" href="https://github.com/sponsors/fjp">:octicons-heart-fill-24:{ .mdx-heart } &nbsp; Join our <span class="mdx-sponsorship-count" data-mdx-component="sponsorship-count"></span> awesome sponsors</a></p>
+<p><a class="md-button md-button--primary" href="https://github.com/sponsors/fjp"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 20.408c-.492.308-.903.546-1.192.709q-.23.129-.463.252h-.002a.75.75 0 0 1-.686 0 17 17 0 0 1-.465-.252 31 31 0 0 1-4.803-3.34C3.8 15.572 1 12.331 1 8.513 1 5.052 3.829 2.5 6.736 2.5 9.03 2.5 10.881 3.726 12 5.605 13.12 3.726 14.97 2.5 17.264 2.5 20.17 2.5 23 5.052 23 8.514c0 3.818-2.801 7.06-5.389 9.262A31 31 0 0 1 14 20.408"></path></svg></span> Become a sponsor</a></p>
 <div class="mdx-sponsorship" data-mdx-component="sponsorship" hidden="">
   <div class="mdx-sponsorship__list"></div>
   <small>
@@ -4428,14 +4411,30 @@ collaborator.[^4] -->
 <p>The following features are solely available via DiffBot and Remo Insiders:</p>
 <div class="mdx-columns">
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> <a href="#remo-stl-files">Remo's STL files in a private Git repository</a> :material-new-box:</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> [TBA] :material-new-box:</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> <a href="#remo-stl-files">Remo's STL files in a private Git repository</a> <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 4c1.11 0 2 .89 2 2v12c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2V6c0-1.11.89-2 2-2zM8.5 15V9H7.25v3.5L4.75 9H3.5v6h1.25v-3.5L7.3 15zm5-4.74V9h-4v6h4v-1.25H11v-1.11h2.5v-1.26H11v-1.12zm7 3.74V9h-1.25v4.5h-1.12V10h-1.25v3.5h-1.13V9H14.5v5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1"></path></svg></span></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> [TBA] <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 4c1.11 0 2 .89 2 2v12c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2V6c0-1.11.89-2 2-2zM8.5 15V9H7.25v3.5L4.75 9H3.5v6h1.25v-3.5L7.3 15zm5-4.74V9h-4v6h4v-1.25H11v-1.11h2.5v-1.26H11v-1.12zm7 3.74V9h-1.25v4.5h-1.12V10h-1.25v3.5h-1.13V9H14.5v5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1"></path></svg></span></li>
 <li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled="" checked=""><span class="task-list-indicator"></span></label> [TBA]</li>
 </ul>
 </div>
 <h3 id="remo-stl-files">Remo STL files</h3>
-<p>Remo Insiders, the private repository <code>remo_description_insiders</code>, is a version of <a href="../packages/remo_description/">Remo Description</a> with all of Remo's STL files. The public repository only has empty placeholders for them. The STL files are stored with Git LFS. The files themselves are also sold on Gumroad (see below); what Insiders adds is a Git repository you can clone and pull.</p>
-<p>With access to Remo Insiders (see <a href="#how-to-become-a-sponsor">how to become a sponsor</a>):</p>
+<p>The public <a href="../packages/remo_description/">Remo Description</a> only has empty placeholders for Remo's STL files. There are two ways to get the real files:</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2M1 2h3.27l.94 2H20a1 1 0 0 1 1 1c0 .17-.05.34-.12.5l-3.58 6.47c-.34.61-1 1.03-1.75 1.03H8.1l-.9 1.63-.03.12a.25.25 0 0 0 .25.25H19v2H7a2 2 0 0 1-2-2c0-.35.09-.68.24-.96l1.36-2.45L3 4H1zm6 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2m9-7 2.78-5H6.14l2.36 5z"></path></svg></span> <strong>Buy the STL files</strong></p>
+<hr>
+<p>A one-time payment on Gumroad. You download all of Remo's STL files and can start printing, and the purchase supports this project.</p>
+<p><a class="gumroad-button" href="https://fjp.gumroad.com/l/GnMpU" data-gumroad-single-product="true">Get the Remo STL files</a></p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 20.408c-.492.308-.903.546-1.192.709q-.23.129-.463.252h-.002a.75.75 0 0 1-.686 0 17 17 0 0 1-.465-.252 31 31 0 0 1-4.803-3.34C3.8 15.572 1 12.331 1 8.513 1 5.052 3.829 2.5 6.736 2.5 9.03 2.5 10.881 3.726 12 5.605 13.12 3.726 14.97 2.5 17.264 2.5 20.17 2.5 23 5.052 23 8.514c0 3.818-2.801 7.06-5.389 9.262A31 31 0 0 1 14 20.408"></path></svg></span> <strong>Sponsor and get Remo Insiders</strong></p>
+<hr>
+<p>From $10 a month on GitHub Sponsors. You get <a href="./#remo-stl-files">Remo Insiders</a>, a private Git repository with the STL files that you clone and pull, and new features first.</p>
+<p><a class="md-button" href="https://github.com/sponsors/fjp">Become a sponsor</a></p>
+</li>
+</ul>
+</div>
+<p>Remo Insiders is the private repository <a href="https://github.com/ros-mobile-robots/remo_description_insiders"><code>remo_description_insiders</code></a>, a version of Remo Description with all of Remo's STL files, stored with Git LFS. The link only works once you have access. Then:</p>
 <ol>
 <li>Set up Git LFS and GitHub authentication, as described in <a href="../getting-started/git-and-github/#private-repositories-and-git-lfs-optional">Git and GitHub</a>.</li>
 <li>
@@ -4445,13 +4444,12 @@ collaborator.[^4] -->
 </li>
 </ol>
 <p>The dev container imports the public repository; using Remo Insiders there is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/104">diffbot#104</a>.</p>
-<p>Without a sponsorship, you can buy the STL files on Gumroad instead, see <a href="../hardware_setup/3D_print/">3D Printing</a>.</p>
 <h2 id="funding">Funding <span class="mdx-sponsorship-total" data-mdx-component="sponsorship-total"></span></h2>
 <h3 id="goals">Goals</h3>
 <p>The following section lists all funding goals. Each goal contains a list of
 features prefixed with a checkmark symbol, denoting whether a feature is
-:octicons-check-circle-fill-24:{ style="color: #00e676" } already available or 
-:octicons-check-circle-fill-24:{ style="color: var(--md-default-fg-color--lightest)" } planned, but not yet implemented. When the funding goal is hit, the features
+<span class="twemoji" style="color: #00e676"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12m16.28-2.72a.75.75 0 0 0-.018-1.042.75.75 0 0 0-1.042-.018l-5.97 5.97-2.47-2.47a.75.75 0 0 0-1.042.018.75.75 0 0 0-.018 1.042l3 3a.75.75 0 0 0 1.06 0Z"></path></svg></span> already available or 
+<span class="twemoji" style="color: var(--md-default-fg-color--lightest)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12m16.28-2.72a.75.75 0 0 0-.018-1.042.75.75 0 0 0-1.042-.018l-5.97 5.97-2.47-2.47a.75.75 0 0 0-1.042.018.75.75 0 0 0-.018 1.042l3 3a.75.75 0 0 0 1.06 0Z"></path></svg></span> planned, but not yet implemented. When the funding goal is hit, the features
 are released for general availability.</p>
 <h4 id="500-barglistock">$ 500 – Bärglistock</h4>
 <ul class="task-list">
@@ -4700,6 +4698,8 @@ non-refundable.&nbsp;<a class="footnote-backref" href="#fnref:5" title="Jump bac
     
       <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
+    
+    <script src="https://gumroad.com/js/gumroad.js"></script>
     
     <style>
       .consent-embed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
