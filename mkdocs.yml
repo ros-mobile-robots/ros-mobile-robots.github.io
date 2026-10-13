@@ -91,6 +91,10 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.magiclink
+  # Icons such as :material-cart-outline: and :octicons-heart-fill-24:, for buttons and cards
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 plugins:
   - search
@@ -120,6 +124,7 @@ plugins:
         ros-network-setup.md: processing_units/ros-network-setup.md
         processing_units/git-setup.md: getting-started/git-and-github.md
         technical_requirements.md: getting-started/index.md
+        hardware_setup/overview.md: hardware/index.md
 
 nav:
   # Seven tabs, see the docs structure review. Only the menu changed: every page keeps its file
@@ -134,7 +139,7 @@ nav:
       - How the Dev Container Works: development/dev-container-internals.md
       - Docker Basics: theory/architecture/docker.md
   - Hardware:
-    - hardware_setup/overview.md
+    - hardware/index.md
     - Components (BOM): components.md
     - Build Remo:
       - 3D Printing: hardware_setup/3D_print.md

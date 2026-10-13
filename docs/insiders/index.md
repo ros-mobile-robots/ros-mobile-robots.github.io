@@ -104,7 +104,7 @@ You can cancel your sponsorship anytime.[^5]
     regarding your payment, and GitHub doesn't offer refunds, sponsorships are
     non-refundable.
 
-[:octicons-heart-fill-24:{ .mdx-heart } &nbsp; Join our <span class="mdx-sponsorship-count" data-mdx-component="sponsorship-count"></span> awesome sponsors][fjp's sponsor profile]{ .md-button .md-button--primary .mdx-sponsorship-button }
+[:octicons-heart-fill-24: Become a sponsor][fjp's sponsor profile]{ .md-button .md-button--primary }
 
 
 <div class="mdx-sponsorship" data-mdx-component="sponsorship" hidden>
@@ -134,9 +134,11 @@ The following features are solely available via DiffBot and Remo Insiders:
 
 ### Remo STL files
 
-Remo Insiders, the private repository `remo_description_insiders`, is a version of [Remo Description](../packages/remo_description.md) with all of Remo's STL files. The public repository only has empty placeholders for them. The STL files are stored with Git LFS. The files themselves are also sold on Gumroad (see below); what Insiders adds is a Git repository you can clone and pull.
+The public [Remo Description](../packages/remo_description.md) only has empty placeholders for Remo's STL files. There are two ways to get the real files:
 
-With access to Remo Insiders (see [how to become a sponsor]):
+--8<-- "includes/remo-stl-options.md"
+
+Remo Insiders is the private repository [`remo_description_insiders`](https://github.com/ros-mobile-robots/remo_description_insiders), a version of Remo Description with all of Remo's STL files, stored with Git LFS. The link only works once you have access. Then:
 
 1. Set up Git LFS and GitHub authentication, as described in [Git and GitHub](../getting-started/git-and-github.md#private-repositories-and-git-lfs-optional).
 2. Clone it into your ROS workspace's `src` folder instead of the public `remo_description`. Both contain a package named `remo_description`, so keep only one of them in the workspace:
@@ -146,8 +148,6 @@ With access to Remo Insiders (see [how to become a sponsor]):
     ```
 
 The dev container imports the public repository; using Remo Insiders there is planned in [diffbot#104](https://github.com/ros-mobile-robots/diffbot/issues/104).
-
-Without a sponsorship, you can buy the STL files on Gumroad instead, see [3D Printing](../hardware_setup/3D_print.md).
 
 ## Funding <span class="mdx-sponsorship-total" data-mdx-component="sponsorship-total"></span>
 

@@ -1,6 +1,6 @@
 # Getting Started
 
-This page takes you from a new PC to a driving robot. The steps are the same for both robots, [DiffBot and Remo](../hardware_setup/overview.md), because they share their code: the [diffbot](https://github.com/ros-mobile-robots/diffbot) repository has the simulation, the software for the real robot, and the tools for your PC. Both run [ROS 1 Noetic](https://wiki.ros.org/noetic).
+This page takes you from a new PC to a driving robot. The steps are the same for both robots, [DiffBot and Remo](../hardware/index.md), because they share their code: the [diffbot](https://github.com/ros-mobile-robots/diffbot) repository has the simulation, the software for the real robot, and the tools for your PC. Both run [ROS 1 Noetic](https://wiki.ros.org/noetic).
 
 The steps below build on each other. The first three set up your PC and run the robot in simulation, without any hardware. The real robot continues with step 4, and your PC is then already prepared for it.
 
@@ -38,7 +38,7 @@ The dev container has ROS Noetic, Gazebo and RViz, and builds the workspace: see
 
 ### 4. Build the robot
 
-The [Components](../components.md) to buy, and for Remo the [hardware setup](../hardware_setup/overview.md): 3D printing, electronics and assembly.
+The [Components](../components.md) to buy, and for Remo the [hardware setup](../hardware/index.md): 3D printing, electronics and assembly.
 
 ### 5. Set up the robot's computer
 

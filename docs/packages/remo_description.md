@@ -22,11 +22,9 @@ accept a `model` argument. Just append `model:=remo` to the end of a `roslaunch`
 
 The public `remo_description` repository has empty placeholder STL files, so Remo has no meshes in RViz and Gazebo, and there is nothing to print. There are two ways to get the real files:
 
-- **Gumroad download:** buy the STL files, then download them with the configuration file as described in the repository's [README](https://github.com/ros-mobile-robots/remo_description#stl-mesh-files).
+--8<-- "includes/remo-stl-options.md"
 
-    <a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a>
-
-- **Remo Insiders:** a private version of this repository that contains the STL files, stored with Git LFS. See [Remo STL files](../insiders/index.md#remo-stl-files).
+After buying them on Gumroad, download them into the repository with the configuration file, as described in its [README](https://github.com/ros-mobile-robots/remo_description#stl-mesh-files). With Remo Insiders, clone the private repository instead, see [Remo STL files](../insiders/index.md#remo-stl-files).
 
 Which parts to print and how: [3D Printing](../hardware_setup/3D_print.md).
 

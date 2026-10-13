@@ -38,14 +38,9 @@ The source code for this project can be found in the [ros-mobile-robots/diffbot]
 
 ## Remo Robot
 
-You can find Remo robot (Research Education Modular/Mobile Open robot), a 3D printable and modular robot description package available at [ros-mobile-robots/remo_description](https://github.com/ros-mobile-robots/remo_description). 
-The stl files are freely available from the repository and stored inside the git lfs (Git large file system) on GitHub. 
-The bandwidth limit for open source projects on GitHub is 1.0 GB per month, 
-which is why you might not be able to clone/pull the files because the quota is already exhausted this month. 
-To support this work and in case you need the files immediately, you can access them through the following link:
+Remo (Research Education Modular/Mobile Open robot) is a 3D printable, modular robot. Its robot description is in [ros-mobile-robots/remo_description](https://github.com/ros-mobile-robots/remo_description), which has empty placeholders for the STL files. To print Remo, get the files in one of two ways:
 
-
-<a class="gumroad-button" href="https://gumroad.com/l/GnMpU?wanted=true" data-gumroad-single-product="true">Access Remo STL files</a>
+--8<-- "includes/remo-stl-options.md"
 
 ## Contributing
 
