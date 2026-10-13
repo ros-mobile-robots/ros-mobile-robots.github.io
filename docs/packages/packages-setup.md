@@ -10,8 +10,13 @@ The following steps will be performed on both, the workstation/development PC an
 
 ## Git: clone diffbot repository
 
-After setting up ROS on your workstation PC and the SBC (either [Raspberry Pi 4B](../processing_units/rpi-setup.md) or [Jetson Nano](../processing_units/jetson-nano-setup.md)),
-create a ros workspace in your users home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}):
+After setting up ROS on the SBC ([Raspberry Pi 4B](../processing_units/rpi-setup.md) or [Jetson Nano](../processing_units/jetson-nano-setup.md)), install Git there, if `git --version` doesn't find it:
+
+```
+sudo apt install git
+```
+
+Then create a ROS workspace in your home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}). It's public, so this needs no GitHub account:
 
 ```
 mkdir -p ~/ros_ws/src
@@ -24,6 +29,26 @@ To use a released version instead of the latest code, clone a tag, for example t
 ```
 git clone --depth 1 --branch 1.1.0 https://github.com/ros-mobile-robots/diffbot.git
 ```
+
+??? note "Push changes from the robot (optional)"
+    Usually you change the code on your PC and pull it on the robot. To commit and push on the robot as well, set up your commit identity and authentication there as described in [Git and GitHub](../getting-started/git-and-github.md#commit-and-push-changes-optional). Authentication differs a little, because you work on the robot over SSH, without a browser:
+
+    === "HTTPS"
+
+        `gh auth login` on the robot shows a one-time code. Open <https://github.com/login/device> on your PC and enter it there. `gh` then stores a token on the robot, in a plain text file if no keyring is available; `gh auth status` shows where.
+
+    === "SSH"
+
+        Instead of creating a key on the robot, let it use your PC's key through SSH agent forwarding. On your PC, in Linux or in the Ubuntu in WSL 2, load the key into the SSH agent, and connect with `-A`:
+
+        ```console
+        ssh-add ~/.ssh/id_ed25519
+        ssh -A your-user@192.168.0.20
+        ```
+
+        If `ssh-add` can't connect to an agent, as in WSL 2, start one first with `eval "$(ssh-agent -s)"`. On the robot, the clone needs the SSH address (see [Git and GitHub](../getting-started/git-and-github.md#commit-and-push-changes-optional), SSH tab).
+
+        The private key stays on your PC. But while you're connected, anyone with root access on the robot can use your agent to authenticate to GitHub as you. Forward it only to a robot you trust, such as your own ([Using SSH agent forwarding](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/using-ssh-agent-forwarding)).
 
 ## Obtain (system) Dependencies
 
@@ -84,6 +109,8 @@ Now source the catkin workspace either using the [created alias](../processing_u
 ```
 source devel/setup.bash
 ```
+
+On the robot, the next step is to [flash the microcontroller](../getting-started/index.md#6-flash-the-microcontroller), step 6 in Getting Started.
 
 ## Examples
 

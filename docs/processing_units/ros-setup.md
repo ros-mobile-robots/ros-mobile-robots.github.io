@@ -164,6 +164,8 @@ fjp@ubuntu:~/git/2wd-robot/ros$ source ~/git/2wd-robot/ros/devel/setup.bash # Lo
 !!! info
     Instead of `source` it is possible to use the `.` command instead. Don't confuse it though with the current directory, which is also represented as `.`.
 
+Next, on the robot: [Hardware Interfaces](hardware-interfaces.md), for access to USB, GPIO and I2C.
+
 ## Resources
 
 Although the [catkin tutorial](https://wiki.ros.org/catkin/Tutorials) uses `catkin_make` it provides a helpful guide to create a workspace
