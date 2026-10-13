@@ -36,25 +36,25 @@ The steps below build on each other. The first three set up your PC and run the 
 
 ## Simulation
 
-### :material-laptop: 1. Set up your PC
+### :material-laptop:{ aria-hidden="true" } 1. Set up your PC
 
 <a id="operating-system"></a>Linux, or Windows with WSL 2, and Docker: see [Set Up Your PC](set-up-your-pc.md).
 
-### :material-source-repository: 2. Get the code
+### :material-source-repository:{ aria-hidden="true" } 2. Get the code
 
 <a id="git"></a>Install Git and clone diffbot: see [Git and GitHub](git-and-github.md).
 
-### :material-play-circle-outline: 3. Run the simulation
+### :material-play-circle-outline:{ aria-hidden="true" } 3. Run the simulation
 
 The dev container has ROS Noetic, Gazebo and RViz, and builds the workspace: see [Use the Dev Container](../development/dev-container.md). With that, your PC is also ready for the real robot.
 
 ## Real robot
 
-### :material-tools: 4. Build the robot
+### :material-tools:{ aria-hidden="true" } 4. Build the robot
 
 The [Components](../components.md) to buy, and for Remo the [hardware setup](../hardware/index.md): 3D printing, electronics and assembly.
 
-### :material-developer-board: 5. Set up the robot's computer
+### :material-developer-board:{ aria-hidden="true" } 5. Set up the robot's computer
 
 <a id="remote-control"></a>The robot's computer is a Raspberry Pi 4 B:
 
@@ -65,15 +65,15 @@ The [Components](../components.md) to buy, and for Remo the [hardware setup](../
 
 [Jetson Nano Setup](../processing_units/jetson-nano-setup.md) describes an older setup with Ubuntu 18.04 and ROS Melodic.
 
-### :material-chip: 6. Flash the microcontroller
+### :material-chip:{ aria-hidden="true" } 6. Flash the microcontroller
 
 The [microcontroller](../processing_units/teensy-mcu.md), a Teensy, drives the motors and reads the encoders.
 
-### :material-lan-connect: 7. Connect your PC and the robot
+### :material-lan-connect:{ aria-hidden="true" } 7. Connect your PC and the robot
 
 See [ROS Network Setup](../processing_units/ros-network-setup.md).
 
-### :material-robot: 8. Drive the robot
+### :material-robot:{ aria-hidden="true" } 8. Drive the robot
 
 Bring up the hardware, then map and navigate, as described in the diffbot README under [Navigating and Mapping on the real Robot](https://github.com/ros-mobile-robots/diffbot#navigating-and-mapping-on-the-real-robot).
 
