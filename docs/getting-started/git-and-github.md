@@ -2,9 +2,9 @@
 
 <a id="git-setup"></a>
 
-DiffBot's and Remo's code is on [GitHub](https://github.com/ros-mobile-robots), in [Git](https://git-scm.com/) repositories. This page sets up Git on your PC, in [step 2](index.md#2-get-the-code) of Getting Started. Reading and running the code only takes the first section; the others are optional.
+DiffBot's and Remo's code is on [GitHub](https://github.com/ros-mobile-robots), in [Git](https://git-scm.com/) repositories. This page sets up Git on your PC, in [step 2](index.md#2-get-the-code) of Getting Started. Reading and running the code only takes the first section, [Install Git and clone](#install-git-and-clone).
 
-The robot's computer needs Git too, but only later: in step 5, [Packages Setup](../packages/packages-setup.md#git-clone-diffbot-repository) installs it there and clones the code. The optional sections below work the same way on the robot.
+The robot's computer needs Git too, but only later: in step 5, [Packages Setup](../packages/packages-setup.md#git-clone-diffbot-repository) installs it there and clones the code. The optional sections, [Commit and push changes](#commit-and-push-changes-optional) and [Private repositories and Git LFS](#private-repositories-and-git-lfs-optional), work the same way on your PC and on the robot.
 
 ## Install Git and clone
 
