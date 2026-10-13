@@ -330,6 +330,8 @@
         </button>
       </nav>
       
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
@@ -623,6 +625,8 @@
         
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
@@ -748,16 +752,21 @@
     
       
       
+        
+          
+          
+        
+      
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" checked="">
         
           
-          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="">
             
   
   
@@ -1071,6 +1080,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -1186,6 +1197,8 @@
     
     
       
+      
+        
       
     
     
@@ -1374,6 +1387,8 @@
     
     
       
+      
+        
       
     
     
@@ -1618,6 +1633,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -1772,6 +1789,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -1883,6 +1902,8 @@
     
     
       
+      
+        
       
     
     
@@ -2066,6 +2087,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -2191,6 +2214,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -2311,6 +2336,8 @@
     
     
       
+      
+        
       
     
     
@@ -2493,6 +2520,8 @@
     
     
       
+      
+        
       
     
     
@@ -2866,6 +2895,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -2928,6 +2959,8 @@
     
     
       
+      
+        
       
     
     
@@ -3026,6 +3059,8 @@
     
     
       
+      
+        
       
     
     
@@ -3238,6 +3273,8 @@
     
     
       
+      
+        
       
     
     
@@ -3469,6 +3506,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -3558,6 +3597,8 @@
     
     
       
+      
+        
       
     
     
@@ -3654,6 +3695,8 @@
     
     
       
+      
+        
       
     
     
@@ -3839,6 +3882,8 @@
     
     
       
+      
+        
       
     
     
@@ -4097,6 +4142,72 @@
           
             <div class="md-content" data-md-component="content">
               
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation">
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../getting-started/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Development Environment
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
               <article class="md-content__inner md-typeset">
                 
 
@@ -4105,6 +4216,11 @@
                   
 
 
+  
+    <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/edit/main/docs/development/dev-container.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
   
   
 
@@ -4177,10 +4293,12 @@
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span>
-<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
 <span class="go">bash .devcontainer/noetic/host-x11.sh</span>
 <span class="go">docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \</span>
 <span class="go">  -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \</span>
+<span class="go">  -e QT_XCB_NO_MITSHM=1 \</span>
 <span class="go">  -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \</span>
 <span class="go">  bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh &amp;&amp; bash"</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4229,10 +4347,12 @@
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span>
-<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .devcontainer/noetic/Dockerfile -t diffbot:noetic .</span>
 <span class="go">bash .devcontainer/noetic/host-x11.sh</span>
 <span class="go">docker run -it --rm --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \</span>
 <span class="go">  -e XAUTHORITY=/home/ros/catkin_ws/src/diffbot/.devcontainer/noetic/.x11/xauth \</span>
+<span class="go">  -e QT_XCB_NO_MITSHM=1 \</span>
 <span class="go">  -v "$PWD":/home/ros/catkin_ws/src/diffbot diffbot:noetic \</span>
 <span class="go">  bash -c "bash src/diffbot/.devcontainer/noetic/setup.sh &amp;&amp; bash"</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4299,7 +4419,7 @@
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">vcs import --skip-existing src &lt; src/diffbot/diffbot_dev.repos</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">vcs import --skip-existing &lt; src/diffbot/diffbot_dev.repos</span>
 <span class="go">sudo apt-get update</span>
 <span class="go">rosdep install --from-paths src --ignore-src --rosdistro noetic -y</span>
 <span class="go">catkin build</span>
@@ -4422,6 +4542,46 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../../getting-started/git-and-github/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Git and GitHub">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Git and GitHub
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../dev-container-internals/" class="md-footer__link md-footer__link--next" aria-label="Next: How the Dev Container Works">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                How the Dev Container Works
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
@@ -4451,7 +4611,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "navigation.tabs", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

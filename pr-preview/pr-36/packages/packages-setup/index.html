@@ -314,6 +314,8 @@
         </button>
       </nav>
       
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
@@ -602,6 +604,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -724,6 +728,8 @@
     
     
       
+      
+        
       
     
     
@@ -890,6 +896,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -1005,6 +1013,8 @@
     
     
       
+      
+        
       
     
     
@@ -1193,6 +1203,8 @@
     
     
       
+      
+        
       
     
     
@@ -1437,6 +1449,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -1591,6 +1605,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -1702,6 +1718,8 @@
     
     
       
+      
+        
       
     
     
@@ -1885,6 +1903,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -2014,6 +2034,8 @@
         
         
       
+      
+        
       
     
     
@@ -2272,16 +2294,21 @@
     
       
       
+        
+          
+          
+        
+      
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4">
         
           
-          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="">
             
   
   
@@ -2454,9 +2481,14 @@
     
       
       
+        
+          
+          
+        
+      
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -2482,7 +2514,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -2826,6 +2858,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -2888,6 +2922,8 @@
     
     
       
+      
+        
       
     
     
@@ -2986,6 +3022,8 @@
     
     
       
+      
+        
       
     
     
@@ -3198,6 +3236,8 @@
     
     
       
+      
+        
       
     
     
@@ -3429,6 +3469,8 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
@@ -3518,6 +3560,8 @@
     
     
       
+      
+        
       
     
     
@@ -3614,6 +3658,8 @@
     
     
       
+      
+        
       
     
     
@@ -3799,6 +3845,8 @@
     
     
       
+      
+        
       
     
     
@@ -4035,6 +4083,54 @@
           
             <div class="md-content" data-md-component="content">
               
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation">
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    ROS Packages
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
               <article class="md-content__inner md-typeset">
                 
 
@@ -4043,6 +4139,11 @@
                   
 
 
+  
+    <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/edit/main/docs/packages/packages-setup.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
   
   
 
@@ -4056,8 +4157,10 @@ repository.</p>
 <p>On the development PC, the <a href="../../development/dev-container/">dev container</a> does all of the following steps for you, in a Docker image with ROS Noetic, Gazebo and RViz. The steps below are still needed on the robot's SBC.</p>
 </div>
 <h2 id="git-clone-diffbot-repository">Git: clone diffbot repository</h2>
-<p>After setting up ROS on your workstation PC and the SBC (either <a href="../../processing_units/rpi-setup/">Raspberry Pi 4B</a> or <a href="../../processing_units/jetson-nano-setup/">Jetson Nano</a>),
-create a ros workspace in your users home folder and clone the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code> repository</a>. Git is described in <a href="../../getting-started/git-and-github/">Git and GitHub</a>:</p>
+<p>After setting up ROS on the SBC (<a href="../../processing_units/rpi-setup/">Raspberry Pi 4B</a> or <a href="../../processing_units/jetson-nano-setup/">Jetson Nano</a>), install Git there, if <code>git --version</code> doesn't find it:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo apt install git
+</code></pre></div></td></tr></tbody></table></div>
+<p>Then create a ROS workspace in your home folder and clone the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code> repository</a>. It's public, so this needs no GitHub account:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>mkdir -p ~/ros_ws/src
@@ -4067,6 +4170,14 @@ git clone https://github.com/ros-mobile-robots/diffbot.git
 <p>To use a released version instead of the latest code, clone a tag, for example the latest release, <code>1.1.0</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>git clone --depth 1 --branch 1.1.0 https://github.com/ros-mobile-robots/diffbot.git
 </code></pre></div></td></tr></tbody></table></div>
+<details class="note">
+<summary>Push changes from the robot (optional)</summary>
+<p>Usually you change the code on your PC and pull it on the robot. To commit and push on the robot as well, set up your commit identity and authentication there as described in <a href="../../getting-started/git-and-github/#commit-and-push-changes-optional">Git and GitHub</a>. Two things differ, because you work on the robot over SSH, without a browser:</p>
+<ul>
+<li><strong>HTTPS:</strong> <code>gh auth login</code> shows a one-time code. Open <a href="https://github.com/login/device">https://github.com/login/device</a> on your PC and enter it there.</li>
+<li><strong>SSH:</strong> instead of creating a key on the robot, connect from your PC with <code>ssh -A</code>. The robot then uses your PC's key while you're logged in (<a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/using-ssh-agent-forwarding">Using SSH agent forwarding</a>).</li>
+</ul>
+</details>
 <h2 id="obtain-system-dependencies">Obtain (system) Dependencies</h2>
 <p>The <code>diffbot</code> repository relies on two sorts of dependencies:</p>
 <ul>
@@ -4248,6 +4359,46 @@ ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: ROS Software Packages">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                ROS Software Packages
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../diffbot_robot/" class="md-footer__link md-footer__link--next" aria-label="Next: Robot Package">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Robot Package
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
@@ -4277,7 +4428,7 @@ ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "navigation.tabs", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
