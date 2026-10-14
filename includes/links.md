@@ -79,6 +79,7 @@
 [amazon_grove_i2c_hub_ger]: https://amzn.to/34CGEbz
 
 <!-- Books -->
+[amazon_book_probabilistic_robotics_us]: https://www.amazon.com/dp/0262201623?tag=fjp033-20
 [amazon_book_probabilistic_robotics_ger]: https://amzn.to/3kolas5
 [amazon_book_papoulis_probability_ger]: https://amzn.to/3lC0ZWV
 [amazon_book_mastering_ros_ger]: https://amzn.to/3tpmT55

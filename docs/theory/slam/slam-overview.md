@@ -110,5 +110,5 @@ The SLAM libraries and algorithms above, with their approach and key features:
 
 #### Books
 
-- [Probabilistic Robotics, Sebastian Thrun, Wolfram Burgard, Dieter Fox][amazon_book_probabilistic_robotics_ger] (affiliate link), [MIT Press](https://mitpress.mit.edu/books/probabilistic-robotics)
+- Probabilistic Robotics, Sebastian Thrun, Wolfram Burgard, Dieter Fox ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links), [MIT Press](https://mitpress.mit.edu/books/probabilistic-robotics)
 
