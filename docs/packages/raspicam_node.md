@@ -3,6 +3,9 @@
 The diffbot robot uses the [`UbiquityRobotics/raspicam_node`](https://github.com/UbiquityRobotics/raspicam_node)
 to interface the [Raspberry Pi Camera v2](https://www.raspberrypi.org/products/camera-module-v2/).
 
+!!! note "Ubuntu 20.04 only"
+    `raspicam_node` uses the Raspberry Pi's legacy camera interface (MMAL), which works on the robot's Ubuntu 20.04. Current systems use libcamera instead: Raspberry Pi OS since Bullseye, and Bookworm no longer has the legacy interface. A driver for current systems, for DiffBot and Remo, is planned in [diffbot#111](https://github.com/ros-mobile-robots/diffbot/issues/111).
+
 <figure>
     <a href="{{ asset_dir }}/components/rpi-camera.jpg"><img src="{{ asset_dir }}/components/rpi-camera.jpg"></a>
     <figcaption>RPi Camera v2.</figcaption>
