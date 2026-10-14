@@ -20,9 +20,9 @@ The true pose is what makes the test useful. The odometry is computed from the w
 
 [ros_control](http://wiki.ros.org/ros_control) isn't a node of its own. It's a set of C++ libraries, used inside the process that has access to the joints:
 
-- A **hardware interface**, a class derived from `hardware_interface::RobotHW`, holds each wheel joint's position, velocity and command. It only reads and writes these values; it publishes no topics.
-- A **controller manager** loads the controllers as plugins and calls them in a loop: read the joints, update the controllers, write the commands.
-- The **controllers** publish the topics. `joint_state_controller` copies the joint values to `/diffbot/joint_states`. `mobile_base_controller`, a [diff_drive_controller](http://wiki.ros.org/diff_drive_controller), computes the odometry from the wheel joint positions, publishes it, and turns the velocities from `cmd_vel` into a velocity command for each wheel.
+- A **hardware interface**, a class derived from `hardware_interface::RobotHW`, gives the controllers each wheel joint's position and velocity and takes a velocity command for it. The controllers read and write these values directly, in the same process, not over topics. How the hardware interface gets the values from the robot and passes on the commands depends on the robot: in Gazebo it reads and sets the simulated joints, on DiffBot it uses ROS topics to talk to the Teensy.
+- A **controller manager** loads the controllers as plugins and updates them. The program that creates the hardware interface and the controller manager runs the loop: read the joints, update the controllers, write the commands.
+- The **controllers** publish the topics that the test checks. `joint_state_controller` copies the joint values to `/diffbot/joint_states`. `mobile_base_controller`, a [diff_drive_controller](http://wiki.ros.org/diff_drive_controller), computes the odometry from the wheel joint positions, publishes it, and turns the velocities from `cmd_vel` into a velocity command for each wheel.
 
 The figures show where these parts run in the simulation test and on the real robot. The blue box is the same in both: the controller manager with the two controllers, configured by [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). Only the hardware interface and what's below it differ.
 
@@ -32,15 +32,15 @@ Topic names are shortened in the figures: `cmd_vel` and `odom` are under `/diffb
 
 ### In the simulation
 
-All three parts run inside the Gazebo server. The robot's URDF loads the [`gazebo_ros_control`](http://wiki.ros.org/gazebo_ros_control) plugin ([`robot.gazebo.xacro`]({{ diffbot_repo_url }}/diffbot_description/urdf/include/robot.gazebo.xacro)). The plugin creates the hardware interface, `DefaultRobotHWSim`, for the wheel joints that have a transmission in the URDF, and a controller manager. In each simulation step it calls `readSim()`, the controllers' update and `writeSim()`. So the controllers publish from the `/gazebo` node.
+All three parts run inside the Gazebo server. The robot's URDF loads the [`gazebo_ros_control`](http://wiki.ros.org/gazebo_ros_control) plugin ([`robot.gazebo.xacro`]({{ diffbot_repo_url }}/diffbot_description/urdf/include/robot.gazebo.xacro)). The plugin creates the hardware interface, `DefaultRobotHWSim`, for the wheel joints that have a transmission in the URDF, and a controller manager. In each simulation step the plugin runs the loop: `readSim()`, the controller manager's update, `writeSim()`. So the controllers publish from the `/gazebo` node.
 
 `model_states` doesn't go through ros_control: Gazebo's own ROS interface publishes the true pose of every model.
 
 ### On the real robot
 
-The [`diffbot_base`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) node takes Gazebo's place. It creates the hardware interface [`DiffBotHWInterface`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_hw_interface.cpp) and a controller manager, and runs the loop itself: `read()`, update the controllers, `write()`. Its [launch file]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) loads the same `diffbot_control.yaml` and spawns the same two controllers. `read()` takes the wheel angles and velocities that the Teensy publishes on `measured_joint_states`. `write()` publishes the wheel velocity commands on `wheel_cmd_velocities`, and the Teensy's firmware runs a PID loop per wheel to reach them ([Base Hardware Interface](../packages/diffbot_base/index.md)). The [rosserial](http://wiki.ros.org/rosserial) node relays both topics over USB.
+The [`diffbot_base`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) node takes Gazebo's place. It creates the hardware interface [`DiffBotHWInterface`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_hw_interface.cpp) and a controller manager, and runs the loop itself: `read()`, update the controllers, `write()`. Its [launch file]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) loads the same `diffbot_control.yaml` and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics: it subscribes to `measured_joint_states`, the wheel angles and velocities that the Teensy publishes, and `read()` passes the latest values to the controllers. `write()` publishes the wheel velocity commands on `wheel_cmd_velocities`, and the Teensy's firmware runs a PID loop per wheel to reach them ([Base Hardware Interface](../packages/diffbot_base/index.md)). The [rosserial](http://wiki.ros.org/rosserial) node relays both topics over USB.
 
-So the simulation test covers the robot model and the controller configuration that both share. It doesn't cover `diffbot_base`, rosserial or the firmware: they need the robot. [ROS Control, An overview](https://fjp.at/posts/ros/ros-control/) explains ros_control in more detail.
+So the simulation test covers the robot model and the controller configuration that both share. It doesn't run `diffbot_base`, rosserial or the firmware. [ROS Control, An overview](https://fjp.at/posts/ros/ros-control/) explains ros_control in more detail.
 
 ## Run it
 
