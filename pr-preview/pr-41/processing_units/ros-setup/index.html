@@ -4117,13 +4117,13 @@
 <h1 id="ros-installation">ROS Installation</h1>
 <p>The robot's computer runs <a href="https://wiki.ros.org/noetic">ROS Noetic</a> on Ubuntu MATE 20.04 Focal Fossa. ROS Noetic reached its end of life in May 2025, at the same time as the standard support of <a href="https://ubuntu.com/20-04">Ubuntu 20.04</a>; Ubuntu MATE's own support for 20.04 <a href="https://ubuntu-mate.community/t/ubuntu-mate-20-04-lts-reaches-end-of-life/26477">ended in April 2023</a>. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. A container for the robot, to run Noetic on a newer host OS, is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>, and the way to ROS 2 in <a href="https://github.com/ros-mobile-robots/diffbot/issues/107">diffbot#107</a>.</p>
 <div class="admonition tip">
-<p class="admonition-title">All in one: <code>raspi-setup.sh</code></p>
-<p>The diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh"><code>raspi-setup.sh</code></a> runs the commands of this page and of <a href="../../packages/packages-setup/">Packages Setup</a> in one go, for Remo or DiffBot. On the robot:</p>
+<p class="admonition-title">All in one for Remo: <code>raspi-setup.sh</code></p>
+<p>The diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh"><code>raspi-setup.sh</code></a> runs the commands of this page and of <a href="../../packages/packages-setup/">Packages Setup</a> in one go, for Remo. On the robot:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">curl -O https://raw.githubusercontent.com/ros-mobile-robots/diffbot/noetic-devel/raspi-setup.sh</span>
-<span class="go">bash raspi-setup.sh remo</span>
+<span class="go">bash raspi-setup.sh</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>For DiffBot, use <code>diffbot</code> instead of <code>remo</code>. The sections below explain what the script does. <a href="../hardware-interfaces/">Hardware Interfaces</a> is still needed: it gives your user access to I2C and the serial port.</p>
+<p>The sections below explain what the script does. <a href="../hardware-interfaces/">Hardware Interfaces</a> is still needed: it gives your user access to I2C and the serial port. For DiffBot, follow the pages: its camera driver needs the extra steps on <a href="../../packages/raspicam_node/">Raspberry Pi Camera</a>, which the script doesn't do yet.</p>
 </div>
 <h2 id="install-ros-noetic">Install ROS Noetic</h2>
 <p>The key that signs the ROS packages expired on 1 June 2025 and was renewed. The <a href="https://github.com/ros-infrastructure/ros-apt-source"><code>ros-apt-source</code></a> package sets up the package source together with the current key, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">ROS signing key migration guide</a> recommends.</p>
@@ -4144,6 +4144,7 @@
 <span class="go">curl -L -o /tmp/ros-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release &amp;&amp; echo $VERSION_CODENAME)_all.deb"</span>
 <span class="go">sudo dpkg -i /tmp/ros-apt-source.deb</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>The second command asks GitHub for the latest version of <code>ros-apt-source</code>. GitHub answers 60 such requests per hour from one IP address, for example for a classroom behind one router. If <code>dpkg</code> reports that the file isn't a Debian archive, try again later, or set the version by hand, for example <code>export ROS_APT_SOURCE_VERSION=1.3.0</code>, and repeat the last two commands.</p>
 <p>Then install ROS for the robot, <code>ros-noetic-robot</code>, without the GUI tools: RViz, Gazebo and rqt run on your PC, in the <a href="../../development/dev-container/">dev container</a>. Install the tools to set up and build the workspace with it, among them the C++ compiler (<code>build-essential</code>), and <code>python-is-python3</code>, which nodes written with <code>rospy</code> need:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt update</span>

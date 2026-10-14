@@ -4221,8 +4221,13 @@ They clone into <code>src/</code>, so run <code>vcs import</code> from the root 
 <p>All the needed ROS system dependencies which are required by diffbot's packages can be installed using
 <a href="http://wiki.ros.org/rosdep"><code>rosdep</code></a> command, which was installed during the ROS setup.
 To install all system dependencies use the following command:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>rosdep install --from-paths src --ignore-src -r -y
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>rosdep install --from-paths src --ignore-src -y
 </code></pre></div></td></tr></tbody></table></div>
+<p>If rosdep can't resolve a dependency, it stops with an error that names it.</p>
+<div class="admonition note">
+<p class="admonition-title">DiffBot: camera libraries first</p>
+<p>DiffBot's camera driver, <code>raspicam_node</code>, needs the Raspberry Pi's camera libraries, which rosdep doesn't know. Add their rules as described on <a href="../raspicam_node/">Raspberry Pi Camera</a> before you run <code>rosdep install</code>.</p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>On the following packages pages it is explained that the dependencies of a ROS package are defined inside its <code>package.xml</code>.</p>

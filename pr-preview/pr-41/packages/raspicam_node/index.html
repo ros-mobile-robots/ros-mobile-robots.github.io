@@ -4062,15 +4062,7 @@ For completeness, these steps are listed here:</p>
 <p>First go to your catkin_ws cd <code>~/catkin_ws/src</code> and download the source for this node by running</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git clone https://github.com/UbiquityRobotics/raspicam_node.git</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>There are some dependencies that are not recognized by ROS, so you need to create the file <code>/etc/ros/rosdep/sources.list.d/30-ubiquity.list</code> and add 
-the following to it:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>yaml https://raw.githubusercontent.com/UbiquityRobotics/rosdep/master/raspberry-pi.yaml
-</code></pre></div></td></tr></tbody></table></div>
-<p>This will add ROS dependency sources, which are relevant for the Raspberry Pi. </p>
-<p>For completeness you can list the content of this yaml file here:</p>
-<details>
-<summary>Show content</summary>
-
+<p>rosdep doesn't know two of its dependencies: the Raspberry Pi's camera libraries <code>libraspberrypi0</code> and <code>libraspberrypi-dev</code>. Ubuntu 20.04 for the Raspberry Pi has them as packages (in <code>focal-updates</code>, universe). The rosdep rules for them that Ubiquity Robotics published (<code>UbiquityRobotics/rosdep</code>, <code>raspberry-pi.yaml</code>) are no longer online, so add the rules as a local file, and tell rosdep where it is:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4081,55 +4073,19 @@ the following to it:</p>
 <span class="normal"> 8</span>
 <span class="normal"> 9</span>
 <span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">libraspberrypi0</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">debian</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi0</span><span class="p p-Indicator">]</span>
-<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi0</span><span class="p p-Indicator">]</span>
-<span class="nt">libraspberrypi-dev</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">debian</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi-dev</span><span class="p p-Indicator">]</span>
-<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libraspberrypi-dev</span><span class="p p-Indicator">]</span>
-<span class="nt">libpigpio</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">debian</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpio-dev</span><span class="p p-Indicator">]</span>
-<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpio-dev</span><span class="p p-Indicator">]</span>
-<span class="nt">libpigpiod-if</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">debian</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpiod-if-dev</span><span class="p p-Indicator">]</span>
-<span class="w">  </span><span class="nt">ubuntu</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">apt</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">libpigpiod-if-dev</span><span class="p p-Indicator">]</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo tee /etc/ros/rosdep/raspberry-pi.yaml &gt; /dev/null &lt;&lt; 'EOF'</span>
+<span class="go">libraspberrypi0:</span>
+<span class="go">  ubuntu:</span>
+<span class="go">    apt:</span>
+<span class="go">      packages: [libraspberrypi0]</span>
+<span class="go">libraspberrypi-dev:</span>
+<span class="go">  ubuntu:</span>
+<span class="go">    apt:</span>
+<span class="go">      packages: [libraspberrypi-dev]</span>
+<span class="go">EOF</span>
+<span class="go">echo "yaml file:///etc/ros/rosdep/raspberry-pi.yaml" | sudo tee /etc/ros/rosdep/sources.list.d/30-raspberry-pi.list</span>
 </code></pre></div></td></tr></tbody></table></div>
-</details>
-
-<p>To make use of these sources run </p>
+<p>Then update rosdep's index:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosdep update --rosdistro noetic</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Next, we parse the <code>package.xml</code> file for required dependencies and also install them with the <code>rosdep</code> command:</p>
