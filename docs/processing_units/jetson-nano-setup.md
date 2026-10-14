@@ -1,3 +1,6 @@
+!!! warning "Legacy setup"
+    This page describes an older setup: Ubuntu 18.04 with ROS Melodic on a Jetson Nano. It isn't updated any more. The current robot uses a Raspberry Pi 4 B with Ubuntu 20.04 and ROS Noetic: see [Raspberry Pi Setup](rpi-setup.md).
+
 These are the instructions to setup the official Ubuntu 18.04 image from Nvidia on a Jetson Nano.
 
 !!! note
@@ -115,10 +118,6 @@ ssh your-user@192.168.0.20
 ```
 
 Then follow the next steps to install ROS Melodic.
-
-!!! note
-    To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.
-    Just clone this repository: https://github.com/fjp/diffbot.git and run `ubuntu-setup.sh`. But to learn more, you should follow the instructions on the following pages.
 
 
 

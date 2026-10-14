@@ -16,11 +16,11 @@ After setting up ROS on the SBC ([Raspberry Pi 4B](../processing_units/rpi-setup
 sudo apt install git
 ```
 
-Then create a ROS workspace in your home folder and clone the [`diffbot` repository]({{ diffbot_repo_url }}). It's public, so this needs no GitHub account:
+Then go to the workspace from [ROS Setup](../processing_units/ros-setup.md#build-tool-catkin_tools), `~/catkin_ws`, or create it, and clone the [`diffbot` repository]({{ diffbot_repo_url }}). It's public, so this needs no GitHub account:
 
 ```
-mkdir -p ~/ros_ws/src
-cd ~/ros_ws/src
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
 git clone https://github.com/ros-mobile-robots/diffbot.git
 ```
 
@@ -68,7 +68,7 @@ To do this the recommended tool to use is [`vcstool`](http://wiki.ros.org/vcstoo
     [`vcstool`](http://wiki.ros.org/vcstool) replaces [`wstool`](http://wiki.ros.org/wstool).
 
 The `diffbot` repository has three `.repos` files that list these source dependencies.
-They clone into `src/`, so run `vcs import` from the root of the catkin workspace (`~/ros_ws`) and pass in the file for the machine you're on:
+They clone into `src/`, so run `vcs import` from the root of the catkin workspace (`~/catkin_ws`) and pass in the file for the machine you're on:
 
 | Machine | Command | Clones |
 |:--------|:--------|:-------|
@@ -87,8 +87,13 @@ All the needed ROS system dependencies which are required by diffbot's packages 
 To install all system dependencies use the following command:
 
 ```
-rosdep install --from-paths src --ignore-src -r -y
+rosdep install --from-paths src --ignore-src -y
 ```
+
+If rosdep can't resolve a dependency, it stops with an error that names it.
+
+!!! note "DiffBot: camera libraries first"
+    DiffBot's camera driver, `raspicam_node`, needs the Raspberry Pi's camera libraries, which rosdep doesn't know. Add their rules as described on [Raspberry Pi Camera](raspicam_node.md) before you run `rosdep install`.
 
 !!! info
     On the following packages pages it is explained that the dependencies of a ROS package are defined inside its `package.xml`.
@@ -127,7 +132,7 @@ Now you are ready to follow the examples listed in the readme.
 To install a package from source clone (using git) or download the source files from where they are located (commonly hosted on GitHub) into the `src` folder of a ros catkin workspace and execute the [`catkin build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html) command. Also make sure to source the workspace after building new packages with `source devel/setup.bash`.
 
 ```console
-cd /homw/fjp/git/diffbot/ros/  # Navigate to the workspace
+cd ~/catkin_ws             # Navigate to the workspace
 catkin build              # Build all the packages in the workspace
 ls build                  # Show the resulting build space
 ls devel                  # Show the resulting devel space

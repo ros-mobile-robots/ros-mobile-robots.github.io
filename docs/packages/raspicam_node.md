@@ -16,69 +16,39 @@ To work with the `raspicam_node` for ROS Noetic, you have to build it from sourc
 outlined in the build instructions of the [readme](https://github.com/UbiquityRobotics/raspicam_node#build-intructions).
 For completeness, these steps are listed here:
 
-First go to your catkin_ws cd `~/ros_ws/src` and download the source for this node by running
+First go to your catkin_ws cd `~/catkin_ws/src` and download the source for this node by running
 
 ```console
 git clone https://github.com/UbiquityRobotics/raspicam_node.git
 ```
 
-There are some dependencies that are not recognized by ROS, so you need to create the file `/etc/ros/rosdep/sources.list.d/30-ubiquity.list` and add 
-the following to it:
+rosdep doesn't know two of its dependencies: the Raspberry Pi's camera libraries `libraspberrypi0` and `libraspberrypi-dev`. Ubuntu 20.04 for the Raspberry Pi has them as packages (in `focal-updates`, universe). The rosdep rules for them that Ubiquity Robotics published (`UbiquityRobotics/rosdep`, `raspberry-pi.yaml`) are no longer online, so add the rules as a local file, and tell rosdep where it is. The first command removes the entry for the old rules that earlier versions of this page added, if it's there: with it, `rosdep update` fails.
 
-```
-yaml https://raw.githubusercontent.com/UbiquityRobotics/rosdep/master/raspberry-pi.yaml
-```
-
-This will add ROS dependency sources, which are relevant for the Raspberry Pi. 
-
-For completeness you can list the content of this yaml file here:
-
-<details>
-<summary>Show content</summary>
-
-```yaml
+```console
+sudo rm -f /etc/ros/rosdep/sources.list.d/30-ubiquity.list
+sudo tee /etc/ros/rosdep/raspberry-pi.yaml > /dev/null << 'EOF'
 libraspberrypi0:
-  debian:
-    apt:
-      packages: [libraspberrypi0]
   ubuntu:
     apt:
       packages: [libraspberrypi0]
 libraspberrypi-dev:
-  debian:
-    apt:
-      packages: [libraspberrypi-dev]
   ubuntu:
     apt:
       packages: [libraspberrypi-dev]
-libpigpio:
-  debian:
-    apt:
-      packages: [libpigpio-dev]
-  ubuntu:
-    apt:
-      packages: [libpigpio-dev]
-libpigpiod-if:
-  debian:
-    apt:
-      packages: [libpigpiod-if-dev]
-  ubuntu:
-    apt:
-      packages: [libpigpiod-if-dev]
+EOF
+echo "yaml file:///etc/ros/rosdep/raspberry-pi.yaml" | sudo tee /etc/ros/rosdep/sources.list.d/30-raspberry-pi.list
 ```
-</details>
 
-
-To make use of these sources run 
+Then update rosdep's index:
 
 ```console
-rosdep update
+rosdep update --rosdistro noetic
 ```
 
 Next, we parse the `package.xml` file for required dependencies and also install them with the `rosdep` command:
 
 ```console
-cd ~/ros_ws
+cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src --rosdistro=noetic -y
 ```
 
