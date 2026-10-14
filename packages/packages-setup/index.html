@@ -4143,11 +4143,11 @@ repository.</p>
 <p>After setting up ROS on the SBC (<a href="../../processing_units/rpi-setup/">Raspberry Pi 4B</a> or <a href="../../processing_units/jetson-nano-setup/">Jetson Nano</a>), install Git there, if <code>git --version</code> doesn't find it:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo apt install git
 </code></pre></div></td></tr></tbody></table></div>
-<p>Then create a ROS workspace in your home folder and clone the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code> repository</a>. It's public, so this needs no GitHub account:</p>
+<p>Then go to the workspace from <a href="../../processing_units/ros-setup/#build-tool-catkin_tools">ROS Setup</a>, <code>~/catkin_ws</code>, or create it, and clone the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code> repository</a>. It's public, so this needs no GitHub account:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>mkdir -p ~/ros_ws/src
-cd ~/ros_ws/src
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
 git clone https://github.com/ros-mobile-robots/diffbot.git
 </code></pre></div></td></tr></tbody></table></div>
 <p>To use a released version instead of the latest code, clone a tag, for example the latest release, <code>1.1.0</code>:</p>
@@ -4188,7 +4188,7 @@ To do this the recommended tool to use is <a href="http://wiki.ros.org/vcstool">
 <p><a href="http://wiki.ros.org/vcstool"><code>vcstool</code></a> replaces <a href="http://wiki.ros.org/wstool"><code>wstool</code></a>.</p>
 </div>
 <p>The <code>diffbot</code> repository has three <code>.repos</code> files that list these source dependencies.
-They clone into <code>src/</code>, so run <code>vcs import</code> from the root of the catkin workspace (<code>~/ros_ws</code>) and pass in the file for the machine you're on:</p>
+They clone into <code>src/</code>, so run <code>vcs import</code> from the root of the catkin workspace (<code>~/catkin_ws</code>) and pass in the file for the machine you're on:</p>
 <table>
 <thead>
 <tr>
@@ -4221,8 +4221,13 @@ They clone into <code>src/</code>, so run <code>vcs import</code> from the root 
 <p>All the needed ROS system dependencies which are required by diffbot's packages can be installed using
 <a href="http://wiki.ros.org/rosdep"><code>rosdep</code></a> command, which was installed during the ROS setup.
 To install all system dependencies use the following command:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>rosdep install --from-paths src --ignore-src -r -y
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>rosdep install --from-paths src --ignore-src -y
 </code></pre></div></td></tr></tbody></table></div>
+<p>If rosdep can't resolve a dependency, it stops with an error that names it.</p>
+<div class="admonition note">
+<p class="admonition-title">DiffBot: camera libraries first</p>
+<p>DiffBot's camera driver, <code>raspicam_node</code>, needs the Raspberry Pi's camera libraries, which rosdep doesn't know. Add their rules as described on <a href="../raspicam_node/">Raspberry Pi Camera</a> before you run <code>rosdep install</code>.</p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>On the following packages pages it is explained that the dependencies of a ROS package are defined inside its <code>package.xml</code>.</p>
@@ -4251,7 +4256,7 @@ Inside the workspace use <a href="https://catkin-tools.readthedocs.io/en/latest/
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd /homw/fjp/git/diffbot/ros/  # Navigate to the workspace</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/catkin_ws             # Navigate to the workspace</span>
 <span class="go">catkin build              # Build all the packages in the workspace</span>
 <span class="go">ls build                  # Show the resulting build space</span>
 <span class="go">ls devel                  # Show the resulting devel space</span>

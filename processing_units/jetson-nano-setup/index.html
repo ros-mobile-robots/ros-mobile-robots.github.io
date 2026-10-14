@@ -4088,6 +4088,10 @@
 
   <h1>Jetson Nano Setup</h1>
 
+<div class="admonition warning">
+<p class="admonition-title">Legacy setup</p>
+<p>This page describes an older setup: Ubuntu 18.04 with ROS Melodic on a Jetson Nano. It isn't updated any more. The current robot uses a Raspberry Pi 4 B with Ubuntu 20.04 and ROS Noetic: see <a href="../rpi-setup/">Raspberry Pi Setup</a>.</p>
+</div>
 <p>These are the instructions to setup the official Ubuntu 18.04 image from Nvidia on a Jetson Nano.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -4258,11 +4262,6 @@ Refer to the NVIDIA Jetson Linux Developer Guide for further information. </p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh your-user@192.168.0.20</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Then follow the next steps to install ROS Melodic.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>To proceed with the next steps on installing ROS and other related dependencies you can run a bash script.
-Just clone this repository: <a href="https://github.com/fjp/diffbot.git">https://github.com/fjp/diffbot.git</a> and run <code>ubuntu-setup.sh</code>. But to learn more, you should follow the instructions on the following pages.</p>
-</div>
 <h2 id="resources">Resources</h2>
 <ul>
 <li><a href="https://developer.nvidia.com/embedded/jetpack">JetPack SDK</a></li>

@@ -1372,10 +1372,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
+  <a href="#install-ros-noetic" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dependencies
+        Install ROS Noetic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies-rosdep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies: rosdep
       
     </span>
   </a>
@@ -3944,10 +3955,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
+  <a href="#install-ros-noetic" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dependencies
+        Install ROS Noetic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies-rosdep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies: rosdep
       
     </span>
   </a>
@@ -4093,27 +4115,54 @@
 
 
 <h1 id="ros-installation">ROS Installation</h1>
-<p>The robot setup is supposed to run on Ubuntu Mate 20.04 Focal Fossa. <a href="http://wiki.ros.org/noetic">ROS Noetic</a> is intended to run with this Ubuntu version. To install ROS follow the <a href="http://wiki.ros.org/noetic/Installation/Ubuntu">installation instructions</a>.</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>In the <a href="http://wiki.ros.org/noetic/Installation/Ubuntu#Installation-1">1.4 Installation step</a> you have to choose
-how much of ROS you want to install. For the development pc you can go with the <code>sudo apt install ros-noetic-desktop-full</code>
-command. For the robot install the <code>ros-noetic-robot</code> Ubuntu package. Other system dependencies will be installed
-with the <a href="http://wiki.ros.org/rosdep"><code>rosdep</code></a> command, explained in the following section.</p>
+<p>The robot's computer runs <a href="https://wiki.ros.org/noetic">ROS Noetic</a> on Ubuntu MATE 20.04 Focal Fossa. ROS Noetic reached its end of life in May 2025, at the same time as the standard support of <a href="https://ubuntu.com/20-04">Ubuntu 20.04</a>; Ubuntu MATE's own support for 20.04 <a href="https://ubuntu-mate.community/t/ubuntu-mate-20-04-lts-reaches-end-of-life/26477">ended in April 2023</a>. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. A container for the robot, to run Noetic on a newer host OS, is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>, and the way to ROS 2 in <a href="https://github.com/ros-mobile-robots/diffbot/issues/107">diffbot#107</a>.</p>
+<div class="admonition tip">
+<p class="admonition-title">All in one for Remo: <code>raspi-setup.sh</code></p>
+<p>The diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh"><code>raspi-setup.sh</code></a> runs the commands of this page and of <a href="../../packages/packages-setup/">Packages Setup</a> in one go, for Remo. On the robot:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">curl -O https://raw.githubusercontent.com/ros-mobile-robots/diffbot/noetic-devel/raspi-setup.sh</span>
+<span class="go">bash raspi-setup.sh</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The sections below explain what the script does. <a href="../hardware-interfaces/">Hardware Interfaces</a> is still needed: it gives your user access to I2C and the serial port. For DiffBot, follow the pages: its camera driver needs the extra steps on <a href="../../packages/raspicam_node/">Raspberry Pi Camera</a>, which the script doesn't do yet.</p>
 </div>
-<p>Another program that is required to run ROS nodes written with the <code>rospy</code> client library is <code>python-is-python3</code>. Install it with:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install python-is-python3</span>
+<h2 id="install-ros-noetic">Install ROS Noetic</h2>
+<p>The key that signs the ROS packages expired on 1 June 2025 and was renewed. The <a href="https://github.com/ros-infrastructure/ros-apt-source"><code>ros-apt-source</code></a> package sets up the package source together with the current key, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">ROS signing key migration guide</a> recommends.</p>
+<details class="warning">
+<summary>Robot set up before June 2025? Remove the old package source first</summary>
+<p>Older instructions, including the <a href="https://wiki.ros.org/noetic/Installation/Ubuntu">ROS wiki</a> and earlier versions of this page, add the package source to <code>/etc/apt/sources.list.d/ros-latest.list</code> and the key with <code>apt-key</code>. If your robot has that file, <code>sudo apt update</code> fails because the key from back then has expired (<code>EXPKEYSIG</code>). Remove the old entry and key before the commands below, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">migration guide</a> describes:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo rm /etc/apt/sources.list.d/ros-latest.list</span>
+<span class="go">sudo apt-key del "C1CF 6E31 E6BA DE88 68B1 72B4 F42E D6FB AB17 C654"</span>
 </code></pre></div></td></tr></tbody></table></div>
-<h2 id="dependencies">Dependencies</h2>
-<p>After having git cloned one or more ROS packages, such as <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code></a>, 
-it is necessary to install system dependencies of the packages in the catkin workspace.
-For this, ROS provides the <a href="http://wiki.ros.org/rosdep"><code>rosdep</code></a> tool. 
-To install all system dependencies of the packages in your catkin workspace make use of the 
-following command (<a href="http://wiki.ros.org/rosdep#Install_dependency_of_all_packages_in_the_workspace">source</a>):</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosdep install --from-paths src --ignore-src -r -y</span>
+</details>
+<p>Download and install <code>ros-apt-source</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt update &amp;&amp; sudo apt install curl -y</span>
+<span class="go">export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}')</span>
+<span class="go">curl -L -o /tmp/ros-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release &amp;&amp; echo $VERSION_CODENAME)_all.deb"</span>
+<span class="go">sudo dpkg -i /tmp/ros-apt-source.deb</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>This will go through each package's <code>package.xml</code> file and install the listed dependencies that are currently
-not installed on your system.</p>
+<p>The second command asks GitHub for the latest version of <code>ros-apt-source</code>. GitHub answers 60 such requests per hour from one IP address, for example for a classroom behind one router. If <code>dpkg</code> reports that the file isn't a Debian archive, try again later, or set the version by hand, for example <code>export ROS_APT_SOURCE_VERSION=1.3.0</code>, and repeat the last two commands.</p>
+<p>Then install ROS for the robot, <code>ros-noetic-robot</code>, without the GUI tools: RViz, Gazebo and rqt run on your PC, in the <a href="../../development/dev-container/">dev container</a>. Install the tools to set up and build the workspace with it, among them the C++ compiler (<code>build-essential</code>), and <code>python-is-python3</code>, which nodes written with <code>rospy</code> need:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt update</span>
+<span class="go">sudo apt install ros-noetic-robot python3-rosdep python3-catkin-tools python3-vcstool build-essential python-is-python3</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Load ROS in every new terminal:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">echo "source /opt/ros/noetic/setup.bash" &gt;&gt; ~/.bashrc</span>
+<span class="go">source ~/.bashrc</span>
+</code></pre></div></td></tr></tbody></table></div>
+<h2 id="dependencies-rosdep">Dependencies: rosdep</h2>
+<p><a href="https://wiki.ros.org/rosdep"><code>rosdep</code></a> installs the system dependencies that ROS packages list in their <code>package.xml</code>. Set it up once:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo rosdep init</span>
+<span class="go">rosdep update --rosdistro noetic</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Noetic is past its end of life, so a plain <code>rosdep update</code> skips it, and <code>rosdep install</code> then can't find the ROS packages. <code>--rosdistro noetic</code> includes it.</p>
+<p>The dependencies of diffbot's packages are installed later, once they are in the workspace: see <a href="../../packages/packages-setup/#system-dependencies">Packages Setup</a>.</p>
 <h2 id="build-tool-catkin_tools">Build Tool: <code>catkin_tools</code></h2>
 <p>To work with ROS we will use <a href="https://catkin-tools.readthedocs.io/en/latest/index.html"><code>catkin_tools</code></a> 
 instead of <a href="http://wiki.ros.org/catkin/commands/catkin_make"><code>catkin_make</code></a>. <code>catkin_tools</code> provide commands such as <a href="https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html"><code>catkin build</code></a> which we will use instead of <a href="https://wiki.ros.org/catkin/commands/catkin_make"><code>catkin_make</code></a> because the <code>catkin_tools</code> are more actively developed than <code>catkin_make</code>
@@ -4124,23 +4173,7 @@ instead of <a href="http://wiki.ros.org/catkin/commands/catkin_make"><code>catki
 <code>catkin_tools</code> provides a number of benefits over regular <code>catkin_make</code> and will be used in the documentation. 
 All packages can be built using <code>catkin_make</code> however: use <code>catkin_make</code> in place of <code>catkin build</code> where appropriate.</p>
 </div>
-<div class="admonition bug">
-<p class="admonition-title">Bug</p>
-<p>The current way to install <code>catkin-tools</code> in the <a href="https://catkin-tools.readthedocs.io/en/latest/installing.html#installing-on-ubuntu-with-apt-get">documentation</a> 
-from the Ubuntu package repository doesn't work. Follow the steps below instead for now.</p>
-</div>
-<div class="admonition success">
-<p class="admonition-title">Success</p>
-<p>As of now the correct way to install <code>catkin-tools</code> is to use the following command:
-</p><div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo apt-get install python3-osrf-pycommon python3-catkin-tools
-</code></pre></div></td></tr></tbody></table></div>
-For your reference, you can read more about it in <a href="https://github.com/catkin/catkin_tools/issues/594">this open issue</a>.<p></p>
-</div>
-<p>After successfully installing <code>catkin_tools</code> we can create and initialize a workspace (called <code>ros</code> for this project) with the <a href="https://catkin-tools.readthedocs.io/en/latest/quick_start.html">commands listed in the build_tools documentation</a>:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Note that we already <code>source</code>d the <code>setup.bash</code> while following the <a href="http://wiki.ros.org/melodic/Installation/Ubuntu">ROS installation instructions</a>.</p>
-</div>
+<p><code>catkin_tools</code> came with the <code>python3-catkin-tools</code> package above. Create and initialize a workspace, <code>catkin_ws</code>, with the <a href="https://catkin-tools.readthedocs.io/en/latest/quick_start.html">commands from the catkin_tools quick start</a>. ROS is already loaded through <code>~/.bashrc</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4170,20 +4203,20 @@ For your reference, you can read more about it in <a href="https://github.com/ca
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
-<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code>fjp@ubuntu:~/git/2wd-robot/ros$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/git/2wd-robot/ros/src<span class="w">    </span><span class="c1"># Make a new workspace and source space</span>
-fjp@ubuntu:~/git/2wd-robot/ros$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>~/git/2wd-robot/ros<span class="w">              </span><span class="c1"># Navigate to the workspace root</span>
-fjp@ubuntu:~/git/2wd-robot/ros$<span class="w"> </span>catkin<span class="w"> </span>init<span class="w">                         </span><span class="c1"># Initialize it with a hidden marker file</span>
-Initializing<span class="w"> </span>catkin<span class="w"> </span>workspace<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="sb">`</span>/home/fjp/git/2wd-robot/ros<span class="sb">`</span>.
+<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code>fjp@ubuntu:~$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/catkin_ws/src<span class="w">           </span><span class="c1"># Make a new workspace and source space</span>
+fjp@ubuntu:~$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>~/catkin_ws<span class="w">                     </span><span class="c1"># Navigate to the workspace root</span>
+fjp@ubuntu:~/catkin_ws$<span class="w"> </span>catkin<span class="w"> </span>init<span class="w">                         </span><span class="c1"># Initialize it with a hidden marker file</span>
+Initializing<span class="w"> </span>catkin<span class="w"> </span>workspace<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="sb">`</span>/home/fjp/catkin_ws<span class="sb">`</span>.
 ----------------------------------------------------------------
 Profile:<span class="w">                     </span>default
-Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/melodic
-Workspace:<span class="w">                   </span>/home/fjp/git/2wd-robot/ros
+Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/noetic
+Workspace:<span class="w">                   </span>/home/fjp/catkin_ws
 ----------------------------------------------------------------
-Build<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/build
-Devel<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/devel
-Install<span class="w"> </span>Space:<span class="w">      </span><span class="o">[</span>unused<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/install
-Log<span class="w"> </span>Space:<span class="w">         </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/logs
-Source<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/src
+Build<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/build
+Devel<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/devel
+Install<span class="w"> </span>Space:<span class="w">      </span><span class="o">[</span>unused<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/install
+Log<span class="w"> </span>Space:<span class="w">         </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/logs
+Source<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/src
 DESTDIR:<span class="w">            </span><span class="o">[</span>unused<span class="o">]</span><span class="w"> </span>None
 ----------------------------------------------------------------
 Devel<span class="w"> </span>Space<span class="w"> </span>Layout:<span class="w">          </span>linked
@@ -4243,17 +4276,17 @@ Workspace<span class="w"> </span>configuration<span class="w"> </span>appears<sp
 <span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
-<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code>fjp@ubuntu:~/git/2wd-robot/ros$<span class="w"> </span>catkin<span class="w"> </span>build
+<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code>fjp@ubuntu:~/catkin_ws$<span class="w"> </span>catkin<span class="w"> </span>build
 ----------------------------------------------------------------
 Profile:<span class="w">                     </span>default
-Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/melodic
-Workspace:<span class="w">                   </span>/home/fjp/git/2wd-robot/ros
+Extending:<span class="w">             </span><span class="o">[</span>env<span class="o">]</span><span class="w"> </span>/opt/ros/noetic
+Workspace:<span class="w">                   </span>/home/fjp/catkin_ws
 ----------------------------------------------------------------
-Build<span class="w"> </span>Space:<span class="w">        </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/build
-Devel<span class="w"> </span>Space:<span class="w">        </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/devel
-Install<span class="w"> </span>Space:<span class="w">      </span><span class="o">[</span>unused<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/install
-Log<span class="w"> </span>Space:<span class="w">         </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/logs
-Source<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/git/2wd-robot/ros/src
+Build<span class="w"> </span>Space:<span class="w">        </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/build
+Devel<span class="w"> </span>Space:<span class="w">        </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/devel
+Install<span class="w"> </span>Space:<span class="w">      </span><span class="o">[</span>unused<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/install
+Log<span class="w"> </span>Space:<span class="w">         </span><span class="o">[</span>missing<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/logs
+Source<span class="w"> </span>Space:<span class="w">       </span><span class="o">[</span>exists<span class="o">]</span><span class="w"> </span>/home/fjp/catkin_ws/src
 DESTDIR:<span class="w">            </span><span class="o">[</span>unused<span class="o">]</span><span class="w"> </span>None
 ----------------------------------------------------------------
 Devel<span class="w"> </span>Space<span class="w"> </span>Layout:<span class="w">          </span>linked
@@ -4272,7 +4305,7 @@ Workspace<span class="w"> </span>configuration<span class="w"> </span>appears<sp
 
 NOTE:<span class="w"> </span>Forcing<span class="w"> </span>CMake<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span><span class="k">for</span><span class="w"> </span>each<span class="w"> </span>package.
 ----------------------------------------------------------------
-<span class="o">[</span>build<span class="o">]</span><span class="w"> </span>No<span class="w"> </span>packages<span class="w"> </span>were<span class="w"> </span>found<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span><span class="nb">source</span><span class="w"> </span>space<span class="w"> </span><span class="s1">'/home/fjp/git/2wd-robot/ros/src'</span>
+<span class="o">[</span>build<span class="o">]</span><span class="w"> </span>No<span class="w"> </span>packages<span class="w"> </span>were<span class="w"> </span>found<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span><span class="nb">source</span><span class="w"> </span>space<span class="w"> </span><span class="s1">'/home/fjp/catkin_ws/src'</span>
 <span class="o">[</span>build<span class="o">]</span><span class="w"> </span>No<span class="w"> </span>packages<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>built.
 <span class="o">[</span>build<span class="o">]</span><span class="w"> </span>Package<span class="w"> </span>table<span class="w"> </span>is<span class="w"> </span>up<span class="w"> </span>to<span class="w"> </span>date.
 Starting<span class="w">  </span>&gt;&gt;&gt;<span class="w"> </span>catkin_tools_prebuild
@@ -4286,7 +4319,7 @@ Finished<span class="w">  </span><span class="o">&lt;&lt;&lt;</span><span class=
 </code></pre></div></td></tr></tbody></table></div>
 <h2 id="environment-setup">Environment Setup</h2>
 <p>Finally the newly built packages have to be <a href="https://catkin-tools.readthedocs.io/en/latest/quick_start.html#loading-the-workspace-environment">loaded in the environment</a> using <code>source</code>.</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>fjp@ubuntu:~/git/2wd-robot/ros$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>~/git/2wd-robot/ros/devel/setup.bash<span class="w"> </span><span class="c1"># Load the workspace's environment</span>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>fjp@ubuntu:~/catkin_ws$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>~/catkin_ws/devel/setup.bash<span class="w"> </span><span class="c1"># Load the workspace's environment</span>
 </code></pre></div></td></tr></tbody></table></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -4294,7 +4327,7 @@ Finished<span class="w">  </span><span class="o">&lt;&lt;&lt;</span><span class=
 </p><div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>alias s='source devel/setup.bash'
 </code></pre></div></td></tr></tbody></table></div>
 or using the absolute path
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>alias sa='source ~/git/2wd-robot/ros/devel/setup.bash'
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>alias sa='source ~/catkin_ws/devel/setup.bash'
 </code></pre></div></td></tr></tbody></table></div>
 It is recommended to use the correct setup script for the shell you use (<a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)"><code>bash</code></a>, <a href="https://en.wikipedia.org/wiki/Z_shell"><code>zsh</code></a>, etc.).
 In case you are unsure, you can check with the <code>echo $SHELL</code> command which will most likely output <code>/bin/bash</code>.<p></p>
