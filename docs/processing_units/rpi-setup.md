@@ -1,27 +1,47 @@
-These are the instructions to setup a custom Ubuntu 20.04 Focal Fossa on Raspberry Pi 4 B.
+These are the instructions to set up Ubuntu 20.04 Focal Fossa on the robot's computer, a Raspberry Pi 4 B.
 
 !!! note
     In case you don't have a Raspberry Pi 4 B, it is also possible to create the robot using a Jetson Nano from Nvidia.
     See the [related section in the documentation](./jetson-nano-setup.md).
 
-## Obtain Ubuntu 20.04 Mate Image for Raspberry Pi
+## Ubuntu 20.04 image for the Raspberry Pi
 
-To install the long term supported (LTS) Ubuntu 20.04 on the Raspberry Pi 4B we make use of [arm64 version](https://ubuntu-mate.org/download/arm64/focal/) 
-of [Ubuntu Mate](https://ubuntu-mate.org/). 
+ROS Noetic needs Ubuntu 20.04. Its standard support ended in May 2025, and Ubuntu MATE's own support for 20.04 in April 2023 (see [ROS Setup](ros-setup.md)). Raspberry Pi Imager no longer lists Ubuntu 20.04, and Ubuntu MATE's download page no longer offers it, but two images are still available. A container to run Noetic on a current OS is planned in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109).
 
-Download the latest release of the image and flash it to an empty sd card. To do this follow the instructions on the 
-[Raspberry Pi documentation](https://www.raspberrypi.org/documentation/installation/installing-images/) or 
-[balenaEtcher](https://www.balena.io/etcher/). 
-Another way is to use the [Raspberry Pi Imager](https://www.raspberrypi.org/downloads/) explained [here](https://www.raspberrypi.org/blog/raspberry-pi-imager-imaging-utility/).
+=== "Ubuntu Server 20.04.5"
+
+    The official image from Ubuntu, without a desktop: you work on the robot over SSH from your PC anyway. It hasn't been tested with DiffBot and Remo yet; they were set up with Ubuntu MATE.
+
+    Download `ubuntu-20.04.5-preinstalled-server-arm64+raspi.img.xz` from [Ubuntu's 20.04 release folder](https://cdimage.ubuntu.com/ubuntu/releases/20.04/release/), and compare its checksum with the `SHA256SUMS` file there.
+
+=== "Ubuntu MATE 20.04.1"
+
+    The image DiffBot and Remo were set up with, with a desktop. Ubuntu MATE keeps it only in the `ubuntu-mate-iso-archive-2014-2025.torrent` on [releases.ubuntu-mate.org](https://releases.ubuntu-mate.org/). The archive has 195 GB, so in your torrent client select only `20.04/arm64/ubuntu-mate-20.04.1-desktop-arm64+raspi.img.xz` (1.2 GB) and its `.sha256` file.
+
+Flash the image to an empty microSD card with [Raspberry Pi Imager](https://www.raspberrypi.com/software/): under the operating system, choose **Use custom** and select the downloaded file. [balenaEtcher](https://etcher.balena.io/) works too.
 
 !!! info
     [Flashing](https://en.wikipedia.org/wiki/Firmware#Flashing) in this context, means the transfer of software data, also referred to as Firmware, 
     from your computer to a device, such as a the sd card in this case. The term “to flash” comes from the Flash storage component of a 
     device where the Firmware is stored.
 
+## First boot
+
+=== "Ubuntu Server 20.04.5"
+
+    Before the first boot, set up the Wi-Fi: on the card's `system-boot` partition, open `network-config` and remove the `#` at the start of the `wifis:` example's lines, down to the first access point. Replace `myhomewifi` with your network's name, keeping the colon, and `S3kr1t` with its password. Indent with spaces, not tabs. The image applies this file only at the first boot.
+
+    Insert the card and power up the Raspberry Pi. Log in with the user `ubuntu` and the password `ubuntu`, either over SSH (see below; the robot's IP address is in your router's list of devices) or with a monitor and keyboard. You have to choose a new password right away.
+
+    Changes to the boot configuration, such as the I2C lines on [Hardware Interfaces](hardware-interfaces.md), go into `usercfg.txt` on the `system-boot` partition (`/boot/firmware/usercfg.txt`): the image's `config.txt` says not to edit it. `dtparam=i2c_arm=on` is already set.
+
+=== "Ubuntu MATE 20.04.1"
+
+    Insert the card into the Raspberry Pi, connect a monitor over HDMI and a keyboard, and power it up with the USB-C connector. Then follow the [installation steps](https://ubuntu-mate.org/raspberry-pi/install/) on the screen: language, Wi-Fi, user and password.
+
 ## Wifi Issues
 
-So far there are no known issues using WiFi with Ubuntu Mate 20.04 arm64 on the Raspberry Pi 4B.
+So far there are no known issues using WiFi with Ubuntu MATE 20.04 arm64 on the Raspberry Pi 4B. The power-save setting below is for Ubuntu MATE, which manages the Wi-Fi with NetworkManager; Ubuntu Server uses netplan instead.
 
 <details>
   <summary>Possible issues with other images</summary>
@@ -149,14 +169,9 @@ Sources
 - [WLAN Karten Realtek (german)](https://wiki.ubuntuusers.de/WLAN/Karten/Realtek/)
 
 
-## Prepare Ubuntu
-
-After flashing the image to the sd card insert it to the Pi, hook it up to a monitor via HDMI and power it up by plugging in the USB-C connector.
-Then you should follow the [installation instructions](https://ubuntu-mate.org/raspberry-pi/install/) on the screen.
-
 ## Remote access with SSH
 
-To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH ([OpenSSH server](https://ubuntu.com/server/docs/how-to/security/openssh-server/)). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server:
+To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH ([OpenSSH server](https://ubuntu.com/server/docs/how-to/security/openssh-server/)). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server (Ubuntu Server has it already):
 
 ```console
 sudo apt install openssh-server
