@@ -87,8 +87,13 @@ All the needed ROS system dependencies which are required by diffbot's packages 
 To install all system dependencies use the following command:
 
 ```
-rosdep install --from-paths src --ignore-src -r -y
+rosdep install --from-paths src --ignore-src -y
 ```
+
+If rosdep can't resolve a dependency, it stops with an error that names it.
+
+!!! note "DiffBot: camera libraries first"
+    DiffBot's camera driver, `raspicam_node`, needs the Raspberry Pi's camera libraries, which rosdep doesn't know. Add their rules as described on [Raspberry Pi Camera](raspicam_node.md) before you run `rosdep install`.
 
 !!! info
     On the following packages pages it is explained that the dependencies of a ROS package are defined inside its `package.xml`.

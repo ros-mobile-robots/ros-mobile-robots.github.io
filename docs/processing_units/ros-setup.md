@@ -2,15 +2,15 @@
 
 The robot's computer runs [ROS Noetic](https://wiki.ros.org/noetic) on Ubuntu MATE 20.04 Focal Fossa. ROS Noetic reached its end of life in May 2025, at the same time as the standard support of [Ubuntu 20.04](https://ubuntu.com/20-04); Ubuntu MATE's own support for 20.04 [ended in April 2023](https://ubuntu-mate.community/t/ubuntu-mate-20-04-lts-reaches-end-of-life/26477). This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. A container for the robot, to run Noetic on a newer host OS, is planned in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109), and the way to ROS 2 in [diffbot#107](https://github.com/ros-mobile-robots/diffbot/issues/107).
 
-!!! tip "All in one: `raspi-setup.sh`"
-    The diffbot repository's [`raspi-setup.sh`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh) runs the commands of this page and of [Packages Setup](../packages/packages-setup.md) in one go, for Remo or DiffBot. On the robot:
+!!! tip "All in one for Remo: `raspi-setup.sh`"
+    The diffbot repository's [`raspi-setup.sh`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh) runs the commands of this page and of [Packages Setup](../packages/packages-setup.md) in one go, for Remo. On the robot:
 
     ```console
     curl -O https://raw.githubusercontent.com/ros-mobile-robots/diffbot/noetic-devel/raspi-setup.sh
-    bash raspi-setup.sh remo
+    bash raspi-setup.sh
     ```
 
-    For DiffBot, use `diffbot` instead of `remo`. The sections below explain what the script does. [Hardware Interfaces](hardware-interfaces.md) is still needed: it gives your user access to I2C and the serial port.
+    The sections below explain what the script does. [Hardware Interfaces](hardware-interfaces.md) is still needed: it gives your user access to I2C and the serial port. For DiffBot, follow the pages: its camera driver needs the extra steps on [Raspberry Pi Camera](../packages/raspicam_node.md), which the script doesn't do yet.
 
 ## Install ROS Noetic
 
@@ -32,6 +32,8 @@ export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrast
 curl -L -o /tmp/ros-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb"
 sudo dpkg -i /tmp/ros-apt-source.deb
 ```
+
+The second command asks GitHub for the latest version of `ros-apt-source`. GitHub answers 60 such requests per hour from one IP address, for example for a classroom behind one router. If `dpkg` reports that the file isn't a Debian archive, try again later, or set the version by hand, for example `export ROS_APT_SOURCE_VERSION=1.3.0`, and repeat the last two commands.
 
 Then install ROS for the robot, `ros-noetic-robot`, without the GUI tools: RViz, Gazebo and rqt run on your PC, in the [dev container](../development/dev-container.md). Install the tools to set up and build the workspace with it, among them the C++ compiler (`build-essential`), and `python-is-python3`, which nodes written with `rospy` need:
 
