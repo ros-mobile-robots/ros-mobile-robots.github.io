@@ -1,0 +1,129 @@
+<style>
+.rc-figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:1rem;margin:1.5em 0}
+.rc-figs figure{margin:0 auto;width:100%;max-width:480px}
+.rc-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.rc-fig .c-proc,.rc-fig .c-plugin,.rc-fig .c-test{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.rc-fig .c-plugin{fill:none;stroke-dasharray:4 3}
+.rc-fig .c-test{fill:none}
+.rc-fig .c-shared{fill:rgba(68,138,255,.12);stroke:#448aff;stroke-width:1.3}
+.rc-fig .n{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.rc-fig .hw{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.rc-fig text{fill:var(--md-default-fg-color)}
+.rc-fig .t-node{font-size:11px}
+.rc-fig .t-mono,.rc-fig .t-topic,.rc-fig .t-yaml{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:10px}
+.rc-fig .t-sub,.rc-fig .t-flow{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.rc-fig .t-cont{font-size:10px;font-weight:700;fill:var(--md-default-fg-color--light)}
+.rc-fig .t-yaml{fill:#448aff;font-size:9.5px}
+.rc-fig .t-topic,.rc-fig .t-flow{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
+.rc-fig .a,.rc-fig .a2{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.rc-fig .a2{stroke-dasharray:3 2}
+.rc-fig .a-head{fill:var(--md-default-fg-color--light)}
+</style>
+<div class="rc-figs">
+<figure>
+<svg class="rc-fig" viewBox="0 0 360 536" role="img" aria-labelledby="rc-sim-t"><title id="rc-sim-t">Simulation test: ros_control inside the Gazebo server</title><defs><marker id="rc-sim-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="c-test" x="4" y="4" width="352" height="64" rx="6"/>
+<text class="t-cont" x="12" y="17">rostest: sim_drive_diffbot.test</text>
+<rect class="c-proc" x="4" y="132" width="352" height="400" rx="6"/>
+<text class="t-cont" x="12" y="525">Gazebo server, ROS node /gazebo</text>
+<rect class="c-plugin" x="18" y="146" width="324" height="272" rx="6"/>
+<text class="t-cont" x="26" y="411">gazebo_ros_control plugin</text>
+<rect class="n" x="30" y="24" width="140" height="32" rx="4"/>
+<text class="t-mono" x="100.0" y="44.0" text-anchor="middle">test_drive.py</text>
+<rect class="n" x="200" y="24" width="140" height="32" rx="4"/>
+<text class="t-mono" x="270.0" y="44.0" text-anchor="middle">publishtest</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M100,56 V180"/>
+<text class="t-topic" x="106" y="96" text-anchor="start">cmd_vel</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M160,180 V56"/>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M160,118 H212 V56"/>
+<text class="t-topic" x="166" y="112" text-anchor="start">odom</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M300,180 V56"/>
+<text class="t-topic" x="294" y="86" text-anchor="end">joint_states</text>
+<rect class="c-shared" x="30" y="160" width="304" height="86" rx="6"/>
+<text class="t-cont" x="38" y="239">Controller manager</text>
+<text class="t-yaml" x="174" y="173" text-anchor="start">diffbot_control.yaml</text>
+<rect class="n" x="38" y="180" width="146" height="44" rx="4"/>
+<text class="t-node" x="111.0" y="199.5" text-anchor="middle">mobile_base_controller</text>
+<text class="t-sub" x="111.0" y="212.5" text-anchor="middle">diff_drive_controller</text>
+<rect class="n" x="190" y="180" width="138" height="44" rx="4"/>
+<text class="t-node" x="259.0" y="206.0" text-anchor="middle">joint_state_controller</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M160,224 V290"/>
+<text class="t-flow" x="154" y="258" text-anchor="end">velocity</text>
+<text class="t-flow" x="154" y="270" text-anchor="end">commands</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M176,290 V224"/>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M262,290 V224"/>
+<text class="t-flow" x="219" y="258" text-anchor="middle">positions,</text>
+<text class="t-flow" x="219" y="270" text-anchor="middle">velocities</text>
+<rect class="n" x="38" y="290" width="290" height="56" rx="4"/>
+<text class="t-node" x="183.0" y="309.0" text-anchor="middle">Hardware interface</text>
+<text class="t-mono" x="183.0" y="322.0" text-anchor="middle">DefaultRobotHWSim</text>
+<text class="t-sub" x="183.0" y="335.0" text-anchor="middle">readSim(), writeSim()</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M200,346 V444"/>
+<text class="t-flow" x="194" y="384" text-anchor="end">commands</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M270,444 V346"/>
+<text class="t-flow" x="276" y="384" text-anchor="start">joint states</text>
+<rect class="hw" x="38" y="444" width="290" height="48" rx="4"/>
+<text class="t-node" x="183.0" y="465.5" text-anchor="middle">Physics</text>
+<text class="t-sub" x="183.0" y="478.5" text-anchor="middle">robot model from the URDF</text>
+<path class="a" marker-end="url(#rc-sim-arr)" d="M38,468 H12 V40 H30"/>
+<text class="t-topic" x="16" y="86" text-anchor="start">model_states</text>
+<text class="t-flow" x="16" y="98" text-anchor="start">(true pose)</text>
+</svg>
+<figcaption>Simulation test (CI)</figcaption>
+</figure>
+<figure>
+<svg class="rc-fig" viewBox="0 0 360 640" role="img" aria-labelledby="rc-real-t"><title id="rc-real-t">Real robot: ros_control inside the diffbot_base node</title><defs><marker id="rc-real-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="c-proc" x="4" y="132" width="352" height="240" rx="6"/>
+<text class="t-cont" x="12" y="365">ROS node /diffbot/diffbot_base</text>
+<rect class="n" x="30" y="24" width="140" height="32" rx="4"/>
+<text class="t-node" x="100.0" y="44.0" text-anchor="middle">teleop, navigation</text>
+<rect class="n" x="200" y="24" width="140" height="32" rx="4"/>
+<text class="t-mono" x="270.0" y="44.0" text-anchor="middle">robot_state_publisher</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M100,56 V180"/>
+<text class="t-topic" x="106" y="96" text-anchor="start">cmd_vel</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M160,180 V56"/>
+<text class="t-topic" x="166" y="112" text-anchor="start">odom</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M300,180 V56"/>
+<text class="t-topic" x="294" y="86" text-anchor="end">joint_states</text>
+<rect class="c-shared" x="30" y="160" width="304" height="86" rx="6"/>
+<text class="t-cont" x="38" y="239">Controller manager</text>
+<text class="t-yaml" x="174" y="173" text-anchor="start">diffbot_control.yaml</text>
+<rect class="n" x="38" y="180" width="146" height="44" rx="4"/>
+<text class="t-node" x="111.0" y="199.5" text-anchor="middle">mobile_base_controller</text>
+<text class="t-sub" x="111.0" y="212.5" text-anchor="middle">diff_drive_controller</text>
+<rect class="n" x="190" y="180" width="138" height="44" rx="4"/>
+<text class="t-node" x="259.0" y="206.0" text-anchor="middle">joint_state_controller</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M160,224 V290"/>
+<text class="t-flow" x="154" y="258" text-anchor="end">velocity</text>
+<text class="t-flow" x="154" y="270" text-anchor="end">commands</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M176,290 V224"/>
+<path class="a" marker-end="url(#rc-real-arr)" d="M262,290 V224"/>
+<text class="t-flow" x="219" y="258" text-anchor="middle">positions,</text>
+<text class="t-flow" x="219" y="270" text-anchor="middle">velocities</text>
+<rect class="n" x="38" y="290" width="290" height="56" rx="4"/>
+<text class="t-node" x="183.0" y="309.0" text-anchor="middle">Hardware interface</text>
+<text class="t-mono" x="183.0" y="322.0" text-anchor="middle">DiffBotHWInterface</text>
+<text class="t-sub" x="183.0" y="335.0" text-anchor="middle">read(), write()</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M200,446 V346"/>
+<text class="t-topic" x="194" y="404" text-anchor="end">measured_joint_states</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M290,346 V446"/>
+<text class="t-topic" x="296" y="398" text-anchor="start">wheel_cmd_</text>
+<text class="t-topic" x="296" y="410" text-anchor="start">velocities</text>
+<rect class="n" x="150" y="446" width="190" height="30" rx="4"/>
+<text class="t-node" x="245.0" y="465.0" text-anchor="middle">rosserial node</text>
+<path class="a2" d="M245,476 V526"/>
+<text class="t-flow" x="251" y="505" text-anchor="start">USB serial</text>
+<rect class="c-proc" x="4" y="516" width="352" height="52" rx="6"/>
+<text class="t-cont" x="12" y="561">Teensy firmware</text>
+<rect class="n" x="150" y="526" width="190" height="32" rx="4"/>
+<text class="t-node" x="245.0" y="546.0" text-anchor="middle">PID loop per wheel</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M300,558 V598"/>
+<rect class="hw" x="232" y="598" width="124" height="30" rx="4"/>
+<text class="t-node" x="294.0" y="617.0" text-anchor="middle">motor driver, motors</text>
+<path class="a" marker-end="url(#rc-real-arr)" d="M200,598 V558"/>
+<rect class="hw" x="110" y="598" width="110" height="30" rx="4"/>
+<text class="t-node" x="165.0" y="617.0" text-anchor="middle">wheel encoders</text>
+</svg>
+<figcaption>Real robot</figcaption>
+</figure>
+</div>

@@ -232,6 +232,7 @@ nav:
   - Contributing:
     - development/index.md
     - Testing and CI: development/ci.md
+    - Simulation Test: development/simulation-test.md
   - Insiders: insiders/index.md
 
 # Fail the strict build on links that MkDocs can check: missing pages, missing #anchors,
