@@ -31,8 +31,10 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 **Simulation test:** `diffbot_gazebo` drives DiffBot and Remo in Gazebo and checks where they went. Both workflows run it on every pull request. For each robot, a [rostest](http://wiki.ros.org/rostest) file (`test/sim_drive_diffbot.test`, `test/sim_drive_remo.test`) starts the robot in Gazebo without a GUI, on the empty world, with the diff drive controller. Gazebo needs no display for this. Two tests run:
 
-- `publishtest` checks that the joint states and the odometry are published.
+- `publishtest` checks that `/diffbot/joint_states` and `/diffbot/mobile_base_controller/odom` are published.
 - `test_drive.py` drives forward at 0.2 m/s for 3 s, then turns at 0.5 rad/s for 3 s. It checks each move twice: with the controller's odometry, and with the robot's true pose from Gazebo (`/gazebo/model_states`). Both must be in range, and they must agree.
+
+Both topics come from [ros_control](http://wiki.ros.org/ros_control) controllers: `joint_state_controller` publishes the joint states, `mobile_base_controller` (a [diff_drive_controller](http://wiki.ros.org/diff_drive_controller)) the odometry. In the simulation they run inside Gazebo: the robot's URDF loads the `gazebo_ros_control` plugin, which simulates the wheel joints and runs the controllers in the `/gazebo` node. On the real robot, the same controllers with the same configuration run in the `diffbot_base` node, whose hardware interface connects them to the motors and encoders through the microcontroller. So the test covers the controller configuration and the robot model, not `diffbot_base` or the firmware.
 
 The true pose is what makes the test useful. The odometry is computed from the wheel joints and the controller's configuration, so it repeats some configuration mistakes: with the left and right wheel swapped, the robot turns right while the odometry reports a left turn. A wrong wheel radius makes odometry and true distance differ. A wrong joint name stops the controller, so no odometry is published. The test fails in all three cases. The durations are simulation time, so the expected distances don't depend on how fast the computer runs the simulation.
 
