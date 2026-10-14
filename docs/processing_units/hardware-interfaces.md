@@ -83,6 +83,9 @@ dtparam=i2c0=on
 dtparam=i2c1=on
 ```
 
+!!! note "Ubuntu Server 20.04"
+    Its `config.txt` says not to edit it: put the lines you need into `/boot/firmware/usercfg.txt`, which `config.txt` includes. `dtparam=i2c_arm=on`, the I2C bus on GPIO 2 and 3 (`/dev/i2c-1`), is already set by the image.
+
 After rebooting the Raspberry Pi and entering the command again the following output will appear:
 
 ```console

@@ -6,17 +6,12 @@ These are the instructions to set up Ubuntu 20.04 Focal Fossa on the robot's com
 
 ## Ubuntu 20.04 image for the Raspberry Pi
 
-ROS Noetic needs Ubuntu 20.04. Its standard support ended in May 2025, and Ubuntu MATE's own support for 20.04 in April 2023 (see [ROS Setup](ros-setup.md)). Raspberry Pi Imager no longer lists Ubuntu 20.04, and Ubuntu MATE's download page no longer offers it, but two images are still available. A container to run Noetic on a current OS is planned in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109).
+ROS Noetic needs Ubuntu 20.04. Its standard support ended in May 2025 (see [ROS Setup](ros-setup.md)), and Raspberry Pi Imager no longer lists it. The official image from Ubuntu is still available: Ubuntu Server 20.04.5, without a desktop, which the robot doesn't need, because you work on it over SSH from your PC. A container to run Noetic on a current OS is planned in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109).
 
-=== "Ubuntu Server 20.04.5"
+Download `ubuntu-20.04.5-preinstalled-server-arm64+raspi.img.xz` from [Ubuntu's 20.04 release folder](https://cdimage.ubuntu.com/ubuntu/releases/20.04/release/), and compare its checksum with the `SHA256SUMS` file there.
 
-    The official image from Ubuntu, without a desktop: you work on the robot over SSH from your PC anyway. It hasn't been tested with DiffBot and Remo yet; they were set up with Ubuntu MATE.
-
-    Download `ubuntu-20.04.5-preinstalled-server-arm64+raspi.img.xz` from [Ubuntu's 20.04 release folder](https://cdimage.ubuntu.com/ubuntu/releases/20.04/release/), and compare its checksum with the `SHA256SUMS` file there.
-
-=== "Ubuntu MATE 20.04.1"
-
-    The image DiffBot and Remo were set up with, with a desktop. Ubuntu MATE keeps it only in the `ubuntu-mate-iso-archive-2014-2025.torrent` on [releases.ubuntu-mate.org](https://releases.ubuntu-mate.org/). The archive has 195 GB, so in your torrent client select only `20.04/arm64/ubuntu-mate-20.04.1-desktop-arm64+raspi.img.xz` (1.2 GB) and its `.sha256` file.
+!!! warning "Not yet tested with DiffBot and Remo"
+    The robots were set up with Ubuntu MATE 20.04.1, which has a desktop. Ubuntu MATE no longer offers it for download (its support for 20.04 ended in April 2023); it's only in the archive on [releases.ubuntu-mate.org](https://releases.ubuntu-mate.org/). Ubuntu Server hasn't been tested with the robots' hardware yet: I2C, the serial ports, the LiDAR and the camera.
 
 Flash the image to an empty microSD card with [Raspberry Pi Imager](https://www.raspberrypi.com/software/): under the operating system, choose **Use custom** and select the downloaded file. [balenaEtcher](https://etcher.balena.io/) works too.
 
@@ -27,86 +22,73 @@ Flash the image to an empty microSD card with [Raspberry Pi Imager](https://www.
 
 ## First boot
 
-=== "Ubuntu Server 20.04.5"
+Before the first boot, set up the Wi-Fi: on the card's `system-boot` partition, open `network-config` and remove the `#` at the start of the `wifis:` example's lines, down to the first access point. Replace `myhomewifi` with your network's name, keeping the colon, and `S3kr1t` with its password. Indent with spaces, not tabs. The image applies this file only at the first boot.
 
-    Before the first boot, set up the Wi-Fi: on the card's `system-boot` partition, open `network-config` and remove the `#` at the start of the `wifis:` example's lines, down to the first access point. Replace `myhomewifi` with your network's name, keeping the colon, and `S3kr1t` with its password. Indent with spaces, not tabs. The image applies this file only at the first boot.
+Insert the card and power up the Raspberry Pi. Log in with the user `ubuntu` and the password `ubuntu`, either over SSH (see below; the robot's IP address is in your router's list of devices) or with a monitor and keyboard. You have to choose a new password right away.
 
-    Insert the card and power up the Raspberry Pi. Log in with the user `ubuntu` and the password `ubuntu`, either over SSH (see below; the robot's IP address is in your router's list of devices) or with a monitor and keyboard. You have to choose a new password right away.
-
-    Changes to the boot configuration, such as the I2C lines on [Hardware Interfaces](hardware-interfaces.md), go into `usercfg.txt` on the `system-boot` partition (`/boot/firmware/usercfg.txt`): the image's `config.txt` says not to edit it. `dtparam=i2c_arm=on` is already set.
-
-=== "Ubuntu MATE 20.04.1"
-
-    Insert the card into the Raspberry Pi, connect a monitor over HDMI and a keyboard, and power it up with the USB-C connector. Then follow the [installation steps](https://ubuntu-mate.org/raspberry-pi/install/) on the screen: language, Wi-Fi, user and password.
+Changes to the boot configuration, such as the I2C lines on [Hardware Interfaces](hardware-interfaces.md), go into `usercfg.txt` on the `system-boot` partition (`/boot/firmware/usercfg.txt`): the image's `config.txt` says not to edit it. `dtparam=i2c_arm=on` is already set.
 
 ## Wifi Issues
 
-So far there are no known issues using WiFi with Ubuntu MATE 20.04 arm64 on the Raspberry Pi 4B. The power-save setting below is for Ubuntu MATE, which manages the Wi-Fi with NetworkManager; Ubuntu Server uses netplan instead.
+**Country setting for 5 GHz networks:** outside the US, the Raspberry Pi may not connect to a 5 GHz network until it knows your country. On the `system-boot` partition, add `cfg80211.ieee80211_regdom=AT` to the end of the single line in `cmdline.txt`, with your country's code instead of `AT`, as the image's `network-config` describes.
 
-<details>
-  <summary>Possible issues with other images</summary>
-  
-  If you are not in the US it is possible that you encounter connection problems when connected to a 5Ghz Wifi network.
-  If you are in a different country than the US you need to update your regulatory country. 5Ghz needs this to know the right bands to use.
+??? note "Robots with Ubuntu MATE: Wi-Fi power save"
+    So far there are no known issues using WiFi with Ubuntu MATE 20.04 arm64 on the Raspberry Pi 4B. Ubuntu MATE manages the Wi-Fi with NetworkManager; Ubuntu Server uses netplan instead, and we haven't tested whether it needs a power-save setting.
 
-This can be changed by editing the value of `REGDOMAIN` in the file `/etc/default/crda` ([Central Regulatory Domain Agent](https://wireless.wiki.kernel.org/en/developers/regulatory/crda)) to the code for your country [ref](https://github.com/TheRemote/Ubuntu-Server-raspi4-unofficial/issues/98).
-</details>
+    There might be some wifi issues where the connection is lost after some time. This might be a firmware issue reported [here](https://github.com/raspberrypi/linux/issues/3849).
+    Although the wifi power save management is turned off by default, make sure to also do this for external wifi usb dongles by editing the following file
 
-There might be some wifi issues where the connection is lost after some time. This might be a firmware issue reported [here](https://github.com/raspberrypi/linux/issues/3849).
-Although the wifi power save management is turned off by default, make sure to also do this for external wifi usb dongles by editing the following file
+    ```
+    sudo vim /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
+    ```
 
-```
-sudo vim /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
-```
+    It contains:
 
-It contains:
+    ```
+    [connection]
+    wifi.powersave = 3
+    ```
 
-```
-[connection]
-wifi.powersave = 3
-```
+    Set this to `2` to turn power management off. 
 
-Set this to `2` to turn power management off. 
+    Possible values for the `wifi.powersave` field are:
 
-Possible values for the `wifi.powersave` field are:
+    ```
+    NM_SETTING_WIRELESS_POWERSAVE_DEFAULT (0): use the default value
+    NM_SETTING_WIRELESS_POWERSAVE_IGNORE  (1): don't touch existing setting
+    NM_SETTING_WIRELESS_POWERSAVE_DISABLE (2): disable powersave
+    NM_SETTING_WIRELESS_POWERSAVE_ENABLE  (3): enable powersave
+    ```
 
-```
-NM_SETTING_WIRELESS_POWERSAVE_DEFAULT (0): use the default value
-NM_SETTING_WIRELESS_POWERSAVE_IGNORE  (1): don't touch existing setting
-NM_SETTING_WIRELESS_POWERSAVE_DISABLE (2): disable powersave
-NM_SETTING_WIRELESS_POWERSAVE_ENABLE  (3): enable powersave
-```
+    (Informal source on [GitHub](https://gist.github.com/jcberthon/ea8cfe278998968ba7c5a95344bc8b55) for these values.)
 
-(Informal source on [GitHub](https://gist.github.com/jcberthon/ea8cfe278998968ba7c5a95344bc8b55) for these values.)
+    You can check if it is turned off with `iwconfig`:
 
-You can check if it is turned off with `iwconfig`:
+    ```
+    wlan0     IEEE 802.11  ESSID:"wifiname"  
+              Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
+              Bit Rate=433.3 Mb/s   Tx-Power=31 dBm   
+              Retry short limit:7   RTS thr:off   Fragment thr:off
+              Power Management:off
+              Link Quality=70/70  Signal level=-27 dBm  
+              Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+              Tx excessive retries:1  Invalid misc:0   Missed beacon:0
 
-```
-wlan0     IEEE 802.11  ESSID:"wifiname"  
-          Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
-          Bit Rate=433.3 Mb/s   Tx-Power=31 dBm   
-          Retry short limit:7   RTS thr:off   Fragment thr:off
-          Power Management:off
-          Link Quality=70/70  Signal level=-27 dBm  
-          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-          Tx excessive retries:1  Invalid misc:0   Missed beacon:0
+    lo        no wireless extensions.
 
-lo        no wireless extensions.
+    wlan1     IEEE 802.11AC  ESSID:"wifiname"  Nickname:"WIFI@RTL8821CU"
+              Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
+              Bit Rate:434 Mb/s   Sensitivity:0/0  
+              Retry:off   RTS thr:off   Fragment thr:off
+              Power Management:off
+              Link Quality=64/100  Signal level=-26 dBm  Noise level=0 dBm
+              Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+              Tx excessive retries:0  Invalid misc:0   Missed beacon:0
 
-wlan1     IEEE 802.11AC  ESSID:"wifiname"  Nickname:"WIFI@RTL8821CU"
-          Mode:Managed  Frequency:5.18 GHz  Access Point: E0:28:6D:48:33:5D   
-          Bit Rate:434 Mb/s   Sensitivity:0/0  
-          Retry:off   RTS thr:off   Fragment thr:off
-          Power Management:off
-          Link Quality=64/100  Signal level=-26 dBm  Noise level=0 dBm
-          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-          Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+    eth0      no wireless extensions.
+    ```
 
-eth0      no wireless extensions.
-```
-
-This is the output when there is one external usb WiFi dongle connected to the Raspberry Pi 4 B and no ethernet cable.
-
+    This is the output when there is one external usb WiFi dongle connected to the Raspberry Pi 4 B and no ethernet cable.
 
 ## Instructions to install Wifi drivers
 
