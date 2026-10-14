@@ -4138,14 +4138,13 @@
 <h2 id="gazebo-and-ros_control">Gazebo and ros_control</h2>
 <p><a href="http://wiki.ros.org/ros_control">ros_control</a> isn't a node of its own. It's a set of C++ libraries, used inside the process that has access to the joints:</p>
 <ul>
-<li>A <strong>hardware interface</strong>, a class derived from <code>hardware_interface::RobotHW</code>, holds each wheel joint's position, velocity and command. It only reads and writes these values; it publishes no topics.</li>
-<li>A <strong>controller manager</strong> loads the controllers as plugins and calls them in a loop: read the joints, update the controllers, write the commands.</li>
-<li>The <strong>controllers</strong> publish the topics. <code>joint_state_controller</code> copies the joint values to <code>/diffbot/joint_states</code>. <code>mobile_base_controller</code>, a <a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>, computes the odometry from the wheel joint positions, publishes it, and turns the velocities from <code>cmd_vel</code> into a velocity command for each wheel.</li>
+<li>A <strong>hardware interface</strong>, a class derived from <code>hardware_interface::RobotHW</code>, gives the controllers each wheel joint's position and velocity and takes a velocity command for it. The controllers read and write these values directly, in the same process, not over topics. How the hardware interface gets the values from the robot and passes on the commands depends on the robot: in Gazebo it reads and sets the simulated joints, on DiffBot it uses ROS topics to talk to the Teensy.</li>
+<li>A <strong>controller manager</strong> loads the controllers as plugins and updates them. The program that creates the hardware interface and the controller manager runs the loop: read the joints, update the controllers, write the commands.</li>
+<li>The <strong>controllers</strong> publish the topics that the test checks. <code>joint_state_controller</code> copies the joint values to <code>/diffbot/joint_states</code>. <code>mobile_base_controller</code>, a <a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>, computes the odometry from the wheel joint positions, publishes it, and turns the velocities from <code>cmd_vel</code> into a velocity command for each wheel.</li>
 </ul>
-<p>The figures show where these parts run in the simulation test and on the real robot. The blue box is the same in both: the controller manager with the two controllers, configured by <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a>. Only the hardware interface and what's below it differ.</p>
+<p>The two tabs show where these parts run, in the simulation test and on the real robot. When you switch between them, the blue box stays the same: the controller manager with the two controllers, configured by <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a>. Only the hardware interface and what's below it change.</p>
 <style>
-.rc-figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:1rem;margin:1.5em 0}
-.rc-figs figure{margin:0 auto;width:100%;max-width:480px}
+.md-typeset .rc-figs figure{margin:.6em auto 0;width:100%;max-width:480px}
 .rc-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
 .rc-fig .c-proc,.rc-fig .c-plugin,.rc-fig .c-test{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
 .rc-fig .c-plugin{fill:none;stroke-dasharray:4 3}
@@ -4164,7 +4163,9 @@
 .rc-fig .a2{stroke-dasharray:3 2}
 .rc-fig .a-head{fill:var(--md-default-fg-color--light)}
 </style>
-<div class="rc-figs">
+<div class="tabbed-set tabbed-alternate rc-figs" data-tabs="rc:2"><input checked="" id="__tabbed_rc_1" name="__tabbed_rc" type="radio"><input id="__tabbed_rc_2" name="__tabbed_rc" type="radio"><div class="tabbed-labels"><label for="__tabbed_rc_1">Simulation test</label><label for="__tabbed_rc_2">Real robot</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <figure>
 <svg class="rc-fig" viewBox="0 0 360 536" role="img" aria-labelledby="rc-sim-t"><title id="rc-sim-t">Simulation test: ros_control inside the Gazebo server</title><defs><marker id="rc-sim-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
 <rect class="c-test" x="4" y="4" width="352" height="64" rx="6"></rect>
@@ -4214,8 +4215,9 @@
 <text class="t-topic" x="16" y="86" text-anchor="start">model_states</text>
 <text class="t-flow" x="16" y="98" text-anchor="start">(true pose)</text>
 </svg>
-<figcaption>Simulation test (CI)</figcaption>
 </figure>
+</div>
+<div class="tabbed-block">
 <figure>
 <svg class="rc-fig" viewBox="0 0 360 640" role="img" aria-labelledby="rc-real-t"><title id="rc-real-t">Real robot: ros_control inside the diffbot_base node</title><defs><marker id="rc-real-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
 <rect class="c-proc" x="4" y="132" width="352" height="240" rx="6"></rect>
@@ -4269,17 +4271,18 @@
 <rect class="hw" x="110" y="598" width="110" height="30" rx="4"></rect>
 <text class="t-node" x="165.0" y="617.0" text-anchor="middle">wheel encoders</text>
 </svg>
-<figcaption>Real robot</figcaption>
 </figure>
+</div>
+</div>
 </div>
 
 <p>Topic names are shortened in the figures: <code>cmd_vel</code> and <code>odom</code> are under <code>/diffbot/mobile_base_controller/</code>, <code>joint_states</code>, <code>wheel_cmd_velocities</code> and <code>measured_joint_states</code> under <code>/diffbot/</code>, and <code>model_states</code> under <code>/gazebo/</code>. <code>controller_spawner</code> isn't shown; it only asks the controller manager to load and start the two controllers.</p>
 <h3 id="in-the-simulation">In the simulation</h3>
-<p>All three parts run inside the Gazebo server. The robot's URDF loads the <a href="http://wiki.ros.org/gazebo_ros_control"><code>gazebo_ros_control</code></a> plugin (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/robot.gazebo.xacro"><code>robot.gazebo.xacro</code></a>). The plugin creates the hardware interface, <code>DefaultRobotHWSim</code>, for the wheel joints that have a transmission in the URDF, and a controller manager. In each simulation step it calls <code>readSim()</code>, the controllers' update and <code>writeSim()</code>. So the controllers publish from the <code>/gazebo</code> node.</p>
+<p>All three parts run inside the Gazebo server. The robot's URDF loads the <a href="http://wiki.ros.org/gazebo_ros_control"><code>gazebo_ros_control</code></a> plugin (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/robot.gazebo.xacro"><code>robot.gazebo.xacro</code></a>). The plugin creates the hardware interface, <code>DefaultRobotHWSim</code>, for the wheel joints that have a transmission in the URDF, and a controller manager. In each simulation step the plugin runs the loop: <code>readSim()</code>, the controller manager's update, <code>writeSim()</code>. So the controllers publish from the <code>/gazebo</code> node.</p>
 <p><code>model_states</code> doesn't go through ros_control: Gazebo's own ROS interface publishes the true pose of every model.</p>
 <h3 id="on-the-real-robot">On the real robot</h3>
-<p>The <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base</code></a> node takes Gazebo's place. It creates the hardware interface <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_hw_interface.cpp"><code>DiffBotHWInterface</code></a> and a controller manager, and runs the loop itself: <code>read()</code>, update the controllers, <code>write()</code>. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/launch/diffbot.launch">launch file</a> loads the same <code>diffbot_control.yaml</code> and spawns the same two controllers. <code>read()</code> takes the wheel angles and velocities that the Teensy publishes on <code>measured_joint_states</code>. <code>write()</code> publishes the wheel velocity commands on <code>wheel_cmd_velocities</code>, and the Teensy's firmware runs a PID loop per wheel to reach them (<a href="../../packages/diffbot_base/">Base Hardware Interface</a>). The <a href="http://wiki.ros.org/rosserial">rosserial</a> node relays both topics over USB.</p>
-<p>So the simulation test covers the robot model and the controller configuration that both share. It doesn't cover <code>diffbot_base</code>, rosserial or the firmware: they need the robot. <a href="https://fjp.at/posts/ros/ros-control/">ROS Control, An overview</a> explains ros_control in more detail.</p>
+<p>The <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base</code></a> node takes Gazebo's place. It creates the hardware interface <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_hw_interface.cpp"><code>DiffBotHWInterface</code></a> and a controller manager, and runs the loop itself: <code>read()</code>, update the controllers, <code>write()</code>. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/launch/diffbot.launch">launch file</a> loads the same <code>diffbot_control.yaml</code> and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics: it subscribes to <code>measured_joint_states</code>, the wheel angles and velocities that the Teensy publishes, and <code>read()</code> passes the latest values to the controllers. <code>write()</code> publishes the wheel velocity commands on <code>wheel_cmd_velocities</code>, and the Teensy's firmware runs a PID loop per wheel to reach them (<a href="../../packages/diffbot_base/">Base Hardware Interface</a>). The <a href="http://wiki.ros.org/rosserial">rosserial</a> node relays both topics over USB.</p>
+<p>So the simulation test covers the robot model and the controller configuration that both share. It doesn't run <code>diffbot_base</code>, rosserial or the firmware. <a href="https://fjp.at/posts/ros/ros-control/">ROS Control, An overview</a> explains ros_control in more detail.</p>
 <h2 id="run-it">Run it</h2>
 <p>Run it in the <a href="../dev-container/">dev container</a>, in <code>~/catkin_ws</code>: all tests with the two commands from the <a href="../ci/#dev-container-workflow">dev container workflow</a>, or one robot:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_gazebo sim_drive_diffbot.test</span>
