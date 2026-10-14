@@ -40,11 +40,11 @@ All three parts run inside the Gazebo server. The robot's URDF loads the [`gazeb
 
 The [`diffbot_base`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) node takes Gazebo's place. It creates the hardware interface [`DiffBotHWInterface`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_hw_interface.cpp) and a controller manager, and runs the loop itself: `read()`, update the controllers, `write()`. Its [launch file]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) loads the same `diffbot_control.yaml` and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics: it subscribes to `measured_joint_states`, the wheel angles and velocities that the Teensy publishes, and `read()` passes the latest values to the controllers. `write()` publishes the wheel velocity commands on `wheel_cmd_velocities`, and the Teensy's firmware runs a PID loop per wheel to reach them ([Base Hardware Interface](../packages/diffbot_base/index.md)). The [rosserial](http://wiki.ros.org/rosserial) node relays both topics over USB.
 
-So the simulation test covers the robot model and the controller configuration that both share. It doesn't run `diffbot_base`, rosserial or the firmware. Tests for them without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114). [ROS Control, An overview](https://fjp.at/posts/ros/ros-control/) explains ros_control in more detail.
+So the simulation test covers the robot model and the controller configuration that both share. It doesn't run `diffbot_base`, rosserial or the firmware. Tests for `diffbot_base` and the firmware without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114). [ROS Control, An overview](https://fjp.at/posts/ros/ros-control/) explains ros_control in more detail.
 
 ## Code walkthrough
 
-The test is three files in [`diffbot_gazebo/test`]({{ diffbot_repo_url }}/diffbot_gazebo/test) and two lines in the package's [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_gazebo/CMakeLists.txt): `add_rostest` registers each `.test` file, so `catkin build --catkin-make-args run_tests` runs it.
+The test consists of four files in [`diffbot_gazebo/test`]({{ diffbot_repo_url }}/diffbot_gazebo/test): a `.test` file for each robot, `sim_drive.launch` and `test_drive.py`. In the package's [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_gazebo/CMakeLists.txt), `add_rostest` registers each `.test` file, so `catkin build --catkin-make-args run_tests` runs it.
 
 ### The test files
 
