@@ -29,10 +29,24 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 ### Tests
 
-The packages have no test cases yet: `catkin_test_results` reports 0 tests. So the checks prove that everything builds, not that the robot behaves correctly. Until there are tests, a pull request describes how it was tested, for example in the simulation or on the robot. Planned in the Docker and CI phase of the [roadmap](index.md#roadmap):
+**Simulation test:** `diffbot_gazebo` drives DiffBot and Remo in Gazebo and checks where they went. Both workflows run it on every pull request. For each robot, a [rostest](http://wiki.ros.org/rostest) file (`test/sim_drive_diffbot.test`, `test/sim_drive_remo.test`) starts the robot in Gazebo without a GUI, on the empty world, with the diff drive controller. Gazebo needs no display for this. Two tests run:
 
-- **Simulation test** ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110)): a [rostest](http://wiki.ros.org/rostest) that starts DiffBot and Remo in Gazebo without a GUI, drives them with a velocity command and checks their odometry. It will run in both workflows on every pull request.
-- **Robot container** ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)): an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.
+- `publishtest` checks that the joint states and the odometry are published.
+- `test_drive.py` drives forward at 0.2 m/s for 3 s, then turns at 0.5 rad/s for 3 s. It checks each move twice: with the controller's odometry, and with the robot's true pose from Gazebo (`/gazebo/model_states`). Both must be in range, and they must agree.
+
+The true pose is what makes the test useful. The odometry is computed from the wheel joints and the controller's configuration, so it repeats some configuration mistakes: with the left and right wheel swapped, the robot turns right while the odometry reports a left turn. A wrong wheel radius makes odometry and true distance differ. A wrong joint name stops the controller, so no odometry is published. The test fails in all three cases. The durations are simulation time, so the expected distances don't depend on how fast the computer runs the simulation.
+
+Run it in the [dev container](dev-container.md), in `~/catkin_ws`: all tests with the two commands from the [dev container workflow](#dev-container-workflow), or one robot with its output:
+
+```console
+rostest --text diffbot_gazebo sim_drive_diffbot.test
+```
+
+To add a check, add a test method to `diffbot_gazebo/test/test_drive.py`, a Python [unittest](https://docs.python.org/3/library/unittest.html) class. A new `.test` file is registered with `add_rostest` in the package's `CMakeLists.txt`. Give it its own `gazebo_port`, like the two existing ones: catkin runs the test files in parallel, and two Gazebo servers on the same port can't start.
+
+The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Unit tests, for example for `diffbot_base`, are a follow-up.
+
+**Planned** in the Docker and CI phase of the [roadmap](index.md#roadmap): a **robot container** ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)), an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.
 
 ### GitHub Actions versions
 

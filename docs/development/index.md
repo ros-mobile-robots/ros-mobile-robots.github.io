@@ -17,7 +17,7 @@ This section explains how DiffBot and Remo are developed: where the code lives, 
 The plan is public in the [DiffBot & Remo roadmap](https://github.com/orgs/ros-mobile-robots/projects/3) project. Every open issue there has a phase:
 
 1. **Noetic upkeep:** ROS 1 Noetic stays supported on the `noetic-devel` branch, including Gazebo Classic.
-2. **Docker and CI:** one container setup for development and CI, a container for the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)), and tests in the simulation ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110)).
+2. **Docker and CI:** one container setup for development and CI, a container for the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)), and tests in the simulation ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110), the first one is in place).
 3. **ROS 2:** the port, in phases for the model and simulation, ros2_control, and the Teensy firmware. It will live in the same repository, on a new branch.
 4. **IMU, filter and navigation:** IMU, Kalman filter (robot_localization) and navigation, for ROS 1 and ROS 2.
 
