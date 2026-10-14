@@ -36,11 +36,13 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 The true pose is what makes the test useful. The odometry is computed from the wheel joints and the controller's configuration, so it repeats some configuration mistakes: with the left and right wheel swapped, the robot turns right while the odometry reports a left turn. A wrong wheel radius makes odometry and true distance differ. A wrong joint name stops the controller, so no odometry is published. The test fails in all three cases. The durations are simulation time, so the expected distances don't depend on how fast the computer runs the simulation.
 
-Run it in the [dev container](dev-container.md), in `~/catkin_ws`: all tests with the two commands from the [dev container workflow](#dev-container-workflow), or one robot with its output:
+Run it in the [dev container](dev-container.md), in `~/catkin_ws`: all tests with the two commands from the [dev container workflow](#dev-container-workflow), or one robot:
 
 ```console
-rostest --text diffbot_gazebo sim_drive_diffbot.test
+rostest diffbot_gazebo sim_drive_diffbot.test
 ```
+
+With `--text`, rostest prints the nodes' output in the terminal instead of log files, but it doesn't collect the test results then: it can report success although a check failed. Use `--text` to watch a run, and the command without it to check the result.
 
 To add a check, add a test method to `diffbot_gazebo/test/test_drive.py`, a Python [unittest](https://docs.python.org/3/library/unittest.html) class. A new `.test` file is registered with `add_rostest` in the package's `CMakeLists.txt`. Give it its own `gazebo_port`, like the two existing ones: catkin runs the test files in parallel, and two Gazebo servers on the same port can't start.
 
