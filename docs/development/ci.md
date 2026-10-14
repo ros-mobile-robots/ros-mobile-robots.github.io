@@ -29,7 +29,10 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 ### Tests
 
-The packages have no test cases yet, so the checks prove that everything builds, not that it behaves correctly. Tests are planned as part of the [roadmap](index.md#roadmap).
+The packages have no test cases yet: `catkin_test_results` reports 0 tests. So the checks prove that everything builds, not that the robot behaves correctly. Until there are tests, a pull request describes how it was tested, for example in the simulation or on the robot. Planned in the Docker and CI phase of the [roadmap](index.md#roadmap):
+
+- **Simulation test** ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110)): a [rostest](http://wiki.ros.org/rostest) that starts DiffBot and Remo in Gazebo without a GUI, drives them with a velocity command and checks their odometry. It will run in both workflows on every pull request.
+- **Robot container** ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)): an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.
 
 ### GitHub Actions versions
 
