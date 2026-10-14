@@ -217,7 +217,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#obtain-ubuntu-2004-mate-image-for-raspberry-pi" class="md-skip">
+        <a href="#ubuntu-2004-image-for-the-raspberry-pi" class="md-skip">
           Skip to content
         </a>
       
@@ -1312,10 +1312,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#obtain-ubuntu-2004-mate-image-for-raspberry-pi" class="md-nav__link">
+  <a href="#ubuntu-2004-image-for-the-raspberry-pi" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Obtain Ubuntu 20.04 Mate Image for Raspberry Pi
+        Ubuntu 20.04 image for the Raspberry Pi
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First boot
       
     </span>
   </a>
@@ -1338,17 +1349,6 @@
     <span class="md-ellipsis">
       
         Instructions to install Wifi drivers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prepare-ubuntu" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prepare Ubuntu
       
     </span>
   </a>
@@ -3938,10 +3938,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#obtain-ubuntu-2004-mate-image-for-raspberry-pi" class="md-nav__link">
+  <a href="#ubuntu-2004-image-for-the-raspberry-pi" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Obtain Ubuntu 20.04 Mate Image for Raspberry Pi
+        Ubuntu 20.04 image for the Raspberry Pi
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First boot
       
     </span>
   </a>
@@ -3964,17 +3975,6 @@
     <span class="md-ellipsis">
       
         Instructions to install Wifi drivers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prepare-ubuntu" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prepare Ubuntu
       
     </span>
   </a>
@@ -4088,36 +4088,35 @@
 
   <h1>Raspberry Pi Setup</h1>
 
-<p>These are the instructions to setup a custom Ubuntu 20.04 Focal Fossa on Raspberry Pi 4 B.</p>
+<p>These are the instructions to set up Ubuntu 20.04 Focal Fossa on the robot's computer, a Raspberry Pi 4 B.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In case you don't have a Raspberry Pi 4 B, it is also possible to create the robot using a Jetson Nano from Nvidia.
 See the <a href="../jetson-nano-setup/">related section in the documentation</a>.</p>
 </div>
-<h2 id="obtain-ubuntu-2004-mate-image-for-raspberry-pi">Obtain Ubuntu 20.04 Mate Image for Raspberry Pi</h2>
-<p>To install the long term supported (LTS) Ubuntu 20.04 on the Raspberry Pi 4B we make use of <a href="https://ubuntu-mate.org/download/arm64/focal/">arm64 version</a> 
-of <a href="https://ubuntu-mate.org/">Ubuntu Mate</a>. </p>
-<p>Download the latest release of the image and flash it to an empty sd card. To do this follow the instructions on the 
-<a href="https://www.raspberrypi.org/documentation/installation/installing-images/">Raspberry Pi documentation</a> or 
-<a href="https://www.balena.io/etcher/">balenaEtcher</a>. 
-Another way is to use the <a href="https://www.raspberrypi.org/downloads/">Raspberry Pi Imager</a> explained <a href="https://www.raspberrypi.org/blog/raspberry-pi-imager-imaging-utility/">here</a>.</p>
+<h2 id="ubuntu-2004-image-for-the-raspberry-pi">Ubuntu 20.04 image for the Raspberry Pi</h2>
+<p>ROS Noetic needs Ubuntu 20.04. Its standard support ended in May 2025 (see <a href="../ros-setup/">ROS Setup</a>), and Raspberry Pi Imager no longer lists it. The official image from Ubuntu is still available: Ubuntu Server 20.04.5, without a desktop, which the robot doesn't need, because you work on it over SSH from your PC. A container to run Noetic on a current OS is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>.</p>
+<p>Download <code>ubuntu-20.04.5-preinstalled-server-arm64+raspi.img.xz</code> from <a href="https://cdimage.ubuntu.com/ubuntu/releases/20.04/release/">Ubuntu's 20.04 release folder</a>, and compare its checksum with the <code>SHA256SUMS</code> file there.</p>
+<div class="admonition warning">
+<p class="admonition-title">Not yet tested with DiffBot and Remo</p>
+<p>The robots were set up with Ubuntu MATE 20.04.1, which has a desktop. Ubuntu MATE no longer offers it for download (its support for 20.04 ended in April 2023); it's only in the archive on <a href="https://releases.ubuntu-mate.org/">releases.ubuntu-mate.org</a>. Ubuntu Server hasn't been tested with the robots' hardware yet: I2C, the serial ports, the LiDAR and the camera. If your robot already runs Ubuntu MATE 20.04.1, you don't need to reinstall it to follow these docs.</p>
+</div>
+<p>Flash the image to an empty microSD card with <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>: under the operating system, choose <strong>Use custom</strong> and select the downloaded file. <a href="https://etcher.balena.io/">balenaEtcher</a> works too.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p><a href="https://en.wikipedia.org/wiki/Firmware#Flashing">Flashing</a> in this context, means the transfer of software data, also referred to as Firmware, 
 from your computer to a device, such as a the sd card in this case. The term “to flash” comes from the Flash storage component of a 
 device where the Firmware is stored.</p>
 </div>
+<h2 id="first-boot">First boot</h2>
+<p>Before the first boot, set up the Wi-Fi: on the card's <code>system-boot</code> partition, open <code>network-config</code> and remove the <code>#</code> at the start of the <code>wifis:</code> example's lines, down to the first access point. Replace <code>myhomewifi</code> with your network's name, keeping the colon, and <code>S3kr1t</code> with its password. Indent with spaces, not tabs. The image applies this file only at the first boot.</p>
+<p>Insert the card and power up the Raspberry Pi. Log in with the user <code>ubuntu</code> and the password <code>ubuntu</code>, either over SSH (see below; the robot's IP address is in your router's list of devices) or with a monitor and keyboard. You have to choose a new password right away.</p>
+<p>Changes to the boot configuration, such as the I2C lines on <a href="../hardware-interfaces/">Hardware Interfaces</a>, go into <code>usercfg.txt</code> on the <code>system-boot</code> partition (<code>/boot/firmware/usercfg.txt</code>): the image's <code>config.txt</code> says not to edit it. <code>dtparam=i2c_arm=on</code> is already set.</p>
 <h2 id="wifi-issues">Wifi Issues</h2>
-<p>So far there are no known issues using WiFi with Ubuntu Mate 20.04 arm64 on the Raspberry Pi 4B.</p>
-<details>
-  <summary>Possible issues with other images</summary>
-
-  If you are not in the US it is possible that you encounter connection problems when connected to a 5Ghz Wifi network.
-  If you are in a different country than the US you need to update your regulatory country. 5Ghz needs this to know the right bands to use.
-
-This can be changed by editing the value of `REGDOMAIN` in the file `/etc/default/crda` ([Central Regulatory Domain Agent](https://wireless.wiki.kernel.org/en/developers/regulatory/crda)) to the code for your country [ref](https://github.com/TheRemote/Ubuntu-Server-raspi4-unofficial/issues/98).
-</details>
-
+<p><strong>Country setting for 5 GHz networks:</strong> outside the US, the Raspberry Pi may not connect to a 5 GHz network until it knows your country. On the <code>system-boot</code> partition, add <code>cfg80211.ieee80211_regdom=AT</code> to the end of the single line in <code>cmdline.txt</code>, with your country's code instead of <code>AT</code>, as the image's <code>network-config</code> describes.</p>
+<details class="note">
+<summary>Robots with Ubuntu MATE: Wi-Fi power save</summary>
+<p>So far there are no known issues using WiFi with Ubuntu MATE 20.04 arm64 on the Raspberry Pi 4B. Ubuntu MATE manages the Wi-Fi with NetworkManager; Ubuntu Server uses netplan instead, and we haven't tested whether it needs a power-save setting.</p>
 <p>There might be some wifi issues where the connection is lost after some time. This might be a firmware issue reported <a href="https://github.com/raspberrypi/linux/issues/3849">here</a>.
 Although the wifi power save management is turned off by default, make sure to also do this for external wifi usb dongles by editing the following file</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo vim /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
@@ -4182,6 +4181,7 @@ wlan1     IEEE 802.11AC  ESSID:"wifiname"  Nickname:"WIFI@RTL8821CU"
 eth0      no wireless extensions.
 </code></pre></div></td></tr></tbody></table></div>
 <p>This is the output when there is one external usb WiFi dongle connected to the Raspberry Pi 4 B and no ethernet cable.</p>
+</details>
 <h2 id="instructions-to-install-wifi-drivers">Instructions to install Wifi drivers</h2>
 <p>In case you use a Realtek USB Wifi dongle it might not be directly supported by the linux kernel.
 To install the correct driver, you first have to figure out the driver id. When plugging in the USB Wifi dongle and running <code>dmesg</code> afterwards
@@ -4235,11 +4235,8 @@ sudo make
 <li><a href="https://github.com/raspberrypi/linux/issues/3849">RPi4: WiFi client crashes often (brcmf_fw_crashed: Firmware has halted or crashed)</a></li>
 <li><a href="https://wiki.ubuntuusers.de/WLAN/Karten/Realtek/">WLAN Karten Realtek (german)</a></li>
 </ul>
-<h2 id="prepare-ubuntu">Prepare Ubuntu</h2>
-<p>After flashing the image to the sd card insert it to the Pi, hook it up to a monitor via HDMI and power it up by plugging in the USB-C connector.
-Then you should follow the <a href="https://ubuntu-mate.org/raspberry-pi/install/">installation instructions</a> on the screen.</p>
 <h2 id="remote-access-with-ssh">Remote access with SSH</h2>
-<p>To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH (<a href="https://ubuntu.com/server/docs/how-to/security/openssh-server/">OpenSSH server</a>). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server:</p>
+<p>To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH (<a href="https://ubuntu.com/server/docs/how-to/security/openssh-server/">OpenSSH server</a>). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server (Ubuntu Server has it already):</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install openssh-server</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>On your PC, in Linux or in the Ubuntu in WSL 2, the <code>ssh</code> client is usually already installed. Log in with your user name on the robot and its IP address, which <code>hostname -I</code> on the robot shows. For example:</p>

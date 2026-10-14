@@ -4154,6 +4154,10 @@ and should correspond to one of the buses listed by <code>i2cdetect -l</code>. S
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">dtparam</span><span class="o">=</span><span class="nv">i2c0</span><span class="o">=</span>on
 <span class="nv">dtparam</span><span class="o">=</span><span class="nv">i2c1</span><span class="o">=</span>on
 </code></pre></div></td></tr></tbody></table></div>
+<div class="admonition note">
+<p class="admonition-title">Ubuntu Server 20.04</p>
+<p>Its <code>config.txt</code> says not to edit it: put the lines you need into <code>/boot/firmware/usercfg.txt</code>, which <code>config.txt</code> includes. <code>dtparam=i2c_arm=on</code>, the I2C bus on GPIO 2 and 3 (<code>/dev/i2c-1</code>), is already set by the image.</p>
+</div>
 <p>After rebooting the Raspberry Pi and entering the command again the following output will appear:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
