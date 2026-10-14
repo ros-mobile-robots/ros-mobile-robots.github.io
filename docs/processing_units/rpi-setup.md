@@ -11,7 +11,7 @@ ROS Noetic needs Ubuntu 20.04. Its standard support ended in May 2025 (see [ROS 
 Download `ubuntu-20.04.5-preinstalled-server-arm64+raspi.img.xz` from [Ubuntu's 20.04 release folder](https://cdimage.ubuntu.com/ubuntu/releases/20.04/release/), and compare its checksum with the `SHA256SUMS` file there.
 
 !!! warning "Not yet tested with DiffBot and Remo"
-    The robots were set up with Ubuntu MATE 20.04.1, which has a desktop. Ubuntu MATE no longer offers it for download (its support for 20.04 ended in April 2023); it's only in the archive on [releases.ubuntu-mate.org](https://releases.ubuntu-mate.org/). Ubuntu Server hasn't been tested with the robots' hardware yet: I2C, the serial ports, the LiDAR and the camera.
+    The robots were set up with Ubuntu MATE 20.04.1, which has a desktop. Ubuntu MATE no longer offers it for download (its support for 20.04 ended in April 2023); it's only in the archive on [releases.ubuntu-mate.org](https://releases.ubuntu-mate.org/). Ubuntu Server hasn't been tested with the robots' hardware yet: I2C, the serial ports, the LiDAR and the camera. If your robot already runs Ubuntu MATE 20.04.1, you don't need to reinstall it to follow these docs.
 
 Flash the image to an empty microSD card with [Raspberry Pi Imager](https://www.raspberrypi.com/software/): under the operating system, choose **Use custom** and select the downloaded file. [balenaEtcher](https://etcher.balena.io/) works too.
 
