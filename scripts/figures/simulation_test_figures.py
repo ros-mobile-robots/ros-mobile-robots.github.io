@@ -3,8 +3,9 @@ site's light and dark colors:
 
 - includes/simulation-test-figures.html: the two ros_control figures (simulation test and real
   robot) in two content tabs, and the styles for all figures on the page;
-- includes/simulation-test-moved.html: how test_drive.py's moved() splits a move into forward
-  and left. It uses the styles from the first include, on the same page.
+- includes/simulation-test-moved.html: the relative motion that test_drive.py's relative_motion()
+  computes, as in the odometry motion model of Probabilistic Robotics. It uses the styles from
+  the first include, on the same page.
 
 The tabs are written as HTML, in the markup pymdownx.tabbed produces with alternate_style:
 inside a "===" tab the include would be indented, and Markdown would wrap the SVG in a
@@ -45,16 +46,21 @@ class Fig:
         self.parts.append(f'<path class="{cls}" d="{d}"/>')
 
     def text(self, x, y, s, cls="t-topic", anchor="start"):
-        self.parts.append(f'<text class="{cls}" x="{x}" y="{y}" text-anchor="{anchor}">{esc(s)}</text>')
+        self.parts.append(f'<text class="{cls}" x="{round(x, 1)}" y="{round(y, 1)}" text-anchor="{anchor}">{esc(s)}</text>')
+
+    def sub(self, x, y, s, subscript, cls="t-pt", anchor="start"):
+        """Text with a subscript, such as the delta with rot1."""
+        self.parts.append(f'<text class="{cls}" x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}">{esc(s)}'
+                          f'<tspan class="t-subscript" dy="3">{esc(subscript)}</tspan></text>')
 
     def dot(self, x, y, r=4.5):
         self.parts.append(f'<circle class="dot" cx="{x}" cy="{y}" r="{r}"/>')
 
     def svg(self, ident):
         body = "\n".join(self.parts)
-        # Arrowheads for the arrow classes the figure uses: a (gray) and ab (blue)
+        # Arrowheads for the arrow classes the figure uses: a (gray), ab and the thinner ab2 (blue)
         markers = ""
-        for cls, head in (("a", "a-head"), ("ab", "a-head-b")):
+        for cls, head in (("a", "a-head"), ("ab", "a-head-b"), ("ab2", "a-head-b")):
             if f'class="{cls}"' in body:
                 markers += (f'<marker id="{ident}-{cls}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
                             f'<path class="{head}" d="M0,0 L10,5 L0,10 z"/></marker>')
@@ -159,11 +165,13 @@ STYLE = """<style>
 .rc-fig .a2{stroke-dasharray:3 2}
 .rc-fig .a-head{fill:var(--md-default-fg-color--light)}
 .rc-fig .ab{fill:none;stroke:#448aff;stroke-width:1.8}
+.rc-fig .ab2{fill:none;stroke:#448aff;stroke-width:1.2}
 .rc-fig .a-head-b{fill:#448aff}
 .rc-fig .am{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
 .rc-fig .dot{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.3}
 .rc-fig .t-blue{font-size:11px;fill:#448aff;paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
 .rc-fig .t-pt{font-size:11px;paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
+.rc-fig .t-subscript{font-size:8.5px}
 .md-typeset figure.rc-single{margin:1em auto;width:100%;max-width:420px}
 </style>"""
 
@@ -176,50 +184,55 @@ out = (STYLE + f'\n<div class="tabbed-set tabbed-alternate rc-figs" data-tabs="r
        + f'<div class="tabbed-labels">{labels}</div>\n<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
 open("includes/simulation-test-figures.html", "w").write(out)
 
-# moved() in test_drive.py: the move from the start pose, split along the robot's heading
-mv = Fig(250, "The move from the start pose, split into forward and left along the robot's heading")
-O = (36, 216)
+# relative_motion() in test_drive.py: the odometry motion model's rot1, trans, rot2
+mv = Fig(262, "The motion between two poses as a rotation, a translation and a rotation")
+O = (36, 228)
 mv.path(f"M{O[0]},{O[1]} H340")  # x axis
 mv.path(f"M{O[0]},{O[1]} V16")  # y axis
-mv.text(338, 232, "x", "t-pt", "end")
+mv.text(338, 244, "x", "t-pt", "end")
 mv.text(24, 24, "y", "t-pt", "end")
-mv.text(O[0], 244, "x, y: the frame of the poses (odometry or Gazebo world)", "t-sub")
+mv.text(O[0], 256, "x, y: the frame of the poses (odometry or Gazebo world)", "t-sub")
 
 
 def pt(p):
     return f"{p[0]:.1f},{p[1]:.1f}"
 
 
-psi = math.radians(30)
-heading = (math.cos(psi), -math.sin(psi))  # SVG's y axis points down
-left_dir = (-math.sin(psi), -math.cos(psi))
-p0 = (96, 178)
-fwd, lft = 172, 58
-f_pt = (p0[0] + fwd * heading[0], p0[1] + fwd * heading[1])
-p1 = (f_pt[0] + lft * left_dir[0], f_pt[1] + lft * left_dir[1])
-# dx and dy, dotted
-mv.path(f"M{pt(p0)} H{p1[0]:.1f} V{p1[1]:.1f}", "am")
-mv.text(p0[0] + 0.8 * (p1[0] - p0[0]), p0[1] + 16, "\u0394x", "t-flow", "middle")
-mv.text(p1[0] + 6, p0[1] - 10, "\u0394y", "t-flow")
-# heading angle psi0 against the x direction
-arc_end = (p0[0] + 36 * heading[0], p0[1] + 36 * heading[1])
-mv.path(f"M{p0[0] + 36},{p0[1]} A36,36 0 0 0 {pt(arc_end)}", "am")
-mv.text(p0[0] + 42, p0[1] - 6, "\u03c8\u2080", "t-flow")
-# the move, and its forward and left parts
-d = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
-u = ((p1[0] - p0[0]) / d, (p1[1] - p0[1]) / d)
-mv.path(f"M{pt(p0)} L{pt((p1[0] - 5 * u[0], p1[1] - 5 * u[1]))}")
-mv.text(p0[0] + 0.5 * (p1[0] - p0[0]) - 10, p0[1] + 0.5 * (p1[1] - p0[1]) - 4, "move", "t-pt", "end")
-mv.path(f"M{pt(p0)} L{pt(f_pt)}", "ab")
-mv.text(p1[0] + 10, f_pt[1] + 30, "forward", "t-blue")
-mv.path(f"M{pt(f_pt)} L{pt((p1[0] - 5 * left_dir[0], p1[1] - 5 * left_dir[1]))}", "ab")
-mv.text(f_pt[0] + 0.5 * lft * left_dir[0] + 10, f_pt[1] + 0.5 * lft * left_dir[1] + 4, "left", "t-blue")
+def along(p, deg, r):
+    """The point at distance r from p in direction deg (counterclockwise from x; SVG's y points down)."""
+    return (p[0] + r * math.cos(math.radians(deg)), p[1] - r * math.sin(math.radians(deg)))
+
+
+def arc(p, deg0, deg1, r):
+    """Counterclockwise arc around p from direction deg0 to deg1."""
+    return f"M{pt(along(p, deg0, r))} A{r},{r} 0 0 0 {pt(along(p, deg1, r))}"
+
+
+theta0, rot1, rot2 = 10, 35, 40
+bearing, theta1 = theta0 + rot1, theta0 + rot1 + rot2
+p0 = (84, 196)
+p1 = along(p0, bearing, 150)
+# Headings at the start and the end
+mv.path(f"M{pt(p0)} L{pt(along(p0, theta0, 64))}")
+mv.text(*along(p0, theta0 - 4, 76), "\u03b8\u2080", "t-pt")
+mv.path(f"M{pt(p1)} L{pt(along(p1, theta1, 56))}")
+mv.text(*along(p1, theta1 + 6, 62), "\u03b8\u2081", "t-pt", "end")
+# The translation, and the direction it continues in, for rot2
+mv.path(f"M{pt(along(p0, bearing, 6))} L{pt(along(p0, bearing, 145))}", "ab")
+mv.path(f"M{pt(p1)} L{pt(along(p1, bearing, 44))}", "am")
+mv.sub(*along(p0, bearing + 9, 92), "\u03b4", "trans", "t-blue", "end")
+# The two rotations
+mv.path(arc(p0, theta0, bearing, 42), "ab2")
+mv.sub(*along(p0, theta0 + rot1 / 2, 50), "\u03b4", "rot1", "t-blue")
+mv.path(arc(p1, bearing, theta1, 34), "ab2")
+mv.sub(*along(p1, bearing + rot2 / 2, 42), "\u03b4", "rot2", "t-blue")
 mv.dot(*p0)
 mv.dot(*p1)
-mv.text(p0[0] - 46, p0[1] + 20, "start (x\u2080, y\u2080, \u03c8\u2080)", "t-pt")
-mv.text(p1[0] + 10, p1[1] - 4, "end (x\u2081, y\u2081)", "t-pt")
+mv.text(p0[0] - 46, p0[1] + 20, "start (x\u2080, y\u2080, \u03b8\u2080)", "t-pt")
+mv.text(p1[0] + 12, p1[1] + 14, "end (x\u2081, y\u2081, \u03b8\u2081)", "t-pt")
 
-caption = ("How <code>moved()</code> splits the move: forward along the robot's heading at the start, "
-           "and left at a right angle to it.")
+caption = ("The motion from the start to the end pose, as in the odometry motion model of "
+           "<em>Probabilistic Robotics</em>: rotate by &delta;<sub>rot1</sub>, drive straight for "
+           "&delta;<sub>trans</sub>, rotate by &delta;<sub>rot2</sub>.")
 open("includes/simulation-test-moved.html", "w").write(
-    f'<figure class="rc-single">\n{mv.svg("rc-moved")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
+    f'<figure class="rc-single">\n{mv.svg("rc-motion")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
