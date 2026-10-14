@@ -1,0 +1,25 @@
+<figure class="rc-single">
+<svg class="rc-fig" viewBox="0 0 360 250" role="img" aria-labelledby="rc-moved-t"><title id="rc-moved-t">The move from the start pose, split into forward and left along the robot's heading</title><defs><marker id="rc-moved-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="rc-moved-ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head-b" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="a" marker-end="url(#rc-moved-a)" d="M36,216 H340"/>
+<path class="a" marker-end="url(#rc-moved-a)" d="M36,216 V16"/>
+<text class="t-pt" x="338" y="232" text-anchor="end">x</text>
+<text class="t-pt" x="24" y="24" text-anchor="end">y</text>
+<text class="t-sub" x="36" y="244" text-anchor="start">x, y: the frame of the poses (odometry or Gazebo world)</text>
+<path class="am" d="M96.0,178.0 H216.0 V41.8"/>
+<text class="t-flow" x="191.96509556073877" y="194" text-anchor="middle">Δx</text>
+<text class="t-flow" x="221.95636945092346" y="168" text-anchor="start">Δy</text>
+<path class="am" d="M132,178 A36,36 0 0 0 127.2,160.0"/>
+<text class="t-flow" x="138" y="172" text-anchor="start">ψ₀</text>
+<path class="a" marker-end="url(#rc-moved-a)" d="M96.0,178.0 L212.7,45.5"/>
+<text class="t-pt" x="145.97818472546174" y="105.88526329025129" text-anchor="end">move</text>
+<path class="ab" marker-end="url(#rc-moved-ab)" d="M96.0,178.0 L245.0,92.0"/>
+<text class="t-blue" x="225.95636945092346" y="122.00000000000001" text-anchor="start">forward</text>
+<path class="ab" marker-end="url(#rc-moved-ab)" d="M245.0,92.0 L218.5,46.1"/>
+<text class="t-blue" x="240.45636945092346" y="70.88526329025129" text-anchor="start">left</text>
+<circle class="dot" cx="96" cy="178" r="4.5"/>
+<circle class="dot" cx="215.95636945092346" cy="41.77052658050257" r="4.5"/>
+<text class="t-pt" x="50" y="198" text-anchor="start">start (x₀, y₀, ψ₀)</text>
+<text class="t-pt" x="225.95636945092346" y="37.77052658050257" text-anchor="start">end (x₁, y₁)</text>
+</svg>
+<figcaption>How <code>moved()</code> splits the move: forward along the robot's heading at the start, and left at a right angle to it.</figcaption>
+</figure>
