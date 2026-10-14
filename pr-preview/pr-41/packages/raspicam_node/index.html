@@ -4062,7 +4062,7 @@ For completeness, these steps are listed here:</p>
 <p>First go to your catkin_ws cd <code>~/catkin_ws/src</code> and download the source for this node by running</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git clone https://github.com/UbiquityRobotics/raspicam_node.git</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>rosdep doesn't know two of its dependencies: the Raspberry Pi's camera libraries <code>libraspberrypi0</code> and <code>libraspberrypi-dev</code>. Ubuntu 20.04 for the Raspberry Pi has them as packages (in <code>focal-updates</code>, universe). The rosdep rules for them that Ubiquity Robotics published (<code>UbiquityRobotics/rosdep</code>, <code>raspberry-pi.yaml</code>) are no longer online, so add the rules as a local file, and tell rosdep where it is:</p>
+<p>rosdep doesn't know two of its dependencies: the Raspberry Pi's camera libraries <code>libraspberrypi0</code> and <code>libraspberrypi-dev</code>. Ubuntu 20.04 for the Raspberry Pi has them as packages (in <code>focal-updates</code>, universe). The rosdep rules for them that Ubiquity Robotics published (<code>UbiquityRobotics/rosdep</code>, <code>raspberry-pi.yaml</code>) are no longer online, so add the rules as a local file, and tell rosdep where it is. The first command removes the entry for the old rules that earlier versions of this page added, if it's there: with it, <code>rosdep update</code> fails.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4073,7 +4073,9 @@ For completeness, these steps are listed here:</p>
 <span class="normal"> 8</span>
 <span class="normal"> 9</span>
 <span class="normal">10</span>
-<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo tee /etc/ros/rosdep/raspberry-pi.yaml &gt; /dev/null &lt;&lt; 'EOF'</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo rm -f /etc/ros/rosdep/sources.list.d/30-ubiquity.list</span>
+<span class="go">sudo tee /etc/ros/rosdep/raspberry-pi.yaml &gt; /dev/null &lt;&lt; 'EOF'</span>
 <span class="go">libraspberrypi0:</span>
 <span class="go">  ubuntu:</span>
 <span class="go">    apt:</span>
