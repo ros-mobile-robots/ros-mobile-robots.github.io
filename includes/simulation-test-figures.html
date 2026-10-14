@@ -1,6 +1,5 @@
 <style>
-.rc-figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:1rem;margin:1.5em 0}
-.rc-figs figure{margin:0 auto;width:100%;max-width:480px}
+.md-typeset .rc-figs figure{margin:.6em auto 0;width:100%;max-width:480px}
 .rc-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
 .rc-fig .c-proc,.rc-fig .c-plugin,.rc-fig .c-test{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
 .rc-fig .c-plugin{fill:none;stroke-dasharray:4 3}
@@ -19,7 +18,9 @@
 .rc-fig .a2{stroke-dasharray:3 2}
 .rc-fig .a-head{fill:var(--md-default-fg-color--light)}
 </style>
-<div class="rc-figs">
+<div class="tabbed-set tabbed-alternate rc-figs" data-tabs="rc:2"><input checked id="__tabbed_rc_1" name="__tabbed_rc" type="radio"><input id="__tabbed_rc_2" name="__tabbed_rc" type="radio"><div class="tabbed-labels"><label for="__tabbed_rc_1">Simulation test</label><label for="__tabbed_rc_2">Real robot</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <figure>
 <svg class="rc-fig" viewBox="0 0 360 536" role="img" aria-labelledby="rc-sim-t"><title id="rc-sim-t">Simulation test: ros_control inside the Gazebo server</title><defs><marker id="rc-sim-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="c-test" x="4" y="4" width="352" height="64" rx="6"/>
@@ -69,8 +70,9 @@
 <text class="t-topic" x="16" y="86" text-anchor="start">model_states</text>
 <text class="t-flow" x="16" y="98" text-anchor="start">(true pose)</text>
 </svg>
-<figcaption>Simulation test (CI)</figcaption>
 </figure>
+</div>
+<div class="tabbed-block">
 <figure>
 <svg class="rc-fig" viewBox="0 0 360 640" role="img" aria-labelledby="rc-real-t"><title id="rc-real-t">Real robot: ros_control inside the diffbot_base node</title><defs><marker id="rc-real-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="c-proc" x="4" y="132" width="352" height="240" rx="6"/>
@@ -124,6 +126,7 @@
 <rect class="hw" x="110" y="598" width="110" height="30" rx="4"/>
 <text class="t-node" x="165.0" y="617.0" text-anchor="middle">wheel encoders</text>
 </svg>
-<figcaption>Real robot</figcaption>
 </figure>
+</div>
+</div>
 </div>

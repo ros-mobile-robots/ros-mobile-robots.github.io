@@ -1,6 +1,11 @@
 """Generate includes/simulation-test-figures.html: the two ros_control figures on
 docs/development/simulation-test.md (simulation test and real robot), as inline SVG that
-follows the site's light and dark colors.
+follows the site's light and dark colors, in two content tabs.
+
+The tabs are written as HTML, in the markup pymdownx.tabbed produces with alternate_style:
+inside a "===" tab the include would be indented, and Markdown would wrap the SVG in a
+paragraph instead of passing it through as an HTML block. Material's JavaScript handles
+every element with data-tabs, so the tabs work like the ones written in Markdown.
 
 Run from the repository root after changing a figure:
 
@@ -121,8 +126,7 @@ real.path("M200,598 V558")
 real.box(110, 598, 110, 30, "hw", [("wheel encoders", "t-node")])
 
 STYLE = """<style>
-.rc-figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:1rem;margin:1.5em 0}
-.rc-figs figure{margin:0 auto;width:100%;max-width:480px}
+.md-typeset .rc-figs figure{margin:.6em auto 0;width:100%;max-width:480px}
 .rc-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
 .rc-fig .c-proc,.rc-fig .c-plugin,.rc-fig .c-test{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
 .rc-fig .c-plugin{fill:none;stroke-dasharray:4 3}
@@ -142,7 +146,11 @@ STYLE = """<style>
 .rc-fig .a-head{fill:var(--md-default-fg-color--light)}
 </style>"""
 
-out = (STYLE + '\n<div class="rc-figs">\n<figure>\n' + sim.svg("rc-sim")
-       + '\n<figcaption>Simulation test (CI)</figcaption>\n</figure>\n<figure>\n' + real.svg("rc-real")
-       + '\n<figcaption>Real robot</figcaption>\n</figure>\n</div>\n')
+TABS = [("Simulation test", sim.svg("rc-sim")), ("Real robot", real.svg("rc-real"))]
+inputs = "".join(f'<input{" checked" if i == 0 else ""} id="__tabbed_rc_{i + 1}" name="__tabbed_rc" type="radio">'
+                 for i in range(len(TABS)))
+labels = "".join(f'<label for="__tabbed_rc_{i + 1}">{esc(label)}</label>' for i, (label, _) in enumerate(TABS))
+blocks = "".join(f'<div class="tabbed-block">\n<figure>\n{svg}\n</figure>\n</div>\n' for _, svg in TABS)
+out = (STYLE + f'\n<div class="tabbed-set tabbed-alternate rc-figs" data-tabs="rc:{len(TABS)}">{inputs}'
+       + f'<div class="tabbed-labels">{labels}</div>\n<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
 open("includes/simulation-test-figures.html", "w").write(out)

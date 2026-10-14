@@ -24,7 +24,7 @@ The true pose is what makes the test useful. The odometry is computed from the w
 - A **controller manager** loads the controllers as plugins and updates them. The program that creates the hardware interface and the controller manager runs the loop: read the joints, update the controllers, write the commands.
 - The **controllers** publish the topics that the test checks. `joint_state_controller` copies the joint values to `/diffbot/joint_states`. `mobile_base_controller`, a [diff_drive_controller](http://wiki.ros.org/diff_drive_controller), computes the odometry from the wheel joint positions, publishes it, and turns the velocities from `cmd_vel` into a velocity command for each wheel.
 
-The figures show where these parts run in the simulation test and on the real robot. The blue box is the same in both: the controller manager with the two controllers, configured by [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). Only the hardware interface and what's below it differ.
+The two tabs show where these parts run, in the simulation test and on the real robot. When you switch between them, the blue box stays the same: the controller manager with the two controllers, configured by [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). Only the hardware interface and what's below it change.
 
 --8<-- "includes/simulation-test-figures.html"
 
