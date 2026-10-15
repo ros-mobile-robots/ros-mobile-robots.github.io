@@ -82,23 +82,23 @@ A `.test` file is a launch file for rostest. rostest starts a ROS master of its 
 
 ### test_drive.py
 
-[`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py) is a Python unittest class that `rostest.rosrun()` runs as a ROS node.
+[`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py) is a Python unittest class that `rostest.rosrun()` runs as a ROS node. It follows [PEP 8](https://peps.python.org/pep-0008/) with ROS 2's line length of 99 characters ([ament_flake8's settings](https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini)), and its functions have [type hints](https://docs.python.org/3/library/typing.html), for example `relative_motion(start_pose: Pose2D, end_pose: Pose2D) -> Motion`.
 
-**Setup:** `setUpClass` runs once, before the tests. It starts the node, a publisher for `cmd_vel`, and subscribers for the odometry and `/gazebo/model_states`. The two callbacks keep only the latest pose of each, as x, y and heading θ (`planar()`; θ comes from the orientation quaternion, with `euler_from_quaternion` from tf). Then it waits up to 120 s for the first odometry, because Gazebo and the controllers start slowly in CI.
+**Setup:** `setUpClass` runs once, before the tests. It starts the node, a publisher for `cmd_vel`, and subscribers for the odometry and `/gazebo/model_states`. The two callbacks, `on_odom()` and `on_model_states()`, keep only the latest pose of each, in `odom_pose` and `true_pose`. These are attributes of the class, not of a test object, because unittest creates a new `TestDrive` object for each test method, while the node and its subscribers are started only once. Then `setUpClass` waits up to 120 s for the first odometry, because Gazebo and the controllers start slowly in CI.
 
-**Driving:** `drive()` remembers both poses, sends the velocity command for the given time, then a zero command, and waits a second for the robot to stop:
+**Poses in 2D:** `planar()` turns a ROS pose into a `Pose2D`: x, y and the heading θ, the angle from the x axis, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). ROS messages give an orientation as a [quaternion](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation) (x, y, z, w), four numbers that describe any rotation in 3D without the special cases of three angles ([tf2 quaternion tutorial](http://wiki.ros.org/tf2/Tutorials/Quaternions)). `euler_from_quaternion` from tf converts it to roll, pitch and yaw, the rotations about the x, y and z axes ([REP 103](https://www.ros.org/reps/rep-0103.html)). On flat ground roll and pitch stay about 0, and yaw is θ; it grows when the robot turns to the left.
+
+**Driving:** each method does one step. `drive()` sends the velocity command for the given time, `stop()` sends a zero command and waits a second for the robot to come to rest, and `measure_motion()` remembers both poses, calls the two, and returns the motion twice: once from the odometry and once from the true pose, each computed by `relative_motion()`. The loop in `drive()`:
 
 ```python
 rate = rospy.Rate(20)
-end = rospy.Time.now() + rospy.Duration(seconds)
-while rospy.Time.now() < end and not rospy.is_shutdown():
+end_time = rospy.Time.now() + rospy.Duration(duration)
+while rospy.Time.now() < end_time and not rospy.is_shutdown():
     self.cmd_vel.publish(cmd)
     rate.sleep()
-self.cmd_vel.publish(Twist())
-rospy.sleep(1.0)  # let the robot stop
 ```
 
-It sends the command 20 times a second because the controller stops the robot when no command arrives for 0.5 s (diff_drive_controller's default `cmd_vel_timeout`). `rospy.Time` and `rospy.Rate` follow Gazebo's clock (`use_sim_time`), so on a slow computer the test takes longer, but the robot drives the same distance. Then `drive()` returns the motion twice, once from the odometry and once from the true pose, each computed by `relative_motion()`.
+It sends the command 20 times a second because the controller stops the robot when no command arrives for 0.5 s (diff_drive_controller's default `cmd_vel_timeout`). `rospy.Time` and `rospy.Rate` follow Gazebo's clock (`use_sim_time`), so on a slow computer the test takes longer, but the robot drives the same distance. The tests call it with named arguments, so the call reads without looking up the method: `self.measure_motion(linear_velocity=0.2, angular_velocity=0.0, duration=3.0)` in m/s, rad/s and s.
 
 **Comparing the motions:** the odometry and Gazebo give poses in different frames. The odometry starts at 0, 0, 0 where the controller started, while Gazebo spawns the robot at x = −2 m, y = −0.5 m in its world frame. So the test doesn't compare the poses, but the motion between them. It describes the motion with the odometry motion model from *Probabilistic Robotics* by Thrun, Burgard and Fox, section 5.4 ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links): a rotation δ<sub>rot1</sub> towards the end position, a straight translation δ<sub>trans</sub> to it, and a rotation δ<sub>rot2</sub> to the end heading. These three numbers are the same in every frame.
 
@@ -114,9 +114,13 @@ $$
 \end{aligned}
 $$
 
-The robot turned by δ<sub>rot1</sub> + δ<sub>rot2</sub> = θ₁ − θ₀ in total. Both angles are wrapped to −π to π, because θ jumps from π to −π when the robot turns past 180°. That would make a small left turn look like almost a full turn to the right. When the robot turns on the spot, its position hardly changes, and the direction of such a short translation is noise. So below 1 cm, δ<sub>rot1</sub> is 0 and δ<sub>rot2</sub> is the whole turn, as in the odometry model of ROS's [amcl](http://wiki.ros.org/amcl) ([`amcl_odom.cpp`](https://github.com/ros-planning/navigation/blob/noetic-devel/amcl/src/amcl/sensors/amcl_odom.cpp)). In Gazebo the robot's center still drifts 2 to 4 cm while it turns on the spot, so the turn test checks the total turn, not δ<sub>rot1</sub> and δ<sub>rot2</sub> on their own. In `relative_motion()` in [`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py):
+With Δx = x₁ − x₀ and Δy = y₁ − y₀, [atan2](https://en.wikipedia.org/wiki/Atan2)(Δy, Δx) is the angle of the vector (Δx, Δy) from the x axis, in −π to π. Unlike atan(Δy / Δx), it uses the signs of both values, so it tells forward from backward and works for Δx = 0. δ<sub>trans</sub> is the straight-line distance, the length of the hypotenuse of a right triangle with the sides Δx and Δy; Python's [`math.hypot`](https://docs.python.org/3/library/math.html#math.hypot) computes exactly this square root.
+
+The robot turned by δ<sub>rot1</sub> + δ<sub>rot2</sub> = θ₁ − θ₀ in total. Both angles are wrapped to −π to π, because θ jumps from π to −π when the robot turns past 180°. That would make a small left turn look like almost a full turn to the right. `wrap()` computes atan2(sin α, cos α): sine and cosine stay the same when the angle α changes by 2π, and atan2 gives the angle back in −π to π. amcl normalizes its angles the same way. When the robot turns on the spot, its position hardly changes, and the direction of such a short translation is noise. So below 1 cm, δ<sub>rot1</sub> is 0 and δ<sub>rot2</sub> is the whole turn, as in the odometry model of ROS's [amcl](http://wiki.ros.org/amcl) ([`amcl_odom.cpp`](https://github.com/ros-planning/navigation/blob/noetic-devel/amcl/src/amcl/sensors/amcl_odom.cpp)). In Gazebo the robot's center still drifts 2 to 4 cm while it turns on the spot, so the turn test checks the total turn, not δ<sub>rot1</sub> and δ<sub>rot2</sub> on their own. In `relative_motion()` in [`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py):
 
 ```python
+x0, y0, theta0 = start_pose
+x1, y1, theta1 = end_pose
 trans = math.hypot(x1 - x0, y1 - y0)
 rot1 = wrap(math.atan2(y1 - y0, x1 - x0) - theta0) if trans >= 0.01 else 0.0
 rot2 = wrap(theta1 - theta0 - rot1)
@@ -132,7 +136,7 @@ rot2 = wrap(theta1 - theta0 - rot1)
 
 | | `test_forward` | `test_turn` |
 |:--|:--|:--|
-| **Range** | δ<sub>trans</sub> 0.4 to 0.75 m: 0.6 m commanded, a bit less with the controller's acceleration limit. Straight ahead: \|δ<sub>rot1</sub>\| below 0.15 rad (0.002 rad measured), so the robot moved in the direction it faced, and the total turn below 0.2 rad | Total turn 0.5 to 2.0 rad to the left: 1.5 rad commanded, but the wheels don't always reach the commanded speed when turning on the spot (Remo turned about 1.1 rad). δ<sub>trans</sub> below 0.15 m |
+| **Range** | δ<sub>trans</sub> 0.4 to 0.75 m: 0.6 m commanded, a bit less with the controller's acceleration limit. Straight ahead: \|δ<sub>rot1</sub>\| below 0.15 rad (0.002 rad measured), so the robot moved in the direction it faced, and the total turn below 0.2 rad | Total turn 0.5 to 2.0 rad to the left: 1.5 rad commanded, but in Gazebo the robots turn less (DiffBot about 1.3 rad, Remo 1.0 to 1.2 rad). Gazebo's wheel velocity controller (`pid.yaml` in `diffbot_control`) has only a P gain, which leaves Remo's wheels at about 80 % of the commanded speed, and the wheels slip. [diffbot#116](https://github.com/ros-mobile-robots/diffbot/issues/116) tunes the gains and then tightens this range. δ<sub>trans</sub> below 0.15 m |
 | **Odometry and true pose agree** | δ<sub>trans</sub> within 0.05 m. They're usually about 0.01 m apart; a wheel radius 20 % too big gave 0.09 m | Total turn within 0.25 rad. The wheels [slip](../theory/modeling-control/odometry.md#wheel-slip) a little (0.02 to 0.11 rad apart); a wheel radius 20 % too big gave up to 0.31 rad |
 
 unittest runs the test methods in alphabetical order. Each test checks only its own motion, from wherever the robot is when it starts, so the order doesn't matter.
@@ -149,4 +153,4 @@ With `--text`, rostest prints the nodes' output in the terminal instead of log f
 
 ## Add a check
 
-Add a test method to [`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py), a Python [unittest](https://docs.python.org/3/library/unittest.html) class: call `self.drive()` and check the two motions it returns. It runs for both robots. A new `.test` file is registered with `add_rostest` in the package's [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_gazebo/CMakeLists.txt). Give it its own `gazebo_port`, like the two existing ones: catkin runs the test files in parallel, and two Gazebo servers on the same port can't start.
+Add a test method to [`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py), a Python [unittest](https://docs.python.org/3/library/unittest.html) class: call `self.measure_motion()` and check the two motions it returns. It runs for both robots. A new `.test` file is registered with `add_rostest` in the package's [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_gazebo/CMakeLists.txt). Give it its own `gazebo_port`, like the two existing ones: catkin runs the test files in parallel, and two Gazebo servers on the same port can't start.
