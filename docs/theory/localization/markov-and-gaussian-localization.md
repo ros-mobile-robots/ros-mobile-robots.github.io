@@ -1,6 +1,6 @@
 ## Mobile Robot Localization: Markov and Gaussian
 
-Mobile robot localilzation is the problem of determining the pose of a robot relative to a given map of the environment.
+Mobile robot localization is the problem of determining the pose of a robot relative to a given map of the environment.
 It is also referred to as [position estimation](../state-estimation/recursive-state-estimation.md).
 
 
@@ -30,4 +30,6 @@ Markov localization is just a different name for the Bayes filter applied to the
     pseudocode.renderElement(document.getElementById("markovlocalization"));
 </script>
 
+## Resources
 
+- *Probabilistic Robotics* by Sebastian Thrun, Wolfram Burgard and Dieter Fox, chapter 7, "Mobile Robot Localization: Markov and Gaussian" ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links)
