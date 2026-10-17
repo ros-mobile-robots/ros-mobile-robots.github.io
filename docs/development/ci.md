@@ -29,10 +29,11 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 ### Tests
 
-The packages have no test cases yet: `catkin_test_results` reports 0 tests. So the checks prove that everything builds, not that the robot behaves correctly. Until there are tests, a pull request describes how it was tested, for example in the simulation or on the robot. Planned in the Docker and CI phase of the [roadmap](index.md#roadmap):
+**Simulation test:** [`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks.
 
-- **Simulation test** ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110)): a [rostest](http://wiki.ros.org/rostest) that starts DiffBot and Remo in Gazebo without a GUI, drives them with a velocity command and checks their odometry. It will run in both workflows on every pull request.
-- **Robot container** ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)): an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.
+The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` and the firmware without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114).
+
+**Planned** in the Docker and CI phase of the [roadmap](index.md#roadmap): a **robot container** ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)), an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.
 
 ### GitHub Actions versions
 

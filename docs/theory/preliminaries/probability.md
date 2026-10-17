@@ -41,5 +41,5 @@ The function $p(x,y)$ is called joint distribution.
 ## Resources
 
 - [Duckietown Preliminaries](https://docs.duckietown.org/DT19/preliminaries/out/probability_basics.html)
-- [Probabilistic Robotics, Thrun, Burgard, Fox][amazon_book_probabilistic_robotics_ger] (affiliate link)
+- Probabilistic Robotics, Thrun, Burgard, Fox ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links)
 - [Papoulis: Probability, Random Variables, Stochastic Processes][amazon_book_papoulis_probability_ger] (affiliate link)
