@@ -4210,7 +4210,7 @@
 <p>Then two tests run:</p>
 <ul>
 <li><a href="http://wiki.ros.org/rostest/Nodes#publishtest"><code>publishtest</code></a> checks that <code>/diffbot/joint_states</code> and <code>/diffbot/mobile_base_controller/odom</code> are published.</li>
-<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a> drives forward at 0.2 m/s for 3 s, then turns at 0.5 rad/s for 3 s. It checks each move twice: with the controller's odometry, and with the robot's true pose from Gazebo (<code>/gazebo/model_states</code>). Both must be in range, and they must agree.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a> drives forward at 0.2 m/s for 3 s, then turns at 0.5 rad/s for 3 s. It checks each move twice: with the controller's odometry, and with the robot's true pose from Gazebo (<code>/gazebo/model_states</code>). Both must be within a tolerance of the commanded motion, and they must agree.</li>
 </ul>
 <p>The true pose is what makes the test useful. The odometry is computed from the wheel joints and the controller's configuration, so it repeats some configuration mistakes: with the left and right wheel swapped, the robot turns right while the odometry reports a left turn. A wrong wheel radius makes odometry and true distance differ. A wrong joint name stops the controller, so no odometry is published. The test fails in all three cases. The durations are simulation time, so the expected distances don't depend on how fast the computer runs the simulation.</p>
 <h2 id="gazebo-and-ros_control">Gazebo and ros_control</h2>
@@ -4423,20 +4423,20 @@
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/sim_drive_remo.test"><code>sim_drive_remo.test</code></a> differs only in the model, the port and the test names.</p>
 <h3 id="test_drivepy">test_drive.py</h3>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a> is a Python unittest class that <code>rostest.rosrun()</code> runs as a ROS node. It follows <a href="https://peps.python.org/pep-0008/">PEP 8</a> with ROS 2's line length of 99 characters (<a href="https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini">ament_flake8's settings</a>), and its functions have <a href="https://docs.python.org/3/library/typing.html">type hints</a>, for example <code>relative_motion(start_pose: Pose2D, end_pose: Pose2D) -&gt; Motion</code>.</p>
-<p><strong>Setup:</strong> <code>setUpClass</code> runs once, before the tests. It starts the node, a publisher for <code>cmd_vel</code>, and subscribers for the odometry and <code>/gazebo/model_states</code>. The two callbacks, <code>on_odom()</code> and <code>on_model_states()</code>, keep only the latest pose of each, in <code>odom_pose</code> and <code>true_pose</code>. These are attributes of the class, not of a test object, because unittest creates a new <code>TestDrive</code> object for each test method, while the node and its subscribers are started only once. Then <code>setUpClass</code> waits up to 120 s for the first odometry, because Gazebo and the controllers start slowly in CI.</p>
+<p><strong>Setup:</strong> <code>setUpClass</code> runs once, before the tests. It starts the node, a publisher for <code>cmd_vel</code>, and subscribers for the odometry and <code>/gazebo/model_states</code>. The two callbacks, <code>on_odom()</code> and <code>on_model_states()</code>, keep only the latest pose of each, in <code>odom_pose</code> and <code>true_pose</code>. <code>/gazebo/model_states</code> lists every model in the world with its pose: here the ground plane, which the world file adds so that the robot has something to stand on, and the robot. <code>on_model_states()</code> looks the robot up by its name and skips the first messages, which Gazebo publishes before the robot is spawned. These are attributes of the class, not of a test object, because unittest creates a new <code>TestDrive</code> object for each test method, while the node and its subscribers are started only once. Then <code>setUpClass</code> waits up to 120 s for the first odometry, because Gazebo and the controllers start slowly in CI.</p>
 <p><strong>Poses in 2D:</strong> <code>planar()</code> turns a ROS pose into a <code>Pose2D</code>: x, y and the heading θ, the angle from the x axis, as on <a href="../../theory/modeling-control/robot-representations/#robot-pose">Robot Representations</a>. ROS messages give an orientation as a <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">quaternion</a> (x, y, z, w), four numbers that describe any rotation in 3D without the special cases of three angles (<a href="http://wiki.ros.org/tf2/Tutorials/Quaternions">tf2 quaternion tutorial</a>). <code>euler_from_quaternion</code> from tf converts it to roll, pitch and yaw, the rotations about the x, y and z axes (<a href="https://www.ros.org/reps/rep-0103.html">REP 103</a>). On flat ground roll and pitch stay about 0, and yaw is θ; it grows when the robot turns to the left.</p>
 <p><strong>Driving:</strong> each method does one step. <code>drive()</code> sends the velocity command for the given time, <code>stop()</code> sends a zero command and waits a second for the robot to come to rest, and <code>measure_motion()</code> remembers both poses, calls the two, and returns the motion twice: once from the odometry and once from the true pose, each computed by <code>relative_motion()</code>. The loop in <code>drive()</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">rate</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Rate</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">rate</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Rate</span><span class="p">(</span><span class="n">COMMAND_RATE</span><span class="p">)</span>
 <span class="n">end_time</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Duration</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
 <span class="k">while</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end_time</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cmd_vel</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
     <span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>It sends the command 20 times a second because the controller stops the robot when no command arrives for 0.5 s (diff_drive_controller's default <code>cmd_vel_timeout</code>). <code>rospy.Time</code> and <code>rospy.Rate</code> follow Gazebo's clock (<code>use_sim_time</code>), so on a slow computer the test takes longer, but the robot drives the same distance. The tests call it with named arguments, so the call reads without looking up the method: <code>self.measure_motion(linear_velocity=0.2, angular_velocity=0.0, duration=3.0)</code> in m/s, rad/s and s.</p>
+<p><code>COMMAND_RATE</code> is 20 Hz. The controller stops the robot when no command arrives for 0.5 s (diff_drive_controller's default <code>cmd_vel_timeout</code>), and the loop checks the end time once per cycle, so the robot drives up to 50 ms too long: at most 1 cm or 0.025 rad in these tests. A faster rate wouldn't help, because the controller keeps the last command. <code>rospy.Time</code> and <code>rospy.Rate</code> follow Gazebo's clock (<code>use_sim_time</code>), so on a slow computer the test takes longer, but the robot drives the same distance. The tests call it with named arguments and the constants from the top of the file, so the call reads without looking up the method: <code>self.measure_motion(linear_velocity=FORWARD_VELOCITY, angular_velocity=0.0, duration=DURATION)</code>, here 0.2 m/s for 3 s.</p>
 <p><strong>Comparing the motions:</strong> the odometry and Gazebo give poses in different frames. The odometry starts at 0, 0, 0 where the controller started, while Gazebo spawns the robot at x = −2 m, y = −0.5 m in its world frame. So the test doesn't compare the poses, but the motion between them. It describes the motion with the odometry motion model from <em>Probabilistic Robotics</em> by Thrun, Burgard and Fox, section 5.4 (<a href="https://www.amazon.com/dp/0262201623?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/0262201623?tag=fjp-21">Amazon.de</a>, affiliate links): a rotation δ<sub>rot1</sub> towards the end position, a straight translation δ<sub>trans</sub> to it, and a rotation δ<sub>rot2</sub> to the end heading. These three numbers are the same in every frame.</p>
 <figure class="rc-single">
 <svg class="rc-fig" viewBox="0 0 360 262" role="img" aria-labelledby="rc-motion-t"><title id="rc-motion-t">The motion between two poses as a rotation, a translation and a rotation</title><defs><marker id="rc-motion-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="rc-motion-ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head-b" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="rc-motion-ab2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="a-head-b" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
@@ -4473,7 +4473,7 @@
 \end{aligned}
 \]</div>
 <p>With Δx = x₁ − x₀ and Δy = y₁ − y₀, <a href="https://en.wikipedia.org/wiki/Atan2">atan2</a>(Δy, Δx) is the angle of the vector (Δx, Δy) from the x axis, in −π to π. Unlike atan(Δy / Δx), it uses the signs of both values, so it tells forward from backward and works for Δx = 0. δ<sub>trans</sub> is the straight-line distance, the length of the hypotenuse of a right triangle with the sides Δx and Δy; Python's <a href="https://docs.python.org/3/library/math.html#math.hypot"><code>math.hypot</code></a> computes exactly this square root.</p>
-<p>The robot turned by δ<sub>rot1</sub> + δ<sub>rot2</sub> = θ₁ − θ₀ in total. Both angles are wrapped to −π to π, because θ jumps from π to −π when the robot turns past 180°. That would make a small left turn look like almost a full turn to the right. <code>wrap()</code> computes atan2(sin α, cos α): sine and cosine stay the same when the angle α changes by 2π, and atan2 gives the angle back in −π to π. amcl normalizes its angles the same way. When the robot turns on the spot, its position hardly changes, and the direction of such a short translation is noise. So below 1 cm, δ<sub>rot1</sub> is 0 and δ<sub>rot2</sub> is the whole turn, as in the odometry model of ROS's <a href="http://wiki.ros.org/amcl">amcl</a> (<a href="https://github.com/ros-planning/navigation/blob/noetic-devel/amcl/src/amcl/sensors/amcl_odom.cpp"><code>amcl_odom.cpp</code></a>). In Gazebo the robot's center still drifts 2 to 4 cm while it turns on the spot, so the turn test checks the total turn, not δ<sub>rot1</sub> and δ<sub>rot2</sub> on their own. In <code>relative_motion()</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a>:</p>
+<p>The robot turned by δ<sub>rot1</sub> + δ<sub>rot2</sub> = θ₁ − θ₀ in total. Both angles are wrapped to −π to π, because θ jumps from π to −π when the robot turns past 180°. That would make a small left turn look like almost a full turn to the right. <code>wrap()</code> computes atan2(sin α, cos α): sine and cosine stay the same when the angle α changes by 2π, and atan2 gives the angle back in −π to π. amcl normalizes its angles the same way. When the robot turns on the spot, its position hardly changes, and the direction of such a short translation is noise. So below 1 cm (<code>MIN_TRANS</code>), δ<sub>rot1</sub> is 0 and δ<sub>rot2</sub> is the whole turn, as in the odometry model of ROS's <a href="http://wiki.ros.org/amcl">amcl</a> (<a href="https://github.com/ros-planning/navigation/blob/noetic-devel/amcl/src/amcl/sensors/amcl_odom.cpp"><code>amcl_odom.cpp</code></a>). In Gazebo the robot's center still drifts 2 to 4 cm while it turns on the spot, so the turn test checks the total turn, not δ<sub>rot1</sub> and δ<sub>rot2</sub> on their own. In <code>relative_motion()</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -4481,34 +4481,88 @@
 <span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">theta0</span> <span class="o">=</span> <span class="n">start_pose</span>
 <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">theta1</span> <span class="o">=</span> <span class="n">end_pose</span>
 <span class="n">trans</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span>
-<span class="n">rot1</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">-</span> <span class="n">theta0</span><span class="p">)</span> <span class="k">if</span> <span class="n">trans</span> <span class="o">&gt;=</span> <span class="mf">0.01</span> <span class="k">else</span> <span class="mf">0.0</span>
+<span class="n">rot1</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">-</span> <span class="n">theta0</span><span class="p">)</span> <span class="k">if</span> <span class="n">trans</span> <span class="o">&gt;=</span> <span class="n">MIN_TRANS</span> <span class="k">else</span> <span class="mf">0.0</span>
 <span class="n">rot2</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">theta1</span> <span class="o">-</span> <span class="n">theta0</span> <span class="o">-</span> <span class="n">rot1</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><strong>The models behind the numbers:</strong> the test itself doesn't model the robot; δ<sub>rot1</sub>, δ<sub>trans</sub> and δ<sub>rot2</sub> only describe the motion between two poses. The models are elsewhere:</p>
 <ul>
-<li>The commands follow the velocity motion model of the same book (section 5.3): constant linear and angular velocities v and ω. With ω = 0 the robot drives straight, v·t = 0.6 m; with v = 0 it turns on the spot, ω·t = 1.5 rad. These are the expected values.</li>
+<li>The commands follow the velocity motion model of the same book (section 5.3): constant linear and angular velocities v and ω. With ω = 0 the robot drives straight, v·t = 0.6 m; with v = 0 it turns on the spot, ω·t = 1.5 rad. These are the expected values; the tests compute them from the commands, for example <code>FORWARD_VELOCITY * DURATION</code>.</li>
 <li>The controller's odometry integrates the wheel motion with the kinematic model of a differential drive robot (<a href="../../theory/modeling-control/odometry/#kinematic-model">Odometry</a>).</li>
 <li>Gazebo simulates the robot's URDF model with physics: mass, inertia, and the friction and slip of the wheels.</li>
 </ul>
-<p><strong>The checks:</strong> <code>test_forward</code> drives at 0.2 m/s for 3 s, and <code>test_turn</code> turns on the spot at 0.5 rad/s for 3 s. Each checks the motion from the odometry and from the true pose:</p>
+<p><strong>The checks:</strong> both tests run the same steps:</p>
+<ol>
+<li><code>measure_motion()</code> remembers the latest odometry pose and true pose.</li>
+<li><code>drive()</code> sends the command for 3 s of simulation time: 0.2 m/s straight ahead in <code>test_forward</code>, 0.5 rad/s on the spot in <code>test_turn</code>.</li>
+<li><code>stop()</code> sends zero and waits 1 s, until the robot stands still.</li>
+<li><code>relative_motion()</code> turns each pair of start and end poses into δ<sub>rot1</sub>, δ<sub>trans</sub> and δ<sub>rot2</sub>.</li>
+<li>The test compares them with the expected values v·t and ω·t, each within a tolerance. A tolerance lies between what the robots measure in Gazebo and what a mistake would give. The odometry and the true pose are checked the same way, and then against each other.</li>
+</ol>
+<p><code>test_forward</code> expects 0.2 m/s · 3 s = 0.6 m. The controller's acceleration limit of 0.6 m/s² costs 3.3 cm while the robot speeds up, and gives them back when it brakes after the zero command. <code>drive()</code> adds up to 1 cm. The robots drove 0.58 to 0.62 m.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;"></th>
-<th style="text-align: left;"><code>test_forward</code></th>
-<th style="text-align: left;"><code>test_turn</code></th>
+<th style="text-align: left;">Check</th>
+<th style="text-align: left;">Expected</th>
+<th style="text-align: left;">Measured</th>
+<th style="text-align: left;">Fails when</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Range</strong></td>
-<td style="text-align: left;">δ<sub>trans</sub> 0.4 to 0.75 m: 0.6 m commanded, a bit less with the controller's acceleration limit. Straight ahead: |δ<sub>rot1</sub>| below 0.15 rad (0.002 rad measured), so the robot moved in the direction it faced, and the total turn below 0.2 rad</td>
-<td style="text-align: left;">Total turn 0.5 to 2.0 rad to the left: 1.5 rad commanded, but in Gazebo the robots turn less (DiffBot about 1.3 rad, Remo 1.0 to 1.2 rad). Gazebo's wheel velocity controller (<code>pid.yaml</code> in <code>diffbot_control</code>) has only a P gain, which leaves Remo's wheels at about 80 % of the commanded speed, and the wheels slip. <a href="https://github.com/ros-mobile-robots/diffbot/issues/116">diffbot#116</a> tunes the gains and then tightens this range. δ<sub>trans</sub> below 0.15 m</td>
+<td style="text-align: left;">δ<sub>trans</sub></td>
+<td style="text-align: left;">0.6 ± 0.1 m</td>
+<td style="text-align: left;">0.58 to 0.62 m</td>
+<td style="text-align: left;">the robot doesn't move, or drives much too slow or too fast</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Odometry and true pose agree</strong></td>
-<td style="text-align: left;">δ<sub>trans</sub> within 0.05 m. They're usually about 0.01 m apart; a wheel radius 20 % too big gave 0.09 m</td>
-<td style="text-align: left;">Total turn within 0.25 rad. The wheels <a href="../../theory/modeling-control/odometry/#wheel-slip">slip</a> a little (0.02 to 0.11 rad apart); a wheel radius 20 % too big gave up to 0.31 rad</td>
+<td style="text-align: left;">δ<sub>rot1</sub></td>
+<td style="text-align: left;">0 ± 0.15 rad</td>
+<td style="text-align: left;">0.000 to 0.002 rad</td>
+<td style="text-align: left;">it drives off to the side: 0.15 rad is 9 cm at 0.6 m</td>
+</tr>
+<tr>
+<td style="text-align: left;">Total turn</td>
+<td style="text-align: left;">0 ± 0.2 rad</td>
+<td style="text-align: left;">0.01 rad or less</td>
+<td style="text-align: left;">its heading changes, for example because one wheel turns slower</td>
+</tr>
+<tr>
+<td style="text-align: left;">Odometry and true δ<sub>trans</sub></td>
+<td style="text-align: left;">within 0.05 m</td>
+<td style="text-align: left;">about 0.01 m apart</td>
+<td style="text-align: left;">the controller's wheel radius doesn't match the model: 20 % too big gave 0.09 m</td>
+</tr>
+</tbody>
+</table>
+<p><code>test_turn</code> expects 0.5 rad/s · 3 s = 1.5 rad to the left; the angular acceleration limit of 6 rad/s² hardly matters. In Gazebo the robots turn less: DiffBot about 1.3 rad, Remo 0.92 to 1.2 rad. Gazebo's wheel velocity controller (<code>pid.yaml</code> in <code>diffbot_control</code>) has only a P gain, which leaves Remo's wheels at about 80 % of the commanded speed, and the wheels slip. So the tolerance of the turn is wide for now; <a href="https://github.com/ros-mobile-robots/diffbot/issues/116">diffbot#116</a> tunes the gains and then narrows it to ±0.3 rad.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Check</th>
+<th style="text-align: left;">Expected</th>
+<th style="text-align: left;">Measured</th>
+<th style="text-align: left;">Fails when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Total turn</td>
+<td style="text-align: left;">1.5 ± 1.0 rad</td>
+<td style="text-align: left;">DiffBot about 1.3 rad, Remo 0.92 to 1.2 rad</td>
+<td style="text-align: left;">the robot turns right, for example with swapped wheel joints, or doesn't turn</td>
+</tr>
+<tr>
+<td style="text-align: left;">δ<sub>trans</sub></td>
+<td style="text-align: left;">0 ± 0.15 m</td>
+<td style="text-align: left;">odometry below 0.01 m, true pose 0.02 to 0.04 m</td>
+<td style="text-align: left;">it drives off instead of turning on the spot</td>
+</tr>
+<tr>
+<td style="text-align: left;">Odometry and true total turn</td>
+<td style="text-align: left;">within 0.25 rad</td>
+<td style="text-align: left;">0.02 to 0.11 rad apart, because the wheels <a href="../../theory/modeling-control/odometry/#wheel-slip">slip</a> a little</td>
+<td style="text-align: left;">the wheel radius doesn't match the model: 20 % too big gave up to 0.31 rad</td>
 </tr>
 </tbody>
 </table>
