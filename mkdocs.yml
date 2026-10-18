@@ -55,6 +55,10 @@ edit_uri: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/edit/
 extra:
   asset_dir: /resources # /assets
   diffbot_repo_url: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel
+  # The diffbot commit that the code excerpts on Simulation Test show. Update both when the code
+  # changes, and check the excerpts' line ranges and highlighted lines against the new commit
+  diffbot_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/470870ea678414b6a3e5f28c7650cd752d0c6821
+  diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
@@ -76,6 +80,12 @@ markdown_extensions:
   - pymdownx.snippets:
       auto_append:
         - includes/links.md
+      # Code excerpts are included from other repositories at a pinned commit (see extra:
+      # diffbot_src_raw), so they are the real code. A missing file fails the build;
+      # dedent_subsections removes a method's indentation when only its lines are included
+      url_download: true
+      check_paths: true
+      dedent_subsections: true
   - pymdownx.keys
   - pymdownx.highlight:
       linenums: true
@@ -211,6 +221,7 @@ nav:
     - State Estimation:
       # - Gaussian Filters (Kalman Filter): theory/state-estimation/gaussian-filters.md  # planned, not written yet
       - Nonparametric Filters (Particle Filter): theory/state-estimation/nonparametric-filters.md
+      - Robot Motion: theory/state-estimation/robot-motion.md
     - Localization:
       - Markov and Gaussian Localization: theory/localization/markov-and-gaussian-localization.md
       # - Grid and Monte Carlo Localization: theory/localization/grid-and-monte-carlo-localization.md  # planned, not written yet
@@ -232,6 +243,7 @@ nav:
   - Contributing:
     - development/index.md
     - Testing and CI: development/ci.md
+    - Simulation Test: development/simulation-test.md
   - Insiders: insiders/index.md
 
 # Fail the strict build on links that MkDocs can check: missing pages, missing #anchors,

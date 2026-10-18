@@ -4,3 +4,7 @@ The goal of localization is to determine the pose(s) of a robot given a map of t
 e.g., wheel odometry and laser distance measurements. This form of state estimation can be achieved with non-parametric filters, such as particle filters.
 
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/NrzmH_yerBU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+## Resources
+
+- *Probabilistic Robotics* by Sebastian Thrun, Wolfram Burgard and Dieter Fox, chapter 4, "Nonparametric Filters" ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links)

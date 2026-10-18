@@ -9,6 +9,9 @@ tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, u
 
 As described in the [Creating your own Gazebo ROS Package](http://gazebosim.org/tutorials?tut=ros_roslaunch#CreatingyourownGazeboROSPackage), it is common in ROS to create a package that contains all the world files and launch files used with Gazebo. These files are located in a ROS package named `/MYROBOT_gazebo`. For DiffBot the package is named `diffbot_gazebo`. Another example that follows best pratices is `rrbot` which can be found in the [gazebo_ros_demos](https://github.com/ros-simulation/gazebo_ros_demos) repository.
 
+!!! tip "Simulation test"
+    CI drives DiffBot and Remo in this simulation on every pull request, without a display. [Simulation Test](development/simulation-test.md) shows how Gazebo, `gazebo_ros_control` and the controllers work together.
+
 ```console
 fjp@ubuntu:~/git/diffbot/ros/src$ catkin create pkg diffbot_gazebo
 Creating package "diffbot_gazebo" in "/home/fjp/git/diffbot/ros/src"...

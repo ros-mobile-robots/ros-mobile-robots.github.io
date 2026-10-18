@@ -44,7 +44,7 @@ ls devel                  # Show the resulting devel space
 ### ROS Control in Gazebo
 
 Two great resources to get the `diff_drive_controller` working inside Gazebo is the [Gazebo ROS Control Tutorial](http://gazebosim.org/tutorials?tut=ros_control)
-of [`rrbot`](https://github.com/ros-simulation/gazebo_ros_demos) and the [R2D2 ROS URDF Tutorial](http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo), especially the last section, [The Wheels on the Droid Go Round and Round](http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo#The_Wheels_on_the_Droid_Go_Round_and_Round).
+of [`rrbot`](https://github.com/ros-simulation/gazebo_ros_demos) and the [R2D2 ROS URDF Tutorial](http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo), especially the last section, [The Wheels on the Droid Go Round and Round](http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo#The_Wheels_on_the_Droid_Go_Round_and_Round). [Simulation Test](development/simulation-test.md) shows where the controllers run in Gazebo and on the real robot.
 
 To spawn DiffBot inside Gazebo, RViz and control it with the [`rqt_robot_steering`](http://wiki.ros.org/rqt_robot_steering) plugin, 
 launch the `diffbot.launch` inside the `diffbot_control` package:
