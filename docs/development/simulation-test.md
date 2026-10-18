@@ -3,7 +3,7 @@
 [`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) has a simulation test: it drives DiffBot and Remo in [Gazebo Classic 11](https://classic.gazebosim.org/), the simulator that ROS Noetic uses, and checks where they went. Both [CI workflows](ci.md#diffbot) run it on every pull request ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110)). It catches mistakes in the robot model and the controller configuration, which the simulation shares with the real robot:
 
 - **Left and right wheel joints swapped:** the robot turns right when it's told to turn left.
-- **A wheel radius in the controller configuration that doesn't match the robot model:** the robot's odometry reports a different distance than the robot drove.
+- **A wheel radius in the controller configuration that doesn't match the robot model:** the odometry can still report about the expected distance while the robot drives a different one.
 - **A wrong joint name:** the controller doesn't start, and nothing is published.
 
 You need the [dev container](dev-container.md) with its workspace `~/catkin_ws` built and sourced, as the container's setup leaves it. This page first shows how to run the test and read its results, then how it works and its code step by step, then why the results differ from the commands, and finally how to add a test of your own.
@@ -88,11 +88,37 @@ The test compares what the robot should do with what it did, seen in two ways:
 | The odometry | `/diffbot/mobile_base_controller/odom` | diff_drive_controller | The pose that the controller computes from the wheel angles, with the wheel radius and separation from [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) |
 | The true pose | `/gazebo/model_states` | Gazebo's ROS interface, not ros_control | The pose of every model in Gazebo's world, from the physics simulation |
 
-`/diffbot/joint_states`, published by `joint_state_controller`, has each wheel's angle (rad) and velocity (rad/s). `test_drive.py` doesn't use it: to get a pose from the wheel angles, it would have to repeat the controller's calculation, with the same wheel radius and separation, and so it would repeat the same configuration mistakes.
+**Three comparisons.** The test compares each measurement with the expected motion, and the two measurements with each other:
 
-The true pose comes from the physics instead, so it shows where the simulated robot really went, including the slip of the wheels. That's how the test catches swapped wheel joints. The controller sends the left wheel's command to the right wheel, so the robot turns right. But it also reads the right wheel's angle as the left one's, so its odometry still reports the commanded left turn.
+| Comparison | Question it answers | Example failure | Tolerance |
+|:--|:--|:--|:--|
+| Odometry and expected motion | Does the motion that the controller computes from the wheels follow the command? | The odometry reports no motion, or the wrong direction or distance | Wide: it allows for how the drive responds to the command |
+| True pose and expected motion | Does the robot really drive it? | It turns the wrong way, drives off to the side, or drives a clearly wrong distance | Wide, for the same reason |
+| Odometry and true pose | Do the reported and the real motion agree? | They differ in distance or turn, for example because of the wheel geometry or slip | Narrower: based on how far apart they are in normal runs |
 
-"True" means the pose of the robot model in Gazebo, not of the real robot. A passing test shows that the robot model and the controller configuration work together in the simulation; it doesn't calibrate the real robot.
+The comparisons overlap, and a failed one doesn't name the cause. The agreement checks compare the distance in `test_forward()` and the turn in `test_turn()`. If no odometry arrives at all, for example because the controller didn't start, the test fails before it drives: `setUpClass()` waits for the first message ([Connecting to the robot][s3]).
+
+**Why the odometry alone can miss configuration errors.** The controller uses its configuration twice: on the way out, to turn the command into wheel speeds, and on the way back, to turn the wheel angles into the odometry. A wrong wheel radius can cancel out:
+
+--8<-- "includes/simulation-test-wheel-radius.html"
+
+For a straight drive at $v$ for the time $t$, with the configured radius $r_\text{cfg}$ and the model's radius $r_\text{model}$, and assuming that the wheels follow their speed command exactly and don't slip, the wheels turn by the angle $\Delta\phi$ (rad), and:
+
+$$
+\begin{aligned}
+\Delta\phi &= \frac{v\,t}{r_\text{cfg}} \\
+s_\text{odom} &= r_\text{cfg}\,\Delta\phi = v\,t \\
+s_\text{true} &= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_\text{cfg}}
+\end{aligned}
+$$
+
+A configured radius that's too big makes the controller command fewer wheel turns. Multiplied by the same too-big radius, they still give the expected distance in the odometry, while the model's smaller wheels roll less far. So only the comparisons with the true pose can show it. The wheel separation cancels the same way in the odometry of a turn. Swapped wheel joints cancel too: the controller sends the left wheel's command to the right wheel, so the robot turns right, but it also reads the right wheel's angle as the left one's, so its odometry still reports the commanded left turn.
+
+`/diffbot/joint_states`, published by `joint_state_controller`, has each wheel's angle (rad) and velocity (rad/s). The test doesn't use it: a pose computed from it with the same wheel radius, separation and joint names would repeat the same mistakes.
+
+**Why the agreement checks can be narrower.** Both measurements observe the same drive, so the timing and the wheel speed affect both. Their difference is usually smaller than either one's difference from the expected motion; the wheel geometry and slip still make them disagree ([Why the odometry and the true pose differ](#why-the-odometry-and-the-true-pose-differ)).
+
+**What a pass shows.** "True" means the pose of the robot model in Gazebo, not of the real robot. A passing test shows that the robot model and the controller configuration work together in the simulation; it doesn't calibrate the real robot. The tolerances allow what the robots measure in normal runs and reject the mistakes that were tried on purpose, but smaller mistakes may pass ([the checks][s-checks]).
 
 ### On the real robot
 
@@ -253,14 +279,16 @@ The matrix is the transpose of the rotation matrix $R(\theta_0)$, which turns a 
 
 `test_forward()` expects the robot to drive `FORWARD_VELOCITY * DURATION`, 0.2 m/s for 3 s, so 0.6 m straight ahead. This is the simplest case of the velocity motion model, $v \cdot t$ with no turn ([Robot Motion](../theory/state-estimation/robot-motion.md#velocity-motion-model)).
 
-`assertAlmostEqual(measured, expected, delta=d)` passes when the two differ by at most `d`. Each tolerance lies between what the robots measure in Gazebo and what a mistake would give. The loop checks the odometry and the true pose the same way, and the last check compares them:
+`assertAlmostEqual(measured, expected, delta=d)` passes when the two differ by at most `d`. The tolerances allow what the robots measure in Gazebo and reject the mistakes that were tried on purpose; smaller mistakes may pass. The loop checks the odometry and the true pose the same way, and the last check compares them ([the three comparisons](#three-views-of-the-motion)):
 
 | Check | Expected | Measured | Fails when |
 |:--|:--|:--|:--|
 | `forward` | 0.6 ± 0.1 m | 0.57 to 0.62 m | The robot doesn't move, or drives much too slow or too fast |
 | `left` | 0 ± 0.1 m | About 1 mm | It drives off to the side |
 | `turned` | 0 ± 0.2 rad | 0.005 rad or less | Its heading changes, for example because one wheel turns slower |
-| Odometry and true `forward` | Within 0.05 m | About 0.01 m apart | The controller's wheel radius doesn't match the model: 20 % too big gave 0.09 m |
+| Odometry and true `forward` | Within 0.03 m | 0.010 to 0.011 m apart | The controller's wheel radius doesn't match the model: a `wheel_radius` 10 % bigger or smaller than the configured 0.0325 m gave about 0.044 m and 0.076 m |
+
+A big mistake fails earlier. With a `wheel_radius` 20 % bigger than configured, the true pose showed only 0.49 m, outside 0.6 ± 0.1 m. So the true pose's `forward` check failed, and unittest didn't reach the agreement check, because it stops a test method at its first failed assertion. The odometry still showed 0.58 m.
 
 [Why the results differ from the commands](#why-the-results-differ-from-the-commands) explains why the robots drive 0.57 to 0.62 m instead of 0.6 m.
 
@@ -278,7 +306,7 @@ It commands the angular velocity instead of the linear one and expects 0.5 rad/s
 |:--|:--|:--|:--|
 | `turned` | 1.5 ± 1.0 rad | DiffBot about 1.3 rad, Remo 0.92 to 1.34 rad | The robot turns right, for example with swapped wheel joints, or doesn't turn |
 | Distance from the start | 0 ± 0.15 m | Odometry below 0.01 m, true pose 0.02 to 0.04 m | It drives off instead of turning on the spot |
-| Odometry and true `turned` | Within 0.25 rad | 0.02 to 0.11 rad apart | The wheel radius doesn't match the model: 20 % too big gave up to 0.31 rad |
+| Odometry and true `turned` | Within 0.25 rad | 0.02 to 0.11 rad apart | They turn clearly differently. A `wheel_radius` 15 % bigger than configured gave 0.27 rad for DiffBot, which fails, but only 0.11 rad for Remo, which passes |
 
 The robots turn clearly less than 1.5 rad, and Remo's turn varies between runs, so the tolerance is wide until the simulation's wheel controllers are tuned ([Why the results differ from the commands](#why-the-results-differ-from-the-commands)).
 
@@ -303,7 +331,7 @@ The odometry only knows how far the wheels turned, and converts that with the wh
 - **The configured geometry doesn't match the URDF.** Both robots use `diffbot_control.yaml`, with a wheel radius of 0.0325 m and a wheel separation of 0.145 m. The URDFs have a wheel radius of 0.0331 m, and a separation of 0.135 m for DiffBot and 0.139 m for Remo. The simulated wheel rolls 1.8 % farther per turn than the odometry assumes, so the odometry's 0.580 m become 0.590 m.
 - **The odometry can't see slip.** With the configured geometry, DiffBot's wheel turns give 1.37 rad, which is what its odometry reports. With the URDF's geometry, the same wheel turns would turn the robot about 1.50 rad, but the simulated robot turned only 1.26 rad: about 16 % of the wheels' motion slipped. When the robot drives straight, the wheels hardly slip.
 
-The checks that compare the odometry and the true pose allow these differences, but not those of a wheel radius that is 20 % off.
+The checks that compare the odometry and the true pose allow these differences. [Three views of the motion](#three-views-of-the-motion) explains why a wrong configuration can stay hidden in the odometry, and [the checks][s-checks] what the agreement checks rejected.
 
 ### Why the robots and repeated runs differ
 
@@ -328,7 +356,7 @@ As an example, this adds a test that drives backward. It runs for both robots, b
             self.assertAlmostEqual(motion.forward, expected_forward, delta=0.1)
             self.assertAlmostEqual(motion.left, 0.0, delta=0.1)
             self.assertAlmostEqual(motion.turned, 0.0, delta=0.2)
-        self.assertAlmostEqual(odom_motion.forward, true_motion.forward, delta=0.05)
+        self.assertAlmostEqual(odom_motion.forward, true_motion.forward, delta=0.03)
     ```
 
     A negative linear velocity drives backward, so `forward` is negative: −0.6 m are expected. The tolerances are copied from `test_forward()` for a start. The method's name must start with `test`, so that unittest runs it. unittest runs it first, before `test_forward()`, because of the alphabetical order; that's fine, because each test checks only its own motion.
@@ -344,7 +372,7 @@ As an example, this adds a test that drives backward. It runs for both robots, b
 
 3. **Look at the measured values** in the result file, as in [Read the results](#read-the-results). The first two lines are now `test_backward()`'s motions. In our run, DiffBot drove −0.57 m by the odometry and −0.58 m by the true pose, and turned 0.1 rad to the right on the way, more than when it drives forward. Remo drove −0.58 and −0.59 m, almost without turning.
 
-4. **Choose the tolerances.** Each tolerance should lie between what both robots measure and what a mistake would give. To see what a mistake gives, make one on purpose: for example, make `wheel_radius` in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) 20 % bigger, run the test again, look at the values, and undo the change. Then set each tolerance between the two, and write in a comment what you measured.
+4. **Choose the tolerances.** Each tolerance should allow what both robots measure and reject the mistakes the test should catch. To see what a mistake gives, make one on purpose: for example, make `wheel_radius` in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) 10 % bigger, run the test again, look at the values, and undo the change. Then set each tolerance between the two, and write in a comment what you measured.
 
 5. **Keep the file's style:** [PEP 8](https://peps.python.org/pep-0008/) with ROS 2's line length of 99 characters ([ament_flake8's settings](https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini)), [type hints](https://docs.python.org/3/library/typing.html), and named constants instead of bare numbers in the commands.
 

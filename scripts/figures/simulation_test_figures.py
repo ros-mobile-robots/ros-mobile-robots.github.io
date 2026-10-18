@@ -6,6 +6,8 @@ dark colors:
   robot) in two content tabs, and the styles for all figures;
 - includes/simulation-test-relative-pose.html: the relative pose that test_drive.py's
   relative_pose() computes. It uses the styles from the first include, on the same page;
+- includes/simulation-test-wheel-radius.html: why the odometry alone can miss a wrong wheel radius,
+  also with the styles from the first include;
 - includes/odometry-motion-model.html: the motion between two poses in the odometry motion model
   of Probabilistic Robotics, for Robot Motion, with its own copy of the styles.
 
@@ -283,3 +285,29 @@ caption = ("The end pose relative to the start pose, in the robot's frame at the
            "and to the left, and the angle it turned.")
 open("includes/simulation-test-relative-pose.html", "w").write(
     f'<figure class="rc-single">\n{rp.svg("rc-relpose")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
+
+# Why the odometry alone can miss a wrong wheel radius: the controller uses its configured radius
+# on the way out and on the way back, the model rolls on its own
+wr = Fig(318, "The configured wheel radius on the way to the wheels and back to the odometry")
+wr.box(90, 6, 180, 36, "n", [("commanded speed v", "t-node"), ("m/s, from cmd_vel", "t-sub")])
+wr.path("M180,42 V84", "ab")
+wr.sub(188, 67, "÷ r", "cfg", "t-blue")
+wr.box(90, 84, 180, 36, "c-shared", [("wheel speed command", "t-node"), ("rad/s, diff_drive_controller", "t-sub")])
+wr.path("M180,120 V162")
+wr.text(188, 139, "wheel velocity control,", "t-flow")
+wr.text(188, 151, "for the drive's duration", "t-flow")
+wr.box(90, 162, 180, 36, "n", [("wheel rotation Δφ", "t-node"), ("rad, of the wheel joint", "t-sub")])
+wr.path("M150,198 V216 H90 V258", "ab")
+wr.sub(84, 242, "× r", "cfg", "t-blue", "end")
+wr.path("M210,198 V216 H270 V258")
+wr.sub(276, 236, "× r", "model", "t-pt")
+wr.text(276, 249, "rolling, no slip", "t-flow")
+wr.box(10, 258, 160, 44, "c-shared", [("odometry distance", "t-node"), ("diff_drive_controller", "t-sub")])
+wr.box(190, 258, 160, 44, "hw", [("distance the model rolls", "t-node"), ("Gazebo physics, ideally", "t-sub")])
+
+caption = ("The configured radius <span class=\"arithmatex\">\\(r_\\text{cfg}\\)</span> from "
+           "<code>diffbot_control.yaml</code> is used twice on the way to the odometry, the model's "
+           "radius <span class=\"arithmatex\">\\(r_\\text{model}\\)</span> from the URDF once on the "
+           "way to the true pose.")
+open("includes/simulation-test-wheel-radius.html", "w").write(
+    f'<figure class="rc-single">\n{wr.svg("rc-radius")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
