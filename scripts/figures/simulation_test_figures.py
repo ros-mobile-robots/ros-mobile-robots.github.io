@@ -1,11 +1,13 @@
-"""Generate the figures on docs/development/simulation-test.md, as inline SVG that follows the
-site's light and dark colors:
+"""Generate the figures on docs/development/simulation-test.md and
+docs/theory/state-estimation/robot-motion.md, as inline SVG that follows the site's light and
+dark colors:
 
 - includes/simulation-test-figures.html: the two ros_control figures (simulation test and real
-  robot) in two content tabs, and the styles for all figures on the page;
-- includes/simulation-test-moved.html: the relative motion that test_drive.py's relative_motion()
-  computes, as in the odometry motion model of Probabilistic Robotics. It uses the styles from
-  the first include, on the same page.
+  robot) in two content tabs, and the styles for all figures;
+- includes/simulation-test-relative-pose.html: the relative pose that test_drive.py's
+  relative_pose() computes. It uses the styles from the first include, on the same page;
+- includes/odometry-motion-model.html: the motion between two poses in the odometry motion model
+  of Probabilistic Robotics, for Robot Motion, with its own copy of the styles.
 
 The tabs are written as HTML, in the markup pymdownx.tabbed produces with alternate_style:
 inside a "===" tab the include would be indented, and Markdown would wrap the SVG in a
@@ -114,10 +116,10 @@ top(sim, "test_drive.py", "publishtest", branch=True)
 controllers(sim)
 hw_arrows(sim)
 sim.box(38, 290, 290, 56, "n", [("Hardware interface", "t-node"), ("DefaultRobotHWSim", "t-mono"), ("readSim(), writeSim()", "t-sub")])
-sim.path("M200,346 V444")
-sim.text(194, 384, "commands", "t-flow", "end")
-sim.path("M270,444 V346")
-sim.text(276, 384, "joint states", "t-flow")
+sim.path("M200,444 V346")
+sim.text(194, 384, "joint states", "t-flow", "end")
+sim.path("M270,346 V444")
+sim.text(276, 384, "commands", "t-flow")
 sim.box(38, 444, 290, 48, "hw", [("Physics", "t-node"), ("robot model from the URDF", "t-sub")])
 sim.path("M38,468 H12 V40 H30")
 sim.text(16, 86, "model_states")
@@ -184,14 +186,14 @@ out = (STYLE + f'\n<div class="tabbed-set tabbed-alternate rc-figs" data-tabs="r
        + f'<div class="tabbed-labels">{labels}</div>\n<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
 open("includes/simulation-test-figures.html", "w").write(out)
 
-# relative_motion() in test_drive.py: the odometry motion model's rot1, trans, rot2
+# Robot Motion: the odometry motion model's rot1, trans, rot2
 mv = Fig(262, "The motion between two poses as a rotation, a translation and a rotation")
 O = (36, 228)
 mv.path(f"M{O[0]},{O[1]} H340")  # x axis
 mv.path(f"M{O[0]},{O[1]} V16")  # y axis
 mv.text(338, 244, "x", "t-pt", "end")
 mv.text(24, 24, "y", "t-pt", "end")
-mv.text(O[0], 256, "x, y: the frame of the poses (odometry or Gazebo world)", "t-sub")
+mv.text(O[0], 256, "x, y: the frame of the poses, for example the odometry frame", "t-sub")
 
 
 def pt(p):
@@ -231,8 +233,51 @@ mv.dot(*p1)
 mv.text(p0[0] - 46, p0[1] + 20, "start (x\u2080, y\u2080, \u03b8\u2080)", "t-pt")
 mv.text(p1[0] + 12, p1[1] + 14, "end (x\u2081, y\u2081, \u03b8\u2081)", "t-pt")
 
-caption = ("The motion from the start to the end pose, as in the odometry motion model of "
-           "<em>Probabilistic Robotics</em>: rotate by &delta;<sub>rot1</sub>, drive straight for "
-           "&delta;<sub>trans</sub>, rotate by &delta;<sub>rot2</sub>.")
-open("includes/simulation-test-moved.html", "w").write(
-    f'<figure class="rc-single">\n{mv.svg("rc-motion")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
+caption = ("The motion from the start to the end pose in the odometry motion model: rotate by "
+           "&delta;<sub>rot1</sub>, drive straight for &delta;<sub>trans</sub>, rotate by "
+           "&delta;<sub>rot2</sub>.")
+open("includes/odometry-motion-model.html", "w").write(
+    STYLE + f'\n<figure class="rc-single">\n{mv.svg("rc-motion")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
+
+# relative_pose() in test_drive.py: the end pose in the robot's frame at the start
+rp = Fig(262, "The end pose relative to the start pose, in the robot's frame at the start")
+O = (36, 240)
+rp.path(f"M{O[0]},{O[1]} H340")  # x axis
+rp.path(f"M{O[0]},{O[1]} V16")  # y axis
+rp.text(338, 254, "x", "t-pt", "end")
+rp.text(24, 24, "y", "t-pt", "end")
+rp.text(O[0], 256, "x, y: the frame of the poses (odometry or Gazebo world)", "t-sub")
+theta0, turned = 20, 55
+forward, left = 180, 85
+p0 = (100, 205)
+foot = along(p0, theta0, forward)
+p1 = along(foot, theta0 + 90, left)
+# The robot's frame at the start: x_r along its heading, y_r to its left
+rp.path(f"M{pt(along(p0, theta0, 6))} L{pt(along(p0, theta0, 240))}", "am")
+rp.sub(*along(p0, theta0 - 4, 246), "x", "r", "t-pt")
+rp.path(f"M{pt(along(p0, theta0 + 90, 6))} L{pt(along(p0, theta0 + 90, 150))}", "am")
+rp.sub(*along(p0, theta0 + 94, 150), "y", "r", "t-pt", "end")
+# theta0, the start heading in the frame of the poses
+rp.path(f"M{pt(p0)} L{pt(along(p0, 0, 44))}", "am")
+rp.path(arc(p0, 0, theta0, 34), "ab2")
+rp.text(*along(p0, theta0 / 2 - 6, 50), "\u03b8\u2080", "t-pt")
+# forward and left: the displacement along x_r and y_r
+rp.path(f"M{pt(along(p0, theta0, 6))} L{pt(foot)}", "ab")
+rp.text(*along(along(p0, theta0, forward / 2 + 20), theta0 - 90, 22), "forward", "t-blue", "middle")
+rp.path(f"M{pt(foot)} L{pt(along(foot, theta0 + 90, left - 6))}", "ab")
+rp.text(*along(along(foot, theta0 + 90, left / 2), theta0, 10), "left", "t-blue")
+# turned: from the start heading (dotted, parallel to x_r) to the end heading
+rp.path(f"M{pt(p1)} L{pt(along(p1, theta0, 50))}", "am")
+rp.path(f"M{pt(p1)} L{pt(along(p1, theta0 + turned, 48))}")
+rp.path(arc(p1, theta0, theta0 + turned, 32), "ab2")
+rp.text(*along(p1, theta0 + turned / 2, 40), "turned", "t-blue")
+rp.dot(*p0)
+rp.dot(*p1)
+rp.text(p0[0] - 40, p0[1] + 22, "start (x\u2080, y\u2080, \u03b8\u2080)", "t-pt")
+rp.text(p1[0] - 10, p1[1] + 4, "end (x\u2081, y\u2081, \u03b8\u2081)", "t-pt", "end")
+
+caption = ("The end pose relative to the start pose, in the robot's frame at the start "
+           "(x<sub>r</sub>, y<sub>r</sub>): how far the robot moved forward and to the left, "
+           "and the angle it turned.")
+open("includes/simulation-test-relative-pose.html", "w").write(
+    f'<figure class="rc-single">\n{rp.svg("rc-relpose")}\n<figcaption>{caption}</figcaption>\n</figure>\n')

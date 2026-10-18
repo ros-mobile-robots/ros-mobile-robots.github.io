@@ -211,6 +211,7 @@ nav:
     - State Estimation:
       # - Gaussian Filters (Kalman Filter): theory/state-estimation/gaussian-filters.md  # planned, not written yet
       - Nonparametric Filters (Particle Filter): theory/state-estimation/nonparametric-filters.md
+      - Robot Motion: theory/state-estimation/robot-motion.md
     - Localization:
       - Markov and Gaussian Localization: theory/localization/markov-and-gaussian-localization.md
       # - Grid and Monte Carlo Localization: theory/localization/grid-and-monte-carlo-localization.md  # planned, not written yet
