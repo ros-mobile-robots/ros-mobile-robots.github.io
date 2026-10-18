@@ -4815,7 +4815,7 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <p><code>test_forward()</code> calls <code>measure_motion()</code>, which calls <code>drive()</code>, <code>stop()</code> and, once for the odometry and once for the true pose, <code>relative_pose()</code>. Then <code>test_forward()</code> checks the two motions it got back. While this runs, the subscriber callbacks keep the latest odometry pose and true pose up to date in the background. <code>test_turn()</code> uses the same <code>measure_motion()</code>.</p>
 <p>The code blocks show the files at the diffbot commit that this page pins, with their comments, and the line numbers are the files'. The link above each block opens the same lines on GitHub.</p>
 <h3 id="1-the-test-file">1. The test file</h3>
-<p>A <code>.test</code> file is a launch file for rostest. <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/sim_drive_diffbot.test"><code>sim_drive_diffbot.test</code></a>:</p>
+<p>A <code>.test</code> file is a launch file for rostest. <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/sim_drive_diffbot.test"><code>sim_drive_diffbot.test</code></a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_drive_diffbot.test</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4869,7 +4869,7 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <p>rostest turns each <code>&lt;test&gt;</code> element into a test of its own and runs them one after another, in alphabetical order of their names: first <code>drive_diffbot</code>, then <code>publish_diffbot</code>. For each one, it starts a ROS master, launches everything in the file that isn't a test node, here <code>sim_drive.launch</code> (<a href="#2-the-launch-file">step 2</a>), and runs the test node until it ends. Then it reads the node's results and stops everything again (<a href="https://github.com/ros/ros_comm/blob/noetic-devel/tools/rostest/src/rostest/runner.py"><code>runner.py</code></a>). So each test node gets a freshly started Gazebo, and the two don't affect each other. <code>time-limit</code> is how long rostest waits for a node before it counts the test as failed.</p>
 <p><code>sim_drive_remo.test</code> differs only in the robot model, the port and the test names.</p>
 <h3 id="2-the-launch-file">2. The launch file</h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/sim_drive.launch"><code>sim_drive.launch</code></a> starts the robot in Gazebo and its controllers:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/sim_drive.launch"><code>sim_drive.launch</code></a> starts the robot in Gazebo and its controllers:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_drive.launch</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4920,13 +4920,8 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 </ul>
 <p><a href="#how-it-works">How it works</a> shows how these parts work together.</p>
 <h3 id="3-connecting-to-the-robot">3. Connecting to the robot</h3>
-<p>rostest starts <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a> as a ROS node. Its last line, <code>rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)</code>, runs the <a href="https://docs.python.org/3/library/unittest.html">unittest</a> class <code>TestDrive</code> and writes the results to a file that rostest reads. unittest calls <code>setUpClass()</code> once, then the test methods. <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L108-L128"><code>test_drive.py</code>, lines 108–128</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: TestDrive.setUpClass()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
+<p>rostest starts <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a> as a ROS node. Its last line, <code>rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)</code>, runs the <a href="https://docs.python.org/3/library/unittest.html">unittest</a> class <code>TestDrive</code> and writes the results to a file that rostest reads. unittest calls <code>setUpClass()</code> once, then the test methods. <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L113-L133"><code>test_drive.py</code>, lines 113–133</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: TestDrive.setUpClass()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
@@ -4941,7 +4936,12 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
-<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestDrive</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestDrive</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Drive tests for the robot that the rostest file starts in Gazebo."""</span>
 
     <span class="c1"># Set in setUpClass() and in the subscriber callbacks. They belong to the class, not to a</span>
@@ -4969,18 +4969,18 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <li>The two subscribers call <code>on_odom()</code> for each odometry message, and <code>on_model_states()</code> for each <code>model_states</code> message. Gazebo publishes <code>model_states</code> in every simulation step, so <code>queue_size=1</code> keeps only the newest message instead of falling behind.</li>
 <li><code>rospy.wait_for_message()</code> waits for the first message on a topic. If none comes within the timeout, it raises an exception and the tests fail, for example when the controller doesn't start because of a wrong joint name.</li>
 </ul>
-<p>The callbacks, <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L130-L140">lines 130–140</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: the subscriber callbacks</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
+<p>The callbacks, <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L135-L145">lines 135–145</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: the subscriber callbacks</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">on_odom</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Odometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">cls</span><span class="o">.</span><span class="n">odom_pose</span> <span class="o">=</span> <span class="n">to_pose2d</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">pose</span><span class="p">)</span>
 
@@ -4993,17 +4993,17 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
         <span class="bp">cls</span><span class="o">.</span><span class="n">true_pose</span> <span class="o">=</span> <span class="n">to_pose2d</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">pose</span><span class="p">[</span><span class="n">msg</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">MODEL_NAME</span><span class="p">)])</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>rospy calls them in background threads whenever a message arrives, so <code>odom_pose</code> and <code>true_pose</code> always hold the latest pose. <code>msg.name.index(MODEL_NAME)</code> finds the robot's position in the list of model names, and its pose is at the same position in <code>msg.pose</code>.</p>
-<p>Both convert the ROS pose to a <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L44-L49"><code>Pose2D</code></a>, a <a href="https://docs.python.org/3/library/typing.html#typing.NamedTuple">named tuple</a> with <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> and the heading <span class="arithmatex">\(\theta\)</span>, as on <a href="../../theory/modeling-control/robot-representations/#robot-pose">Robot Representations</a>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L64-L73">Lines 64–73</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: to_pose2d()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
+<p>Both convert the ROS pose to a <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L47-L52"><code>Pose2D</code></a>, a <a href="https://docs.python.org/3/library/typing.html#typing.NamedTuple">named tuple</a> with <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> and the heading <span class="arithmatex">\(\theta\)</span>, as on <a href="../../theory/modeling-control/robot-representations/#robot-pose">Robot Representations</a>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L69-L78">Lines 69–78</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: to_pose2d()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">to_pose2d</span><span class="p">(</span><span class="n">pose</span><span class="p">:</span> <span class="n">Pose</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pose2D</span><span class="p">:</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">to_pose2d</span><span class="p">(</span><span class="n">pose</span><span class="p">:</span> <span class="n">Pose</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pose2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Convert a geometry_msgs/Pose to a Pose2D.</span>
 
 <span class="sd">    ROS messages give the orientation as a quaternion. euler_from_quaternion converts it to roll,</span>
@@ -5016,16 +5016,16 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 </code></pre></div></td></tr></tbody></table></div>
 <p>A <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">quaternion</a> has four numbers that describe any rotation in 3D, without the special cases of three angles (<a href="http://wiki.ros.org/tf2/Tutorials/Quaternions">tf2 quaternion tutorial</a>). ROS's axes and angles follow <a href="https://www.ros.org/reps/rep-0103.html">REP 103</a>: x forward, y to the left, z up, and the yaw grows when the robot turns to the left.</p>
 <h3 id="4-test_forward">4. <code>test_forward()</code></h3>
-<p>The constants at the top of the file name the commands, <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L33-L41">lines 33–41</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: the commands</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
+<p>The constants at the top of the file name the commands, <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L36-L44">lines 36–44</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: the commands</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># The two tests' commands, each sent for DURATION seconds of simulation time</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># The two tests' commands, each sent for DURATION seconds of simulation time</span>
 <span class="n">DURATION</span> <span class="o">=</span> <span class="mf">3.0</span>  <span class="c1"># s</span>
 <span class="n">FORWARD_VELOCITY</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># m/s</span>
 <span class="n">TURN_VELOCITY</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># rad/s</span>
@@ -5035,13 +5035,8 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <span class="c1"># A late wake-up or message can add more; the tolerances leave room for it</span>
 <span class="n">COMMAND_RATE</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># Hz</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>test_forward()</code>, with the comment before the two tests, <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L174-L193">lines 174–193</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: test_forward()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
+<p><code>test_forward()</code>, with the comment before the two tests, <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L179-L198">lines 179–198</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: test_forward()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span>
@@ -5055,7 +5050,12 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <span class="normal">190</span>
 <span class="normal">191</span>
 <span class="normal">192</span>
-<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># unittest runs the test methods in alphabetical order, here forward and then turn. Each one</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># unittest runs the test methods in alphabetical order, here forward and then turn. Each one</span>
 <span class="c1"># checks only its own motion, from wherever the robot is when it starts, so neither depends</span>
 <span class="c1"># on the other. Each check compares a measured value with the expected one, within a</span>
 <span class="c1"># tolerance that lies between what the robot measures in Gazebo and what a mistake would give</span>
@@ -5078,13 +5078,8 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 </code></pre></div></td></tr></tbody></table></div>
 <p>It has two parts. <code>measure_motion()</code> drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: <code>odom_motion</code> with the odometry, and <code>true_motion</code> with the true pose. Each one is a <code>RelativePose</code>, with how far the robot moved forward and to the left, and how much it turned (<a href="#relative_pose"><code>relative_pose()</code></a>). The rest are the checks (<a href="#the-checks">The checks</a>). The call names its arguments, so it reads without looking up <code>measure_motion()</code>.</p>
 <h4 id="measure_motion"><code>measure_motion()</code></h4>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L159-L172">Lines 159–172</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: measure_motion()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L164-L177">Lines 164–177</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: measure_motion()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
 <span class="normal">165</span>
 <span class="normal">166</span>
 <span class="normal">167</span>
@@ -5092,7 +5087,12 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <span class="normal">169</span>
 <span class="normal">170</span>
 <span class="normal">171</span>
-<span class="normal">172</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">measure_motion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angular_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">measure_motion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angular_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                    <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">RelativePose</span><span class="p">,</span> <span class="n">RelativePose</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Drive, and return the motion measured with the odometry and with the true pose.</span>
 
@@ -5109,18 +5109,18 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 </code></pre></div></td></tr></tbody></table></div>
 <p>It keeps the latest odometry pose and true pose as the start poses, drives (<a href="#drive"><code>drive()</code></a>), stops (<a href="#stop"><code>stop()</code></a>), and computes, for each source, where the robot ended up relative to where it started (<a href="#relative_pose"><code>relative_pose()</code></a>). The logged lines are the ones in <a href="#read-the-results">Read the results</a>.</p>
 <h4 id="drive"><code>drive()</code></h4>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L142-L152">Lines 142–152</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: drive()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L147-L157">Lines 147–157</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: drive()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
 <span class="normal">150</span>
 <span class="normal">151</span>
-<span class="normal">152</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">drive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angular_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">drive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angular_velocity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Send the velocity command (m/s, rad/s) for duration seconds of simulation time."""</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">Twist</span><span class="p">()</span>
     <span class="n">cmd</span><span class="o">.</span><span class="n">linear</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">linear_velocity</span>
@@ -5137,11 +5137,11 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <li><code>rospy.Time.now()</code> and <code>rospy.Rate</code> follow Gazebo's clock (<a href="#2-the-launch-file">step 2</a>), so <code>duration</code> and <code>COMMAND_RATE</code> are in simulation time. Why the command is sent 20 times per second is in the comment above <code>COMMAND_RATE</code>.</li>
 </ul>
 <h4 id="stop"><code>stop()</code></h4>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L154-L157">Lines 154–157</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: stop()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L159-L162">Lines 159–162</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: stop()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Send a zero velocity and wait a second for the robot to come to rest."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cmd_vel</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Twist</span><span class="p">())</span>
     <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
@@ -5179,7 +5179,7 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <figcaption>The end pose relative to the start pose, in the robot's frame at the start (<span class="arithmatex">\(x_r, y_r\)</span>): how far the robot moved forward and to the left, and the angle it turned.</figcaption>
 </figure>
 
-<p>With the displacement <span class="arithmatex">\(\Delta x = x_1 - x_0\)</span> and <span class="arithmatex">\(\Delta y = y_1 - y_0\)</span> in the frame of the poses, rotating it by <span class="arithmatex">\(-\theta_0\)</span> gives it in the robot's frame at the start:</p>
+<p>With the displacement <span class="arithmatex">\(\Delta x = x_1 - x_0\)</span> and <span class="arithmatex">\(\Delta y = y_1 - y_0\)</span> in the frame of the poses, rotating it by <span class="arithmatex">\(-\theta_0\)</span> gives it in the robot's frame at the start. A robot's x axis points forward and its y axis to the left (<a href="https://www.ros.org/reps/rep-0103.html">REP 103</a>), which gives the two parts their names:</p>
 <div class="arithmatex">\[
 \begin{bmatrix} \text{forward} \\ \text{left} \end{bmatrix}
 = \begin{bmatrix} \cos\theta_0 &amp; \sin\theta_0 \\ -\sin\theta_0 &amp; \cos\theta_0 \end{bmatrix}
@@ -5187,34 +5187,33 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 \]</div>
 <p>and the angle it turned is <span class="arithmatex">\(\text{turned} = \theta_1 - \theta_0\)</span>.</p>
 <p>The matrix is the transpose of the rotation matrix <span class="arithmatex">\(R(\theta_0)\)</span>, which turns a vector from the robot's frame into the frame of the poses; the transpose turns it back. This is the relative pose, a standard operation on poses: with homogeneous transforms, it is <span class="arithmatex">\(T_0^{-1} T_1\)</span> (Peter Corke, <em>Robotics, Vision and Control</em>, chapter 2, <a href="https://www.amazon.com/dp/3031064682?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/3031064682?tag=fjp-21">Amazon.de</a>, affiliate links). Moving or rotating the frame of the poses changes both poses the same way, so the relative pose stays the same, and the motion from the odometry and from the true pose can be compared.</p>
-<p><code>RelativePose</code> holds the three numbers, <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L52-L61">lines 52–61</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: RelativePose</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
+<p><code>RelativePose</code> holds the three numbers, <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L55-L66">lines 55–66</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: RelativePose</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RelativePose</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RelativePose</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A pose relative to an earlier one, in the robot's frame at the earlier pose.</span>
 
-<span class="sd">    forward and left (m) are along the robot's x and y axes at the earlier pose, and turned (rad)</span>
-<span class="sd">    is the change of its heading, positive to the left.</span>
+<span class="sd">    They are the x, y and theta of the later pose in that frame, named after the directions of a</span>
+<span class="sd">    robot's axes in ROS (REP 103): forward and left (m) are along the robot's x axis, which points</span>
+<span class="sd">    forward, and its y axis, which points to the left. turned (rad) is the change of its heading,</span>
+<span class="sd">    positive to the left.</span>
 <span class="sd">    """</span>
 
     <span class="n">forward</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">left</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">turned</span><span class="p">:</span> <span class="nb">float</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>relative_pose()</code> computes them, with <code>wrap()</code> for the angle, <a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L76-L105">lines 76–105</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: wrap() and relative_pose()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
+<p><code>relative_pose()</code> computes them, with <code>wrap()</code> for the angle, <a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L81-L110">lines 81–110</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: wrap() and relative_pose()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
 <span class="normal"> 82</span>
 <span class="normal"> 83</span>
 <span class="normal"> 84</span>
@@ -5238,7 +5237,12 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return the same angle in -pi..pi.</span>
 
 <span class="sd">    theta jumps from pi to -pi when the robot turns past 180 degrees, so a difference of two</span>
@@ -5312,13 +5316,8 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 </table>
 <p><a href="#why-the-results-differ-from-the-commands">Why the results differ from the commands</a> explains why the robots drive 0.57 to 0.62 m instead of 0.6 m.</p>
 <h3 id="5-test_turn">5. <code>test_turn()</code></h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/6cb0e6edfb90f85a12ac18f86c4ec508784a68ba/diffbot_gazebo/test/test_drive.py#L195-L210">Lines 195–210</a>. The highlighted lines are the ones that differ from <code>test_forward()</code>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: test_turn()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/535a9adf345ae3661c2384c68fbbdbf177c676b1/diffbot_gazebo/test/test_drive.py#L200-L215">Lines 200–215</a>. The highlighted lines are the ones that differ from <code>test_forward()</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: test_turn()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
 <span class="normal">201</span>
 <span class="normal">202</span>
 <span class="normal">203</span>
@@ -5328,7 +5327,12 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
-<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">odom_motion</span><span class="p">,</span> <span class="n">true_motion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure_motion</span><span class="p">(</span>
 <span class="hll">        <span class="n">linear_velocity</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">angular_velocity</span><span class="o">=</span><span class="n">TURN_VELOCITY</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">DURATION</span><span class="p">)</span>
 </span>    <span class="c1"># w * t = 1.5 rad to the left, on the spot. In Gazebo the robots turn less (DiffBot about</span>
