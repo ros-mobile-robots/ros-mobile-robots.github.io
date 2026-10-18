@@ -4202,14 +4202,14 @@
 
 
 <h1 id="robot-motion">Robot Motion</h1>
-<p>Chapter 5 of <em>Probabilistic Robotics</em> by Thrun, Burgard and Fox, "Robot Motion", describes how the pose of a robot that drives on the ground changes when it moves. The pose is the position x, y and the heading θ, as on <a href="../../modeling-control/robot-representations/#robot-pose">Robot Representations</a>. The book has two motion models:</p>
+<p>Chapter 5 of <em>Probabilistic Robotics</em> by Thrun, Burgard and Fox, "Robot Motion", describes how the pose of a robot that drives on the ground changes when it moves. The pose is the position <span class="arithmatex">\(x, y\)</span> and the heading <span class="arithmatex">\(\theta\)</span>, as on <a href="../../modeling-control/robot-representations/#robot-pose">Robot Representations</a>. The book has two motion models:</p>
 <ul>
 <li>The <strong>velocity motion model</strong> describes the motion with the velocities that the robot drives with.</li>
 <li>The <strong>odometry motion model</strong> describes the motion between two poses that the robot's odometry reports.</li>
 </ul>
-<p>In the book, both models are probabilistic: they add noise that describes how uncertain the motion is, because a filter such as the <a href="../nonparametric-filters/">particle filter</a> needs it. This page shows the core of each model without noise, and where DiffBot's ROS packages use it: diff_drive_controller computes the odometry with the velocity motion model, and amcl moves its particles with the odometry motion model.</p>
+<p>In the book, both models are probabilistic: they add noise that describes how uncertain the motion is, because a filter such as the <a href="../nonparametric-filters/">particle filter</a> needs it. This page shows the core of each model without noise, and where DiffBot's ROS packages use it: diff_drive_controller computes the odometry with the velocity motion model, and amcl moves its particles with the odometry motion model. The code excerpts are from ROS Noetic's <a href="https://github.com/ros-controls/ros_controllers/blob/c2348e85abf35cf33cf654a84d61db206abe9a73">ros_controllers</a> and <a href="https://github.com/ros-planning/navigation/blob/f44bb1fc2810399165115cc98b530fe4b9397c18">navigation</a> repositories, at the commits the links point to.</p>
 <h2 id="velocity-motion-model">Velocity motion model</h2>
-<p>A differential drive robot gets two velocities as its command: a linear velocity v along its heading, and an angular velocity ω, positive to the left. While v and ω stay constant, the robot drives on a circular arc of radius r = v / ω. After a time Δt, it ends at (section 5.3 of the book):</p>
+<p>A differential drive robot gets two velocities as its command: a linear velocity <span class="arithmatex">\(v\)</span> along its heading, and an angular velocity <span class="arithmatex">\(\omega\)</span>, positive to the left. While <span class="arithmatex">\(v\)</span> and <span class="arithmatex">\(\omega\)</span> stay constant, the robot drives on a circular arc of radius <span class="arithmatex">\(r = v/\omega\)</span>. After a time <span class="arithmatex">\(\Delta t\)</span>, it ends at (section 5.3 of the book):</p>
 <div class="arithmatex">\[
 \begin{aligned}
 x' &amp;= x - \frac{v}{\omega}\sin\theta + \frac{v}{\omega}\sin(\theta + \omega\,\Delta t) \\
@@ -4219,70 +4219,92 @@ y' &amp;= y + \frac{v}{\omega}\cos\theta - \frac{v}{\omega}\cos(\theta + \omega\
 \]</div>
 <p>There are two special cases:</p>
 <ul>
-<li><strong>ω = 0:</strong> the robot drives straight, by v Δt in the direction θ. The equations above would divide by 0 here; in the limit they become x' = x + v Δt cos θ and y' = y + v Δt sin θ.</li>
-<li><strong>v = 0:</strong> the robot turns on the spot, by ω Δt.</li>
+<li><strong><span class="arithmatex">\(\omega = 0\)</span>:</strong> the robot drives straight, by <span class="arithmatex">\(v\,\Delta t\)</span> in the direction <span class="arithmatex">\(\theta\)</span>. The equations above would divide by 0 here; in the limit they become <span class="arithmatex">\(x' = x + v\,\Delta t\cos\theta\)</span> and <span class="arithmatex">\(y' = y + v\,\Delta t\sin\theta\)</span>.</li>
+<li><strong><span class="arithmatex">\(v = 0\)</span>:</strong> the robot turns on the spot, by <span class="arithmatex">\(\omega\,\Delta t\)</span>.</li>
 </ul>
-<p>The <a href="../../../development/simulation-test/">Simulation Test</a> uses these two cases for its expected values: 0.2 m/s for 3 s is 0.6 m straight ahead, and 0.5 rad/s for 3 s is 1.5 rad on the spot.</p>
-<p>The book adds noise to v and ω, and a small extra rotation at the end, so that a noisy end pose isn't confined to arcs.</p>
+<p>The <a href="../../../development/simulation-test/#the-checks">Simulation Test</a> uses these two cases for its expected values: 0.2 m/s for 3 s is 0.6 m straight ahead, and 0.5 rad/s for 3 s is 1.5 rad on the spot.</p>
+<p>The book adds noise to <span class="arithmatex">\(v\)</span> and <span class="arithmatex">\(\omega\)</span>, and a small extra rotation at the end, so that a noisy end pose isn't confined to arcs.</p>
 <h3 id="in-diff_drive_controller">In diff_drive_controller</h3>
-<p><a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a> computes DiffBot's odometry (see <a href="../../../development/simulation-test/#2-sim_drivelaunch-starts-gazebo-and-the-controllers">Simulation Test</a> for where it runs). In each control cycle, <a href="https://github.com/ros-controls/ros_controllers/blob/noetic-devel/diff_drive_controller/src/odometry.cpp"><code>Odometry::update()</code></a> gets the wheel joint positions in rad, <code>left_pos</code> and <code>right_pos</code>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">left_wheel_cur_pos</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">left_pos</span><span class="w">  </span><span class="o">*</span><span class="w"> </span><span class="n">left_wheel_radius_</span><span class="p">;</span>
-<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">right_wheel_cur_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">right_pos</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">right_wheel_radius_</span><span class="p">;</span>
+<p><a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a> computes DiffBot's odometry (see <a href="../../../development/simulation-test/#what-runs-in-the-simulation">Simulation Test</a> for where it runs). In each control cycle, <code>Odometry::update()</code> gets the wheel joint positions in rad, <code>left_pos</code> and <code>right_pos</code>. The first part of the method updates the pose, <a href="https://github.com/ros-controls/ros_controllers/blob/c2348e85abf35cf33cf654a84d61db206abe9a73/diff_drive_controller/src/odometry.cpp#L74-L93"><code>odometry.cpp</code>, lines 74–93</a>; the rest estimates the velocities:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">odometry.cpp: the first part of Odometry::update()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">Odometry::update</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">left_pos</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">right_pos</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="o">&amp;</span><span class="n">time</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">/// Get current wheel joint positions:</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">left_wheel_cur_pos</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">left_pos</span><span class="w">  </span><span class="o">*</span><span class="w"> </span><span class="n">left_wheel_radius_</span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">right_wheel_cur_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">right_pos</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">right_wheel_radius_</span><span class="p">;</span>
 
-<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">left_wheel_est_vel</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">left_wheel_cur_pos</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">left_wheel_old_pos_</span><span class="p">;</span>
-<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">right_wheel_est_vel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">right_wheel_cur_pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">right_wheel_old_pos_</span><span class="p">;</span>
+<span class="w">  </span><span class="c1">/// Estimate velocity of wheels using old and current position:</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">left_wheel_est_vel</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">left_wheel_cur_pos</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">left_wheel_old_pos_</span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">right_wheel_est_vel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">right_wheel_cur_pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">right_wheel_old_pos_</span><span class="p">;</span>
 
-<span class="n">left_wheel_old_pos_</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">left_wheel_cur_pos</span><span class="p">;</span>
-<span class="n">right_wheel_old_pos_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">right_wheel_cur_pos</span><span class="p">;</span>
+<span class="w">  </span><span class="c1">/// Update old position with current:</span>
+<span class="w">  </span><span class="n">left_wheel_old_pos_</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">left_wheel_cur_pos</span><span class="p">;</span>
+<span class="w">  </span><span class="n">right_wheel_old_pos_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">right_wheel_cur_pos</span><span class="p">;</span>
 
-<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">linear</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">right_wheel_est_vel</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">left_wheel_est_vel</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="p">;</span>
-<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">angular</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">right_wheel_est_vel</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">left_wheel_est_vel</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">wheel_separation_</span><span class="p">;</span>
+<span class="w">  </span><span class="c1">/// Compute linear and angular diff:</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">linear</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">right_wheel_est_vel</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">left_wheel_est_vel</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">angular</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">right_wheel_est_vel</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">left_wheel_est_vel</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">wheel_separation_</span><span class="p">;</span>
 
-<span class="n">integrate_fun_</span><span class="p">(</span><span class="n">linear</span><span class="p">,</span><span class="w"> </span><span class="n">angular</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">/// Integrate odometry:</span>
+<span class="w">  </span><span class="n">integrate_fun_</span><span class="p">(</span><span class="n">linear</span><span class="p">,</span><span class="w"> </span><span class="n">angular</span><span class="p">);</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li>A wheel's angle times its radius R is the distance it has rolled. The difference to the last cycle is the distance in this cycle, d<sub>l</sub> and d<sub>r</sub>. Despite their names, <code>*_est_vel</code>, <code>linear</code> and <code>angular</code> are distances and an angle, not velocities.</li>
-<li><code>linear</code> is the distance Δs that the robot's center moved in this cycle, the mean of both wheels. <code>angular</code> is the angle Δθ it turned: the difference of the wheels' distances divided by the wheel separation b. These are the kinematics of a differential drive robot (<a href="../../modeling-control/odometry/#kinematic-model">Odometry</a>, where the wheel separation is 2L):</li>
+<li>A wheel's angle times its radius <span class="arithmatex">\(R\)</span> is the distance it has rolled. The difference to the last cycle is the distance in this cycle, <span class="arithmatex">\(d_l\)</span> and <span class="arithmatex">\(d_r\)</span>. Despite their names, <code>*_est_vel</code>, <code>linear</code> and <code>angular</code> are distances and an angle, not velocities.</li>
+<li><code>linear</code> is the distance <span class="arithmatex">\(\Delta s\)</span> that the robot's center moved in this cycle, the mean of both wheels. <code>angular</code> is the angle <span class="arithmatex">\(\Delta\theta\)</span> it turned: the difference of the wheels' distances divided by the wheel separation <span class="arithmatex">\(b\)</span>. These are the kinematics of a differential drive robot (<a href="../../modeling-control/odometry/#kinematic-model">Odometry</a>, where the wheel separation is <span class="arithmatex">\(2L\)</span>):</li>
 </ul>
 <div class="arithmatex">\[
 \Delta s = \frac{d_r + d_l}{2}, \qquad \Delta\theta = \frac{d_r - d_l}{b}
 \]</div>
-<p><code>integrate_fun_</code> is <code>integrateExact()</code> by default:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">angular</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">)</span>
-<span class="w">  </span><span class="n">integrateRungeKutta2</span><span class="p">(</span><span class="n">linear</span><span class="p">,</span><span class="w"> </span><span class="n">angular</span><span class="p">);</span>
-<span class="k">else</span>
+<p><code>integrate_fun_</code> is <code>integrateExact()</code> by default, <a href="https://github.com/ros-controls/ros_controllers/blob/c2348e85abf35cf33cf654a84d61db206abe9a73/diff_drive_controller/src/odometry.cpp#L153-L166">lines 153–166</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">odometry.cpp: Odometry::integrateExact()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">Odometry::integrateExact</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">linear</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">angular</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">heading_old</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">heading_</span><span class="p">;</span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linear</span><span class="o">/</span><span class="n">angular</span><span class="p">;</span>
-<span class="w">  </span><span class="n">heading_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">angular</span><span class="p">;</span>
-<span class="w">  </span><span class="n">x_</span><span class="w">       </span><span class="o">+=</span><span class="w">  </span><span class="n">r</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="n">heading_</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">sin</span><span class="p">(</span><span class="n">heading_old</span><span class="p">));</span>
-<span class="w">  </span><span class="n">y_</span><span class="w">       </span><span class="o">+=</span><span class="w"> </span><span class="o">-</span><span class="n">r</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">cos</span><span class="p">(</span><span class="n">heading_</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">heading_old</span><span class="p">));</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">angular</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="w">    </span><span class="n">integrateRungeKutta2</span><span class="p">(</span><span class="n">linear</span><span class="p">,</span><span class="w"> </span><span class="n">angular</span><span class="p">);</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">/// Exact integration (should solve problems when angular is zero):</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">heading_old</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">heading_</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linear</span><span class="o">/</span><span class="n">angular</span><span class="p">;</span>
+<span class="w">    </span><span class="n">heading_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">angular</span><span class="p">;</span>
+<span class="w">    </span><span class="n">x_</span><span class="w">       </span><span class="o">+=</span><span class="w">  </span><span class="n">r</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="n">heading_</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">sin</span><span class="p">(</span><span class="n">heading_old</span><span class="p">));</span>
+<span class="w">    </span><span class="n">y_</span><span class="w">       </span><span class="o">+=</span><span class="w"> </span><span class="o">-</span><span class="n">r</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">cos</span><span class="p">(</span><span class="n">heading_</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">heading_old</span><span class="p">));</span>
+<span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>This is the velocity motion model for one control cycle. With Δs = v Δt and Δθ = ω Δt, v / ω is the radius r, θ + ω Δt is the new heading <code>heading_</code>, and the three lines are the equations above. When the robot drives almost straight, r becomes huge, so the controller moves it straight instead, in the direction of the mean heading θ + Δθ / 2 (<code>integrateRungeKutta2()</code>). The controller doesn't add noise. The <a href="../../modeling-control/odometry/">Odometry</a> page derives a simpler update, a straight step in the direction θ, which is close to the arc for short steps.</p>
+<p>This is the velocity motion model for one control cycle. With <span class="arithmatex">\(\Delta s = v\,\Delta t\)</span> and <span class="arithmatex">\(\Delta\theta = \omega\,\Delta t\)</span>, the quotient <span class="arithmatex">\(v/\omega\)</span> is the radius <span class="arithmatex">\(r\)</span>, <span class="arithmatex">\(\theta + \omega\,\Delta t\)</span> is the new heading <code>heading_</code>, and the three lines are the equations above. When the robot drives almost straight, <span class="arithmatex">\(r\)</span> becomes huge, so the controller moves it straight instead, in the direction of the mean heading <span class="arithmatex">\(\theta + \Delta\theta/2\)</span> (<code>integrateRungeKutta2()</code>). The controller doesn't add noise. The <a href="../../modeling-control/odometry/">Odometry</a> page derives a simpler update, a straight step in the direction <span class="arithmatex">\(\theta\)</span>, which is close to the arc for short steps.</p>
 <h2 id="odometry-motion-model">Odometry motion model</h2>
-<p>Many robots report odometry, a pose that they compute from their wheel encoders, rather than the velocities they drove with. The odometry is usually more accurate than the commanded velocities, because it measures what the wheels did. The odometry motion model therefore uses two odometry poses as the robot's motion: the start pose (x₀, y₀, θ₀) and the end pose (x₁, y₁, θ₁). It describes the motion between them as a rotation δ<sub>rot1</sub> towards the end position, a straight translation δ<sub>trans</sub> to it, and a rotation δ<sub>rot2</sub> to the end heading (section 5.4 of the book):</p>
+<p>Many robots report odometry, a pose that they compute from their wheel encoders, rather than the velocities they drove with. The odometry is usually more accurate than the commanded velocities, because it measures what the wheels did. The odometry motion model therefore uses two odometry poses as the robot's motion: the start pose <span class="arithmatex">\((x_0, y_0, \theta_0)\)</span> and the end pose <span class="arithmatex">\((x_1, y_1, \theta_1)\)</span>. It describes the motion between them as a rotation <span class="arithmatex">\(\delta_\text{rot1}\)</span> towards the end position, a straight translation <span class="arithmatex">\(\delta_\text{trans}\)</span> to it, and a rotation <span class="arithmatex">\(\delta_\text{rot2}\)</span> to the end heading (section 5.4 of the book):</p>
 <style>
 .md-typeset .rc-figs figure{margin:.6em auto 0;width:100%;max-width:480px}
 .rc-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -4335,7 +4357,7 @@ y' &amp;= y + \frac{v}{\omega}\cos\theta - \frac{v}{\omega}\cos(\theta + \omega\
 <text class="t-pt" x="38" y="216" text-anchor="start">start (x₀, y₀, θ₀)</text>
 <text class="t-pt" x="202.1" y="103.9" text-anchor="start">end (x₁, y₁, θ₁)</text>
 </svg>
-<figcaption>The motion from the start to the end pose in the odometry motion model: rotate by δ<sub>rot1</sub>, drive straight for δ<sub>trans</sub>, rotate by δ<sub>rot2</sub>.</figcaption>
+<figcaption>The motion from the start to the end pose in the odometry motion model: rotate by <span class="arithmatex">\(\delta_\text{rot1}\)</span>, drive straight for <span class="arithmatex">\(\delta_\text{trans}\)</span>, rotate by <span class="arithmatex">\(\delta_\text{rot2}\)</span>.</figcaption>
 </figure>
 
 <div class="arithmatex">\[
@@ -4346,51 +4368,123 @@ y' &amp;= y + \frac{v}{\omega}\cos\theta - \frac{v}{\omega}\cos(\theta + \omega\
 \end{aligned}
 \]</div>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/Atan2">atan2</a>(Δy, Δx) is the angle of the vector (Δx, Δy) from the x axis, in −π to π. Unlike atan(Δy / Δx), it uses the signs of both values, so it tells forward from backward and works for Δx = 0. Subtracting θ₀ makes δ<sub>rot1</sub> relative to the direction the robot faced.</li>
-<li>δ<sub>trans</sub> is the straight-line distance, the length of the hypotenuse of a right triangle with the sides Δx and Δy.</li>
-<li>The angles are wrapped to −π to π, because θ jumps from π to −π when the robot turns past 180°.</li>
+<li><a href="https://en.wikipedia.org/wiki/Atan2">atan2</a><span class="arithmatex">\((\Delta y, \Delta x)\)</span> is the angle of the vector <span class="arithmatex">\((\Delta x, \Delta y)\)</span> from the x axis, in <span class="arithmatex">\(-\pi\)</span> to <span class="arithmatex">\(\pi\)</span>. Unlike <span class="arithmatex">\(\arctan(\Delta y/\Delta x)\)</span>, it uses the signs of both values, so it tells forward from backward and works for <span class="arithmatex">\(\Delta x = 0\)</span>. Subtracting <span class="arithmatex">\(\theta_0\)</span> makes <span class="arithmatex">\(\delta_\text{rot1}\)</span> relative to the direction the robot faced.</li>
+<li><span class="arithmatex">\(\delta_\text{trans}\)</span> is the straight-line distance, the length of the hypotenuse of a right triangle with the sides <span class="arithmatex">\(\Delta x\)</span> and <span class="arithmatex">\(\Delta y\)</span>.</li>
+<li>The angles are wrapped to <span class="arithmatex">\(-\pi\)</span> to <span class="arithmatex">\(\pi\)</span>, because <span class="arithmatex">\(\theta\)</span> jumps from <span class="arithmatex">\(\pi\)</span> to <span class="arithmatex">\(-\pi\)</span> when the robot turns past 180°.</li>
 </ul>
 <p>The three numbers don't say how the robot moved in between: it may have driven on an arc or turned on the spot, but it hardly ever turned, drove straight and turned again. They only describe where it ended up relative to where it started, and they are the same in every frame. So a filter can take them from the odometry frame and apply them to a pose in another frame, such as a particle's pose in the map.</p>
 <h3 id="in-amcl">In amcl</h3>
-<p><a href="http://wiki.ros.org/amcl">amcl</a> localizes the robot in a map with a particle filter. DiffBot's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_navigation/launch/amcl.launch"><code>amcl.launch</code></a> sets <code>odom_model_type</code> to <code>diff-corrected</code>. When the odometry has changed enough, <a href="https://github.com/ros-planning/navigation/blob/noetic-devel/amcl/src/amcl/sensors/amcl_odom.cpp"><code>AMCLOdom::UpdateAction()</code></a> computes the three numbers from the change of the odometry pose, <code>ndata-&gt;delta</code>, and the previous odometry pose, <code>old_pose</code>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Avoid computing a bearing from two poses that are extremely near each</span>
-<span class="c1">// other (happens on in-place rotation).</span>
-<span class="k">if</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span>
-<span class="w">        </span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.01</span><span class="p">)</span>
-<span class="w">  </span><span class="n">delta_rot1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
-<span class="k">else</span>
-<span class="w">  </span><span class="n">delta_rot1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle_diff</span><span class="p">(</span><span class="n">atan2</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-<span class="w">                          </span><span class="n">old_pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
-<span class="n">delta_trans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span>
-<span class="w">                   </span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
-<span class="n">delta_rot2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle_diff</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="n">delta_rot1</span><span class="p">);</span>
+<p><a href="http://wiki.ros.org/amcl">amcl</a> localizes the robot in a map with a particle filter. DiffBot's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_navigation/launch/amcl.launch"><code>amcl.launch</code></a> sets <code>odom_model_type</code> to <code>diff-corrected</code>. When the odometry has changed enough, <code>AMCLOdom::UpdateAction()</code> moves every particle. Its <code>diff-corrected</code> case, <a href="https://github.com/ros-planning/navigation/blob/f44bb1fc2810399165115cc98b530fe4b9397c18/amcl/src/amcl/sensors/amcl_odom.cpp#L256-L307"><code>amcl_odom.cpp</code>, lines 256–307</a>, gets the change of the odometry pose, <code>ndata-&gt;delta</code>, and the previous odometry pose, <code>old_pose</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">amcl_odom.cpp: the diff-corrected case of AMCLOdom::UpdateAction()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">case</span><span class="w"> </span><span class="no">ODOM_MODEL_DIFF_CORRECTED</span><span class="p">:</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">// Implement sample_motion_odometry (Prob Rob p 136)</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_rot1</span><span class="p">,</span><span class="w"> </span><span class="n">delta_trans</span><span class="p">,</span><span class="w"> </span><span class="n">delta_rot2</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_rot1_hat</span><span class="p">,</span><span class="w"> </span><span class="n">delta_trans_hat</span><span class="p">,</span><span class="w"> </span><span class="n">delta_rot2_hat</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_rot1_noise</span><span class="p">,</span><span class="w"> </span><span class="n">delta_rot2_noise</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Avoid computing a bearing from two poses that are extremely near each</span>
+<span class="w">  </span><span class="c1">// other (happens on in-place rotation).</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span>
+<span class="w">          </span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.01</span><span class="p">)</span>
+<span class="w">    </span><span class="n">delta_rot1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">    </span><span class="n">delta_rot1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle_diff</span><span class="p">(</span><span class="n">atan2</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+<span class="w">                            </span><span class="n">old_pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+<span class="w">  </span><span class="n">delta_trans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span>
+<span class="w">                     </span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="w">  </span><span class="n">delta_rot2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle_diff</span><span class="p">(</span><span class="n">ndata</span><span class="o">-&gt;</span><span class="n">delta</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="n">delta_rot1</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// We want to treat backward and forward motion symmetrically for the</span>
+<span class="w">  </span><span class="c1">// noise model to be applied below.  The standard model seems to assume</span>
+<span class="w">  </span><span class="c1">// forward motion.</span>
+<span class="w">  </span><span class="n">delta_rot1_noise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">angle_diff</span><span class="p">(</span><span class="n">delta_rot1</span><span class="p">,</span><span class="mf">0.0</span><span class="p">)),</span>
+<span class="w">                              </span><span class="n">fabs</span><span class="p">(</span><span class="n">angle_diff</span><span class="p">(</span><span class="n">delta_rot1</span><span class="p">,</span><span class="n">M_PI</span><span class="p">)));</span>
+<span class="w">  </span><span class="n">delta_rot2_noise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">angle_diff</span><span class="p">(</span><span class="n">delta_rot2</span><span class="p">,</span><span class="mf">0.0</span><span class="p">)),</span>
+<span class="w">                              </span><span class="n">fabs</span><span class="p">(</span><span class="n">angle_diff</span><span class="p">(</span><span class="n">delta_rot2</span><span class="p">,</span><span class="n">M_PI</span><span class="p">)));</span>
+
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">set</span><span class="o">-&gt;</span><span class="n">sample_count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">pf_sample_t</span><span class="o">*</span><span class="w"> </span><span class="n">sample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">set</span><span class="o">-&gt;</span><span class="n">samples</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Sample pose differences</span>
+<span class="w">    </span><span class="n">delta_rot1_hat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle_diff</span><span class="p">(</span><span class="n">delta_rot1</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">pf_ran_gaussian</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">alpha1</span><span class="o">*</span><span class="n">delta_rot1_noise</span><span class="o">*</span><span class="n">delta_rot1_noise</span><span class="w"> </span><span class="o">+</span>
+<span class="w">                                                     </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">alpha2</span><span class="o">*</span><span class="n">delta_trans</span><span class="o">*</span><span class="n">delta_trans</span><span class="p">)));</span>
+<span class="w">    </span><span class="n">delta_trans_hat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delta_trans</span><span class="w"> </span><span class="o">-</span><span class="w"> </span>
+<span class="w">            </span><span class="n">pf_ran_gaussian</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">alpha3</span><span class="o">*</span><span class="n">delta_trans</span><span class="o">*</span><span class="n">delta_trans</span><span class="w"> </span><span class="o">+</span>
+<span class="w">                                 </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">alpha4</span><span class="o">*</span><span class="n">delta_rot1_noise</span><span class="o">*</span><span class="n">delta_rot1_noise</span><span class="w"> </span><span class="o">+</span>
+<span class="w">                                 </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">alpha4</span><span class="o">*</span><span class="n">delta_rot2_noise</span><span class="o">*</span><span class="n">delta_rot2_noise</span><span class="p">));</span>
+<span class="w">    </span><span class="n">delta_rot2_hat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle_diff</span><span class="p">(</span><span class="n">delta_rot2</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">pf_ran_gaussian</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">alpha1</span><span class="o">*</span><span class="n">delta_rot2_noise</span><span class="o">*</span><span class="n">delta_rot2_noise</span><span class="w"> </span><span class="o">+</span>
+<span class="w">                                                     </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">alpha2</span><span class="o">*</span><span class="n">delta_trans</span><span class="o">*</span><span class="n">delta_trans</span><span class="p">)));</span>
+
+<span class="w">    </span><span class="c1">// Apply sampled update to particle pose</span>
+<span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_trans_hat</span><span class="w"> </span><span class="o">*</span><span class="w"> </span>
+<span class="w">            </span><span class="n">cos</span><span class="p">(</span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta_rot1_hat</span><span class="p">);</span>
+<span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_trans_hat</span><span class="w"> </span><span class="o">*</span><span class="w"> </span>
+<span class="w">            </span><span class="n">sin</span><span class="p">(</span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta_rot1_hat</span><span class="p">);</span>
+<span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_rot1_hat</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta_rot2_hat</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="k">break</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><code>angle_diff()</code> subtracts two angles and wraps the result to −π to π.</li>
-<li>When the robot turns on the spot, its position hardly changes, and the direction of such a short translation is noise. So below 1 cm, δ<sub>rot1</sub> is 0, and δ<sub>rot2</sub> is the whole turn.</li>
+<li><strong>The three numbers:</strong> <code>angle_diff()</code> subtracts two angles and wraps the result to <span class="arithmatex">\(-\pi\)</span> to <span class="arithmatex">\(\pi\)</span>. When the robot turns on the spot, its position hardly changes, and the direction of such a short translation is noise. So below 1 cm, <span class="arithmatex">\(\delta_\text{rot1}\)</span> is 0, and <span class="arithmatex">\(\delta_\text{rot2}\)</span> is the whole turn.</li>
+<li><strong>Backward motion:</strong> when the robot drives backward, <span class="arithmatex">\(\delta_\text{rot1}\)</span> is about <span class="arithmatex">\(\pm\pi\)</span>, and <span class="arithmatex">\(\delta_\text{rot2}\)</span> about <span class="arithmatex">\(\mp\pi\)</span>. The book's noise grows with the size of the rotations, so amcl measures them from 0 or <span class="arithmatex">\(\pi\)</span>, whichever is closer, and treats backward like forward motion.</li>
+<li><strong>The noise:</strong> for each particle, amcl draws the three numbers with Gaussian noise, scaled by the parameters <code>odom_alpha1</code> to <code>odom_alpha4</code>. <code>diff-corrected</code> differs from <code>diff</code> only here: it passes the standard deviation to <code>pf_ran_gaussian()</code>, as in the book, where <code>diff</code> passes the variance.</li>
+<li><strong>The particle update:</strong> each particle moves by its noisy numbers, starting from its own heading.</li>
 </ul>
-<p>Then amcl adds noise to the three numbers for each particle, scaled by the parameters <code>odom_alpha1</code> to <code>odom_alpha4</code>, and moves the particle by them, starting from the particle's own heading:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_trans_hat</span><span class="w"> </span><span class="o">*</span>
-<span class="w">        </span><span class="n">cos</span><span class="p">(</span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta_rot1_hat</span><span class="p">);</span>
-<span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_trans_hat</span><span class="w"> </span><span class="o">*</span>
-<span class="w">        </span><span class="n">sin</span><span class="p">(</span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta_rot1_hat</span><span class="p">);</span>
-<span class="n">sample</span><span class="o">-&gt;</span><span class="n">pose</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_rot1_hat</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delta_rot2_hat</span><span class="p">;</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>When the robot drives backward, δ<sub>rot1</sub> is about ±π, and δ<sub>rot2</sub> about ∓π. The book's noise grows with the size of the rotations, so amcl measures them from 0 or π, whichever is closer, and treats backward like forward motion. <code>diff-corrected</code> differs from <code>diff</code> only in the noise: it passes the standard deviation to the random number generator, as in the book, where <code>diff</code> passes the variance.</p>
 <h2 id="where-each-model-is-used">Where each model is used</h2>
 <table>
 <thead>
@@ -4412,7 +4506,7 @@ y' &amp;= y + \frac{v}{\omega}\cos\theta - \frac{v}{\omega}\cos(\theta + \omega\
 <td style="text-align: left;">Moving the particles by the change of the odometry</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="../../../development/simulation-test/#7-relative_pose-compares-two-poses">Simulation Test</a></td>
+<td style="text-align: left;"><a href="../../../development/simulation-test/#relative_pose">Simulation Test</a></td>
 <td style="text-align: left;">Neither</td>
 <td style="text-align: left;">Comparing two poses: it uses the end pose relative to the start pose, in the robot's frame at the start, which needs no special case for turning on the spot or driving backward</td>
 </tr>
@@ -4421,7 +4515,7 @@ y' &amp;= y + \frac{v}{\omega}\cos\theta - \frac{v}{\omega}\cos(\theta + \omega\
 <h2 id="resources">Resources</h2>
 <ul>
 <li><em>Probabilistic Robotics</em> by Sebastian Thrun, Wolfram Burgard and Dieter Fox, chapter 5, "Robot Motion" (<a href="https://www.amazon.com/dp/0262201623?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/0262201623?tag=fjp-21">Amazon.de</a>, affiliate links)</li>
-<li><a href="https://github.com/ros-controls/ros_controllers/blob/noetic-devel/diff_drive_controller/src/odometry.cpp"><code>odometry.cpp</code></a> of diff_drive_controller and <a href="https://github.com/ros-planning/navigation/blob/noetic-devel/amcl/src/amcl/sensors/amcl_odom.cpp"><code>amcl_odom.cpp</code></a> of amcl (ROS Noetic)</li>
+<li><a href="https://github.com/ros-controls/ros_controllers/blob/c2348e85abf35cf33cf654a84d61db206abe9a73/diff_drive_controller/src/odometry.cpp"><code>odometry.cpp</code></a> of diff_drive_controller and <a href="https://github.com/ros-planning/navigation/blob/f44bb1fc2810399165115cc98b530fe4b9397c18/amcl/src/amcl/sensors/amcl_odom.cpp"><code>amcl_odom.cpp</code></a> of amcl (ROS Noetic)</li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
