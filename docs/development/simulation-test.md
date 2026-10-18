@@ -141,10 +141,10 @@ rostest turns each `<test>` element into a test of its own and runs them one aft
 
 ### 3. Connecting to the robot
 
-rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py) as a ROS node. Its last line, `rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)`, runs the [unittest](https://docs.python.org/3/library/unittest.html) class `TestDrive` and writes the results to a file that rostest reads. unittest calls `setUpClass()` once, then the test methods. [`test_drive.py`, lines 108–128]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L108-L128):
+rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py) as a ROS node. Its last line, `rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)`, runs the [unittest](https://docs.python.org/3/library/unittest.html) class `TestDrive` and writes the results to a file that rostest reads. unittest calls `setUpClass()` once, then the test methods. [`test_drive.py`, lines 113–133]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L113-L133):
 
-```python title="test_drive.py: TestDrive.setUpClass()" linenums="108"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:108:128"
+```python title="test_drive.py: TestDrive.setUpClass()" linenums="113"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:113:133"
 ```
 
 - `rospy.init_node()` registers the node with the ROS master. The constants at the top of the file, such as `CMD_VEL_TOPIC`, hold the full topic names.
@@ -152,54 +152,54 @@ rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_
 - The two subscribers call `on_odom()` for each odometry message, and `on_model_states()` for each `model_states` message. Gazebo publishes `model_states` in every simulation step, so `queue_size=1` keeps only the newest message instead of falling behind.
 - `rospy.wait_for_message()` waits for the first message on a topic. If none comes within the timeout, it raises an exception and the tests fail, for example when the controller doesn't start because of a wrong joint name.
 
-The callbacks, [lines 130–140]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L130-L140):
+The callbacks, [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L135-L145):
 
-```python title="test_drive.py: the subscriber callbacks" linenums="130"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:130:140"
+```python title="test_drive.py: the subscriber callbacks" linenums="135"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:135:145"
 ```
 
 rospy calls them in background threads whenever a message arrives, so `odom_pose` and `true_pose` always hold the latest pose. `msg.name.index(MODEL_NAME)` finds the robot's position in the list of model names, and its pose is at the same position in `msg.pose`.
 
-Both convert the ROS pose to a [`Pose2D`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L44-L49), a [named tuple](https://docs.python.org/3/library/typing.html#typing.NamedTuple) with $x$, $y$ and the heading $\theta$, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). [Lines 64–73]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L64-L73):
+Both convert the ROS pose to a [`Pose2D`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L47-L52), a [named tuple](https://docs.python.org/3/library/typing.html#typing.NamedTuple) with $x$, $y$ and the heading $\theta$, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). [Lines 69–78]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L69-L78):
 
-```python title="test_drive.py: to_pose2d()" linenums="64"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:64:73"
+```python title="test_drive.py: to_pose2d()" linenums="69"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:69:78"
 ```
 
 A [quaternion](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation) has four numbers that describe any rotation in 3D, without the special cases of three angles ([tf2 quaternion tutorial](http://wiki.ros.org/tf2/Tutorials/Quaternions)). ROS's axes and angles follow [REP 103](https://www.ros.org/reps/rep-0103.html): x forward, y to the left, z up, and the yaw grows when the robot turns to the left.
 
 ### 4. `test_forward()`
 
-The constants at the top of the file name the commands, [lines 33–41]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L33-L41):
+The constants at the top of the file name the commands, [lines 36–44]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L36-L44):
 
-```python title="test_drive.py: the commands" linenums="33"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:33:41"
+```python title="test_drive.py: the commands" linenums="36"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:36:44"
 ```
 
-`test_forward()`, with the comment before the two tests, [lines 174–193]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L174-L193):
+`test_forward()`, with the comment before the two tests, [lines 179–198]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L179-L198):
 
-```python title="test_drive.py: test_forward()" linenums="174"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:174:193"
+```python title="test_drive.py: test_forward()" linenums="179"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:179:198"
 ```
 
 It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a `RelativePose`, with how far the robot moved forward and to the left, and how much it turned ([`relative_pose()`][s-rel]). The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
 
 #### `measure_motion()`
 
-[Lines 159–172]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L159-L172):
+[Lines 164–177]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L164-L177):
 
-```python title="test_drive.py: measure_motion()" linenums="159"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:159:172"
+```python title="test_drive.py: measure_motion()" linenums="164"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:164:177"
 ```
 
 It keeps the latest odometry pose and true pose as the start poses, drives ([`drive()`][s-drive]), stops ([`stop()`][s-stop]), and computes, for each source, where the robot ended up relative to where it started ([`relative_pose()`][s-rel]). The logged lines are the ones in [Read the results](#read-the-results).
 
 #### `drive()`
 
-[Lines 142–152]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L142-L152):
+[Lines 147–157]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L147-L157):
 
-```python title="test_drive.py: drive()" linenums="142"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:142:152"
+```python title="test_drive.py: drive()" linenums="147"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:147:157"
 ```
 
 - A `Twist` holds a linear and an angular velocity, each as a 3D vector. A differential drive robot can only drive along its x axis, `linear.x` in m/s, and turn about its z axis, `angular.z` in rad/s, positive to the left. The controller ignores the other values.
@@ -207,10 +207,10 @@ It keeps the latest odometry pose and true pose as the start poses, drives ([`dr
 
 #### `stop()`
 
-[Lines 154–157]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L154-L157):
+[Lines 159–162]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L159-L162):
 
-```python title="test_drive.py: stop()" linenums="154"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:154:157"
+```python title="test_drive.py: stop()" linenums="159"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:159:162"
 ```
 
 `Twist()` is a command with all velocities 0. The controller brakes as gently as it speeds up: from 0.2 m/s at 0.6 m/s², the robot needs 0.33 s to stop. One second of simulation time is enough for the robot to stand still, and for the odometry and Gazebo to publish its end pose.
@@ -221,7 +221,7 @@ The odometry and Gazebo give poses in different frames, so the test compares the
 
 --8<-- "includes/simulation-test-relative-pose.html"
 
-With the displacement $\Delta x = x_1 - x_0$ and $\Delta y = y_1 - y_0$ in the frame of the poses, rotating it by $-\theta_0$ gives it in the robot's frame at the start:
+With the displacement $\Delta x = x_1 - x_0$ and $\Delta y = y_1 - y_0$ in the frame of the poses, rotating it by $-\theta_0$ gives it in the robot's frame at the start. A robot's x axis points forward and its y axis to the left ([REP 103](https://www.ros.org/reps/rep-0103.html)), which gives the two parts their names:
 
 $$
 \begin{bmatrix} \text{forward} \\ \text{left} \end{bmatrix}
@@ -233,16 +233,16 @@ and the angle it turned is $\text{turned} = \theta_1 - \theta_0$.
 
 The matrix is the transpose of the rotation matrix $R(\theta_0)$, which turns a vector from the robot's frame into the frame of the poses; the transpose turns it back. This is the relative pose, a standard operation on poses: with homogeneous transforms, it is $T_0^{-1} T_1$ (Peter Corke, *Robotics, Vision and Control*, chapter 2, [Amazon.com][amazon_book_corke_rvc_us], [Amazon.de][amazon_book_corke_rvc_ger], affiliate links). Moving or rotating the frame of the poses changes both poses the same way, so the relative pose stays the same, and the motion from the odometry and from the true pose can be compared.
 
-`RelativePose` holds the three numbers, [lines 52–61]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L52-L61):
+`RelativePose` holds the three numbers, [lines 55–66]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L55-L66):
 
-```python title="test_drive.py: RelativePose" linenums="52"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:52:61"
+```python title="test_drive.py: RelativePose" linenums="55"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:55:66"
 ```
 
-`relative_pose()` computes them, with `wrap()` for the angle, [lines 76–105]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L76-L105):
+`relative_pose()` computes them, with `wrap()` for the angle, [lines 81–110]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L81-L110):
 
-```python title="test_drive.py: wrap() and relative_pose()" linenums="76"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:76:105"
+```python title="test_drive.py: wrap() and relative_pose()" linenums="81"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:81:110"
 ```
 
 `forward` and `left` are the two rows of the matrix. [atan2](https://en.wikipedia.org/wiki/Atan2)$(\sin\alpha, \cos\alpha)$ in `wrap()` gives the angle $\alpha$ back in $-\pi$ to $\pi$, using the signs of both values.
@@ -266,10 +266,10 @@ The matrix is the transpose of the rotation matrix $R(\theta_0)$, which turns a 
 
 ### 5. `test_turn()`
 
-[Lines 195–210]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L195-L210). The highlighted lines are the ones that differ from `test_forward()`:
+[Lines 200–215]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L200-L215). The highlighted lines are the ones that differ from `test_forward()`:
 
-```python title="test_drive.py: test_turn()" linenums="195" hl_lines="3 9 11 13 16"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:195:210"
+```python title="test_drive.py: test_turn()" linenums="200" hl_lines="3 9 11 13 16"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:200:215"
 ```
 
 It commands the angular velocity instead of the linear one and expects 0.5 rad/s for 3 s, so 1.5 rad to the left; the controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. [`math.hypot`](https://docs.python.org/3/library/math.html#math.hypot)`(forward, left)` is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever `test_forward()` left the robot; that doesn't matter, because it checks only the motion from there.
