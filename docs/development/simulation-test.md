@@ -63,7 +63,6 @@ rostest turns each test node into a test of its own and runs them one after anot
     <include file="$(find diffbot_gazebo)/launch/diffbot_view.launch">
         <arg name="model" value="$(arg model)"/>
         <arg name="gui" value="false"/>
-        <arg name="headless" value="true"/>
         <arg name="world_name" value="$(find diffbot_gazebo)/worlds/diffbot_empty.world"/>
     </include>
 
@@ -76,7 +75,7 @@ rostest turns each test node into a test of its own and runs them one after anot
 
 - `GAZEBO_MASTER_URI` tells the Gazebo server which port to use.
 - [`diffbot_view.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot_view.launch) starts the Gazebo server:
-    - Without the GUI window (`gui`) and without rendering (`headless`), so it needs no display.
+    - Without the GUI window (`gui`): only the Gazebo server runs, which needs no display. Noetic's [`empty_world.launch`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_ros/launch/empty_world.launch) also has a `headless` argument, but it does nothing, so the test doesn't set it.
     - On the [empty world]({{ diffbot_repo_url }}/diffbot_gazebo/worlds/diffbot_empty.world): a ground plane for the robot to stand on, and a light.
     - With simulation time: Gazebo publishes its clock, and all nodes use it instead of the computer's clock (`use_sim_time`). On a slow computer the test takes longer, but the robot drives the same distance.
 
@@ -217,7 +216,7 @@ def drive(self, linear_velocity: float, angular_velocity: float, duration: float
 
 - A `Twist` holds a linear and an angular velocity, each as a 3D vector. A differential drive robot can only drive along its x axis, `linear.x` in m/s, and turn about its z axis, `angular.z` in rad/s, positive to the left. The controller ignores the other values.
 - The loop sends the command 20 times per second (`COMMAND_RATE`) until `end_time`. Sending it once isn't enough: diff_drive_controller stops the robot when no command arrives for 0.5 s, its default `cmd_vel_timeout`.
-- The loop checks the end time once per cycle, so the last command stays in effect up to one cycle, 50 ms, too long: at most 1 cm or 0.025 rad in these tests. That's small against the tolerances in [step 8][s8].
+- The loop checks the end time once per cycle, so the last command stays in effect nominally up to one cycle, 50 ms, too long: 1 cm or 0.025 rad in these tests. A late wake-up of the loop or a delayed message can add more; the tolerances in [step 8][s8] leave room for it.
 - `rospy.Time.now()` and `rospy.Rate` follow Gazebo's clock ([step 2][s2]), so `duration` is simulation time.
 
 ### 6. stop() stops the robot
@@ -281,7 +280,7 @@ def relative_pose(start_pose: Pose2D, end_pose: Pose2D) -> RelativePose:
 
 ### 8. test_forward checks the motion
 
-`test_forward()` expects the robot to drive `FORWARD_VELOCITY * DURATION` = 0.2 m/s · 3 s = 0.6 m straight ahead, the velocity motion model's simplest case ([Robot Motion](../theory/state-estimation/robot-motion.md#velocity-motion-model)). The controller's acceleration limit costs 3.3 cm while the robot speeds up, and gives them back while it brakes ([step 6][s6]). `drive()` adds up to 1 cm ([step 5][s5]). The robots drove 0.57 to 0.62 m.
+`test_forward()` expects the robot to drive `FORWARD_VELOCITY * DURATION` = 0.2 m/s · 3 s = 0.6 m straight ahead, the velocity motion model's simplest case ([Robot Motion](../theory/state-estimation/robot-motion.md#velocity-motion-model)). The controller's acceleration limit costs 3.3 cm while the robot speeds up, and gives them back while it brakes ([step 6][s6]). `drive()` adds nominally up to 1 cm ([step 5][s5]). The robots drove 0.57 to 0.62 m.
 
 `assertAlmostEqual(measured, expected, delta=d)` passes when the two differ by at most d. Each tolerance lies between what the robots measure in Gazebo and what a mistake would give. The loop checks the odometry and the true pose the same way, and the last check compares them:
 
