@@ -233,9 +233,11 @@ mv.dot(*p1)
 mv.text(p0[0] - 46, p0[1] + 20, "start (x\u2080, y\u2080, \u03b8\u2080)", "t-pt")
 mv.text(p1[0] + 12, p1[1] + 14, "end (x\u2081, y\u2081, \u03b8\u2081)", "t-pt")
 
+# Math in the captions as arithmatex spans, which the site's KaTeX script renders
 caption = ("The motion from the start to the end pose in the odometry motion model: rotate by "
-           "&delta;<sub>rot1</sub>, drive straight for &delta;<sub>trans</sub>, rotate by "
-           "&delta;<sub>rot2</sub>.")
+           '<span class="arithmatex">\\(\\delta_\\text{rot1}\\)</span>, drive straight for '
+           '<span class="arithmatex">\\(\\delta_\\text{trans}\\)</span>, rotate by '
+           '<span class="arithmatex">\\(\\delta_\\text{rot2}\\)</span>.')
 open("includes/odometry-motion-model.html", "w").write(
     STYLE + f'\n<figure class="rc-single">\n{mv.svg("rc-motion")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
 
@@ -277,7 +279,7 @@ rp.text(p0[0] - 40, p0[1] + 22, "start (x\u2080, y\u2080, \u03b8\u2080)", "t-pt"
 rp.text(p1[0] - 10, p1[1] + 4, "end (x\u2081, y\u2081, \u03b8\u2081)", "t-pt", "end")
 
 caption = ("The end pose relative to the start pose, in the robot's frame at the start "
-           "(x<sub>r</sub>, y<sub>r</sub>): how far the robot moved forward and to the left, "
-           "and the angle it turned.")
+           '(<span class="arithmatex">\\(x_r, y_r\\)</span>): how far the robot moved forward '
+           "and to the left, and the angle it turned.")
 open("includes/simulation-test-relative-pose.html", "w").write(
     f'<figure class="rc-single">\n{rp.svg("rc-relpose")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
