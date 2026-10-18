@@ -93,7 +93,7 @@ The test compares what the robot should do with what it did, seen in two ways:
 | Comparison | Question it answers | Example failure | Tolerance |
 |:--|:--|:--|:--|
 | Odometry and expected motion | Does the motion that the controller computes from the wheels follow the command? | The odometry reports no motion, or the wrong direction or distance | Wide: it allows for how the drive responds to the command |
-| True pose and expected motion | Does the robot really drive it? | It turns the wrong way, drives off to the side, or drives a clearly wrong distance | Wide, for the same reason |
+| True pose and expected motion | Does the robot really drive it? | It turns the wrong way, drives off to the side, or drives a clearly wrong distance | Wide: it allows for how the drive responds to the command |
 | Odometry and true pose | Do the reported and the real motion agree? | They differ in distance or turn, for example because of the wheel geometry or slip | Narrower: based on how far apart they are in normal runs |
 
 The comparisons overlap, and a failed one doesn't name the cause. The agreement checks compare the distance in `test_forward()` and the turn in `test_turn()`. If no odometry arrives at all, for example because the controller didn't start, the test fails before it drives: `setUpClass()` waits for the first message ([Connecting to the robot][s3]).
@@ -112,7 +112,7 @@ s_\text{true} &= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_\tex
 \end{aligned}
 $$
 
-A configured radius that's too big makes the controller command fewer wheel turns. Multiplied by the same too-big radius, they still give the expected distance in the odometry, while the model's smaller wheels roll less far. So only the comparisons with the true pose can show it. The wheel separation cancels the same way in the odometry of a turn. Swapped wheel joints cancel too: the controller sends the left wheel's command to the right wheel, so the robot turns right, but it also reads the right wheel's angle as the left one's, so its odometry still reports the commanded left turn.
+A configured radius that's too big makes the controller command fewer wheel turns. Multiplied by the same too-big radius, they still give the expected distance in the odometry, while the model's smaller wheels roll less far. So the odometry still matches the expected motion, and only the two comparisons that involve the true pose can show the mistake: the true pose against the expected motion, and the odometry against the true pose. A wrong wheel separation cancels in the same way when the robot turns: the controller uses it to turn the commanded angular velocity into wheel speeds, and again to turn the wheels' distances into the odometry's angle. Swapped wheel joints cancel too: the controller sends the left wheel's command to the right wheel, so the robot turns right, but it also reads the right wheel's angle as the left one's, so its odometry still reports the commanded left turn.
 
 `/diffbot/joint_states`, published by `joint_state_controller`, has each wheel's angle (rad) and velocity (rad/s). The test doesn't use it: a pose computed from it with the same wheel radius, separation and joint names would repeat the same mistakes.
 
@@ -288,7 +288,7 @@ The matrix is the transpose of the rotation matrix $R(\theta_0)$, which turns a 
 | `turned` | 0 ± 0.2 rad | 0.005 rad or less | Its heading changes, for example because one wheel turns slower |
 | Odometry and true `forward` | Within 0.03 m | 0.010 to 0.011 m apart | The controller's wheel radius doesn't match the model: a `wheel_radius` 10 % bigger or smaller than the configured 0.0325 m gave about 0.044 m and 0.076 m |
 
-A big mistake fails earlier. With a `wheel_radius` 20 % bigger than configured, the true pose showed only 0.49 m, outside 0.6 ± 0.1 m. So the true pose's `forward` check failed, and unittest didn't reach the agreement check, because it stops a test method at its first failed assertion. The odometry still showed 0.58 m.
+A bigger mistake already fails the true pose's `forward` check: with a `wheel_radius` 20 % bigger than configured, the robot drove only 0.49 m.
 
 [Why the results differ from the commands](#why-the-results-differ-from-the-commands) explains why the robots drive 0.56 to 0.62 m instead of 0.6 m.
 
