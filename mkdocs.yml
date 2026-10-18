@@ -198,6 +198,7 @@ nav:
       - Robot Description: robot-description.md
       - Remo Description: packages/remo_description.md
     - Simulation: diffbot_gazebo.md
+    - Simulators: simulators.md
     - Control: diffbot_control.md
     - Base Hardware Interface:
       - packages/diffbot_base/index.md
