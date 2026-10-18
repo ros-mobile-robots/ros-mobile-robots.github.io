@@ -11,7 +11,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../../insiders/">
+        <link rel="next" href="../simulation-test/">
       
       
         
@@ -3300,6 +3300,8 @@
       
         
       
+        
+      
     
     
     
@@ -3360,6 +3362,34 @@
     
   
     Nonparametric Filters (Particle Filter)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/state-estimation/robot-motion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Motion
   
 
     
@@ -3679,6 +3709,8 @@
       
         
       
+        
+      
     
     
     
@@ -3900,6 +3932,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4166,6 +4226,7 @@
 </table>
 <h3 id="industrial_ci">industrial_ci</h3>
 <p>industrial_ci starts a ROS Docker image, installs the packages' dependencies with rosdep, builds the workspace with catkin and runs the tests. The workflow runs it twice: with ROS packages from the <code>main</code> repository, which users install, and from <code>testing</code>, where new package versions appear first (<a href="http://wiki.ros.org/ShadowRepository">ROS testing repository</a>).</p>
+<p>The <a href="../simulation-test/">simulation test</a> also drives Remo, whose model <code>remo_description</code> isn't a released ROS package, so rosdep can't install it. <code>UPSTREAM_WORKSPACE: diffbot_dev.repos</code> in the workflow makes industrial_ci clone the repositories in this <a href="https://github.com/dirk-thomas/vcstool">vcstool</a> file, the same <a href="../../packages/packages-setup/#source-dependencies">source dependencies</a> that the <a href="../dev-container/">dev container</a> imports. industrial_ci builds them first, in an upstream workspace, then builds the diffbot packages on top of it and runs only their tests (<a href="https://github.com/ros-industrial/industrial_ci/blob/master/doc/index.rst#workspace-management">workspace management</a>).</p>
 <p><a href="https://ccache.dev/">ccache</a> speeds up the C++ builds. The workflow stores its cache with <code>actions/cache</code>. The cache key contains the run ID, so each successful run saves a new cache, and <code>restore-keys</code> loads the newest one at the start of the next run.</p>
 <h3 id="dev-container-workflow">Dev container workflow</h3>
 <p><a href="https://github.com/devcontainers/ci"><code>devcontainers/ci</code></a> creates the container exactly as VS Code or the Dev Container CLI would, including <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a>, which builds the workspace. Then it runs:</p>
@@ -4175,11 +4236,9 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>So a broken Dockerfile, a missing dependency or a failing build shows up in the PR, not on a developer's machine weeks later.</p>
 <h3 id="tests">Tests</h3>
-<p>The packages have no test cases yet: <code>catkin_test_results</code> reports 0 tests. So the checks prove that everything builds, not that the robot behaves correctly. Until there are tests, a pull request describes how it was tested, for example in the simulation or on the robot. Planned in the Docker and CI phase of the <a href="../#roadmap">roadmap</a>:</p>
-<ul>
-<li><strong>Simulation test</strong> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/110">diffbot#110</a>): a <a href="http://wiki.ros.org/rostest">rostest</a> that starts DiffBot and Remo in Gazebo without a GUI, drives them with a velocity command and checks their odometry. It will run in both workflows on every pull request.</li>
-<li><strong>Robot container</strong> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>): an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.</li>
-</ul>
+<p><strong>Simulation test:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. <a href="../simulation-test/">Simulation Test</a> explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks.</p>
+<p>The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for <code>diffbot_base</code> and the firmware without the robot are planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>.</p>
+<p><strong>Planned</strong> in the Docker and CI phase of the <a href="../#roadmap">roadmap</a>: a <strong>robot container</strong> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>), an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.</p>
 <h3 id="github-actions-versions">GitHub Actions versions</h3>
 <p>The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the CI workflow failed before building anything because <code>actions/cache@v2</code> had been switched off (<a href="https://github.blog/changelog/2024-12-05-notice-of-upcoming-releases-and-breaking-changes-for-github-actions/">GitHub notice</a>), and Node 20 actions were retired in September 2026 (<a href="https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/">GitHub changelog</a>). When a check fails during "Set up job", an outdated action is the likely cause.</p>
 <h3 id="writing-tests-and-debugging">Writing tests and debugging</h3>
@@ -4353,13 +4412,13 @@
         
         
           
-          <a href="../../insiders/" class="md-footer__link md-footer__link--next" aria-label="Next: Insiders">
+          <a href="../simulation-test/" class="md-footer__link md-footer__link--next" aria-label="Next: Simulation Test">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Insiders
+                Simulation Test
               </div>
             </div>
             <div class="md-footer__button md-icon">
