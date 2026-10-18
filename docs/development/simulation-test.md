@@ -294,10 +294,10 @@ A bigger mistake already fails the true pose's `forward` check: with a `wheel_ra
 
 ### 5. `test_turn()`
 
-[Lines 203–220]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L220). The highlighted lines are the ones that differ from `test_forward()`:
+[Lines 203–222]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L222). The highlighted lines are the ones that differ from `test_forward()`:
 
-```python title="test_drive.py: test_turn()" linenums="203" hl_lines="3 10 12 14 15 18"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:203:220"
+```python title="test_drive.py: test_turn()" linenums="203" hl_lines="3 11 13 15 16 20"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:203:222"
 ```
 
 It commands the angular velocity instead of the linear one and expects 0.5 rad/s for 3 s, so 1.5 rad to the left; the controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. [`math.hypot`](https://docs.python.org/3/library/math.html#math.hypot)`(forward, left)` is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever `test_forward()` left the robot; that doesn't matter, because it checks only the motion from there.
@@ -326,12 +326,12 @@ The commands give an ideal expectation: 0.6 m straight ahead, 1.5 rad on the spo
 
 ### Why the odometry and the true pose differ
 
-The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from the robot's `geometry.yaml`. These are the robot's measured values, the same as in its URDF, so the simulated wheels roll as far as the odometry assumes. The difference that remains is slip, which the odometry can't see:
+The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from the robot's `geometry.yaml`. These are the robot's measured values, the same as in its URDF. The simulated robot can still move differently, because the odometry can't see how the wheels touch the ground:
 
-- **Driving straight,** the wheels hardly slip: the odometry and the true pose agree to 1 mm.
-- **Turning on the spot,** DiffBot's wheel turns give 1.35 rad, which is what its odometry reports, but the simulated robot turned only 1.14 rad: about 16 % of the wheels' motion slipped. Remo's wheels hardly slip: its odometry and true pose are 0.01 to 0.04 rad apart.
+- **Driving straight,** the odometry and the true pose agree to 1 mm.
+- **Turning on the spot,** DiffBot's wheel turns give 1.35 rad, which is what its odometry reports, but the simulated robot turned only 1.14 rad, 16 % less. The ratio, 1.14 / 1.35 = 0.84, is the ratio of its wheel separation, 0.135 m, to the distance between the wheels' outer edges, 0.160 m: in Gazebo, DiffBot's collision cylinders touch the ground at their outer edges, so the robot turns as if its wheels were farther apart. A turn with narrower collision wheels confirmed this ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)). Remo's odometry and true pose are only 0.01 to 0.04 rad apart.
 
-Before [diffbot#119](https://github.com/ros-mobile-robots/diffbot/pull/119), both robots used one geometry, a wheel radius of 0.0325 m and a separation of 0.145 m. The true distance was then 1.8 % longer than the odometry, and DiffBot's wheels turned 9 % too fast for a commanded turn, which hid part of its slip.
+Before [diffbot#119](https://github.com/ros-mobile-robots/diffbot/pull/119), both robots used one geometry, a wheel radius of 0.0325 m and a separation of 0.145 m. The true distance was then 1.8 % longer than the odometry, and DiffBot's wheels turned 9 % too fast for a commanded turn, which hid part of the effect.
 
 The checks that compare the odometry and the true pose allow these differences. [Three views of the motion](#three-views-of-the-motion) explains why a wrong configuration can stay hidden in the odometry, and [the checks][s-checks] what the agreement checks rejected.
 
