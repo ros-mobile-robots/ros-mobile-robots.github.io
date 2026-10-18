@@ -288,7 +288,7 @@ def relative_pose(start_pose: Pose2D, end_pose: Pose2D) -> RelativePose:
 |:--|:--|:--|:--|
 | `forward` | 0.6 ± 0.1 m | 0.57 to 0.62 m | The robot doesn't move, or drives much too slow or too fast |
 | `left` | 0 ± 0.1 m | About 1 mm | It drives off to the side |
-| `turned` | 0 ± 0.2 rad | 0.004 rad or less | Its heading changes, for example because one wheel turns slower |
+| `turned` | 0 ± 0.2 rad | 0.005 rad or less | Its heading changes, for example because one wheel turns slower |
 | Odometry and true `forward` | Within 0.05 m | About 0.01 m apart | The controller's wheel radius doesn't match the model: 20 % too big gave 0.09 m |
 
 ### 9. test_turn turns on the spot
