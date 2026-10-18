@@ -4445,8 +4445,7 @@
 <span class="normal">13</span>
 <span class="normal">14</span>
 <span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;launch&gt;</span>
 <span class="w">    </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"model"</span><span class="w"> </span><span class="na">doc=</span><span class="s">"model type [diffbot, remo]"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"gazebo_port"</span><span class="w"> </span><span class="na">doc=</span><span class="s">"port of this test's Gazebo server"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;env</span><span class="w"> </span><span class="na">name=</span><span class="s">"GAZEBO_MASTER_URI"</span><span class="w"> </span><span class="na">value=</span><span class="s">"http://localhost:$(arg gazebo_port)"</span><span class="nt">/&gt;</span>
@@ -4454,7 +4453,6 @@
 <span class="w">    </span><span class="nt">&lt;include</span><span class="w"> </span><span class="na">file=</span><span class="s">"$(find diffbot_gazebo)/launch/diffbot_view.launch"</span><span class="nt">&gt;</span>
 <span class="w">        </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"model"</span><span class="w"> </span><span class="na">value=</span><span class="s">"$(arg model)"</span><span class="nt">/&gt;</span>
 <span class="w">        </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"gui"</span><span class="w"> </span><span class="na">value=</span><span class="s">"false"</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"headless"</span><span class="w"> </span><span class="na">value=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
 <span class="w">        </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"world_name"</span><span class="w"> </span><span class="na">value=</span><span class="s">"$(find diffbot_gazebo)/worlds/diffbot_empty.world"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/include&gt;</span>
 
@@ -4469,7 +4467,7 @@
 <li>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/launch/diffbot_view.launch"><code>diffbot_view.launch</code></a> starts the Gazebo server:</p>
 <ul>
-<li>Without the GUI window (<code>gui</code>) and without rendering (<code>headless</code>), so it needs no display.</li>
+<li>Without the GUI window (<code>gui</code>): only the Gazebo server runs, which needs no display. Noetic's <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_ros/launch/empty_world.launch"><code>empty_world.launch</code></a> also has a <code>headless</code> argument, but it does nothing, so the test doesn't set it.</li>
 <li>On the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/worlds/diffbot_empty.world">empty world</a>: a ground plane for the robot to stand on, and a light.</li>
 <li>With simulation time: Gazebo publishes its clock, and all nodes use it instead of the computer's clock (<code>use_sim_time</code>). On a slow computer the test takes longer, but the robot drives the same distance.</li>
 </ul>
@@ -4803,7 +4801,7 @@
 <ul>
 <li>A <code>Twist</code> holds a linear and an angular velocity, each as a 3D vector. A differential drive robot can only drive along its x axis, <code>linear.x</code> in m/s, and turn about its z axis, <code>angular.z</code> in rad/s, positive to the left. The controller ignores the other values.</li>
 <li>The loop sends the command 20 times per second (<code>COMMAND_RATE</code>) until <code>end_time</code>. Sending it once isn't enough: diff_drive_controller stops the robot when no command arrives for 0.5 s, its default <code>cmd_vel_timeout</code>.</li>
-<li>The loop checks the end time once per cycle, so the last command stays in effect up to one cycle, 50 ms, too long: at most 1 cm or 0.025 rad in these tests. That's small against the tolerances in <a href="#8-test_forward-checks-the-motion">step 8</a>.</li>
+<li>The loop checks the end time once per cycle, so the last command stays in effect nominally up to one cycle, 50 ms, too long: 1 cm or 0.025 rad in these tests. A late wake-up of the loop or a delayed message can add more; the tolerances in <a href="#8-test_forward-checks-the-motion">step 8</a> leave room for it.</li>
 <li><code>rospy.Time.now()</code> and <code>rospy.Rate</code> follow Gazebo's clock (<a href="#2-sim_drivelaunch-starts-gazebo-and-the-controllers">step 2</a>), so <code>duration</code> is simulation time.</li>
 </ul>
 <h3 id="6-stop-stops-the-robot">6. stop() stops the robot</h3>
@@ -4905,7 +4903,7 @@
 </ul>
 <p><em>Probabilistic Robotics</em> describes the motion between two poses differently, as a rotation, a translation and a rotation: the odometry motion model, which filters such as amcl use to add noise to each part (<a href="../../theory/state-estimation/robot-motion/#odometry-motion-model">Robot Motion</a>). The test needs no noise, and it checks forward, left and turned directly, so it uses the relative pose.</p>
 <h3 id="8-test_forward-checks-the-motion">8. test_forward checks the motion</h3>
-<p><code>test_forward()</code> expects the robot to drive <code>FORWARD_VELOCITY * DURATION</code> = 0.2 m/s · 3 s = 0.6 m straight ahead, the velocity motion model's simplest case (<a href="../../theory/state-estimation/robot-motion/#velocity-motion-model">Robot Motion</a>). The controller's acceleration limit costs 3.3 cm while the robot speeds up, and gives them back while it brakes (<a href="#6-stop-stops-the-robot">step 6</a>). <code>drive()</code> adds up to 1 cm (<a href="#5-drive-sends-the-command">step 5</a>). The robots drove 0.57 to 0.62 m.</p>
+<p><code>test_forward()</code> expects the robot to drive <code>FORWARD_VELOCITY * DURATION</code> = 0.2 m/s · 3 s = 0.6 m straight ahead, the velocity motion model's simplest case (<a href="../../theory/state-estimation/robot-motion/#velocity-motion-model">Robot Motion</a>). The controller's acceleration limit costs 3.3 cm while the robot speeds up, and gives them back while it brakes (<a href="#6-stop-stops-the-robot">step 6</a>). <code>drive()</code> adds nominally up to 1 cm (<a href="#5-drive-sends-the-command">step 5</a>). The robots drove 0.57 to 0.62 m.</p>
 <p><code>assertAlmostEqual(measured, expected, delta=d)</code> passes when the two differ by at most d. Each tolerance lies between what the robots measure in Gazebo and what a mistake would give. The loop checks the odometry and the true pose the same way, and the last check compares them:</p>
 <table>
 <thead>
