@@ -1,0 +1,155 @@
+# The glossary: the source for two things, so they can't drift apart.
+# - hooks/glossary.py loads every term with tooltip: true (the default) as an abbreviation, so
+#   hovering the term anywhere on the site shows its expansion and definition. The match is
+#   case-sensitive, a whole word, and not inside code. spellings lists other ways it's written.
+# - docs/glossary.md lists all terms, with a link to the page that explains each one.
+# Keep definitions to one plain-text sentence: no Markdown, they also end up in the tooltip.
+# link is a page path relative to docs/, or a full URL.
+
+- term: BOM
+  expansion: bill of materials
+  definition: The list of all parts needed to build a robot, with quantities and where to buy them.
+  link: components.md
+
+- term: CI
+  expansion: continuous integration
+  definition: Building and testing the code automatically on every push and pull request.
+  link: development/ci.md
+
+- term: DC
+  expansion: direct current
+  definition: Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.
+  link: DG01D-E-motor-with-encoder.md
+
+- term: DOF
+  expansion: degrees of freedom
+  definition: The number of independent ways something can move; a pose on the ground has three, x, y and the heading.
+  link: theory/modeling-control/robot-representations.md
+
+- term: EKF
+  expansion: extended Kalman filter
+  definition: A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.
+  link: theory/slam/slam-overview.md
+
+- term: GPIO
+  expansion: general-purpose input/output
+  definition: Pins of a single-board computer or microcontroller that software can read or switch.
+  link: processing_units/hardware-interfaces.md
+
+- term: I2C
+  expansion: Inter-Integrated Circuit
+  definition: A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.
+  link: processing_units/hardware-interfaces.md
+
+- term: IMU
+  expansion: inertial measurement unit
+  definition: A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.
+  link: packages/imu/driver-bno055.md
+
+- term: LiDAR
+  spellings: [LIDAR]
+  expansion: light detection and ranging
+  definition: A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.
+  link: laser-range-scanner.md
+
+- term: LTS
+  expansion: long-term support
+  definition: A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic.
+  link: getting-started/set-up-your-pc.md
+
+- term: MCU
+  expansion: microcontroller unit
+  definition: A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.
+  link: processing_units/teensy-mcu.md
+
+- term: PID
+  expansion: proportional-integral-derivative
+  definition: A controller whose output is a weighted sum of the error, its integral and its derivative.
+  link: packages/diffbot_base/pid.md
+
+- term: PWM
+  expansion: pulse-width modulation
+  definition: Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.
+  link: processing_units/teensy-mcu.md
+
+- term: REP
+  expansion: ROS Enhancement Proposal
+  definition: A document that defines a ROS convention, such as REP 103 for units and coordinate frames.
+  link: https://www.ros.org/reps/rep-0000.html
+
+- term: RGB-D
+  expansion: color and depth
+  definition: A camera that gives a depth for each pixel in addition to its color.
+  link: oak.md
+
+- term: SBC
+  expansion: single-board computer
+  definition: A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.
+  link: processing_units/index.md
+
+- term: SLAM
+  expansion: simultaneous localization and mapping
+  definition: Building a map of an unknown environment while estimating the robot's pose in it.
+  link: theory/slam/slam-overview.md
+
+- term: SPI
+  expansion: Serial Peripheral Interface
+  definition: A fast serial bus with separate lines for data in, data out, clock and chip select.
+  link: processing_units/hardware-interfaces.md
+
+- term: STL
+  expansion: stereolithography
+  definition: A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.
+  link: hardware_setup/3D_print.md
+
+- term: UART
+  expansion: universal asynchronous receiver-transmitter
+  definition: A serial interface with a transmit and a receive line and no clock, such as the serial port of a microcontroller.
+  link: packages/imu/driver-bno055.md
+
+- term: URDF
+  expansion: Unified Robot Description Format
+  definition: The XML format that describes a robot's links, joints, sensors and their geometry for ROS.
+  link: robot-description.md
+
+- term: WSL
+  expansion: Windows Subsystem for Linux
+  definition: Runs a Linux distribution such as Ubuntu inside Windows.
+  link: getting-started/set-up-your-pc.md
+
+# Terms without a tooltip: they appear too often or are names, so they are only on the Glossary page
+
+- term: catkin
+  tooltip: false
+  definition: The build system of ROS 1, which builds the packages in a workspace such as ~/catkin_ws.
+  link: packages/packages-setup.md
+
+- term: dev container
+  tooltip: false
+  definition: A Docker container with ROS and all tools installed, which VS Code or the Dev Container CLI opens as the development environment.
+  link: development/dev-container.md
+
+- term: Gazebo
+  tooltip: false
+  definition: The robot simulator that DiffBot and Remo use; with ROS Noetic, it's Gazebo Classic 11.
+  link: diffbot_gazebo.md
+
+- term: odometry
+  tooltip: false
+  definition: The robot's pose estimated from its own motion, for example by counting wheel turns.
+  link: theory/modeling-control/odometry.md
+
+- term: ros_control
+  tooltip: false
+  definition: The ROS framework that connects controllers, such as the diff drive controller, to a robot's hardware or its simulation.
+  link: diffbot_control.md
+
+- term: rosserial
+  tooltip: false
+  definition: A protocol and ROS packages that let a microcontroller publish and subscribe to ROS topics over a serial connection.
+  link: processing_units/teensy-mcu.md
+
+- term: RViz
+  tooltip: false
+  definition: The ROS visualization tool, which shows the robot model, its sensor data, maps and plans in 3D.
+  link: robot-description.md

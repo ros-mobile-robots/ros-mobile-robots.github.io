@@ -19,6 +19,8 @@ theme:
     # Hovering an internal link shows the target section; no navigation.instant, because the
     # consent, Analytics and Gumroad scripts in main.html expect full page loads
     - navigation.instant.preview
+    # Material's styled tooltips for link titles and the glossary's abbreviations (hooks/glossary.py)
+    - content.tooltips
     - toc.follow
     - search.suggest
     - search.highlight
@@ -106,6 +108,10 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
+# Turns includes/glossary.yml into abbreviations with tooltips on every page
+hooks:
+  - hooks/glossary.py
+
 plugins:
   - search
   # Downloads Google Fonts and external images at build time
@@ -118,7 +124,10 @@ plugins:
         - www.googletagmanager.com/*
         - gumroad.com/*
   - glightbox
-  - macros
+  # includes/glossary.yml is the glossary variable, which docs/glossary.md lists
+  - macros:
+      include_yaml:
+        - glossary: includes/glossary.yml
   - mkdocs-jupyter:
       execute: False
       include_source: True
@@ -148,6 +157,7 @@ nav:
       - Use the Dev Container: development/dev-container.md
       - How the Dev Container Works: development/dev-container-internals.md
       - Docker Basics: theory/architecture/docker.md
+    - Glossary: glossary.md
   - Hardware:
     - hardware/index.md
     - Components (BOM): components.md
