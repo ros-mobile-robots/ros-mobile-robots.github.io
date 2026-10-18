@@ -4819,7 +4819,7 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <td style="text-align: left;">True pose and expected motion</td>
 <td style="text-align: left;">Does the robot really drive it?</td>
 <td style="text-align: left;">It turns the wrong way, drives off to the side, or drives a clearly wrong distance</td>
-<td style="text-align: left;">Wide, for the same reason</td>
+<td style="text-align: left;">Wide: it allows for how the drive responds to the command</td>
 </tr>
 <tr>
 <td style="text-align: left;">Odometry and true pose</td>
@@ -4870,7 +4870,7 @@ s_\text{odom} &amp;= r_\text{cfg}\,\Delta\phi = v\,t \\
 s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_\text{cfg}}
 \end{aligned}
 \]</div>
-<p>A configured radius that's too big makes the controller command fewer wheel turns. Multiplied by the same too-big radius, they still give the expected distance in the odometry, while the model's smaller wheels roll less far. So only the comparisons with the true pose can show it. The wheel separation cancels the same way in the odometry of a turn. Swapped wheel joints cancel too: the controller sends the left wheel's command to the right wheel, so the robot turns right, but it also reads the right wheel's angle as the left one's, so its odometry still reports the commanded left turn.</p>
+<p>A configured radius that's too big makes the controller command fewer wheel turns. Multiplied by the same too-big radius, they still give the expected distance in the odometry, while the model's smaller wheels roll less far. So the odometry still matches the expected motion, and only the two comparisons that involve the true pose can show the mistake: the true pose against the expected motion, and the odometry against the true pose. A wrong wheel separation cancels in the same way when the robot turns: the controller uses it to turn the commanded angular velocity into wheel speeds, and again to turn the wheels' distances into the odometry's angle. Swapped wheel joints cancel too: the controller sends the left wheel's command to the right wheel, so the robot turns right, but it also reads the right wheel's angle as the left one's, so its odometry still reports the commanded left turn.</p>
 <p><code>/diffbot/joint_states</code>, published by <code>joint_state_controller</code>, has each wheel's angle (rad) and velocity (rad/s). The test doesn't use it: a pose computed from it with the same wheel radius, separation and joint names would repeat the same mistakes.</p>
 <p><strong>Why the agreement checks can be narrower.</strong> Both measurements observe the same drive, so the timing and the wheel speed affect both. Their difference is usually smaller than either one's difference from the expected motion; the wheel geometry and slip still make them disagree (<a href="#why-the-odometry-and-the-true-pose-differ">Why the odometry and the true pose differ</a>).</p>
 <p><strong>What a pass shows.</strong> "True" means the pose of the robot model in Gazebo, not of the real robot. A passing test shows that the robot model and the controller configuration work together in the simulation; it doesn't calibrate the real robot. The tolerances allow what the robots measure in normal runs and reject the mistakes that were tried on purpose, but smaller mistakes may pass (<a href="#the-checks">the checks</a>).</p>
@@ -5393,7 +5393,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 </tr>
 </tbody>
 </table>
-<p>A big mistake fails earlier. With a <code>wheel_radius</code> 20 % bigger than configured, the true pose showed only 0.49 m, outside 0.6 ± 0.1 m. So the true pose's <code>forward</code> check failed, and unittest didn't reach the agreement check, because it stops a test method at its first failed assertion. The odometry still showed 0.58 m.</p>
+<p>A bigger mistake already fails the true pose's <code>forward</code> check: with a <code>wheel_radius</code> 20 % bigger than configured, the robot drove only 0.49 m.</p>
 <p><a href="#why-the-results-differ-from-the-commands">Why the results differ from the commands</a> explains why the robots drive 0.56 to 0.62 m instead of 0.6 m.</p>
 <h3 id="5-test_turn">5. <code>test_turn()</code></h3>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/2cbcd9fa8f7624bd2adfbf4862e301b2d6b68aa0/diffbot_gazebo/test/test_drive.py#L203-L220">Lines 203–220</a>. The highlighted lines are the ones that differ from <code>test_forward()</code>:</p>
