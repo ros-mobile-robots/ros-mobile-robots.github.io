@@ -294,10 +294,10 @@ A bigger mistake already fails the true pose's `forward` check: with a `wheel_ra
 
 ### 5. `test_turn()`
 
-[Lines 203–219]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L219). The highlighted lines are the ones that differ from `test_forward()`:
+[Lines 203–220]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L220). The highlighted lines are the ones that differ from `test_forward()`:
 
-```python title="test_drive.py: test_turn()" linenums="203" hl_lines="3 8 10 12 13 17"
---8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:203:219"
+```python title="test_drive.py: test_turn()" linenums="203" hl_lines="3 8 10 12 13 18"
+--8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:203:220"
 ```
 
 It commands the angular velocity instead of the linear one and expects 0.5 rad/s for 3 s, so 1.5 rad to the left; the controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. [`math.hypot`](https://docs.python.org/3/library/math.html#math.hypot)`(forward, left)` is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever `test_forward()` left the robot; that doesn't matter, because it checks only the motion from there.
