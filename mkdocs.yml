@@ -59,8 +59,8 @@ extra:
   diffbot_repo_url: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel
   # The diffbot commit that the code excerpts on Simulation Test show. Update both when the code
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
-  diffbot_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/a676c79f5bd8867078922b61240c3c839dd508aa
-  diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/a676c79f5bd8867078922b61240c3c839dd508aa
+  diffbot_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/0cab1d61e42607c788afd9dff87d119d7c7d02fd
+  diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/0cab1d61e42607c788afd9dff87d119d7c7d02fd
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots

@@ -308,7 +308,7 @@ It commands the angular velocity instead of the linear one and expects 0.5 rad/s
 | Distance from the start | 0 ± 0.15 m | Odometry below 0.01 m, true pose 0.03 to 0.05 m | It drives off instead of turning on the spot |
 | Odometry and true `turned` | Within 0.1 rad | 0.03 to 0.04 rad apart | They turn clearly differently: a `wheel_radius` 10 % off gave 0.12 to 0.16 rad, a `wheel_separation` 10 % too big 0.10 to 0.12 rad |
 
-Both robots turn within 0.04 rad of 1.5 rad, so the checks can be narrow. A wrong `wheel_separation` fails only the agreement check: the controller uses it on the way to the wheels and back, so it cancels in the odometry ([Three views of the motion](#three-views-of-the-motion)), and the true turn, 1.61 to 1.62 rad with a separation 10 % too big, stays within 1.5 ± 0.3 rad. For Remo, that fault gave 0.105 rad, just over the limit, so a separation has to be about 10 % off to fail.
+Both robots turn within 0.04 rad of 1.5 rad, so the checks can be narrow. A wrong `wheel_separation` cancels in the odometry, because the controller uses it on the way to the wheels and back ([Three views of the motion](#three-views-of-the-motion)). In the tested case, a separation 10 % too big, only the agreement check failed: the true turn, 1.61 to 1.62 rad, stayed within 1.5 ± 0.3 rad, and a large enough error would fail that check too. For Remo, that fault failed narrowly, at 0.105 rad. How sensitive the check is depends on the error's sign and on the model, because the robots already turn slightly less than their odometry: a separation 5 % too small on Remo failed at 0.109 rad. Smaller errors aren't guaranteed to fail.
 
 ### 6. `publishtest`
 
