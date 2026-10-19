@@ -95,7 +95,7 @@ The following shows a more detailed part list and assembly of the robot platform
 |:------------:|:-----------------:|:-------------------------------------------------:|:-----------------------:|
 | Accessories                                 |
 |              | Case for Raspberry Pi 4 B | Slim acrylic case for Raspberry Pi 4, stackable, rainbow/transparent                          | [BerryBase](https://www.berrybase.de/en/new/slim-acrylic-case-for-raspberry-pi-4-stackable-rainbow) |
-|              | Micro SD Card     | SanDisk 64GB Class 10                             | [SanDisk](), Ubuntu 18.04 Image |
+|              | Micro SD Card     | SanDisk 64GB Class 10                             | [Raspberry Pi Setup](processing_units/rpi-setup.md) for the image |
 |              | Robot Car Kit 2WD (DiffBot's chassis plate and caster) | [robot05](https://joy-it.net/en/products/robot05) | [Instructions manual](https://joy-it.net/files/files/Produkte/robot05/Robot05-Anleitung.pdf) |
 |              | Power bank        | Intenso Powerbank S10000                          | [Intenso](https://www.intenso.de/en/products/powerbanks/powerbank-s10000) |
 | Actuator                                                                                  |
@@ -131,7 +131,9 @@ Order list
 |:------------------------|:---------------------------------------------------------------------------:|
 | Raspberry Pi 4 B (4 Gb) | [Amazon.com][amazon_rpi_4_model_b_us], [Amazon.de][amazon_rpi_4_model_b_ger] |
 | SanDisk 64 GB SD Card Class 10 | [Amazon.com][amazon_sdcard_ultra_64gb_us], [Amazon.de][sandisk_64gb_ger] |
-|Robot Smart Chassis Kit  | [Amazon.com][amazon_robot_car_chassis_us], [Amazon.de][amazon_robot_car_chassis_ger] |
+| Robot Smart Chassis Kit, for DiffBot's plate and caster | [Amazon.com][amazon_robot_car_chassis_us], [Amazon.de][amazon_robot_car_chassis_ger] |
+| DG01D-E Hobby Motor with encoder (2) | [Amazon.com][amazon_hobby_motor_us], [Amazon.de][amazon_hobby_motor_ger] |
+| Wheels, 65 mm (pair) | [Amazon.com][amazon_wheels_us], [Amazon.de][amazon_wheels_ger] |
 | SLAMTEC RPLidar A2M8 (12 m) | [Amazon.com][amazon_rplidar_a2m8_us], [Amazon.de][amazon_rplidar_a2m8_ger] |
 | Grove Ultrasonic Ranger | [Amazon.com][amazon_grove_ultrasonic_us] |
 | Raspi Camera Module V2, 8 MP, 1080p | [Amazon.com][amazon_rpi_cam_v2_us_b01er2skfs], [Amazon.de][amazon_rpi_cam_v2_ger] |
@@ -208,7 +210,7 @@ For the robot base you have at least two options to choose from: DiffBot, built 
 
     The acrylic plate has many holes for mounting the boards, such as the Raspberry Pi 4 B. The two drive wheels and the caster wheel let the robot turn on the spot, but not move sideways: a differential drive robot is nonholonomic ([Modeling a Differential Drive Robot](theory/modeling-control/modeling-differential-drive-robot.md)).
 
-    The motors and wheels are the same as Remo's: [DG01D-E motors](#motor-and-wheel-encoder) with built-in quadrature encoders, and 65 mm wheels. DiffBot's first version used the kit's own gear motors, which have no encoder, with separate speed sensors that count the slots of a punched disk on each motor ([Alternative Optical Sensor](#odometry)).
+    The motors and wheels are the same as Remo's: [DG01D-E motors](#motor-and-wheel-encoder) with built-in quadrature encoders, and the same wheels, 65 mm in nominal diameter. DiffBot's first version used the kit's own gear motors, which have no encoder, with separate speed sensors that count the slots of a punched disk on each motor ([Alternative Optical Sensor](#odometry)).
 
 === "Remo"
 
@@ -321,8 +323,8 @@ For the used odometry sensor see the section below [Motor and Wheel Encoder](#mo
 
 <details markdown="1"><summary>Alternative Optical Sensor</summary>
 
-To estimate the change in position over time ([odometry](https://en.wikipedia.org/wiki/Odometry)) the robot will
-utilize an [optical speed sensor](https://en.wikipedia.org/wiki/Wheel_speed_sensor#Optical_sensor). 
+To estimate the change in position over time ([odometry](https://en.wikipedia.org/wiki/Odometry)), DiffBot's first version, with motors without encoders, used
+an [optical speed sensor](https://en.wikipedia.org/wiki/Wheel_speed_sensor#Optical_sensor). 
 Specifically the [Joy-IT Speed Sensor](https://joy-it.net/en/products/SEN-Speed) which combines a LM393 ([datasheet](http://www.ti.com/lit/ds/symlink/lm2903-n.pdf)) [comperator](https://en.wikipedia.org/wiki/Comparator) and a H206 slot-type opto interrupter.
 
 <figure class="half">
@@ -334,7 +336,7 @@ Specifically the [Joy-IT Speed Sensor](https://joy-it.net/en/products/SEN-Speed)
 Technical Specifications:
 
 - Dimensions: 32 x 14 x 7mm 
-- Operating voltage: 3.3V to 5V (we will use 3.3V)
+- Operating voltage: 3.3V to 5V (DiffBot's first version ran it at 3.3V)
 - Two outputs: Digital (D0) and Analog (A0)
 
 
@@ -349,8 +351,8 @@ https://dronebotworkshop.com/robot-car-with-speed-sensors/
 
 ### Control
 
-To drive the two motors we use the 
-[Grove - I2C Motor Driver V1.3](http://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/) from Seeed Studio.
+To drive DiffBot's two motors we use the 
+[Grove - I2C Motor Driver V1.3](http://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/) from Seeed Studio. Remo uses a different driver, the Adafruit DC Motor + Stepper FeatherWing ([Electronics](hardware_setup/electronics.md)).
 
 <figure>
     <a href="{{ asset_dir }}/components/motor-driver.jpg"><img src="{{ asset_dir }}/components/motor-driver.jpg"></a>
