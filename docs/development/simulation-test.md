@@ -54,10 +54,10 @@ grep -o '\(odometry\|true pose\): [^<&]*' ~/.ros/test_results/diffbot_gazebo/ros
 ```
 
 ```text
-odometry: forward 0.580 m, left 0.001 m, turned 0.004 rad
-true pose: forward 0.580 m, left 0.001 m, turned 0.003 rad
-odometry: forward 0.006 m, left 0.003 m, turned 1.352 rad
-true pose: forward 0.017 m, left -0.015 m, turned 1.140 rad
+odometry: forward 0.580 m, left 0.002 m, turned 0.007 rad
+true pose: forward 0.580 m, left 0.002 m, turned 0.006 rad
+odometry: forward 0.006 m, left 0.002 m, turned 1.351 rad
+true pose: forward 0.017 m, left -0.015 m, turned 1.144 rad
 ```
 
 Each drive is measured twice: with the robot's odometry and with its true pose in Gazebo ([How it works](#how-it-works)). The first two lines are `test_forward`, which commands 0.6 m straight ahead; the last two are `test_turn`, which commands 1.5 rad on the spot. `forward`, `left` and `turned` describe the motion as seen from where the robot started ([`relative_pose()`][s-rel]). The numbers aren't exactly the commanded ones: the checks accept a range around each expected value ([the checks][s-checks]), and [Why the results differ from the commands](#why-the-results-differ-from-the-commands) explains where the differences come from.
@@ -286,7 +286,7 @@ The matrix is the transpose of the rotation matrix $R(\theta_0)$, which turns a 
 | `forward` | 0.6 ± 0.1 m | 0.56 to 0.62 m | The robot doesn't move, or drives much too slow or too fast |
 | `left` | 0 ± 0.1 m | About 1 mm | It drives off to the side |
 | `turned` | 0 ± 0.2 rad | 0.005 rad or less | Its heading changes, for example because one wheel turns slower |
-| Odometry and true `forward` | Within 0.03 m | At most 0.001 m apart | The controller's wheel radius doesn't match the model: a `wheel_radius` in `geometry.yaml` 10 % bigger or smaller gave about 0.052 m and 0.064 m |
+| Odometry and true `forward` | Within 0.03 m | At most 0.001 m apart | The controller's wheel radius doesn't match the model: a `wheel_radius` in `geometry.yaml` 10 % bigger or smaller gave about 0.053 m and 0.064 m |
 
 A bigger mistake already fails the true pose's `forward` check: with a `wheel_radius` 20 % bigger than the robot's, it drove only 0.48 m.
 
@@ -304,9 +304,9 @@ It commands the angular velocity instead of the linear one and expects 0.5 rad/s
 
 | Check | Expected | Measured | Fails when |
 |:--|:--|:--|:--|
-| `turned` | 1.5 ± 1.0 rad | DiffBot about 1.14 rad, Remo 1.02 to 1.16 rad | The robot turns right, for example with swapped wheel joints, or doesn't turn |
+| `turned` | 1.5 ± 1.0 rad | DiffBot 1.13 to 1.14 rad, Remo 1.14 to 1.16 rad | The robot turns right, for example with swapped wheel joints, or doesn't turn |
 | Distance from the start | 0 ± 0.15 m | Odometry below 0.01 m, true pose 0.02 to 0.04 m | It drives off instead of turning on the spot |
-| Odometry and true `turned` | Within 0.25 rad | DiffBot 0.21 rad apart, Remo 0.01 to 0.04 rad | They turn clearly differently. A `wheel_radius` 10 % bigger gave 0.31 rad for DiffBot, which fails, but only 0.13 rad for Remo, which passes |
+| Odometry and true `turned` | Within 0.25 rad | DiffBot 0.20 to 0.21 rad apart, Remo about 0.01 rad | They turn clearly differently. A `wheel_radius` 10 % bigger gave 0.31 rad for DiffBot, which fails, but only 0.11 rad for Remo, which passes |
 
 The robots turn clearly less than 1.5 rad, and Remo's turn varies between runs, so the tolerance is wide until the simulation's wheel controllers are tuned ([Why the results differ from the commands](#why-the-results-differ-from-the-commands)).
 
@@ -322,23 +322,23 @@ The commands give an ideal expectation: 0.6 m straight ahead, 1.5 rad on the spo
 
 - **Timing:** `drive()` sends the command for 3 s of simulation time, but the last command stays in effect until `stop()`, nominally up to 50 ms longer: 1 cm or 0.025 rad more (the comment above `COMMAND_RATE`).
 - **Acceleration and braking:** diff_drive_controller limits the acceleration (`diffbot_control.yaml`: 0.6 m/s² and 6 rad/s²), and it limits braking the same way, because `min_acceleration` defaults to the negative maximum. Speeding up to 0.2 m/s takes 0.33 s and covers 3.3 cm less than an instant start would. Braking after the zero command takes just as long and covers the same 3.3 cm more. `measure_motion()` measures after `stop()` has waited until the robot stands still, so the two cancel. The angular limit hardly matters for the turn.
-- **Wheel speed:** in the simulation, each wheel's velocity is controlled by `DefaultRobotHWSim`'s PID controller with the gains from `pid.yaml`, which has only a P gain. A controller with only a P gain can leave a speed error, especially under load. This is clearly visible when Remo turns on the spot: its wheels reach only about 80 % of the commanded speed, and their speed jitters ([diffbot#116](https://github.com/ros-mobile-robots/diffbot/issues/116)). DiffBot's odometry, which counts the wheel turns, shows 0.56 to 0.59 m instead of 0.6 m, and 1.35 rad instead of 1.5 rad. Slower wheels can contribute to that, as can what happens while the robot starts and stops, but the test doesn't measure these effects separately.
+- **Wheel speed:** in the simulation, each wheel's velocity is controlled by `DefaultRobotHWSim`'s PID controller with the gains from `pid.yaml`, which has only a P gain. A controller with only a P gain can leave a speed error, especially under load. This is clearly visible when Remo turns on the spot: its wheels reach only about 80 % of the commanded speed, and their speed jitters ([diffbot#116](https://github.com/ros-mobile-robots/diffbot/issues/116)). DiffBot's odometry, which counts the wheel turns, shows 0.56 to 0.59 m instead of 0.6 m, and 1.33 to 1.35 rad instead of 1.5 rad. Slower wheels can contribute to that, as can what happens while the robot starts and stops, but the test doesn't measure these effects separately.
 
 ### Why the odometry and the true pose differ
 
-The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from the robot's `geometry.yaml`. These are the robot's measured values, the same as in its URDF. The simulated robot can still move differently, because the odometry can't see how the wheels touch the ground:
+The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from the robot's `geometry.yaml`. These are the robot's measured values, the same as in its URDF: radius 0.0333 m and separation 0.138 m for DiffBot, 0.0330 m and 0.144 m for Remo. The simulated robot can still move differently, because the odometry can't see how the wheels touch the ground:
 
 - **Driving straight,** the odometry and the true pose agree to 1 mm.
-- **Turning on the spot,** DiffBot's wheel turns give 1.35 rad, which is what its odometry reports, but the simulated robot turned only 1.14 rad, 16 % less. The ratio, 1.14 / 1.35 = 0.84, is the ratio of its wheel separation, 0.135 m, to the distance between the wheels' outer edges, 0.160 m: in Gazebo, DiffBot's collision cylinders touch the ground at their outer edges, so the robot turns as if its wheels were farther apart. A turn with narrower collision wheels confirmed this ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)). Remo's odometry and true pose are only 0.01 to 0.04 rad apart.
+- **Turning on the spot,** DiffBot's wheel turns give 1.33 to 1.35 rad, which is what its odometry reports, but the simulated robot turned only 1.13 to 1.14 rad, 15 % less. The ratio, 0.85, is the ratio of its wheel separation, 0.138 m, to the distance between the wheels' outer edges, 0.163 m: in Gazebo, DiffBot's collision cylinders touch the ground at their outer edges, so the robot turns as if its wheels were farther apart. A turn with narrower collision wheels confirmed this ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)). Remo's odometry and true pose are only about 0.01 rad apart.
 
-Before [diffbot#119](https://github.com/ros-mobile-robots/diffbot/pull/119), both robots used one geometry, a wheel radius of 0.0325 m and a separation of 0.145 m. The true distance was then 1.8 % longer than the odometry, and DiffBot's wheels turned 9 % too fast for a commanded turn, which hid part of the effect.
+Before [diffbot#119](https://github.com/ros-mobile-robots/diffbot/pull/119), both robots used one geometry, a wheel radius of 0.0325 m and a separation of 0.145 m, while their URDFs had nominal values (0.0331 m, 0.135 and 0.139 m). The true distance was then 1.8 % longer than the odometry, and DiffBot's wheels turned 9 % too fast for a commanded turn, which hid part of the effect.
 
 The checks that compare the odometry and the true pose allow these differences. [Three views of the motion](#three-views-of-the-motion) explains why a wrong configuration can stay hidden in the odometry, and [the checks][s-checks] what the agreement checks rejected.
 
 ### Why the robots and repeated runs differ
 
-- **The models differ a lot.** Both robots share the controller configuration and the wheel controller gains, but DiffBot's wheels weigh 0.5 kg each and use Gazebo's default contact settings. Remo's wheels weigh 32 g, with very stiff contacts and no contact damping (`robot.gazebo.xacro` in [remo_description]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)).
-- **The variation differs a lot.** In three runs, DiffBot's turn was the same to 0.001 rad, Remo's between 1.02 and 1.16 rad.
+- **The models differ a lot.** Both robots share the wheel controller gains, but DiffBot's wheels weigh 0.5 kg each and use Gazebo's default contact settings. Remo's wheels weigh 32 g, with very stiff contacts and no contact damping (`robot.gazebo.xacro` in [remo_description]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)).
+- **The variation differs.** In two runs, DiffBot turned 1.13 and 1.14 rad, Remo 1.14 and 1.16 rad; with the earlier geometry, Remo's turn varied between 0.92 and 1.34 rad.
 - **A likely reason, not yet proven:** Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. Remo's light model with stiff contacts would turn such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step.
 
 [diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118) matches the geometry, masses and contact settings to each robot, and [diffbot#116](https://github.com/ros-mobile-robots/diffbot/issues/116) then tunes the wheel controllers and narrows the turn's tolerance.
