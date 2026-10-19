@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4197,24 +4227,24 @@
 
   <h1>Combining Camera and Lidar</h1>
 
-<h2 id="combining-camera-and-lidar">Combining Camera and LiDAR</h2>
+<h2 id="combining-camera-and-lidar">Combining Camera and <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr></h2>
 <p>The main problem with a single-sensor approach is its reduced reliability as each sensor has its weaknesses under certain situations.
-To improve the tracking process results we can make use of both, camera and LiDAR sensors, and can combine the data from these sensors.</p>
+To improve the tracking process results we can make use of both, camera and <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> sensors, and can combine the data from these sensors.</p>
 <p>The first step in the fusion process will be to combine the tracked feature points within the camera images with the 3D Lidar points. 
-For this we use homogeneous coordinates and the transformation matrices related to cameras to geometrically project the LiDAR points 
+For this we use homogeneous coordinates and the transformation matrices related to cameras to geometrically project the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> points 
 into the camera in such a way that we know the position of each 3D Lidar point on the image sensor.</p>
-<h3 id="project-lidar-points-into-the-camera-image">Project LiDAR Points into the Camera Image</h3>
-<p>The basic steps to project LiDAR points into the camera image are the following:</p>
+<h3 id="project-lidar-points-into-the-camera-image">Project <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> Points into the Camera Image</h3>
+<p>The basic steps to project <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> points into the camera image are the following:</p>
 <ol>
 <li>Preparation
-   a. Make sure to synchronize all your LiDAR measurements to the exact recording timestamp of the camrea.
+   a. Make sure to synchronize all your <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> measurements to the exact recording timestamp of the camrea.
    b. Typically the camera is moving, which is why we need to compensate for this motion artifact. This is because a typical laser takes some short amount of time
    to scan the the entire view around it (usually 100 milliseconds). In this time the robot traveled a bit, which needs to be taken into account,
-   so that the LiDAR point falls into the correct location in the image plane.</li>
-<li>Convert LiDAR points into homogeneous coordinates.</li>
-<li>Map (transform) all those points onto the image plane using the intrinsic camera matrix and extrinsic camera matrix that relates the camera frame to the LiDAR frame.</li>
+   so that the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> point falls into the correct location in the image plane.</li>
+<li>Convert <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> points into homogeneous coordinates.</li>
+<li>Map (transform) all those points onto the image plane using the intrinsic camera matrix and extrinsic camera matrix that relates the camera frame to the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> frame.</li>
 <li>
-<p>Move the LiDAR points <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> back from homogeneous coordinates to the Euclidean coordinate system to get the position where the LiDAR point hits the image plane in pixel coordinates.</p>
+<p>Move the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> points <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> back from homogeneous coordinates to the Euclidean coordinate system to get the position where the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> point hits the image plane in pixel coordinates.</p>
 </li>
 <li>
 <p>Homogeneous coordinates</p>
@@ -4228,8 +4258,8 @@ into the camera in such a way that we know the position of each 3D Lidar point o
 <h3 id="papers">Papers</h3>
 <ul>
 <li><a href="https://arxiv.org/pdf/1911.10150.pdf">PointPainting: Sequential Fusion for 3D Object Detection by Vora et. al., 2020</a></li>
-<li><a href="https://www-users.cs.umn.edu/~stergios/papers/IJRR-2012-LidarCameraCalib.pdf">3D LIDAR–camera intrinsic and extrinsic calibration: Identifiability and analytical least-squares-based initialization by Mirzaei et. al., 2012</a></li>
-<li><a href="https://arxiv.org/pdf/1705.09785v1.pdf">LiDAR-Camera Calibration using 3D-3D Point correspondences</a></li>
+<li><a href="https://www-users.cs.umn.edu/~stergios/papers/IJRR-2012-LidarCameraCalib.pdf">3D <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LIDAR</abbr>–camera intrinsic and extrinsic calibration: Identifiability and analytical least-squares-based initialization by Mirzaei et. al., 2012</a></li>
+<li><a href="https://arxiv.org/pdf/1705.09785v1.pdf"><abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>-Camera Calibration using 3D-3D Point correspondences</a></li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
@@ -4389,7 +4419,7 @@ into the camera in such a way that we know the position of each 3D Lidar point o
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4111,9 +4141,9 @@
   
 
 
-<h1 id="pid-controllers">PID Controllers</h1>
-<p>DiffBot uses two PID controllers, one for each motor.
-Depending on which software version you use the two PID controllers are located in
+<h1 id="pid-controllers"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Controllers</h1>
+<p>DiffBot uses two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers, one for each motor.
+Depending on which software version you use the two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers are located in
 different locations in the source code. Either the two PIDs are in the</p>
 <ul>
 <li>hardware interface: high-level approach until version 0.0.2, or</li>
@@ -4121,10 +4151,10 @@ different locations in the source code. Either the two PIDs are in the</p>
 </ul>
 <p>The current approach (starting from version 1.0.0) operates the PIDs in the
 low-level base controller firmware.</p>
-<p>Regardless of the location (high or low-level), each PID is passed the error
+<p>Regardless of the location (high or low-level), each <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is passed the error
 between velocity measured by the encoders and the target velocity computed by
 the <code>diff_drive_controller</code> for a specific wheel joint. The
-<code>diff_drive_controller</code> doesn't have a PID controller integrated, and doesn't
+<code>diff_drive_controller</code> doesn't have a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller integrated, and doesn't
 take care if the wheels of the robot are actually turning. As mentioned above,
 ROS Control expects that the commands sent by the controller are actually
 applied on the real robot hardware and that the joint states are always up
@@ -4136,7 +4166,7 @@ motors into account.</p>
 <p class="admonition-title">Note</p>
 <p>See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated. </p>
 </div>
-<p>For this reason a PID controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:</p>
+<p>For this reason a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <div class="admonition note">
@@ -4151,7 +4181,7 @@ output can overshoot and even change between positive and negative motor percent
 values because of a P gain that is too high. To avoid this, a feed forward gain F
 can help to reach the setpoint faster. In the high-level approach this feed forward gain is present as a dynamic reconfigure parameter, defined in the in the <code>pid.yml</code> configuration file in the <code>cfg</code> folder of this package.</p>
 <p>For more details on ROS dynamic reconfigure see <a href="http://wiki.ros.org/dynamic_reconfigure/Tutorials">the official tutorials</a>.</p>
-<p>With the use of the PID controller the robot is able to drive straight:</p>
+<p>With the use of the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller the robot is able to drive straight:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/fdn5Mu0Qhl8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>In case of using inexpensive motors like the <a href="https://www.sparkfun.com/products/16413">DG01D-E</a> of DiffBot,
@@ -4231,7 +4261,7 @@ different offsets after 2 meter, which can be cause by:</p>
 </ul>
 <h2 id="gain-trim-model">Gain / Trim Model</h2>
 <p>In case the robot constantly drives towards one side (e.g., to the left), this
-issue might be overcome by tuning each PID individually. An alternative solution
+issue might be overcome by tuning each <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> individually. An alternative solution
 can be gain and trim parameters, as implemented in the <a href="https://github.com/ros-mobile-robots/diffbot/blob/e7b6c8c5206235a338ef15e20084630793813a4f/diffbot_base/src/diffbot_hw_interface.cpp#L169"><code>write()</code> method of the
 high-level hardware
 interface</a>.</p>
@@ -4266,8 +4296,8 @@ robot would go left if, e.g., <span class="arithmatex">\(R_r &gt; R_l\)</span>, 
 (ticks), the right wheel has traveled a bigger distance.</p>
 <p>So the question is: what is the control objective?</p>
 <p>When the control objective is to follow a desired reference position (angular or
-lateral), it is more meaningful to measure that as error driving the PID
-controller. But nothing stops us from having several PID controllers in cascade
+lateral), it is more meaningful to measure that as error driving the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>
+controller. But nothing stops us from having several <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers in cascade
 sequence. One for the, e.g., lateral position, that computes the desired <span class="arithmatex">\((v_0,
 \omega)\)</span> of the robot, and two more in parallel for the wheel velocities. Still,
 there would be a trim coefficient to compensate for differences in traveled
@@ -4276,7 +4306,7 @@ distances of the two wheels.</p>
 <div class="arithmatex">\[
 d_{l/r} = R_{l/r} \cdot \Delta \phi_{l/r}
 \]</div>
-<p>where <span class="arithmatex">\(\Delta \phi_{l/r}\)</span> are the rotations of each wheel (more accurately, of each motor), and <span class="arithmatex">\(R_{l/r}\)</span> is the radius of each wheel. If the radii are exactly the same, then <span class="arithmatex">\(R_l = R_r = R\)</span> and the approach using only two PID controllers would work because controlling <span class="arithmatex">\(\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}\)</span> is equivalent to controlling <span class="arithmatex">\(\Delta \phi_{l/r,k}\)</span>, as the time interval we can assume known.</p>
+<p>where <span class="arithmatex">\(\Delta \phi_{l/r}\)</span> are the rotations of each wheel (more accurately, of each motor), and <span class="arithmatex">\(R_{l/r}\)</span> is the radius of each wheel. If the radii are exactly the same, then <span class="arithmatex">\(R_l = R_r = R\)</span> and the approach using only two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers would work because controlling <span class="arithmatex">\(\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}\)</span> is equivalent to controlling <span class="arithmatex">\(\Delta \phi_{l/r,k}\)</span>, as the time interval we can assume known.</p>
 <p>In practice, <span class="arithmatex">\(R_l = R_r = R\)</span> does not hold because of manufacturing tolerances, deformable material of the wheels generating different surfaces of contact with the ground depending on their assembly and robot mass distribution, etc.</p>
 <p>The trim parameter <span class="arithmatex">\(t\)</span> we define as something that adjusts the relationship between the commands sent to the motors (imagine voltage <span class="arithmatex">\(V\)</span>) and the angular speed of each wheel (<span class="arithmatex">\(\dot{\phi}\)</span>):</p>
 <div class="arithmatex">\[
@@ -4306,9 +4336,9 @@ Tedrake's underactuated robotics
 course</a>.</p>
 </div>
 <p>After the robot can drive on the straight line without deviating from it too far the final error can be overcome with additional sensors, such as IMUs, cameras and LiDARs, and then fuse those sensor data to follow a goal location more accurately by constantly adjusting wheel velocities. An even simpler example are IR sensors to follow the line and adjust the wheel velocities according to stay near the line. </p>
-<h3 id="pid-tuning">PID Tuning</h3>
-<p>To tune the PID controller, the following video provides a helpful overview of
-the process. It gives some insights which behavior each PID parameter influences
+<h3 id="pid-tuning"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Tuning</h3>
+<p>To tune the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller, the following video provides a helpful overview of
+the process. It gives some insights which behavior each <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> parameter influences
 for a vehicle trying to follow a lane, thereby reducing the cross track error.
 However, the same process can be followed to reduce the error <span class="arithmatex">\(e(t)\)</span> being the
 difference between the desired (target) angular wheel velocity <span class="arithmatex">\(\dot
@@ -4334,7 +4364,7 @@ D = 0</p>
 If the derivative gain is too low then the system is called underdamped and will pull too quickly towards the desired velocity, which can easily result in overshooting the target value. On the other hand if the D gain is too high the system is known to be overdamped and it will take a long time to reach the desired velocity.
 A properly chosen D gain will allow to reach the desired velocity quickly with reduced overshoot and therefore a near zero error rate (known as critically damped).</p>
 <p>Term I accounts for past values of the error and integrates them over time. This term should be adjust last and increased slightly to tune the behavior further.</p>
-<p>In code the values to tune these PID gains are found in the <a href="https://github.com/ros-mobile-robots/diffbot/blob/e7b6c8c5206235a338ef15e20084630793813a4f/diffbot_base/scripts/base_controller/lib/config/diffbot_base_config.h#L18-L20"><code>base_controller_config.h</code></a>:</p>
+<p>In code the values to tune these <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> gains are found in the <a href="https://github.com/ros-mobile-robots/diffbot/blob/e7b6c8c5206235a338ef15e20084630793813a4f/diffbot_base/scripts/base_controller/lib/config/diffbot_base_config.h#L18-L20"><code>base_controller_config.h</code></a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#define K_P 0.6 </span><span class="c1">// P constant</span>
@@ -4505,7 +4535,7 @@ A properly chosen D gain will allow to reach the desired velocity quickly with r
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

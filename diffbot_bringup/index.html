@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4096,7 +4126,7 @@ And for the encoders rosserial communicates with the Teensy microcontroller to p
 <p>As mentioned, the ROS controller used for DiffBot is the <a href="http://wiki.ros.org/diff_drive_controller?distro=noetic"><code>diff_drive_controller</code></a>. 
 This controller publishes a transform message (see its <a href="http://wiki.ros.org/diff_drive_controller?distro=noetic#Published_Topics">published topics</a>), 
 via the <code>/tf</code> topic, between the <code>odom</code> frame and the frame configured in the <a href="http://wiki.ros.org/diff_drive_controller?distro=noetic#Complete_description">controller's configuration</a> specified by the <code>base_frame_id</code>. 
-In the case of DiffBot this is the <code>base_footprint</code>, a conventional link, defined in <a href="https://www.ros.org/reps/rep-0120.html#base-footprint">REP-120</a>, for mobile robots that specifies the robot's footprint.</p>
+In the case of DiffBot this is the <code>base_footprint</code>, a conventional link, defined in <a href="https://www.ros.org/reps/rep-0120.html#base-footprint"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr>-120</a>, for mobile robots that specifies the robot's footprint.</p>
 <p>Because this is the only transform published by <code>diff_drive_controller</code> another node is needed to publish rest of the link transformations.
 It is the well known <a href="http://wiki.ros.org/robot_state_publisher"><code>robot_state_publisher</code></a>, which uses the joint states published by the ROS controller <a href="http://wiki.ros.org/joint_state_controller"><code>joint_state_controller</code></a> (not to be confused with <a href="http://wiki.ros.org/joint_state_publisher"><code>joint_state_publisher</code></a> - it is not used here, see <a href="https://answers.ros.org/question/303358/what-is-the-difference-between-joint_state_publisher-and-joint_state_controller/">this answer</a> for the difference) to create the transforms
 between the links.</p>
@@ -4283,7 +4313,7 @@ between the links.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

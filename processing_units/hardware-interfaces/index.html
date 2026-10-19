@@ -601,6 +601,8 @@
       
         
       
+        
+      
     
     
     
@@ -858,6 +860,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4152,20 +4182,20 @@
 
 <p>The hardware interfaces provide an interface between the components (sensors and actuators) of the 2WD robot and its processing units, the Raspberry Pi 4 B (or the Nvidia Jetson Nano) and the microcontroller (in this case the Teensy 4.0).</p>
 <h2 id="usb">USB</h2>
-<p>The Universal Serial Bus (USB) connections are required to connect the Single Board Computer (SBC) with the microcontroller. Using this connection, it is possible to communicate via <a href="http://wiki.ros.org/rosserial"><code>rosserial</code></a>.</p>
+<p>The Universal Serial Bus (USB) connections are required to connect the Single Board Computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>) with the microcontroller. Using this connection, it is possible to communicate via <a href="http://wiki.ros.org/rosserial"><code>rosserial</code></a>.</p>
 <p>Another USB connector is used for the RPLidar laser scanner. </p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>See the section <a href="#usb-devices">USB Devices</a> below to setup the required permissions and allow the communication between this interface.</p>
 </div>
-<h2 id="single-board-computer-gpio">Single Board Computer GPIO</h2>
-<p>Currently, one GPIO pin is used to connect the ultrasonic ranger.</p>
-<p>The ultrasonic ranger uses just a single GPIO pin for communicating its measured distances.
-Therefore, we can use one of the GPIO pins such as <a href="https://pinout.xyz/pinout/pin11_gpio17">physical pin 11</a>.</p>
+<h2 id="single-board-computer-gpio">Single Board Computer <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr></h2>
+<p>Currently, one <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> pin is used to connect the ultrasonic ranger.</p>
+<p>The ultrasonic ranger uses just a single <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> pin for communicating its measured distances.
+Therefore, we can use one of the <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> pins such as <a href="https://pinout.xyz/pinout/pin11_gpio17">physical pin 11</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>In case you are using LM393 speed sensors, instead of the encoders of the DG01D-E, the LM393 use a single digital GPIO pin each. 
-These pins could be directly connected to the Raspberry Pi GPIOs and setup using software interrupts with the <a href="https://pypi.org/project/RPi.GPIO/">RPi.GPIO</a> library.
+<p>In case you are using LM393 speed sensors, instead of the encoders of the DG01D-E, the LM393 use a single digital <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> pin each. 
+These pins could be directly connected to the Raspberry Pi GPIOs and setup using software interrupts with the <a href="https://pypi.org/project/RPi.GPIO/">RPi.<abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr></a> library.
 Alternatively they could be also connected to the pins of the microcontroller, e.g. Teensy. For this build the </p>
 </div>
 <h2 id="microcontroller-digital-pins">Microcontroller Digital Pins</h2>
@@ -4174,14 +4204,14 @@ Alternatively they could be also connected to the pins of the microcontroller, e
 <p class="admonition-title">Info</p>
 <p>See the <a href="https://github.com/fjp/diffbot/tree/noetic-devel/diffbot_base/scripts/encoders"><code>diffbot_base</code></a> package for the running software script to read the encoder ticks.</p>
 </div>
-<h2 id="single-board-computer-i2c-connection">Single Board Computer I2C Connection</h2>
-<p>The I2C connections on the Raspberry Pi 4 B are used for multiple components such as the motor driver and the oled display.</p>
+<h2 id="single-board-computer-i2c-connection">Single Board Computer <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Connection</h2>
+<p>The <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connections on the Raspberry Pi 4 B are used for multiple components such as the motor driver and the oled display.</p>
 <figure>
     <a href="/resources/hardware/i2c-rpi-pinout.png"><img src="/resources/hardware/i2c-rpi-pinout.png"></a>
     <figcaption><a href="https://pinout.xyz/pinout/i2c" title="I2C Pinout">I2C Pinout</a> on Raspberry Pi 4 B.</figcaption>
 </figure>
 
-<p>Using these ports on the Raspberry Pi 4 B, requires that we enable the I2C interface. </p>
+<p>Using these ports on the Raspberry Pi 4 B, requires that we enable the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> interface. </p>
 <p>To do so, we will use the tool <code>i2cdetect</code> which requires that we install a tool on Ubuntu called <code>i2c-tools</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -4197,8 +4227,8 @@ sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> <
 
 fjp@remo:~$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>i2c-tools
 </code></pre></div></td></tr></tbody></table></div>
-<p>This <code>i2cdetect</code> tool is  a  userspace program to scan an I2C bus for devices
-given a specific i2cbus argument which indicates  the number or name of the I2C bus to be scanned, 
+<p>This <code>i2cdetect</code> tool is  a  userspace program to scan an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus for devices
+given a specific i2cbus argument which indicates  the number or name of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus to be scanned, 
 and should correspond to one of the buses listed by <code>i2cdetect -l</code>. See also <code>info i2cdetect</code> for the manual page.</p>
 <p>To test if the i2c ports are working we use the following commands:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4216,7 +4246,7 @@ and should correspond to one of the buses listed by <code>i2cdetect -l</code>. S
 </code></pre></div></td></tr></tbody></table></div>
 <div class="admonition note">
 <p class="admonition-title">Ubuntu Server 20.04</p>
-<p>Its <code>config.txt</code> says not to edit it: put the lines you need into <code>/boot/firmware/usercfg.txt</code>, which <code>config.txt</code> includes. <code>dtparam=i2c_arm=on</code>, the I2C bus on GPIO 2 and 3 (<code>/dev/i2c-1</code>), is already set by the image.</p>
+<p>Its <code>config.txt</code> says not to edit it: put the lines you need into <code>/boot/firmware/usercfg.txt</code>, which <code>config.txt</code> includes. <code>dtparam=i2c_arm=on</code>, the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus on <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> 2 and 3 (<code>/dev/i2c-1</code>), is already set by the image.</p>
 </div>
 <p>After rebooting the Raspberry Pi and entering the command again the following output will appear:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4286,7 +4316,7 @@ To get access without <code>sudo</code> we can add other users, requiring access
 <span class="go">70: -- -- -- -- -- -- -- -- </span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>It outputs a table with the list of detected devices on the specified bus.
-In this case there are no connected devices on I2C bus 0.</p>
+In this case there are no connected devices on <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus 0.</p>
 <details><summary>Alternative setup using raspi-config</summary>
 
 On Raspian Buster, the official Raspberry OS, we could use the `raspi-config` tool:
@@ -4569,7 +4599,7 @@ Confirm the activation and restart the RPi:
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

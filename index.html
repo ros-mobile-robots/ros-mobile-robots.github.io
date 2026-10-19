@@ -688,6 +688,8 @@
       
         
       
+        
+      
     
     
     
@@ -945,6 +947,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4054,19 +4084,19 @@ The robot can operate on a <a href="https://de.aliexpress.com/item/32858825148.h
 running <a href="http://wiki.ros.org/noetic">ROS Noetic</a> or <a href="http://wiki.ros.org/melodic">ROS Melodic</a> middleware on Ubuntu Mate 20.04 and Ubuntu 18.04, respectively.
 With a motor driver that actuates two brushed motors the robot can drive autonomously to a desired location while sensing its environment using sensors, 
 such as a laser scanner to avoid obstacles and a camera to detect objects. Odometry wheel encoders (also referred to as speed sensors) 
-combined with an inertial measurement unit (IMU) are used together with the laser scanner for localization in a previously stored map. 
-Unseen environments can be mapped with the laser scanner, making use of open source SLAM algorithms such as <code>gmapping</code>. </p>
+combined with an inertial measurement unit (<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>) are used together with the laser scanner for localization in a previously stored map. 
+Unseen environments can be mapped with the laser scanner, making use of open source <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithms such as <code>gmapping</code>. </p>
 <p>The following video gives an overview of the robot's components:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/6aAEbtfVbAk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <p>The project is split into multiple parts, to address the following main aspects of the robot.</p>
 <ul>
-<li><a href="components/">Bill of Materials (BOM)</a> and the theory behind the parts.</li>
+<li><a href="components/">Bill of Materials (<abbr title="Bill of materials. The list of all parts needed to build a robot, with quantities and where to buy them.">BOM</abbr>)</a> and the theory behind the parts.</li>
 <li><a href="theory/">Theory of (mobile) robots</a>.</li>
 <li><a href="hardware_setup/assembly/">Assembly</a> of the robot platform and the components.</li>
 <li>Setup of ROS (Noetic or Melodic) on either Raspberry Pi 4 B or Jetson Nano, 
-  which are both <a href="https://en.wikipedia.org/wiki/Single-board_computer">Single Board Computers (SBC)</a> and are the brain of the robot.</li>
-<li><a href="robot-description/">Modeling the Robot</a> in Blender and URDF to simulate it in Gazebo.</li>
+  which are both <a href="https://en.wikipedia.org/wiki/Single-board_computer">Single Board Computers (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>)</a> and are the brain of the robot.</li>
+<li><a href="robot-description/">Modeling the Robot</a> in Blender and <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to simulate it in Gazebo.</li>
 <li>ROS packages and nodes: </li>
 <li>Hardware drivers to interact with the hardware components</li>
 <li>High level nodes for perception, navigation, localization and control.</li>
@@ -4081,26 +4111,26 @@ To run ROS Noetic <a href="https://www.docker.com/">Docker</a> is needed.</p>
 <h2 id="source-code">Source Code</h2>
 <p>The source code for this project can be found in the <a href="https://github.com/ros-mobile-robots/diffbot">ros-mobile-robots/diffbot</a> GitHub repository.</p>
 <h2 id="remo-robot">Remo Robot</h2>
-<p>Remo (Research Education Modular/Mobile Open robot) is a 3D printable, modular robot. Its robot description is in <a href="https://github.com/ros-mobile-robots/remo_description">ros-mobile-robots/remo_description</a>, which has empty placeholders for the STL files. To print Remo, get the files in one of two ways:</p>
+<p>Remo (Research Education Modular/Mobile Open robot) is a 3D printable, modular robot. Its robot description is in <a href="https://github.com/ros-mobile-robots/remo_description">ros-mobile-robots/remo_description</a>, which has empty placeholders for the <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files. To print Remo, get the files in one of two ways:</p>
 <div class="grid cards">
 <ul>
 <li>
-<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2M1 2h3.27l.94 2H20a1 1 0 0 1 1 1c0 .17-.05.34-.12.5l-3.58 6.47c-.34.61-1 1.03-1.75 1.03H8.1l-.9 1.63-.03.12a.25.25 0 0 0 .25.25H19v2H7a2 2 0 0 1-2-2c0-.35.09-.68.24-.96l1.36-2.45L3 4H1zm6 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2m9-7 2.78-5H6.14l2.36 5z"></path></svg></span> <strong>Buy the STL files</strong></p>
+<p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2M1 2h3.27l.94 2H20a1 1 0 0 1 1 1c0 .17-.05.34-.12.5l-3.58 6.47c-.34.61-1 1.03-1.75 1.03H8.1l-.9 1.63-.03.12a.25.25 0 0 0 .25.25H19v2H7a2 2 0 0 1-2-2c0-.35.09-.68.24-.96l1.36-2.45L3 4H1zm6 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2c0-1.11.89-2 2-2m9-7 2.78-5H6.14l2.36 5z"></path></svg></span> <strong>Buy the <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files</strong></p>
 <hr>
-<p>A one-time payment on Gumroad. You download all of Remo's STL files and can start printing, and the purchase supports this project.</p>
-<p><a class="gumroad-button" href="https://fjp.gumroad.com/l/GnMpU" data-gumroad-single-product="true">Get the Remo STL files</a></p>
+<p>A one-time payment on Gumroad. You download all of Remo's <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files and can start printing, and the purchase supports this project.</p>
+<p><a class="gumroad-button" href="https://fjp.gumroad.com/l/GnMpU" data-gumroad-single-product="true">Get the Remo <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files</a></p>
 </li>
 <li>
 <p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 20.408c-.492.308-.903.546-1.192.709q-.23.129-.463.252h-.002a.75.75 0 0 1-.686 0 17 17 0 0 1-.465-.252 31 31 0 0 1-4.803-3.34C3.8 15.572 1 12.331 1 8.513 1 5.052 3.829 2.5 6.736 2.5 9.03 2.5 10.881 3.726 12 5.605 13.12 3.726 14.97 2.5 17.264 2.5 20.17 2.5 23 5.052 23 8.514c0 3.818-2.801 7.06-5.389 9.262A31 31 0 0 1 14 20.408"></path></svg></span> <strong>Sponsor and get Remo Insiders</strong></p>
 <hr>
-<p>From $10 a month on GitHub Sponsors. You get <a href="insiders/#remo-stl-files">Remo Insiders</a>, a private Git repository with the STL files that you clone and pull, and new features first.</p>
+<p>From $10 a month on GitHub Sponsors. You get <a href="insiders/#remo-stl-files">Remo Insiders</a>, a private Git repository with the <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files that you clone and pull, and new features first.</p>
 <p><a class="md-button" href="https://github.com/sponsors/fjp">Become a sponsor</a></p>
 </li>
 </ul>
 </div>
 <h2 id="contributing">Contributing</h2>
 <p>Contributions to the code and the documentation are welcome. The <a href="development/">Contributing</a> section explains how changes get in,
-the best practices the project follows, testing and debugging, the CI checks, and how these docs are written.</p>
+the best practices the project follows, testing and debugging, the <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> checks, and how these docs are written.</p>
 <h2 id="references">References</h2>
 <p>Helpful resources to bring your own robots into ROS are:</p>
 <ul>
@@ -4216,7 +4246,7 @@ the best practices the project follows, testing and debugging, the CI checks, an
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
