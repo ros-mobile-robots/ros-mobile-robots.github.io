@@ -285,7 +285,7 @@ The matrix is the transpose of the rotation matrix $R(\theta_0)$, which turns a 
 |:--|:--|:--|:--|
 | `forward` | 0.6 ± 0.1 m | 0.56 to 0.62 m | The robot doesn't move, or drives much too slow or too fast |
 | `left` | 0 ± 0.1 m | About 1 mm | It drives off to the side |
-| `turned` | 0 ± 0.2 rad | 0.005 rad or less | Its heading changes, for example because one wheel turns slower |
+| `turned` | 0 ± 0.2 rad | About 0.007 rad or less | Its heading changes, for example because one wheel turns slower |
 | Odometry and true `forward` | Within 0.03 m | At most 0.001 m apart | The controller's wheel radius doesn't match the model: a `wheel_radius` in `geometry.yaml` 10 % bigger or smaller gave about 0.053 m and 0.064 m |
 
 A bigger mistake already fails the true pose's `forward` check: with a `wheel_radius` 20 % bigger than the robot's, it drove only 0.48 m.
