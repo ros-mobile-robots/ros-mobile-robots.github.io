@@ -11,7 +11,7 @@ On ROS Noetic, DiffBot and Remo run in [Gazebo Classic 11](https://classic.gazeb
 - The URDF's `<gazebo>` tags add what only the simulation needs, such as friction and contact settings, the lidar and camera plugins, and the ros_control plugin.
 - The Simulation Test runs only the Gazebo server, without a GUI and without a GPU, on GitHub's standard runners.
 
-Gazebo Classic has reached its end of life: [Gazebo 11 is the last major release](https://classic.gazebosim.org/), its support ended on 29 January 2025, and its [repository](https://github.com/gazebosim/gazebo-classic) is archived, with 11.15.1 as the final version. So it gets no more fixes. ROS Noetic, which reached its end of life on 31 May 2025, can't move to the new Gazebo in practice: the ROS 1 bridge `ros_ign` has binary packages only for Gazebo Citadel, which is also past its end of life, and newer Gazebo releases need it built from source ([ros_gz, noetic branch](https://github.com/gazebosim/ros_gz/tree/noetic)). The roadmap keeps ROS 1 Noetic with Gazebo Classic on the `noetic-devel` branch ([Contributing](development/index.md#roadmap)).
+Gazebo Classic has reached its end of life: [Gazebo 11 is the last major release](https://classic.gazebosim.org/), its support ended on 29 January 2025, and its [repository](https://github.com/gazebosim/gazebo-classic) is archived, with 11.15.1 as the final version. So it gets no more fixes. ROS Noetic, which reached its end of life on 31 May 2025, has no supported way to the new Gazebo either: the ROS 1 bridge `ros_ign` has binary packages only for Gazebo Citadel, which is also past its end of life, and newer releases such as Fortress need it built from source ([ros_gz, noetic branch](https://github.com/gazebosim/ros_gz/tree/noetic)). The roadmap keeps ROS 1 Noetic with Gazebo Classic on the `noetic-devel` branch ([Contributing](development/index.md#roadmap)).
 
 ## The new Gazebo for ROS 2
 
@@ -46,12 +46,12 @@ What each is good at:
 - **Webots** comes with many robot models, sensors and examples, for research and teaching. It runs on Linux, Windows and macOS. In CI it runs in its Docker image with a virtual display ([installation](https://cyberbotics.com/doc/guide/installation-procedure)).
 - **Isaac Sim** renders photorealistic camera images and simulates RTX lidars, for camera-heavy perception and for generating labeled training data. [Isaac Lab](https://github.com/isaac-sim/IsaacLab) builds on it for reinforcement and imitation learning. It needs a powerful NVIDIA GPU, so it doesn't run on GitHub's standard runners.
 - **CoppeliaSim** offers several physics engines in one tool, and scripts in Lua or Python. Its free license is for education only.
-- **MuJoCo** is a fast, accurate physics engine for contact-rich tasks and for reinforcement learning with many simulations in parallel. Sensors like lidars and cameras come from plugins, for example `mujoco_ros2_control`'s, not from MuJoCo itself.
+- **MuJoCo** is a fast, accurate physics engine for contact-rich tasks and for reinforcement learning with many simulations in parallel. It has its own [cameras](https://mujoco.readthedocs.io/en/stable/XMLreference.html#body-camera), which it can render, and [range sensors](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-rangefinder). ROS topics for the sensors, and the connection to ros2_control, come from packages such as `mujoco_ros2_control` and its plugins; a scanning lidar that publishes a laser scan needs such a plugin or your own setup.
 - **Stage and Flatland** simulate a robot in 2D: fast, light and enough to test navigation, without 3D physics.
 
 ## Which one to use
 
-- **ROS 1 Noetic:** Gazebo Classic 11, as now. Nothing else is still supported with Noetic, and the robots' URDFs, worlds and the Simulation Test are made for it.
+- **ROS 1 Noetic:** Gazebo Classic 11, as now. The robots' URDFs, worlds and the Simulation Test are made and tested for it.
 - **The ROS 2 port:** the new Gazebo, with the release recommended for the chosen ROS 2 distribution: Jazzy with Harmonic (supported until May 2029) or Lyrical with Jetty (until May 2031). Which distribution the port targets is still open in the roadmap. `gz_ros2_control` keeps the setup of the ros_control world: the same controllers on the simulated and the real robot. A test like the Simulation Test, which only needs the odometry and the true pose, runs on Gazebo's server without rendering.
 - **Another simulator** is the better choice for some work:
     - camera-heavy perception, or training data for a neural network: Isaac Sim, if an RTX GPU is available;
