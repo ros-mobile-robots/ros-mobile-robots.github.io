@@ -4356,6 +4356,158 @@
 <p>On flat ground, a cylinder touches along a line across its width, and the physics engine reduces that line to a few contact points. A sphere with the wheel's radius touches at one point in the wheel's center plane.</p>
 <p>Where the contact forces act matters for turning. The <a href="../modeling-differential-drive-robot/">kinematic model</a> assumes that each wheel pushes on the ground in its center plane, so the turn rate is <span class="arithmatex">\(\omega = (v_r - v_l) / L\)</span>, with the wheel separation <span class="arithmatex">\(L\)</span> between the wheel centers. If the forces act at the wheels' outer edges instead, the robot turns as if <span class="arithmatex">\(L\)</span> were one wheel width larger.</p>
 <p>Both robots showed exactly this with cylinder collisions. DiffBot turned on the spot only about 85 % of its commanded angle, the ratio of its wheel separation to the distance between its wheels' outer edges, 0.138 m / 0.163 m = 0.85 (<a href="https://github.com/ros-mobile-robots/diffbot/pull/120">diffbot#120</a>). Remo turned 1.28 of 1.50 rad, 0.144 m / 0.169 m = 0.85 (<a href="https://github.com/ros-mobile-robots/remo_description/pull/2">remo_description#2</a>). Remo's cylinders only seemed to turn it correctly while its wheels were allowed to sink into the ground (<a href="#contact-stiffness-and-damping">below</a>). With sphere collisions, both turn as their odometry says, DiffBot within 0.03 rad and Remo within 0.002 rad. The sphere is still a modeling choice, which the simulation test checks.</p>
+<style>
+.md-typeset figure.wd-figure{margin:1em auto;width:100%;max-width:500px}
+.wd-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif;--wd-s1:#2a78d6;--wd-s2:#eb6834;--wd-s3:#1baf7a}
+[data-md-color-scheme=slate] .wd-fig{--wd-s1:#3987e5;--wd-s2:#d95926;--wd-s3:#199e70}
+.wd-fig text{fill:var(--md-default-fg-color);font-size:12px}
+.wd-fig .t-muted{fill:var(--md-default-fg-color--light);font-size:11px}
+.wd-fig .t-head{font-size:12.5px;font-weight:700}
+.wd-fig .t-halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
+.wd-fig .grid{stroke:var(--md-default-fg-color--lightest);stroke-width:1;fill:none}
+.wd-fig .axis{stroke:var(--md-default-fg-color--lighter);stroke-width:1;fill:none}
+.wd-fig .ref{stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3;fill:none}
+.wd-fig .ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.wd-fig .s1{stroke:var(--wd-s1)}.wd-fig .s2{stroke:var(--wd-s2)}.wd-fig .s3{stroke:var(--wd-s3)}
+.wd-fig .f1{fill:var(--wd-s1)}.wd-fig .f2{fill:var(--wd-s2)}.wd-fig .f3{fill:var(--wd-s3)}
+.wd-fig .mk{stroke:var(--md-default-bg-color);stroke-width:2}
+.wd-fig .hit{fill:transparent;stroke:none}
+.wd-fig .pt:hover .mk{stroke:var(--md-default-fg-color);stroke-width:1.5}
+.wd-fig .band{fill:transparent}
+.wd-fig .band:hover{fill:var(--md-default-fg-color--lightest)}
+.wd-fig .part{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.wd-fig .coll{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:3 2}
+.wd-fig .ground{stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.wd-fig .dim{stroke:var(--md-default-fg-color--light);stroke-width:1;fill:none}
+.wd-fig .dim-head{fill:var(--md-default-fg-color--light)}
+.wd-fig .press{stroke:var(--wd-s1);stroke-width:2;fill:none}
+.wd-fig .press-head{fill:var(--wd-s1)}
+</style>
+<figure class="wd-figure">
+<svg class="wd-fig" viewBox="0 0 440 205" role="img" aria-labelledby="wd-contacts-t"><title id="wd-contacts-t">Front view of DiffBot's drive wheels with a cylinder and a sphere collision</title><defs><marker id="wd-contacts-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="dim-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<text class="t-head" x="105" y="18" text-anchor="middle">Cylinder collision</text>
+<text class="t-muted" x="105" y="32" text-anchor="middle">contacts at the outer edges</text>
+<rect class="part" x="65" y="113.7" width="80" height="26" rx="3"></rect>
+<path class="axis" d="M65,126.7 L36,126.7"></path>
+<rect class="part" x="23.5" y="93.4" width="25" height="66.6" rx="4"></rect>
+<path class="ref" d="M36,85.4 L36,164"></path>
+<g class="pt"><title>Contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"></circle><circle class="mk f1" cx="23.5" cy="160" r="4.5"></circle></g>
+<path class="axis" d="M145,126.7 L174,126.7"></path>
+<rect class="part" x="161.5" y="93.4" width="25" height="66.6" rx="4"></rect>
+<path class="ref" d="M174,85.4 L174,164"></path>
+<g class="pt"><title>Contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"></circle><circle class="mk f1" cx="186.5" cy="160" r="4.5"></circle></g>
+<path class="ground" d="M8,160 L202,160"></path>
+<path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M36,77.4 L174,77.4"></path>
+<text class="t-muted t-halo" x="105" y="72.4" text-anchor="middle">0.138 m between the centers</text>
+<path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M23.5,178 L186.5,178"></path>
+<text class="t-halo" x="105" y="193" text-anchor="middle">0.163 m between the contacts</text>
+<text class="t-head" x="335" y="18" text-anchor="middle">Sphere collision</text>
+<text class="t-muted" x="335" y="32" text-anchor="middle">contact in the center plane</text>
+<rect class="part" x="295" y="113.7" width="80" height="26" rx="3"></rect>
+<path class="axis" d="M295,126.7 L266,126.7"></path>
+<rect class="part" x="253.5" y="93.4" width="25" height="66.6" rx="4"></rect>
+<path class="ref" d="M266,85.4 L266,164"></path>
+<circle class="coll" cx="266" cy="126.7" r="33.3"></circle>
+<g class="pt"><title>Contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="266" cy="160" r="12"></circle><circle class="mk f1" cx="266" cy="160" r="4.5"></circle></g>
+<path class="axis" d="M375,126.7 L404,126.7"></path>
+<rect class="part" x="391.5" y="93.4" width="25" height="66.6" rx="4"></rect>
+<path class="ref" d="M404,85.4 L404,164"></path>
+<circle class="coll" cx="404" cy="126.7" r="33.3"></circle>
+<g class="pt"><title>Contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="404" cy="160" r="12"></circle><circle class="mk f1" cx="404" cy="160" r="4.5"></circle></g>
+<path class="ground" d="M238,160 L432,160"></path>
+<path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,77.4 L404,77.4"></path>
+<text class="t-muted t-halo" x="335" y="72.4" text-anchor="middle">0.138 m between the centers</text>
+<path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,178 L404,178"></path>
+<text class="t-halo" x="335" y="193" text-anchor="middle">0.138 m between the contacts</text>
+</svg>
+<figcaption>Front view of DiffBot's drive wheels, to scale. The dots are where Gazebo put the contacts. The dashed circle is the sphere collision; the wheel's visual and inertia stay those of the real wheel.</figcaption>
+</figure>
+<figure class="wd-figure">
+<svg class="wd-fig" viewBox="0 0 440 168" role="img" aria-labelledby="wd-turn-t"><title id="wd-turn-t">Measured true turn over the odometry's turn, with a cylinder and a sphere collision</title><defs></defs>
+<path class="grid" d="M110,36 L110,128"></path>
+<text class="t-muted" x="110" y="142" text-anchor="middle">0.80</text>
+<path class="grid" d="M180.5,36 L180.5,128"></path>
+<text class="t-muted" x="180.5" y="142" text-anchor="middle">0.85</text>
+<path class="grid" d="M250.9,36 L250.9,128"></path>
+<text class="t-muted" x="250.9" y="142" text-anchor="middle">0.90</text>
+<path class="grid" d="M321.4,36 L321.4,128"></path>
+<text class="t-muted" x="321.4" y="142" text-anchor="middle">0.95</text>
+<path class="grid" d="M391.8,36 L391.8,128"></path>
+<text class="t-muted" x="391.8" y="142" text-anchor="middle">1.00</text>
+<text class="t-muted" x="265" y="158" text-anchor="middle">true turn / odometry turn</text>
+<path class="ref" d="M391.8,36 L391.8,128"></path>
+<text class="t-muted" x="387.8" y="32" text-anchor="end">center plane: 1</text>
+<rect class="f2" x="110.5" y="7.5" width="9" height="9" rx="1"></rect>
+<text class="t-muted" x="124" y="16" text-anchor="start">cylinder</text>
+<circle class="f1" cx="193.4" cy="12" r="4.5"></circle>
+<text class="t-muted" x="202.4" y="16" text-anchor="start">sphere</text>
+<path class="ref" d="M254.2,12 L270.2,12"></path>
+<text class="t-muted" x="275.2" y="16" text-anchor="start">predicted</text>
+<text x="100" y="68" text-anchor="end">DiffBot</text>
+<path class="ref" d="M175.7,52 L175.7,76"></path>
+<text class="t-muted t-halo" x="175.7" y="49" text-anchor="middle">outer edges: 0.847</text>
+<path class="axis" d="M172.6,64 L365.5,64"></path>
+<g class="pt"><title>DiffBot, cylinder: 1.140 / 1.350 rad = 0.844</title><circle class="hit" cx="172.6" cy="64" r="12"></circle><rect class="mk f2" x="168.1" y="59.5" width="9" height="9" rx="1"></rect></g>
+<g class="pt"><title>DiffBot, sphere: 1.472 / 1.500 rad = 0.981</title><circle class="hit" cx="365.5" cy="64" r="12"></circle><circle class="mk f1" cx="365.5" cy="64" r="4.5"></circle></g>
+<text class="t-halo" x="172.6" y="84" text-anchor="middle">0.844</text>
+<text class="t-halo" x="363.5" y="84" text-anchor="middle">0.981</text>
+<text x="100" y="112" text-anchor="end">Remo</text>
+<path class="ref" d="M183.4,96 L183.4,120"></path>
+<text class="t-muted t-halo" x="183.4" y="93" text-anchor="middle">outer edges: 0.852</text>
+<path class="axis" d="M183.3,108 L391.8,108"></path>
+<g class="pt"><title>Remo, cylinder: 1.278 / 1.500 rad = 0.852</title><circle class="hit" cx="183.3" cy="108" r="12"></circle><rect class="mk f2" x="178.8" y="103.5" width="9" height="9" rx="1"></rect></g>
+<g class="pt"><title>Remo, sphere: 1.498 / 1.498 rad = 1.000</title><circle class="hit" cx="391.8" cy="108" r="12"></circle><circle class="mk f1" cx="391.8" cy="108" r="4.5"></circle></g>
+<text class="t-halo" x="183.3" y="128" text-anchor="middle">0.852</text>
+<text class="t-halo" x="389.8" y="128" text-anchor="middle">1.000</text>
+</svg>
+<figcaption>The true turn over the odometry's turn, turning 1.5 rad on the spot. With cylinders, both robots turned as their contacts at the outer edges predict (dashed); with spheres, as their wheel centers do.</figcaption>
+</figure>
+
+<details class="info">
+<summary>The data</summary>
+<p>DiffBot's cylinder: diffbot#119 with the measured geometry, before #120. Remo's cylinder: minDepth 0, with remo_description#2's contacts. Both spheres: remo_description#2 and diffbot#122, three suite runs.</p>
+<table>
+<thead>
+<tr>
+<th>Robot</th>
+<th>Collision</th>
+<th>True / odometry turn</th>
+<th>Ratio</th>
+<th>Predicted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DiffBot</td>
+<td>cylinder</td>
+<td>1.140 / 1.350 rad</td>
+<td>0.844</td>
+<td>0.138 / 0.163 m = 0.847 (outer edges)</td>
+</tr>
+<tr>
+<td>DiffBot</td>
+<td>sphere</td>
+<td>1.472 / 1.500 rad</td>
+<td>0.981</td>
+<td>1 (center plane)</td>
+</tr>
+<tr>
+<td>Remo</td>
+<td>cylinder</td>
+<td>1.278 / 1.500 rad</td>
+<td>0.852</td>
+<td>0.144 / 0.169 m = 0.852 (outer edges)</td>
+</tr>
+<tr>
+<td>Remo</td>
+<td>sphere</td>
+<td>1.498 / 1.498 rad</td>
+<td>1.000</td>
+<td>1 (center plane)</td>
+</tr>
+</tbody>
+</table>
+</details>
 <p>A sphere also has limits: it only represents an upright wheel on flat ground. On a slope or an edge it can touch the ground beside the real tire. And the collision shape doesn't change the inertia: a wheel with a sphere collision still has the inertia of its real shape, here a cylinder.</p>
 <h3 id="mass-and-inertia">Mass and inertia</h3>
 <p>For a wheel that spins about its axle, the inertia that matters is the one about that axis. A solid cylinder of mass <span class="arithmatex">\(m\)</span> and radius <span class="arithmatex">\(r\)</span> has</p>
@@ -4379,6 +4531,238 @@ J = \frac{1}{2} m r^2 .
 <p><code>fdir1</code> is easy to get wrong on a wheel. Gazebo turns it with the collision's pose (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133"><code>ODEPhysics.cc</code></a>), and ODE uses it as given, without projecting it onto the contact plane (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287"><code>contact.cpp</code></a>). In a URDF, a wheel's collision cylinder is usually rotated so that its z axis is the axle, which doesn't move as the wheel spins, so <code>fdir1</code> <code>0 0 1</code> stays along the axle. A sphere has no such rotation: its frame spins with the wheel, and the old <code>fdir1</code> <code>0 0 1</code> tilts into the contact normal. A direction chosen along the axle would still be valid. With a sphere and <code>fdir1</code> <code>0 0 1</code>, Remo drove about 2 % less than its odometry when driving straight; without <code>fdir1</code>, it drives as far as its odometry says.</p>
 <p>For each contact, Gazebo uses the smaller coefficient of the two surfaces (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1257-L1261"><code>ODEPhysics.cc</code></a>). Gazebo's ground plane has <code>mu</code> 100 and <code>mu2</code> 50, so the wheel's coefficients decide.</p>
 <p>Friction limits the force; it doesn't make a wheel roll. Higher friction doesn't fix a wrong wheel speed or a wrong geometry. Remo's wheels jittered when it turned on the spot, with cylinder collisions and friction 200. The cause was where the cylinders touched the ground: with spheres, they turn smoothly even with friction 200. Remo now uses friction 1, closer to rubber on a floor.</p>
+<p>The figure shows Remo's wheel speeds while it turns on the spot. With the cylinders and friction 200, both wheels jump between almost standing and twice the command. With a sphere and the same contacts, they no longer jitter, but they miss the command (<a href="#contact-stiffness-and-damping">below</a>). Only the final model follows it.</p>
+<figure class="wd-figure">
+<svg class="wd-fig" viewBox="0 0 440 428" role="img" aria-labelledby="wd-speeds-t"><title id="wd-speeds-t">Remo's wheel speeds while turning on the spot, for three wheel models</title><defs></defs>
+<path class="ln s1" d="M48,12 L64,12"></path>
+<text class="t-muted" x="69" y="16" text-anchor="start">left wheel</text>
+<path class="ln s2" d="M146,12 L162,12"></path>
+<text class="t-muted" x="167" y="16" text-anchor="start">right wheel</text>
+<path class="ref" d="M250.3,12 L266.3,12"></path>
+<text class="t-muted" x="271.3" y="16" text-anchor="start">commanded</text>
+<text class="t-head" x="48" y="50" text-anchor="start">Cylinder, friction 200, kp 1e12, kd 0 (main)</text>
+<path class="grid" d="M48,145.1 L430,145.1"></path>
+<text class="t-muted" x="42" y="148.6" text-anchor="end">-3</text>
+<path class="grid" d="M48,130.8 L430,130.8"></path>
+<path class="grid" d="M48,116.4 L430,116.4"></path>
+<path class="axis" d="M48,102 L430,102"></path>
+<text class="t-muted" x="42" y="105.5" text-anchor="end">0</text>
+<path class="grid" d="M48,87.6 L430,87.6"></path>
+<path class="grid" d="M48,73.2 L430,73.2"></path>
+<path class="grid" d="M48,58.9 L430,58.9"></path>
+<text class="t-muted" x="42" y="62.4" text-anchor="end">3</text>
+<path class="ref" d="M48,102 L91.3,102 L91.3,117.7 L344.3,117.7 L344.3,102 L430,102"></path>
+<path class="ref" d="M48,102 L91.3,102 L91.3,86.3 L344.3,86.3 L344.3,102 L430,102"></path>
+<path class="ln s1" d="M48.8,102.1 L50.5,102.2 L52.2,102 L53.9,102.2 L55.6,102.1 L57.3,102.3 L59,102.1 L60.7,101.4 L62.4,102.1 L64.1,102 L65.8,102.1 L67.5,102.1 L69.2,102.1 L70.9,102 L72.6,102.1 L74.3,102 L76,102.1 L77.7,102 L79.4,102.1 L81.1,102 L82.8,102.1 L84.5,102.1 L86.2,102.1 L87.9,102.1 L89.6,102.2 L91.3,102.4 L93,104.2 L94.7,106.4 L96.4,109 L98.1,112.1 L99.8,112.9 L101.5,116.4 L103.2,115.1 L104.9,122.5 L106.6,111.7 L108.3,117 L110,118.2 L111.7,112.5 L113.4,122.3 L115.1,117.4 L116.8,124.6 L118.5,115.9 L120.2,112.1 L121.9,115.7 L123.6,117.2 L125.2,119.1 L126.9,124.9 L128.6,111.2 L130.3,124.9 L132,118.3 L133.7,111.8 L135.4,123.1 L137.1,120.1 L138.8,127.5 L140.5,125.6 L142.2,123.8 L143.9,115.1 L145.6,112.3 L147.3,111.1 L149,114.1 L150.7,113.7 L152.4,113.2 L154.1,114.3 L155.8,121.3 L157.5,119.6 L159.2,115.4 L160.9,114.4 L162.6,121.3 L164.3,142.5 L166,113.6 L167.7,120.3 L169.4,117.6 L171.1,117.7 L172.8,123.1 L174.5,116 L176.2,115.8 L177.9,121.3 L179.6,123.4 L181.3,112.3 L183,115.6 L184.7,114.4 L186.4,118.7 L188.1,122.7 L189.8,115.9 L191.5,112.6 L193.2,116.9 L194.9,124.3 L196.6,111.7 L198.3,117 L200,116.4 L201.6,112.1 L203.3,117.9 L205,117.3 L206.7,118 L208.4,117.3 L210.1,115.1 L211.8,114.4 L213.5,129.8 L215.2,123.1 L216.9,117.4 L218.6,115.9 L220.3,111.9 L222,116.2 L223.7,122.6 L225.4,113.7 L227.1,114.4 L228.8,111.7 L230.5,114.1 L232.2,114.4 L233.9,111.9 L235.6,115.8 L237.3,111.1 L239,131.3 L240.7,124.2 L242.4,123.1 L244.1,127.4 L245.8,116.6 L247.5,123.4 L249.2,118.2 L250.9,119 L252.6,115.5 L254.3,110.5 L256,116.1 L257.7,112.4 L259.4,108.5 L261.1,121.5 L262.8,123.1 L264.5,111.8 L266.2,123.2 L267.9,114.6 L269.6,115.6 L271.3,116.5 L273,115.3 L274.7,126.2 L276.4,122.9 L278,110.7 L279.7,121.4 L281.4,119.5 L283.1,122.3 L284.8,126.7 L286.5,115.2 L288.2,114.6 L289.9,120.2 L291.6,116 L293.3,119.6 L295,115.3 L296.7,114.7 L298.4,112.5 L300.1,108.5 L301.8,123.1 L303.5,117.6 L305.2,115.7 L306.9,116.6 L308.6,117.4 L310.3,114.2 L312,117.7 L313.7,124.9 L315.4,120.8 L317.1,117.2 L318.8,123.3 L320.5,114.8 L322.2,118.7 L323.9,123.7 L325.6,123.6 L327.3,123.6 L329,114.4 L330.7,116.6 L332.4,120.7 L334.1,114.8 L335.8,119 L337.5,121.5 L339.2,113.2 L340.9,114.1 L342.6,117.3 L344.3,121.3 L346,108.5 L347.7,114.2 L349.4,113.6 L351.1,107.7 L352.8,105.2 L354.4,104.2 L356.1,103.5 L357.8,103 L359.5,102.5 L361.2,100.3 L362.9,102.4 L364.6,102.2 L366.3,102.2 L368,102.2 L369.7,102.4 L371.4,102.5 L373.1,102.5 L374.8,102.3 L376.5,101.8 L378.2,101.7 L379.9,101.9 L381.6,102 L383.3,102.1 L385,102 L386.7,102.6 L388.4,102 L390.1,99.7 L391.8,101.8 L393.5,101.7 L395.2,101.9 L396.9,102 L398.6,102.2 L400.3,102.2 L402,102.2 L403.7,101.8 L405.4,102 L407.1,101.7 L408.8,101.8 L410.5,101.9 L412.2,102.2 L413.9,102.2 L415.6,102.4 L417.3,102.2 L419,102.2 L420.7,101.9 L422.4,101.7 L424.1,101.9 L425.8,102 L427.5,102 L429.2,102.1"></path>
+<path class="ln s2" d="M48.8,102 L50.5,102.1 L52.2,102 L53.9,102.2 L55.6,102 L57.3,102.3 L59,102 L60.7,101.3 L62.4,102 L64.1,102 L65.8,102 L67.5,102 L69.2,102 L70.9,102 L72.6,102 L74.3,102 L76,102.1 L77.7,102 L79.4,102.1 L81.1,102 L82.8,102.1 L84.5,102 L86.2,102.2 L87.9,102 L89.6,102.1 L91.3,101.6 L93,100.5 L94.7,97.7 L96.4,95 L98.1,91.6 L99.8,87.8 L101.5,103.5 L103.2,86.3 L104.9,86.9 L106.6,88.1 L108.3,83.7 L110,86.2 L111.7,89.2 L113.4,88.2 L115.1,88.5 L116.8,86.6 L118.5,86.9 L120.2,90.5 L121.9,89.9 L123.6,77.9 L125.2,83.7 L126.9,79.2 L128.6,90.8 L130.3,86.9 L132,86 L133.7,93.6 L135.4,85.7 L137.1,76.1 L138.8,76.1 L140.5,86.2 L142.2,87.5 L143.9,85.1 L145.6,91 L147.3,94 L149,93.8 L150.7,91.3 L152.4,90.4 L154.1,82.2 L155.8,87.6 L157.5,87.9 L159.2,90.8 L160.9,92 L162.6,87.2 L164.3,86.4 L166,86.7 L167.7,88.9 L169.4,78.5 L171.1,78.8 L172.8,79.3 L174.5,91.9 L176.2,92 L177.9,81.4 L179.6,84.4 L181.3,89.3 L183,81.5 L184.7,91 L186.4,88.6 L188.1,72.6 L189.8,93.3 L191.5,93.4 L193.2,88.8 L194.9,79.7 L196.6,89.7 L198.3,90.6 L200,80 L201.6,89.9 L203.3,90.6 L205,80.9 L206.7,81.4 L208.4,88.8 L210.1,74.3 L211.8,91 L213.5,90.3 L215.2,86.8 L216.9,90.5 L218.6,65.5 L220.3,91 L222,81.7 L223.7,87.6 L225.4,92 L227.1,91.3 L228.8,90.9 L230.5,91.4 L232.2,91.1 L233.9,102.9 L235.6,89.9 L237.3,90.9 L239,80.6 L240.7,69 L242.4,75.2 L244.1,76.8 L245.8,79.9 L247.5,88.1 L249.2,76.1 L250.9,85.2 L252.6,88.7 L254.3,90.9 L256,90.2 L257.7,91.9 L259.4,94.8 L261.1,81.4 L262.8,84.8 L264.5,95.1 L266.2,81.2 L267.9,88.1 L269.6,94.7 L271.3,79.2 L273,93 L274.7,86.4 L276.4,83.3 L278,93.9 L279.7,81.3 L281.4,77.4 L283.1,59.8 L284.8,87.1 L286.5,87.8 L288.2,91.4 L289.9,83.1 L291.6,90.1 L293.3,81.5 L295,89.8 L296.7,89.8 L298.4,93.3 L300.1,94.4 L301.8,89.8 L303.5,90.1 L305.2,84.6 L306.9,92.9 L308.6,90.7 L310.3,91 L312,90.9 L313.7,75.3 L315.4,75.3 L317.1,85.1 L318.8,78.1 L320.5,85.6 L322.2,90 L323.9,79 L325.6,79.2 L327.3,87 L329,91.7 L330.7,96.4 L332.4,75 L334.1,88.2 L335.8,85.9 L337.5,83.1 L339.2,93 L340.9,94.6 L342.6,85.1 L344.3,86.2 L346,94.3 L347.7,81.9 L349.4,93.6 L351.1,97.2 L352.8,98.9 L354.4,98.3 L356.1,101.1 L357.8,100 L359.5,101.7 L361.2,99.4 L362.9,101.6 L364.6,101.8 L366.3,101.9 L368,102 L369.7,101.9 L371.4,101.4 L373.1,102.2 L374.8,102 L376.5,102.1 L378.2,101.7 L379.9,101.8 L381.6,101.8 L383.3,102.4 L385,102.3 L386.7,102.4 L388.4,102.5 L390.1,99.9 L391.8,101.8 L393.5,101.7 L395.2,101.8 L396.9,101.9 L398.6,102.1 L400.3,102.2 L402,102.6 L403.7,102.5 L405.4,102.1 L407.1,101.8 L408.8,101.9 L410.5,101.9 L412.2,102.1 L413.9,102.1 L415.6,102.3 L417.3,102.3 L419,102.2 L420.7,102 L422.4,101.8 L424.1,101.7 L425.8,101.7 L427.5,102 L429.2,102.1"></path>
+<rect class="band" x="48" y="56" width="8.5" height="92"><title>t -0.45 s: left -0.00, right 0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="56.5" y="56" width="8.5" height="92"><title>t -0.35 s: left 0.04, right 0.05 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="65" y="56" width="8.5" height="92"><title>t -0.25 s: left -0.00, right -0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="73.5" y="56" width="8.5" height="92"><title>t -0.15 s: left 0.00, right 0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="82" y="56" width="8.5" height="92"><title>t -0.05 s: left -0.01, right -0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="90.4" y="56" width="8.5" height="92"><title>t 0.05 s: left -0.30, right 0.30 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="98.9" y="56" width="8.5" height="92"><title>t 0.15 s: left -0.91, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="107.4" y="56" width="8.5" height="92"><title>t 0.25 s: left -0.73, right 0.89 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="115.9" y="56" width="8.5" height="92"><title>t 0.35 s: left -0.70, right 0.80 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="124.4" y="56" width="8.5" height="92"><title>t 0.45 s: left -0.64, right 0.78 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="132.9" y="56" width="8.5" height="92"><title>t 0.55 s: left -1.26, right 1.80 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="141.4" y="56" width="8.5" height="92"><title>t 0.65 s: left -0.72, right 0.76 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="149.9" y="56" width="8.5" height="92"><title>t 0.75 s: left -0.86, right 1.38 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="158.4" y="56" width="8.5" height="92"><title>t 0.85 s: left -1.34, right 1.03 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="166.8" y="56" width="8.5" height="92"><title>t 0.95 s: left -1.09, right 1.61 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="175.3" y="56" width="8.5" height="92"><title>t 1.05 s: left -1.49, right 1.23 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="183.8" y="56" width="8.5" height="92"><title>t 1.15 s: left -1.44, right 2.04 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="192.3" y="56" width="8.5" height="92"><title>t 1.25 s: left -0.68, right 0.86 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="200.8" y="56" width="8.5" height="92"><title>t 1.35 s: left -1.06, right 1.47 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="209.3" y="56" width="8.5" height="92"><title>t 1.45 s: left -1.93, right 0.82 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="217.8" y="56" width="8.5" height="92"><title>t 1.55 s: left -0.99, right 1.41 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="226.3" y="56" width="8.5" height="92"><title>t 1.65 s: left -0.84, right 0.73 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="234.8" y="56" width="8.5" height="92"><title>t 1.75 s: left -2.04, right 1.49 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="243.2" y="56" width="8.5" height="92"><title>t 1.85 s: left -1.49, right 0.97 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="251.7" y="56" width="8.5" height="92"><title>t 1.95 s: left -0.98, right 0.82 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="260.2" y="56" width="8.5" height="92"><title>t 2.05 s: left -0.68, right 0.48 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="268.7" y="56" width="8.5" height="92"><title>t 2.15 s: left -0.92, right 0.63 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="277.2" y="56" width="8.5" height="92"><title>t 2.25 s: left -1.22, right 1.71 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="285.7" y="56" width="8.5" height="92"><title>t 2.35 s: left -1.26, right 1.31 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="294.2" y="56" width="8.5" height="92"><title>t 2.45 s: left -0.73, right 0.61 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="302.7" y="56" width="8.5" height="92"><title>t 2.55 s: left -1.02, right 0.63 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="311.2" y="56" width="8.5" height="92"><title>t 2.65 s: left -1.31, right 1.86 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="319.6" y="56" width="8.5" height="92"><title>t 2.75 s: left -1.51, right 1.60 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="328.1" y="56" width="8.5" height="92"><title>t 2.85 s: left -1.30, right 1.88 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="336.6" y="56" width="8.5" height="92"><title>t 2.95 s: left -0.84, right 0.51 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="345.1" y="56" width="8.5" height="92"><title>t 3.05 s: left -0.81, right 0.58 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="353.6" y="56" width="8.5" height="92"><title>t 3.15 s: left -0.07, right 0.14 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="362.1" y="56" width="8.5" height="92"><title>t 3.25 s: left -0.01, right 0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="370.6" y="56" width="8.5" height="92"><title>t 3.35 s: left -0.02, right 0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="379.1" y="56" width="8.5" height="92"><title>t 3.45 s: left -0.00, right -0.03 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="387.6" y="56" width="8.5" height="92"><title>t 3.55 s: left 0.01, right 0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="396" y="56" width="8.5" height="92"><title>t 3.65 s: left -0.02, right -0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="404.5" y="56" width="8.5" height="92"><title>t 3.75 s: left 0.01, right 0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="413" y="56" width="8.5" height="92"><title>t 3.85 s: left -0.02, right -0.02 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="421.5" y="56" width="8.5" height="92"><title>t 3.95 s: left 0.00, right 0.02 rad/s, commanded 0.00 / 0.00</title></rect>
+<text class="t-muted t-halo" x="428" y="67" text-anchor="end">100 % / 100 %, sd 0.32 / 0.48 rad/s</text>
+<text class="t-head" x="48" y="176" text-anchor="start">Sphere, the same contacts, minDepth 0</text>
+<path class="grid" d="M48,271.1 L430,271.1"></path>
+<text class="t-muted" x="42" y="274.6" text-anchor="end">-3</text>
+<path class="grid" d="M48,256.8 L430,256.8"></path>
+<path class="grid" d="M48,242.4 L430,242.4"></path>
+<path class="axis" d="M48,228 L430,228"></path>
+<text class="t-muted" x="42" y="231.5" text-anchor="end">0</text>
+<path class="grid" d="M48,213.6 L430,213.6"></path>
+<path class="grid" d="M48,199.2 L430,199.2"></path>
+<path class="grid" d="M48,184.9 L430,184.9"></path>
+<text class="t-muted" x="42" y="188.4" text-anchor="end">3</text>
+<path class="ref" d="M48,228 L91.3,228 L91.3,243.7 L344.3,243.7 L344.3,228 L430,228"></path>
+<path class="ref" d="M48,228 L91.3,228 L91.3,212.3 L344.3,212.3 L344.3,228 L430,228"></path>
+<path class="ln s1" d="M48.8,228.3 L50.5,228.5 L52.2,228.6 L53.9,228.7 L55.6,228.6 L57.3,228.7 L59,228.5 L60.7,227.6 L62.4,228.5 L64.1,228.6 L65.8,228.8 L67.5,228.6 L69.2,228.2 L70.9,228.5 L72.6,228.6 L74.3,228.7 L76,228.6 L77.7,228.7 L79.4,228.6 L81.1,228.6 L82.8,228.5 L84.5,228.6 L86.2,228.4 L87.9,228.6 L89.6,229.9 L91.3,230 L93,236.4 L94.7,242.4 L96.4,248.6 L98.1,254.6 L99.8,253.4 L101.5,252.5 L103.2,251.5 L104.9,250.8 L106.6,249.8 L108.3,249.4 L110,248.9 L111.7,248.6 L113.4,248 L115.1,247.6 L116.8,247.4 L118.5,247.1 L120.2,246.9 L121.9,246.7 L123.6,246.6 L125.2,246.5 L126.9,248.5 L128.6,246.4 L130.3,246.2 L132,245.9 L133.7,246.1 L135.4,246.5 L137.1,246 L138.8,246 L140.5,246.1 L142.2,246 L143.9,246.4 L145.6,246 L147.3,246.1 L149,246.3 L150.7,246.1 L152.4,245.6 L154.1,246.1 L155.8,246.1 L157.5,246.1 L159.2,246.2 L160.9,245.7 L162.6,246.2 L164.3,246.2 L166,246.1 L167.7,246.2 L169.4,245.9 L171.1,246.1 L172.8,246.1 L174.5,246.2 L176.2,246.1 L177.9,245.8 L179.6,246 L181.3,246 L183,246 L184.7,246 L186.4,245.8 L188.1,246 L189.8,247.3 L191.5,246.1 L193.2,246 L194.9,246 L196.6,246.1 L198.3,245.8 L200,246.1 L201.6,246.2 L203.3,246.3 L205,246.2 L206.7,246.3 L208.4,246.2 L210.1,248.5 L211.8,246.4 L213.5,246.4 L215.2,246.2 L216.9,246.4 L218.6,246.8 L220.3,246.4 L222,246.5 L223.7,246.7 L225.4,246.6 L227.1,246.3 L228.8,246.6 L230.5,246.7 L232.2,246.8 L233.9,246.7 L235.6,246.7 L237.3,246.8 L239,246.8 L240.7,246.7 L242.4,246.8 L244.1,246.7 L245.8,246.9 L247.5,247.3 L249.2,246.9 L250.9,247 L252.6,247.2 L254.3,247 L256,246.6 L257.7,247.1 L259.4,247.1 L261.1,247 L262.8,247.2 L264.5,247.2 L266.2,247.3 L267.9,247.2 L269.6,247.2 L271.3,247.3 L273,247.4 L274.7,247.3 L276.4,249.5 L278,247.5 L279.7,247.4 L281.4,247.3 L283.1,247.5 L284.8,247.9 L286.5,247.5 L288.2,247.6 L289.9,247.8 L291.6,247.6 L293.3,247.2 L295,247.7 L296.7,247.7 L298.4,247.5 L300.1,247.7 L301.8,248 L303.5,247.7 L305.2,247.8 L306.9,247.9 L308.6,247.8 L310.3,247.6 L312,247.8 L313.7,247.9 L315.4,247.8 L317.1,247.9 L318.8,248 L320.5,248 L322.2,246.9 L323.9,248 L325.6,248 L327.3,248 L329,248 L330.7,248.4 L332.4,248 L334.1,248.1 L335.8,248.3 L337.5,248.1 L339.2,247.7 L340.9,248.2 L342.6,248.2 L344.3,248.1 L346,246.6 L347.7,239.7 L349.4,233.8 L351.1,228 L352.8,223.1 L354.4,224.1 L356.1,225.4 L357.8,226.2 L359.5,227 L361.2,227.5 L362.9,228 L364.6,227.9 L366.3,228.3 L368,229.6 L369.7,228.4 L371.4,228.4 L373.1,228.4 L374.8,228.3 L376.5,228.1 L378.2,228.5 L379.9,228.6 L381.6,228.5 L383.3,228.6 L385,228.5 L386.7,228.5 L388.4,228.3 L390.1,228.5 L391.8,228.5 L393.5,228.6 L395.2,228.6 L396.9,227.6 L398.6,228.6 L400.3,228.6 L402,228.6 L403.7,228.4 L405.4,229.6 L407.1,228.5 L408.8,228.5 L410.5,228.4 L412.2,228.6 L413.9,228.1 L415.6,228.6 L417.3,228.5 L419,228.4 L420.7,228.4 L422.4,228.5 L424.1,228.5 L425.8,228.6 L427.5,228.5 L429.2,228.6"></path>
+<path class="ln s2" d="M48.8,227.6 L50.5,227.3 L52.2,227.3 L53.9,227.2 L55.6,227.3 L57.3,227.6 L59,227.3 L60.7,225.1 L62.4,227.2 L64.1,227.3 L65.8,227.4 L67.5,227.3 L69.2,227.6 L70.9,227.2 L72.6,227.3 L74.3,227.2 L76,227.3 L77.7,227.6 L79.4,227.3 L81.1,227.3 L82.8,227.4 L84.5,227.4 L86.2,227.2 L87.9,227.3 L89.6,227.3 L91.3,227.4 L93,226.8 L94.7,225.7 L96.4,224.3 L98.1,223.2 L99.8,221.9 L101.5,220.7 L103.2,219.7 L104.9,219.1 L106.6,218.8 L108.3,217.9 L110,217.5 L111.7,217.3 L113.4,217 L115.1,216.5 L116.8,216.6 L118.5,216.5 L120.2,216.5 L121.9,216.3 L123.6,216.2 L125.2,216.4 L126.9,215.2 L128.6,216.4 L130.3,216.4 L132,216.1 L133.7,216.3 L135.4,216.9 L137.1,216.4 L138.8,216.4 L140.5,216.6 L142.2,216.4 L143.9,217 L145.6,216.4 L147.3,216.4 L149,216.4 L150.7,216.3 L152.4,216.1 L154.1,216.2 L155.8,216.3 L157.5,216.1 L159.2,216.3 L160.9,216.1 L162.6,216.3 L164.3,216.4 L166,216.3 L167.7,216.5 L169.4,216.9 L171.1,216.7 L172.8,216.9 L174.5,216.9 L176.2,217.1 L177.9,217.3 L179.6,217.3 L181.3,217.4 L183,217.5 L184.7,217.5 L186.4,217.3 L188.1,217.5 L189.8,217.5 L191.5,217.7 L193.2,217.6 L194.9,217.5 L196.6,217.7 L198.3,218 L200,217.6 L201.6,217.6 L203.3,217.6 L205,217.7 L206.7,217.9 L208.4,217.6 L210.1,216.3 L211.8,217.6 L213.5,217.6 L215.2,217.3 L216.9,217.5 L218.6,218.2 L220.3,217.6 L222,217.5 L223.7,217.7 L225.4,217.5 L227.1,217.8 L228.8,217.4 L230.5,217.4 L232.2,217.6 L233.9,217.4 L235.6,217.1 L237.3,217.4 L239,217.4 L240.7,217.4 L242.4,217.3 L244.1,217 L245.8,217.2 L247.5,217.9 L249.2,217.3 L250.9,217.2 L252.6,217.3 L254.3,217.2 L256,217 L257.7,217.1 L259.4,217.2 L261.1,217.1 L262.8,217 L264.5,216.8 L266.2,217.1 L267.9,217 L269.6,216.9 L271.3,217 L273,217.3 L274.7,216.9 L276.4,215.7 L278,216.9 L279.7,216.9 L281.4,216.6 L283.1,216.8 L284.8,217.4 L286.5,216.8 L288.2,216.7 L289.9,216.9 L291.6,216.7 L293.3,216.5 L295,216.6 L296.7,216.6 L298.4,216.5 L300.1,216.5 L301.8,216.7 L303.5,216.6 L305.2,216.5 L306.9,216.4 L308.6,216.4 L310.3,216.5 L312,216.3 L313.7,216.4 L315.4,216.4 L317.1,216.3 L318.8,216.2 L320.5,216.3 L322.2,214.1 L323.9,216.1 L325.6,216.1 L327.3,216.3 L329,216.1 L330.7,216.7 L332.4,216.1 L334.1,216 L335.8,216.1 L337.5,216 L339.2,215.7 L340.9,215.9 L342.6,215.9 L344.3,215.7 L346,215.9 L347.7,216.7 L349.4,217.4 L351.1,218.9 L352.8,221 L354.4,222.7 L356.1,224.4 L357.8,225.3 L359.5,226 L361.2,226.3 L362.9,226.4 L364.6,226.4 L366.3,226.8 L368,227 L369.7,227.2 L371.4,227.3 L373.1,227.5 L374.8,227.3 L376.5,227.4 L378.2,226.9 L379.9,227.1 L381.6,227.2 L383.3,227.4 L385,227.2 L386.7,227.5 L388.4,227.4 L390.1,227.5 L391.8,227.1 L393.5,227.3 L395.2,227.1 L396.9,225.1 L398.6,227.2 L400.3,227.4 L402,227.4 L403.7,227.4 L405.4,227.3 L407.1,227.1 L408.8,227 L410.5,227 L412.2,227.2 L413.9,227.2 L415.6,227.4 L417.3,227.5 L419,227.3 L420.7,227.3 L422.4,227.3 L424.1,227.1 L425.8,227.2 L427.5,227.3 L429.2,227.5"></path>
+<rect class="band" x="48" y="182" width="8.5" height="92"><title>t -0.45 s: left -0.04, right 0.05 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="56.5" y="182" width="8.5" height="92"><title>t -0.35 s: left 0.03, right 0.20 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="65" y="182" width="8.5" height="92"><title>t -0.25 s: left -0.02, right 0.03 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="73.5" y="182" width="8.5" height="92"><title>t -0.15 s: left -0.05, right 0.03 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="82" y="182" width="8.5" height="92"><title>t -0.05 s: left -0.03, right 0.06 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="90.4" y="182" width="8.5" height="92"><title>t 0.05 s: left -1.00, right 0.16 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="98.9" y="182" width="8.5" height="92"><title>t 0.15 s: left -1.63, right 0.58 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="107.4" y="182" width="8.5" height="92"><title>t 0.25 s: left -1.43, right 0.74 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="115.9" y="182" width="8.5" height="92"><title>t 0.35 s: left -1.31, right 0.80 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="124.4" y="182" width="8.5" height="92"><title>t 0.45 s: left -1.28, right 0.81 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="132.9" y="182" width="8.5" height="92"><title>t 0.55 s: left -1.25, right 0.81 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="141.4" y="182" width="8.5" height="92"><title>t 0.65 s: left -1.25, right 0.80 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="149.9" y="182" width="8.5" height="92"><title>t 0.75 s: left -1.26, right 0.82 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="158.4" y="182" width="8.5" height="92"><title>t 0.85 s: left -1.27, right 0.82 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="166.8" y="182" width="8.5" height="92"><title>t 0.95 s: left -1.26, right 0.79 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="175.3" y="182" width="8.5" height="92"><title>t 1.05 s: left -1.25, right 0.74 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="183.8" y="182" width="8.5" height="92"><title>t 1.15 s: left -1.25, right 0.73 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="192.3" y="182" width="8.5" height="92"><title>t 1.25 s: left -1.26, right 0.72 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="200.8" y="182" width="8.5" height="92"><title>t 1.35 s: left -1.27, right 0.72 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="209.3" y="182" width="8.5" height="92"><title>t 1.45 s: left -1.28, right 0.72 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="217.8" y="182" width="8.5" height="92"><title>t 1.55 s: left -1.29, right 0.73 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="226.3" y="182" width="8.5" height="92"><title>t 1.65 s: left -1.30, right 0.74 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="234.8" y="182" width="8.5" height="92"><title>t 1.75 s: left -1.31, right 0.74 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="243.2" y="182" width="8.5" height="92"><title>t 1.85 s: left -1.34, right 0.71 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="251.7" y="182" width="8.5" height="92"><title>t 1.95 s: left -1.30, right 0.77 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="260.2" y="182" width="8.5" height="92"><title>t 2.05 s: left -1.33, right 0.78 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="268.7" y="182" width="8.5" height="92"><title>t 2.15 s: left -1.35, right 0.75 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="277.2" y="182" width="8.5" height="92"><title>t 2.25 s: left -1.34, right 0.79 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="285.7" y="182" width="8.5" height="92"><title>t 2.35 s: left -1.37, right 0.78 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="294.2" y="182" width="8.5" height="92"><title>t 2.45 s: left -1.36, right 0.80 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="302.7" y="182" width="8.5" height="92"><title>t 2.55 s: left -1.38, right 0.81 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="311.2" y="182" width="8.5" height="92"><title>t 2.65 s: left -1.38, right 0.81 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="319.6" y="182" width="8.5" height="92"><title>t 2.75 s: left -1.39, right 0.83 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="328.1" y="182" width="8.5" height="92"><title>t 2.85 s: left -1.39, right 0.83 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="336.6" y="182" width="8.5" height="92"><title>t 2.95 s: left -1.40, right 0.84 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="345.1" y="182" width="8.5" height="92"><title>t 3.05 s: left -0.40, right 0.74 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="353.6" y="182" width="8.5" height="92"><title>t 3.15 s: left 0.12, right 0.19 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="362.1" y="182" width="8.5" height="92"><title>t 3.25 s: left -0.02, right 0.08 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="370.6" y="182" width="8.5" height="92"><title>t 3.35 s: left -0.02, right 0.05 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="379.1" y="182" width="8.5" height="92"><title>t 3.45 s: left -0.04, right 0.04 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="387.6" y="182" width="8.5" height="92"><title>t 3.55 s: left -0.04, right 0.06 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="396" y="182" width="8.5" height="92"><title>t 3.65 s: left -0.04, right 0.04 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="404.5" y="182" width="8.5" height="92"><title>t 3.75 s: left -0.04, right 0.07 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="413" y="182" width="8.5" height="92"><title>t 3.85 s: left -0.04, right 0.03 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="421.5" y="182" width="8.5" height="92"><title>t 3.95 s: left -0.04, right 0.06 rad/s, commanded 0.00 / 0.00</title></rect>
+<text class="t-muted t-halo" x="428" y="193" text-anchor="end">122 % / 70 %, sd 0.05 / 0.05 rad/s</text>
+<text class="t-head" x="48" y="302" text-anchor="start">Sphere, friction 1, kp 1e7, kd 1, minDepth 0 (now)</text>
+<path class="grid" d="M48,397.1 L430,397.1"></path>
+<text class="t-muted" x="42" y="400.6" text-anchor="end">-3</text>
+<path class="grid" d="M48,382.8 L430,382.8"></path>
+<path class="grid" d="M48,368.4 L430,368.4"></path>
+<path class="axis" d="M48,354 L430,354"></path>
+<text class="t-muted" x="42" y="357.5" text-anchor="end">0</text>
+<path class="grid" d="M48,339.6 L430,339.6"></path>
+<path class="grid" d="M48,325.2 L430,325.2"></path>
+<path class="grid" d="M48,310.9 L430,310.9"></path>
+<text class="t-muted" x="42" y="314.4" text-anchor="end">3</text>
+<text class="t-muted" x="90.4" y="413" text-anchor="middle">0 s</text>
+<text class="t-muted" x="175.3" y="413" text-anchor="middle">1 s</text>
+<text class="t-muted" x="260.2" y="413" text-anchor="middle">2 s</text>
+<text class="t-muted" x="345.1" y="413" text-anchor="middle">3 s</text>
+<text class="t-muted" x="430" y="413" text-anchor="middle">4 s</text>
+<path class="ref" d="M48,354 L91.3,354 L91.3,369.7 L344.3,369.7 L344.3,354 L430,354"></path>
+<path class="ref" d="M48,354 L91.3,354 L91.3,338.3 L344.3,338.3 L344.3,354 L430,354"></path>
+<path class="ln s1" d="M48.8,354 L50.5,351.8 L52.2,354 L53.9,354 L55.6,354 L57.3,354 L59,354.1 L60.7,354 L62.4,354.1 L64.1,354 L65.8,354.1 L67.5,354 L69.2,354.1 L70.9,354 L72.6,354.1 L74.3,354 L76,354.2 L77.7,354 L79.4,354.2 L81.1,354 L82.8,351.9 L84.5,354 L86.2,354 L87.9,354 L89.6,354 L91.3,354.4 L93,357.3 L94.7,361.6 L96.4,366 L98.1,370.1 L99.8,371.4 L101.5,371.4 L103.2,370.8 L104.9,370.5 L106.6,370.1 L108.3,370.1 L110,369.9 L111.7,370 L113.4,369.8 L115.1,369.9 L116.8,369.9 L118.5,369.8 L120.2,369.8 L121.9,369.7 L123.6,369.8 L125.2,369.7 L126.9,369.8 L128.6,369.7 L130.3,369.8 L132,369.7 L133.7,369.8 L135.4,369.7 L137.1,369.8 L138.8,369.7 L140.5,369.9 L142.2,369.7 L143.9,367.5 L145.6,369.7 L147.3,369.7 L149,369.7 L150.7,369.7 L152.4,369.7 L154.1,369.7 L155.8,369.8 L157.5,369.7 L159.2,369.8 L160.9,369.7 L162.6,369.8 L164.3,369.7 L166,369.9 L167.7,369.7 L169.4,369.8 L171.1,369.7 L172.8,369.7 L174.5,369.7 L176.2,369.7 L177.9,369.7 L179.6,369.7 L181.3,369.8 L183,369.7 L184.7,369.8 L186.4,369.7 L188.1,369.8 L189.8,369.7 L191.5,369.8 L193.2,369.7 L194.9,369.9 L196.6,369.7 L198.3,369.8 L200,369.7 L201.6,369.7 L203.3,369.7 L205,369.7 L206.7,369.7 L208.4,369.7 L210.1,369.8 L211.8,369.7 L213.5,369.8 L215.2,369.7 L216.9,369.8 L218.6,369.7 L220.3,369.8 L222,369.7 L223.7,369.8 L225.4,369.7 L227.1,369.8 L228.8,369.7 L230.5,367.5 L232.2,369.7 L233.9,369.7 L235.6,369.7 L237.3,369.7 L239,369.8 L240.7,369.7 L242.4,369.8 L244.1,369.7 L245.8,369.8 L247.5,369.7 L249.2,369.8 L250.9,369.7 L252.6,369.8 L254.3,369.7 L256,369.9 L257.7,369.7 L259.4,369 L261.1,369.7 L262.8,369.7 L264.5,369.7 L266.2,369.7 L267.9,369.7 L269.6,369.7 L271.3,369.8 L273,369.7 L274.7,369.8 L276.4,369.7 L278,369.8 L279.7,369.7 L281.4,369.8 L283.1,369.7 L284.8,369.9 L286.5,369.7 L288.2,369.9 L289.9,369.7 L291.6,369 L293.3,369.7 L295,369.7 L296.7,369.7 L298.4,369.7 L300.1,369.7 L301.8,369.7 L303.5,369.8 L305.2,369.7 L306.9,369.8 L308.6,369.7 L310.3,369.8 L312,369.7 L313.7,369.8 L315.4,369.7 L317.1,369.8 L318.8,369.7 L320.5,369.9 L322.2,369.7 L323.9,369.8 L325.6,369.7 L327.3,369.7 L329,369.7 L330.7,369.7 L332.4,369.8 L334.1,369.7 L335.8,369.8 L337.5,369.7 L339.2,369.8 L340.9,369.7 L342.6,369.8 L344.3,369.7 L346,369.3 L347.7,366.2 L349.4,362.3 L351.1,357.8 L352.8,354.1 L354.4,353.1 L356.1,353.3 L357.8,353.5 L359.5,353.5 L361.2,353.5 L362.9,353.6 L364.6,353.8 L366.3,354 L368,354.2 L369.7,354.3 L371.4,354.4 L373.1,354.1 L374.8,353.8 L376.5,353.7 L378.2,353.9 L379.9,354 L381.6,354.2 L383.3,354.2 L385,354.5 L386.7,354.3 L388.4,354.2 L390.1,353.7 L391.8,351.5 L393.5,353.8 L395.2,354 L396.9,354.2 L398.6,354.2 L400.3,354.3 L402,354.3 L403.7,354.2 L405.4,353.8 L407.1,353.8 L408.8,353.8 L410.5,354 L412.2,354.1 L413.9,354.3 L415.6,354.2 L417.3,354.4 L419,354.3 L420.7,354.4 L422.4,353.8 L424.1,353 L425.8,353.8 L427.5,353.9 L429.2,354.1"></path>
+<path class="ln s2" d="M48.8,354.1 L50.5,351.9 L52.2,354.1 L53.9,354 L55.6,354.1 L57.3,354 L59,354.1 L60.7,354 L62.4,354.1 L64.1,354 L65.8,354.1 L67.5,354 L69.2,354.1 L70.9,354 L72.6,354.1 L74.3,354 L76,354.2 L77.7,354 L79.4,354.1 L81.1,354.1 L82.8,351.9 L84.5,354.1 L86.2,354 L87.9,354.1 L89.6,354 L91.3,353.6 L93,350.5 L94.7,346.3 L96.4,341.9 L98.1,338 L99.8,336.8 L101.5,337 L103.2,337.4 L104.9,337.9 L106.6,338.1 L108.3,338.4 L110,338.4 L111.7,338.6 L113.4,338.5 L115.1,338.5 L116.8,338.5 L118.5,338.5 L120.2,338.5 L121.9,338.4 L123.6,338.4 L125.2,338.4 L126.9,338.4 L128.6,338.3 L130.3,338.4 L132,338.3 L133.7,338.4 L135.4,338.3 L137.1,338.5 L138.8,338.4 L140.5,338.6 L142.2,338.4 L143.9,336.1 L145.6,338.4 L147.3,338.3 L149,338.4 L150.7,338.3 L152.4,338.4 L154.1,338.3 L155.8,338.4 L157.5,338.3 L159.2,338.4 L160.9,338.3 L162.6,338.4 L164.3,338.4 L166,338.5 L167.7,338.4 L169.4,338.4 L171.1,338.4 L172.8,338.3 L174.5,338.4 L176.2,338.3 L177.9,338.4 L179.6,338.3 L181.3,338.4 L183,338.3 L184.7,338.4 L186.4,338.3 L188.1,338.4 L189.8,338.3 L191.5,338.4 L193.2,338.3 L194.9,338.5 L196.6,338.4 L198.3,338.4 L200,338.4 L201.6,338.3 L203.3,338.4 L205,338.3 L206.7,338.4 L208.4,338.3 L210.1,338.4 L211.8,338.3 L213.5,338.4 L215.2,338.3 L216.9,338.4 L218.6,338.3 L220.3,338.4 L222,338.3 L223.7,338.5 L225.4,338.3 L227.1,338.4 L228.8,338.4 L230.5,336.1 L232.2,338.4 L233.9,338.3 L235.6,338.4 L237.3,338.3 L239,338.4 L240.7,338.3 L242.4,338.4 L244.1,338.3 L245.8,338.4 L247.5,338.3 L249.2,338.4 L250.9,338.3 L252.6,338.5 L254.3,338.3 L256,338.6 L257.7,338.4 L259.4,337.6 L261.1,338.4 L262.8,338.3 L264.5,338.4 L266.2,338.3 L267.9,338.4 L269.6,338.3 L271.3,338.4 L273,338.3 L274.7,338.4 L276.4,338.3 L278,338.4 L279.7,338.3 L281.4,338.4 L283.1,338.3 L284.8,338.5 L286.5,338.3 L288.2,338.6 L289.9,338.4 L291.6,337.6 L293.3,338.4 L295,338.3 L296.7,338.4 L298.4,338.3 L300.1,338.4 L301.8,338.3 L303.5,338.4 L305.2,338.3 L306.9,338.4 L308.6,338.3 L310.3,338.4 L312,338.3 L313.7,338.4 L315.4,338.3 L317.1,338.5 L318.8,338.3 L320.5,338.5 L322.2,338.3 L323.9,338.4 L325.6,338.3 L327.3,338.3 L329,338.4 L330.7,338.3 L332.4,338.4 L334.1,338.3 L335.8,338.4 L337.5,338.3 L339.2,338.4 L340.9,338.3 L342.6,338.4 L344.3,338.3 L346,339 L347.7,342.1 L349.4,346.5 L351.1,350.7 L352.8,354.4 L354.4,355.2 L356.1,355.3 L357.8,354.9 L359.5,354.6 L361.2,354.1 L362.9,353.8 L364.6,353.9 L366.3,353.9 L368,354.1 L369.7,354.2 L371.4,354.3 L373.1,354.3 L374.8,354.2 L376.5,353.7 L378.2,353.8 L379.9,353.8 L381.6,354.1 L383.3,354.1 L385,354.4 L386.7,354.3 L388.4,354.5 L390.1,354.1 L391.8,351.6 L393.5,353.7 L395.2,353.8 L396.9,354 L398.6,354.1 L400.3,354.2 L402,354.2 L403.7,354.4 L405.4,354.2 L407.1,354 L408.8,353.7 L410.5,353.8 L412.2,353.9 L413.9,354.1 L415.6,354.1 L417.3,354.3 L419,354.3 L420.7,354.6 L422.4,354.2 L424.1,353.3 L425.8,353.7 L427.5,353.7 L429.2,353.9"></path>
+<rect class="band" x="48" y="308" width="8.5" height="92"><title>t -0.45 s: left -0.00, right -0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="56.5" y="308" width="8.5" height="92"><title>t -0.35 s: left -0.00, right -0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="65" y="308" width="8.5" height="92"><title>t -0.25 s: left -0.01, right -0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="73.5" y="308" width="8.5" height="92"><title>t -0.15 s: left -0.00, right -0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="82" y="308" width="8.5" height="92"><title>t -0.05 s: left -0.00, right -0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="90.4" y="308" width="8.5" height="92"><title>t 0.05 s: left -0.53, right 0.53 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="98.9" y="308" width="8.5" height="92"><title>t 0.15 s: left -1.17, right 1.15 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="107.4" y="308" width="8.5" height="92"><title>t 0.25 s: left -1.11, right 1.07 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="115.9" y="308" width="8.5" height="92"><title>t 0.35 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="124.4" y="308" width="8.5" height="92"><title>t 0.45 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="132.9" y="308" width="8.5" height="92"><title>t 0.55 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="141.4" y="308" width="8.5" height="92"><title>t 0.65 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="149.9" y="308" width="8.5" height="92"><title>t 0.75 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="158.4" y="308" width="8.5" height="92"><title>t 0.85 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="166.8" y="308" width="8.5" height="92"><title>t 0.95 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="175.3" y="308" width="8.5" height="92"><title>t 1.05 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="183.8" y="308" width="8.5" height="92"><title>t 1.15 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="192.3" y="308" width="8.5" height="92"><title>t 1.25 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="200.8" y="308" width="8.5" height="92"><title>t 1.35 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="209.3" y="308" width="8.5" height="92"><title>t 1.45 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="217.8" y="308" width="8.5" height="92"><title>t 1.55 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="226.3" y="308" width="8.5" height="92"><title>t 1.65 s: left -0.94, right 1.24 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="234.8" y="308" width="8.5" height="92"><title>t 1.75 s: left -1.10, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="243.2" y="308" width="8.5" height="92"><title>t 1.85 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="251.7" y="308" width="8.5" height="92"><title>t 1.95 s: left -1.11, right 1.07 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="260.2" y="308" width="8.5" height="92"><title>t 2.05 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="268.7" y="308" width="8.5" height="92"><title>t 2.15 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="277.2" y="308" width="8.5" height="92"><title>t 2.25 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="285.7" y="308" width="8.5" height="92"><title>t 2.35 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="294.2" y="308" width="8.5" height="92"><title>t 2.45 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="302.7" y="308" width="8.5" height="92"><title>t 2.55 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="311.2" y="308" width="8.5" height="92"><title>t 2.65 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="319.6" y="308" width="8.5" height="92"><title>t 2.75 s: left -1.10, right 1.08 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="328.1" y="308" width="8.5" height="92"><title>t 2.85 s: left -1.10, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="336.6" y="308" width="8.5" height="92"><title>t 2.95 s: left -1.09, right 1.09 rad/s, commanded -1.09 / 1.09</title></rect>
+<rect class="band" x="345.1" y="308" width="8.5" height="92"><title>t 3.05 s: left -0.57, right 0.52 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="353.6" y="308" width="8.5" height="92"><title>t 3.15 s: left 0.03, right -0.07 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="362.1" y="308" width="8.5" height="92"><title>t 3.25 s: left 0.00, right 0.00 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="370.6" y="308" width="8.5" height="92"><title>t 3.35 s: left 0.01, right -0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="379.1" y="308" width="8.5" height="92"><title>t 3.45 s: left -0.02, right -0.01 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="387.6" y="308" width="8.5" height="92"><title>t 3.55 s: left 0.18, right 0.17 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="396" y="308" width="8.5" height="92"><title>t 3.65 s: left -0.02, right -0.02 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="404.5" y="308" width="8.5" height="92"><title>t 3.75 s: left 0.02, right 0.02 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="413" y="308" width="8.5" height="92"><title>t 3.85 s: left -0.03, right -0.02 rad/s, commanded 0.00 / 0.00</title></rect>
+<rect class="band" x="421.5" y="308" width="8.5" height="92"><title>t 3.95 s: left 0.01, right 0.02 rad/s, commanded 0.00 / 0.00</title></rect>
+<text class="t-muted t-halo" x="428" y="319" text-anchor="end">100 % / 100 %, sd 0.02 / 0.02 rad/s</text>
+<text class="t-muted" x="14" y="102" text-anchor="middle">rad/s</text>
+</svg>
+<figcaption>Remo turning on the spot at 0.5 rad/s for 3 s, with diffbot's gains for Remo (P 0.03, I 0.6). Top right in each panel: the left / right wheel's mean speed as a share of the command, and their standard deviations, in the last 2 s of the command.</figcaption>
+</figure>
+
+<details class="info">
+<summary>The data</summary>
+<p>The mean speed as a share of the command, and its standard deviation, in the last 2 s of the command. Every sample is in scripts/figures/data/remo-wheel-speeds.csv.</p>
+<table>
+<thead>
+<tr>
+<th>Wheel model</th>
+<th>Left wheel</th>
+<th>Right wheel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cylinder, friction 200, kp 1e12, kd 0 (main)</td>
+<td>100 %, sd 0.32 rad/s</td>
+<td>100 %, sd 0.48 rad/s</td>
+</tr>
+<tr>
+<td>Sphere, the same contacts, minDepth 0</td>
+<td>122 %, sd 0.05 rad/s</td>
+<td>70 %, sd 0.05 rad/s</td>
+</tr>
+<tr>
+<td>Sphere, friction 1, kp 1e7, kd 1, minDepth 0 (now)</td>
+<td>100 %, sd 0.02 rad/s</td>
+<td>100 %, sd 0.02 rad/s</td>
+</tr>
+</tbody>
+</table>
+</details>
 <h3 id="contact-stiffness-and-damping">Contact stiffness and damping</h3>
 <p>In each time step, ODE corrects a part of the penetration between two bodies. Two parameters control how hard a constraint is (<a href="https://ode.org/ode-latest-userguide.html#sec_3_7_0">ODE user guide, sections 3.7 and 3.8</a>):</p>
 <ul>
@@ -4422,7 +4806,7 @@ J = \frac{1}{2} m r^2 .
 </tr>
 </tbody>
 </table>
-<p>Remo's contacts are softer and damped. On a sphere's single contact point and with <code>minDepth</code> 0 (see below), its earlier wheel settings, friction 200 with <span class="arithmatex">\(k_p = 10^{12}\)</span> and <span class="arithmatex">\(k_d = 0\)</span> (combined with the ground's, still <span class="arithmatex">\(k_d = 1\)</span>), let the wheels miss their speed commands by up to 30 %; with the new settings, they follow them. That run changed friction, stiffness and damping together, so it doesn't show which of them matters most.</p>
+<p>Remo's contacts are softer and damped. On a sphere's single contact point and with <code>minDepth</code> 0 (see below), its earlier wheel settings, friction 200 with <span class="arithmatex">\(k_p = 10^{12}\)</span> and <span class="arithmatex">\(k_d = 0\)</span> (combined with the ground's, still <span class="arithmatex">\(k_d = 1\)</span>), let the wheels miss their speed commands by up to 30 %, as the middle panel of the wheel speed figure in <a href="#friction">Friction</a> shows; with the new settings, they follow them. That run changed friction, stiffness and damping together, so it doesn't show which of them matters most.</p>
 <p>These are equivalences, not material properties: <code>kp</code> and <code>kd</code> set ERP and CFM, and it doesn't help to treat the two pairs as independent settings. A real tire's stiffness is a starting point at most.</p>
 <p>Two more parameters limit the correction:</p>
 <ul>
@@ -4431,6 +4815,132 @@ J = \frac{1}{2} m r^2 .
 </ul>
 <p>For a wheel on the static ground plane, ODE uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>).</p>
 <p><code>minDepth</code> is a dead band, not a limit: ODE subtracts it from the penetration before it corrects the rest, and a positive CFM lets a wheel press into the ground under its load. With Remo's soft contacts, a positive <code>minDepth</code> allowed substantial creep: at rest, the wheel centers were about 8.3 mm lower than the wheel radius after a minute with 10 mm configured, a quarter of the radius, and about 1 mm lower with 1 mm configured. With 0, as now, no sinkage was measurable at 0.01 mm precision. DiffBot's stiff default contacts don't sink. These are observations of this model; compliance, the load and the other contacts also matter, and they don't show a general creep rate. The sinking had also hidden the cylinders' outer-edge contacts: with <code>minDepth</code> 0 and cylinders, Remo turned 15 % too little.</p>
+<figure class="wd-figure">
+<svg class="wd-fig" viewBox="0 0 440 236" role="img" aria-labelledby="wd-sink-t"><title id="wd-sink-t">How far Remo's wheels sink into the ground at rest, for three minDepth values</title><defs></defs>
+<path class="axis" d="M48,196 L378,196"></path>
+<text class="t-muted" x="42" y="199.5" text-anchor="end">0</text>
+<path class="grid" d="M48,165.5 L378,165.5"></path>
+<text class="t-muted" x="42" y="169" text-anchor="end">2</text>
+<path class="grid" d="M48,135 L378,135"></path>
+<text class="t-muted" x="42" y="138.5" text-anchor="end">4</text>
+<path class="grid" d="M48,104.6 L378,104.6"></path>
+<text class="t-muted" x="42" y="108.1" text-anchor="end">6</text>
+<path class="grid" d="M48,74.1 L378,74.1"></path>
+<text class="t-muted" x="42" y="77.6" text-anchor="end">8</text>
+<path class="grid" d="M48,43.6 L378,43.6"></path>
+<text class="t-muted" x="42" y="47.1" text-anchor="end">10</text>
+<text class="t-muted" x="48" y="211" text-anchor="middle">0 s</text>
+<text class="t-muted" x="158" y="211" text-anchor="middle">30 s</text>
+<text class="t-muted" x="268" y="211" text-anchor="middle">60 s</text>
+<text class="t-muted" x="378" y="211" text-anchor="middle">90 s</text>
+<text class="t-muted" x="213" y="228" text-anchor="middle">time at rest after the spawn</text>
+<text class="t-muted" x="14" y="119.8" text-anchor="middle">mm</text>
+<circle class="f1" cx="53" cy="12" r="4.5"></circle>
+<text class="t-muted" x="62" y="16" text-anchor="start">minDepth 10 mm</text>
+<rect class="f2" x="164.7" y="7.5" width="9" height="9" rx="1"></rect>
+<text class="t-muted" x="178.2" y="16" text-anchor="start">minDepth 1 mm</text>
+<path class="f3" d="M279.1,6.5 L284.6,12 L279.1,17.5 L273.6,12 Z"></path>
+<text class="t-muted" x="288.1" y="16" text-anchor="start">minDepth 0 (now)</text>
+<path class="ref" d="M48,43.6 L378,43.6"></path>
+<text class="t-muted t-halo" x="54" y="39.6" text-anchor="start">minDepth 10 mm, configured</text>
+<path class="ref" d="M48,180.8 L378,180.8"></path>
+<text class="t-muted t-halo" x="54" y="176.8" text-anchor="start">1 mm</text>
+<path class="ln s1" d="M49.8,195.8 L51.7,195.5 L55.3,193.5 L66.3,186.6 L84.7,176.8 L121.3,153.4 L194.7,106.2 L268,69.8 L378,68.9"></path>
+<g class="pt"><title>minDepth 10 mm: 0.01 mm after 0.5 s</title><circle class="hit" cx="49.8" cy="195.8" r="12"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 0.03 mm after 1 s</title><circle class="hit" cx="51.7" cy="195.5" r="12"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 0.17 mm after 2 s</title><circle class="hit" cx="55.3" cy="193.5" r="12"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 0.61 mm after 5 s</title><circle class="hit" cx="66.3" cy="186.6" r="12"></circle><circle class="mk f1" cx="66.3" cy="186.6" r="4.5"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 1.26 mm after 10 s</title><circle class="hit" cx="84.7" cy="176.8" r="12"></circle><circle class="mk f1" cx="84.7" cy="176.8" r="4.5"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 2.79 mm after 20 s</title><circle class="hit" cx="121.3" cy="153.4" r="12"></circle><circle class="mk f1" cx="121.3" cy="153.4" r="4.5"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 5.89 mm after 40 s</title><circle class="hit" cx="194.7" cy="106.2" r="12"></circle><circle class="mk f1" cx="194.7" cy="106.2" r="4.5"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 8.29 mm after 60 s</title><circle class="hit" cx="268" cy="69.8" r="12"></circle><circle class="mk f1" cx="268" cy="69.8" r="4.5"></circle></g>
+<g class="pt"><title>minDepth 10 mm: 8.34 mm after 90 s</title><circle class="hit" cx="378" cy="68.9" r="12"></circle><circle class="mk f1" cx="378" cy="68.9" r="4.5"></circle></g>
+<text class="t-halo" x="388" y="72.9" text-anchor="start">8.3 mm</text>
+<path class="ln s2" d="M66.3,188.2 L121.3,180.8 L268,180.8 L378,180.8"></path>
+<g class="pt"><title>minDepth 1 mm: 0.51 mm after 5 s</title><circle class="hit" cx="66.3" cy="188.2" r="12"></circle><rect class="mk f2" x="61.8" y="183.7" width="9" height="9" rx="1"></rect></g>
+<g class="pt"><title>minDepth 1 mm: 1.00 mm after 20 s</title><circle class="hit" cx="121.3" cy="180.8" r="12"></circle><rect class="mk f2" x="116.8" y="176.3" width="9" height="9" rx="1"></rect></g>
+<g class="pt"><title>minDepth 1 mm: 1.00 mm after 60 s</title><circle class="hit" cx="268" cy="180.8" r="12"></circle><rect class="mk f2" x="263.5" y="176.3" width="9" height="9" rx="1"></rect></g>
+<g class="pt"><title>minDepth 1 mm: 1.00 mm after 90 s</title><circle class="hit" cx="378" cy="180.8" r="12"></circle><rect class="mk f2" x="373.5" y="176.3" width="9" height="9" rx="1"></rect></g>
+<text class="t-halo" x="388" y="184.8" text-anchor="start">1.0 mm</text>
+<path class="ln s3" d="M66.3,196 L121.3,196 L268,196 L378,196"></path>
+<g class="pt"><title>minDepth 0 (now): 0.00 mm after 5 s</title><circle class="hit" cx="66.3" cy="196" r="12"></circle><path class="mk f3" d="M66.3,190.5 L71.8,196 L66.3,201.5 L60.8,196 Z"></path></g>
+<g class="pt"><title>minDepth 0 (now): 0.00 mm after 20 s</title><circle class="hit" cx="121.3" cy="196" r="12"></circle><path class="mk f3" d="M121.3,190.5 L126.8,196 L121.3,201.5 L115.8,196 Z"></path></g>
+<g class="pt"><title>minDepth 0 (now): 0.00 mm after 60 s</title><circle class="hit" cx="268" cy="196" r="12"></circle><path class="mk f3" d="M268,190.5 L273.5,196 L268,201.5 L262.5,196 Z"></path></g>
+<g class="pt"><title>minDepth 0 (now): 0.00 mm after 90 s</title><circle class="hit" cx="378" cy="196" r="12"></circle><path class="mk f3" d="M378,190.5 L383.5,196 L378,201.5 L372.5,196 Z"></path></g>
+<text class="t-halo" x="388" y="200" text-anchor="start">0 mm</text>
+</svg>
+<figcaption>Remo at rest: the wheel radius minus the wheel center's height. A positive minDepth isn't a limit: the wheels crept to 8.3 mm with 10 mm configured, and to the configured 1 mm. The first two runs had remo_description#2's first version, with cylinders; the third has its sphere.</figcaption>
+</figure>
+
+<details class="info">
+<summary>The data</summary>
+<table>
+<thead>
+<tr>
+<th>Time at rest</th>
+<th>minDepth 10 mm</th>
+<th>minDepth 1 mm</th>
+<th>minDepth 0 (now)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.5 s</td>
+<td>0.01 mm</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1 s</td>
+<td>0.03 mm</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2 s</td>
+<td>0.17 mm</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5 s</td>
+<td>0.61 mm</td>
+<td>0.51 mm</td>
+<td>0.00 mm</td>
+</tr>
+<tr>
+<td>10 s</td>
+<td>1.26 mm</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>20 s</td>
+<td>2.79 mm</td>
+<td>1.00 mm</td>
+<td>0.00 mm</td>
+</tr>
+<tr>
+<td>40 s</td>
+<td>5.89 mm</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>60 s</td>
+<td>8.29 mm</td>
+<td>1.00 mm</td>
+<td>0.00 mm</td>
+</tr>
+<tr>
+<td>90 s</td>
+<td>8.34 mm</td>
+<td>1.00 mm</td>
+<td>0.00 mm</td>
+</tr>
+</tbody>
+</table>
+</details>
 <h3 id="from-urdf-to-sdf">From URDF to SDF</h3>
 <p>Gazebo converts the URDF to SDF, its own format. The <code>&lt;gazebo reference="..."&gt;</code> elements of a link set its collision's surface (<a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a URDF in Gazebo</a>). <code>gz sdf -p robot.urdf</code> shows the result:</p>
 <table>
@@ -4514,6 +5024,165 @@ e_{k+1} = \left( 1 - \frac{P h}{J} \right) e_k .
 0 &lt; \frac{P h}{J} &lt; 2 .
 \]</div>
 <p>At <span class="arithmatex">\(P h / J = 2\)</span>, the error changes sign in every step without decaying; above it, it grows in every step. A continuous-time P loop on an inertia has no such upper limit. The limit comes from holding the torque over a step, which is typical of sampled systems; Franklin, Powell and Workman's <em>Digital Control of Dynamic Systems</em> treats them in depth.</p>
+<figure class="wd-figure">
+<svg class="wd-fig" viewBox="0 0 440 296" role="img" aria-labelledby="wd-stab-t"><title id="wd-stab-t">The error of a P velocity loop on a free wheel, step by step, for four values of P h / J</title><defs></defs>
+<text class="t-head" x="34" y="16" text-anchor="start">P h / J = 0.50</text>
+<text class="t-muted" x="34" y="29" text-anchor="start">decays</text>
+<path class="grid" d="M34,116.3 L202,116.3"></path>
+<text class="t-muted" x="28" y="119.8" text-anchor="end">-2</text>
+<path class="grid" d="M34,100.2 L202,100.2"></path>
+<path class="axis" d="M34,84 L202,84"></path>
+<text class="t-muted" x="28" y="87.5" text-anchor="end">0</text>
+<path class="grid" d="M34,67.8 L202,67.8"></path>
+<path class="grid" d="M34,51.7 L202,51.7"></path>
+<text class="t-muted" x="28" y="55.2" text-anchor="end">2</text>
+<path class="ln s1" d="M34,67.8 L55,75.9 L76,80 L97,82 L118,83 L139,83.5 L160,83.7 L181,83.9 L202,83.9"></path>
+<g class="pt"><title>step 0: error 1.000 of the first</title><circle class="hit" cx="34" cy="67.8" r="12"></circle><circle class="mk f1" cx="34" cy="67.8" r="4.5"></circle></g>
+<g class="pt"><title>step 1: error 0.500 of the first</title><circle class="hit" cx="55" cy="75.9" r="12"></circle><circle class="mk f1" cx="55" cy="75.9" r="4.5"></circle></g>
+<g class="pt"><title>step 2: error 0.250 of the first</title><circle class="hit" cx="76" cy="80" r="12"></circle><circle class="mk f1" cx="76" cy="80" r="4.5"></circle></g>
+<g class="pt"><title>step 3: error 0.125 of the first</title><circle class="hit" cx="97" cy="82" r="12"></circle><circle class="mk f1" cx="97" cy="82" r="4.5"></circle></g>
+<g class="pt"><title>step 4: error 0.062 of the first</title><circle class="hit" cx="118" cy="83" r="12"></circle><circle class="mk f1" cx="118" cy="83" r="4.5"></circle></g>
+<g class="pt"><title>step 5: error 0.031 of the first</title><circle class="hit" cx="139" cy="83.5" r="12"></circle><circle class="mk f1" cx="139" cy="83.5" r="4.5"></circle></g>
+<g class="pt"><title>step 6: error 0.016 of the first</title><circle class="hit" cx="160" cy="83.7" r="12"></circle><circle class="mk f1" cx="160" cy="83.7" r="4.5"></circle></g>
+<g class="pt"><title>step 7: error 0.008 of the first</title><circle class="hit" cx="181" cy="83.9" r="12"></circle><circle class="mk f1" cx="181" cy="83.9" r="4.5"></circle></g>
+<g class="pt"><title>step 8: error 0.004 of the first</title><circle class="hit" cx="202" cy="83.9" r="12"></circle><circle class="mk f1" cx="202" cy="83.9" r="4.5"></circle></g>
+<text class="t-head" x="250" y="16" text-anchor="start">P h / J = 1.72</text>
+<text class="t-muted" x="250" y="29" text-anchor="start">P 0.03 (Remo): decays</text>
+<path class="grid" d="M250,116.3 L418,116.3"></path>
+<path class="grid" d="M250,100.2 L418,100.2"></path>
+<path class="axis" d="M250,84 L418,84"></path>
+<path class="grid" d="M250,67.8 L418,67.8"></path>
+<path class="grid" d="M250,51.7 L418,51.7"></path>
+<path class="ln s1" d="M250,67.8 L271,95.7 L292,75.6 L313,90.1 L334,79.6 L355,87.2 L376,81.7 L397,85.6 L418,82.8"></path>
+<g class="pt"><title>step 0: error 1.000 of the first</title><circle class="hit" cx="250" cy="67.8" r="12"></circle><circle class="mk f1" cx="250" cy="67.8" r="4.5"></circle></g>
+<g class="pt"><title>step 1: error -0.722 of the first</title><circle class="hit" cx="271" cy="95.7" r="12"></circle><circle class="mk f1" cx="271" cy="95.7" r="4.5"></circle></g>
+<g class="pt"><title>step 2: error 0.521 of the first</title><circle class="hit" cx="292" cy="75.6" r="12"></circle><circle class="mk f1" cx="292" cy="75.6" r="4.5"></circle></g>
+<g class="pt"><title>step 3: error -0.376 of the first</title><circle class="hit" cx="313" cy="90.1" r="12"></circle><circle class="mk f1" cx="313" cy="90.1" r="4.5"></circle></g>
+<g class="pt"><title>step 4: error 0.271 of the first</title><circle class="hit" cx="334" cy="79.6" r="12"></circle><circle class="mk f1" cx="334" cy="79.6" r="4.5"></circle></g>
+<g class="pt"><title>step 5: error -0.196 of the first</title><circle class="hit" cx="355" cy="87.2" r="12"></circle><circle class="mk f1" cx="355" cy="87.2" r="4.5"></circle></g>
+<g class="pt"><title>step 6: error 0.141 of the first</title><circle class="hit" cx="376" cy="81.7" r="12"></circle><circle class="mk f1" cx="376" cy="81.7" r="4.5"></circle></g>
+<g class="pt"><title>step 7: error -0.102 of the first</title><circle class="hit" cx="397" cy="85.6" r="12"></circle><circle class="mk f1" cx="397" cy="85.6" r="4.5"></circle></g>
+<g class="pt"><title>step 8: error 0.074 of the first</title><circle class="hit" cx="418" cy="82.8" r="12"></circle><circle class="mk f1" cx="418" cy="82.8" r="4.5"></circle></g>
+<text class="t-head" x="34" y="158" text-anchor="start">P h / J = 2.00</text>
+<text class="t-muted" x="34" y="171" text-anchor="start">P 0.035, the limit</text>
+<path class="grid" d="M34,258.3 L202,258.3"></path>
+<text class="t-muted" x="28" y="261.8" text-anchor="end">-2</text>
+<path class="grid" d="M34,242.2 L202,242.2"></path>
+<path class="axis" d="M34,226 L202,226"></path>
+<text class="t-muted" x="28" y="229.5" text-anchor="end">0</text>
+<path class="grid" d="M34,209.8 L202,209.8"></path>
+<path class="grid" d="M34,193.7 L202,193.7"></path>
+<text class="t-muted" x="28" y="197.2" text-anchor="end">2</text>
+<text class="t-muted" x="34" y="282" text-anchor="middle">step 0</text>
+<text class="t-muted" x="118" y="282" text-anchor="middle">step 4</text>
+<text class="t-muted" x="202" y="282" text-anchor="middle">step 8</text>
+<path class="ln s1" d="M34,209.8 L55,242.2 L76,209.8 L97,242.2 L118,209.8 L139,242.2 L160,209.8 L181,242.2 L202,209.8"></path>
+<g class="pt"><title>step 0: error 1.000 of the first</title><circle class="hit" cx="34" cy="209.8" r="12"></circle><circle class="mk f1" cx="34" cy="209.8" r="4.5"></circle></g>
+<g class="pt"><title>step 1: error -1.000 of the first</title><circle class="hit" cx="55" cy="242.2" r="12"></circle><circle class="mk f1" cx="55" cy="242.2" r="4.5"></circle></g>
+<g class="pt"><title>step 2: error 1.000 of the first</title><circle class="hit" cx="76" cy="209.8" r="12"></circle><circle class="mk f1" cx="76" cy="209.8" r="4.5"></circle></g>
+<g class="pt"><title>step 3: error -1.000 of the first</title><circle class="hit" cx="97" cy="242.2" r="12"></circle><circle class="mk f1" cx="97" cy="242.2" r="4.5"></circle></g>
+<g class="pt"><title>step 4: error 1.000 of the first</title><circle class="hit" cx="118" cy="209.8" r="12"></circle><circle class="mk f1" cx="118" cy="209.8" r="4.5"></circle></g>
+<g class="pt"><title>step 5: error -1.000 of the first</title><circle class="hit" cx="139" cy="242.2" r="12"></circle><circle class="mk f1" cx="139" cy="242.2" r="4.5"></circle></g>
+<g class="pt"><title>step 6: error 1.000 of the first</title><circle class="hit" cx="160" cy="209.8" r="12"></circle><circle class="mk f1" cx="160" cy="209.8" r="4.5"></circle></g>
+<g class="pt"><title>step 7: error -1.000 of the first</title><circle class="hit" cx="181" cy="242.2" r="12"></circle><circle class="mk f1" cx="181" cy="242.2" r="4.5"></circle></g>
+<g class="pt"><title>step 8: error 1.000 of the first</title><circle class="hit" cx="202" cy="209.8" r="12"></circle><circle class="mk f1" cx="202" cy="209.8" r="4.5"></circle></g>
+<text class="t-head" x="250" y="158" text-anchor="start">P h / J = 3.44</text>
+<text class="t-muted" x="250" y="171" text-anchor="start">P 0.06: grows</text>
+<path class="grid" d="M250,258.3 L418,258.3"></path>
+<path class="grid" d="M250,242.2 L418,242.2"></path>
+<path class="axis" d="M250,226 L418,226"></path>
+<path class="grid" d="M250,209.8 L418,209.8"></path>
+<path class="grid" d="M250,193.7 L418,193.7"></path>
+<text class="t-muted" x="250" y="282" text-anchor="middle">step 0</text>
+<text class="t-muted" x="334" y="282" text-anchor="middle">step 4</text>
+<text class="t-muted" x="418" y="282" text-anchor="middle">step 8</text>
+<path class="ln s1" d="M250,209.8 L271,265.5"></path>
+<g class="pt"><title>step 0: error 1.000 of the first</title><circle class="hit" cx="250" cy="209.8" r="12"></circle><circle class="mk f1" cx="250" cy="209.8" r="4.5"></circle></g>
+<g class="pt"><title>step 1: error -2.444 of the first</title><circle class="hit" cx="271" cy="265.5" r="12"></circle><circle class="mk f1" cx="271" cy="265.5" r="4.5"></circle></g>
+<text class="t-muted t-halo" x="296" y="192" text-anchor="start">step 2: 6.0</text>
+</svg>
+<figcaption>The error after each 1 ms step, as a share of the first, for a free wheel with only a P gain: it is multiplied by 1 - P h / J in every step. Above P h / J = 2, its magnitude grows.</figcaption>
+</figure>
+
+<details class="info">
+<summary>The data</summary>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>P h / J = 0.50</th>
+<th>P h / J = 1.72</th>
+<th>P h / J = 2.00</th>
+<th>P h / J = 3.44</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1.000</td>
+<td>1.000</td>
+<td>1.000</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0.500</td>
+<td>-0.722</td>
+<td>-1.000</td>
+<td>-2.444</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0.250</td>
+<td>0.521</td>
+<td>1.000</td>
+<td>5.971</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0.125</td>
+<td>-0.376</td>
+<td>-1.000</td>
+<td>-14.590</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0.062</td>
+<td>0.271</td>
+<td>1.000</td>
+<td>35.651</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0.031</td>
+<td>-0.196</td>
+<td>-1.000</td>
+<td>-87.113</td>
+</tr>
+<tr>
+<td>6</td>
+<td>0.016</td>
+<td>0.141</td>
+<td>1.000</td>
+<td>212.864</td>
+</tr>
+<tr>
+<td>7</td>
+<td>0.008</td>
+<td>-0.102</td>
+<td>-1.000</td>
+<td>-520.138</td>
+</tr>
+<tr>
+<td>8</td>
+<td>0.004</td>
+<td>0.074</td>
+<td>1.000</td>
+<td>1270.972</td>
+</tr>
+</tbody>
+</table>
+</details>
 <p>For Remo, <span class="arithmatex">\(J = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}\)</span> and <span class="arithmatex">\(h\)</span> = 1 ms give <span class="arithmatex">\(P &lt; 2J/h = 0.035\)</span> N m s/rad. With P 0.03, the factor is <span class="arithmatex">\(1 - \frac{0.03 \cdot 0.001}{1.74 \cdot 10^{-5}} \approx -0.72\)</span>: the error changes sign and decays. With P 0.06, it is <span class="arithmatex">\(-2.44\)</span>: the error grows, and Remo's model spawned at the origin with NaN velocities (<a href="https://github.com/ros-mobile-robots/diffbot/pull/121">diffbot#121</a>). That is why Remo's P gain is 0.03. DiffBot's wheels are modeled with 0.5 kg (<span class="arithmatex">\(J = 2.8 \cdot 10^{-4}\,\mathrm{kg\,m^2}\)</span>), so their limit is about 0.55, well above its P 0.06.</p>
 <p>The estimate assumes a lot: one free wheel with a constant inertia, only a P gain, fresh speed feedback in every step, and no torque limit, friction in the bearings, delay or contact forces. The actual loop has an I term, and a wheel on the ground also moves the robot. So a gain below the limit doesn't prove that the simulation is stable, and a gain above it doesn't mean that Gazebo must explode. It tells the scale at which the gain becomes a problem, and that the gain has to change when the wheel's mass or the time step changes.</p>
 <p>The time step is the physics step of the world, <code>max_step_size</code>, not the rate of <code>/cmd_vel</code> or of the joint states. The numbers above are for <code>diffbot_empty.world</code>, which the simulation test uses, with 1 ms. Other worlds can differ: <code>playground.world</code> has 10 ms, which lowers Remo's limit tenfold, to about 0.0035, below its P 0.03. Check the physics of the world you use before you carry gains over. <code>gazebo_ros_control</code> writes the torque in every physics step, but reads the joint states and updates the controllers only every <code>controlPeriod</code>, which defaults to the physics step (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L224-L256"><code>gazebo_ros_control_plugin.cpp</code></a>). A longer <code>controlPeriod</code> adds a delay that this estimate doesn't include.</p>
