@@ -601,6 +601,8 @@
       
         
       
+        
+      
     
     
     
@@ -944,6 +946,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4081,7 +4111,7 @@
 <p>DiffBot's and Remo's code is on <a href="https://github.com/ros-mobile-robots">GitHub</a>, in <a href="https://git-scm.com/">Git</a> repositories. This page sets up Git on your PC, in <a href="../#2-get-the-code">step 2</a> of Getting Started. Reading and running the code only takes the first section, <a href="#install-git-and-clone">Install Git and clone</a>.</p>
 <p>The robot's computer needs Git too, but only later: in <a href="../#5-set-up-the-robots-computer">step 5</a>, <a href="../../packages/packages-setup/#git-clone-diffbot-repository">Packages Setup</a> installs it there and clones the code. The optional sections, <a href="#commit-and-push-changes-optional">Commit and push changes</a> and <a href="#private-repositories-and-git-lfs-optional">Private repositories and Git LFS</a>, work the same way on your PC and on the robot.</p>
 <h2 id="install-git-and-clone">Install Git and clone</h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (WSL 2)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>On your Linux PC, Ubuntu usually has Git already, which <code>git --version</code> shows. Otherwise:</p>
@@ -4089,7 +4119,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </div>
 <div class="tabbed-block">
-<p>Install Git in the Ubuntu in WSL 2, not in Windows: open the Ubuntu terminal and check with <code>git --version</code>. Ubuntu usually has it already. Otherwise:</p>
+<p>Install Git in the Ubuntu in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2, not in Windows: open the Ubuntu terminal and check with <code>git --version</code>. Ubuntu usually has it already. Otherwise:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install git</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Git for Windows isn't needed, because VS Code and the dev container use the Git in the Ubuntu.</p>
@@ -4129,11 +4159,11 @@
 </div>
 </div>
 </div>
-<p>Set this up where Git runs: on Windows, in the Ubuntu in WSL 2. In the dev container, VS Code passes your Git credentials into the container (<a href="https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials">Sharing Git credentials</a>).</p>
+<p>Set this up where Git runs: on Windows, in the Ubuntu in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2. In the dev container, VS Code passes your Git credentials into the container (<a href="https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials">Sharing Git credentials</a>).</p>
 <h2 id="private-repositories-and-git-lfs-optional">Private repositories and Git LFS (optional)</h2>
 <p><a href="https://git-lfs.com/">Git LFS</a> (Large File Storage) keeps large files outside the normal Git history. You need it for:</p>
 <ul>
-<li><strong>Remo's STL files in Remo Insiders</strong>, a private repository, which also needs authentication (see above). How to get access: <a href="../../insiders/#remo-stl-files">Remo STL files</a>.</li>
+<li><strong>Remo's <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files in Remo Insiders</strong>, a private repository, which also needs authentication (see above). How to get access: <a href="../../insiders/#remo-stl-files">Remo <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files</a>.</li>
 <li><strong>Two SVG drawings in this documentation's repository</strong>, if you work on the docs.</li>
 </ul>
 <p>Install it, and set it up once for your user:</p>
@@ -4300,7 +4330,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

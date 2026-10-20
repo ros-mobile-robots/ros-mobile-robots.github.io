@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4153,7 +4183,7 @@
 
 <h2 id="diffbot-robot-description">DiffBot Robot Description</h2>
 <p>The description of the 2WD robot will be created in its own package named <code>diffbot_description</code>. 
-The description uses <a href="https://wiki.ros.org/urdf">URDF</a> and <a href="https://wiki.ros.org/xacro">xacro</a>. 
+The description uses <a href="https://wiki.ros.org/urdf"><abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr></a> and <a href="https://wiki.ros.org/xacro">xacro</a>. 
 For this we create a package with <a href="https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_create.html#catkin-create-pkg"><code>catkin create pkg PKG_NAME [--catkin-deps [DEP [DEP ...]]]</code></a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -4172,7 +4202,7 @@ For this we create a package with <a href="https://catkin-tools.readthedocs.io/e
 <p>The <code>urdf</code> folder will be used to keep the <code>urdf</code> and <code>xacro</code> files. 
 The <code>meshes</code> folder keeps the <code>meshes</code> that are included in the <code>urdf</code> file, and the <code>launch</code> folder keeps the ROS launch files.</p>
 <h3 id="robot-model">Robot Model</h3>
-<p>To model the two wheeled differential drive robot we follow <a href="https://www.ros.org/reps/rep-0120.html#base-link">REP-120</a>.
+<p>To model the two wheeled differential drive robot we follow <a href="https://www.ros.org/reps/rep-0120.html#base-link"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr>-120</a>.
 It states to use a <code>base_link</code> and a <code>base_footprint</code>. The resulting description files can be found in the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control"><code>diffbot_description</code></a> package.</p>
 <h3 id="required-tools">Required Tools</h3>
 <p>To check a <a href="https://wiki.ros.org/urdf">urdf</a> file we can make use of the tools <code>check_urdf</code> and <code>urdf_to_graphiz</code> in the <code>liburdfdom-tools</code> debian package. 
@@ -4228,7 +4258,7 @@ Install it with the following command:</p>
 <p>With the robot description loaded on the ROS parameter server, it's possible to use the <code>TF Tree</code> <code>rqt</code> plugin to display the transformation tree (see image above).</p>
 <p>In the next section, <a href="../diffbot_gazebo/">Gazebo Simulation</a>, the robot model is prepared for simulation inside of 
 <a href="http://gazebosim.org/">Gazebo</a>.</p>
-<h3 id="urdf-in-gazebo">URDF in Gazebo</h3>
+<h3 id="urdf-in-gazebo"><abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</h3>
 <p><a href="http://gazebosim.org/tutorials?tut=ros_urdf&amp;cat=connect_ros#Tutorial:UsingaURDFinGazebo">http://gazebosim.org/tutorials?tut=ros_urdf&amp;cat=connect_ros#Tutorial:UsingaURDFinGazebo</a></p>
 <h3 id="references">References</h3>
 <ul>
@@ -4394,7 +4424,7 @@ Install it with the following command:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

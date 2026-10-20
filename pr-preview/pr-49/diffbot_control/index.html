@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4144,7 +4174,7 @@ a class derived from <a href="http://docs.ros.org/melodic/api/hardware_interface
 </div>
 <h3 id="ros-control-in-gazebo">ROS Control in Gazebo</h3>
 <p>Two great resources to get the <code>diff_drive_controller</code> working inside Gazebo is the <a href="http://gazebosim.org/tutorials?tut=ros_control">Gazebo ROS Control Tutorial</a>
-of <a href="https://github.com/ros-simulation/gazebo_ros_demos"><code>rrbot</code></a> and the <a href="http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo">R2D2 ROS URDF Tutorial</a>, especially the last section, <a href="http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo#The_Wheels_on_the_Droid_Go_Round_and_Round">The Wheels on the Droid Go Round and Round</a>. <a href="../development/simulation-test/">Simulation Test</a> shows where the controllers run in Gazebo and on the real robot.</p>
+of <a href="https://github.com/ros-simulation/gazebo_ros_demos"><code>rrbot</code></a> and the <a href="http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo">R2D2 ROS <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> Tutorial</a>, especially the last section, <a href="http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo#The_Wheels_on_the_Droid_Go_Round_and_Round">The Wheels on the Droid Go Round and Round</a>. <a href="../development/simulation-test/">Simulation Test</a> shows where the controllers run in Gazebo and on the real robot.</p>
 <p>To spawn DiffBot inside Gazebo, RViz and control it with the <a href="http://wiki.ros.org/rqt_robot_steering"><code>rqt_robot_steering</code></a> plugin, 
 launch the <code>diffbot.launch</code> inside the <code>diffbot_control</code> package:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_control diffbot.launch</span>
@@ -4315,7 +4345,7 @@ Let's call it <code>DiffBotHW</code> and create it inside the <code>diffbot_cont
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

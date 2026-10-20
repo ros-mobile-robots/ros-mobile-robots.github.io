@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4600,8 +4630,8 @@
 
 <p>More detailed assembly instructions are found in the next few sections.
 The parts are listed in the <a href="../../components/">components</a> and the <a href="../3D_print/">3D printed parts</a>.
-The printed parts need the Remo STL files:</p>
-<p><a class="md-button md-button--primary" href="https://fjp.gumroad.com/l/GnMpU">Get the Remo STL files</a></p>
+The printed parts need the Remo <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files:</p>
+<p><a class="md-button md-button--primary" href="https://fjp.gumroad.com/l/GnMpU">Get the Remo <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files</a></p>
 <h2 id="frame">Frame</h2>
 <p>The frame is assembled in 14 steps. In each drawing, the dashed magenta lines show where a part goes.
 Steps 2 to 9 work on the bottom of the chassis, so turn it upside down after step 1.</p>
@@ -4630,7 +4660,7 @@ The drawing shows the nuts for the far motor; the other motor gets the same two 
 <p>Some boards come with the screw terminals and pin headers loose, others with everything soldered on.
 If yours are loose, solder them on before this step. The drawings show the board without them.
 The cables are connected in step 7, once the board is screwed in.</p>
-<p><strong>Parts:</strong> Adafruit DC Motor (+ Stepper) FeatherWing</p>
+<p><strong>Parts:</strong> Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor (+ Stepper) FeatherWing</p>
 <h3 id="step-6-motor-driver-screws">Step 6: Motor driver screws</h3>
 <p></p>
 <p>Fix the board with four screws.</p>
@@ -4652,7 +4682,7 @@ The cables are connected in step 7, once the board is screwed in.</p>
 The firmware reads pins 5 and 6 for the motor on <code>M4</code>.
 Follow the text above until the diagram is fixed.</p>
 </div>
-<p>The battery cable follows in step 10. The Fritzing view also shows the I2C wires from the board to the Grove I2C hub.</p>
+<p>The battery cable follows in step 10. The Fritzing view also shows the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> wires from the board to the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub.</p>
 <p><strong>Parts:</strong> 2 × motor cable (comes with the motors)</p>
 <h3 id="step-8-caster">Step 8: Caster</h3>
 <p></p>
@@ -4687,13 +4717,13 @@ It can be at most 135.5 × 71 × 18 mm (L × W × H).</p>
 <p>Push the wheels onto the motor shafts.</p>
 <p><strong>Parts:</strong> 2 × wheel</p>
 <h2 id="decks-and-sensors">Decks and sensors</h2>
-<p>Steps 15 to 22 add the electronics, the LiDAR and the camera on top of the frame.
-The drawings from step 16 on are rendered from the STL files; again, the dashed magenta lines show where a part goes.</p>
+<p>Steps 15 to 22 add the electronics, the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> and the camera on top of the frame.
+The drawings from step 16 on are rendered from the <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files; again, the dashed magenta lines show where a part goes.</p>
 <h3 id="step-15-breadboard-parts">Step 15: Breadboard parts</h3>
 <p></p>
-<p>Push the Teensy 4.0 into the breadboard. The drawing also shows the BNO055 IMU, which is optional.
+<p>Push the Teensy 4.0 into the breadboard. The drawing also shows the BNO055 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, which is optional.
 The wiring follows the Fritzing view on the <a href="../electronics/">Electronics</a> page.</p>
-<p><strong>Parts:</strong> 400-point breadboard, Teensy 4.0, BNO055 IMU (optional)</p>
+<p><strong>Parts:</strong> 400-point breadboard, Teensy 4.0, BNO055 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (optional)</p>
 <h3 id="step-16-raspberry-pi-deck">Step 16: Raspberry Pi deck</h3>
 <p></p>
 <p>Place the Raspberry Pi deck on top of the chassis, over the powerbank.
@@ -4710,18 +4740,18 @@ Then screw the Raspberry Pi 4 onto them with four M2 × 8 mm screws, with its US
 <p>Place the breadboard from step 15 on the back of the deck, behind the Raspberry Pi.
 Fix it with a Velcro strap, or with the adhesive tape on the bottom of the breadboard.</p>
 <p><strong>Parts:</strong> breadboard from step 15, Velcro strap (or the breadboard's adhesive tape)</p>
-<h3 id="step-19-lidar-platform">Step 19: LiDAR platform</h3>
+<h3 id="step-19-lidar-platform">Step 19: <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> platform</h3>
 <p></p>
-<p>Place the LiDAR platform over the breadboard and fix its four feet to the deck.</p>
-<p><strong>Parts:</strong> LiDAR platform (printed, <code>platfom_rplidar_a2.stl</code>), 4 × M2 self-tapping screw</p>
-<h3 id="step-20-lidar">Step 20: LiDAR</h3>
+<p>Place the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> platform over the breadboard and fix its four feet to the deck.</p>
+<p><strong>Parts:</strong> <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> platform (printed, <code>platfom_rplidar_a2.stl</code>), 4 × M2 self-tapping screw</p>
+<h3 id="step-20-lidar">Step 20: <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr></h3>
 <p></p>
 <p>Put the RPLiDAR A2 on the platform and screw it on from below with four M3 screws, through the four holes in the platform.</p>
 <p><strong>Parts:</strong> SLAMTEC RPLiDAR A2 M8, 4 × M3 × 6 mm screw</p>
 <h3 id="step-21-usb-adapter-holder">Step 21: USB adapter holder</h3>
 <p></p>
-<p>Put the SLAMTEC USB adapter into the printed holder, then clip the holder onto the left side of the LiDAR platform.</p>
-<p><strong>Parts:</strong> SLAMTEC holder (printed, <code>slamtec_holder.stl</code>), SLAMTEC USB adapter (comes with the LiDAR)</p>
+<p>Put the SLAMTEC USB adapter into the printed holder, then clip the holder onto the left side of the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> platform.</p>
+<p><strong>Parts:</strong> SLAMTEC holder (printed, <code>slamtec_holder.stl</code>), SLAMTEC USB adapter (comes with the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>)</p>
 <h3 id="step-22-camera">Step 22: Camera</h3>
 <p>Each camera has its own printed adapter.
 Screw the adapter onto the camera mount from step 11 with four M2 self-tapping screws.
@@ -4901,7 +4931,7 @@ Then set the camera into the adapter, where its weight holds it, or fix it with 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

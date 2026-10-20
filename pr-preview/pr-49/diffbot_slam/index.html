@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4233,7 +4263,7 @@
 
 <h2 id="diffbot-slam-package">DiffBot Slam Package</h2>
 <p>This package contains launch files and configurations for different 
-<a href="https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping">simultaneous localization and mapping (SLAM)</a> algorithms
+<a href="https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping">simultaneous localization and mapping (<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>)</a> algorithms
 to map the environment of the robot in 2D, although some of these algorithms can be used to map in 3D.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -4251,7 +4281,7 @@ are added to this workspace using <a href="https://github.com/dirk-thomas/vcstoo
 To run this package these dependencies need to be installed and are set as <code>exec_depend</code> in the <code>package.xml</code>. Currently only <code>gmapping</code> provides a ROS Noetic Ubuntu package that can be installed directly with:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install ros-noetic-gmapping</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>In case you want to try more advanced SLAM algorithms, such as <code>karto_slam</code> or <code>cartographer_ros</code> you need the following Ubuntu package dependencies.
+<p>In case you want to try more advanced <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithms, such as <code>karto_slam</code> or <code>cartographer_ros</code> you need the following Ubuntu package dependencies.
 Alternatively you can install from source by building the cloned git repository in your catkin workspace.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -4259,25 +4289,25 @@ Alternatively you can install from source by building the cloned git repository 
 </div>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install ros-noetic-slam-karto</span>
 </code></pre></div></td></tr></tbody></table></div>
-<h3 id="slam">SLAM</h3>
-<p>SLAM stands for Simultaneous Localization and Mapping sometimes referred to as Concurrent Localization and Mapping (CLAM). The SLAM algorithm combines localization and mapping, where a robot has access only to its own movement and sensory data. The robot must build a map while simultaneously localizing itself relative to the map. See also this <a href="https://fjp.at/posts/slam/fastslam/">blog post on FastSLAM</a>.</p>
+<h3 id="slam"><abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></h3>
+<p><abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> stands for Simultaneous Localization and Mapping sometimes referred to as Concurrent Localization and Mapping (CLAM). The <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithm combines localization and mapping, where a robot has access only to its own movement and sensory data. The robot must build a map while simultaneously localizing itself relative to the map. See also this <a href="https://fjp.at/posts/slam/fastslam/">blog post on FastSLAM</a>.</p>
 <p>To use the following slam algorithms, we need a mobile robot that provides odometry data and is equipped with a horizontally-mounted, 
 fixed, laser range-finder. Viewed on a higher level, every specific slam node of these algorithms will attempt to transform each incoming scan into the odom (odometry) <a href="http://wiki.ros.org/tf2">tf</a> frame. Therefore the node will subscribe to the laser <code>/scan</code> and the <code>/tf</code> topics. 
 Transforms are necessary to relate frames for laser, base, and odometry. The only exception is <code>hector_slam</code> which doesn't require odometry for mapping.</p>
-<p>The following SLAM implementations are offered using the launch files explained in the next section. It is suggested to start with <code>gmapping</code> which is used by default.</p>
+<p>The following <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> implementations are offered using the launch files explained in the next section. It is suggested to start with <code>gmapping</code> which is used by default.</p>
 <ul>
 <li><a href="http://wiki.ros.org/gmapping"><code>gmapping</code></a>: This package contains a ROS wrapper for <a href="https://openslam-org.github.io/">OpenSlam's Gmapping</a>. 
-The gmapping package provides laser-based SLAM (Simultaneous Localization and Mapping), as a ROS node called <code>slam_gmapping</code>. 
+The gmapping package provides laser-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> (Simultaneous Localization and Mapping), as a ROS node called <code>slam_gmapping</code>. 
 Using <code>slam_gmapping</code>, you can create a 2-D occupancy grid map (like a building floorplan) from laser and pose data collected by a mobile robot.</li>
-<li><a href="http://wiki.ros.org/cartographer"><code>cartographer</code></a>: <a href="https://google-cartographer-ros.readthedocs.io/en/latest/">Cartographer</a> is a system that provides real-time simultaneous localization and mapping (SLAM) in 2D and 3D across multiple platforms and sensor configurations. See the documentation for an 
+<li><a href="http://wiki.ros.org/cartographer"><code>cartographer</code></a>: <a href="https://google-cartographer-ros.readthedocs.io/en/latest/">Cartographer</a> is a system that provides real-time simultaneous localization and mapping (<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>) in 2D and 3D across multiple platforms and sensor configurations. See the documentation for an 
 <a href="https://google-cartographer-ros.readthedocs.io/en/latest/algo_walkthrough.html">algorithm walkthrough</a>.</li>
 <li><a href="http://wiki.ros.org/karto"><code>karto</code></a>: This package pulls in the Karto mapping library, and provides a ROS wrapper for using it. Karto is considered more accurate than, for example <code>gmapping</code> (note: for ROS noetic, see <a href="https://wiki.ros.org/slam_karto"><code>slam_karto</code></a>) and became <a href="https://www.ros.org/news/2010/04/karto-mapping-now-open-source-and-on-coderosorg.html">open source in 2010</a>.</li>
 <li><a href="http://wiki.ros.org/hector_slam"><code>hector_slam</code></a>: metapackage that installs <a href="http://wiki.ros.org/hector_mapping"><code>hector_mapping</code></a> and related packages. 
-The <code>hector_mapping</code> is a SLAM approach that can be used without odometry as well as on platforms that exhibit roll/pitch motion (of the sensor, the platform or both), such as drones. It leverages the high update rate of modern LIDAR systems like the Hokuyo UTM-30LX and provides 2D pose estimates at scan rate of the sensors (40Hz for the UTM-30LX). While the system does not provide explicit loop closing ability, it is sufficiently accurate for many real world scenarios. The system has successfully been used on Unmanned Ground Robots, Unmanned Surface Vehicles, Handheld Mapping Devices and logged data from quadrotor UAVs.</li>
+The <code>hector_mapping</code> is a <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> approach that can be used without odometry as well as on platforms that exhibit roll/pitch motion (of the sensor, the platform or both), such as drones. It leverages the high update rate of modern <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LIDAR</abbr> systems like the Hokuyo UTM-30LX and provides 2D pose estimates at scan rate of the sensors (40Hz for the UTM-30LX). While the system does not provide explicit loop closing ability, it is sufficiently accurate for many real world scenarios. The system has successfully been used on Unmanned Ground Robots, Unmanned Surface Vehicles, Handheld Mapping Devices and logged data from quadrotor UAVs.</li>
 </ul>
 <p>Unlike <code>gmapping</code> which uses a <a href="https://en.wikipedia.org/wiki/Particle_filter">particle filter</a>, 
-<code>karto</code>, <code>cartographer</code> and <code>hector_slam</code> are all <a href="http://www2.informatik.uni-freiburg.de/~stachnis/pdf/grisetti10titsmag.pdf">graph-based SLAM algorithms</a>.
-The least accurate SLAM algorithm is <code>gmapping</code> but it works fine for smaller maps. Use other algorithms, such as <code>karto</code> if you operate your robot in
+<code>karto</code>, <code>cartographer</code> and <code>hector_slam</code> are all <a href="http://www2.informatik.uni-freiburg.de/~stachnis/pdf/grisetti10titsmag.pdf">graph-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithms</a>.
+The least accurate <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithm is <code>gmapping</code> but it works fine for smaller maps. Use other algorithms, such as <code>karto</code> if you operate your robot in
 larger environments or you want more accuracy.</p>
 <p>Another interesting package is <a href="https://github.com/SteveMacenski/slam_toolbox"><code>slam_toolbox</code></a> which provides ROS1 and ROS2 
 support and is based on the easy to use <code>karto</code> algorithm. <code>karto</code> is the basis for many companies because it provides an excellent scan matcher
@@ -4290,7 +4320,7 @@ It is currently also not setup correctly for DiffBot. Using it will result in er
 </div>
 <h4 id="launch-files">Launch files</h4>
 <p>This package provides a main launch file named <code>diffbot_slam.launch</code> which accepts an argument <code>slam_method</code>.
-Depending on its value, different launch files will be included that execute the specified SLAM algorithm using its configuration in the <code>config</code> folder.</p>
+Depending on its value, different launch files will be included that execute the specified <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithm using its configuration in the <code>config</code> folder.</p>
 <p>As mentioned above, every ROS slam package requires messages from the laser-range finder topic. Usually this topic is named <code>/scan</code>.
 To distinguish possible multiple lidars, the topic of DiffBot resides in its namespace <code>/diffbot/scan</code>.
 Therefore, its necessary to remap the <code>/scan</code> topic to <code>/diffbot/scan</code>. The following shows how this was done for the <code>gmapping</code> launch file.</p>
@@ -4321,13 +4351,13 @@ Remappings are done in the <a href="http://wiki.ros.org/roslaunch/XML/node">node
 </code></pre></div></td></tr></tbody></table></div>
 <h4 id="parameter-configurations">Parameter Configurations</h4>
 <p>Most of the configurations are the same as <a href="https://github.com/ROBOTIS-GIT/turtlebot3/tree/master/turtlebot3_slam/config"><code>turtlebot3_slam/config</code></a>.
-For detailed description of what each parameter does, please check the individual package documentation of the different SLAM methods. </p>
+For detailed description of what each parameter does, please check the individual package documentation of the different <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> methods. </p>
 <h3 id="gazebo-simulation-tests">Gazebo Simulation Tests</h3>
-<p>To test SLAM in the Gazebo simulator run the following two launch files in separate terminals.</p>
+<p>To test <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> in the Gazebo simulator run the following two launch files in separate terminals.</p>
 <p>First run the simulation with:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_gazebo diffbot.launch world_name:='$(find diffbot_gazebo)/worlds/turtlebot3_world.world'</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>and in a second terminal execute the SLAM algorithm:</p>
+<p>and in a second terminal execute the <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithm:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_slam diffbot_slam.launch slam_method:=gmapping</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Here you can choose between different algorithms by changing the value of the <code>slam_method</code> argument.
@@ -4342,7 +4372,7 @@ Possible values are <code>gmapping</code> (the default), <code>karto</code>, <co
 <p>It requires the transformation from <code>&lt;the frame attached to incoming scans&gt;</code> to the <code>base_link</code>, which is usually a fixed value, 
 broadcast periodically by the <code>robot_state_publisher</code>.
 Additionally, it requires the transform from <code>base_link</code> to <code>odom</code>. This is provided by the odometry system (e.g., the driver for the mobile base).
-In the case of DiffBot the odometry system consists of EKF fusion data from the motor encoders and the IMU. 
+In the case of DiffBot the odometry system consists of <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fusion data from the motor encoders and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>. 
 The provided tf transforms are <code>map</code> to <code>odom</code> that describes the current estimate of the robot's pose within the map frame.
 You can read more about the <a href="http://wiki.ros.org/gmapping#Required_tf_Transforms">required and provided transforms</a> in the documentation.</p>
 <h3 id="field-tests">Field Tests</h3>
@@ -4352,18 +4382,18 @@ You can read more about the <a href="http://wiki.ros.org/gmapping#Required_tf_Tr
 <a href="http://www.robotfrontier.com/papers/cira97.pdf">Frontier exploration</a> is an approach to move a mobile robot on its own to new frontiers to extend its 
 map into new territory until the entire environment has been explored. </p>
 <p>The ROS wiki provides a good <a href="http://wiki.ros.org/husky_navigation/Tutorials/Husky%20Frontier%20Exploration%20Demo">tutorial using Husky robot</a> how to use the <a href="http://wiki.ros.org/frontier_exploration"><code>frontier_exploration</code></a> package. A lightweight alternative is the <a href="http://wiki.ros.org/explore_lite"><code>explore_lite</code></a> package.</p>
-<h3 id="other-slam-packages-for-3d-mapping">Other SLAM Packages (for 3D Mapping)</h3>
+<h3 id="other-slam-packages-for-3d-mapping">Other <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> Packages (for 3D Mapping)</h3>
 <ul>
-<li><a href="https://github.com/koide3/hdl_graph_slam"><code>hdl_graph_slam</code></a>: Open source ROS package for real-time 6DOF SLAM using a 3D LIDAR. 
-It is based on 3D Graph SLAM with 
+<li><a href="https://github.com/koide3/hdl_graph_slam"><code>hdl_graph_slam</code></a>: Open source ROS package for real-time 6DOF <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> using a 3D <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LIDAR</abbr>. 
+It is based on 3D Graph <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> with 
 <a href="https://www.researchgate.net/publication/4045903_The_Normal_Distributions_Transform_A_New_Approach_to_Laser_Scan_Matching">NDT</a> 
 scan matching-based odometry estimation and loop detection. This method is useful for outdoor.</li>
 <li><a href="http://wiki.ros.org/rtabmap_ros">RTAB-Map</a>: stands for <a href="http://introlab.github.io/rtabmap/">Real-Time Appearance-Based Mapping</a> and 
-is a RGB-D SLAM approach based on a global loop closure detector with real-time constraints. 
+is a <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> approach based on a global loop closure detector with real-time constraints. 
 This package can be used to generate a 3D point clouds of the environment and/or to create a 2D occupancy grid map for navigation. 
-To do this it requires only a stereo or RGB-D camera for visual odometry. Additional wheel odometry is not required but can improve the result.</li>
+To do this it requires only a stereo or <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> camera for visual odometry. Additional wheel odometry is not required but can improve the result.</li>
 <li><a href="http://wiki.ros.org/loam_velodyne">Loam Velodyne</a>: Laser Odometry and Mapping (Loam) is a realtime method for state estimation and mapping using a 3D lidar, see also the forked Github repository for <a href="https://github.com/laboshinl/loam_velodyne"><code>loam_velodyne</code></a>. Note that this is not supported officially anymore because it became closed source.</li>
-<li><a href="https://github.com/raulmur/ORB_SLAM2">ORB-SLAM2</a>: Real-Time SLAM for Monocular, Stereo and RGB-D Cameras, 
+<li><a href="https://github.com/raulmur/ORB_SLAM2">ORB-SLAM2</a>: Real-Time <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> for Monocular, Stereo and <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> Cameras, 
 with Loop Detection and Relocalization Capabilities. See <a href="http://wiki.ros.org/orb_slam2_ros"><code>orb_slam2_ros</code></a> for the ROS wrapper.</li>
 <li><a href="http://wiki.ros.org/slam_toolbox">slam_toolbox</a>: This package provides a sped up improved slam karto with updated 
 SDK and visualization and modification toolsets. It is a ROS drop in replacement to gmapping, cartographer, karto, hector, etc.
@@ -4376,14 +4406,14 @@ to edit the generated maps. See also the related <a href="https://vimeo.com/3786
 </ul>
 <p>Papers:</p>
 <ul>
-<li><a href="http://www2.informatik.uni-freiburg.de/~stachnis/pdf/grisetti10titsmag.pdf">A Tutorial on Graph-Based SLAM</a></li>
-<li><code>cartographer</code> <a href="https://static.googleusercontent.com/media/research.google.com/de//pubs/archive/45466.pdf">Real-Time Loop Closure in 2D LIDAR SLAM</a></li>
-<li><code>hector_slam</code> <a href="https://www.researchgate.net/publication/228852006_A_flexible_and_scalable_SLAM_system_with_full_3D_motion_estimation">A flexible and scalable SLAM system with full 3D motion estimation</a>.</li>
+<li><a href="http://www2.informatik.uni-freiburg.de/~stachnis/pdf/grisetti10titsmag.pdf">A Tutorial on Graph-Based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></a></li>
+<li><code>cartographer</code> <a href="https://static.googleusercontent.com/media/research.google.com/de//pubs/archive/45466.pdf">Real-Time Loop Closure in 2D <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LIDAR</abbr> <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></a></li>
+<li><code>hector_slam</code> <a href="https://www.researchgate.net/publication/228852006_A_flexible_and_scalable_SLAM_system_with_full_3D_motion_estimation">A flexible and scalable <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> system with full 3D motion estimation</a>.</li>
 <li><a href="https://www.sauravag.com/2017/07/an-practical-introduction-to-pose-graph-slam/">A practical introduction to to pose graph slam</a></li>
 <li><a href="https://www.researchgate.net/publication/4045903_The_Normal_Distributions_Transform_A_New_Approach_to_Laser_Scan_Matching">The Normal Distributions Transform: A New Approach to Laser Scan Matching</a></li>
-<li><a href="https://introlab.3it.usherbrooke.ca/mediawiki-introlab/images/7/7a/Labbe18JFR_preprint.pdf">RTAB-Map as an Open-Source Lidar and Visual SLAM Library for Large-Scale and Long-Term Online Operation</a></li>
+<li><a href="https://introlab.3it.usherbrooke.ca/mediawiki-introlab/images/7/7a/Labbe18JFR_preprint.pdf">RTAB-Map as an Open-Source Lidar and Visual <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> Library for Large-Scale and Long-Term Online Operation</a></li>
 <li><a href="https://ri.cmu.edu/pub_files/2014/7/Ji_LidarMapping_RSS2014_v8.pdf">LOAM: Lidar Odometry and Mapping in Real-time</a></li>
-<li><a href="https://arxiv.org/abs/1610.06475">ORB-SLAM2: an Open-Source SLAM System for Monocular, Stereo and RGB-D Cameras</a></li>
+<li><a href="https://arxiv.org/abs/1610.06475">ORB-SLAM2: an Open-Source <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> System for Monocular, Stereo and <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> Cameras</a></li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
@@ -4543,7 +4573,7 @@ to edit the generated maps. See also the related <a href="https://vimeo.com/3786
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

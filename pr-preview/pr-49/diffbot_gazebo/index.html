@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4235,7 +4265,7 @@
 <p>As described in the <a href="http://gazebosim.org/tutorials?tut=ros_roslaunch#CreatingyourownGazeboROSPackage">Creating your own Gazebo ROS Package</a>, it is common in ROS to create a package that contains all the world files and launch files used with Gazebo. These files are located in a ROS package named <code>/MYROBOT_gazebo</code>. For DiffBot the package is named <code>diffbot_gazebo</code>. Another example that follows best pratices is <code>rrbot</code> which can be found in the <a href="https://github.com/ros-simulation/gazebo_ros_demos">gazebo_ros_demos</a> repository.</p>
 <div class="admonition tip">
 <p class="admonition-title">Simulation test</p>
-<p>CI drives DiffBot and Remo in this simulation on every pull request, without a display. <a href="../development/simulation-test/">Simulation Test</a> shows how Gazebo, <code>gazebo_ros_control</code> and the controllers work together.</p>
+<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> drives DiffBot and Remo in this simulation on every pull request, without a display. <a href="../development/simulation-test/">Simulation Test</a> shows how Gazebo, <code>gazebo_ros_control</code> and the controllers work together.</p>
 </div>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -4406,7 +4436,7 @@ that has to be downloaded first, which is happening in the background. TODO: gas
 <p></p><div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">/home/fjp/.gazeb$ git clone osrf/gazebo_models</span>
 </code></pre></div></td></tr></tbody></table></div>
 Then add this path inside Gazebo to insert these models into your world file.<p></p>
-<h3 id="using-ros-launch-to-spawn-urdf-robots">Using ROS launch to Spawn URDF Robots</h3>
+<h3 id="using-ros-launch-to-spawn-urdf-robots">Using ROS launch to Spawn <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> Robots</h3>
 <p>According to the <a href="http://gazebosim.org/tutorials?tut=ros_roslaunch#UsingroslaunchtoSpawnURDFRobots">Gazebo roslaunch tutorial</a> the recommended way
  to spawn a robot into Gazebo is to use a launch file. Therefore, edit the <code>diffbot.launch</code> inside the <code>diffbot_gazebo</code> package by adding the following inside the <code>&lt;launch&gt; &lt;/launch</code> tag:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4448,10 +4478,10 @@ for using ROS with the Gazebo simulator.</p>
 <p>This section follows Gazebo tutorial <a href="http://gazebosim.org/tutorials?tut=ros_gzplugins#GPULaser">Adding a Laser GPU</a>.</p>
 <h4 id="ultrasonic-ranger">Ultrasonic Ranger</h4>
 <p>See the source of the <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/kinetic-devel/gazebo_plugins/src/gazebo_ros_range.cpp"><code>gazebo_ros_range</code></a> plugin.</p>
-<h4 id="inertial-measurement-unit-imu">Inertial Measurement Unit (IMU)</h4>
-<p>This section follows Gazebo tutorial [Adding an IMU](<a href="http://gazebosim.org/tutorials?tut=ros_gzplugins#IMU(GazeboRosImu">http://gazebosim.org/tutorials?tut=ros_gzplugins#IMU(GazeboRosImu</a>). Note use GazeboRosImuSensor?</p>
+<h4 id="inertial-measurement-unit-imu">Inertial Measurement Unit (<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>)</h4>
+<p>This section follows Gazebo tutorial [Adding an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>](<a href="http://gazebosim.org/tutorials?tut=ros_gzplugins#IMU(GazeboRosImu">http://gazebosim.org/tutorials?tut=ros_gzplugins#IMU(GazeboRosImu</a>). Note use GazeboRosImuSensor?</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
-<p>A quick way to verify if the conversion from <a href="http://wiki.ros.org/xacro">xacro</a> to <a href="http://wiki.ros.org/urdf">urdf</a> to <a href="http://sdformat.org/">sdf</a> is working is the following (<a href="http://gazebosim.org/tutorials/?tut=ros_urdf#VerifyingtheGazeboModelWorks">source: Tutorial URDF in Gazebo</a>):
+<p>A quick way to verify if the conversion from <a href="http://wiki.ros.org/xacro">xacro</a> to <a href="http://wiki.ros.org/urdf">urdf</a> to <a href="http://sdformat.org/">sdf</a> is working is the following (<a href="http://gazebosim.org/tutorials/?tut=ros_urdf#VerifyingtheGazeboModelWorks">source: Tutorial <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a>):
 First convert the xacro model to a urdf model with the <code>xacro</code> command:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">xacro src/diffbot_description/urdf/diffbot.xacro -o diffbot.urdf</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4990,7 +5020,7 @@ gz sdf -p MODEL.urdf
 </details>
 <p>In case the output looks like the following, there are most certainly missing <a href="http://wiki.ros.org/urdf/Tutorials/Adding%20Physical%20and%20Collision%20Properties%20to%20a%20URDF%20Model#Inertia"><code>&lt;inertial&gt;</code></a> tags in the <code>&lt;link&gt;</code> tag.
 For the Gazebo simulator the <code>&lt;inertial&gt;</code> must be present, in order to simulate the dynamics of the robot. 
-See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XML/link</a> and the <a href="http://gazebosim.org/tutorials/?tut=ros_urdf">Gazebo tutorials on URDF</a>.</p>
+See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XML/link</a> and the <a href="http://gazebosim.org/tutorials/?tut=ros_urdf">Gazebo tutorials on <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr></a>.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;sdf</span><span class="w"> </span><span class="na">version=</span><span class="s">'1.7'</span><span class="nt">&gt;</span>
@@ -5155,7 +5185,7 @@ See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XM
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

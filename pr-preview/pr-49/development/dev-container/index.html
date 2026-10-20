@@ -617,6 +617,8 @@
       
         
       
+        
+      
     
     
     
@@ -1040,6 +1042,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4269,15 +4299,15 @@
 
 
 <h1 id="use-the-dev-container">Use the Dev Container</h1>
-<p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/#dev-container-workflow">CI</a>, gets the same environment, on Linux and on Windows with WSL 2.</p>
+<p>The diffbot repository has a dev container for ROS 1 Noetic: a Docker image with Ubuntu 20.04, ROS Noetic, Gazebo 11, RViz and every dependency of the DiffBot packages. Every developer, and <a href="../ci/#dev-container-workflow"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>, gets the same environment, on Linux and on Windows with <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2.</p>
 <p>It's the recommended setup for the development PC. Prepare the PC first, as described in <a href="../../getting-started/set-up-your-pc/">Set Up Your PC</a>. The robot's single board computer is still set up natively, see <a href="../../getting-started/#real-robot">Getting Started</a>.</p>
 <h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
 <p>A few terms first:</p>
 <ul>
-<li><strong>Host:</strong> the computer that runs Docker Engine and the container. That's your Linux PC, or on Windows the Ubuntu that runs in <a href="https://learn.microsoft.com/en-us/windows/wsl/">WSL 2</a> (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.</li>
+<li><strong>Host:</strong> the computer that runs Docker Engine and the container. That's your Linux PC, or on Windows the Ubuntu that runs in <a href="https://learn.microsoft.com/en-us/windows/wsl/"><abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2</a> (Windows Subsystem for Linux). "On the host" means in a terminal of that Linux, not inside the container.</li>
 <li><strong>Container:</strong> a separate Ubuntu 20.04 with ROS Noetic that runs on the host (<a href="https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/">what is a container</a>). A <em>dev container</em> is a container set up for development, described by a <code>devcontainer.json</code> file (<a href="https://containers.dev/">containers.dev</a>). Your clone of the diffbot repository is shared with it, so you edit files on the host and build and run them in the container.</li>
 <li><strong>X server and X clients:</strong> Linux GUI programs use the <a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml">X Window System</a> (X11). The <em>X server</em> is the program that draws windows on your screen, so it runs where the screen is. The programs that want windows, like RViz, Gazebo and rqt, are <em>X clients</em>: each one connects to the X server and tells it what to draw. One X server serves many clients, and the clients may run somewhere else, for example in the container. The naming feels backwards at first: the server is on your desk, and the apps are its clients.</li>
-<li><strong>Which X server:</strong> on a Linux desktop, the desktop's own (Xwayland on <a href="https://wayland.freedesktop.org/">Wayland</a> desktops). On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> (Windows Subsystem for Linux GUI, part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later, see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>) is the X server for Linux programs and shows their windows on the Windows desktop.</li>
+<li><strong>Which X server:</strong> on a Linux desktop, the desktop's own (Xwayland on <a href="https://wayland.freedesktop.org/">Wayland</a> desktops). On Windows, <a href="https://github.com/microsoft/wslg">WSLg</a> (Windows Subsystem for Linux GUI, part of <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 on Windows 11 and on Windows 10 build 19044 or later, see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>) is the X server for Linux programs and shows their windows on the Windows desktop.</li>
 </ul>
 <p><strong>Simulation, no robot needed:</strong> everything runs in the container. Gazebo simulates the robot, RViz shows what it sees. They are X clients, and their windows appear on your screen through the host's X server (see <a href="../dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>):</p>
 <div class="mermaid">graph TB
@@ -4304,7 +4334,7 @@
 </ul>
 <h2 id="usage">Usage</h2>
 <p>The steps depend on your PC. Choose your platform:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (WSL 2)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <ol>
@@ -4355,7 +4385,7 @@
 <ol>
 <li><strong>Open the Ubuntu terminal:</strong> start <em>Ubuntu</em> from the Start menu, or run <code>wsl</code> in PowerShell. Run all the following commands there, not in PowerShell.</li>
 <li>
-<p><strong>Clone the repository</strong> into your Ubuntu home folder, not into a Windows folder under <code>/mnt/c</code>. Files in the WSL file system are much faster for Linux tools (<a href="https://learn.microsoft.com/en-us/windows/wsl/filesystems#file-storage-and-performance-across-file-systems">WSL file systems</a>):</p>
+<p><strong>Clone the repository</strong> into your Ubuntu home folder, not into a Windows folder under <code>/mnt/c</code>. Files in the <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> file system are much faster for Linux tools (<a href="https://learn.microsoft.com/en-us/windows/wsl/filesystems#file-storage-and-performance-across-file-systems"><abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> file systems</a>):</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~</span>
@@ -4370,11 +4400,11 @@
 <div class="tabbed-block">
 <p>VS Code runs as a Windows program, while Docker Engine runs in the Ubuntu. So VS Code first connects to the Ubuntu, and then to the container:</p>
 <ol>
-<li>In VS Code, install the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl">WSL extension</a> next to Dev Containers.</li>
-<li>In the Ubuntu terminal, in the <code>diffbot</code> folder, run <code>code .</code> (<a href="https://code.visualstudio.com/docs/remote/wsl#_from-the-wsl-terminal">VS Code and WSL</a>). VS Code opens, and the status bar at the bottom left shows that the window is connected to WSL.</li>
+<li>In VS Code, install the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl"><abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> extension</a> next to Dev Containers.</li>
+<li>In the Ubuntu terminal, in the <code>diffbot</code> folder, run <code>code .</code> (<a href="https://code.visualstudio.com/docs/remote/wsl#_from-the-wsl-terminal">VS Code and <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr></a>). VS Code opens, and the status bar at the bottom left shows that the window is connected to <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr>.</li>
 <li>Choose <strong>Reopen in Container</strong> in the notification, or run <strong>Dev Containers: Reopen in Container</strong> from the command palette (<span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-shift">Shift</kbd><span>+</span><kbd class="key-p">P</kbd></span>). The first start builds the image and the workspace, which takes a few minutes.</li>
 </ol>
-<p>VS Code documents this way of using Docker Engine in WSL (<a href="https://code.visualstudio.com/remote/advancedcontainers/docker-options#_windows-windows-subsystem-for-linux-wsl">Docker options</a>). It isn't tested with this project yet; the Dev Container CLI in WSL is.</p>
+<p>VS Code documents this way of using Docker Engine in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> (<a href="https://code.visualstudio.com/remote/advancedcontainers/docker-options#_windows-windows-subsystem-for-linux-wsl">Docker options</a>). It isn't tested with this project yet; the Dev Container CLI in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> is.</p>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4480,7 +4510,7 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><code>permission denied</code> on <code>/var/run/docker.sock</code></td>
-<td style="text-align: left;">Your user isn't in the <code>docker</code> group yet. Add it, then log out and in (WSL 2: <code>wsl --shutdown</code>).</td>
+<td style="text-align: left;">Your user isn't in the <code>docker</code> group yet. Add it, then log out and in (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2: <code>wsl --shutdown</code>).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>No protocol specified</code> or <code>cannot open display</code> on native Linux</td>
@@ -4654,7 +4684,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

@@ -601,6 +601,8 @@
       
         
       
+        
+      
     
     
     
@@ -858,6 +860,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4047,7 +4077,7 @@
 </figure>
 
 <p>This package contains the platform-specific code for the base controller component required by the ROS Navigation Stack. It consists of the firmware based on rosserial
-for the Teensy MCU and the C++ node running on the SBC that instantiates the
+for the Teensy <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> and the C++ node running on the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> that instantiates the
 ROS Control hardware interface, which includes the <code>controller_manager</code> control loop
 for the real robot.</p>
 <p>The low-level <code>base_controller</code> component reads the encoder ticks from the hardware,
@@ -4058,7 +4088,7 @@ from ROS Control. It provides a controller (<code>DiffDriveController</code>) fo
 drive mobile base that computes target joint velocities from commands received by either
 a teleop node or the ROS Navigation Stack. The computed target joint velocities are
 forwarded to the low-level base controller, where they are compared to the measured
-velocities to compute suitable motor PWM signals using two separate PID controllers,
+velocities to compute suitable motor <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals using two separate <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers,
 one for each motor.</p>
 <p>Another part of this package is a launch file that will</p>
 <ul>
@@ -4068,17 +4098,17 @@ one for each motor.</p>
 <li>Load the controllers with the <a href="http://wiki.ros.org/controller_manager?distro=noetic">controller manager</a></li>
 <li>Load the value of the encoder resolution to the parameter server</li>
 </ul>
-<h2 id="low-level-vs-high-level-pid">Low-Level vs High-Level PID</h2>
+<h2 id="low-level-vs-high-level-pid">Low-Level vs High-Level <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr></h2>
 <p>There exist (at least) two commonly used approaches to control a robot base.</p>
-<p>The difference between the two presented approaches here is where the PID controller(s)
-that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the SBC and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are referred to as</p>
+<p>The difference between the two presented approaches here is where the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller(s)
+that control each motor are kept. One possibility is to run these PIDs on the high level hardware interface on the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> and sending the computed output commands to a motor driver node. Another option operates the PIDs on the low-level microcontroller hardware. For DiffBot these approaches are referred to as</p>
 <ul>
-<li>High-Level PIDs running on the hardware interface on the SBC</li>
+<li>High-Level PIDs running on the hardware interface on the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr></li>
 <li>Low-Level PIDs running on the firmware of the microcontroller</li>
 </ul>
-<p>The DiffBot project initially used the PID controllers in the high level hardware interface. From release <a href="https://github.com/ros-mobile-robots/diffbot/tree/1.0.0">1.0.0</a> on two low-level PIDs are operating on the low-level base controller hardware.</p>
+<p>The DiffBot project initially used the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers in the high level hardware interface. From release <a href="https://github.com/ros-mobile-robots/diffbot/tree/1.0.0">1.0.0</a> on two low-level PIDs are operating on the low-level base controller hardware.</p>
 <p>This section focuses on the current approach (low-level PIDs).
-The previous approach (high-level PID) is documented in <a href="high-level/">High-Level Approach</a>.</p>
+The previous approach (high-level <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>) is documented in <a href="high-level/">High-Level Approach</a>.</p>
 <h2 id="developing-a-low-level-controller-firmware-and-a-high-level-ros-control-hardware-interface-for-a-differential-drive-robot">Developing a low-level controller firmware and a high-level ROS Control hardware interface for a differential drive robot</h2>
 <p>In the following two sections, the base controller, mentioned in the Navigation
 Stack, will be developed.</p>
@@ -4110,7 +4140,7 @@ communication between the two components:</p>
 <figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
 Control)</figcaption>
 </figure>
-<p>The low-level base controller uses two PID controllers to compute PWM signals
+<p>The low-level base controller uses two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers to compute <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals
 for each motor based on the error between measured and target wheel velocities.
 <code>RobotHW</code> receives measured joint states (angular position (rad) and angular
 velocity (rad/s)) from which it updates its joint values. With these measured
@@ -4126,7 +4156,7 @@ the transform from <code>odom</code> to <code>base_footprint</code>.</p>
 <p>Having explained the two components of the base controller, the low-level
 firmware is implemented first. The high-level hardware interface follows the
 next section.</p>
-<p>But before this an introduction to the PID controllers are given in <a href="pid/">PID
+<p>But before this an introduction to the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers are given in <a href="pid/"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>
 Controllers</a>.</p>
 <h3 id="diffbot_base-package">diffbot_base Package</h3>
 <p>The <code>diffbot_base</code> package was created with <code>catkin-tools</code>:</p>
@@ -4336,7 +4366,7 @@ Controllers</a>.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

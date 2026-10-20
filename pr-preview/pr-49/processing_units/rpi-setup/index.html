@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4159,7 +4189,7 @@ See the <a href="../jetson-nano-setup/">related section in the documentation</a>
 <p>Download <code>ubuntu-20.04.5-preinstalled-server-arm64+raspi.img.xz</code> from <a href="https://cdimage.ubuntu.com/ubuntu/releases/20.04/release/">Ubuntu's 20.04 release folder</a>, and compare its checksum with the <code>SHA256SUMS</code> file there.</p>
 <div class="admonition warning">
 <p class="admonition-title">Not yet tested with DiffBot and Remo</p>
-<p>The robots were set up with Ubuntu MATE 20.04.1, which has a desktop. Ubuntu MATE no longer offers it for download (its support for 20.04 ended in April 2023); it's only in the archive on <a href="https://releases.ubuntu-mate.org/">releases.ubuntu-mate.org</a>. Ubuntu Server hasn't been tested with the robots' hardware yet: I2C, the serial ports, the LiDAR and the camera. If your robot already runs Ubuntu MATE 20.04.1, you don't need to reinstall it to follow these docs.</p>
+<p>The robots were set up with Ubuntu MATE 20.04.1, which has a desktop. Ubuntu MATE no longer offers it for download (its support for 20.04 ended in April 2023); it's only in the archive on <a href="https://releases.ubuntu-mate.org/">releases.ubuntu-mate.org</a>. Ubuntu Server hasn't been tested with the robots' hardware yet: <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>, the serial ports, the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> and the camera. If your robot already runs Ubuntu MATE 20.04.1, you don't need to reinstall it to follow these docs.</p>
 </div>
 <p>Flash the image to an empty microSD card with <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>: under the operating system, choose <strong>Use custom</strong> and select the downloaded file. <a href="https://etcher.balena.io/">balenaEtcher</a> works too.</p>
 <div class="admonition info">
@@ -4171,7 +4201,7 @@ device where the Firmware is stored.</p>
 <h2 id="first-boot">First boot</h2>
 <p>Before the first boot, set up the Wi-Fi: on the card's <code>system-boot</code> partition, open <code>network-config</code> and remove the <code>#</code> at the start of the <code>wifis:</code> example's lines, down to the first access point. Replace <code>myhomewifi</code> with your network's name, keeping the colon, and <code>S3kr1t</code> with its password. Indent with spaces, not tabs. The image applies this file only at the first boot.</p>
 <p>Insert the card and power up the Raspberry Pi. Log in with the user <code>ubuntu</code> and the password <code>ubuntu</code>, either over SSH (see below; the robot's IP address is in your router's list of devices) or with a monitor and keyboard. You have to choose a new password right away.</p>
-<p>Changes to the boot configuration, such as the I2C lines on <a href="../hardware-interfaces/">Hardware Interfaces</a>, go into <code>usercfg.txt</code> on the <code>system-boot</code> partition (<code>/boot/firmware/usercfg.txt</code>): the image's <code>config.txt</code> says not to edit it. <code>dtparam=i2c_arm=on</code> is already set.</p>
+<p>Changes to the boot configuration, such as the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> lines on <a href="../hardware-interfaces/">Hardware Interfaces</a>, go into <code>usercfg.txt</code> on the <code>system-boot</code> partition (<code>/boot/firmware/usercfg.txt</code>): the image's <code>config.txt</code> says not to edit it. <code>dtparam=i2c_arm=on</code> is already set.</p>
 <h2 id="wifi-issues">Wifi Issues</h2>
 <p><strong>Country setting for 5 GHz networks:</strong> outside the US, the Raspberry Pi may not connect to a 5 GHz network until it knows your country. On the <code>system-boot</code> partition, add <code>cfg80211.ieee80211_regdom=AT</code> to the end of the single line in <code>cmdline.txt</code>, with your country's code instead of <code>AT</code>, as the image's <code>network-config</code> describes.</p>
 <details class="note">
@@ -4299,7 +4329,7 @@ sudo make
 <p>To work on the robot from your PC, without a monitor and keyboard on the robot, log in with SSH (<a href="https://ubuntu.com/server/docs/how-to/security/openssh-server/">OpenSSH server</a>). The robot runs the SSH server, and your PC is the client. Both must be in the same network. On the robot, install the server (Ubuntu Server has it already):</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install openssh-server</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>On your PC, in Linux or in the Ubuntu in WSL 2, the <code>ssh</code> client is usually already installed. Log in with your user name on the robot and its IP address, which <code>hostname -I</code> on the robot shows. For example:</p>
+<p>On your PC, in Linux or in the Ubuntu in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2, the <code>ssh</code> client is usually already installed. Log in with your user name on the robot and its IP address, which <code>hostname -I</code> on the robot shows. For example:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh your-user@192.168.0.20</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Next, on the robot: install ROS Noetic, as described in <a href="../ros-setup/">ROS Setup</a>.</p>
@@ -4461,7 +4491,7 @@ sudo make
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
