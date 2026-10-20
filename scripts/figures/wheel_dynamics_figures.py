@@ -158,7 +158,7 @@ def wheels_panel(s, x0, sphere):
         # The wheel pushes the robot forward at its contact: an arrow out of the page is drawn
         # as the contact dot; its position is what decides the turn
         s.marker(px, ground, "circle", "f1",
-                 f"Contact {'in the center plane' if sphere else 'at the outer edge'}: "
+                 f"Effective contact {'in the center plane' if sphere else 'at the outer edge'}: "
                  f"{abs(px - cx) / 1000:.4f} m from the robot's center")
     s.line(x0 + 8, ground, x0 + 202, ground, "ground")
     # Dimensions: between the wheel centers above, between the contacts below
@@ -173,9 +173,9 @@ def wheels_panel(s, x0, sphere):
 contacts = Svg("wd-contacts", 440, 205, "Front view of DiffBot's drive wheels with a cylinder and a sphere collision")
 wheels_panel(contacts, 0, sphere=False)
 wheels_panel(contacts, 230, sphere=True)
-fig_contacts = figure(contacts, "Front view of DiffBot's drive wheels, to scale. The dots are where Gazebo put the "
-                                "contacts. The dashed circle is the sphere collision; the wheel's visual and inertia "
-                                "stay those of the real wheel.")
+fig_contacts = figure(contacts, "Front view of DiffBot's drive wheels, to scale. The dots show the effective contact "
+                                "positions that explain the turn ratios below. The dashed circle is the sphere collision; "
+                                "changing it leaves the model's visual and cylinder inertia unchanged.")
 
 # --- Measured turn with each collision -------------------------------------------------------
 # True turn / odometry turn, turning 1.5 rad on the spot. Predicted for contacts at the outer
@@ -210,13 +210,13 @@ for i, (name, sep, width, cyl, sph) in enumerate(TURNS):
     turn.marker(x_of(rs), y, "circle", "f1", f"{name}, sphere: {sph[0]:.3f} / {sph[1]:.3f} rad = {rs:.3f}")
     turn.text(x_of(rc), y + 20, f"{rc:.3f}", "t-halo", "middle")
     turn.text(x_of(rs) - 2, y + 20, f"{rs:.3f}", "t-halo", "middle")
-fig_turn = figure(turn, "The true turn over the odometry's turn, turning 1.5 rad on the spot. With cylinders, both "
+fig_turn = figure(turn, "The true turn over the odometry's turn, when commanding a 1.5 rad turn on the spot. With cylinders, both "
                         "robots turned as their contacts at the outer edges predict (dashed); with spheres, as "
                         "their wheel centers do.")
 
 # --- Wheel speeds while turning ----------------------------------------------------------------
 SPEED_PANELS = [
-    ("cylinder-old-contacts", "Cylinder, friction 200, kp 1e12, kd 0 (main)"),
+    ("cylinder-old-contacts", "Cylinder, friction 200, kp 1e12, kd 0 (old model)"),
     ("sphere-old-contacts", "Sphere, the same contacts, minDepth 0"),
     ("final", "Sphere, friction 1, kp 1e7, kd 1, minDepth 0 (now)"),
 ]
