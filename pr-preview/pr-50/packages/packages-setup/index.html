@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4194,13 +4224,13 @@
 <h1 id="diffbot-ros-packages">Diffbot ROS Packages</h1>
 <p>The following describes the easiest way to make use of diffbot's ROS packages inside the <a href="https://github.com/ros-mobile-robots/diffbot">ros-mobile-robots/diffbot</a>
 repository.</p>
-<p>The following steps will be performed on both, the workstation/development PC and the single board computer (SBC).</p>
+<p>The following steps will be performed on both, the workstation/development PC and the single board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>).</p>
 <div class="admonition tip">
 <p class="admonition-title">Development PC: use the dev container</p>
-<p>On the development PC, the <a href="../../development/dev-container/">dev container</a> does all of the following steps for you, in a Docker image with ROS Noetic, Gazebo and RViz. The steps below are still needed on the robot's SBC.</p>
+<p>On the development PC, the <a href="../../development/dev-container/">dev container</a> does all of the following steps for you, in a Docker image with ROS Noetic, Gazebo and RViz. The steps below are still needed on the robot's <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>.</p>
 </div>
 <h2 id="git-clone-diffbot-repository">Git: clone diffbot repository</h2>
-<p>After setting up ROS on the SBC (<a href="../../processing_units/rpi-setup/">Raspberry Pi 4B</a> or <a href="../../processing_units/jetson-nano-setup/">Jetson Nano</a>), install Git there, if <code>git --version</code> doesn't find it:</p>
+<p>After setting up ROS on the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> (<a href="../../processing_units/rpi-setup/">Raspberry Pi 4B</a> or <a href="../../processing_units/jetson-nano-setup/">Jetson Nano</a>), install Git there, if <code>git --version</code> doesn't find it:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo apt install git
 </code></pre></div></td></tr></tbody></table></div>
 <p>Then go to the workspace from <a href="../../processing_units/ros-setup/#build-tool-catkin_tools">ROS Setup</a>, <code>~/catkin_ws</code>, or create it, and clone the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel"><code>diffbot</code> repository</a>. It's public, so this needs no GitHub account:</p>
@@ -4222,12 +4252,12 @@ git clone https://github.com/ros-mobile-robots/diffbot.git
 <p><code>gh auth login</code> on the robot shows a one-time code. Open <a href="https://github.com/login/device">https://github.com/login/device</a> on your PC and enter it there. <code>gh</code> then stores a token on the robot, in a plain text file if no keyring is available; <code>gh auth status</code> shows where.</p>
 </div>
 <div class="tabbed-block">
-<p>Instead of creating a key on the robot, let it use your PC's key through SSH agent forwarding. On your PC, in Linux or in the Ubuntu in WSL 2, load the key into the SSH agent, and connect with <code>-A</code>:</p>
+<p>Instead of creating a key on the robot, let it use your PC's key through SSH agent forwarding. On your PC, in Linux or in the Ubuntu in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2, load the key into the SSH agent, and connect with <code>-A</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh-add ~/.ssh/id_ed25519</span>
 <span class="go">ssh -A your-user@192.168.0.20</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>If <code>ssh-add</code> can't connect to an agent, as in WSL 2, start one first with <code>eval "$(ssh-agent -s)"</code>. On the robot, the clone needs the SSH address (see <a href="../../getting-started/git-and-github/#commit-and-push-changes-optional">Git and GitHub</a>, SSH tab).</p>
+<p>If <code>ssh-add</code> can't connect to an agent, as in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2, start one first with <code>eval "$(ssh-agent -s)"</code>. On the robot, the clone needs the SSH address (see <a href="../../getting-started/git-and-github/#commit-and-push-changes-optional">Git and GitHub</a>, SSH tab).</p>
 <p>The private key stays on your PC. But while you're connected, anyone with root access on the robot can use your agent to authenticate to GitHub as you. Forward it only to a robot you trust, such as your own (<a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/using-ssh-agent-forwarding">Using SSH agent forwarding</a>).</p>
 </div>
 </div>
@@ -4264,12 +4294,12 @@ They clone into <code>src/</code>, so run <code>vcs import</code> from the root 
 <td style="text-align: left;"><code>rplidar_ros</code>, <code>remo_description</code></td>
 </tr>
 <tr>
-<td style="text-align: left;">Remo's SBC</td>
+<td style="text-align: left;">Remo's <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr></td>
 <td style="text-align: left;"><code>vcs import &lt; src/diffbot/remo_robot.repos</code></td>
 <td style="text-align: left;"><code>rplidar_ros</code>, <code>remo_description</code></td>
 </tr>
 <tr>
-<td style="text-align: left;">DiffBot's SBC</td>
+<td style="text-align: left;">DiffBot's <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr></td>
 <td style="text-align: left;"><code>vcs import &lt; src/diffbot/diffbot_robot.repos</code></td>
 <td style="text-align: left;"><a href="https://github.com/Slamtec/rplidar_ros"><code>rplidar_ros</code></a> (Slamtec), <code>raspicam_node</code></td>
 </tr>
@@ -4489,7 +4519,7 @@ ROS <a href="http://wiki.ros.org/noetic">noetic</a> install.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

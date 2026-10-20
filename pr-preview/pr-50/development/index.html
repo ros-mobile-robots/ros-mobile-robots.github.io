@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4041,7 +4071,7 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot">diffbot</a></td>
-<td style="text-align: left;">ROS packages, Teensy firmware, dev container, CI</td>
+<td style="text-align: left;">ROS packages, Teensy firmware, dev container, <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></td>
 <td style="text-align: left;"><code>noetic-devel</code></td>
 </tr>
 <tr>
@@ -4051,7 +4081,7 @@
 </tr>
 <tr>
 <td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/remo_description">remo_description</a></td>
-<td style="text-align: left;">Remo's URDF description. The STL meshes come with the <a href="https://fjp.gumroad.com/l/GnMpU">Remo files on Gumroad</a></td>
+<td style="text-align: left;">Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> description. The <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> meshes come with the <a href="https://fjp.gumroad.com/l/GnMpU">Remo files on Gumroad</a></td>
 <td style="text-align: left;"><code>main</code></td>
 </tr>
 </tbody>
@@ -4060,9 +4090,9 @@
 <p>The plan is public in the <a href="https://github.com/orgs/ros-mobile-robots/projects/3">DiffBot &amp; Remo roadmap</a> project. Every open issue there has a phase:</p>
 <ol>
 <li><strong>Noetic upkeep:</strong> ROS 1 Noetic stays supported on the <code>noetic-devel</code> branch, including Gazebo Classic.</li>
-<li><strong>Docker and CI:</strong> one container setup for development and CI, a container for the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>), and tests in the simulation (<a href="https://github.com/ros-mobile-robots/diffbot/issues/110">diffbot#110</a>, the first one is in place: <a href="simulation-test/">Simulation Test</a>), and tests for <code>diffbot_base</code> and the firmware without the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>).</li>
+<li><strong>Docker and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>:</strong> one container setup for development and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>, a container for the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>), and tests in the simulation (<a href="https://github.com/ros-mobile-robots/diffbot/issues/110">diffbot#110</a>, the first one is in place: <a href="simulation-test/">Simulation Test</a>), and tests for <code>diffbot_base</code> and the firmware without the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>).</li>
 <li><strong>ROS 2:</strong> the port, in phases for the model and simulation, ros2_control, and the Teensy firmware. It will live in the same repository, on a new branch.</li>
-<li><strong>IMU, filter and navigation:</strong> IMU, Kalman filter (robot_localization) and navigation, for ROS 1 and ROS 2.</li>
+<li><strong><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, filter and navigation:</strong> <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, Kalman filter (robot_localization) and navigation, for ROS 1 and ROS 2.</li>
 </ol>
 <p>Issues labelled <a href="https://github.com/ros-mobile-robots/diffbot/labels/good%20first%20issue"><code>good first issue</code></a> or <a href="https://github.com/ros-mobile-robots/diffbot/labels/help%20wanted"><code>help wanted</code></a> are good places to start.</p>
 <h2 id="how-changes-get-in">How changes get in</h2>
@@ -4070,7 +4100,7 @@
 <li><strong>Issue:</strong> describe the bug or feature, or pick an existing issue and comment that you're on it.</li>
 <li><strong>Branch:</strong> name it after the kind of change, for example <code>feat/imu-driver</code>, <code>fix/encoder-ticks</code>, <code>docs/dev-container</code> or <code>chore/ci-actions</code>.</li>
 <li><strong>Pull request:</strong> against <code>noetic-devel</code> in diffbot, or <code>main</code> in this repository. Explain what changes and how you tested it.</li>
-<li><strong>Checks and review:</strong> the <a href="ci/">CI checks</a> must pass, and every PR gets a review.</li>
+<li><strong>Checks and review:</strong> the <a href="ci/"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> checks</a> must pass, and every PR gets a review.</li>
 <li><strong>Merge:</strong> PRs are squash-merged. The PR title and description become the commit message, so they should read like one. The branch is deleted after the merge.</li>
 </ol>
 <p>A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site (see <a href="#writing-docs">Writing docs</a>).</p>
@@ -4081,13 +4111,13 @@
 <li><a href="http://wiki.ros.org/DevelopersGuide">ROS developer's guide</a>: common practices for components shared with the community, with the <a href="http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources">naming conventions</a> and the <a href="http://wiki.ros.org/CppStyleGuide">C++</a> and <a href="http://wiki.ros.org/PyStyleGuide">Python</a> style guides.</li>
 <li><a href="https://github.com/ethz-asl/ros_best_practices/wiki">ROS best practices</a> of the Autonomous Systems Lab at ETH Zurich.</li>
 </ul>
-<p>How the code is built, tested and debugged is described in <a href="ci/">Testing and CI</a>.</p>
+<p>How the code is built, tested and debugged is described in <a href="ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>.</p>
 <h2 id="writing-docs">Writing docs</h2>
-<p>This site is built with <a href="https://www.mkdocs.org/">MkDocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> theme. Its source is the <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io">ros-mobile-robots.github.io</a> repository: one Markdown file per page in <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs"><code>docs/</code></a>, and the navigation in <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/mkdocs.yml"><code>mkdocs.yml</code></a>. Pull requests from branches in this repository get a preview on the real site, see <a href="ci/#this-documentation-site">Testing and CI</a>.</p>
+<p>This site is built with <a href="https://www.mkdocs.org/">MkDocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> theme. Its source is the <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io">ros-mobile-robots.github.io</a> repository: one Markdown file per page in <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs"><code>docs/</code></a>, and the navigation in <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/mkdocs.yml"><code>mkdocs.yml</code></a>. Pull requests from branches in this repository get a preview on the real site, see <a href="ci/#this-documentation-site">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>.</p>
 <p>The packages have no generated API documentation yet. For ROS packages that's usually done with <a href="http://wiki.ros.org/Doxygen">Doxygen</a>.</p>
 <h2 id="development-environment">Development environment</h2>
 <ul>
-<li><strong>Development PC:</strong> use the <a href="dev-container/">dev container</a> from Getting Started. It has ROS Noetic, Gazebo, RViz and all dependencies, on Linux and on Windows with WSL 2.</li>
+<li><strong>Development PC:</strong> use the <a href="dev-container/">dev container</a> from Getting Started. It has ROS Noetic, Gazebo, RViz and all dependencies, on Linux and on Windows with <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2.</li>
 <li><strong>Robot:</strong> the Raspberry Pi or Jetson Nano is set up natively, see <a href="../packages/packages-setup/">Packages Setup</a>.</li>
 </ul>
 <!-- Mechanical parts and tools -->
@@ -4248,7 +4278,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
