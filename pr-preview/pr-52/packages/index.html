@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4017,8 +4047,8 @@ repositories contain the following ROS packages:</p>
 <ul>
 <li><code>diffbot_base</code>: This package contains the platform-specific code for the base
 controller component required by the ROS Navigation Stack. It consists of the
-firmware based on rosserial for the Teensy MCU and the C++ node running on the
-SBC that instantiates the ROS Control hardware interface including the
+firmware based on rosserial for the Teensy <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> and the C++ node running on the
+<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> that instantiates the ROS Control hardware interface including the
 <code>controller_manager</code> control loop for the real robot. The low-level
 <code>base_controller</code> component reads the encoder ticks from the hardware,
 calculates angular joint positions and velocities, and publishes them to the ROS
@@ -4029,7 +4059,7 @@ Control</a>. It provides a controller
 target joint velocities from commands received by either a teleop node or the
 ROS Navigation Stack. The computed target joint velocities are forwarded to the
 low-level base controller, where they are compared to the measured velocities to
-compute suitable motor PWM signals using two separate PID controllers, one for
+compute suitable motor <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals using two separate <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers, one for
 each motor.</li>
 <li><code>diffbot_bringup</code>: Launch files to bring up the hardware driver nodes (camera,
 lidar, microcontroller, and so on) as well as the C++ nodes from the
@@ -4038,12 +4068,12 @@ lidar, microcontroller, and so on) as well as the C++ nodes from the
 <code>JointStateController</code> of ROS Control used in the Gazebo simulation and the real
 robot. The parameter configurations are loaded onto the parameter server with
 the help of the launch files inside this package.</li>
-<li><code>remo_description</code>: This package contains the URDF description of Remo
+<li><code>remo_description</code>: This package contains the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> description of Remo
 including its sensors. It allows you to pass arguments to visualize different
-camera and SBC types. It also defines the <code>gazebo_ros_control</code> plugin. Remo's
+camera and <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> types. It also defines the <code>gazebo_ros_control</code> plugin. Remo's
 description is based on the description at
 <a href="https://github.com/ros-mobile-robots/mobile_robot_description">https://github.com/ros-mobile-robots/mobile_robot_description</a>, which provides a
-modular URDF structure that makes it easier to model your own differential drive
+modular <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> structure that makes it easier to model your own differential drive
 robot.</li>
 <li><code>diffbot_gazebo</code>: Simulation-specific launch and configuration files for Remo
 and Diffbot, to be used in the Gazebo simulator.</li>
@@ -4215,7 +4245,7 @@ more detail.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

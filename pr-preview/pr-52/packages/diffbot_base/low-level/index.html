@@ -601,6 +601,8 @@
       
         
       
+        
+      
     
     
     
@@ -858,6 +860,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4132,10 +4162,10 @@ libraries are listed:</p>
 <span class="go">           Wire</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>As you can see, the firmware depends on <code>rosserial</code>, the <code>Adafruit Motor Shield
-V2</code> library, and <code>Wire</code>, an I2C library. PlatformIO allows using custom
+V2</code> library, and <code>Wire</code>, an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> library. PlatformIO allows using custom
 libraries defined in the local <code>./lib</code> folder, which are developed in this
 section.</p>
-<p>The firmware is used to read from encoders and ultrasonic and IMU sensors, and
+<p>The firmware is used to read from encoders and ultrasonic and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensors, and
 receive wheel velocity commands from the high-level
 <code>hardware_interface::RobotHW</code> class, discussed in the next section. The
 following code snippets are part of the low-level base controller’s <code>main.cpp</code>
@@ -4153,11 +4183,11 @@ values such as the following:</p>
 <ul>
 <li>Encoder pins: Defines to which pins on the Teensy microcontroller the Hall
   effect sensors are connected.</li>
-<li>Motor I2C address and pins: The Adafruit motor driver can drive four DC
+<li>Motor <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> address and pins: The Adafruit motor driver can drive four <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr>
   motors. Due to cable management, motor terminals <code>M4</code> and <code>M3</code> are used for
   the left and right motors, respectively.</li>
-<li>PID: The tuned constants for both PID controllers of <code>base_controller</code>.</li>
-<li>PWM_MAX and PWM_MIN: The minimum and maximum possible PWM values that can be
+<li><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>: The tuned constants for both <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers of <code>base_controller</code>.</li>
+<li>PWM_MAX and PWM_MIN: The minimum and maximum possible <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> values that can be
   sent to the motor driver.</li>
 <li>Update rates: Defines how often functions of <code>base_controller</code> are executed.
   For example, the control portion of the low-level base controller code reads
@@ -4232,9 +4262,9 @@ introduced next:</p>
 </code></pre></div></td></tr></tbody></table></div>
 </li>
 <li>
-<p><code>pid</code>: Defines a PID controller to compute PWM signals based on the velocity
+<p><code>pid</code>: Defines a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller to compute <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals based on the velocity
   error between measured and commanded angular wheel joint velocities. For more
-  infos about PIDs and the tuning sections refer to <a href="../pid/">PID Controllers</a></p>
+  infos about PIDs and the tuning sections refer to <a href="../pid/"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Controllers</a></p>
 </li>
 </ul>
 <p>With these libraries, we look at the <code>main.cpp</code> file. Inside it exists only a
@@ -4267,9 +4297,9 @@ individual components that get included. The main code is explained next:</p>
 explained above. It knows how to connect to the Adafruit motor driver using its
 open source <code>Adafruit_MotorShield</code> library
 (<a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/library-reference">https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/library-reference</a>)
-and how to get a C++ pointer to one of its DC motors (<code>getMotor(motor_num)</code>).
+and how to get a C++ pointer to one of its <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> motors (<code>getMotor(motor_num)</code>).
 Depending on the integer input value to <code>AdafruitMotorController::setSpeed(int
-value)</code>, the DC motor is commanded to rotate in a certain direction and at a
+value)</code>, the <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> motor is commanded to rotate in a certain direction and at a
 specified speed. For Remo, the range is between –255 and 255, specified by the
 <code>PWM_MAX</code> and <code>PWM_MIN</code> identifiers.</p>
 </li>
@@ -4284,13 +4314,13 @@ case of Remo) that operate on different motor drivers (<code>TMotorDriver</code>
 equals <code>Adafruit_MotorShield</code>), using the <code>MotorControllerIntf</code> interface as
 explained previously. The <code>BaseController</code> constructor takes a reference to the
 globally defined ROS node handle and the two motor controllers to let it set the
-commanded speeds computed through two separate PID controllers, one for each
+commanded speeds computed through two separate <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers, one for each
 wheel.</p>
 <p>In addition to setting up pointers to the motor controllers, the
 <code>BaseController</code> class initializes two instances of type <code>diffbot::Encoder</code>. Its
 measured joint state, returned from <code>diffbot::Encoder::jointState()</code>, is used
 together with the commanded wheel joint velocities in the <code>diffbot::PID</code>
-controllers to compute the velocity error and output an appropriate PWM signal
+controllers to compute the velocity error and output an appropriate <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signal
 for the motors.</p>
 </li>
 </ol>
@@ -4349,13 +4379,13 @@ happens in the same code block as the control rate:</p>
    receives the commanded wheel joint velocities (topic <code>wheel_cmd_velocities</code>,
    type <code>diffbot_msgs::WheelsCmdStamped</code>) inside the
    <code>BaseController::commandCallback(const diffbot_msgs::WheelsCmdStamped&amp;)</code>
-   callback method. In <code>BaseController::read()</code>, the PID is called to compute
-   the motor PWM signals from the velocity error and the motor speeds are set
+   callback method. In <code>BaseController::read()</code>, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is called to compute
+   the motor <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals from the velocity error and the motor speeds are set
    with the two motor controllers.</li>
 <li>To keep calling this method at the desired control rate, the
    <code>lastUpdateTime().control</code> variable is updated with the current time.</li>
 </ol>
-<p>After the control loop update block, if an IMU is used, its data could be read
+<p>After the control loop update block, if an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
 odometry to obtain more precise odometry. Finally, in the main <code>loop()</code>, all the
 callbacks waiting in the ROS callback queue are processed with a call to
@@ -4693,7 +4723,7 @@ started nodes interact with each other.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

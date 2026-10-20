@@ -615,6 +615,8 @@
       
         
       
+        
+      
     
     
     
@@ -872,6 +874,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4342,16 +4372,16 @@
 <li>Its wheels jitter when it turns on the spot.</li>
 <li>A higher motor gain, meant to follow the commands better, makes the model explode at spawn.</li>
 </ul>
-<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them. It uses the setup of DiffBot and Remo, ROS 1 Noetic with Gazebo Classic 11 and its default physics engine, ODE (Open Dynamics Engine). The new Gazebo, ROS 2 and other physics engines name and implement some of these parameters differently.</p>
+<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them. It uses the setup of DiffBot and Remo, ROS 1 Noetic with Gazebo Classic 11 and its default physics engine, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> (Open Dynamics Engine). The new Gazebo, ROS 2 and other physics engines name and implement some of these parameters differently.</p>
 <p>DiffBot's and Remo's current values, their source files and a tuning procedure are on the Simulation page, in <a href="../../../diffbot_gazebo/#tuning-the-simulated-robot">Tuning the simulated robot</a>. The <a href="../../../development/simulation-test/">Simulation Test</a> shows how these parameters affect the measured motion.</p>
 <h2 id="a-wheel-in-the-robot-description">A wheel in the robot description</h2>
-<p>A URDF link has three separate descriptions (<a href="https://wiki.ros.org/urdf/XML/link">URDF link specification</a>):</p>
+<p>A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> link has three separate descriptions (<a href="https://wiki.ros.org/urdf/XML/link"><abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> link specification</a>):</p>
 <ul>
 <li><strong>Visual:</strong> what you see in RViz and Gazebo, often a mesh. The physics engine doesn't use it.</li>
 <li><strong>Collision:</strong> the geometry that the physics engine checks for contacts. Its shape decides where the wheel touches the ground.</li>
 <li><strong>Inertial:</strong> the mass, the center of mass and the inertia tensor. They decide how the wheel accelerates under a torque.</li>
 </ul>
-<p>They don't have to agree. DiffBot's and Remo's wheels look like their mesh, collide as a simple shape and have the inertia of a solid cylinder.</p>
+<p>They don't have to agree. DiffBot's and Remo's wheels look like their mesh, collide as a sphere and have the inertia of a solid cylinder. The collision shape only decides where the wheel touches the ground; the inertia follows how the real wheel's mass is distributed (<a href="#mass-and-inertia">Mass and inertia</a>).</p>
 <h3 id="the-collision-shape-decides-where-the-contacts-are">The collision shape decides where the contacts are</h3>
 <p>On flat ground, a cylinder touches along a line across its width, and the physics engine reduces that line to a few contact points. A sphere with the wheel's radius touches at one point in the wheel's center plane.</p>
 <p>Where the contact forces act matters for turning. The <a href="../modeling-differential-drive-robot/">kinematic model</a> assumes that each wheel pushes on the ground in its center plane, so the turn rate is <span class="arithmatex">\(\omega = (v_r - v_l) / L\)</span>, with the wheel separation <span class="arithmatex">\(L\)</span> between the wheel centers. If the forces act at the wheels' outer edges instead, the robot turns as if <span class="arithmatex">\(L\)</span> were one wheel width larger.</p>
@@ -4508,27 +4538,28 @@
 </tbody>
 </table>
 </details>
-<p>A sphere also has limits: it only represents an upright wheel on flat ground. On a slope or an edge it can touch the ground beside the real tire. And the collision shape doesn't change the inertia: a wheel with a sphere collision still has the inertia of its real shape, here a cylinder.</p>
+<p>A sphere also has limits: it only represents an upright wheel on flat ground. On a slope or an edge it can touch the ground beside the real tire. And the collision shape doesn't change the inertia: a wheel with a sphere collision still has the inertia of its real shape, here approximated by a solid cylinder.</p>
 <h3 id="mass-and-inertia">Mass and inertia</h3>
 <p>For a wheel that spins about its axle, the inertia that matters is the one about that axis. A solid cylinder of mass <span class="arithmatex">\(m\)</span> and radius <span class="arithmatex">\(r\)</span> has</p>
 <div class="arithmatex">\[
 J = \frac{1}{2} m r^2 .
 \]</div>
+<p>A sphere collision doesn't make the wheel a sphere: a solid sphere's <span class="arithmatex">\(\frac{2}{5} m r^2\)</span> would be 20 % less than the cylinder's. A real wheel, with much of its mass in the tire at the rim, lies between the solid cylinder and a thin ring, <span class="arithmatex">\(m r^2\)</span>; the solid cylinder is the models' approximation.</p>
 <p>A torque <span class="arithmatex">\(\tau\)</span> on the wheel accelerates it at <span class="arithmatex">\(\dot{\omega} = \tau / J\)</span>, so a light wheel responds faster to the same torque. That is good for following commands, and it also makes the velocity loop easier to destabilize (<a href="#time-step-and-stability-of-the-velocity-loop">below</a>). Remo's 32 g wheels with a radius of 0.033 m have <span class="arithmatex">\(J = 0.5 \cdot 0.032 \cdot 0.033^2 = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}\)</span>.</p>
-<p>The inertia tensor is given in the inertial frame. A URDF cylinder's axis is its z axis, while the wheel's joint axis is its y axis, so the inertial origin has to rotate the cylinder's <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> onto the joint axis. A wrong rotation gives the wheel the smaller inertia about a diameter, <span class="arithmatex">\(\frac{1}{12} m (3r^2 + l^2)\)</span>, which doesn't show in RViz but changes its dynamics. <em>Modern Robotics</em>, <a href="https://modernrobotics.northwestern.edu/nu-gm-book-resource/8-2-dynamics-of-a-single-rigid-body-part-1-of-2/">section 8.2</a>, explains the rotational inertia of a rigid body and how it changes with the frame.</p>
+<p>The inertia tensor is given in the inertial frame. A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> cylinder's axis is its z axis, while the wheel's joint axis is its y axis, so the inertial origin has to rotate the cylinder's <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> onto the joint axis. A wrong rotation gives the wheel the smaller inertia about a diameter, <span class="arithmatex">\(\frac{1}{12} m (3r^2 + l^2)\)</span>, which doesn't show in RViz but changes its dynamics. <em>Modern Robotics</em>, <a href="https://modernrobotics.northwestern.edu/nu-gm-book-resource/8-2-dynamics-of-a-single-rigid-body-part-1-of-2/">section 8.2</a>, explains the rotational inertia of a rigid body and how it changes with the frame.</p>
 <h2 id="contact-and-friction">Contact and friction</h2>
-<p>ODE treats a contact as a constraint: the two bodies must not move into each other, and the friction force must not exceed its limit. Gazebo creates these constraints from the collision shapes in each time step, with the parameters below. The <a href="https://ode.org/ode-latest-userguide.html">ODE user guide</a> and Gazebo's <a href="https://classic.gazebosim.org/tutorials?tut=friction">Friction</a> and <a href="https://classic.gazebosim.org/tutorials?tut=physics_params">Physics Parameters</a> tutorials describe them in full.</p>
+<p><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> treats a contact as a constraint: the two bodies must not move into each other, and the friction force must not exceed its limit. Gazebo creates these constraints from the collision shapes in each time step, with the parameters below. The <a href="https://ode.org/ode-latest-userguide.html"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide</a> and Gazebo's <a href="https://classic.gazebosim.org/tutorials?tut=friction">Friction</a> and <a href="https://classic.gazebosim.org/tutorials?tut=physics_params">Physics Parameters</a> tutorials describe them in full.</p>
 <h3 id="friction">Friction</h3>
 <p>Coulomb's friction model limits the tangential contact force <span class="arithmatex">\(f_t\)</span> by the normal force <span class="arithmatex">\(f_n\)</span>:</p>
 <div class="arithmatex">\[
 \lVert f_t \rVert \le \mu \, f_n .
 \]</div>
-<p>The allowed forces form a cone. ODE approximates the cone by a pyramid with two directions in the contact plane, with one coefficient each (<a href="https://ode.org/ode-latest-userguide.html#sec_3_11_1">ODE user guide, section 3.11.1</a>):</p>
+<p>The allowed forces form a cone. <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> approximates the cone by a pyramid with two directions in the contact plane, with one coefficient each (<a href="https://ode.org/ode-latest-userguide.html#sec_3_11_1"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide, section 3.11.1</a>):</p>
 <div class="arithmatex">\[
 \lvert f_1 \rvert \le \mu_1 f_n , \qquad \lvert f_2 \rvert \le \mu_2 f_n .
 \]</div>
-<p><code>mu1</code> and <code>mu2</code> are these two coefficients, not a static and a dynamic friction coefficient. <code>fdir1</code> sets the first direction, in the collision's own frame; without it, ODE picks the two directions itself. With <code>mu1</code> = <code>mu2</code>, as on both robots, leaving the directions to ODE is reasonable, although a pyramid, unlike the cone, still depends a little on its orientation.</p>
-<p><code>fdir1</code> is easy to get wrong on a wheel. Gazebo turns it with the collision's pose (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133"><code>ODEPhysics.cc</code></a>), and ODE uses it as given, without projecting it onto the contact plane (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287"><code>contact.cpp</code></a>). In a URDF, a wheel's collision cylinder is usually rotated so that its z axis is the axle, which doesn't move as the wheel spins, so <code>fdir1</code> <code>0 0 1</code> stays along the axle. A sphere has no such rotation: its frame spins with the wheel, and the old <code>fdir1</code> <code>0 0 1</code> tilts into the contact normal. A direction chosen along the axle would still be valid. With a sphere and <code>fdir1</code> <code>0 0 1</code>, Remo drove about 2 % less than its odometry when driving straight; without <code>fdir1</code>, it drives as far as its odometry says.</p>
+<p><code>mu1</code> and <code>mu2</code> are these two coefficients, not a static and a dynamic friction coefficient. <code>fdir1</code> sets the first direction, in the collision's own frame; without it, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> picks the two directions itself. With <code>mu1</code> = <code>mu2</code>, as on both robots, leaving the directions to <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> is reasonable, although a pyramid, unlike the cone, still depends a little on its orientation.</p>
+<p><code>fdir1</code> is easy to get wrong on a wheel. Gazebo turns it with the collision's pose (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133"><code>ODEPhysics.cc</code></a>), and <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> uses it as given, without projecting it onto the contact plane (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287"><code>contact.cpp</code></a>). In a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, a wheel's collision cylinder is usually rotated so that its z axis is the axle, which doesn't move as the wheel spins, so <code>fdir1</code> <code>0 0 1</code> stays along the axle. A sphere has no such rotation: its frame spins with the wheel, and the old <code>fdir1</code> <code>0 0 1</code> tilts into the contact normal. A direction chosen along the axle would still be valid. With a sphere and <code>fdir1</code> <code>0 0 1</code>, Remo drove about 2 % less than its odometry when driving straight; without <code>fdir1</code>, it drives as far as its odometry says.</p>
 <p>For each contact, Gazebo uses the smaller coefficient of the two surfaces (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1257-L1261"><code>ODEPhysics.cc</code></a>). Gazebo's ground plane has <code>mu</code> 100 and <code>mu2</code> 50, so the wheel's coefficients decide.</p>
 <p>Friction limits the force; it doesn't make a wheel roll. Higher friction doesn't fix a wrong wheel speed or a wrong geometry. Remo's wheels jittered when it turned on the spot, with cylinder collisions and friction 200. The cause was where the cylinders touched the ground: with spheres, they turn smoothly even with friction 200. Remo now uses friction 1, closer to rubber on a floor.</p>
 <p>The figure shows Remo's wheel speeds while it turns on the spot. With the cylinders and friction 200, both wheels jump between almost standing and twice the command. With a sphere and the same contacts, they no longer jitter, but they miss the command (<a href="#contact-stiffness-and-damping">below</a>). Only the final model follows it.</p>
@@ -4764,17 +4795,17 @@ J = \frac{1}{2} m r^2 .
 </table>
 </details>
 <h3 id="contact-stiffness-and-damping">Contact stiffness and damping</h3>
-<p>In each time step, ODE corrects a part of the penetration between two bodies. Two parameters control how hard a constraint is (<a href="https://ode.org/ode-latest-userguide.html#sec_3_7_0">ODE user guide, sections 3.7 and 3.8</a>):</p>
+<p>In each time step, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> corrects a part of the penetration between two bodies. Two parameters control how hard a constraint is (<a href="https://ode.org/ode-latest-userguide.html#sec_3_7_0"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide, sections 3.7 and 3.8</a>):</p>
 <ul>
 <li><strong>ERP</strong>, the error reduction parameter, between 0 and 1: the fraction of the penetration that is corrected in the next step.</li>
 <li><strong>CFM</strong>, the constraint force mixing: 0 makes the constraint hard; a positive value lets the bodies press into each other, more the larger it is.</li>
 </ul>
-<p>A spring with stiffness <span class="arithmatex">\(k_p\)</span> and a damper with damping <span class="arithmatex">\(k_d\)</span> correspond to (<a href="https://ode.org/ode-latest-userguide.html#sec_3_8_2">ODE user guide, section 3.8.2</a>)</p>
+<p>A spring with stiffness <span class="arithmatex">\(k_p\)</span> and a damper with damping <span class="arithmatex">\(k_d\)</span> correspond to (<a href="https://ode.org/ode-latest-userguide.html#sec_3_8_2"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide, section 3.8.2</a>)</p>
 <div class="arithmatex">\[
 \mathrm{ERP} = \frac{h k_p}{h k_p + k_d}, \qquad
 \mathrm{CFM} = \frac{1}{h k_p + k_d},
 \]</div>
-<p>where <span class="arithmatex">\(h\)</span> is the physics time step. ODE then behaves like that spring and damper, integrated with an implicit first-order method. The <code>kp</code> and <code>kd</code> of a Gazebo surface are these spring and damping coefficients. They describe the contact, not the motor, and have nothing to do with the P and D gains of the wheel's velocity controller.</p>
+<p>where <span class="arithmatex">\(h\)</span> is the physics time step. <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> then behaves like that spring and damper, integrated with an implicit first-order method. The <code>kp</code> and <code>kd</code> of a Gazebo surface are these spring and damping coefficients. They describe the contact, not the motor, and have nothing to do with the P and D gains of the wheel's velocity controller.</p>
 <p>For each contact, Gazebo combines the two surfaces' settings: the stiffnesses like two springs in series, <span class="arithmatex">\(k_p = 1 / (1/k_{p,1} + 1/k_{p,2})\)</span>, and the dampings by their sum, <span class="arithmatex">\(k_d = k_{d,1} + k_{d,2}\)</span>. It computes ERP and CFM with the world's time step and uses them for this contact instead of the world's <code>&lt;erp&gt;</code> and <code>&lt;cfm&gt;</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1112-L1120"><code>ODEPhysics.cc</code></a>). For a wheel on Gazebo's ground plane, with <span class="arithmatex">\(h\)</span> = 1 ms:</p>
 <table>
 <thead>
@@ -4813,8 +4844,8 @@ J = \frac{1}{2} m r^2 .
 <li><strong><code>minDepth</code>:</strong> the penetration that isn't corrected, in meters.</li>
 <li><strong><code>maxVel</code>:</strong> the maximum velocity at which a penetration is corrected, in m/s. It isn't a speed limit for the wheel or the robot.</li>
 </ul>
-<p>For a wheel on the static ground plane, ODE uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>).</p>
-<p><code>minDepth</code> is a dead band, not a limit: ODE subtracts it from the penetration before it corrects the rest, and a positive CFM lets a wheel press into the ground under its load. With Remo's soft contacts, a positive <code>minDepth</code> allowed substantial creep: at rest, the wheel centers were about 8.3 mm lower than the wheel radius after a minute with 10 mm configured, a quarter of the radius, and about 1 mm lower with 1 mm configured. With 0, as now, no sinkage was measurable at 0.01 mm precision. DiffBot's stiff default contacts don't sink. These are observations of this model; compliance, the load and the other contacts also matter, and they don't show a general creep rate. The sinking had also hidden the cylinders' outer-edge contacts: with <code>minDepth</code> 0 and cylinders, Remo turned 15 % less than its odometry showed.</p>
+<p>For a wheel on the static ground plane, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>).</p>
+<p><code>minDepth</code> is a dead band, not a limit: <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> subtracts it from the penetration before it corrects the rest, and a positive CFM lets a wheel press into the ground under its load. With Remo's soft contacts, a positive <code>minDepth</code> allowed substantial creep: at rest, the wheel centers were about 8.3 mm lower than the wheel radius after a minute with 10 mm configured, a quarter of the radius, and about 1 mm lower with 1 mm configured. With 0, as now, no sinkage was measurable at 0.01 mm precision. DiffBot's stiff default contacts don't sink. These are observations of this model; compliance, the load and the other contacts also matter, and they don't show a general creep rate. The sinking had also hidden the cylinders' outer-edge contacts: with <code>minDepth</code> 0 and cylinders, Remo turned 15 % less than its odometry showed.</p>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 236" role="img" aria-labelledby="wd-sink-t"><title id="wd-sink-t">How far Remo's wheels sink into the ground at rest, for three minDepth values</title><defs></defs>
 <path class="axis" d="M48,196 L378,196"></path>
@@ -4941,13 +4972,13 @@ J = \frac{1}{2} m r^2 .
 </tbody>
 </table>
 </details>
-<h3 id="from-urdf-to-sdf">From URDF to SDF</h3>
-<p>Gazebo converts the URDF to SDF, its own format. The <code>&lt;gazebo reference="..."&gt;</code> elements of a link set its collision's surface (<a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a URDF in Gazebo</a>). <code>gz sdf -p robot.urdf</code> shows the result:</p>
+<h3 id="from-urdf-to-sdf">From <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr></h3>
+<p>Gazebo converts the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, its own format. The <code>&lt;gazebo reference="..."&gt;</code> elements of a link set its collision's surface (<a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a>). <code>gz sdf -p robot.urdf</code> shows the result:</p>
 <table>
 <thead>
 <tr>
-<th>URDF <code>&lt;gazebo&gt;</code> element</th>
-<th>SDF element in <code>collision/surface</code></th>
+<th><abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> <code>&lt;gazebo&gt;</code> element</th>
+<th><abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> element in <code>collision/surface</code></th>
 <th>Meaning</th>
 <th>Default</th>
 </tr>
@@ -4987,15 +5018,15 @@ J = \frac{1}{2} m r^2 .
 </table>
 <p>The defaults are from the SDFormat 1.7 specification that Gazebo 11 uses (<a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L52-L199"><code>surface.sdf</code></a>).</p>
 <h2 id="the-simulated-motor-from-velocity-command-to-torque">The simulated motor: from velocity command to torque</h2>
-<p>On the real robot, <code>diff_drive_controller</code> computes the two wheel speeds from <code>/cmd_vel</code>, and the <a href="../../../packages/diffbot_base/pid/">motor PID in the firmware</a> makes the motors reach them. In Gazebo, <code>gazebo_ros_control</code>'s <code>DefaultRobotHWSim</code> takes the place of the firmware:</p>
+<p>On the real robot, <code>diff_drive_controller</code> computes the two wheel speeds from <code>/cmd_vel</code>, and the <a href="../../../packages/diffbot_base/pid/">motor <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> in the firmware</a> makes the motors reach them. In Gazebo, <code>gazebo_ros_control</code>'s <code>DefaultRobotHWSim</code> takes the place of the firmware:</p>
 <div class="mermaid">graph LR
   C[diff_drive_controller] -- "wheel speed command ω*" --&gt; PID[DefaultRobotHWSim: velocity PID];
   PID -- torque τ --&gt; W[Wheel: inertia J];
   G[Ground contact: friction, kp, kd] -- contact forces --&gt; W;
   W -- "measured wheel speed ω" --&gt; PID;
   W -- joint states --&gt; C;</div>
-<p>If the parameter server has gains for a wheel joint under <code>/&lt;robot namespace&gt;/gazebo_ros_control/pid_gains/&lt;joint&gt;</code>, <code>DefaultRobotHWSim</code> controls the joint with a PID that computes a torque from the speed error and applies it to the joint (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L217-L231"><code>default_robot_hw_sim.cpp</code></a>, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L370-L380">lines 370–380</a>). Without gains, it sets the joint's velocity directly, a different behavior. DiffBot and Remo load gains.</p>
-<p>The PID is control_toolbox's <code>Pid</code> (<a href="https://github.com/ros-controls/control_toolbox/blob/14b2a6120de57b038a05562839ee1ba4dabee2aa/src/pid.cpp#L336-L369"><code>pid.cpp</code></a>). With the speed error <span class="arithmatex">\(e = \omega^* - \omega\)</span> in rad/s, it computes the torque</p>
+<p>If the parameter server has gains for a wheel joint under <code>/&lt;robot namespace&gt;/gazebo_ros_control/pid_gains/&lt;joint&gt;</code>, <code>DefaultRobotHWSim</code> controls the joint with a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> that computes a torque from the speed error and applies it to the joint (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L217-L231"><code>default_robot_hw_sim.cpp</code></a>, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L370-L380">lines 370–380</a>). Without gains, it sets the joint's velocity directly, a different behavior. DiffBot and Remo load gains.</p>
+<p>The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is control_toolbox's <code>Pid</code> (<a href="https://github.com/ros-controls/control_toolbox/blob/14b2a6120de57b038a05562839ee1ba4dabee2aa/src/pid.cpp#L336-L369"><code>pid.cpp</code></a>). With the speed error <span class="arithmatex">\(e = \omega^* - \omega\)</span> in rad/s, it computes the torque</p>
 <div class="arithmatex">\[
 \tau = P e + I \int e \, dt + D \dot{e} ,
 \]</div>
@@ -5005,8 +5036,8 @@ J = \frac{1}{2} m r^2 .
 <li><strong><code>i_clamp</code>:</strong> limits the I term's torque to ±<code>i_clamp</code> (N m), not the total torque. It defaults to 0, so an I gain without <code>i_clamp</code> does nothing.</li>
 <li><strong><code>antiwindup</code>:</strong> with <code>true</code>, the integral of the error stops growing once the I term reaches <code>i_clamp</code>. With <code>false</code>, the I term is still limited, but the integral keeps growing and takes longer to come back when the error changes sign.</li>
 </ul>
-<p>The <a href="../../../packages/diffbot_base/pid/">PID Controllers</a> page and <a href="https://fbsbook.org"><em>Feedback Systems</em></a>, chapter 11, explain PID control, integral windup and tuning in general.</p>
-<p><code>DefaultRobotHWSim</code> limits the torque to the joint's effort limit, from the URDF's <code>&lt;limit effort="..."&gt;</code> or the <code>joint_limits</code> parameters (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L404-L454">lines 404–454</a>). DiffBot's and Remo's wheel joints have neither, so their simulated motors have no torque limit, unlike a real motor.</p>
+<p>The <a href="../../../packages/diffbot_base/pid/"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Controllers</a> page and <a href="https://fbsbook.org"><em>Feedback Systems</em></a>, chapter 11, explain <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> control, integral windup and tuning in general.</p>
+<p><code>DefaultRobotHWSim</code> limits the torque to the joint's effort limit, from the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s <code>&lt;limit effort="..."&gt;</code> or the <code>joint_limits</code> parameters (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L404-L454">lines 404–454</a>). DiffBot's and Remo's wheel joints have neither, so their simulated motors have no torque limit, unlike a real motor.</p>
 <h2 id="time-step-and-stability-of-the-velocity-loop">Time step and stability of the velocity loop</h2>
 <p>Gazebo updates the wheel torque once per physics step <span class="arithmatex">\(h\)</span>. Take a wheel that doesn't touch the ground, as at spawn, and only a P gain. Within one step, the torque is constant:</p>
 <div class="arithmatex">\[
@@ -5189,14 +5220,14 @@ e_{k+1} = \left( 1 - \frac{P h}{J} \right) e_k .
 <h2 id="further-reading">Further reading</h2>
 <p>To go further on one topic, start with the official reference next to its explanation above, then one chapter of a book:</p>
 <ul>
-<li><strong>ODE user guide</strong> (<a href="https://ode.org/ode-latest-userguide.html">ode.org</a>) and Gazebo Classic's tutorials <a href="https://classic.gazebosim.org/tutorials?tut=friction">Friction</a>, <a href="https://classic.gazebosim.org/tutorials?tut=physics_params">Physics Parameters</a>, <a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a URDF in Gazebo</a> and <a href="https://classic.gazebosim.org/tutorials?tut=ros_control">ROS Control</a>: the reference for the contact model and the parameters that Gazebo Classic actually uses.</li>
-<li>Karl Johan Åström and Richard M. Murray, <em>Feedback Systems: An Introduction for Scientists and Engineers</em>, 2nd edition, Princeton University Press 2021 (<a href="https://fbsbook.org">free online at fbsbook.org</a>; <a href="https://www.amazon.com/dp/0691193983?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/0691193983?tag=fjp-21">Amazon.de</a>, affiliate links): chapter 11, PID control, with integral windup and tuning.</li>
+<li><strong><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide</strong> (<a href="https://ode.org/ode-latest-userguide.html">ode.org</a>) and Gazebo Classic's tutorials <a href="https://classic.gazebosim.org/tutorials?tut=friction">Friction</a>, <a href="https://classic.gazebosim.org/tutorials?tut=physics_params">Physics Parameters</a>, <a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a> and <a href="https://classic.gazebosim.org/tutorials?tut=ros_control">ROS Control</a>: the reference for the contact model and the parameters that Gazebo Classic actually uses.</li>
+<li>Karl Johan Åström and Richard M. Murray, <em>Feedback Systems: An Introduction for Scientists and Engineers</em>, 2nd edition, Princeton University Press 2021 (<a href="https://fbsbook.org">free online at fbsbook.org</a>; <a href="https://www.amazon.com/dp/0691193983?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/0691193983?tag=fjp-21">Amazon.de</a>, affiliate links): chapter 11, <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> control, with integral windup and tuning.</li>
 <li>Kevin M. Lynch and Frank C. Park, <em>Modern Robotics: Mechanics, Planning, and Control</em>, Cambridge University Press 2017 (<a href="http://modernrobotics.org">free preprint and videos at modernrobotics.org</a>; <a href="https://www.amazon.com/dp/1107156300?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/1107156300?tag=fjp-21">Amazon.de</a>, affiliate links): section 8.2 for the inertia of a rigid body, chapter 13 for wheeled mobile robots and their rolling constraints.</li>
 </ul>
 <p>For more depth:</p>
 <ul>
 <li>Gene F. Franklin, J. David Powell and Michael Workman, <em>Digital Control of Dynamic Systems</em>, 3rd edition (<a href="https://scsolutions.com/publication/digital-control-of-dynamic-systems-third-edition/">e-edition at SC Solutions</a>): sampled systems and the choice of the sample rate (chapters 3 to 5 and 11), the background of the stability estimate above.</li>
-<li>David Baraff, <a href="https://www.cs.cmu.edu/~baraff/sigcourse/notesd2.pdf"><em>Rigid Body Simulation II: Nonpenetration Constraints</em></a>, SIGGRAPH course notes: how a simulator computes contact and friction forces as constraints. A concept, not ODE's exact solver.</li>
+<li>David Baraff, <a href="https://www.cs.cmu.edu/~baraff/sigcourse/notesd2.pdf"><em>Rigid Body Simulation II: Nonpenetration Constraints</em></a>, SIGGRAPH course notes: how a simulator computes contact and friction forces as constraints. A concept, not <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>'s exact solver.</li>
 <li>Roland Siegwart, Illah R. Nourbakhsh and Davide Scaramuzza, <em>Introduction to Autonomous Mobile Robots</em>, 2nd edition, MIT Press 2011: wheel types and their rolling and sliding constraints, an alternative to <em>Modern Robotics</em>' chapter 13.</li>
 <li>Roy Featherstone, <em>Rigid Body Dynamics Algorithms</em>, Springer 2008: the algorithms of physics engines, with a chapter on contact and impact. Advanced.</li>
 </ul>
@@ -5358,7 +5389,7 @@ e_{k+1} = \left( 1 - \frac{P h}{J} \right) e_k .
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

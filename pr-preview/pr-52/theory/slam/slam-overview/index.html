@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4249,52 +4279,52 @@
 
   <h1>SLAM Overview</h1>
 
-<h2 id="simultaneous-localization-and-mapping-slam-overview">Simultaneous Localization and Mapping (SLAM) Overview</h2>
-<p>Simultaneous Localization and Mapping (SLAM) is a field of robotics and computer vision that is concerned with the problem of building a map of an unknown environment while simultaneously estimating the pose (position and orientation) of a robot or camera within that environment. SLAM algorithms typically use data from sensors such as cameras, LIDARs, or inertial measurement units (IMUs) to estimate the pose and build a map of the environment in real-time as the robot or camera moves through the environment.</p>
-<p>SLAM algorithms have a wide range of applications, including autonomous navigation and exploration, augmented reality, and 3D modeling. They are used in a variety of robotic platforms, including ground vehicles, aerial vehicles, and mobile robots.</p>
-<p>There are several different approaches to solving the SLAM problem, including graph-based SLAM, Kalman filter-based SLAM, particle filter-based SLAM, and direct method-based SLAM.</p>
+<h2 id="simultaneous-localization-and-mapping-slam-overview">Simultaneous Localization and Mapping (<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>) Overview</h2>
+<p>Simultaneous Localization and Mapping (<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>) is a field of robotics and computer vision that is concerned with the problem of building a map of an unknown environment while simultaneously estimating the pose (position and orientation) of a robot or camera within that environment. <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithms typically use data from sensors such as cameras, LIDARs, or inertial measurement units (IMUs) to estimate the pose and build a map of the environment in real-time as the robot or camera moves through the environment.</p>
+<p><abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithms have a wide range of applications, including autonomous navigation and exploration, augmented reality, and 3D modeling. They are used in a variety of robotic platforms, including ground vehicles, aerial vehicles, and mobile robots.</p>
+<p>There are several different approaches to solving the <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> problem, including graph-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>, Kalman filter-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>, particle filter-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>, and direct method-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>.</p>
 <h3 id="frontend-backend-architecture">Frontend-backend architecture</h3>
-<p>In Simultaneous Localization and Mapping (SLAM), it is common to divide the overall SLAM system into a frontend and a backend. The frontend is responsible for processing the raw measurements from the sensors, such as cameras, LIDARs, or inertial measurement units (IMUs), and extracting features or other relevant information. The backend is responsible for estimating the pose and structure of the environment based on the processed measurements and any additional constraints.</p>
+<p>In Simultaneous Localization and Mapping (<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>), it is common to divide the overall <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> system into a frontend and a backend. The frontend is responsible for processing the raw measurements from the sensors, such as cameras, LIDARs, or inertial measurement units (IMUs), and extracting features or other relevant information. The backend is responsible for estimating the pose and structure of the environment based on the processed measurements and any additional constraints.</p>
 <p>The frontend typically includes tasks such as feature extraction, feature matching, and initial pose estimation, while the backend includes tasks such as graph optimization, pose graph optimization, or bundle adjustment. The frontend and backend may operate in a loop, with the frontend providing new measurements to the backend, and the backend updating the estimates of the poses and structures based on the new measurements.</p>
-<p>The frontend and backend are often implemented separately in SLAM systems, as this allows for more flexibility in terms of the specific algorithms and techniques that are used for each task. It also allows for the separation of the real-time processing tasks (such as feature extraction and matching) from the more computationally intensive optimization tasks (such as graph optimization or bundle adjustment).</p>
-<p>The frontend and backend of a SLAM system may be implemented as separate modules or components, and may communicate with each other through a common interface or API. In some cases, the frontend and backend may be implemented as part of a single monolithic SLAM system, with the different tasks being integrated into a single codebase.</p>
-<h3 id="types-of-slam-algorithms">Types of SLAM algorithms</h3>
-<p>There are several different types of Simultaneous Localization and Mapping (SLAM) algorithms, which can be classified based on the approach they use to estimate the pose and map of the robot or camera within an unknown environment. Some common types of SLAM algorithms include:</p>
+<p>The frontend and backend are often implemented separately in <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> systems, as this allows for more flexibility in terms of the specific algorithms and techniques that are used for each task. It also allows for the separation of the real-time processing tasks (such as feature extraction and matching) from the more computationally intensive optimization tasks (such as graph optimization or bundle adjustment).</p>
+<p>The frontend and backend of a <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> system may be implemented as separate modules or components, and may communicate with each other through a common interface or API. In some cases, the frontend and backend may be implemented as part of a single monolithic <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> system, with the different tasks being integrated into a single codebase.</p>
+<h3 id="types-of-slam-algorithms">Types of <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithms</h3>
+<p>There are several different types of Simultaneous Localization and Mapping (<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>) algorithms, which can be classified based on the approach they use to estimate the pose and map of the robot or camera within an unknown environment. Some common types of <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> algorithms include:</p>
 <ul>
 <li>
-<p>Graph-based SLAM: These algorithms store robot poses (and landmarks) as nodes of a graph and measurements as constraints between them, then solve for all of them at once with nonlinear least squares. Loop closures add constraints that correct the drift accumulated along the way. Examples include GraphSLAM, Cartographer and RTAB-Map; GTSAM and g2o are libraries for the optimization.</p>
+<p>Graph-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>: These algorithms store robot poses (and landmarks) as nodes of a graph and measurements as constraints between them, then solve for all of them at once with nonlinear least squares. Loop closures add constraints that correct the drift accumulated along the way. Examples include GraphSLAM, Cartographer and RTAB-Map; GTSAM and g2o are libraries for the optimization.</p>
 </li>
 <li>
-<p>Kalman filter-based SLAM: These algorithms keep a single Gaussian estimate of the current pose and the map, or of a window of recent poses, and update it with every measurement. In EKF SLAM the covariance matrix grows quadratically with the number of landmarks, which limits the map size. Examples are EKF SLAM and, for visual-inertial odometry, MSCKF and ROVIO.</p>
+<p>Kalman filter-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>: These algorithms keep a single Gaussian estimate of the current pose and the map, or of a window of recent poses, and update it with every measurement. In <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> the covariance matrix grows quadratically with the number of landmarks, which limits the map size. Examples are <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> and, for visual-inertial odometry, MSCKF and ROVIO.</p>
 </li>
 <li>
-<p>Particle filter-based SLAM: These algorithms sample possible robot trajectories with a particle filter; each particle carries its own map, conditioned on its path (Rao-Blackwellization). This lets several hypotheses about the trajectory exist side by side. Like most SLAM methods, they assume a static world; moving objects need extra handling. Examples include FastSLAM and GMapping.</p>
+<p>Particle filter-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>: These algorithms sample possible robot trajectories with a particle filter; each particle carries its own map, conditioned on its path (Rao-Blackwellization). This lets several hypotheses about the trajectory exist side by side. Like most <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> methods, they assume a static world; moving objects need extra handling. Examples include FastSLAM and GMapping.</p>
 </li>
 <li>
-<p>Direct method-based SLAM: These algorithms estimate the camera motion by minimizing the photometric error of pixel intensities directly, instead of extracting and matching features. They can use image regions with little texture that feature-based methods ignore, but they are sensitive to exposure changes and need a good initial estimate. Examples include LSD-SLAM and DSO; SVO is semi-direct.</p>
+<p>Direct method-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>: These algorithms estimate the camera motion by minimizing the photometric error of pixel intensities directly, instead of extracting and matching features. They can use image regions with little texture that feature-based methods ignore, but they are sensitive to exposure changes and need a good initial estimate. Examples include LSD-<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> and DSO; SVO is semi-direct.</p>
 </li>
 <li>
-<p>Feature-based SLAM: These algorithms extract keypoints with descriptors, for example ORB, and match them between frames; the matches feed pose estimation and bundle adjustment. Matching copes with larger motions and lighting changes, but needs textured scenes. An example is ORB-SLAM.</p>
+<p>Feature-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>: These algorithms extract keypoints with descriptors, for example ORB, and match them between frames; the matches feed pose estimation and bundle adjustment. Matching copes with larger motions and lighting changes, but needs textured scenes. An example is ORB-<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>.</p>
 </li>
 <li>
-<p>Dense SLAM: These algorithms build a dense map of the environment, for example a volumetric (TSDF) or surfel map, usually from RGB-D cameras. Examples are KinectFusion and ElasticFusion.</p>
+<p>Dense <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>: These algorithms build a dense map of the environment, for example a volumetric (TSDF) or surfel map, usually from <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> cameras. Examples are KinectFusion and ElasticFusion.</p>
 </li>
 </ul>
 <figure>
 <p>
   </p>
 <figcaption>
-<p>Getting familiar with SLAM, from Hyunggi Chang's <a href="https://github.com/changh95/visual-slam-roadmap">Visual SLAM Roadmap</a>, <a href="../images/visual-slam-roadmap-LICENSE.txt">MIT License</a></p>
+<p>Getting familiar with <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>, from Hyunggi Chang's <a href="https://github.com/changh95/visual-slam-roadmap">Visual <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> Roadmap</a>, <a href="../images/visual-slam-roadmap-LICENSE.txt">MIT License</a></p>
 </figcaption>
 </figure>
-<h3 id="summary-of-slam-libraries-and-algorithms">Summary of SLAM libraries and algorithms</h3>
-<p>The SLAM libraries and algorithms above, with their approach and key features:</p>
+<h3 id="summary-of-slam-libraries-and-algorithms">Summary of <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> libraries and algorithms</h3>
+<p>The <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> libraries and algorithms above, with their approach and key features:</p>
 <ul>
 <li>
-<p><a href="https://gtsam.org/">GTSAM</a>: A library of algorithms and data structures for SLAM, implemented in C++ and designed for efficiency and scalability. GTSAM uses a graph-based optimization approach and includes a range of algorithms for different types of sensors and environments.</p>
+<p><a href="https://gtsam.org/">GTSAM</a>: A library of algorithms and data structures for <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr>, implemented in C++ and designed for efficiency and scalability. GTSAM uses a graph-based optimization approach and includes a range of algorithms for different types of sensors and environments.</p>
 </li>
 <li>
-<p><a href="https://openslam-org.github.io/gmapping.html">GMapping</a>: Laser-based SLAM with a Rao-Blackwellized particle filter: each particle carries its own occupancy grid map. It needs laser scans and odometry and is available in ROS as <code>slam_gmapping</code>.</p>
+<p><a href="https://openslam-org.github.io/gmapping.html">GMapping</a>: Laser-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> with a Rao-Blackwellized particle filter: each particle carries its own occupancy grid map. It needs laser scans and odometry and is available in ROS as <code>slam_gmapping</code>.</p>
 </li>
 <li>
 <p>GraphSLAM: An algorithm (Thrun and Montemerlo, 2006) that stores robot poses and measurements as a graph of constraints and solves for the trajectory and map with nonlinear least squares. Libraries such as GTSAM and g2o solve this kind of problem.</p>
@@ -4303,16 +4333,16 @@
 <p>FastSLAM: An algorithm (Montemerlo et al., 2002) that uses a Rao-Blackwellized particle filter: the particles sample the robot's path, and each particle keeps its own landmark estimates in small Kalman filters.</p>
 </li>
 <li>
-<p><a href="https://github.com/tu-darmstadt-ros-pkg/hector_slam">Hector SLAM</a>: Laser-based SLAM for ROS that matches scans against the map. It doesn't need wheel odometry, which makes it useful for handheld or flying platforms.</p>
+<p><a href="https://github.com/tu-darmstadt-ros-pkg/hector_slam">Hector <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></a>: Laser-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> for ROS that matches scans against the map. It doesn't need wheel odometry, which makes it useful for handheld or flying platforms.</p>
 </li>
 <li>
-<p><a href="https://github.com/UZ-SLAMLab/ORB_SLAM3">ORB-SLAM</a>: Feature-based visual SLAM for monocular, stereo and RGB-D cameras; ORB-SLAM3 adds visual-inertial modes. It tracks ORB features (FAST corners with a binary descriptor), refines keyframes with local bundle adjustment and closes loops with a pose graph.</p>
+<p><a href="https://github.com/UZ-SLAMLab/ORB_SLAM3">ORB-<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></a>: Feature-based visual <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> for monocular, stereo and <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> cameras; ORB-SLAM3 adds visual-inertial modes. It tracks ORB features (FAST corners with a binary descriptor), refines keyframes with local bundle adjustment and closes loops with a pose graph.</p>
 </li>
 <li>
-<p><a href="https://openslam-org.github.io/">OpenSLAM</a>: A website that collects open-source SLAM implementations from many research groups, including GMapping.</p>
+<p><a href="https://openslam-org.github.io/">OpenSLAM</a>: A website that collects open-source <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> implementations from many research groups, including GMapping.</p>
 </li>
 <li>
-<p><a href="https://github.com/cartographer-project/cartographer">Cartographer</a>: Real-time SLAM from Google for 2D and 3D lidar. Odometry is optional; an IMU is optional in 2D and required in 3D. It builds local submaps and optimizes them in a pose graph with loop closure.</p>
+<p><a href="https://github.com/cartographer-project/cartographer">Cartographer</a>: Real-time <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> from Google for 2D and 3D lidar. Odometry is optional; an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is optional in 2D and required in 3D. It builds local submaps and optimizes them in a pose graph with loop closure.</p>
 </li>
 <li>
 <p><a href="https://github.com/RobustFieldAutonomyLab/LeGO-LOAM">LeGO-LOAM</a>: Lightweight, ground-optimized LOAM for ground vehicles: it segments the ground plane and runs in real time on embedded computers.</p>
@@ -4324,22 +4354,22 @@
 <p><a href="https://github.com/JakobEngel/dso">DSO</a>: Direct Sparse Odometry, a visual odometry that minimizes the photometric error of image pixels instead of matching features.</p>
 </li>
 <li>
-<p>RTAB-Map: A ROS-based SLAM library designed for use with RGB-D cameras and lidar sensors, implemented in C++ and open-source. RTAB-Map uses a graph-based optimization approach and includes support for loop closure detection.</p>
+<p>RTAB-Map: A ROS-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> library designed for use with <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> cameras and lidar sensors, implemented in C++ and open-source. RTAB-Map uses a graph-based optimization approach and includes support for loop closure detection.</p>
 </li>
 <li>
-<p><a href="https://github.com/ethz-asl/okvis">OKVIS</a>: Keyframe-based visual-inertial odometry for stereo or multi-camera rigs with an IMU, using nonlinear optimization over a sliding window of keyframes.</p>
+<p><a href="https://github.com/ethz-asl/okvis">OKVIS</a>: Keyframe-based visual-inertial odometry for stereo or multi-camera rigs with an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, using nonlinear optimization over a sliding window of keyframes.</p>
 </li>
 <li>
 <p><a href="https://github.com/uzh-rpg/rpg_svo">SVO</a>: Semi-direct visual odometry: direct image alignment for motion estimation, plus features for mapping. It is very fast, which suits drones.</p>
 </li>
 <li>
-<p><a href="https://github.com/HKUST-Aerial-Robotics/VINS-Mono">VINS-Mono</a>: Monocular visual-inertial SLAM with sliding-window optimization, relocalization and loop closure.</p>
+<p><a href="https://github.com/HKUST-Aerial-Robotics/VINS-Mono">VINS-Mono</a>: Monocular visual-inertial <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> with sliding-window optimization, relocalization and loop closure.</p>
 </li>
 <li>
-<p><a href="https://github.com/HKUST-Aerial-Robotics/VINS-Fusion">VINS-Fusion</a>: VINS-Mono extended to stereo cameras, with optional IMU and GPS fusion.</p>
+<p><a href="https://github.com/HKUST-Aerial-Robotics/VINS-Fusion">VINS-Fusion</a>: VINS-Mono extended to stereo cameras, with optional <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and GPS fusion.</p>
 </li>
 <li>
-<p><a href="https://github.com/mp3guy/ElasticFusion">ElasticFusion</a>: Dense RGB-D SLAM that builds a surfel map and corrects it with non-rigid deformation instead of a pose graph.</p>
+<p><a href="https://github.com/mp3guy/ElasticFusion">ElasticFusion</a>: Dense <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> that builds a surfel map and corrects it with non-rigid deformation instead of a pose graph.</p>
 </li>
 </ul>
 <table>
@@ -4358,22 +4388,22 @@
 </tr>
 <tr>
 <td>GraphSLAM</td>
-<td>Graph-based SLAM (algorithm)</td>
+<td>Graph-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> (algorithm)</td>
 <td>Probabilistic Robotics, chapter 11</td>
 </tr>
 <tr>
-<td>ORB-SLAM</td>
-<td>Feature-based visual SLAM</td>
+<td>ORB-<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
+<td>Feature-based visual <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
 <td><a href="https://github.com/UZ-SLAMLab/ORB_SLAM3">https://github.com/UZ-SLAMLab/ORB_SLAM3</a></td>
 </tr>
 <tr>
 <td>Cartographer</td>
-<td>Graph-based lidar SLAM</td>
+<td>Graph-based lidar <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
 <td><a href="https://github.com/cartographer-project/cartographer">https://github.com/cartographer-project/cartographer</a></td>
 </tr>
 <tr>
 <td>RTAB-Map</td>
-<td>Graph-based SLAM</td>
+<td>Graph-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
 <td><a href="https://introlab.github.io/rtabmap/">https://introlab.github.io/rtabmap/</a></td>
 </tr>
 <tr>
@@ -4383,12 +4413,12 @@
 </tr>
 <tr>
 <td>FastSLAM</td>
-<td>Particle filter-based SLAM (algorithm)</td>
+<td>Particle filter-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> (algorithm)</td>
 <td>Probabilistic Robotics, chapter 13</td>
 </tr>
 <tr>
 <td>GMapping</td>
-<td>Particle filter-based SLAM</td>
+<td>Particle filter-based <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
 <td><a href="https://openslam-org.github.io/gmapping.html">https://openslam-org.github.io/gmapping.html</a></td>
 </tr>
 <tr>
@@ -4402,33 +4432,33 @@
 <td><a href="https://github.com/uzh-rpg/rpg_svo">https://github.com/uzh-rpg/rpg_svo</a></td>
 </tr>
 <tr>
-<td>LSD-SLAM</td>
-<td>Direct visual SLAM</td>
+<td>LSD-<abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
+<td>Direct visual <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
 <td><a href="https://github.com/tum-vision/lsd_slam">https://github.com/tum-vision/lsd_slam</a></td>
 </tr>
 <tr>
 <td>PTAM</td>
-<td>Feature-based visual SLAM</td>
+<td>Feature-based visual <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr></td>
 <td><a href="https://github.com/Oxford-PTAM/PTAM-GPL">https://github.com/Oxford-PTAM/PTAM-GPL</a></td>
 </tr>
 <tr>
 <td>DTAM</td>
-<td>Dense direct visual SLAM (algorithm)</td>
+<td>Dense direct visual <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> (algorithm)</td>
 <td>Newcombe, Lovegrove and Davison, ICCV 2011</td>
 </tr>
 <tr>
 <td>VINS-Mono</td>
-<td>Visual-inertial SLAM (optimization)</td>
+<td>Visual-inertial <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> (optimization)</td>
 <td><a href="https://github.com/HKUST-Aerial-Robotics/VINS-Mono">https://github.com/HKUST-Aerial-Robotics/VINS-Mono</a></td>
 </tr>
 <tr>
 <td>VINS-Fusion</td>
-<td>Visual-inertial SLAM (optimization)</td>
+<td>Visual-inertial <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> (optimization)</td>
 <td><a href="https://github.com/HKUST-Aerial-Robotics/VINS-Fusion">https://github.com/HKUST-Aerial-Robotics/VINS-Fusion</a></td>
 </tr>
 <tr>
 <td>ElasticFusion</td>
-<td>Dense RGB-D SLAM (surfels)</td>
+<td>Dense <abbr title="Color and depth. A camera that gives a depth for each pixel in addition to its color.">RGB-D</abbr> <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> (surfels)</td>
 <td><a href="https://github.com/mp3guy/ElasticFusion">https://github.com/mp3guy/ElasticFusion</a></td>
 </tr>
 </tbody>
@@ -4602,7 +4632,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

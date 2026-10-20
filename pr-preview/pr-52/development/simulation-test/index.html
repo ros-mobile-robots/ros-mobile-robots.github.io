@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4592,7 +4622,7 @@
 
 
 <h1 id="simulation-test">Simulation Test</h1>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> has a simulation test: it drives DiffBot and Remo in <a href="https://classic.gazebosim.org/">Gazebo Classic 11</a>, the simulator that ROS Noetic uses, and checks where they went. Both <a href="../ci/#diffbot">CI workflows</a> run it on every pull request (<a href="https://github.com/ros-mobile-robots/diffbot/issues/110">diffbot#110</a>). It catches mistakes in the robot model and the controller configuration, which the simulation shares with the real robot:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> has a simulation test: it drives DiffBot and Remo in <a href="https://classic.gazebosim.org/">Gazebo Classic 11</a>, the simulator that ROS Noetic uses, and checks where they went. Both <a href="../ci/#diffbot"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> workflows</a> run it on every pull request (<a href="https://github.com/ros-mobile-robots/diffbot/issues/110">diffbot#110</a>). It catches mistakes in the robot model and the controller configuration, which the simulation shares with the real robot:</p>
 <ul>
 <li><strong>Left and right wheel joints swapped:</strong> the robot turns right when it's told to turn left.</li>
 <li><strong>A wheel radius in the controller configuration that doesn't match the robot model:</strong> the odometry can still report about the expected distance while the robot drives a different one.</li>
@@ -4600,7 +4630,7 @@
 </ul>
 <p>You need the <a href="../dev-container/">dev container</a> with its workspace <code>~/catkin_ws</code> built and sourced, as the container's setup leaves it. This page first shows how to run the test and read its results, then how it works and its code step by step, then why the results differ from the commands, and finally how to add a test of your own.</p>
 <h2 id="run-it">Run it</h2>
-<p>In the dev container, in <code>~/catkin_ws</code>, run all tests of the workspace as CI does (<a href="../ci/#dev-container-workflow">dev container workflow</a>):</p>
+<p>In the dev container, in <code>~/catkin_ws</code>, run all tests of the workspace as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does (<a href="../ci/#dev-container-workflow">dev container workflow</a>):</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">catkin build --catkin-make-args run_tests</span>
 <span class="go">catkin_test_results build</span>
@@ -4790,9 +4820,9 @@ true pose: forward 0.017 m, left -0.020 m, turned 1.471 rad
 </div>
 
 <p>Topic names are shortened in the figure: <code>cmd_vel</code> and <code>odom</code> are under <code>/diffbot/mobile_base_controller/</code>, <code>joint_states</code>, <code>wheel_cmd_velocities</code> and <code>measured_joint_states</code> under <code>/diffbot/</code>, and <code>model_states</code> under <code>/gazebo/</code>. The figure shows both test nodes, although rostest runs them one after another (<a href="#1-the-test-file">step 1</a>).</p>
-<p>The robot's controllers come from <a href="http://wiki.ros.org/ros_control">ros_control</a>. ros_control isn't a node of its own: it's a set of C++ libraries, used inside the process that has access to the joints, here the Gazebo server. The robot's URDF (Unified Robot Description Format), the XML file that describes its links and joints, loads the <a href="http://wiki.ros.org/gazebo_ros_control"><code>gazebo_ros_control</code></a> plugin (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/robot.gazebo.xacro"><code>robot.gazebo.xacro</code></a>). The plugin creates the hardware interface and the controller manager, and the controller manager loads the controllers:</p>
+<p>The robot's controllers come from <a href="http://wiki.ros.org/ros_control">ros_control</a>. ros_control isn't a node of its own: it's a set of C++ libraries, used inside the process that has access to the joints, here the Gazebo server. The robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> (Unified Robot Description Format), the XML file that describes its links and joints, loads the <a href="http://wiki.ros.org/gazebo_ros_control"><code>gazebo_ros_control</code></a> plugin (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/robot.gazebo.xacro"><code>robot.gazebo.xacro</code></a>). The plugin creates the hardware interface and the controller manager, and the controller manager loads the controllers:</p>
 <ul>
-<li>The <strong>hardware interface</strong>, <code>DefaultRobotHWSim</code>, gives the controllers each wheel joint's position and velocity, and takes a velocity command for each wheel. It reads the values from the simulated joints, for the wheel joints that have a transmission in the URDF, and drives each joint to its commanded velocity with a PID controller, with the robot's gains from <code>config/&lt;model&gt;/pid.yaml</code>.</li>
+<li>The <strong>hardware interface</strong>, <code>DefaultRobotHWSim</code>, gives the controllers each wheel joint's position and velocity, and takes a velocity command for each wheel. It reads the values from the simulated joints, for the wheel joints that have a transmission in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, and drives each joint to its commanded velocity with a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller, with the robot's gains from <code>config/&lt;model&gt;/pid.yaml</code>.</li>
 <li>The <strong>controller manager</strong> updates the controllers. In each simulation step, the plugin reads the joints (<code>readSim()</code>), lets the controller manager update the controllers, and applies the commands (<code>writeSim()</code>).</li>
 <li>The <strong>controllers</strong> read and write the hardware interface's values directly, in the same process, not over topics. <code>joint_state_controller</code> copies the joint values to <code>joint_states</code>. <code>mobile_base_controller</code>, a <a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>, turns the velocities from <code>cmd_vel</code> into a velocity for each wheel, and computes the odometry from the wheel joint positions. <a href="../../theory/state-estimation/robot-motion/#in-diff_drive_controller">Robot Motion</a> shows how: with the velocity motion model of <em>Probabilistic Robotics</em>.</li>
 </ul>
@@ -4909,7 +4939,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <p>On the real robot, the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base</code></a> node takes Gazebo's place. It creates the hardware interface <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_hw_interface.cpp"><code>DiffBotHWInterface</code></a> and a controller manager, and runs the loop itself: <code>read()</code>, update the controllers, <code>write()</code>. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/launch/diffbot.launch">launch file</a> loads the same <code>diffbot_control.yaml</code> and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics:</p>
 <ul>
 <li>It subscribes to <code>measured_joint_states</code>, the wheel angles and velocities that the Teensy publishes, and <code>read()</code> passes the latest values to the controllers.</li>
-<li><code>write()</code> publishes the wheel velocity commands on <code>wheel_cmd_velocities</code>, and the Teensy's firmware runs a PID loop per wheel to reach them (<a href="../../packages/diffbot_base/">Base Hardware Interface</a>).</li>
+<li><code>write()</code> publishes the wheel velocity commands on <code>wheel_cmd_velocities</code>, and the Teensy's firmware runs a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> loop per wheel to reach them (<a href="../../packages/diffbot_base/">Base Hardware Interface</a>).</li>
 <li>The <a href="http://wiki.ros.org/rosserial">rosserial</a> node relays both topics over USB.</li>
 </ul>
 <p>So the simulation test covers the robot model and the controller configuration that both share. It doesn't run <code>diffbot_base</code>, rosserial or the firmware; tests for these without the robot are planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>. <a href="https://fjp.at/posts/ros/ros-control/">ROS Control, An overview</a> explains ros_control in more detail.</p>
@@ -5018,7 +5048,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <span class="nt">&lt;/launch&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/launch/diffbot_view.launch"><code>diffbot_view.launch</code></a> starts the Gazebo server on the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/worlds/diffbot_empty.world">empty world</a>, which has a ground plane for the robot to stand on and a light. It runs with simulation time: Gazebo publishes its clock, and all nodes use it instead of the computer's clock (<code>use_sim_time</code>). On a slow computer the test takes longer, but the robot drives the same distance. Then <code>spawn_model</code> adds the robot from its URDF to the world, at x = −2 m, y = −0.5 m, while the simulation is already running.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/launch/diffbot_view.launch"><code>diffbot_view.launch</code></a> starts the Gazebo server on the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/worlds/diffbot_empty.world">empty world</a>, which has a ground plane for the robot to stand on and a light. It runs with simulation time: Gazebo publishes its clock, and all nodes use it instead of the computer's clock (<code>use_sim_time</code>). On a slow computer the test takes longer, but the robot drives the same distance. Then <code>spawn_model</code> adds the robot from its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to the world, at x = −2 m, y = −0.5 m, while the simulation is already running.</li>
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/diffbot_control.launch"><code>diffbot_control.launch</code></a> loads <code>diffbot_control.yaml</code> and the robot's <code>geometry.yaml</code>, the controller configuration that the real robot uses too, and the robot's <code>pid.yaml</code>, the gains of Gazebo's wheel velocity controllers. Its <code>controller_spawner</code> asks the controller manager to load and start the two controllers. It also starts <code>robot_state_publisher</code>, which the test doesn't use. <code>rqt_robot_steering</code>, a window with sliders to drive the robot, stays off, because it needs a display.</li>
 </ul>
 <p><a href="#how-it-works">How it works</a> shows how these parts work together.</p>
@@ -5117,7 +5147,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
     <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">yaw</span> <span class="o">=</span> <span class="n">euler_from_quaternion</span><span class="p">([</span><span class="n">q</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">w</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">Pose2D</span><span class="p">(</span><span class="n">pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">yaw</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>A <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">quaternion</a> has four numbers that describe any rotation in 3D, without the special cases of three angles (<a href="http://wiki.ros.org/tf2/Tutorials/Quaternions">tf2 quaternion tutorial</a>). ROS's axes and angles follow <a href="https://www.ros.org/reps/rep-0103.html">REP 103</a>: x forward, y to the left, z up, and the yaw grows when the robot turns to the left.</p>
+<p>A <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">quaternion</a> has four numbers that describe any rotation in 3D, without the special cases of three angles (<a href="http://wiki.ros.org/tf2/Tutorials/Quaternions">tf2 quaternion tutorial</a>). ROS's axes and angles follow <a href="https://www.ros.org/reps/rep-0103.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>: x forward, y to the left, z up, and the yaw grows when the robot turns to the left.</p>
 <h3 id="4-test_forward">4. <code>test_forward()</code></h3>
 <p>The constants at the top of the file name the commands, <a href="https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_gazebo/test/test_drive.py#L36-L44">lines 36–44</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: the commands</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
@@ -5288,7 +5318,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <figcaption>The end pose relative to the start pose, in the robot's frame at the start (<span class="arithmatex">\(x_r, y_r\)</span>): how far the robot moved forward and to the left, and the angle it turned.</figcaption>
 </figure>
 
-<p>With the displacement <span class="arithmatex">\(\Delta x = x_1 - x_0\)</span> and <span class="arithmatex">\(\Delta y = y_1 - y_0\)</span> in the frame of the poses, rotating it by <span class="arithmatex">\(-\theta_0\)</span> gives it in the robot's frame at the start. A robot's x axis points forward and its y axis to the left (<a href="https://www.ros.org/reps/rep-0103.html">REP 103</a>), which gives the two parts their names:</p>
+<p>With the displacement <span class="arithmatex">\(\Delta x = x_1 - x_0\)</span> and <span class="arithmatex">\(\Delta y = y_1 - y_0\)</span> in the frame of the poses, rotating it by <span class="arithmatex">\(-\theta_0\)</span> gives it in the robot's frame at the start. A robot's x axis points forward and its y axis to the left (<a href="https://www.ros.org/reps/rep-0103.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>), which gives the two parts their names:</p>
 <div class="arithmatex">\[
 \begin{bmatrix} \text{forward} \\ \text{left} \end{bmatrix}
 = \begin{bmatrix} \cos\theta_0 &amp; \sin\theta_0 \\ -\sin\theta_0 &amp; \cos\theta_0 \end{bmatrix}
@@ -5503,10 +5533,10 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <ul>
 <li><strong>Timing:</strong> <code>drive()</code> sends the command for 3 s of simulation time, but the last command stays in effect until <code>stop()</code>, nominally up to 50 ms longer: 1 cm or 0.025 rad more (the comment above <code>COMMAND_RATE</code>).</li>
 <li><strong>Acceleration and braking:</strong> diff_drive_controller limits the acceleration (<code>diffbot_control.yaml</code>: 0.6 m/s² and 6 rad/s²), and it limits braking the same way, because <code>min_acceleration</code> defaults to the negative maximum. Speeding up to 0.2 m/s takes 0.33 s and covers 3.3 cm less than an instant start would. Braking after the zero command takes just as long and covers the same 3.3 cm more. <code>measure_motion()</code> measures after <code>stop()</code> has waited until the robot stands still, so the two cancel. The angular limit hardly matters for the turn.</li>
-<li><strong>Wheel speed:</strong> in the simulation, each wheel's velocity is controlled by <code>DefaultRobotHWSim</code>'s PID controller with the robot's gains from <code>config/&lt;model&gt;/pid.yaml</code>. A P gain alone leaves a speed error under load: when turning on the spot, Remo's wheels reached only about 80 % of the commanded speed (<a href="https://github.com/ros-mobile-robots/diffbot/issues/116">diffbot#116</a>). An I term removes it, so both robots' odometry now shows 1.50 rad. Remo's P gain has to stay below about 0.035: its wheels weigh 32 g, and when a wheel doesn't touch the ground or slips, a higher gain makes the velocity loop unstable and the model explodes, as the comment in its <code>pid.yaml</code> explains.</li>
+<li><strong>Wheel speed:</strong> in the simulation, each wheel's velocity is controlled by <code>DefaultRobotHWSim</code>'s <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller with the robot's gains from <code>config/&lt;model&gt;/pid.yaml</code>. A P gain alone leaves a speed error under load: when turning on the spot, Remo's wheels reached only about 80 % of the commanded speed (<a href="https://github.com/ros-mobile-robots/diffbot/issues/116">diffbot#116</a>). An I term removes it, so both robots' odometry now shows 1.50 rad. Remo's P gain has to stay below about 0.035: its wheels weigh 32 g, and when a wheel doesn't touch the ground or slips, a higher gain makes the velocity loop unstable and the model explodes, as the comment in its <code>pid.yaml</code> explains.</li>
 </ul>
 <h3 id="why-the-odometry-and-the-true-pose-differ">Why the odometry and the true pose differ</h3>
-<p>The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from the robot's <code>geometry.yaml</code>. These are the robot's measured values, the same as in its URDF, so the odometry and the true pose agree closely: within 2 mm driving straight, and within 0.03 rad when turning on the spot. Remo's agree within 0.002 rad. DiffBot turns about 0.03 rad less than its odometry, which the odometry can't see: it only counts the wheel turns.</p>
+<p>The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from the robot's <code>geometry.yaml</code>. These are the robot's measured values, the same as in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, so the odometry and the true pose agree closely: within 2 mm driving straight, and within 0.03 rad when turning on the spot. Remo's agree within 0.002 rad. DiffBot turns about 0.03 rad less than its odometry, which the odometry can't see: it only counts the wheel turns.</p>
 <p>Two fixes made them agree this well:</p>
 <ul>
 <li><strong>Each robot's own geometry</strong> (<a href="https://github.com/ros-mobile-robots/diffbot/pull/119">diffbot#119</a>): both robots used to share a wheel radius of 0.0325 m and a separation of 0.145 m, while their URDFs had nominal values; the true distance was 1.8 % longer than the odometry. Now the configuration and the URDFs have the values measured on the robots.</li>
@@ -5517,7 +5547,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <ul>
 <li><strong>The models differ.</strong> DiffBot's wheels weigh 0.5 kg each, have a sphere collision and Gazebo's default contact settings. Remo's wheels weigh 32 g, also have a sphere collision, and slightly soft, damped contacts with a friction of 1 (<code>robot.gazebo.xacro</code> in <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/include/robot.gazebo.xacro">remo_description</a>). Each has its own wheel gains.</li>
 <li><strong>Repeated runs agree.</strong> In three runs, DiffBot's turn varied by 0.003 rad and Remo's by 0.002 rad. With its earlier collision cylinders and contact settings, a friction of 200, very stiff contacts and no damping, Remo's wheels jittered when turning, and its turn varied between 0.92 and 1.34 rad (<a href="https://github.com/ros-mobile-robots/remo_description/pull/2">remo_description#2</a>).</li>
-<li><strong>Why runs can still differ:</strong> Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. A sensitive model, such as Remo's with its old cylinders and contacts, turns such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step: CI once measured an outlier turn for DiffBot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>).</li>
+<li><strong>Why runs can still differ:</strong> Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. A sensitive model, such as Remo's with its old cylinders and contacts, turns such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step: <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> once measured an outlier turn for DiffBot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>).</li>
 </ul>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a> tracks what's left, such as DiffBot's wheel and caster masses of 0.5 kg each.</p>
 <p><a href="../../theory/modeling-control/wheel-dynamics-simulation/">Wheel Dynamics in Simulation</a> explains the collision shapes, contacts and wheel gains behind these numbers, and <a href="../../diffbot_gazebo/#tuning-the-simulated-robot">Tuning the simulated robot</a> lists each robot's values and how to tune them.</p>
@@ -5725,7 +5755,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

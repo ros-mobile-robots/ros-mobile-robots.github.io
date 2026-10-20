@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4213,7 +4243,7 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">curl -O https://raw.githubusercontent.com/ros-mobile-robots/diffbot/noetic-devel/raspi-setup.sh</span>
 <span class="go">bash raspi-setup.sh</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The sections below explain what the script does. <a href="../hardware-interfaces/">Hardware Interfaces</a> is still needed: it gives your user access to I2C and the serial port. For DiffBot, follow the pages: its camera driver needs the extra steps on <a href="../../packages/raspicam_node/">Raspberry Pi Camera</a>, which the script doesn't do yet.</p>
+<p>The sections below explain what the script does. <a href="../hardware-interfaces/">Hardware Interfaces</a> is still needed: it gives your user access to <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> and the serial port. For DiffBot, follow the pages: its camera driver needs the extra steps on <a href="../../packages/raspicam_node/">Raspberry Pi Camera</a>, which the script doesn't do yet.</p>
 </div>
 <h2 id="install-ros-noetic">Install ROS Noetic</h2>
 <p>The key that signs the ROS packages expired on 1 June 2025 and was renewed. The <a href="https://github.com/ros-infrastructure/ros-apt-source"><code>ros-apt-source</code></a> package sets up the package source together with the current key, as the <a href="https://discourse.openrobotics.org/t/ros-signing-key-migration-guide/43937">ROS signing key migration guide</a> recommends.</p>
@@ -4426,7 +4456,7 @@ In case you are unsure, you can check with the <code>echo $SHELL</code> command 
 <p class="admonition-title">Info</p>
 <p>Instead of <code>source</code> it is possible to use the <code>.</code> command instead. Don't confuse it though with the current directory, which is also represented as <code>.</code>.</p>
 </div>
-<p>Next, on the robot: <a href="../hardware-interfaces/">Hardware Interfaces</a>, for access to USB, GPIO and I2C.</p>
+<p>Next, on the robot: <a href="../hardware-interfaces/">Hardware Interfaces</a>, for access to USB, <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> and <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>.</p>
 <h2 id="resources">Resources</h2>
 <p>Although the <a href="https://wiki.ros.org/catkin/Tutorials">catkin tutorial</a> uses <code>catkin_make</code> it provides a helpful guide to create a workspace</p>
 <!-- Mechanical parts and tools -->
@@ -4587,7 +4617,7 @@ In case you are unsure, you can check with the <code>echo $SHELL</code> command 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

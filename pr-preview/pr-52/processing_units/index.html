@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4039,18 +4069,18 @@
 <h1 id="processing-units">Processing Units</h1>
 <p>Our robot consists of components which are connected as shown in the block diagram below:</p>
 <p><a href="../resources/processing_units/block-diagram-remo.svg"><img alt="Block Diagram Remo" src="../resources/processing_units/block-diagram-remo.svg"></a></p>
-<p>The Teensy 3.2 microcontroller board is connected to the encoder and optional IMU
+<p>The Teensy 3.2 microcontroller board is connected to the encoder and optional <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>
 sensor as well as the motor driver actuator. It communicates to the Raspberry Pi 4 B via
-USB over the <code>rosserial</code> protocol. The motor driver and the optional IMU exchange
-data over I2C with the microcontroller. The RPLIDAR has a serial-to-USB converter and
-is therefore connected to one of the USB ports of the SBC. The motor encoder sensors
-are interfaced through the GPIO pins of the microcontroller. The following shows the
+USB over the <code>rosserial</code> protocol. The motor driver and the optional <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> exchange
+data over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> with the microcontroller. The RPLIDAR has a serial-to-USB converter and
+is therefore connected to one of the USB ports of the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>. The motor encoder sensors
+are interfaced through the <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> pins of the microcontroller. The following shows the
 connection diagram of the components:</p>
 <p><a href="../fritzing/remo_architecture.svg"><img alt="Remo Fritzing" src="../fritzing/remo_architecture.svg"></a></p>
 <h2 id="overview-of-ros-nodes-and-topics-for-the-remo-robot">Overview of ROS nodes and topics for the Remo robot</h2>
 <p>The following launch file will bring up the hardware nodes, load the robot description
 onto the parameter server, start <code>diff_drive_controller</code>, and begin to publish the
-transformations using <code>tf</code>. Run this launch file on the robot's SBC:</p>
+transformations using <code>tf</code>. Run this launch file on the robot's <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roslaunch diffbot_bringup bringup.launch model:=remo</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>On the development PC, you can use the teleop node to steer the robot. To do this, run
@@ -4229,7 +4259,7 @@ the following:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

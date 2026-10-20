@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4184,7 +4214,7 @@ Created<span class="w"> </span>folder<span class="w"> </span>grove_ultrasonic_ra
 </code></pre></div></td></tr></tbody></table></div>
 The package depends on the two ROS <a href="http://wiki.ros.org/Client%20Libraries">client libraries</a> <a href="http://wiki.ros.org/rospy"><code>rospy</code></a> and <a href="http://wiki.ros.org/roscpp"><code>roscpp</code></a>. 
 To signalise the current distance to obstacles the <a href="http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Range.html"><code>sensor_msgs/Range</code></a> message is used.<p></p>
-<p>After connecting the signal pin of the sensor to <a href="https://pinout.xyz/pinout/pin11_gpio17#">(physical) GPIO 11</a> of the Raspberry Pi 4 B and power it with 5V and ground, we can test its functionality with the available 
+<p>After connecting the signal pin of the sensor to <a href="https://pinout.xyz/pinout/pin11_gpio17#">(physical) <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> 11</a> of the Raspberry Pi 4 B and power it with 5V and ground, we can test its functionality with the available 
 python script <a href="https://github.com/Seeed-Studio/Grove-RaspberryPi/blob/master/Grove%20-%20Ultrasonic%20Ranger/ultrasonic.py"><code>ultrasonic.py</code></a> from Seed Studio.</p>
 <p>The following shows the truncated output of the <code>ultrasonic.py</code> script when moving an obstacle in front of the sensor. We see that the distance value changes as expected. </p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
@@ -4547,8 +4577,8 @@ range:<span class="w"> </span><span class="m">1</span>.67693090439
 </code></pre></div></td></tr></tbody></table></div>
 <h4 id="informational-distance-measurements">Informational Distance Measurements</h4>
 <p>To provide additional information when an obstacle is too close or the robot has no obstacle in front of it we use
-<a href="https://www.ros.org/reps/rep-0117.html">REP-117</a> as guideline.</p>
-<p>To successfully implement this REP, checks for valid measurements should use floating-point standards and follow this form:</p>
+<a href="https://www.ros.org/reps/rep-0117.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr>-117</a> as guideline.</p>
+<p>To successfully implement this <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr>, checks for valid measurements should use floating-point standards and follow this form:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4729,7 +4759,7 @@ range:<span class="w"> </span><span class="m">1</span>.67693090439
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

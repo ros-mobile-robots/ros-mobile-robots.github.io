@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4406,8 +4436,8 @@
   
 
 
-<h1 id="ros-driver-for-adafruit-imu-bosch-bno055">ROS Driver for Adafruit IMU Bosch BNO055</h1>
-<p>The <a href="https://www.adafruit.com/product/2472">Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout - BNO055</a> is based on
+<h1 id="ros-driver-for-adafruit-imu-bosch-bno055">ROS Driver for Adafruit <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Bosch BNO055</h1>
+<p>The <a href="https://www.adafruit.com/product/2472">Adafruit 9-<abbr title="Degrees of freedom. The number of independent ways something can move; a pose on the ground has three, x, y and the heading.">DOF</abbr> Absolute Orientation <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Fusion Breakout - BNO055</a> is based on
 the <a href="https://www.bosch-sensortec.com/products/smart-sensors/bno055/">BNO055 from Bosch</a>. This is system in package solution which features a MEMS accelerometer,
 magnetometer and gyroscope and putting them on a single die with a high speed ARM Cortex-M0 based processor to digest all the sensor data,
 abstract the sensor fusion and real time requirements away, and spit out data you can use in quaternions, Euler angles or vectors.</p>
@@ -4416,42 +4446,42 @@ abstract the sensor fusion and real time requirements away, and spit out data yo
   </p>
 <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
-<h2 id="high-level-driver-i2c">High level Driver (I2C)</h2>
-<p>When connecting the IMU directly via i2c to the single board computer (SBC), which is referred to as the high level approach, we can make use of
+<h2 id="high-level-driver-i2c">High level Driver (<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>)</h2>
+<p>When connecting the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> directly via i2c to the single board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>), which is referred to as the high level approach, we can make use of
 <a href="https://github.com/dheera/ros-imu-bno055"><code>ros-imu-bno055</code></a> ROS package.</p>
 <h2 id="low-level-driver">Low Level Driver</h2>
-<p>In case we connect the Bosch IMU to the low level microcontroller board (e.g. Teensy or Arduino) there is
+<p>In case we connect the Bosch <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> to the low level microcontroller board (e.g. Teensy or Arduino) there is
 <a href="https://github.com/adafruit/Adafruit_BNO055">Adafruit BNO055</a> library which can be used.</p>
 <h2 id="pinout">Pinout</h2>
-<p>The following sections are found at <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts">learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts</a>. For the robot the power pins as well as the I2C pins are important.</p>
+<p>The following sections are found at <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts">learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts</a>. For the robot the power pins as well as the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins are important.</p>
 <h3 id="power-pins">Power Pins</h3>
 <ul>
 <li>VIN: 3.3-5.0V power supply input</li>
 <li>3VO: 3.3V output from the on-board linear voltage regulator, you can grab up to about 50mA as necessary</li>
 <li>GND: The common/GND pin for power and logic</li>
 </ul>
-<h3 id="i2c-pins">I2C Pins</h3>
+<h3 id="i2c-pins"><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Pins</h3>
 <ul>
-<li>SCL - I2C clock pin, connect to your microcontrollers I2C clock line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.</li>
-<li>SDA - I2C data pin, connect to your microcontrollers I2C data line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.</li>
+<li>SCL - <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock pin, connect to your microcontrollers <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.</li>
+<li>SDA - <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data pin, connect to your microcontrollers <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.</li>
 </ul>
 <h3 id="other-pins">Other Pins</h3>
 <ul>
 <li>RST: Hardware reset pin. Set this pin low then high to cause a reset on the sensor. This pin is 5V safe.</li>
 <li>INT: The HW interrupt output pin, which can be configured to generate an interrupt signal when certain events occur like movement detected by the accelerometer, etc. (not currently supported in the Adafruit library, but the chip and HW is capable of generating this signal). The voltage level out is 3V</li>
-<li>ADR: Set this pin high to change the default I2C address for the BNO055 if you need to connect two ICs on the same I2C bus. The default address is 0x28. If this pin is connected to 3V, the address will be 0x29</li>
-<li>PS0 and PS1: These pins can be used to change the mode of the device (it can also do HID-I2C and UART) and also are provided in case Bosch provides a firmware update at some point for the ARM Cortex M0 MCU inside the sensor. They should normally be left unconnected.</li>
+<li>ADR: Set this pin high to change the default <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> address for the BNO055 if you need to connect two ICs on the same <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus. The default address is 0x28. If this pin is connected to 3V, the address will be 0x29</li>
+<li>PS0 and PS1: These pins can be used to change the mode of the device (it can also do HID-<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> and <abbr title="Universal asynchronous receiver-transmitter. A serial interface with a transmit and a receive line and no clock, such as the serial port of a microcontroller.">UART</abbr>) and also are provided in case Bosch provides a firmware update at some point for the ARM Cortex M0 <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> inside the sensor. They should normally be left unconnected.</li>
 </ul>
 <h2 id="wiring">Wiring</h2>
-<p>You can easily wire this breakout to a microcontroller or single board computer (SBC). 
+<p>You can easily wire this breakout to a microcontroller or single board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>). 
 The following sections will show both options using Teensy as a microcontroller and
-Raspberry Pi 4 B as SBC. For another kind of microcontroller or SBC, just make sure it has I2C capability and port the code.</p>
+Raspberry Pi 4 B as <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>. For another kind of microcontroller or <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>, just make sure it has <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> capability and port the code.</p>
 <h3 id="single-board-computer">Single Board Computer</h3>
-<p>The following sections show how to wire and use the BNO055 with the Raspberry Pi 4 B SBC.</p>
+<p>The following sections show how to wire and use the BNO055 with the Raspberry Pi 4 B <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>.</p>
 <h4 id="wiring_1">Wiring</h4>
 <p>To connect the assembled BNO055 breakout to a Raspberry Pi 4 B, follow the wiring diagram.</p>
 <p>TODO Fritzing wiring diagram
-I2C to hub or one of the I2C pins (SCL and SDA) of the Raspberry Pi 
+<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> to hub or one of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins (SCL and SDA) of the Raspberry Pi 
 Power (Vin) to 3.3V or 5V of the Raspberry Pi
 GND to GND</p>
 <figure>
@@ -4461,8 +4491,8 @@ GND to GND</p>
 
 <ul>
 <li>Connect Vin (red wire) to the power supply, 3-5V is fine.</li>
-<li>Connect the SCL (yellow wire) pin to the I2C clock SCL pin on your SBC or an I2C hub that is connected to the SBC.</li>
-<li>Connect the SDA (blue wire) pin to the I2C data SDA pin on your SBC or an I2C hub that is connected to the SBC.</li>
+<li>Connect the SCL (yellow wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock SCL pin on your <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> or an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub that is connected to the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>.</li>
+<li>Connect the SDA (blue wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data SDA pin on your <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> or an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub that is connected to the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>.</li>
 </ul>
 <h4 id="software">Software</h4>
 <p>Refer to <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython</a>
@@ -4560,8 +4590,8 @@ the <a href="https://platformio.org/">PlatformIO</a> plugin of Visual Studio Cod
 <ul>
 <li>Connect Vin (red wire) to the power supply, 3-5V is fine. Use the same voltage that the microcontroller logic is based off of. For most Arduinos, that is 5V</li>
 <li>Connect GND (black wire) to common power/data ground</li>
-<li>Connect the SCL (yellow wire) pin to the I2C clock SCL pin on your microcontoller.</li>
-<li>Connect the SDA (blue wire) pin to the I2C data SDA pin on your microcontoller.</li>
+<li>Connect the SCL (yellow wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock SCL pin on your microcontoller.</li>
+<li>Connect the SDA (blue wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data SDA pin on your microcontoller.</li>
 </ul>
 <h4 id="software_1">Software</h4>
 <p>The <a href="https://github.com/adafruit/Adafruit_BNO055">Adafruit_BNO055 driver</a> supports reading raw sensor data,
@@ -4729,7 +4759,7 @@ or you can use the <a href="https://learn.adafruit.com/using-the-adafruit-unifie
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
