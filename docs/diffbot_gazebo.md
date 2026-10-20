@@ -35,7 +35,7 @@ Sources: [`front_wheel.yaml` (DiffBot)](https://github.com/ros-mobile-robots/dif
 | Setting | DiffBot | Remo | Basis | Reason / limitation |
 |---|---|---|---|---|
 | Friction `mu1`, `mu2` | 1, 1 | 1, 1 | DiffBot: default; Remo: selected | A usual order of magnitude for rubber on a hard floor, not measured for these tires and floors. Gazebo uses the smaller coefficient of the wheel and the ground. Friction 200 changed nothing measurable in Remo's wheel tracking ([experiment E3](theory/modeling-control/wheel-dynamics-simulation.md#which-contact-setting-changes-wheel-tracking)). |
-| `fdir1` | not set | not set | selected | A sphere's collision frame spins with the wheel, so a fixed `fdir1` would tilt into the contact normal. |
+| `fdir1` | not set | not set | selected | Left unset to avoid a direction that turns with the sphere's frame and leaves the contact plane, as `0 0 1` would; a direction along the axle would also be valid on flat ground. |
 | Contact `kp`, `kd` | $10^{12}$ N/m, 1 N s/m | $10^{7}$ N/m, 1 N s/m | DiffBot: default; Remo: selected | With the stiff default, Remo's light wheels missed their commands; damping 0 alone made no difference ([experiment E3](theory/modeling-control/wheel-dynamics-simulation.md#which-contact-setting-changes-wheel-tracking)). DiffBot's wheels follow their commands with the default, but with their placeholder mass. |
 | `minDepth` | 0 | 0 | DiffBot: default; Remo: selected | With Remo's compliant contacts, a positive value let the wheels creep into the ground. Zero is the tested choice for these wheels, not a universal rule. |
 | `maxVel` | 0.01 m/s | 0.01 m/s | default | Limits how fast a penetration is corrected. |
