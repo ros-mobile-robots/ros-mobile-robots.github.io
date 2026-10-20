@@ -2361,6 +2361,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The current settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geometry-and-mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometry and mass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-and-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control and world
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4162,6 +4201,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The current settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geometry-and-mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometry and mass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-and-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control and world
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4374,16 +4452,18 @@
 <p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> drives DiffBot and Remo in this simulation on every pull request, without a display. <a href="../development/simulation-test/">Simulation Test</a> shows how Gazebo, <code>gazebo_ros_control</code> and the controllers work together.</p>
 </div>
 <h2 id="tuning-the-simulated-robot">Tuning the simulated robot</h2>
-<p>How a simulated robot drives depends on more than its kinematics: on its collision shapes, masses, contact settings and the gains of its simulated motors. <a href="../theory/modeling-control/wheel-dynamics-simulation/">Wheel Dynamics in Simulation</a> explains what each of them does. This section lists DiffBot's and Remo's values and how to tune them.</p>
+<p>How a simulated robot drives depends on more than its kinematics: on its collision shapes, masses, contact settings and the gains of its simulated motors. <a href="../theory/modeling-control/wheel-dynamics-simulation/">Wheel Dynamics in Simulation</a> explains what each of them does. This section lists DiffBot's and Remo's settings, why they have these values, and how to tune them.</p>
 <h3 id="the-current-settings">The current settings</h3>
+<p><strong>Basis</strong> says where a value comes from: <em>measured</em> on the robot, <em>derived</em> from other values, Gazebo's <em>default</em>, <em>selected</em> and tested in the simulation, a <em>placeholder</em>, or <em>not modeled</em>. <strong>Reason / limitation</strong> says what the value is for and what it doesn't cover.</p>
+<h4 id="geometry-and-mass">Geometry and mass</h4>
 <table>
 <thead>
 <tr>
 <th>Setting</th>
 <th>DiffBot</th>
 <th>Remo</th>
-<th>Where</th>
-<th>Status</th>
+<th>Basis</th>
+<th>Reason / limitation</th>
 </tr>
 </thead>
 <tbody>
@@ -4391,112 +4471,156 @@
 <td>Wheel radius</td>
 <td>0.0333 m</td>
 <td>0.0330 m</td>
-<td><code>front_wheel.yaml</code> (<abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>) and <code>geometry.yaml</code> (controller)</td>
-<td>measured: half the mean of the two wheels' diameters</td>
+<td>measured</td>
+<td>Half the mean of the two wheels' diameters. The loaded rolling radius isn't measured.</td>
 </tr>
 <tr>
 <td>Wheel separation</td>
 <td>0.138 m</td>
 <td>0.144 m</td>
-<td><code>front_wheel.yaml</code> (<code>y_offset</code>) and <code>geometry.yaml</code></td>
-<td>measured, center to center</td>
+<td>measured</td>
+<td>Center to center, as the kinematic model and odometry use it.</td>
 </tr>
 <tr>
 <td>Wheel width</td>
 <td>0.025 m</td>
 <td>0.025 m</td>
-<td><code>front_wheel.yaml</code> (<code>length</code>)</td>
 <td>measured</td>
+<td>Used for the inertia; the collision is a sphere.</td>
 </tr>
 <tr>
 <td>Wheel collision</td>
 <td>sphere with the wheel radius</td>
 <td>sphere with the wheel radius</td>
-<td><code>common_macros.urdf.xacro</code></td>
-<td>chosen in <a href="https://github.com/ros-mobile-robots/diffbot/pull/120">diffbot#120</a> and <a href="https://github.com/ros-mobile-robots/remo_description/pull/2">remo_description#2</a>: cylinders touched the ground at their outer edges</td>
+<td>selected, tested on flat ground</td>
+<td>Puts an upright wheel's ideal contact in its center plane, where the kinematic model assumes it. It doesn't reproduce a tire's footprint, or contacts on slopes and edges.</td>
 </tr>
 <tr>
 <td>Wheel mass</td>
 <td>0.5 kg</td>
 <td>0.032 kg</td>
-<td><code>front_wheel.yaml</code></td>
-<td>Remo: weighed; DiffBot: a placeholder, its wheels weigh 32 g too (<a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>)</td>
+<td>DiffBot: placeholder; Remo: measured</td>
+<td>DiffBot's wheels weigh 32 g too; its mass and gains are corrected together (<a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>).</td>
 </tr>
 <tr>
-<td>Wheel inertia about the axle, <span class="arithmatex">\(\frac{1}{2} m r^2\)</span></td>
+<td>Wheel inertia about the axle</td>
 <td><span class="arithmatex">\(2.8 \cdot 10^{-4}\)</span> kg m²</td>
 <td><span class="arithmatex">\(1.74 \cdot 10^{-5}\)</span> kg m²</td>
-<td>computed by <code>cylinder_inertia</code> in <code>common_macros.urdf.xacro</code></td>
-<td>follows the mass and radius</td>
+<td>derived: <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> of a solid cylinder</td>
+<td>Follows the mass and radius, independent of the collision shape. A real wheel with a heavy tire has somewhat more.</td>
 </tr>
+<tr>
+<td>Robot mass, model / weighed</td>
+<td>2640 g / about 895 g</td>
+<td>1154 g / 1303 g</td>
+<td>model: sum of the links; weighed</td>
+<td>DiffBot's model still has placeholders; its 895 g are 705 g weighed without its RPLidar A2M8 plus the lidar's 190 g from its datasheet. Remo's model lacks about 149 g, for example cables and screws.</td>
+</tr>
+</tbody>
+</table>
+<p>Sources: <a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_description/config/diffbot/front_wheel.yaml"><code>front_wheel.yaml</code> (DiffBot)</a>, <a href="https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/config/remo/front_wheel.yaml"><code>front_wheel.yaml</code> (Remo)</a>, <a href="https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config"><code>geometry.yaml</code></a>, the wheel collision and <code>cylinder_inertia</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_description/urdf/include/common_macros.urdf.xacro#L55-L70">DiffBot's</a> and <a href="https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/common_macros.urdf.xacro#L55-L70">Remo's</a> <code>common_macros.urdf.xacro</code>.</p>
+<h4 id="contacts">Contacts</h4>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>DiffBot</th>
+<th>Remo</th>
+<th>Basis</th>
+<th>Reason / limitation</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td>Friction <code>mu1</code>, <code>mu2</code></td>
 <td>1, 1</td>
 <td>1, 1</td>
-<td>Remo: <code>robot.gazebo.xacro</code>, with the <code>friction</code> argument of <code>remo.urdf.xacro</code></td>
-<td>DiffBot: Gazebo's defaults; Remo: chosen in remo_description#2, rubber on a floor</td>
+<td>DiffBot: default; Remo: selected</td>
+<td>A usual order of magnitude for rubber on a hard floor, not measured for these tires and floors. Gazebo uses the smaller coefficient of the wheel and the ground. Friction 200 changed nothing measurable in Remo's wheel tracking (<a href="../theory/modeling-control/wheel-dynamics-simulation/#which-contact-setting-changes-wheel-tracking">experiment E3</a>).</td>
 </tr>
 <tr>
 <td><code>fdir1</code></td>
-<td>none</td>
-<td>none</td>
-<td></td>
-<td>a sphere's <code>fdir1</code> would turn with the wheel</td>
+<td>not set</td>
+<td>not set</td>
+<td>selected</td>
+<td>A sphere's collision frame spins with the wheel, so a fixed <code>fdir1</code> would tilt into the contact normal.</td>
 </tr>
 <tr>
 <td>Contact <code>kp</code>, <code>kd</code></td>
 <td><span class="arithmatex">\(10^{12}\)</span> N/m, 1 N s/m</td>
 <td><span class="arithmatex">\(10^{7}\)</span> N/m, 1 N s/m</td>
-<td>Remo: <code>robot.gazebo.xacro</code></td>
-<td>DiffBot: defaults; Remo: chosen in remo_description#2, so its wheels follow their commands on the sphere</td>
+<td>DiffBot: default; Remo: selected</td>
+<td>With the stiff default, Remo's light wheels missed their commands; damping 0 alone made no difference (<a href="../theory/modeling-control/wheel-dynamics-simulation/#which-contact-setting-changes-wheel-tracking">experiment E3</a>). DiffBot's wheels follow their commands with the default, but with their placeholder mass.</td>
 </tr>
 <tr>
-<td><code>minDepth</code>, <code>maxVel</code></td>
-<td>0 m, 0.01 m/s</td>
-<td>0 m, 0.01 m/s</td>
-<td>Remo: <code>robot.gazebo.xacro</code></td>
-<td>DiffBot: defaults; Remo: <code>minDepth</code> 0 in remo_description#2, so its wheels don't sink</td>
+<td><code>minDepth</code></td>
+<td>0</td>
+<td>0</td>
+<td>DiffBot: default; Remo: selected</td>
+<td>With Remo's compliant contacts, a positive value let the wheels creep into the ground. Zero is the tested choice for these wheels, not a universal rule.</td>
 </tr>
+<tr>
+<td><code>maxVel</code></td>
+<td>0.01 m/s</td>
+<td>0.01 m/s</td>
+<td>default</td>
+<td>Limits how fast a penetration is corrected.</td>
+</tr>
+</tbody>
+</table>
+<p>Sources: <a href="https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/robot.gazebo.xacro#L39-L66">Remo's contacts</a>, with the <code>friction</code> argument of <a href="https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/remo.urdf.xacro"><code>remo.urdf.xacro</code></a>. DiffBot's wheels set none, so Gazebo's defaults apply.</p>
+<h4 id="control-and-world">Control and world</h4>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>DiffBot</th>
+<th>Remo</th>
+<th>Basis</th>
+<th>Reason / limitation</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td>Wheel velocity <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> <code>p</code>, <code>i</code>, <code>d</code></td>
 <td>0.06, 0.6, 0</td>
 <td>0.03, 0.6, 0</td>
-<td><code>diffbot_control/config/&lt;model&gt;/pid.yaml</code></td>
-<td>chosen in <a href="https://github.com/ros-mobile-robots/diffbot/pull/121">diffbot#121</a>; Remo's P below the free-wheel limit of about 0.035</td>
+<td>selected, tested at a 1 ms step</td>
+<td>Remo's P is below its free-wheel limit of about 0.035. DiffBot's P suits its placeholder wheel mass, not 32 g wheels. Neither is shown to be optimal.</td>
 </tr>
 <tr>
 <td><code>i_clamp</code>, <code>antiwindup</code></td>
 <td>0.05 N m, true</td>
 <td>0.05 N m, true</td>
-<td><code>pid.yaml</code></td>
-<td>chosen in diffbot#121</td>
+<td>selected</td>
+<td>The I term can supply up to 0.05 N m; without <code>i_clamp</code>, an I gain does nothing.</td>
 </tr>
 <tr>
 <td>Wheel torque limit</td>
 <td>none</td>
 <td>none</td>
-<td>a <code>&lt;limit effort="..."&gt;</code> on the wheel joint</td>
-<td>not set</td>
+<td>not modeled</td>
+<td>A real motor has a stall torque.</td>
 </tr>
 <tr>
 <td>Physics</td>
 <td><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>, quick solver with 150 iterations, 1 ms step</td>
 <td>the same</td>
-<td><code>diffbot_gazebo/worlds/diffbot_empty.world</code>, the simulation test's world; other worlds differ, for example <code>playground.world</code> with a 10 ms step</td>
-<td>from the original worlds</td>
+<td>inherited from the world</td>
+<td>The simulation test's <code>diffbot_empty.world</code>. Other worlds differ, for example <code>playground.world</code> with a 10 ms step, and the gains depend on the step.</td>
 </tr>
 </tbody>
 </table>
-<p>The files: <a href="https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_description/config/diffbot/front_wheel.yaml"><code>front_wheel.yaml</code> (DiffBot)</a>, <a href="https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/config/remo/front_wheel.yaml"><code>front_wheel.yaml</code> (Remo)</a>, <a href="https://github.com/ros-mobile-robots/diffbot/tree/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config"><code>geometry.yaml</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_description/urdf/include/common_macros.urdf.xacro#L55-L70">DiffBot's wheel collision</a>, <a href="https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/common_macros.urdf.xacro#L55-L70">Remo's wheel collision</a>, <a href="https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/robot.gazebo.xacro#L39-L66">Remo's contacts</a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config/diffbot/pid.yaml"><code>pid.yaml</code> (DiffBot)</a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config/remo/pid.yaml"><code>pid.yaml</code> (Remo)</a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_gazebo/worlds/diffbot_empty.world#L13-L32">the test world</a>.</p>
-<p>Both robots' wheels weigh 32 g. Ready to drive, Remo weighs 1303 g, and DiffBot about 895 g: 705 g weighed without its RPLidar A2M8, which weighs 190 g according to its datasheet. Remo's model has its weighed parts, 1154 g in all. DiffBot's model still has placeholders, 2640 g in all, with 0.5 kg per wheel. With its real 32 g wheels, DiffBot's wheel inertia drops to about Remo's, and its P gain of 0.06 would be above the free-wheel limit: the masses and the gains have to change together, in a follow-up of diffbot#118.</p>
+<p>Sources: <code>pid.yaml</code> of <a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config/diffbot/pid.yaml">DiffBot</a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config/remo/pid.yaml">Remo</a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_gazebo/worlds/diffbot_empty.world#L13-L32">the test world</a>.</p>
+<p>How these values were found: <a href="https://github.com/ros-mobile-robots/diffbot/pull/119">diffbot#119</a> (geometry), <a href="https://github.com/ros-mobile-robots/diffbot/pull/120">diffbot#120</a> and <a href="https://github.com/ros-mobile-robots/remo_description/pull/2">remo_description#2</a> (collisions and contacts), <a href="https://github.com/ros-mobile-robots/diffbot/pull/121">diffbot#121</a> (gains); the masses are still open in <a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>.</p>
 <h3 id="how-to-tune">How to tune</h3>
-<p>Tune the model in this order, so that a later step doesn't hide an error of an earlier one:</p>
+<p>Tune the model in this order, so that a later step doesn't hide an error of an earlier one. One error can hide another: for example, wheels that sink into the ground can change where they touch it. So after each fix, go through the later steps again.</p>
 <ol>
 <li><strong>Geometry and inertia first.</strong> Measure the wheel diameters and their separation, center to center, and enter them in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s <code>front_wheel.yaml</code> and the controller's <code>geometry.yaml</code>. Check the expanded <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with <code>xacro</code>: the wheel joints' distance, the collision radius, and an inertia whose <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> is about the joint axis.</li>
 <li><strong>Record a baseline.</strong> Note the world, its time step and solver (the gains depend on the time step), and run the <a href="../development/simulation-test/">simulation test</a>: the odometry and the true pose, driving straight and turning on the spot.</li>
-<li><strong>Check the spawn.</strong> The robot has to stay at its spawn pose without NaN velocities, and its wheels have to stay on the ground: a wheel link's height above the ground should stay at its radius over a minute (<code>/gazebo/link_states</code>).</li>
-<li><strong>Wheel speed tracking.</strong> Turn on the spot in both directions and drive straight, and compare the wheel joints' speeds in <code>/diffbot/joint_states</code> with the commanded ones: their mean and their standard deviation. A speed error that stays is a job for the I term; jitter points to the contacts. Keep P below the free-wheel limit <span class="arithmatex">\(2J/h\)</span>.</li>
-<li><strong>Agreement with the true motion.</strong> Compare the odometry with the true pose. If the wheels follow their commands and the robot still turns differently, look at where and how the wheels touch the ground: the collision shape, friction and contact settings, not the gains.</li>
+<li><strong>Check the spawn and the settling.</strong> The robot has to stay at its spawn pose without NaN velocities, and its wheels have to stay on the ground: a wheel link's height above the ground should stay at its radius over a minute (<code>/gazebo/link_states</code>). <em>Example:</em> with compliant contacts and a positive <code>minDepth</code>, Remo's wheels crept about 8 mm into the ground within a minute, and the turn test still passed. Only the height showed it.</li>
+<li><strong>Wheel speed tracking.</strong> Turn on the spot in both directions and drive straight, and compare the wheel joints' speeds in <code>/diffbot/joint_states</code> with the commanded ones: their mean and their standard deviation. A lasting error can come from the controller, a torque limit or the contact load; jitter can come from contact solving or an unstable loop. Keep P below the free-wheel limit <span class="arithmatex">\(2J/h\)</span>. <em>Example:</em> with a P gain alone, Remo's wheels reached only about 80 % of the command when turning on the spot, because turning needs torque; an I term with <code>i_clamp</code> removed the error.</li>
+<li><strong>Agreement with the true motion.</strong> Compare the odometry with the true pose. <em>Example:</em> wheel speeds within 1 % of the command, but a true turn of only about 0.85 of the odometry's. Then test the effective contact separation, for example with a different collision shape, and keep the controller as it is.</li>
 <li><strong>One change at a time.</strong> After each change, repeat straight driving and turns in both directions, for both robots, and run each case more than once to see how much the results vary.</li>
 </ol>
 <p>Don't compensate one error with another setting: a wrong geometry with gains, or an unstable velocity loop with heavier wheels than the real ones. The simulation test catches regressions, but passing it doesn't make the simulation accurate at other speeds, on other floors or slopes.</p>
