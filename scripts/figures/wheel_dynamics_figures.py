@@ -220,7 +220,7 @@ for i, (robot, way) in enumerate(ROWS):
                                           f"{abs(true):.3f} / {abs(odom):.3f} rad = {ratio:.3f}")
             if ratio > hi:
                 turn.text(x - 8, y - 9, f"{ratio:.2f} →", "t-muted t-halo", "end")
-fig_turn = figure(turn, "Experiment E1: turning 1.5 rad on the spot to the left and to the right, three runs each, with "
+fig_turn = figure(turn, "Experiment E1: commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s) to the left and to the right, three runs each, with "
                         "only the drive wheels' collision changed. The dashed ticks are the ratios that contacts at the "
                         "wheels' outer edges predict: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.")
 turn_rows = []
@@ -291,17 +291,17 @@ def tracking(config, way="left"):
 
 
 def speed_figure():
-    ph, gap, top0 = 80, 34, 40
+    ph, gap, top0 = 80, 48, 40
     h = top0 + len(SPEED_PANELS) * (ph + gap) + 10
     s = Svg("wd-speeds", 440, h, "Experiment E3: Remo's wheel speeds while turning on the spot, with one contact setting changed")
     s.legend(48, 16, [("line", "s1", "left wheel"), ("line", "s2", "right wheel"), ("ref", "", "commanded")])
     t0, t1, vmax = -0.5, 4.0, 2.4
     x_of = lambda t: 48 + (t - t0) / (t1 - t0) * 382
     for i, (key, title) in enumerate(SPEED_PANELS):
-        y0 = top0 + i * (ph + gap) + 16
+        y0 = top0 + i * (ph + gap) + 30
         y_of = lambda v: y0 + ph / 2 - v / vmax * ph / 2
         data = [r for r in speed_rows if r["config"] == key and r["repeat"] == "1"]
-        s.text(48, y0 - 6, title, "t-head")
+        s.text(48, y0 - 20, title, "t-head")
         for v in (-2, -1, 0, 1, 2):
             s.line(48, y_of(v), 430, y_of(v), "axis" if v == 0 else "grid")
             if v in (-2, 0, 2):
@@ -326,14 +326,14 @@ def speed_figure():
             s.add(f'<rect class="band" x="{f1(x_of(a))}" y="{f1(y0)}" width="{f1(x_of(b) - x_of(a))}" height="{ph}"><title>{esc(tip)}</title></rect>')
             k += 1
         st, ratio = tracking(key)
-        s.text(428, y0 - 6, f"{st['left'][0]:.0f} % / {st['right'][0]:.0f} %, turn ratio {mean(ratio):.2f}", "t-muted", "end")
-    s.text(14, top0 + 16 + ph / 2, "rad/s", "t-muted", "middle")
+        s.text(48, y0 - 6, f"left / right wheel {st['left'][0]:.0f} % / {st['right'][0]:.0f} % of the command, true / odometry turn {mean(ratio):.2f}", "t-muted")
+    s.text(14, top0 + 30 + ph / 2, "rad/s", "t-muted", "middle")
     return s
 
 
 fig_speeds = figure(speed_figure(),
                     "Experiment E3: Remo turning on the spot to the left at 0.5 rad/s for 3 s, with its sphere "
-                    "collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Top right: "
+                    "collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Below each title: "
                     "the left / right wheel's mean speed as a share of the command over the last 2 s of the command, "
                     "and the true turn over the odometry's, both from the two runs.")
 
@@ -402,8 +402,9 @@ for key, title in SPEED_PANELS + [("remo-combined", "Friction 200, kp 1e12 and k
                     f"{st['right'][0]:.0f} %, sd up to {st['right'][1]:.3f} rad/s", ", ".join(f"{r:.3f}" for r in ratio)])
 speeds_data = data_block(
     ["Contact setting", "Left wheel", "Right wheel", "True / odometry turn, two runs"], e3_rows,
-    "Experiment E3. Two runs per setting; the joint states arrive at 50 Hz, so faster oscillations "
-    "don't show. Every sample of the left turns is in scripts/figures/data/wheel-dynamics-speeds.csv.")
+    "Experiment E3. Two runs per setting. These are 50 Hz samples of the joint states: faster motion "
+    "may alias, so the traces and standard deviations don't rule out rapid oscillations. Every sample "
+    "of the left turns is in scripts/figures/data/wheel-dynamics-speeds.csv.")
 
 open("includes/wheel-dynamics-contacts.html", "w").write(STYLE + "\n" + fig_contacts + fig_turn + contacts_data)
 open("includes/wheel-dynamics-sinkage.html", "w").write(fig_sink + sink_data)

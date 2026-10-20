@@ -57,14 +57,14 @@ On flat ground, a sphere with the wheel's radius touches at one point in the whe
 
 *Predict before you look:* if the effective separation grows while the wheel speeds stay the same, does the robot turn more or less than its odometry says?
 
-**Experiment E1** changes only the drive wheels' collision, cylinder or sphere, on both robots. Each robot turns 1.5 rad on the spot to the left and to the right, three times each, in a fresh simulation per run.
+**Experiment E1** changes only the drive wheels' collision, cylinder or sphere, on both robots. Each robot is commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s), to the left and then to the right, three times, in a fresh simulation per run.
 
 --8<-- "includes/wheel-dynamics-contacts.html"
 
-In every run, the wheels follow their commands (Remo's within 1 %, DiffBot's within about 7 %), so the motor isn't what differs:
+In every run, the wheels' mean speeds over the last 2 s of the command are close to their commands (Remo's within 1.2 %, DiffBot's within about 7 %), so the motor isn't what differs:
 
 - **Spheres:** the true turn is 0.98 to 0.99 of the odometry's on DiffBot, and 1.000 on Remo.
-- **Cylinders:** DiffBot turns 0.847 of its odometry's angle in all six turns, the ratio that contacts at the outer edges predict, 0.138 m / 0.163 m. Remo turns 0.852 to the left, again its outer-edge ratio, but 0.87 to the right, and once 1.21.
+- **Cylinders:** DiffBot turns about 0.847 of its odometry's angle in all six turns, the ratio that contacts at the outer edges predict, 0.138 m / 0.163 m. Remo turns 0.852 to the left, again its outer-edge ratio, but 0.87 to the right in these runs, and once 1.21.
 
 So the cylinders' contacts act as if they were at the outer edges, or less predictably; the experiment shows their effect, not where the contact forces act. On flat ground, a sphere puts the effective contact where the kinematic model assumes it.
 
@@ -197,7 +197,7 @@ The wheel's velocity loop works against the contact: the ground decides how much
 
 --8<-- "includes/wheel-dynamics-wheel-speeds.html"
 
-Friction 200 and damping 0 don't change anything measurable. The stiffness alone does: with $k_p = 10^{12}$, the wheels miss their commands, one at 122 % and the other at 71 %, and the robot turns only 0.76 of what its odometry says. All three changes together behave like the stiffness alone. So in this configuration, the contact stiffness decides; the experiment doesn't show why. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states arrive at 50 Hz, so oscillations faster than that don't show here.
+Friction 200 and damping 0 don't change anything measurable. The stiffness alone does: with $k_p = 10^{12}$, the wheels miss their commands, one at 122 % and the other at 71 %, and the robot turns only 0.76 of what its odometry says. All three changes together behave like the stiffness alone. So in this configuration, the contact stiffness decides; the experiment doesn't show why. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states are 50 Hz samples: faster motion may alias, so these traces and standard deviations don't rule out rapid oscillations.
 
 ## Why the time step matters
 
