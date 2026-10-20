@@ -10,40 +10,60 @@ tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, u
 
 ## Tuning the simulated robot
 
-How a simulated robot drives depends on more than its kinematics: on its collision shapes, masses, contact settings and the gains of its simulated motors. [Wheel Dynamics in Simulation](theory/modeling-control/wheel-dynamics-simulation.md) explains what each of them does. This section lists DiffBot's and Remo's values and how to tune them.
+How a simulated robot drives depends on more than its kinematics: on its collision shapes, masses, contact settings and the gains of its simulated motors. [Wheel Dynamics in Simulation](theory/modeling-control/wheel-dynamics-simulation.md) explains what each of them does. This section lists DiffBot's and Remo's settings, why they have these values, and how to tune them.
 
 ### The current settings
 
-| Setting | DiffBot | Remo | Where | Status |
+**Basis** says where a value comes from: *measured* on the robot, *derived* from other values, Gazebo's *default*, *selected* and tested in the simulation, a *placeholder*, or *not modeled*. **Reason / limitation** says what the value is for and what it doesn't cover.
+
+#### Geometry and mass
+
+| Setting | DiffBot | Remo | Basis | Reason / limitation |
 |---|---|---|---|---|
-| Wheel radius | 0.0333 m | 0.0330 m | `front_wheel.yaml` (URDF) and `geometry.yaml` (controller) | measured: half the mean of the two wheels' diameters |
-| Wheel separation | 0.138 m | 0.144 m | `front_wheel.yaml` (`y_offset`) and `geometry.yaml` | measured, center to center |
-| Wheel width | 0.025 m | 0.025 m | `front_wheel.yaml` (`length`) | measured |
-| Wheel collision | sphere with the wheel radius | sphere with the wheel radius | `common_macros.urdf.xacro` | chosen in [diffbot#120](https://github.com/ros-mobile-robots/diffbot/pull/120) and [remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2): cylinders touched the ground at their outer edges |
-| Wheel mass | 0.5 kg | 0.032 kg | `front_wheel.yaml` | Remo: weighed; DiffBot: a placeholder, its wheels weigh 32 g too ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)) |
-| Wheel inertia about the axle, $\frac{1}{2} m r^2$ | $2.8 \cdot 10^{-4}$ kg m² | $1.74 \cdot 10^{-5}$ kg m² | computed by `cylinder_inertia` in `common_macros.urdf.xacro` | follows the mass and radius |
-| Friction `mu1`, `mu2` | 1, 1 | 1, 1 | Remo: `robot.gazebo.xacro`, with the `friction` argument of `remo.urdf.xacro` | DiffBot: Gazebo's defaults; Remo: chosen in remo_description#2, rubber on a floor |
-| `fdir1` | none | none | | a sphere's `fdir1` would turn with the wheel |
-| Contact `kp`, `kd` | $10^{12}$ N/m, 1 N s/m | $10^{7}$ N/m, 1 N s/m | Remo: `robot.gazebo.xacro` | DiffBot: defaults; Remo: chosen in remo_description#2, so its wheels follow their commands on the sphere |
-| `minDepth`, `maxVel` | 0 m, 0.01 m/s | 0 m, 0.01 m/s | Remo: `robot.gazebo.xacro` | DiffBot: defaults; Remo: `minDepth` 0 in remo_description#2, so its wheels don't sink |
-| Wheel velocity PID `p`, `i`, `d` | 0.06, 0.6, 0 | 0.03, 0.6, 0 | `diffbot_control/config/<model>/pid.yaml` | chosen in [diffbot#121](https://github.com/ros-mobile-robots/diffbot/pull/121); Remo's P below the free-wheel limit of about 0.035 |
-| `i_clamp`, `antiwindup` | 0.05 N m, true | 0.05 N m, true | `pid.yaml` | chosen in diffbot#121 |
-| Wheel torque limit | none | none | a `<limit effort="...">` on the wheel joint | not set |
-| Physics | ODE, quick solver with 150 iterations, 1 ms step | the same | `diffbot_gazebo/worlds/diffbot_empty.world`, the simulation test's world; other worlds differ, for example `playground.world` with a 10 ms step | from the original worlds |
+| Wheel radius | 0.0333 m | 0.0330 m | measured | Half the mean of the two wheels' diameters. The loaded rolling radius isn't measured. |
+| Wheel separation | 0.138 m | 0.144 m | measured | Center to center, as the kinematic model and odometry use it. |
+| Wheel width | 0.025 m | 0.025 m | measured | Used for the inertia; the collision is a sphere. |
+| Wheel collision | sphere with the wheel radius | sphere with the wheel radius | selected, tested on flat ground | Puts an upright wheel's ideal contact in its center plane, where the kinematic model assumes it. It doesn't reproduce a tire's footprint, or contacts on slopes and edges. |
+| Wheel mass | 0.5 kg | 0.032 kg | DiffBot: placeholder; Remo: measured | DiffBot's wheels weigh 32 g too; its mass and gains are corrected together ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)). |
+| Wheel inertia about the axle | $2.8 \cdot 10^{-4}$ kg m² | $1.74 \cdot 10^{-5}$ kg m² | derived: $\frac{1}{2} m r^2$ of a solid cylinder | Follows the mass and radius, independent of the collision shape. A real wheel with a heavy tire has somewhat more. |
+| Robot mass, model / weighed | 2640 g / about 895 g | 1154 g / 1303 g | model: sum of the links; weighed | DiffBot's model still has placeholders; its 895 g are 705 g weighed without its RPLidar A2M8 plus the lidar's 190 g from its datasheet. Remo's model lacks about 149 g, for example cables and screws. |
 
-The files: [`front_wheel.yaml` (DiffBot)](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_description/config/diffbot/front_wheel.yaml), [`front_wheel.yaml` (Remo)](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/config/remo/front_wheel.yaml), [`geometry.yaml`](https://github.com/ros-mobile-robots/diffbot/tree/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config), [DiffBot's wheel collision](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_description/urdf/include/common_macros.urdf.xacro#L55-L70), [Remo's wheel collision](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/common_macros.urdf.xacro#L55-L70), [Remo's contacts](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/robot.gazebo.xacro#L39-L66), [`pid.yaml` (DiffBot)](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config/diffbot/pid.yaml), [`pid.yaml` (Remo)](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config/remo/pid.yaml) and [the test world](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_gazebo/worlds/diffbot_empty.world#L13-L32).
+Sources: [`front_wheel.yaml` (DiffBot)](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_description/config/diffbot/front_wheel.yaml), [`front_wheel.yaml` (Remo)](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/config/remo/front_wheel.yaml), [`geometry.yaml`](https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config), the wheel collision and `cylinder_inertia` in [DiffBot's](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_description/urdf/include/common_macros.urdf.xacro#L55-L70) and [Remo's](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/common_macros.urdf.xacro#L55-L70) `common_macros.urdf.xacro`.
 
-Both robots' wheels weigh 32 g. Ready to drive, Remo weighs 1303 g, and DiffBot about 895 g: 705 g weighed without its RPLidar A2M8, which weighs 190 g according to its datasheet. Remo's model has its weighed parts, 1154 g in all. DiffBot's model still has placeholders, 2640 g in all, with 0.5 kg per wheel. With its real 32 g wheels, DiffBot's wheel inertia drops to about Remo's, and its P gain of 0.06 would be above the free-wheel limit: the masses and the gains have to change together, in a follow-up of diffbot#118.
+#### Contacts
+
+| Setting | DiffBot | Remo | Basis | Reason / limitation |
+|---|---|---|---|---|
+| Friction `mu1`, `mu2` | 1, 1 | 1, 1 | DiffBot: default; Remo: selected | A usual order of magnitude for rubber on a hard floor, not measured for these tires and floors. Gazebo uses the smaller coefficient of the wheel and the ground. Friction 200 changed nothing measurable in Remo's wheel tracking ([experiment E3](theory/modeling-control/wheel-dynamics-simulation.md#which-contact-setting-changes-wheel-tracking)). |
+| `fdir1` | not set | not set | selected | A sphere's collision frame spins with the wheel, so a fixed `fdir1` would tilt into the contact normal. |
+| Contact `kp`, `kd` | $10^{12}$ N/m, 1 N s/m | $10^{7}$ N/m, 1 N s/m | DiffBot: default; Remo: selected | With the stiff default, Remo's light wheels missed their commands; damping 0 alone made no difference ([experiment E3](theory/modeling-control/wheel-dynamics-simulation.md#which-contact-setting-changes-wheel-tracking)). DiffBot's wheels follow their commands with the default, but with their placeholder mass. |
+| `minDepth` | 0 | 0 | DiffBot: default; Remo: selected | With Remo's compliant contacts, a positive value let the wheels creep into the ground. Zero is the tested choice for these wheels, not a universal rule. |
+| `maxVel` | 0.01 m/s | 0.01 m/s | default | Limits how fast a penetration is corrected. |
+
+Sources: [Remo's contacts](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/robot.gazebo.xacro#L39-L66), with the `friction` argument of [`remo.urdf.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/remo.urdf.xacro). DiffBot's wheels set none, so Gazebo's defaults apply.
+
+#### Control and world
+
+| Setting | DiffBot | Remo | Basis | Reason / limitation |
+|---|---|---|---|---|
+| Wheel velocity PID `p`, `i`, `d` | 0.06, 0.6, 0 | 0.03, 0.6, 0 | selected, tested at a 1 ms step | Remo's P is below its free-wheel limit of about 0.035. DiffBot's P suits its placeholder wheel mass, not 32 g wheels. Neither is shown to be optimal. |
+| `i_clamp`, `antiwindup` | 0.05 N m, true | 0.05 N m, true | selected | The I term can supply up to 0.05 N m; without `i_clamp`, an I gain does nothing. |
+| Wheel torque limit | none | none | not modeled | A real motor has a stall torque. |
+| Physics | ODE, quick solver with 150 iterations, 1 ms step | the same | inherited from the world | The simulation test's `diffbot_empty.world`. Other worlds differ, for example `playground.world` with a 10 ms step, and the gains depend on the step. |
+
+Sources: `pid.yaml` of [DiffBot](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config/diffbot/pid.yaml) and [Remo](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config/remo/pid.yaml), [the test world](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_gazebo/worlds/diffbot_empty.world#L13-L32).
+
+How these values were found: [diffbot#119](https://github.com/ros-mobile-robots/diffbot/pull/119) (geometry), [diffbot#120](https://github.com/ros-mobile-robots/diffbot/pull/120) and [remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2) (collisions and contacts), [diffbot#121](https://github.com/ros-mobile-robots/diffbot/pull/121) (gains); the masses are still open in [diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118).
 
 ### How to tune
 
-Tune the model in this order, so that a later step doesn't hide an error of an earlier one:
+Tune the model in this order, so that a later step doesn't hide an error of an earlier one. One error can hide another: for example, wheels that sink into the ground can change where they touch it. So after each fix, go through the later steps again.
 
 1. **Geometry and inertia first.** Measure the wheel diameters and their separation, center to center, and enter them in the URDF's `front_wheel.yaml` and the controller's `geometry.yaml`. Check the expanded URDF with `xacro`: the wheel joints' distance, the collision radius, and an inertia whose $\frac{1}{2} m r^2$ is about the joint axis.
 2. **Record a baseline.** Note the world, its time step and solver (the gains depend on the time step), and run the [simulation test](development/simulation-test.md): the odometry and the true pose, driving straight and turning on the spot.
-3. **Check the spawn.** The robot has to stay at its spawn pose without NaN velocities, and its wheels have to stay on the ground: a wheel link's height above the ground should stay at its radius over a minute (`/gazebo/link_states`).
-4. **Wheel speed tracking.** Turn on the spot in both directions and drive straight, and compare the wheel joints' speeds in `/diffbot/joint_states` with the commanded ones: their mean and their standard deviation. A speed error that stays is a job for the I term; jitter points to the contacts. Keep P below the free-wheel limit $2J/h$.
-5. **Agreement with the true motion.** Compare the odometry with the true pose. If the wheels follow their commands and the robot still turns differently, look at where and how the wheels touch the ground: the collision shape, friction and contact settings, not the gains.
+3. **Check the spawn and the settling.** The robot has to stay at its spawn pose without NaN velocities, and its wheels have to stay on the ground: a wheel link's height above the ground should stay at its radius over a minute (`/gazebo/link_states`). *Example:* with compliant contacts and a positive `minDepth`, Remo's wheels crept about 8 mm into the ground within a minute, and the turn test still passed. Only the height showed it.
+4. **Wheel speed tracking.** Turn on the spot in both directions and drive straight, and compare the wheel joints' speeds in `/diffbot/joint_states` with the commanded ones: their mean and their standard deviation. A lasting error can come from the controller, a torque limit or the contact load; jitter can come from contact solving or an unstable loop. Keep P below the free-wheel limit $2J/h$. *Example:* with a P gain alone, Remo's wheels reached only about 80 % of the command when turning on the spot, because turning needs torque; an I term with `i_clamp` removed the error.
+5. **Agreement with the true motion.** Compare the odometry with the true pose. *Example:* wheel speeds within 1 % of the command, but a true turn of only about 0.85 of the odometry's. Then test the effective contact separation, for example with a different collision shape, and keep the controller as it is.
 6. **One change at a time.** After each change, repeat straight driving and turns in both directions, for both robots, and run each case more than once to see how much the results vary.
 
 Don't compensate one error with another setting: a wrong geometry with gains, or an unstable velocity loop with heavier wheels than the real ones. The simulation test catches regressions, but passing it doesn't make the simulation accurate at other speeds, on other floors or slopes.
