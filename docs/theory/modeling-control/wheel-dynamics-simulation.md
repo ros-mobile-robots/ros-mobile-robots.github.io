@@ -18,7 +18,7 @@ A URDF link has three separate descriptions ([URDF link specification](https://w
 - **Collision:** the geometry that the physics engine checks for contacts. Its shape decides where the wheel touches the ground.
 - **Inertial:** the mass, the center of mass and the inertia tensor. They decide how the wheel accelerates under a torque.
 
-They don't have to agree. DiffBot's and Remo's wheels look like their mesh, collide as a simple shape and have the inertia of a solid cylinder.
+They don't have to agree. DiffBot's and Remo's wheels look like their mesh, collide as a sphere and have the inertia of a solid cylinder. The collision shape only decides where the wheel touches the ground; the inertia follows how the real wheel's mass is distributed ([Mass and inertia](#mass-and-inertia)).
 
 ### The collision shape decides where the contacts are
 
@@ -30,7 +30,7 @@ Both robots showed exactly this with cylinder collisions. DiffBot turned on the 
 
 --8<-- "includes/wheel-dynamics-contacts.html"
 
-A sphere also has limits: it only represents an upright wheel on flat ground. On a slope or an edge it can touch the ground beside the real tire. And the collision shape doesn't change the inertia: a wheel with a sphere collision still has the inertia of its real shape, here a cylinder.
+A sphere also has limits: it only represents an upright wheel on flat ground. On a slope or an edge it can touch the ground beside the real tire. And the collision shape doesn't change the inertia: a wheel with a sphere collision still has the inertia of its real shape, here approximated by a solid cylinder.
 
 ### Mass and inertia
 
@@ -39,6 +39,8 @@ For a wheel that spins about its axle, the inertia that matters is the one about
 $$
 J = \frac{1}{2} m r^2 .
 $$
+
+A sphere collision doesn't make the wheel a sphere: a solid sphere's $\frac{2}{5} m r^2$ would be 20 % less than the cylinder's. A real wheel, with much of its mass in the tire at the rim, lies between the solid cylinder and a thin ring, $m r^2$; the solid cylinder is the models' approximation.
 
 A torque $\tau$ on the wheel accelerates it at $\dot{\omega} = \tau / J$, so a light wheel responds faster to the same torque. That is good for following commands, and it also makes the velocity loop easier to destabilize ([below](#time-step-and-stability-of-the-velocity-loop)). Remo's 32 g wheels with a radius of 0.033 m have $J = 0.5 \cdot 0.032 \cdot 0.033^2 = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}$.
 
