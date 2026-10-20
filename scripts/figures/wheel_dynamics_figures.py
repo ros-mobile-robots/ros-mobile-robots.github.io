@@ -2,18 +2,21 @@
 SVG that follows the site's light and dark colors:
 
 - includes/wheel-dynamics-contacts.html: where a cylinder and a sphere touch the ground (front
-  view of DiffBot's drive wheels, to scale), and the measured turn of both robots with each
-  collision, against the turn that the contact positions predict. It has the styles for all
-  figures on the page;
-- includes/wheel-dynamics-wheel-speeds.html: Remo's wheel speeds while it turns on the spot, for
-  three wheel models, from scripts/figures/data/remo-wheel-speeds.csv;
-- includes/wheel-dynamics-sinkage.html: how far Remo's wheels sink into the ground at rest, for
-  three minDepth values;
+  view of DiffBot's drive wheels, to scale), and experiment E1: the true turn over the odometry's
+  turn with each collision, against the ratio that outer-edge contacts predict. It has the styles
+  for all figures on the page;
+- includes/wheel-dynamics-sinkage.html: experiment E2, how far Remo's wheels sink into the ground
+  at rest, for three minDepth values;
+- includes/wheel-dynamics-wheel-speeds.html: experiment E3, Remo's wheel speeds while it turns on
+  the spot, with the reference contacts and with one contact setting changed;
 - includes/wheel-dynamics-stability.html: the error of a P velocity loop on a free wheel, step by
   step, for four values of P h / J.
 
-The measurements come from the sweeps for remo_description#2 and diffbot#120, in diffbot's dev
-container image; each data list names its run. The series colors are the first three slots of a
+The experiments ran in diffbot's dev container image, with diffbot b896a3a and remo_description
+ba0b2c5, one fresh simulation per run; their data is in scripts/figures/data/ (wheel-dynamics-runs.jsonl:
+E1 and E3, wheel-dynamics-sinkage.jsonl: E2, wheel-dynamics-speeds.csv: E3's left turns). Each run
+changes one setting of the reference model: DiffBot as merged (sphere collision, Gazebo's default
+contacts) or Remo as merged (sphere, friction 1, kp 1e7, kd 1, minDepth 0, no fdir1). The series colors are the first three slots of a
 categorical palette that was checked for color vision deficiencies, with its own steps for the
 dark scheme; every series also has a direct label or its own marker shape, and the page has the
 data as tables. Hovering a point shows its values.
@@ -24,7 +27,9 @@ Run from the repository root after changing a figure:
 """
 
 import csv
+import json
 import math
+from statistics import mean
 
 STYLE = """<style>
 .md-typeset figure.wd-figure{margin:1em auto;width:100%;max-width:500px}
@@ -177,119 +182,63 @@ fig_contacts = figure(contacts, "Front view of DiffBot's drive wheels, to scale.
                                 "positions that explain the turn ratios below. The dashed circle is the sphere collision; "
                                 "changing it leaves the model's visual and cylinder inertia unchanged.")
 
-# --- Measured turn with each collision -------------------------------------------------------
-# True turn / odometry turn, turning 1.5 rad on the spot. Predicted for contacts at the outer
-# edges: separation / (separation + width); for the center plane: 1.
-# DiffBot cylinder: diffbot#119's head with the measured geometry, before #120 (1.14 / 1.35 rad).
-# DiffBot sphere: tests13, three suites at diffbot#122 (1.470-1.473 / 1.499-1.501 rad).
-# Remo cylinder: sweep S2, cylinder with minDepth 0 and remo_description#2's contacts
-# (1.278-1.279 / 1.500-1.501 rad). Remo sphere: tests13 (1.497-1.499 / 1.497-1.499 rad).
-TURNS = [
-    ("DiffBot", 0.138, 0.025, (1.14, 1.35), (1.472, 1.500)),
-    ("Remo", 0.144, 0.025, (1.2785, 1.5005), (1.498, 1.498)),
-]
-turn = Svg("wd-turn", 440, 168, "Measured true turn over the odometry's turn, with a cylinder and a sphere collision")
-x_of = lambda v: 110 + (v - 0.80) / 0.22 * 310
-top, bottom = 44, 128
-for v in (0.80, 0.85, 0.90, 0.95, 1.00):
-    turn.line(x_of(v), top - 8, x_of(v), bottom, "grid")
-    turn.text(x_of(v), bottom + 14, f"{v:.2f}", "t-muted", "middle")
-turn.text(x_of(0.91), bottom + 30, "true turn / odometry turn", "t-muted", "middle")
-turn.line(x_of(1.0), top - 8, x_of(1.0), bottom, "ref")
-turn.text(x_of(1.0) - 4, top - 12, "center plane: 1", "t-muted", "end")
-turn.legend(110, 16, [("square", "f2", "cylinder"), ("circle", "f1", "sphere"), ("ref", "", "predicted")])
-for i, (name, sep, width, cyl, sph) in enumerate(TURNS):
-    y = top + 20 + i * 44
-    turn.text(100, y + 4, name, "", "end")
+# --- E1: true turn over the odometry's turn with each collision -------------------------------
+RUNS = [json.loads(line) for line in open("scripts/figures/data/wheel-dynamics-runs.jsonl")]
+GEOM = {"diffbot": (0.138, 0.025), "remo": (0.144, 0.025)}
+ROWS = [("diffbot", "left"), ("diffbot", "right"), ("remo", "left"), ("remo", "right")]
+NAMES = {"diffbot": "DiffBot", "remo": "Remo"}
+
+
+def e1(robot, shape, turn):
+    rs = [r for r in RUNS if r["experiment"] == "E1" and r["config"] == f"{robot}-{shape}"]
+    return [(r["repeat"], r[turn]["true"]["turned"], r[turn]["odom"]["turned"]) for r in rs]
+
+
+turn = Svg("wd-turn", 440, 214, "Experiment E1: the true turn over the odometry's turn with a cylinder and a sphere collision")
+lo, hi = 0.80, 1.06
+x_of = lambda v: 118 + (min(v, hi) - lo) / (hi - lo) * 300
+top = 44
+for v in (0.80, 0.85, 0.90, 0.95, 1.00, 1.05):
+    turn.line(x_of(v), top - 8, x_of(v), top + 4 * 34 - 6, "grid")
+    turn.text(x_of(v), top + 4 * 34 + 8, f"{v:.2f}", "t-muted", "middle")
+turn.text(x_of(0.93), top + 4 * 34 + 24, "true turn / odometry turn", "t-muted", "middle")
+turn.line(x_of(1.0), top - 8, x_of(1.0), top + 4 * 34 - 6, "ref")
+turn.text(x_of(1.0) + 4, top - 12, "center plane: 1", "t-muted")
+turn.legend(118, 16, [("square", "f2", "cylinder"), ("circle", "f1", "sphere"), ("ref", "", "outer edges")])
+for i, (robot, way) in enumerate(ROWS):
+    y = top + 12 + i * 34
+    turn.text(108, y + 4, f"{NAMES[robot]}, {way}", "", "end")
+    sep, width = GEOM[robot]
     pred = sep / (sep + width)
-    turn.line(x_of(pred), y - 12, x_of(pred), y + 12, "ref")
-    turn.text(x_of(pred), y - 15, f"outer edges: {pred:.3f}", "t-muted t-halo", "middle")
-    rc, rs = cyl[0] / cyl[1], sph[0] / sph[1]
-    turn.line(x_of(rc), y, x_of(rs), y, "axis")
-    turn.marker(x_of(rc), y, "square", "f2", f"{name}, cylinder: {cyl[0]:.3f} / {cyl[1]:.3f} rad = {rc:.3f}")
-    turn.marker(x_of(rs), y, "circle", "f1", f"{name}, sphere: {sph[0]:.3f} / {sph[1]:.3f} rad = {rs:.3f}")
-    turn.text(x_of(rc), y + 20, f"{rc:.3f}", "t-halo", "middle")
-    turn.text(x_of(rs) - 2, y + 20, f"{rs:.3f}", "t-halo", "middle")
-fig_turn = figure(turn, "The true turn over the odometry's turn, when commanding a 1.5 rad turn on the spot. With cylinders, both "
-                        "robots turned as their contacts at the outer edges predict (dashed); with spheres, as "
-                        "their wheel centers do.")
+    turn.line(x_of(pred), y - 11, x_of(pred), y + 11, "ref")
+    for shape, mark, fill in (("cyl", "square", "f2"), ("ref", "circle", "f1")):
+        for rep, true, odom in e1(robot, shape, way):
+            ratio = abs(true) / abs(odom)
+            x = x_of(ratio) + (rep - 2) * 2.5
+            name = "cylinder" if shape == "cyl" else "sphere"
+            turn.marker(x, y, mark, fill, f"{NAMES[robot]}, {way} turn, {name}, run {rep}: "
+                                          f"{abs(true):.3f} / {abs(odom):.3f} rad = {ratio:.3f}")
+            if ratio > hi:
+                turn.text(x - 8, y - 9, f"{ratio:.2f} →", "t-muted t-halo", "end")
+fig_turn = figure(turn, "Experiment E1: turning 1.5 rad on the spot to the left and to the right, three runs each, with "
+                        "only the drive wheels' collision changed. The dashed ticks are the ratios that contacts at the "
+                        "wheels' outer edges predict: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.")
+turn_rows = []
+for robot, way in ROWS:
+    for shape, name in (("cyl", "cylinder"), ("ref", "sphere")):
+        rs = e1(robot, shape, way)
+        ratios = [abs(t) / abs(o) for _, t, o in rs]
+        trk = [r for r in RUNS if r["experiment"] == "E1" and r["config"] == f"{robot}-{shape}"]
+        tracks = [abs(r[way]["wheels"][w]["mean"]) / abs(r[way]["wheels"][w]["cmd"]) * 100 for r in trk for w in ("left", "right")]
+        turn_rows.append([NAMES[robot], way, name, ", ".join(f"{x:.3f}" for x in ratios),
+                          f"{min(tracks):.0f} %" if round(min(tracks)) == round(max(tracks)) else f"{min(tracks):.0f} to {max(tracks):.0f} %"])
 
-# --- Wheel speeds while turning ----------------------------------------------------------------
-SPEED_PANELS = [
-    ("cylinder-old-contacts", "Cylinder, friction 200, kp 1e12, kd 0 (old model)"),
-    ("sphere-old-contacts", "Sphere, the same contacts, minDepth 0"),
-    ("final", "Sphere, friction 1, kp 1e7, kd 1, minDepth 0 (now)"),
-]
-
-
-def speed_stats(data):
-    """Mean share of the command and standard deviation of each wheel, in the last 2 s of the command."""
-    on = [float(r["t"]) for r in data if float(r["cmd_right"]) != 0]
-    cmd = max(float(r["cmd_right"]) for r in data)
-    win = [r for r in data if on[0] + 1.0 <= float(r["t"]) <= on[-1]]
-    out = {}
-    for c in ("left", "right"):
-        vals = [abs(float(r[c])) for r in win]
-        mean = sum(vals) / len(vals)
-        out[c] = (mean / cmd * 100, math.sqrt(sum((v - mean) ** 2 for v in vals) / len(vals)))
-    return out
-
-
-def speed_figure(rows):
-    ph, gap, top0 = 92, 34, 40
-    h = top0 + len(SPEED_PANELS) * (ph + gap) + 10
-    s = Svg("wd-speeds", 440, h, "Remo's wheel speeds while turning on the spot, for three wheel models")
-    s.legend(48, 16, [("line", "s1", "left wheel"), ("line", "s2", "right wheel"), ("ref", "", "commanded")])
-    t0, t1, vmax = -0.5, 4.0, 3.2
-    x_of = lambda t: 48 + (t - t0) / (t1 - t0) * 382
-    for i, (key, title) in enumerate(SPEED_PANELS):
-        y0 = top0 + i * (ph + gap) + 16
-        y_of = lambda v: y0 + ph / 2 - v / vmax * ph / 2
-        data = [r for r in rows if r["config"] == key]
-        s.text(48, y0 - 6, title, "t-head")
-        for v in (-3, -2, -1, 0, 1, 2, 3):
-            s.line(48, y_of(v), 430, y_of(v), "axis" if v == 0 else "grid")
-            if v in (-3, 0, 3):
-                s.text(42, y_of(v) + 3.5, f"{v}", "t-muted", "end")
-        for t in range(0, 5):
-            if i == len(SPEED_PANELS) - 1:
-                s.text(x_of(t), y0 + ph + 13, f"{t} s", "t-muted", "middle")
-        on = [float(r["t"]) for r in data if float(r["cmd_right"]) != 0]
-        cmd = max(float(r["cmd_right"]) for r in data)
-        for sign in (-1, 1):
-            s.poly([(x_of(t0), y_of(0)), (x_of(on[0]), y_of(0)), (x_of(on[0]), y_of(sign * cmd)),
-                    (x_of(on[-1]), y_of(sign * cmd)), (x_of(on[-1]), y_of(0)), (x_of(t1), y_of(0))], "ref")
-        for col, cls in (("left", "s1"), ("right", "s2")):
-            s.poly([(x_of(float(r["t"])), y_of(max(-vmax, min(vmax, float(r[col]))))) for r in data
-                    if t0 <= float(r["t"]) <= t1], f"ln {cls}")
-        # Hover bands of 0.1 s: the speeds in the middle of each band
-        k = 0
-        while t0 + k * 0.1 < t1 - 1e-9:
-            a, b = t0 + k * 0.1, t0 + (k + 1) * 0.1
-            mid = min(data, key=lambda r: abs(float(r["t"]) - (a + b) / 2))
-            tip = (f"t {float(mid['t']):.2f} s: left {float(mid['left']):.2f}, right {float(mid['right']):.2f} rad/s, "
-                   f"commanded {float(mid['cmd_left']):.2f} / {float(mid['cmd_right']):.2f}")
-            s.add(f'<rect class="band" x="{f1(x_of(a))}" y="{f1(y0)}" width="{f1(x_of(b) - x_of(a))}" height="{ph}"><title>{esc(tip)}</title></rect>')
-            k += 1
-        st = speed_stats(data)
-        s.text(428, y0 + 11, f"{st['left'][0]:.0f} % / {st['right'][0]:.0f} %, sd {st['left'][1]:.2f} / {st['right'][1]:.2f} rad/s",
-               "t-muted t-halo", "end")
-    s.text(14, top0 + 16 + ph / 2, "rad/s", "t-muted", "middle")
-    return s
-
-
-# --- Sinkage at rest --------------------------------------------------------------------------
-# Wheel radius minus the wheel center's height above the ground, the mean of both drive wheels.
-# minDepth 10 mm: Remo with remo_description#2's first version (cylinder, friction 1, kp 1e7,
-# kd 1), run creep (0.5-60 s) and sweep S0 (90 s). minDepth 1 mm: the same with minDepth 0.001,
-# sweep S1. minDepth 0: remo_description#2 now (sphere), tests13.
-SINK = [
-    ("minDepth 10 mm", "s1", "f1", "circle",
-     [(0.5, 0.01), (1, 0.03), (2, 0.165), (5, 0.615), (10, 1.26), (20, 2.795), (40, 5.895), (60, 8.285), (90, 8.34)]),
-    ("minDepth 1 mm", "s2", "f2", "square", [(5, 0.51), (20, 1.00), (60, 1.00), (90, 1.00)]),
-    ("minDepth 0 (now)", "s3", "f3", "diamond", [(5, 0.0), (20, 0.0), (60, 0.0), (90, 0.0)]),
-]
-sink = Svg("wd-sink", 440, 236, "How far Remo's wheels sink into the ground at rest, for three minDepth values")
+# --- E2: sinkage at rest -----------------------------------------------------------------------
+SINKRUNS = [json.loads(line) for line in open("scripts/figures/data/wheel-dynamics-sinkage.jsonl")]
+SINK = [("minDepth 10 mm", "remo-md10", "s1", "f1", "circle"),
+        ("minDepth 1 mm", "remo-md1", "s2", "f2", "square"),
+        ("minDepth 0", "remo-ref", "s3", "f3", "diamond")]
+sink = Svg("wd-sink", 440, 236, "Experiment E2: how far Remo's wheels sink into the ground at rest, for three minDepth values")
 x_of = lambda t: 48 + t / 90 * 330
 y_of = lambda mm: 196 - mm / 10.5 * 160
 for mm in (0, 2, 4, 6, 8, 10):
@@ -299,21 +248,94 @@ for t in (0, 30, 60, 90):
     sink.text(x_of(t), 211, f"{t} s", "t-muted", "middle")
 sink.text(213, 228, "time at rest after the spawn", "t-muted", "middle")
 sink.text(14, y_of(5), "mm", "t-muted", "middle")
-sink.legend(48, 16, [(shape, fill, label) for label, _, fill, shape, _ in SINK])
-for mm, label in ((10, "minDepth 10 mm, configured"), (1, "1 mm")):
-    sink.line(48, y_of(mm), 378, y_of(mm), "ref")
-    sink.text(54, y_of(mm) - 4, label, "t-muted t-halo")
-for label, cls, fill, shape, pts in SINK:
-    sink.poly([(x_of(t), y_of(v)) for t, v in pts], f"ln {cls}")
-    for t, v in pts:
-        # The first seconds' points stay in the line, the tooltips and the table, without markers
-        sink.marker(x_of(t), y_of(v), shape, fill, f"{label}: {v:.2f} mm after {t:g} s", visible=t >= 5)
-    t, v = pts[-1]
-    sink.text(x_of(t) + 10, y_of(v) + 4, f"{v:.1f} mm" if v else "0 mm", "t-halo")
-fig_sink = figure(sink, "Remo at rest: the wheel radius minus the wheel center's height. A positive minDepth isn't a "
-                        "limit: the wheels crept to 8.3 mm with 10 mm configured, and to the configured 1 mm. "
-                        "The first two runs had remo_description#2's first version, with cylinders; "
-                        "the third has its sphere.")
+sink.legend(48, 16, [(shape, fill, label) for label, _, _, fill, shape in SINK])
+sink.line(48, y_of(10), 378, y_of(10), "ref")
+sink.text(54, y_of(10) - 4, "configured 10 mm", "t-muted t-halo")
+sink_series = {}
+for label, key, cls, fill, shape in SINK:
+    runs = [r for r in SINKRUNS if r["config"] == key]
+    times = [smp["t"] for smp in runs[0]["samples"]]
+    vals = [[v for r in runs for smp in r["samples"] if smp["t"] == t for v in (smp["left_mm"], smp["right_mm"])] for t in times]
+    pts = [(t, mean(v), min(v), max(v)) for t, v in zip(times, vals)]
+    sink_series[label] = pts
+    sink.poly([(x_of(t), y_of(m)) for t, m, _, _ in pts], f"ln {cls}")
+    for t, m, a, b in pts:
+        sink.marker(x_of(t), y_of(m), shape, fill, f"{label}: {m:.2f} mm after {t:g} s (both wheels, two runs: {a:.2f} to {b:.2f} mm)",
+                    visible=t in (5, 20, 40, 60, 90))
+    t, m, _, _ = pts[-1]
+    sink.text(x_of(t) + 10, y_of(m) + 4, f"{m:.1f} mm" if m >= 0.005 else "0 mm", "t-halo")
+fig_sink = figure(sink, "Experiment E2: Remo at rest with its sphere collisions and compliant contacts, two runs per value; "
+                        "the penetration is the wheel radius minus the wheel center's height. A positive minDepth isn't a "
+                        "limit: the wheels crept to 8.3 mm with 10 mm configured, and to the configured 1 mm.")
+
+# --- E3: wheel speeds with one contact setting changed -------------------------------------------
+SPEED_PANELS = [
+    ("remo-ref", "Reference: friction 1, kp 1e7, kd 1"),
+    ("remo-mu200", "Friction 200 only"),
+    ("remo-kp1e12", "Contact stiffness kp 1e12 only"),
+    ("remo-kd0", "Contact damping kd 0 only"),
+]
+with open("scripts/figures/data/wheel-dynamics-speeds.csv") as f:
+    speed_rows = list(csv.DictReader(f))
+
+
+def tracking(config, way="left"):
+    """Each wheel's mean share of the command and its standard deviation, over the runs (E3)."""
+    rs = [r for r in RUNS if r["experiment"] == "E3" and r["config"] == config]
+    out = {}
+    for w in ("left", "right"):
+        out[w] = (mean(abs(r[way]["wheels"][w]["mean"]) / abs(r[way]["wheels"][w]["cmd"]) * 100 for r in rs),
+                  max(r[way]["wheels"][w]["sd"] for r in rs))
+    ratio = [abs(r[way]["true"]["turned"]) / abs(r[way]["odom"]["turned"]) for r in rs]
+    return out, ratio
+
+
+def speed_figure():
+    ph, gap, top0 = 80, 34, 40
+    h = top0 + len(SPEED_PANELS) * (ph + gap) + 10
+    s = Svg("wd-speeds", 440, h, "Experiment E3: Remo's wheel speeds while turning on the spot, with one contact setting changed")
+    s.legend(48, 16, [("line", "s1", "left wheel"), ("line", "s2", "right wheel"), ("ref", "", "commanded")])
+    t0, t1, vmax = -0.5, 4.0, 2.4
+    x_of = lambda t: 48 + (t - t0) / (t1 - t0) * 382
+    for i, (key, title) in enumerate(SPEED_PANELS):
+        y0 = top0 + i * (ph + gap) + 16
+        y_of = lambda v: y0 + ph / 2 - v / vmax * ph / 2
+        data = [r for r in speed_rows if r["config"] == key and r["repeat"] == "1"]
+        s.text(48, y0 - 6, title, "t-head")
+        for v in (-2, -1, 0, 1, 2):
+            s.line(48, y_of(v), 430, y_of(v), "axis" if v == 0 else "grid")
+            if v in (-2, 0, 2):
+                s.text(42, y_of(v) + 3.5, f"{v}", "t-muted", "end")
+        if i == len(SPEED_PANELS) - 1:
+            for t in range(0, 5):
+                s.text(x_of(t), y0 + ph + 13, f"{t} s", "t-muted", "middle")
+        on = [float(r["t"]) for r in data if float(r["cmd_right"]) != 0]
+        cmd = max(float(r["cmd_right"]) for r in data)
+        for sign in (-1, 1):
+            s.poly([(x_of(t0), y_of(0)), (x_of(on[0]), y_of(0)), (x_of(on[0]), y_of(sign * cmd)),
+                    (x_of(on[-1]), y_of(sign * cmd)), (x_of(on[-1]), y_of(0)), (x_of(t1), y_of(0))], "ref")
+        for col, cls in (("left", "s1"), ("right", "s2")):
+            s.poly([(x_of(float(r["t"])), y_of(max(-vmax, min(vmax, float(r[col]))))) for r in data
+                    if t0 <= float(r["t"]) <= t1], f"ln {cls}")
+        k = 0
+        while t0 + k * 0.1 < t1 - 1e-9:
+            a, b = t0 + k * 0.1, t0 + (k + 1) * 0.1
+            mid = min(data, key=lambda r: abs(float(r["t"]) - (a + b) / 2))
+            tip = (f"t {float(mid['t']):.2f} s: left {float(mid['left']):.2f}, right {float(mid['right']):.2f} rad/s, "
+                   f"commanded {float(mid['cmd_left']):.2f} / {float(mid['cmd_right']):.2f}")
+            s.add(f'<rect class="band" x="{f1(x_of(a))}" y="{f1(y0)}" width="{f1(x_of(b) - x_of(a))}" height="{ph}"><title>{esc(tip)}</title></rect>')
+            k += 1
+        st, ratio = tracking(key)
+        s.text(428, y0 - 6, f"{st['left'][0]:.0f} % / {st['right'][0]:.0f} %, turn ratio {mean(ratio):.2f}", "t-muted", "end")
+    s.text(14, top0 + 16 + ph / 2, "rad/s", "t-muted", "middle")
+    return s
+
+
+fig_speeds = figure(speed_figure(),
+                    "Experiment E3: Remo turning on the spot to the left at 0.5 rad/s for 3 s, with its sphere "
+                    "collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Top right: "
+                    "the left / right wheel's mean speed as a share of the command over the last 2 s of the command, "
+                    "and the true turn over the odometry's, both from the two runs.")
 
 # --- Stability of the P velocity loop -----------------------------------------------------------
 # e_{k+1} = (1 - P h / J) e_k, from e_0 = 1. Remo: J = 1.7424e-5 kg m^2, h = 1 ms.
@@ -360,36 +382,30 @@ def data_block(header, rows, note=""):
     return out + "".join("    | " + " | ".join(r) + " |\n" for r in rows) + "\n"
 
 
+
 contacts_data = data_block(
-    ["Robot", "Collision", "True / odometry turn", "Ratio", "Predicted"],
-    [r for name, sep, width, cyl, sph in TURNS for r in (
-        [name, "cylinder", f"{cyl[0]:.3f} / {cyl[1]:.3f} rad", f"{cyl[0] / cyl[1]:.3f}",
-         f"{sep:.3f} / {sep + width:.3f} m = {sep / (sep + width):.3f} (outer edges)"],
-        [name, "sphere", f"{sph[0]:.3f} / {sph[1]:.3f} rad", f"{sph[0] / sph[1]:.3f}", "1 (center plane)"])],
-    "DiffBot's cylinder: diffbot#119 with the measured geometry, before #120. Remo's cylinder: "
-    "minDepth 0, with remo_description#2's contacts. Both spheres: remo_description#2 and "
-    "diffbot#122, three suite runs.")
-sink_data = data_block(["Time at rest", *[label for label, *_ in SINK]],
-                       [[f"{t:g} s", *[next((f"{v:.2f} mm" for tt, v in pts if tt == t), "") for _, _, _, _, pts in SINK]]
-                        for t in sorted({t for *_, pts in SINK for t, _ in pts})])
+    ["Robot", "Turn", "Collision", "True / odometry turn, three runs", "Wheel speeds, share of the command"],
+    turn_rows,
+    "Experiment E1. Each run changes only the drive wheels' collision of the robot's reference model; the wheel "
+    "speeds are each wheel's mean over the last 2 s of the command, from the joint states at 50 Hz.")
+sink_times = [t for t, *_ in next(iter(sink_series.values()))]
+sink_data = data_block(["Time at rest", *sink_series],
+                       [[f"{t:g} s", *[f"{pts[i][1]:.2f} mm ({pts[i][2]:.2f} to {pts[i][3]:.2f})" for pts in sink_series.values()]]
+                        for i, t in enumerate(sink_times)],
+                       "Experiment E2. The mean of both wheels in two runs, with their range; a negative value would be clearance.")
 stab_data = data_block(["Step", *[f"P h / J = {g:.2f}" for g, _ in CASES]],
                        [[f"{k}", *[f"{(1 - g) ** k:.3f}" for g, _ in CASES]] for k in range(9)])
-
-
-with open("scripts/figures/data/remo-wheel-speeds.csv") as f:
-    speed_rows = list(csv.DictReader(f))
+e3_rows = []
+for key, title in SPEED_PANELS + [("remo-combined", "Friction 200, kp 1e12 and kd 0 together")]:
+    st, ratio = tracking(key)
+    e3_rows.append([title, f"{st['left'][0]:.0f} %, sd up to {st['left'][1]:.3f} rad/s",
+                    f"{st['right'][0]:.0f} %, sd up to {st['right'][1]:.3f} rad/s", ", ".join(f"{r:.3f}" for r in ratio)])
 speeds_data = data_block(
-    ["Wheel model", "Left wheel", "Right wheel"],
-    [[title, *[f"{st[c][0]:.0f} %, sd {st[c][1]:.2f} rad/s" for c in ("left", "right")]]
-     for key, title in SPEED_PANELS for st in [speed_stats([r for r in speed_rows if r["config"] == key])]],
-    "The mean speed as a share of the command, and its standard deviation, in the last 2 s of "
-    "the command. Every sample is in scripts/figures/data/remo-wheel-speeds.csv.")
-fig_speeds = figure(speed_figure(speed_rows),
-                    "Remo turning on the spot at 0.5 rad/s for 3 s, with diffbot's gains for Remo (P 0.03, I 0.6). "
-                    "Top right in each panel: the left / right wheel's mean speed as a share of the command, and their "
-                    "standard deviations, in the last 2 s of the command.")
+    ["Contact setting", "Left wheel", "Right wheel", "True / odometry turn, two runs"], e3_rows,
+    "Experiment E3. Two runs per setting; the joint states arrive at 50 Hz, so faster oscillations "
+    "don't show. Every sample of the left turns is in scripts/figures/data/wheel-dynamics-speeds.csv.")
 
 open("includes/wheel-dynamics-contacts.html", "w").write(STYLE + "\n" + fig_contacts + fig_turn + contacts_data)
-open("includes/wheel-dynamics-wheel-speeds.html", "w").write(fig_speeds + speeds_data)
 open("includes/wheel-dynamics-sinkage.html", "w").write(fig_sink + sink_data)
+open("includes/wheel-dynamics-wheel-speeds.html", "w").write(fig_speeds + speeds_data)
 open("includes/wheel-dynamics-stability.html", "w").write(fig_stab + stab_data)

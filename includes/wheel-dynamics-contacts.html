@@ -65,54 +65,77 @@
 <figcaption>Front view of DiffBot's drive wheels, to scale. The dots show the effective contact positions that explain the turn ratios below. The dashed circle is the sphere collision; changing it leaves the model's visual and cylinder inertia unchanged.</figcaption>
 </figure>
 <figure class="wd-figure">
-<svg class="wd-fig" viewBox="0 0 440 168" role="img" aria-labelledby="wd-turn-t"><title id="wd-turn-t">Measured true turn over the odometry's turn, with a cylinder and a sphere collision</title><defs></defs>
-<path class="grid" d="M110,36 L110,128"/>
-<text class="t-muted" x="110" y="142" text-anchor="middle">0.80</text>
-<path class="grid" d="M180.5,36 L180.5,128"/>
-<text class="t-muted" x="180.5" y="142" text-anchor="middle">0.85</text>
-<path class="grid" d="M250.9,36 L250.9,128"/>
-<text class="t-muted" x="250.9" y="142" text-anchor="middle">0.90</text>
-<path class="grid" d="M321.4,36 L321.4,128"/>
-<text class="t-muted" x="321.4" y="142" text-anchor="middle">0.95</text>
-<path class="grid" d="M391.8,36 L391.8,128"/>
-<text class="t-muted" x="391.8" y="142" text-anchor="middle">1.00</text>
-<text class="t-muted" x="265" y="158" text-anchor="middle">true turn / odometry turn</text>
-<path class="ref" d="M391.8,36 L391.8,128"/>
-<text class="t-muted" x="387.8" y="32" text-anchor="end">center plane: 1</text>
-<rect class="f2" x="110.5" y="7.5" width="9" height="9" rx="1"/>
-<text class="t-muted" x="124" y="16" text-anchor="start">cylinder</text>
-<circle class="f1" cx="193.4" cy="12" r="4.5"/>
-<text class="t-muted" x="202.4" y="16" text-anchor="start">sphere</text>
-<path class="ref" d="M254.2,12 L270.2,12"/>
-<text class="t-muted" x="275.2" y="16" text-anchor="start">predicted</text>
-<text x="100" y="68" text-anchor="end">DiffBot</text>
-<path class="ref" d="M175.7,52 L175.7,76"/>
-<text class="t-muted t-halo" x="175.7" y="49" text-anchor="middle">outer edges: 0.847</text>
-<path class="axis" d="M172.6,64 L365.5,64"/>
-<g class="pt"><title>DiffBot, cylinder: 1.140 / 1.350 rad = 0.844</title><circle class="hit" cx="172.6" cy="64" r="12"/><rect class="mk f2" x="168.1" y="59.5" width="9" height="9" rx="1"/></g>
-<g class="pt"><title>DiffBot, sphere: 1.472 / 1.500 rad = 0.981</title><circle class="hit" cx="365.5" cy="64" r="12"/><circle class="mk f1" cx="365.5" cy="64" r="4.5"/></g>
-<text class="t-halo" x="172.6" y="84" text-anchor="middle">0.844</text>
-<text class="t-halo" x="363.5" y="84" text-anchor="middle">0.981</text>
-<text x="100" y="112" text-anchor="end">Remo</text>
-<path class="ref" d="M183.4,96 L183.4,120"/>
-<text class="t-muted t-halo" x="183.4" y="93" text-anchor="middle">outer edges: 0.852</text>
-<path class="axis" d="M183.3,108 L391.8,108"/>
-<g class="pt"><title>Remo, cylinder: 1.278 / 1.500 rad = 0.852</title><circle class="hit" cx="183.3" cy="108" r="12"/><rect class="mk f2" x="178.8" y="103.5" width="9" height="9" rx="1"/></g>
-<g class="pt"><title>Remo, sphere: 1.498 / 1.498 rad = 1.000</title><circle class="hit" cx="391.8" cy="108" r="12"/><circle class="mk f1" cx="391.8" cy="108" r="4.5"/></g>
-<text class="t-halo" x="183.3" y="128" text-anchor="middle">0.852</text>
-<text class="t-halo" x="389.8" y="128" text-anchor="middle">1.000</text>
+<svg class="wd-fig" viewBox="0 0 440 214" role="img" aria-labelledby="wd-turn-t"><title id="wd-turn-t">Experiment E1: the true turn over the odometry's turn with a cylinder and a sphere collision</title><defs></defs>
+<path class="grid" d="M118,36 L118,174"/>
+<text class="t-muted" x="118" y="188" text-anchor="middle">0.80</text>
+<path class="grid" d="M175.7,36 L175.7,174"/>
+<text class="t-muted" x="175.7" y="188" text-anchor="middle">0.85</text>
+<path class="grid" d="M233.4,36 L233.4,174"/>
+<text class="t-muted" x="233.4" y="188" text-anchor="middle">0.90</text>
+<path class="grid" d="M291.1,36 L291.1,174"/>
+<text class="t-muted" x="291.1" y="188" text-anchor="middle">0.95</text>
+<path class="grid" d="M348.8,36 L348.8,174"/>
+<text class="t-muted" x="348.8" y="188" text-anchor="middle">1.00</text>
+<path class="grid" d="M406.5,36 L406.5,174"/>
+<text class="t-muted" x="406.5" y="188" text-anchor="middle">1.05</text>
+<text class="t-muted" x="268" y="204" text-anchor="middle">true turn / odometry turn</text>
+<path class="ref" d="M348.8,36 L348.8,174"/>
+<text class="t-muted" x="352.8" y="32" text-anchor="start">center plane: 1</text>
+<rect class="f2" x="118.5" y="7.5" width="9" height="9" rx="1"/>
+<text class="t-muted" x="132" y="16" text-anchor="start">cylinder</text>
+<circle class="f1" cx="201.4" cy="12" r="4.5"/>
+<text class="t-muted" x="210.4" y="16" text-anchor="start">sphere</text>
+<path class="ref" d="M262.2,12 L278.2,12"/>
+<text class="t-muted" x="283.2" y="16" text-anchor="start">outer edges</text>
+<text x="108" y="60" text-anchor="end">DiffBot, left</text>
+<path class="ref" d="M171.8,45 L171.8,67"/>
+<g class="pt"><title>DiffBot, left turn, cylinder, run 1: 1.269 / 1.499 rad = 0.846</title><circle class="hit" cx="169" cy="56" r="12"/><rect class="mk f2" x="164.5" y="51.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>DiffBot, left turn, cylinder, run 2: 1.269 / 1.499 rad = 0.846</title><circle class="hit" cx="171.5" cy="56" r="12"/><rect class="mk f2" x="167" y="51.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>DiffBot, left turn, cylinder, run 3: 1.269 / 1.499 rad = 0.846</title><circle class="hit" cx="173.9" cy="56" r="12"/><rect class="mk f2" x="169.4" y="51.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>DiffBot, left turn, sphere, run 1: 1.483 / 1.498 rad = 0.989</title><circle class="hit" cx="334" cy="56" r="12"/><circle class="mk f1" cx="334" cy="56" r="4.5"/></g>
+<g class="pt"><title>DiffBot, left turn, sphere, run 2: 1.485 / 1.500 rad = 0.990</title><circle class="hit" cx="337.4" cy="56" r="12"/><circle class="mk f1" cx="337.4" cy="56" r="4.5"/></g>
+<g class="pt"><title>DiffBot, left turn, sphere, run 3: 1.470 / 1.500 rad = 0.980</title><circle class="hit" cx="328.6" cy="56" r="12"/><circle class="mk f1" cx="328.6" cy="56" r="4.5"/></g>
+<text x="108" y="94" text-anchor="end">DiffBot, right</text>
+<path class="ref" d="M171.8,79 L171.8,101"/>
+<g class="pt"><title>DiffBot, right turn, cylinder, run 1: 1.292 / 1.525 rad = 0.847</title><circle class="hit" cx="169.6" cy="90" r="12"/><rect class="mk f2" x="165.1" y="85.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>DiffBot, right turn, cylinder, run 2: 1.271 / 1.500 rad = 0.847</title><circle class="hit" cx="172.1" cy="90" r="12"/><rect class="mk f2" x="167.6" y="85.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>DiffBot, right turn, cylinder, run 3: 1.270 / 1.500 rad = 0.847</title><circle class="hit" cx="174.6" cy="90" r="12"/><rect class="mk f2" x="170.1" y="85.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>DiffBot, right turn, sphere, run 1: 1.468 / 1.499 rad = 0.979</title><circle class="hit" cx="322.5" cy="90" r="12"/><circle class="mk f1" cx="322.5" cy="90" r="4.5"/></g>
+<g class="pt"><title>DiffBot, right turn, sphere, run 2: 1.494 / 1.525 rad = 0.980</title><circle class="hit" cx="325.2" cy="90" r="12"/><circle class="mk f1" cx="325.2" cy="90" r="4.5"/></g>
+<g class="pt"><title>DiffBot, right turn, sphere, run 3: 1.470 / 1.499 rad = 0.980</title><circle class="hit" cx="328.7" cy="90" r="12"/><circle class="mk f1" cx="328.7" cy="90" r="4.5"/></g>
+<text x="108" y="128" text-anchor="end">Remo, left</text>
+<path class="ref" d="M178.1,113 L178.1,135"/>
+<g class="pt"><title>Remo, left turn, cylinder, run 1: 1.278 / 1.500 rad = 0.852</title><circle class="hit" cx="175.7" cy="124" r="12"/><rect class="mk f2" x="171.2" y="119.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>Remo, left turn, cylinder, run 2: 1.278 / 1.500 rad = 0.852</title><circle class="hit" cx="178.1" cy="124" r="12"/><rect class="mk f2" x="173.6" y="119.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>Remo, left turn, cylinder, run 3: 1.278 / 1.500 rad = 0.852</title><circle class="hit" cx="180.7" cy="124" r="12"/><rect class="mk f2" x="176.2" y="119.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>Remo, left turn, sphere, run 1: 1.500 / 1.500 rad = 1.000</title><circle class="hit" cx="346.3" cy="124" r="12"/><circle class="mk f1" cx="346.3" cy="124" r="4.5"/></g>
+<g class="pt"><title>Remo, left turn, sphere, run 2: 1.500 / 1.500 rad = 1.000</title><circle class="hit" cx="348.8" cy="124" r="12"/><circle class="mk f1" cx="348.8" cy="124" r="4.5"/></g>
+<g class="pt"><title>Remo, left turn, sphere, run 3: 1.500 / 1.500 rad = 1.000</title><circle class="hit" cx="351.3" cy="124" r="12"/><circle class="mk f1" cx="351.3" cy="124" r="4.5"/></g>
+<text x="108" y="162" text-anchor="end">Remo, right</text>
+<path class="ref" d="M178.1,147 L178.1,169"/>
+<g class="pt"><title>Remo, right turn, cylinder, run 1: 1.812 / 1.500 rad = 1.208</title><circle class="hit" cx="415.5" cy="158" r="12"/><rect class="mk f2" x="411" y="153.5" width="9" height="9" rx="1"/></g>
+<text class="t-muted t-halo" x="407.5" y="149" text-anchor="end">1.21 →</text>
+<g class="pt"><title>Remo, right turn, cylinder, run 2: 1.305 / 1.500 rad = 0.870</title><circle class="hit" cx="198.7" cy="158" r="12"/><rect class="mk f2" x="194.2" y="153.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>Remo, right turn, cylinder, run 3: 1.310 / 1.500 rad = 0.873</title><circle class="hit" cx="205.1" cy="158" r="12"/><rect class="mk f2" x="200.6" y="153.5" width="9" height="9" rx="1"/></g>
+<g class="pt"><title>Remo, right turn, sphere, run 1: 1.501 / 1.501 rad = 1.000</title><circle class="hit" cx="346.3" cy="158" r="12"/><circle class="mk f1" cx="346.3" cy="158" r="4.5"/></g>
+<g class="pt"><title>Remo, right turn, sphere, run 2: 1.501 / 1.501 rad = 1.000</title><circle class="hit" cx="348.8" cy="158" r="12"/><circle class="mk f1" cx="348.8" cy="158" r="4.5"/></g>
+<g class="pt"><title>Remo, right turn, sphere, run 3: 1.500 / 1.500 rad = 1.000</title><circle class="hit" cx="351.3" cy="158" r="12"/><circle class="mk f1" cx="351.3" cy="158" r="4.5"/></g>
 </svg>
-<figcaption>The true turn over the odometry's turn, when commanding a 1.5 rad turn on the spot. With cylinders, both robots turned as their contacts at the outer edges predict (dashed); with spheres, as their wheel centers do.</figcaption>
+<figcaption>Experiment E1: turning 1.5 rad on the spot to the left and to the right, three runs each, with only the drive wheels' collision changed. The dashed ticks are the ratios that contacts at the wheels' outer edges predict: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.</figcaption>
 </figure>
 
 ??? info "The data"
 
-    DiffBot's cylinder: diffbot#119 with the measured geometry, before #120. Remo's cylinder: minDepth 0, with remo_description#2's contacts. Both spheres: remo_description#2 and diffbot#122, three suite runs.
+    Experiment E1. Each run changes only the drive wheels' collision of the robot's reference model; the wheel speeds are each wheel's mean over the last 2 s of the command, from the joint states at 50 Hz.
 
-    | Robot | Collision | True / odometry turn | Ratio | Predicted |
+    | Robot | Turn | Collision | True / odometry turn, three runs | Wheel speeds, share of the command |
     |---|---|---|---|---|
-    | DiffBot | cylinder | 1.140 / 1.350 rad | 0.844 | 0.138 / 0.163 m = 0.847 (outer edges) |
-    | DiffBot | sphere | 1.472 / 1.500 rad | 0.981 | 1 (center plane) |
-    | Remo | cylinder | 1.278 / 1.500 rad | 0.852 | 0.144 / 0.169 m = 0.852 (outer edges) |
-    | Remo | sphere | 1.498 / 1.498 rad | 1.000 | 1 (center plane) |
+    | DiffBot | left | cylinder | 0.846, 0.846, 0.846 | 95 to 106 % |
+    | DiffBot | left | sphere | 0.989, 0.990, 0.980 | 95 to 105 % |
+    | DiffBot | right | cylinder | 0.847, 0.847, 0.847 | 95 to 106 % |
+    | DiffBot | right | sphere | 0.979, 0.980, 0.980 | 99 to 107 % |
+    | Remo | left | cylinder | 0.852, 0.852, 0.852 | 100 % |
+    | Remo | left | sphere | 1.000, 1.000, 1.000 | 100 % |
+    | Remo | right | cylinder | 1.208, 0.870, 0.873 | 99 to 100 % |
+    | Remo | right | sphere | 1.000, 1.000, 1.000 | 100 % |
 
