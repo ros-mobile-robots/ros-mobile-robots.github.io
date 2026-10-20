@@ -5,15 +5,55 @@ categories: [robotics]
 tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, ubuntu, focal, package, gazebo, simulation]
 ---
 
-## Simulate DiffBot in Gazebo
-
-As described in the [Creating your own Gazebo ROS Package](http://gazebosim.org/tutorials?tut=ros_roslaunch#CreatingyourownGazeboROSPackage), it is common in ROS to create a package that contains all the world files and launch files used with Gazebo. These files are located in a ROS package named `/MYROBOT_gazebo`. For DiffBot the package is named `diffbot_gazebo`. Another example that follows best pratices is `rrbot` which can be found in the [gazebo_ros_demos](https://github.com/ros-simulation/gazebo_ros_demos) repository.
-
 !!! tip "Simulation test"
     CI drives DiffBot and Remo in this simulation on every pull request, without a display. [Simulation Test](development/simulation-test.md) shows how Gazebo, `gazebo_ros_control` and the controllers work together.
 
 !!! info "Simulators"
     DiffBot and Remo use Gazebo Classic 11 with ROS Noetic. [Simulators](simulators.md) explains its end of life, the new Gazebo for ROS 2, and other simulators and when to use them.
+
+## Tuning the simulated robot
+
+How a simulated robot drives depends on more than its kinematics: on its collision shapes, masses, contact settings and the gains of its simulated motors. [Wheel Dynamics in Simulation](theory/modeling-control/wheel-dynamics-simulation.md) explains what each of them does. This section lists DiffBot's and Remo's values and how to tune them.
+
+### The current settings
+
+| Setting | DiffBot | Remo | Where | Status |
+|---|---|---|---|---|
+| Wheel radius | 0.0333 m | 0.0330 m | `front_wheel.yaml` (URDF) and `geometry.yaml` (controller) | measured: half the mean of the two wheels' diameters |
+| Wheel separation | 0.138 m | 0.144 m | `front_wheel.yaml` (`y_offset`) and `geometry.yaml` | measured, center to center |
+| Wheel width | 0.025 m | 0.025 m | `front_wheel.yaml` (`length`) | measured |
+| Wheel collision | sphere with the wheel radius | sphere with the wheel radius | `common_macros.urdf.xacro` | chosen in [diffbot#120](https://github.com/ros-mobile-robots/diffbot/pull/120) and [remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2): cylinders touched the ground at their outer edges |
+| Wheel mass | 0.5 kg | 0.032 kg | `front_wheel.yaml` | not weighed; DiffBot has the same wheels as Remo ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)) |
+| Wheel inertia about the axle, $\frac{1}{2} m r^2$ | $2.8 \cdot 10^{-4}$ kg m² | $1.74 \cdot 10^{-5}$ kg m² | computed by `cylinder_inertia` in `common_macros.urdf.xacro` | follows the mass and radius |
+| Friction `mu1`, `mu2` | 1, 1 | 1, 1 | Remo: `robot.gazebo.xacro`, with the `friction` argument of `remo.urdf.xacro` | DiffBot: Gazebo's defaults; Remo: chosen in remo_description#2, rubber on a floor |
+| `fdir1` | none | none | | a sphere's `fdir1` would turn with the wheel |
+| Contact `kp`, `kd` | $10^{12}$ N/m, 1 N s/m | $10^{7}$ N/m, 1 N s/m | Remo: `robot.gazebo.xacro` | DiffBot: defaults; Remo: chosen in remo_description#2, so its wheels follow their commands on the sphere |
+| `minDepth`, `maxVel` | 0 m, 0.01 m/s | 0 m, 0.01 m/s | Remo: `robot.gazebo.xacro` | DiffBot: defaults; Remo: `minDepth` 0 in remo_description#2, so its wheels don't sink |
+| Wheel velocity PID `p`, `i`, `d` | 0.06, 0.6, 0 | 0.03, 0.6, 0 | `diffbot_control/config/<model>/pid.yaml` | chosen in [diffbot#121](https://github.com/ros-mobile-robots/diffbot/pull/121); Remo's P below the free-wheel limit of about 0.035 |
+| `i_clamp`, `antiwindup` | 0.05 N m, true | 0.05 N m, true | `pid.yaml` | chosen in diffbot#121 |
+| Wheel torque limit | none | none | a `<limit effort="...">` on the wheel joint | not set |
+| Physics | ODE, quick solver with 150 iterations, 1 ms step | the same | `diffbot_gazebo/worlds/*.world`; the test uses `diffbot_empty.world` | from the original worlds |
+
+The files: [`front_wheel.yaml` (DiffBot)](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_description/config/diffbot/front_wheel.yaml), [`front_wheel.yaml` (Remo)](https://github.com/ros-mobile-robots/remo_description/blob/de0e7bbc6ddcea73c11b8fb6b6aed63f731e6ccf/config/remo/front_wheel.yaml), [`geometry.yaml`](https://github.com/ros-mobile-robots/diffbot/tree/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config), [DiffBot's wheel collision](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_description/urdf/include/common_macros.urdf.xacro#L55-L70), [Remo's wheel collision](https://github.com/ros-mobile-robots/remo_description/blob/f56f08b71806162cd89c84163343417e7704b8e1/urdf/include/common_macros.urdf.xacro#L55-L70), [Remo's contacts](https://github.com/ros-mobile-robots/remo_description/blob/f56f08b71806162cd89c84163343417e7704b8e1/urdf/include/robot.gazebo.xacro#L39-L66), [`pid.yaml` (DiffBot)](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config/diffbot/pid.yaml), [`pid.yaml` (Remo)](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_control/config/remo/pid.yaml) and [the test world](https://github.com/ros-mobile-robots/diffbot/blob/493843b1ea10d51b11aad732f023014eae4d1249/diffbot_gazebo/worlds/diffbot_empty.world#L13-L32).
+
+The wheel masses haven't been weighed yet, and DiffBot's 0.5 kg is a placeholder: about 15 times the mass of its wheels, which are the same as Remo's. Once it is weighed, its wheel inertia drops to about that of Remo's, and its P gain of 0.06 would be above the free-wheel limit: the mass and the gains have to change together.
+
+### How to tune
+
+Tune the model in this order, so that a later step doesn't hide an error of an earlier one:
+
+1. **Geometry and inertia first.** Measure the wheel diameters and their separation, center to center, and enter them in the URDF's `front_wheel.yaml` and the controller's `geometry.yaml`. Check the expanded URDF with `xacro`: the wheel joints' distance, the collision radius, and an inertia whose $\frac{1}{2} m r^2$ is about the joint axis.
+2. **Record a baseline.** Note the world, its time step and solver, and run the [simulation test](development/simulation-test.md): the odometry and the true pose, driving straight and turning on the spot.
+3. **Check the spawn.** The robot has to stay at its spawn pose without NaN velocities, and its wheels have to stay on the ground: a wheel link's height above the ground should stay at its radius over a minute (`/gazebo/link_states`).
+4. **Wheel speed tracking.** Turn on the spot in both directions and drive straight, and compare the wheel joints' speeds in `/diffbot/joint_states` with the commanded ones: their mean and their standard deviation. A speed error that stays is a job for the I term; jitter points to the contacts. Keep P below the free-wheel limit $2J/h$.
+5. **Agreement with the true motion.** Compare the odometry with the true pose. If the wheels follow their commands and the robot still turns differently, look at where and how the wheels touch the ground: the collision shape, friction and contact settings, not the gains.
+6. **One change at a time.** After each change, repeat straight driving and turns in both directions, for both robots, and run each case more than once to see how much the results vary.
+
+Don't compensate one error with another setting: a wrong geometry with gains, or an unstable velocity loop with heavier wheels than the real ones. The simulation test catches regressions, but passing it doesn't make the simulation accurate at other speeds, on other floors or slopes.
+
+## Simulate DiffBot in Gazebo
+
+As described in the [Creating your own Gazebo ROS Package](http://gazebosim.org/tutorials?tut=ros_roslaunch#CreatingyourownGazeboROSPackage), it is common in ROS to create a package that contains all the world files and launch files used with Gazebo. These files are located in a ROS package named `/MYROBOT_gazebo`. For DiffBot the package is named `diffbot_gazebo`. Another example that follows best pratices is `rrbot` which can be found in the [gazebo_ros_demos](https://github.com/ros-simulation/gazebo_ros_demos) repository.
 
 ```console
 fjp@ubuntu:~/git/diffbot/ros/src$ catkin create pkg diffbot_gazebo
@@ -225,7 +265,9 @@ Then use the `gz` command to create a sdf:
 gz sdf -p MODEL.urdf
 ```
 
-<details markdown="1"><summary>DiffBot sdf.</summary>
+The output below is historical: it comes from DiffBot's model of 2020, with 2.5 kg wheels and cylinder collisions with a 0.04 m radius. It only shows what `gz sdf` prints. The current values are in [Tuning the simulated robot](#tuning-the-simulated-robot).
+
+<details markdown="1"><summary>DiffBot's SDF in 2020.</summary>
 ```xml
 <sdf version='1.7'>
   <model name='diffbot'>
