@@ -4355,7 +4355,7 @@
 <h3 id="the-collision-shape-decides-where-the-contacts-are">The collision shape decides where the contacts are</h3>
 <p>On flat ground, a cylinder touches along a line across its width, and the physics engine reduces that line to a few contact points. A sphere with the wheel's radius touches at one point in the wheel's center plane.</p>
 <p>Where the contact forces act matters for turning. The <a href="../modeling-differential-drive-robot/">kinematic model</a> assumes that each wheel pushes on the ground in its center plane, so the turn rate is <span class="arithmatex">\(\omega = (v_r - v_l) / L\)</span>, with the wheel separation <span class="arithmatex">\(L\)</span> between the wheel centers. If the forces act at the wheels' outer edges instead, the robot turns as if <span class="arithmatex">\(L\)</span> were one wheel width larger.</p>
-<p>Both robots showed exactly this with cylinder collisions. DiffBot turned on the spot only about 85 % of its commanded angle, the ratio of its wheel separation to the distance between its wheels' outer edges, 0.138 m / 0.163 m = 0.85 (<a href="https://github.com/ros-mobile-robots/diffbot/pull/120">diffbot#120</a>). Remo turned 1.28 of 1.50 rad, 0.144 m / 0.169 m = 0.85 (<a href="https://github.com/ros-mobile-robots/remo_description/pull/2">remo_description#2</a>). Remo's cylinders only seemed to turn it correctly while its wheels were allowed to sink into the ground (<a href="#contact-stiffness-and-damping">below</a>). With sphere collisions, both turn as their odometry says, DiffBot within 0.03 rad and Remo within 0.002 rad. The sphere is still a modeling choice, which the simulation test checks.</p>
+<p>Both robots showed exactly this with cylinder collisions. DiffBot turned on the spot only about 85 % of the angle its odometry showed, the ratio of its wheel separation to the distance between its wheels' outer edges, 0.138 m / 0.163 m = 0.85 (<a href="https://github.com/ros-mobile-robots/diffbot/pull/120">diffbot#120</a>). Remo turned 1.28 rad while its odometry showed 1.50 rad, 0.144 m / 0.169 m = 0.85 (<a href="https://github.com/ros-mobile-robots/remo_description/pull/2">remo_description#2</a>). Remo's cylinders only seemed to turn it correctly while its wheels were allowed to sink into the ground (<a href="#contact-stiffness-and-damping">below</a>). With sphere collisions, both turn as their odometry says, DiffBot within 0.03 rad and Remo within 0.002 rad. The sphere is still a modeling choice, which the simulation test checks.</p>
 <style>
 .md-typeset figure.wd-figure{margin:1em auto;width:100%;max-width:500px}
 .wd-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif;--wd-s1:#2a78d6;--wd-s2:#eb6834;--wd-s3:#1baf7a}
@@ -4391,11 +4391,11 @@
 <path class="axis" d="M65,126.7 L36,126.7"></path>
 <rect class="part" x="23.5" y="93.4" width="25" height="66.6" rx="4"></rect>
 <path class="ref" d="M36,85.4 L36,164"></path>
-<g class="pt"><title>Contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"></circle><circle class="mk f1" cx="23.5" cy="160" r="4.5"></circle></g>
+<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"></circle><circle class="mk f1" cx="23.5" cy="160" r="4.5"></circle></g>
 <path class="axis" d="M145,126.7 L174,126.7"></path>
 <rect class="part" x="161.5" y="93.4" width="25" height="66.6" rx="4"></rect>
 <path class="ref" d="M174,85.4 L174,164"></path>
-<g class="pt"><title>Contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"></circle><circle class="mk f1" cx="186.5" cy="160" r="4.5"></circle></g>
+<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"></circle><circle class="mk f1" cx="186.5" cy="160" r="4.5"></circle></g>
 <path class="ground" d="M8,160 L202,160"></path>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M36,77.4 L174,77.4"></path>
 <text class="t-muted t-halo" x="105" y="72.4" text-anchor="middle">0.138 m between the centers</text>
@@ -4408,19 +4408,19 @@
 <rect class="part" x="253.5" y="93.4" width="25" height="66.6" rx="4"></rect>
 <path class="ref" d="M266,85.4 L266,164"></path>
 <circle class="coll" cx="266" cy="126.7" r="33.3"></circle>
-<g class="pt"><title>Contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="266" cy="160" r="12"></circle><circle class="mk f1" cx="266" cy="160" r="4.5"></circle></g>
+<g class="pt"><title>Effective contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="266" cy="160" r="12"></circle><circle class="mk f1" cx="266" cy="160" r="4.5"></circle></g>
 <path class="axis" d="M375,126.7 L404,126.7"></path>
 <rect class="part" x="391.5" y="93.4" width="25" height="66.6" rx="4"></rect>
 <path class="ref" d="M404,85.4 L404,164"></path>
 <circle class="coll" cx="404" cy="126.7" r="33.3"></circle>
-<g class="pt"><title>Contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="404" cy="160" r="12"></circle><circle class="mk f1" cx="404" cy="160" r="4.5"></circle></g>
+<g class="pt"><title>Effective contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="404" cy="160" r="12"></circle><circle class="mk f1" cx="404" cy="160" r="4.5"></circle></g>
 <path class="ground" d="M238,160 L432,160"></path>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,77.4 L404,77.4"></path>
 <text class="t-muted t-halo" x="335" y="72.4" text-anchor="middle">0.138 m between the centers</text>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,178 L404,178"></path>
 <text class="t-halo" x="335" y="193" text-anchor="middle">0.138 m between the contacts</text>
 </svg>
-<figcaption>Front view of DiffBot's drive wheels, to scale. The dots are where Gazebo put the contacts. The dashed circle is the sphere collision; the wheel's visual and inertia stay those of the real wheel.</figcaption>
+<figcaption>Front view of DiffBot's drive wheels, to scale. The dots show the effective contact positions that explain the turn ratios below. The dashed circle is the sphere collision; changing it leaves the model's visual and cylinder inertia unchanged.</figcaption>
 </figure>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 168" role="img" aria-labelledby="wd-turn-t"><title id="wd-turn-t">Measured true turn over the odometry's turn, with a cylinder and a sphere collision</title><defs></defs>
@@ -4460,7 +4460,7 @@
 <text class="t-halo" x="183.3" y="128" text-anchor="middle">0.852</text>
 <text class="t-halo" x="389.8" y="128" text-anchor="middle">1.000</text>
 </svg>
-<figcaption>The true turn over the odometry's turn, turning 1.5 rad on the spot. With cylinders, both robots turned as their contacts at the outer edges predict (dashed); with spheres, as their wheel centers do.</figcaption>
+<figcaption>The true turn over the odometry's turn, when commanding a 1.5 rad turn on the spot. With cylinders, both robots turned as their contacts at the outer edges predict (dashed); with spheres, as their wheel centers do.</figcaption>
 </figure>
 
 <details class="info">
@@ -4540,7 +4540,7 @@ J = \frac{1}{2} m r^2 .
 <text class="t-muted" x="167" y="16" text-anchor="start">right wheel</text>
 <path class="ref" d="M250.3,12 L266.3,12"></path>
 <text class="t-muted" x="271.3" y="16" text-anchor="start">commanded</text>
-<text class="t-head" x="48" y="50" text-anchor="start">Cylinder, friction 200, kp 1e12, kd 0 (main)</text>
+<text class="t-head" x="48" y="50" text-anchor="start">Cylinder, friction 200, kp 1e12, kd 0 (old model)</text>
 <path class="grid" d="M48,145.1 L430,145.1"></path>
 <text class="t-muted" x="42" y="148.6" text-anchor="end">-3</text>
 <path class="grid" d="M48,130.8 L430,130.8"></path>
@@ -4746,7 +4746,7 @@ J = \frac{1}{2} m r^2 .
 </thead>
 <tbody>
 <tr>
-<td>Cylinder, friction 200, kp 1e12, kd 0 (main)</td>
+<td>Cylinder, friction 200, kp 1e12, kd 0 (old model)</td>
 <td>100 %, sd 0.32 rad/s</td>
 <td>100 %, sd 0.48 rad/s</td>
 </tr>
@@ -4814,7 +4814,7 @@ J = \frac{1}{2} m r^2 .
 <li><strong><code>maxVel</code>:</strong> the maximum velocity at which a penetration is corrected, in m/s. It isn't a speed limit for the wheel or the robot.</li>
 </ul>
 <p>For a wheel on the static ground plane, ODE uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>).</p>
-<p><code>minDepth</code> is a dead band, not a limit: ODE subtracts it from the penetration before it corrects the rest, and a positive CFM lets a wheel press into the ground under its load. With Remo's soft contacts, a positive <code>minDepth</code> allowed substantial creep: at rest, the wheel centers were about 8.3 mm lower than the wheel radius after a minute with 10 mm configured, a quarter of the radius, and about 1 mm lower with 1 mm configured. With 0, as now, no sinkage was measurable at 0.01 mm precision. DiffBot's stiff default contacts don't sink. These are observations of this model; compliance, the load and the other contacts also matter, and they don't show a general creep rate. The sinking had also hidden the cylinders' outer-edge contacts: with <code>minDepth</code> 0 and cylinders, Remo turned 15 % too little.</p>
+<p><code>minDepth</code> is a dead band, not a limit: ODE subtracts it from the penetration before it corrects the rest, and a positive CFM lets a wheel press into the ground under its load. With Remo's soft contacts, a positive <code>minDepth</code> allowed substantial creep: at rest, the wheel centers were about 8.3 mm lower than the wheel radius after a minute with 10 mm configured, a quarter of the radius, and about 1 mm lower with 1 mm configured. With 0, as now, no sinkage was measurable at 0.01 mm precision. DiffBot's stiff default contacts don't sink. These are observations of this model; compliance, the load and the other contacts also matter, and they don't show a general creep rate. The sinking had also hidden the cylinders' outer-edge contacts: with <code>minDepth</code> 0 and cylinders, Remo turned 15 % less than its odometry showed.</p>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 236" role="img" aria-labelledby="wd-sink-t"><title id="wd-sink-t">How far Remo's wheels sink into the ground at rest, for three minDepth values</title><defs></defs>
 <path class="axis" d="M48,196 L378,196"></path>
