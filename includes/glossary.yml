@@ -65,7 +65,7 @@
 - term: ODE
   expansion: Open Dynamics Engine
   definition: The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.
-  link: theory/modeling-control/wheel-dynamics-simulation.md#contact-and-friction
+  link: theory/modeling-control/wheel-dynamics-simulation.md#modeling-ground-contact
 
 - term: PID
   expansion: proportional-integral-derivative
