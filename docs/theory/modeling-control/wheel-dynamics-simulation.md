@@ -28,6 +28,8 @@ Where the contact forces act matters for turning. The [kinematic model](modeling
 
 Both robots showed exactly this with cylinder collisions. DiffBot turned on the spot only about 85 % of its commanded angle, the ratio of its wheel separation to the distance between its wheels' outer edges, 0.138 m / 0.163 m = 0.85 ([diffbot#120](https://github.com/ros-mobile-robots/diffbot/pull/120)). Remo turned 1.28 of 1.50 rad, 0.144 m / 0.169 m = 0.85 ([remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2)). Remo's cylinders only seemed to turn it correctly while its wheels were allowed to sink into the ground ([below](#contact-stiffness-and-damping)). With sphere collisions, both turn as their odometry says, DiffBot within 0.03 rad and Remo within 0.002 rad. The sphere is still a modeling choice, which the simulation test checks.
 
+--8<-- "includes/wheel-dynamics-contacts.html"
+
 A sphere also has limits: it only represents an upright wheel on flat ground. On a slope or an edge it can touch the ground beside the real tire. And the collision shape doesn't change the inertia: a wheel with a sphere collision still has the inertia of its real shape, here a cylinder.
 
 ### Mass and inertia
@@ -68,6 +70,10 @@ For each contact, Gazebo uses the smaller coefficient of the two surfaces ([`ODE
 
 Friction limits the force; it doesn't make a wheel roll. Higher friction doesn't fix a wrong wheel speed or a wrong geometry. Remo's wheels jittered when it turned on the spot, with cylinder collisions and friction 200. The cause was where the cylinders touched the ground: with spheres, they turn smoothly even with friction 200. Remo now uses friction 1, closer to rubber on a floor.
 
+The figure shows Remo's wheel speeds while it turns on the spot. With the cylinders and friction 200, both wheels jump between almost standing and twice the command. With a sphere and the same contacts, they no longer jitter, but they miss the command ([below](#contact-stiffness-and-damping)). Only the final model follows it.
+
+--8<-- "includes/wheel-dynamics-wheel-speeds.html"
+
 ### Contact stiffness and damping
 
 In each time step, ODE corrects a part of the penetration between two bodies. Two parameters control how hard a constraint is ([ODE user guide, sections 3.7 and 3.8](https://ode.org/ode-latest-userguide.html#sec_3_7_0)):
@@ -91,7 +97,7 @@ For each contact, Gazebo combines the two surfaces' settings: the stiffnesses li
 | DiffBot | Gazebo's defaults, $10^{12}$, 1 | $10^{12}$, 1 | $5 \cdot 10^{11}$, 2 | 1.0 | $2 \cdot 10^{-9}$ |
 | Remo | $10^{7}$, 1 | $10^{12}$, 1 | $10^{7}$, 2 | 0.9998 | $10^{-4}$ |
 
-Remo's contacts are softer and damped. On a sphere's single contact point and with `minDepth` 0 (see below), its earlier wheel settings, friction 200 with $k_p = 10^{12}$ and $k_d = 0$ (combined with the ground's, still $k_d = 1$), let the wheels miss their speed commands by up to 30 %; with the new settings, they follow them. That run changed friction, stiffness and damping together, so it doesn't show which of them matters most.
+Remo's contacts are softer and damped. On a sphere's single contact point and with `minDepth` 0 (see below), its earlier wheel settings, friction 200 with $k_p = 10^{12}$ and $k_d = 0$ (combined with the ground's, still $k_d = 1$), let the wheels miss their speed commands by up to 30 %, as the middle panel of the wheel speed figure in [Friction](#friction) shows; with the new settings, they follow them. That run changed friction, stiffness and damping together, so it doesn't show which of them matters most.
 
 These are equivalences, not material properties: `kp` and `kd` set ERP and CFM, and it doesn't help to treat the two pairs as independent settings. A real tire's stiffness is a starting point at most.
 
@@ -103,6 +109,8 @@ Two more parameters limit the correction:
 For a wheel on the static ground plane, ODE uses the wheel's own `minDepth` and `maxVel`, and limits `maxVel` by the world's `contact_max_correcting_vel` ([`contact.cpp`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149), [lines 222–237](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237)).
 
 `minDepth` is a dead band, not a limit: ODE subtracts it from the penetration before it corrects the rest, and a positive CFM lets a wheel press into the ground under its load. With Remo's soft contacts, a positive `minDepth` allowed substantial creep: at rest, the wheel centers were about 8.3 mm lower than the wheel radius after a minute with 10 mm configured, a quarter of the radius, and about 1 mm lower with 1 mm configured. With 0, as now, no sinkage was measurable at 0.01 mm precision. DiffBot's stiff default contacts don't sink. These are observations of this model; compliance, the load and the other contacts also matter, and they don't show a general creep rate. The sinking had also hidden the cylinders' outer-edge contacts: with `minDepth` 0 and cylinders, Remo turned 15 % too little.
+
+--8<-- "includes/wheel-dynamics-sinkage.html"
 
 ### From URDF to SDF
 
@@ -173,6 +181,8 @@ $$
 $$
 
 At $P h / J = 2$, the error changes sign in every step without decaying; above it, it grows in every step. A continuous-time P loop on an inertia has no such upper limit. The limit comes from holding the torque over a step, which is typical of sampled systems; Franklin, Powell and Workman's *Digital Control of Dynamic Systems* treats them in depth.
+
+--8<-- "includes/wheel-dynamics-stability.html"
 
 For Remo, $J = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}$ and $h$ = 1 ms give $P < 2J/h = 0.035$ N m s/rad. With P 0.03, the factor is $1 - \frac{0.03 \cdot 0.001}{1.74 \cdot 10^{-5}} \approx -0.72$: the error changes sign and decays. With P 0.06, it is $-2.44$: the error grows, and Remo's model spawned at the origin with NaN velocities ([diffbot#121](https://github.com/ros-mobile-robots/diffbot/pull/121)). That is why Remo's P gain is 0.03. DiffBot's wheels are modeled with 0.5 kg ($J = 2.8 \cdot 10^{-4}\,\mathrm{kg\,m^2}$), so their limit is about 0.55, well above its P 0.06.
 
