@@ -33,11 +33,11 @@
 <path class="axis" d="M65,126.7 L36,126.7"/>
 <rect class="part" x="23.5" y="93.4" width="25" height="66.6" rx="4"/>
 <path class="ref" d="M36,85.4 L36,164"/>
-<g class="pt"><title>Contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"/><circle class="mk f1" cx="23.5" cy="160" r="4.5"/></g>
+<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"/><circle class="mk f1" cx="23.5" cy="160" r="4.5"/></g>
 <path class="axis" d="M145,126.7 L174,126.7"/>
 <rect class="part" x="161.5" y="93.4" width="25" height="66.6" rx="4"/>
 <path class="ref" d="M174,85.4 L174,164"/>
-<g class="pt"><title>Contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"/><circle class="mk f1" cx="186.5" cy="160" r="4.5"/></g>
+<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"/><circle class="mk f1" cx="186.5" cy="160" r="4.5"/></g>
 <path class="ground" d="M8,160 L202,160"/>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M36,77.4 L174,77.4"/>
 <text class="t-muted t-halo" x="105" y="72.4" text-anchor="middle">0.138 m between the centers</text>
@@ -50,19 +50,19 @@
 <rect class="part" x="253.5" y="93.4" width="25" height="66.6" rx="4"/>
 <path class="ref" d="M266,85.4 L266,164"/>
 <circle class="coll" cx="266" cy="126.7" r="33.3"/>
-<g class="pt"><title>Contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="266" cy="160" r="12"/><circle class="mk f1" cx="266" cy="160" r="4.5"/></g>
+<g class="pt"><title>Effective contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="266" cy="160" r="12"/><circle class="mk f1" cx="266" cy="160" r="4.5"/></g>
 <path class="axis" d="M375,126.7 L404,126.7"/>
 <rect class="part" x="391.5" y="93.4" width="25" height="66.6" rx="4"/>
 <path class="ref" d="M404,85.4 L404,164"/>
 <circle class="coll" cx="404" cy="126.7" r="33.3"/>
-<g class="pt"><title>Contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="404" cy="160" r="12"/><circle class="mk f1" cx="404" cy="160" r="4.5"/></g>
+<g class="pt"><title>Effective contact in the center plane: 0.0690 m from the robot's center</title><circle class="hit" cx="404" cy="160" r="12"/><circle class="mk f1" cx="404" cy="160" r="4.5"/></g>
 <path class="ground" d="M238,160 L432,160"/>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,77.4 L404,77.4"/>
 <text class="t-muted t-halo" x="335" y="72.4" text-anchor="middle">0.138 m between the centers</text>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,178 L404,178"/>
 <text class="t-halo" x="335" y="193" text-anchor="middle">0.138 m between the contacts</text>
 </svg>
-<figcaption>Front view of DiffBot's drive wheels, to scale. The dots are where Gazebo put the contacts. The dashed circle is the sphere collision; the wheel's visual and inertia stay those of the real wheel.</figcaption>
+<figcaption>Front view of DiffBot's drive wheels, to scale. The dots show the effective contact positions that explain the turn ratios below. The dashed circle is the sphere collision; changing it leaves the model's visual and cylinder inertia unchanged.</figcaption>
 </figure>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 168" role="img" aria-labelledby="wd-turn-t"><title id="wd-turn-t">Measured true turn over the odometry's turn, with a cylinder and a sphere collision</title><defs></defs>
@@ -102,7 +102,7 @@
 <text class="t-halo" x="183.3" y="128" text-anchor="middle">0.852</text>
 <text class="t-halo" x="389.8" y="128" text-anchor="middle">1.000</text>
 </svg>
-<figcaption>The true turn over the odometry's turn, turning 1.5 rad on the spot. With cylinders, both robots turned as their contacts at the outer edges predict (dashed); with spheres, as their wheel centers do.</figcaption>
+<figcaption>The true turn over the odometry's turn, when commanding a 1.5 rad turn on the spot. With cylinders, both robots turned as their contacts at the outer edges predict (dashed); with spheres, as their wheel centers do.</figcaption>
 </figure>
 
 ??? info "The data"
