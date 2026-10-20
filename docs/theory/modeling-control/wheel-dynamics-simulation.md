@@ -60,9 +60,9 @@ $$
 \lvert f_1 \rvert \le \mu_1 f_n , \qquad \lvert f_2 \rvert \le \mu_2 f_n .
 $$
 
-`mu1` and `mu2` are these two coefficients, not a static and a dynamic friction coefficient. `fdir1` sets the first direction, in the collision's own frame; without it, ODE picks the two directions itself. With `mu1` = `mu2`, as on both robots, the pyramid is symmetric and `fdir1` isn't needed.
+`mu1` and `mu2` are these two coefficients, not a static and a dynamic friction coefficient. `fdir1` sets the first direction, in the collision's own frame; without it, ODE picks the two directions itself. With `mu1` = `mu2`, as on both robots, leaving the directions to ODE is reasonable, although a pyramid, unlike the cone, still depends a little on its orientation.
 
-`fdir1` is easy to get wrong on a wheel. Gazebo turns it with the collision's pose ([`ODEPhysics.cc`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133)), and ODE uses it as given, without projecting it onto the contact plane ([`contact.cpp`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287)). In a URDF, a wheel's collision cylinder is usually rotated so that its z axis is the axle, which doesn't move as the wheel spins, so `fdir1` `0 0 1` stays along the axle. A sphere has no such rotation: its frame spins with the wheel, and the same `fdir1` tilts into the contact normal. With a sphere and `fdir1` `0 0 1`, Remo drove about 2 % less than its odometry when driving straight; without `fdir1`, it drives as far as its odometry says.
+`fdir1` is easy to get wrong on a wheel. Gazebo turns it with the collision's pose ([`ODEPhysics.cc`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133)), and ODE uses it as given, without projecting it onto the contact plane ([`contact.cpp`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287)). In a URDF, a wheel's collision cylinder is usually rotated so that its z axis is the axle, which doesn't move as the wheel spins, so `fdir1` `0 0 1` stays along the axle. A sphere has no such rotation: its frame spins with the wheel, and the old `fdir1` `0 0 1` tilts into the contact normal. A direction chosen along the axle would still be valid. With a sphere and `fdir1` `0 0 1`, Remo drove about 2 % less than its odometry when driving straight; without `fdir1`, it drives as far as its odometry says.
 
 For each contact, Gazebo uses the smaller coefficient of the two surfaces ([`ODEPhysics.cc`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1257-L1261)). Gazebo's ground plane has `mu` 100 and `mu2` 50, so the wheel's coefficients decide.
 
@@ -84,14 +84,14 @@ $$
 
 where $h$ is the physics time step. ODE then behaves like that spring and damper, integrated with an implicit first-order method. The `kp` and `kd` of a Gazebo surface are these spring and damping coefficients. They describe the contact, not the motor, and have nothing to do with the P and D gains of the wheel's velocity controller.
 
-For each contact, Gazebo combines the two surfaces like a spring and a damper in series: $k_p = 1 / (1/k_{p,1} + 1/k_{p,2})$ and $k_d = k_{d,1} + k_{d,2}$. It computes ERP and CFM with the world's time step and uses them for this contact instead of the world's `<erp>` and `<cfm>` ([`ODEPhysics.cc`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1112-L1120)). For a wheel on Gazebo's ground plane, with $h$ = 1 ms:
+For each contact, Gazebo combines the two surfaces' settings: the stiffnesses like two springs in series, $k_p = 1 / (1/k_{p,1} + 1/k_{p,2})$, and the dampings by their sum, $k_d = k_{d,1} + k_{d,2}$. It computes ERP and CFM with the world's time step and uses them for this contact instead of the world's `<erp>` and `<cfm>` ([`ODEPhysics.cc`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1112-L1120)). For a wheel on Gazebo's ground plane, with $h$ = 1 ms:
 
 | | Wheel `kp`, `kd` | Ground `kp`, `kd` | Combined $k_p$, $k_d$ | ERP | CFM |
 |---|---|---|---|---|---|
 | DiffBot | Gazebo's defaults, $10^{12}$, 1 | $10^{12}$, 1 | $5 \cdot 10^{11}$, 2 | 1.0 | $2 \cdot 10^{-9}$ |
 | Remo | $10^{7}$, 1 | $10^{12}$, 1 | $10^{7}$, 2 | 0.9998 | $10^{-4}$ |
 
-Remo's contacts are softer and damped. On a sphere's single contact point and with `minDepth` 0 (see below), its earlier stiff and undamped contacts ($10^{12}$, 0) with friction 200 let the wheels miss their speed commands by up to 30 %; with the damped contacts, they follow them.
+Remo's contacts are softer and damped. On a sphere's single contact point and with `minDepth` 0 (see below), its earlier wheel settings, friction 200 with $k_p = 10^{12}$ and $k_d = 0$ (combined with the ground's, still $k_d = 1$), let the wheels miss their speed commands by up to 30 %; with the new settings, they follow them. That run changed friction, stiffness and damping together, so it doesn't show which of them matters most.
 
 These are equivalences, not material properties: `kp` and `kd` set ERP and CFM, and it doesn't help to treat the two pairs as independent settings. A real tire's stiffness is a starting point at most.
 
@@ -102,7 +102,7 @@ Two more parameters limit the correction:
 
 For a wheel on the static ground plane, ODE uses the wheel's own `minDepth` and `maxVel`, and limits `maxVel` by the world's `contact_max_correcting_vel` ([`contact.cpp`](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149), [lines 222–237](https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237)).
 
-`minDepth` and soft contacts don't go together. Up to `minDepth`, ODE doesn't correct the penetration at all, and a positive CFM lets the wheel press further into the ground under its load. With Remo's soft contacts, its wheels sank slowly until they reached `minDepth`: their centers were 8.3 mm lower than the wheel radius after a minute at rest with `minDepth` 0.01 m, a quarter of the radius, and 1.0 mm lower with 0.001 m. With 0, as now, they stay at the wheel radius. DiffBot's stiff default contacts don't sink. The sinking had also hidden the cylinders' outer-edge contacts: with `minDepth` 0 and cylinders, Remo turned 15 % too little.
+`minDepth` is a dead band, not a limit: ODE subtracts it from the penetration before it corrects the rest, and a positive CFM lets a wheel press into the ground under its load. With Remo's soft contacts, a positive `minDepth` allowed substantial creep: at rest, the wheel centers were about 8.3 mm lower than the wheel radius after a minute with 10 mm configured, a quarter of the radius, and about 1 mm lower with 1 mm configured. With 0, as now, no sinkage was measurable at 0.01 mm precision. DiffBot's stiff default contacts don't sink. These are observations of this model; compliance, the load and the other contacts also matter, and they don't show a general creep rate. The sinking had also hidden the cylinders' outer-edge contacts: with `minDepth` 0 and cylinders, Remo turned 15 % too little.
 
 ### From URDF to SDF
 
@@ -141,7 +141,7 @@ $$
 
 in N m, so P is in N m s/rad and I in N m/rad. Its parameters:
 
-- **`p`, `i`, `d`:** the gains. A P gain alone needs a speed error to produce a torque, so a wheel that needs torque, for example to turn the robot on the spot against friction, stays slower than commanded. The I term grows until it supplies that torque, and the error goes to zero.
+- **`p`, `i`, `d`:** the gains. A P gain alone needs a speed error to produce a torque, so a wheel that needs torque, for example to turn the robot on the spot against friction, stays slower than commanded. The I term grows until it supplies that torque, and the error goes to zero, as long as that torque is within `i_clamp` and the loop is stable.
 - **`i_clamp`:** limits the I term's torque to ±`i_clamp` (N m), not the total torque. It defaults to 0, so an I gain without `i_clamp` does nothing.
 - **`antiwindup`:** with `true`, the integral of the error stops growing once the I term reaches `i_clamp`. With `false`, the I term is still limited, but the integral keeps growing and takes longer to come back when the error changes sign.
 
@@ -151,7 +151,7 @@ The [PID Controllers](../../packages/diffbot_base/pid.md) page and [*Feedback Sy
 
 ## Time step and stability of the velocity loop
 
-Gazebo updates the wheel torque once per physics step $h$. Take a wheel that doesn't touch the ground, as at spawn or when it slips, and only a P gain. Within one step, the torque is constant:
+Gazebo updates the wheel torque once per physics step $h$. Take a wheel that doesn't touch the ground, as at spawn, and only a P gain. Within one step, the torque is constant:
 
 $$
 e_k = \omega^* - \omega_k , \qquad \tau_k = P e_k , \qquad
@@ -174,11 +174,11 @@ $$
 
 At $P h / J = 2$, the error changes sign in every step without decaying; above it, it grows in every step. A continuous-time P loop on an inertia has no such upper limit. The limit comes from holding the torque over a step, which is typical of sampled systems; Franklin, Powell and Workman's *Digital Control of Dynamic Systems* treats them in depth.
 
-For Remo, $J = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}$ and $h$ = 1 ms give $P < 2J/h = 0.035$ N m s/rad. With P 0.03, the factor is $1 - 0.03 \cdot 0.001 / 1.74 \cdot 10^{-5} = -0.72$: the error changes sign and decays. With P 0.06, it is $-2.44$: the error grows, and Remo's model spawned at the origin with NaN velocities ([diffbot#121](https://github.com/ros-mobile-robots/diffbot/pull/121)). That is why Remo's P gain is 0.03. DiffBot's wheels are modeled with 0.5 kg ($J = 2.8 \cdot 10^{-4}\,\mathrm{kg\,m^2}$), so their limit is about 0.55, well above its P 0.06.
+For Remo, $J = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}$ and $h$ = 1 ms give $P < 2J/h = 0.035$ N m s/rad. With P 0.03, the factor is $1 - \frac{0.03 \cdot 0.001}{1.74 \cdot 10^{-5}} \approx -0.72$: the error changes sign and decays. With P 0.06, it is $-2.44$: the error grows, and Remo's model spawned at the origin with NaN velocities ([diffbot#121](https://github.com/ros-mobile-robots/diffbot/pull/121)). That is why Remo's P gain is 0.03. DiffBot's wheels are modeled with 0.5 kg ($J = 2.8 \cdot 10^{-4}\,\mathrm{kg\,m^2}$), so their limit is about 0.55, well above its P 0.06.
 
 The estimate assumes a lot: one free wheel with a constant inertia, only a P gain, fresh speed feedback in every step, and no torque limit, friction in the bearings, delay or contact forces. The actual loop has an I term, and a wheel on the ground also moves the robot. So a gain below the limit doesn't prove that the simulation is stable, and a gain above it doesn't mean that Gazebo must explode. It tells the scale at which the gain becomes a problem, and that the gain has to change when the wheel's mass or the time step changes.
 
-The time step is the physics step of the world, `max_step_size` (1 ms in DiffBot's worlds), not the rate of `/cmd_vel` or of the joint states. `gazebo_ros_control` writes the torque in every physics step, but reads the joint states and updates the controllers only every `controlPeriod`, which defaults to the physics step ([`gazebo_ros_control_plugin.cpp`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L224-L256)). A longer `controlPeriod` adds a delay that this estimate doesn't include.
+The time step is the physics step of the world, `max_step_size`, not the rate of `/cmd_vel` or of the joint states. The numbers above are for `diffbot_empty.world`, which the simulation test uses, with 1 ms. Other worlds can differ: `playground.world` has 10 ms, which lowers Remo's limit tenfold, to about 0.0035, below its P 0.03. Check the physics of the world you use before you carry gains over. `gazebo_ros_control` writes the torque in every physics step, but reads the joint states and updates the controllers only every `controlPeriod`, which defaults to the physics step ([`gazebo_ros_control_plugin.cpp`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L224-L256)). A longer `controlPeriod` adds a delay that this estimate doesn't include.
 
 ## Further reading
 
