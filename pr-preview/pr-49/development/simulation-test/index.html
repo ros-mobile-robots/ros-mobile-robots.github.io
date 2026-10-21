@@ -4700,7 +4700,7 @@ true pose: forward 0.017 m, left -0.015 m, turned 1.144 rad
 <text class="t-topic" x="294" y="86" text-anchor="end">joint_states</text>
 <rect class="c-shared" x="30" y="160" width="304" height="86" rx="6"></rect>
 <text class="t-cont" x="38" y="239">Controller manager</text>
-<text class="t-yaml" x="174" y="173" text-anchor="start">diffbot_control.yaml</text>
+<text class="t-yaml" x="38" y="173" text-anchor="start">diffbot_control.yaml + geometry.yaml</text>
 <rect class="n" x="38" y="180" width="146" height="44" rx="4"></rect>
 <text class="t-node" x="111.0" y="199.5" text-anchor="middle">mobile_base_controller</text>
 <text class="t-sub" x="111.0" y="212.5" text-anchor="middle">diff_drive_controller</text>
@@ -4747,7 +4747,7 @@ true pose: forward 0.017 m, left -0.015 m, turned 1.144 rad
 <text class="t-topic" x="294" y="86" text-anchor="end">joint_states</text>
 <rect class="c-shared" x="30" y="160" width="304" height="86" rx="6"></rect>
 <text class="t-cont" x="38" y="239">Controller manager</text>
-<text class="t-yaml" x="174" y="173" text-anchor="start">diffbot_control.yaml</text>
+<text class="t-yaml" x="38" y="173" text-anchor="start">diffbot_control.yaml + geometry.yaml</text>
 <rect class="n" x="38" y="180" width="146" height="44" rx="4"></rect>
 <text class="t-node" x="111.0" y="199.5" text-anchor="middle">mobile_base_controller</text>
 <text class="t-sub" x="111.0" y="212.5" text-anchor="middle">diff_drive_controller</text>
@@ -4889,7 +4889,7 @@ true pose: forward 0.017 m, left -0.015 m, turned 1.144 rad
 <text class="t-node" x="270.0" y="277.5" text-anchor="middle">distance the model rolls</text>
 <text class="t-sub" x="270.0" y="290.5" text-anchor="middle">Gazebo physics, ideally</text>
 </svg>
-<figcaption>The configured radius <span class="arithmatex">\(r_\text{cfg}\)</span> from <code>diffbot_control.yaml</code> is used twice on the way to the odometry, the model's radius <span class="arithmatex">\(r_\text{model}\)</span> from the URDF once on the way to the true pose.</figcaption>
+<figcaption>The configured radius <span class="arithmatex">\(r_\text{cfg}\)</span> from <code>diffbot_control/config/&lt;model&gt;/geometry.yaml</code> is used twice on the way to the odometry, the model's radius <span class="arithmatex">\(r_\text{model}\)</span> from the URDF once on the way to the true pose.</figcaption>
 </figure>
 
 <p>For a straight drive at <span class="arithmatex">\(v\)</span> for the time <span class="arithmatex">\(t\)</span>, with the configured radius <span class="arithmatex">\(r_\text{cfg}\)</span> and the model's radius <span class="arithmatex">\(r_\text{model}\)</span>, and assuming that the wheels follow their speed command exactly and don't slip, the wheels turn by the angle <span class="arithmatex">\(\Delta\phi\)</span> (rad), and:</p>
