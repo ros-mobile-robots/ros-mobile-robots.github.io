@@ -6,7 +6,7 @@
 - **A wheel radius in the controller configuration that doesn't match the robot model:** the odometry can still report about the expected distance while the robot drives a different one.
 - **A wrong joint name:** the controller doesn't start, and nothing is published.
 
-You need the [dev container](dev-container.md) with its workspace `~/catkin_ws` built and sourced, as the container's setup leaves it. This page first shows how to run the test and read its results, then how it works and its code step by step, then why the results differ from the commands, and finally how to add a test of your own.
+You need the [dev container](dev-container.md) with its workspace `~/catkin_ws` built and sourced, as the container's setup leaves it.
 
 ## Run it
 
@@ -320,7 +320,7 @@ When `test_drive.py` has ended, rostest stops everything and starts `sim_drive.l
 
 ## Why the results differ from the commands
 
-The commands give an ideal expectation: 0.6 m straight ahead, 1.5 rad on the spot. The robots in Gazebo come close, but not exactly, and the odometry and the true pose differ a little. Three questions explain the numbers in [Read the results](#read-the-results) and in the check tables.
+The commands ask for 0.6 m straight ahead and a 1.5 rad turn on the spot. The [measured motions](#read-the-results) differ slightly from these values and from each other; the [`test_forward()`](#the-checks) and [`test_turn()`](#5-test_turn) checks allow for those differences.
 
 ### Why the measured motion differs from the command
 
