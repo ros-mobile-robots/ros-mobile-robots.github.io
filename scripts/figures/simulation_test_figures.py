@@ -75,37 +75,39 @@ class Fig:
 
 
 def controllers(f):
-    """Controller manager with both controllers, identical in both figures (y 160-240)."""
-    f.box(30, 160, 304, 86, "c-shared", label="Controller manager")
-    f.text(38, 173, "diffbot_control.yaml + geometry.yaml", "t-yaml")
-    f.box(38, 180, 146, 44, "n", [("mobile_base_controller", "t-node"), ("diff_drive_controller", "t-sub")])
-    f.box(190, 180, 138, 44, "n", [("joint_state_controller", "t-node")])
+    """Controller manager with both controllers, identical in both figures (y 160-258). The
+    configuration files are on two lines right of the odom arrow (x 160), so no arrow crosses them."""
+    f.box(30, 160, 304, 98, "c-shared", label="Controller manager")
+    f.text(166, 173, "diffbot_control.yaml", "t-yaml")
+    f.text(166, 185, "+ geometry.yaml", "t-yaml")
+    f.box(38, 192, 146, 44, "n", [("mobile_base_controller", "t-node"), ("diff_drive_controller", "t-sub")])
+    f.box(190, 192, 138, 44, "n", [("joint_state_controller", "t-node")])
 
 
 def hw_arrows(f):
-    """Controllers <-> hardware interface (y 224-290)."""
-    f.path("M160,224 V290")  # commands down
-    f.text(154, 258, "velocity", "t-flow", "end")
-    f.text(154, 270, "commands", "t-flow", "end")
-    f.path("M176,290 V224")  # states up to mobile_base_controller
-    f.path("M262,290 V224")  # states up to joint_state_controller
-    f.text(219, 258, "positions,", "t-flow", "middle")
-    f.text(219, 270, "velocities", "t-flow", "middle")
+    """Controllers <-> hardware interface (y 236-290)."""
+    f.path("M160,236 V290")  # commands down
+    f.text(154, 270, "velocity", "t-flow", "end")
+    f.text(154, 282, "commands", "t-flow", "end")
+    f.path("M176,290 V236")  # states up to mobile_base_controller
+    f.path("M262,290 V236")  # states up to joint_state_controller
+    f.text(219, 270, "positions,", "t-flow", "middle")
+    f.text(219, 282, "velocities", "t-flow", "middle")
 
 
 def top(f, left, right, branch):
     """External nodes and topics above the controllers."""
     f.box(30, 24, 140, 32, "n", [(left, "t-mono" if left.endswith(".py") else "t-node")])
     f.box(200, 24, 140, 32, "n", [(right, "t-mono")])
-    f.path("M100,56 V180")  # cmd_vel
+    f.path("M100,56 V192")  # cmd_vel
     f.text(106, 96, "cmd_vel")
-    f.path("M160,180 V56")  # odom
+    f.path("M160,192 V56")  # odom
     if branch:
         f.path("M160,118 H212 V56")
         f.text(166, 112, "odom")
     else:
         f.text(166, 112, "odom")
-    f.path("M300,180 V56")  # joint_states
+    f.path("M300,192 V56")  # joint_states
     f.text(294, 86, "joint_states", anchor="end")
 
 
