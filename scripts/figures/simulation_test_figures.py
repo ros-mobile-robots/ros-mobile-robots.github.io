@@ -77,7 +77,7 @@ class Fig:
 def controllers(f):
     """Controller manager with both controllers, identical in both figures (y 160-240)."""
     f.box(30, 160, 304, 86, "c-shared", label="Controller manager")
-    f.text(174, 173, "diffbot_control.yaml", "t-yaml")
+    f.text(38, 173, "diffbot_control.yaml + geometry.yaml", "t-yaml")
     f.box(38, 180, 146, 44, "n", [("mobile_base_controller", "t-node"), ("diff_drive_controller", "t-sub")])
     f.box(190, 180, 138, 44, "n", [("joint_state_controller", "t-node")])
 
@@ -306,7 +306,7 @@ wr.box(10, 258, 160, 44, "c-shared", [("odometry distance", "t-node"), ("diff_dr
 wr.box(190, 258, 160, 44, "hw", [("distance the model rolls", "t-node"), ("Gazebo physics, ideally", "t-sub")])
 
 caption = ("The configured radius <span class=\"arithmatex\">\\(r_\\text{cfg}\\)</span> from "
-           "<code>diffbot_control.yaml</code> is used twice on the way to the odometry, the model's "
+           "<code>diffbot_control/config/&lt;model&gt;/geometry.yaml</code> is used twice on the way to the odometry, the model's "
            "radius <span class=\"arithmatex\">\\(r_\\text{model}\\)</span> from the URDF once on the "
            "way to the true pose.")
 open("includes/simulation-test-wheel-radius.html", "w").write(
