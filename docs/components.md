@@ -91,11 +91,13 @@ You need the following parts to build REMO. They come in packs, so order the qua
 
 The following shows a more detailed part list and assembly of the robot platform and the components.
 
+--8<-- "includes/affiliate-note.md"
+
 | Category     | Hardware          | Part Number                                       | Data Sheet & Info       |
 |:------------:|:-----------------:|:-------------------------------------------------:|:-----------------------:|
 | Accessories                                 |
 |              | Case for Raspberry Pi 4 B | Slim acrylic case for Raspberry Pi 4, stackable, rainbow/transparent                          | [BerryBase](https://www.berrybase.de/en/new/slim-acrylic-case-for-raspberry-pi-4-stackable-rainbow) |
-|              | Micro SD Card     | SanDisk 64GB Class 10                             | [Raspberry Pi Setup](processing_units/rpi-setup.md) for the image |
+|              | Micro SD Card     | SanDisk 64GB Class 10                             | [Amazon.com][sandisk_64gb_us], [Amazon.de][sandisk_64gb_ger]; [Raspberry Pi Setup](processing_units/rpi-setup.md) for the image |
 |              | Robot Car Kit 2WD (plate, caster, two wheels, battery holder and mounting plate) | [robot05](https://joy-it.net/en/products/robot05) | [Instructions manual](https://joy-it.net/files/files/Produkte/robot05/Robot05-Anleitung.pdf) |
 |              | Power bank        | Intenso Powerbank S10000                          | [Intenso](https://www.intenso.de/en/products/powerbanks/powerbank-s10000) |
 | Actuator                                                                                  |
@@ -125,12 +127,10 @@ The following shows a more detailed part list and assembly of the robot platform
 
 Order list
 
---8<-- "includes/affiliate-note.md"
-
 | Part                    | Store |
 |:------------------------|:---------------------------------------------------------------------------:|
 | Raspberry Pi 4 B (4 Gb) | [Amazon.com][amazon_rpi_4_model_b_us], [Amazon.de][amazon_rpi_4_model_b_ger] |
-| SanDisk 64 GB SD Card Class 10 | [Amazon.com][amazon_sdcard_ultra_64gb_us], [Amazon.de][sandisk_64gb_ger] |
+| SanDisk 64 GB SD Card Class 10 | [Amazon.com][sandisk_64gb_us], [Amazon.de][sandisk_64gb_ger] |
 | Robot Smart Chassis Kit (plate, caster, two wheels and battery holder) | [Amazon.com][amazon_robot_car_chassis_us], [Amazon.de][amazon_robot_car_chassis_ger] |
 | DG01D-E Hobby Motor with encoder (2) | [Amazon.com][amazon_hobby_motor_us], [Amazon.de][amazon_hobby_motor_ger] |
 | SLAMTEC RPLidar A2M8 (12 m) | [Amazon.com][amazon_rplidar_a2m8_us], [Amazon.de][amazon_rplidar_a2m8_ger] |
