@@ -4939,7 +4939,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <p><strong>Why the agreement checks can be narrower.</strong> Both measurements observe the same drive, so the timing and the wheel speed affect both. Their difference is usually smaller than either one's difference from the expected motion; the wheel geometry and slip still make them disagree (<a href="#why-the-odometry-and-the-true-pose-differ">Why the odometry and the true pose differ</a>).</p>
 <p><strong>What a pass shows.</strong> "True" means the pose of the robot model in Gazebo, not of the real robot. A passing test shows that the robot model and the controller configuration work together in the simulation; it doesn't calibrate the real robot. The tolerances allow what the robots measure in normal runs and reject the mistakes that were tried on purpose, but smaller mistakes may pass (<a href="#the-checks">the checks</a>).</p>
 <h3 id="on-the-real-robot">On the real robot</h3>
-<p>Switch the figure to the second tab, <em>Real robot</em>. The blue box stays the same: the controller manager with the two controllers, configured by <code>diffbot_control.yaml</code> and the robot's <code>geometry.yaml</code>. Only the hardware interface and what's below it change.</p>
+<p>Switch the figure to the second tab, <em>Real robot</em>. The blue box stays the same: the controller manager with the two controllers, configured by <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a> and the robot's <code>geometry.yaml</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot/geometry.yaml">DiffBot</a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/remo/geometry.yaml">Remo</a>). Only the hardware interface and what's below it change.</p>
 <p>On the real robot, the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base</code></a> node takes Gazebo's place. It creates the hardware interface <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_hw_interface.cpp"><code>DiffBotHWInterface</code></a> and a controller manager, and runs the loop itself: <code>read()</code>, update the controllers, <code>write()</code>. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/launch/diffbot.launch">launch file</a> loads the same <code>diffbot_control.yaml</code> and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics:</p>
 <ul>
 <li>It subscribes to <code>measured_joint_states</code>, the wheel angles and velocities that the Teensy publishes, and <code>read()</code> passes the latest values to the controllers.</li>
@@ -5585,11 +5585,11 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <p>The checks that compare the odometry and the true pose allow these differences. <a href="#three-views-of-the-motion">Three views of the motion</a> explains why a wrong configuration can stay hidden in the odometry, and <a href="#the-checks">the checks</a> what the agreement checks rejected.</p>
 <h3 id="why-the-robots-and-repeated-runs-differ">Why the robots and repeated runs differ</h3>
 <ul>
-<li><strong>The models differ.</strong> DiffBot's wheels weigh 0.5 kg each, have a sphere collision and Gazebo's default contact settings. Remo's wheels weigh 32 g, also have a sphere collision, and slightly soft, damped contacts with a friction of 1 (<code>robot.gazebo.xacro</code> in <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/include/robot.gazebo.xacro">remo_description</a>). Each has its own wheel gains.</li>
+<li><strong>The models differ.</strong> DiffBot's model gives each wheel a placeholder mass of 0.5 kg (the real wheels weigh 32 g, like Remo's), a sphere collision and Gazebo's default contact settings. Remo's model has the measured 32 g wheels, also with a sphere collision, and slightly soft, damped contacts with a friction of 1 (<code>robot.gazebo.xacro</code> in <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/include/robot.gazebo.xacro">remo_description</a>). Each has its own wheel gains.</li>
 <li><strong>Repeated runs agree.</strong> In three runs, DiffBot's turn varied by 0.003 rad and Remo's by 0.002 rad. With its earlier collision cylinders and contact settings, a friction of 200, very stiff contacts and no damping, Remo's wheels jittered when turning, and its turn varied between 0.92 and 1.34 rad (<a href="https://github.com/ros-mobile-robots/remo_description/pull/2">remo_description#2</a>).</li>
 <li><strong>Why runs can still differ:</strong> Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. A sensitive model, such as Remo's with its old cylinders and contacts, turns such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step: <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> once measured an outlier turn for DiffBot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>).</li>
 </ul>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a> tracks what's left, such as DiffBot's wheel and caster masses of 0.5 kg each.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a> tracks what's left, such as the placeholder masses of DiffBot's wheels and caster wheel, 0.5 kg each.</p>
 <p><a href="../../theory/modeling-control/wheel-dynamics-simulation/">Wheel Dynamics in Simulation</a> explains the collision shapes, contacts and wheel gains behind these numbers, and <a href="../../diffbot_gazebo/#tuning-the-simulated-robot">Tuning the simulated robot</a> lists each robot's values and how to tune them.</p>
 <h2 id="how-to-add-a-test">How to add a test</h2>
 <p>As an example, this adds a test that drives backward. It runs for both robots, because both test files run <code>test_drive.py</code>.</p>
@@ -5894,4 +5894,111 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 });
 const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
-</script></body></html>
+</script><script data-mkdocs-jupyter-mathjax="{&quot;url&quot;: &quot;https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js&quot;, &quot;version&quot;: 4}">
+/* Shared by full pages and Material's instant navigation. */
+(() => {
+  const config = JSON.parse(document.currentScript.dataset.mkdocsJupyterMathjax);
+  if (window.mkdocsJupyterMathJax) return;
+
+  let loading;
+  let queue = Promise.resolve();
+  let previous = [];
+
+  const ready = async () => {
+    if (!loading) {
+      loading = (async () => {
+        let math = window.MathJax;
+        if (!math?.typesetPromise) {
+          const url = new URL(config.url, document.baseURI).href;
+          const existing = Array.from(document.scripts).find(script =>
+            script.src && (script.src === url || script.id === 'MathJax-script' ||
+              (/mathjax/i.test(script.src) &&
+               /\/(?:MathJax|latest|(?:tex|mml)(?:-mml)?-(?:chtml|svg))\.js(?:[?#]|$)/i.test(script.src))));
+          if (existing) {
+            if (!math?.startup?.promise) {
+              await new Promise((resolve, reject) => {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+              });
+            }
+          } else {
+            // Keep site macros, delimiters and startup hooks when supplied.
+            const options = math || {};
+            window.MathJax = {
+              ...options,
+              loader: {
+                ...options.loader,
+                load: Array.from(new Set(['ui/safe', ...(options.loader?.load || [])]))
+              },
+              startup: { typeset: false, ...options.startup },
+              tex: {
+                tags: 'ams',
+                useLabelIds: true,
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                ...options.tex
+              }
+            };
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = config.url;
+              script.id = 'MathJax-script';
+              script.async = true;
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+        }
+        math = window.MathJax;
+        await math.startup.promise;
+        return math;
+      })();
+    }
+    const math = await loading;
+    // A site owner can extend the v3 queue again on each navigation.
+    await math.startup.promise;
+    return math;
+  };
+
+  const unrendered = node => {
+    if (node.matches('mjx-container')) return [];
+    if (!node.querySelector('mjx-container')) return [node];
+    // In v3, scanning generated assistive MathML again produces nested output.
+    return Array.from(node.children).flatMap(unrendered);
+  };
+
+  const refresh = () => {
+    // A separate chain also serializes v3, without changing v4's startup promise.
+    queue = queue.then(async () => {
+      const notebooks = Array.from(document.querySelectorAll('.jupyter-wrapper'));
+      if (!notebooks.length && !previous.length) return;
+      if (notebooks.length === previous.length &&
+          notebooks.every((node, index) => node === previous[index])) return;
+      const math = await ready();
+      if (previous.length) {
+        math.typesetClear(previous);
+        math.texReset();
+      }
+      previous = notebooks.filter(node => node.isConnected);
+      const pending = previous.flatMap(unrendered);
+      if (pending.length) await math.typesetPromise(pending);
+    }).catch(error => console.error('mkdocs-jupyter: MathJax rendering failed', error));
+    return queue;
+  };
+
+  window.mkdocsJupyterMathJax = { refresh };
+  const start = () => {
+    if (typeof document$ !== 'undefined') document$.subscribe(refresh);
+    else refresh();
+  };
+  // Theme bundles and user-provided MathJax scripts can follow notebook content.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else start();
+})();
+
+</script>
+</body></html>
