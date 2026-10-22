@@ -396,30 +396,10 @@ add_dependencies(diffbot_hw_interface diffbot_msgs_generate_messages_cpp)
 ### Launch File
 
 To run a single controller_manager, the one from the `diffbot_base` package defined inside `difbot_base.cpp` use the 
-launch file from [`diffbot_base/launch/diffbot.launch`](https://github.com/fjp/diffbot/blob/master/ros/src/diffbot_base/launch/diffbot.launch):
+launch file from [`diffbot_base/launch/diffbot.launch`]({{ diffbot_src_url }}/diffbot_base/launch/diffbot.launch). Its `model` argument selects the robot's description and its wheel geometry, `diffbot_control/config/<model>/geometry.yaml`:
 
-```xml
-<!-- https://github.com/ros-controls/ros_controllers/tree/kinetic-devel/diff_drive_controller/test -->
-<launch>
-    <!-- Load DiffBot model -->
-    <param name="robot_description"
-	   command="$(find xacro)/xacro '$(find diffbot_description)/urdf/diffbot.xacro'"/>
-
-    <node name="diffbot_base" pkg="diffbot_base" type="diffbot_base"/>
-
-    <!-- Load controller config to the parameter server -->
-    <rosparam command="load" 
-              file="$(find diffbot_control)/config/diffbot_control.yaml"/>
-
-    <!-- Load base config to the parameter server -->
-    <rosparam command="load" 
-              file="$(find diffbot_base)/config/base.yaml"/>
-
-    <!-- Load the controllers -->
-    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-        output="screen" ns="diffbot" args="joint_state_controller
-                                            mobile_base_controller"/>
-</launch>
+```xml title="diffbot_base/launch/diffbot.launch"
+--8<-- "{{ diffbot_src_raw }}/diffbot_base/launch/diffbot.launch"
 ```
 
 This will load the DiffBot robot description onto the parameter server which is required for the hardware interface that gets created inside the next
