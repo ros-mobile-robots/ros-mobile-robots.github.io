@@ -96,7 +96,7 @@ The following shows a more detailed part list and assembly of the robot platform
 | Accessories                                 |
 |              | Case for Raspberry Pi 4 B | Slim acrylic case for Raspberry Pi 4, stackable, rainbow/transparent                          | [BerryBase](https://www.berrybase.de/en/new/slim-acrylic-case-for-raspberry-pi-4-stackable-rainbow) |
 |              | Micro SD Card     | SanDisk 64GB Class 10                             | [Raspberry Pi Setup](processing_units/rpi-setup.md) for the image |
-|              | Robot Car Kit 2WD (DiffBot's chassis plate and caster) | [robot05](https://joy-it.net/en/products/robot05) | [Instructions manual](https://joy-it.net/files/files/Produkte/robot05/Robot05-Anleitung.pdf) |
+|              | Robot Car Kit 2WD (plate, caster, two wheels and battery holder) | [robot05](https://joy-it.net/en/products/robot05) | [Instructions manual](https://joy-it.net/files/files/Produkte/robot05/Robot05-Anleitung.pdf) |
 |              | Power bank        | Intenso Powerbank S10000                          | [Intenso](https://www.intenso.de/en/products/powerbanks/powerbank-s10000) |
 | Actuator                                                                                  |
 |              | (Deprecated) Gearbox motor     | DC Gearbox motor - "TT Motor" - 200RPM - 3 to 6VDC, without encoder; DiffBot's first version | [Adafruit](https://www.adafruit.com/product/3777) |
@@ -131,9 +131,8 @@ Order list
 |:------------------------|:---------------------------------------------------------------------------:|
 | Raspberry Pi 4 B (4 Gb) | [Amazon.com][amazon_rpi_4_model_b_us], [Amazon.de][amazon_rpi_4_model_b_ger] |
 | SanDisk 64 GB SD Card Class 10 | [Amazon.com][amazon_sdcard_ultra_64gb_us], [Amazon.de][sandisk_64gb_ger] |
-| Robot Smart Chassis Kit, for DiffBot's plate and caster | [Amazon.com][amazon_robot_car_chassis_us], [Amazon.de][amazon_robot_car_chassis_ger] |
+| Robot Smart Chassis Kit (plate, caster, two wheels and battery holder) | [Amazon.com][amazon_robot_car_chassis_us], [Amazon.de][amazon_robot_car_chassis_ger] |
 | DG01D-E Hobby Motor with encoder (2) | [Amazon.com][amazon_hobby_motor_us], [Amazon.de][amazon_hobby_motor_ger] |
-| Wheels, 65 mm (pair) | [Amazon.com][amazon_wheels_us], [Amazon.de][amazon_wheels_ger] |
 | SLAMTEC RPLidar A2M8 (12 m) | [Amazon.com][amazon_rplidar_a2m8_us], [Amazon.de][amazon_rplidar_a2m8_ger] |
 | Grove Ultrasonic Ranger | [Amazon.com][amazon_grove_ultrasonic_us] |
 | Raspi Camera Module V2, 8 MP, 1080p | [Amazon.com][amazon_rpi_cam_v2_us_b01er2skfs], [Amazon.de][amazon_rpi_cam_v2_ger] |
@@ -201,7 +200,7 @@ For the robot base you have at least two options to choose from: DiffBot, built 
 
 === "DiffBot"
 
-    DiffBot is built on the acrylic plate of the [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05), with the kit's caster wheel.
+    DiffBot is built on the acrylic plate of the [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05). The kit includes two drive wheels, a caster wheel and a battery holder. The holder sits under the base plate and supplies the motors.
 
     <figure>
         <a href="{{ asset_dir }}/components/car-kit05.jpg"><img src="{{ asset_dir }}/components/car-kit05.jpg"></a>
@@ -210,7 +209,7 @@ For the robot base you have at least two options to choose from: DiffBot, built 
 
     The acrylic plate has many holes for mounting the boards, such as the Raspberry Pi 4 B. The two drive wheels and the caster wheel let the robot turn on the spot, but not move sideways: a differential drive robot is nonholonomic ([Modeling a Differential Drive Robot](theory/modeling-control/modeling-differential-drive-robot.md)).
 
-    The motors and wheels are the same as Remo's: [DG01D-E motors](#motor-and-wheel-encoder) with built-in quadrature encoders, and the same wheels, 65 mm in nominal diameter. DiffBot's first version used the kit's own gear motors, which have no encoder, with separate speed sensors that count the slots of a punched disk on each motor ([Alternative Optical Sensor](#odometry)).
+    DiffBot uses the same [DG01D-E motors](#motor-and-wheel-encoder) with built-in quadrature encoders as Remo, and the same nominal 65 mm wheel type. Its first version used the kit's motors without encoders and separate optical speed sensors that count the slots of a punched disk on each motor ([Alternative Optical Sensor](#odometry)).
 
 === "Remo"
 
@@ -225,7 +224,7 @@ Alternatively, you can build your own mobile robot!
 
 ### Power Supplies
 
-As mentioned the robot will be equipped with a 5V/2.1A USB-C powerbank to supply the Raspberry Pi 4 B with 5 V.
+DiffBot's Raspberry Pi 4 B runs on a 5 V/2.1 A USB-C power bank.
 
 <figure class="half">
     <a href="{{ asset_dir }}/components/powerbank_top.jpg"><img src="{{ asset_dir }}/components/powerbank_top.jpg"></a>
@@ -233,7 +232,7 @@ As mentioned the robot will be equipped with a 5V/2.1A USB-C powerbank to supply
     <figcaption>Power bank with 10.000 mAh from Intenso.</figcaption>
 </figure>
 
-To power the motors the provided battery compartment will be used, which holds four AA batteries $4 \cdot 1.5\text{V} = 6\text{V}$.
+DiffBot's motor supply uses the battery holder under the chassis.
 
 ### I2C Hub
 
