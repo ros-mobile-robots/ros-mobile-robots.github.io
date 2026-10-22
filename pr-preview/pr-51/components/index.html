@@ -5093,7 +5093,7 @@ Get a camera in case you plan to do applications such as object detection, visua
 </tr>
 <tr>
 <td style="text-align: center;"></td>
-<td style="text-align: center;">Robot Car Kit 2WD (DiffBot's chassis plate and caster)</td>
+<td style="text-align: center;">Robot Car Kit 2WD (plate, caster, two wheels and battery holder)</td>
 <td style="text-align: center;"><a href="https://joy-it.net/en/products/robot05">robot05</a></td>
 <td style="text-align: center;"><a href="https://joy-it.net/files/files/Produkte/robot05/Robot05-Anleitung.pdf">Instructions manual</a></td>
 </tr>
@@ -5272,16 +5272,12 @@ As an Amazon Associate I earn from qualifying purchases, at no extra cost to you
 <td style="text-align: center;"><a href="https://www.amazon.com/dp/B073JYVKNX?tag=fjp033-20">Amazon.com</a>, <a href="https://amzn.to/4nFmYuR">Amazon.de</a></td>
 </tr>
 <tr>
-<td style="text-align: left;">Robot Smart Chassis Kit, for DiffBot's plate and caster</td>
+<td style="text-align: left;">Robot Smart Chassis Kit (plate, caster, two wheels and battery holder)</td>
 <td style="text-align: center;"><a href="https://www.amazon.com/dp/B07DNYQ3PX?tag=fjp033-20">Amazon.com</a>, <a href="https://amzn.to/2Gy3CJ4">Amazon.de</a></td>
 </tr>
 <tr>
 <td style="text-align: left;">DG01D-E Hobby Motor with encoder (2)</td>
 <td style="text-align: center;"><a href="https://www.amazon.com/dp/B088FZG5K7?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/B09NNQ5Q49?tag=fjp-21">Amazon.de</a></td>
-</tr>
-<tr>
-<td style="text-align: left;">Wheels, 65 mm (pair)</td>
-<td style="text-align: center;"><a href="https://www.amazon.com/dp/B0CG1C7T8J?tag=fjp033-20">Amazon.com</a>, <a href="https://amzn.to/3KIjWHR">Amazon.de</a></td>
 </tr>
 <tr>
 <td style="text-align: left;">SLAMTEC RPLidar A2M8 (12 m)</td>
@@ -5366,13 +5362,13 @@ Regarding speed, the Pi has a limited bus speed of approximately 20 MB/s (<a hre
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">DiffBot</label><label for="__tabbed_1_2">Remo</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>DiffBot is built on the acrylic plate of the <a href="https://joy-it.net/en/products/robot05">Robot Car Kit 2WD</a> from Joy-IT (article no.: robot05), with the kit's caster wheel.</p>
+<p>DiffBot is built on the acrylic plate of the <a href="https://joy-it.net/en/products/robot05">Robot Car Kit 2WD</a> from Joy-IT (article no.: robot05). The kit includes two drive wheels, a caster wheel and a battery holder. The holder sits under the base plate and supplies the motors.</p>
 <p></p><figure>
     <a href="/pr-preview/pr-51/resources/components/car-kit05.jpg"><img src="/pr-preview/pr-51/resources/components/car-kit05.jpg"></a>
     <figcaption>Parts of the 2WD Robot Car Kit 05 from Joy-IT.</figcaption>
 </figure><p></p>
 <p>The acrylic plate has many holes for mounting the boards, such as the Raspberry Pi 4 B. The two drive wheels and the caster wheel let the robot turn on the spot, but not move sideways: a differential drive robot is nonholonomic (<a href="../theory/modeling-control/modeling-differential-drive-robot/">Modeling a Differential Drive Robot</a>).</p>
-<p>The motors and wheels are the same as Remo's: <a href="#motor-and-wheel-encoder">DG01D-E motors</a> with built-in quadrature encoders, and the same wheels, 65 mm in nominal diameter. DiffBot's first version used the kit's own gear motors, which have no encoder, with separate speed sensors that count the slots of a punched disk on each motor (<a href="#odometry">Alternative Optical Sensor</a>).</p>
+<p>DiffBot uses the same <a href="#motor-and-wheel-encoder">DG01D-E motors</a> with built-in quadrature encoders as Remo, and the same nominal 65 mm wheel type. Its first version used the kit's motors without encoders and separate optical speed sensors that count the slots of a punched disk on each motor (<a href="#odometry">Alternative Optical Sensor</a>).</p>
 </div>
 <div class="tabbed-block">
 <p>Remo is a 3D printable Research Education Mobile/Modular Open robot platform. You can find more information in the following video and 
@@ -5384,14 +5380,14 @@ on the <a href="../packages/remo_description/"><code>remo_description</code> pac
 </div>
 <p>Alternatively, you can build your own mobile robot!</p>
 <h3 id="power-supplies">Power Supplies</h3>
-<p>As mentioned the robot will be equipped with a 5V/2.1A USB-C powerbank to supply the Raspberry Pi 4 B with 5 V.</p>
+<p>DiffBot's Raspberry Pi 4 B runs on a 5 V/2.1 A USB-C power bank.</p>
 <figure class="half">
     <a href="/pr-preview/pr-51/resources/components/powerbank_top.jpg"><img src="/pr-preview/pr-51/resources/components/powerbank_top.jpg"></a>
     <a href="/pr-preview/pr-51/resources/components/powerbank_bottom.jpg"><img src="/pr-preview/pr-51/resources/components/powerbank_bottom.jpg"></a>
     <figcaption>Power bank with 10.000 mAh from Intenso.</figcaption>
 </figure>
 
-<p>To power the motors the provided battery compartment will be used, which holds four AA batteries <span class="arithmatex">\(4 \cdot 1.5\text{V} = 6\text{V}\)</span>.</p>
+<p>DiffBot's motor supply uses the battery holder under the chassis.</p>
 <h3 id="i2c-hub"><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Hub</h3>
 <p>The Raspberry Pi provides just two <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> ports, which is why we will use a <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub. With the four port <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub from Grove it is possible to connect three <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> devices to a single <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> port of the Raspberry Pi</p>
 <figure class="half">
@@ -5826,4 +5822,111 @@ from Seeed Studio.</p>
 });
 const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
-</script></body></html>
+</script><script data-mkdocs-jupyter-mathjax="{&quot;url&quot;: &quot;https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js&quot;, &quot;version&quot;: 4}">
+/* Shared by full pages and Material's instant navigation. */
+(() => {
+  const config = JSON.parse(document.currentScript.dataset.mkdocsJupyterMathjax);
+  if (window.mkdocsJupyterMathJax) return;
+
+  let loading;
+  let queue = Promise.resolve();
+  let previous = [];
+
+  const ready = async () => {
+    if (!loading) {
+      loading = (async () => {
+        let math = window.MathJax;
+        if (!math?.typesetPromise) {
+          const url = new URL(config.url, document.baseURI).href;
+          const existing = Array.from(document.scripts).find(script =>
+            script.src && (script.src === url || script.id === 'MathJax-script' ||
+              (/mathjax/i.test(script.src) &&
+               /\/(?:MathJax|latest|(?:tex|mml)(?:-mml)?-(?:chtml|svg))\.js(?:[?#]|$)/i.test(script.src))));
+          if (existing) {
+            if (!math?.startup?.promise) {
+              await new Promise((resolve, reject) => {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+              });
+            }
+          } else {
+            // Keep site macros, delimiters and startup hooks when supplied.
+            const options = math || {};
+            window.MathJax = {
+              ...options,
+              loader: {
+                ...options.loader,
+                load: Array.from(new Set(['ui/safe', ...(options.loader?.load || [])]))
+              },
+              startup: { typeset: false, ...options.startup },
+              tex: {
+                tags: 'ams',
+                useLabelIds: true,
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                ...options.tex
+              }
+            };
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = config.url;
+              script.id = 'MathJax-script';
+              script.async = true;
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+        }
+        math = window.MathJax;
+        await math.startup.promise;
+        return math;
+      })();
+    }
+    const math = await loading;
+    // A site owner can extend the v3 queue again on each navigation.
+    await math.startup.promise;
+    return math;
+  };
+
+  const unrendered = node => {
+    if (node.matches('mjx-container')) return [];
+    if (!node.querySelector('mjx-container')) return [node];
+    // In v3, scanning generated assistive MathML again produces nested output.
+    return Array.from(node.children).flatMap(unrendered);
+  };
+
+  const refresh = () => {
+    // A separate chain also serializes v3, without changing v4's startup promise.
+    queue = queue.then(async () => {
+      const notebooks = Array.from(document.querySelectorAll('.jupyter-wrapper'));
+      if (!notebooks.length && !previous.length) return;
+      if (notebooks.length === previous.length &&
+          notebooks.every((node, index) => node === previous[index])) return;
+      const math = await ready();
+      if (previous.length) {
+        math.typesetClear(previous);
+        math.texReset();
+      }
+      previous = notebooks.filter(node => node.isConnected);
+      const pending = previous.flatMap(unrendered);
+      if (pending.length) await math.typesetPromise(pending);
+    }).catch(error => console.error('mkdocs-jupyter: MathJax rendering failed', error));
+    return queue;
+  };
+
+  window.mkdocsJupyterMathJax = { refresh };
+  const start = () => {
+    if (typeof document$ !== 'undefined') document$.subscribe(refresh);
+    else refresh();
+  };
+  // Theme bundles and user-provided MathJax scripts can follow notebook content.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else start();
+})();
+
+</script>
+</body></html>
