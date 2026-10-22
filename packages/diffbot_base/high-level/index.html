@@ -4901,8 +4901,8 @@ you need to add dependencies to their respective generation targets as well, bec
 </div>
 <h3 id="launch-file">Launch File</h3>
 <p>To run a single controller_manager, the one from the <code>diffbot_base</code> package defined inside <code>difbot_base.cpp</code> use the 
-launch file from <a href="https://github.com/fjp/diffbot/blob/master/ros/src/diffbot_base/launch/diffbot.launch"><code>diffbot_base/launch/diffbot.launch</code></a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+launch file from <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_base/launch/diffbot.launch"><code>diffbot_base/launch/diffbot.launch</code></a>. Its <code>model</code> argument selects the robot's description and its wheel geometry, <code>diffbot_control/config/&lt;model&gt;/geometry.yaml</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_base/launch/diffbot.launch</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
 <span class="normal"> 4</span>
@@ -4922,23 +4922,45 @@ launch file from <a href="https://github.com/fjp/diffbot/blob/master/ros/src/dif
 <span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
-<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">&lt;!-- https://github.com/ros-controls/ros_controllers/tree/kinetic-devel/diff_drive_controller/test --&gt;</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">&lt;!-- https://github.com/ros-controls/ros_controllers/tree/kinetic-devel/diff_drive_controller/test --&gt;</span>
 <span class="nt">&lt;launch&gt;</span>
-<span class="w">    </span><span class="cm">&lt;!-- Load DiffBot model --&gt;</span>
-<span class="w">    </span><span class="nt">&lt;param</span><span class="w"> </span><span class="na">name=</span><span class="s">"robot_description"</span>
-<span class="w">       </span><span class="na">command=</span><span class="s">"$(find xacro)/xacro '$(find diffbot_description)/urdf/diffbot.xacro'"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!--arg name="model" default="$(env DIFFBOT_MODEL)" doc="model type [diffbot, remo]"/--&gt;</span>
+<span class="w">    </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"model"</span><span class="w"> </span><span class="na">default=</span><span class="s">"diffbot"</span><span class="w"> </span><span class="na">doc=</span><span class="s">"model type [diffbot, remo]"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"description_package"</span><span class="w"> </span><span class="na">default=</span><span class="s">"$(eval find(arg('model') + '_description'))"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"urdf_file"</span><span class="w"> </span><span class="na">default=</span><span class="s">"$(find xacro)/xacro '$(arg description_package)/urdf/$(arg model).urdf.xacro'"</span><span class="w"> </span><span class="nt">/&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;node</span><span class="w"> </span><span class="na">name=</span><span class="s">"diffbot_base"</span><span class="w"> </span><span class="na">pkg=</span><span class="s">"diffbot_base"</span><span class="w"> </span><span class="na">type=</span><span class="s">"diffbot_base"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- Load the URDF model of DiffBot into the ROS Parameter Server --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;param</span><span class="w"> </span><span class="na">name=</span><span class="s">"diffbot/robot_description"</span><span class="w"> </span><span class="na">command=</span><span class="s">"$(arg urdf_file)"</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Run the diffbot_base --&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- This will create the DiffBot hardware interface and instantiate a new controller manager with it --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;node</span><span class="w"> </span><span class="na">name=</span><span class="s">"diffbot_base"</span><span class="w"> </span><span class="na">pkg=</span><span class="s">"diffbot_base"</span><span class="w"> </span><span class="na">type=</span><span class="s">"diffbot_base"</span><span class="w"> </span><span class="na">ns=</span><span class="s">"diffbot"</span><span class="w"> </span><span class="na">output=</span><span class="s">"screen"</span><span class="nt">/&gt;</span>
 
 <span class="w">    </span><span class="cm">&lt;!-- Load controller config to the parameter server --&gt;</span>
 <span class="w">    </span><span class="nt">&lt;rosparam</span><span class="w"> </span><span class="na">command=</span><span class="s">"load"</span><span class="w"> </span>
 <span class="w">              </span><span class="na">file=</span><span class="s">"$(find diffbot_control)/config/diffbot_control.yaml"</span><span class="nt">/&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- The robot's wheel radius and separation --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;rosparam</span><span class="w"> </span><span class="na">command=</span><span class="s">"load"</span>
+<span class="w">              </span><span class="na">file=</span><span class="s">"$(find diffbot_control)/config/$(arg model)/geometry.yaml"</span><span class="nt">/&gt;</span>
 
 <span class="w">    </span><span class="cm">&lt;!-- Load base config to the parameter server --&gt;</span>
 <span class="w">    </span><span class="nt">&lt;rosparam</span><span class="w"> </span><span class="na">command=</span><span class="s">"load"</span><span class="w"> </span>
 <span class="w">              </span><span class="na">file=</span><span class="s">"$(find diffbot_base)/config/base.yaml"</span><span class="nt">/&gt;</span>
 
 <span class="w">    </span><span class="cm">&lt;!-- Load the controllers --&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- This will use the controller manager that got started inside the difbot_base node --&gt;</span>
 <span class="w">    </span><span class="nt">&lt;node</span><span class="w"> </span><span class="na">name=</span><span class="s">"controller_spawner"</span><span class="w"> </span><span class="na">pkg=</span><span class="s">"controller_manager"</span><span class="w"> </span><span class="na">type=</span><span class="s">"spawner"</span><span class="w"> </span><span class="na">respawn=</span><span class="s">"false"</span>
 <span class="w">        </span><span class="na">output=</span><span class="s">"screen"</span><span class="w"> </span><span class="na">ns=</span><span class="s">"diffbot"</span><span class="w"> </span><span class="na">args=</span><span class="s">"joint_state_controller</span>
 <span class="s">                                            mobile_base_controller"</span><span class="nt">/&gt;</span>

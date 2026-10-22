@@ -4112,7 +4112,7 @@ The previous approach (high-level <abbr title="Proportional-integral-derivative.
 <h2 id="developing-a-low-level-controller-firmware-and-a-high-level-ros-control-hardware-interface-for-a-differential-drive-robot">Developing a low-level controller firmware and a high-level ROS Control hardware interface for a differential drive robot</h2>
 <p>In the following two sections, the base controller, mentioned in the Navigation
 Stack, will be developed.</p>
-<p></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Navigation Stack" src="../../resources/navigation/navigation_stack.png"></a></p>
 <p>For DiffBot/Remo, this platform-specific node is split into two software
 components.</p>
 <p>The first component is the high-level <code>diffbot::DiffBotHWInterface</code> that
@@ -4126,7 +4126,7 @@ simulation and the real robot.</p>
 <p>An overview of ROS Control in simulation and the real world is given in the
 following figure (<a href="http://gazebosim.org/tutorials/?tut=ros_control">http://gazebosim.org/tutorials/?tut=ros_control</a>):</p>
 <figure>
-<p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ROS Control simulation and reality" src="../../resources/packages/diffbot_base/ros-control-simulation-and-reality.svg"></a>
   </p>
 <figcaption>ROS Control in Simulation and Reality</figcaption>
 </figure>
@@ -4135,7 +4135,7 @@ wheel joint positions and velocities and applies the commands from the
 high-level interface to the wheel joints. The following figure shows the
 communication between the two components:</p>
 <figure>
-<p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Block diagram of low-level controller and high-level hardware interface" src="../../resources/packages/diffbot_base/block-diagram-low-level-base_controller-high-level-hardware_interface.svg"></a>
   </p>
 <figcaption>Block diagram of the low-level controller and the high-level hardware interface (ROS
 Control)</figcaption>

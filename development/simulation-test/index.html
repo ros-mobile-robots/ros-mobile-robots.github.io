@@ -4638,10 +4638,10 @@ SUMMARY
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>odometry: forward 0.580 m, left 0.001 m, turned 0.005 rad
-true pose: forward 0.590 m, left 0.001 m, turned 0.004 rad
-odometry: forward 0.006 m, left 0.002 m, turned 1.370 rad
-true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>odometry: forward 0.580 m, left 0.002 m, turned 0.007 rad
+true pose: forward 0.580 m, left 0.002 m, turned 0.006 rad
+odometry: forward 0.006 m, left 0.002 m, turned 1.351 rad
+true pose: forward 0.017 m, left -0.015 m, turned 1.144 rad
 </code></pre></div></td></tr></tbody></table></div>
 <p>Each drive is measured twice: with the robot's odometry and with its true pose in Gazebo (<a href="#how-it-works">How it works</a>). The first two lines are <code>test_forward</code>, which commands 0.6 m straight ahead; the last two are <code>test_turn</code>, which commands 1.5 rad on the spot. <code>forward</code>, <code>left</code> and <code>turned</code> describe the motion as seen from where the robot started (<a href="#relative_pose"><code>relative_pose()</code></a>). The numbers aren't exactly the commanded ones: the checks accept a range around each expected value (<a href="#the-checks">the checks</a>), and <a href="#why-the-results-differ-from-the-commands">Why the results differ from the commands</a> explains where the differences come from.</p>
 <h2 id="how-it-works">How it works</h2>
@@ -4691,28 +4691,29 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <text class="t-mono" x="100.0" y="44.0" text-anchor="middle">test_drive.py</text>
 <rect class="n" x="200" y="24" width="140" height="32" rx="4"></rect>
 <text class="t-mono" x="270.0" y="44.0" text-anchor="middle">publishtest</text>
-<path class="a" marker-end="url(#rc-sim-a)" d="M100,56 V180"></path>
+<path class="a" marker-end="url(#rc-sim-a)" d="M100,56 V192"></path>
 <text class="t-topic" x="106" y="96" text-anchor="start">cmd_vel</text>
-<path class="a" marker-end="url(#rc-sim-a)" d="M160,180 V56"></path>
+<path class="a" marker-end="url(#rc-sim-a)" d="M160,192 V56"></path>
 <path class="a" marker-end="url(#rc-sim-a)" d="M160,118 H212 V56"></path>
 <text class="t-topic" x="166" y="112" text-anchor="start">odom</text>
-<path class="a" marker-end="url(#rc-sim-a)" d="M300,180 V56"></path>
+<path class="a" marker-end="url(#rc-sim-a)" d="M300,192 V56"></path>
 <text class="t-topic" x="294" y="86" text-anchor="end">joint_states</text>
-<rect class="c-shared" x="30" y="160" width="304" height="86" rx="6"></rect>
-<text class="t-cont" x="38" y="239">Controller manager</text>
-<text class="t-yaml" x="174" y="173" text-anchor="start">diffbot_control.yaml</text>
-<rect class="n" x="38" y="180" width="146" height="44" rx="4"></rect>
-<text class="t-node" x="111.0" y="199.5" text-anchor="middle">mobile_base_controller</text>
-<text class="t-sub" x="111.0" y="212.5" text-anchor="middle">diff_drive_controller</text>
-<rect class="n" x="190" y="180" width="138" height="44" rx="4"></rect>
-<text class="t-node" x="259.0" y="206.0" text-anchor="middle">joint_state_controller</text>
-<path class="a" marker-end="url(#rc-sim-a)" d="M160,224 V290"></path>
-<text class="t-flow" x="154" y="258" text-anchor="end">velocity</text>
-<text class="t-flow" x="154" y="270" text-anchor="end">commands</text>
-<path class="a" marker-end="url(#rc-sim-a)" d="M176,290 V224"></path>
-<path class="a" marker-end="url(#rc-sim-a)" d="M262,290 V224"></path>
-<text class="t-flow" x="219" y="258" text-anchor="middle">positions,</text>
-<text class="t-flow" x="219" y="270" text-anchor="middle">velocities</text>
+<rect class="c-shared" x="30" y="160" width="304" height="98" rx="6"></rect>
+<text class="t-cont" x="38" y="251">Controller manager</text>
+<text class="t-yaml" x="166" y="173" text-anchor="start">diffbot_control.yaml</text>
+<text class="t-yaml" x="166" y="185" text-anchor="start">+ geometry.yaml</text>
+<rect class="n" x="38" y="192" width="146" height="44" rx="4"></rect>
+<text class="t-node" x="111.0" y="211.5" text-anchor="middle">mobile_base_controller</text>
+<text class="t-sub" x="111.0" y="224.5" text-anchor="middle">diff_drive_controller</text>
+<rect class="n" x="190" y="192" width="138" height="44" rx="4"></rect>
+<text class="t-node" x="259.0" y="218.0" text-anchor="middle">joint_state_controller</text>
+<path class="a" marker-end="url(#rc-sim-a)" d="M160,236 V290"></path>
+<text class="t-flow" x="154" y="270" text-anchor="end">velocity</text>
+<text class="t-flow" x="154" y="282" text-anchor="end">commands</text>
+<path class="a" marker-end="url(#rc-sim-a)" d="M176,290 V236"></path>
+<path class="a" marker-end="url(#rc-sim-a)" d="M262,290 V236"></path>
+<text class="t-flow" x="219" y="270" text-anchor="middle">positions,</text>
+<text class="t-flow" x="219" y="282" text-anchor="middle">velocities</text>
 <rect class="n" x="38" y="290" width="290" height="56" rx="4"></rect>
 <text class="t-node" x="183.0" y="309.0" text-anchor="middle">Hardware interface</text>
 <text class="t-mono" x="183.0" y="322.0" text-anchor="middle">DefaultRobotHWSim</text>
@@ -4739,27 +4740,28 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <text class="t-node" x="100.0" y="44.0" text-anchor="middle">teleop, navigation</text>
 <rect class="n" x="200" y="24" width="140" height="32" rx="4"></rect>
 <text class="t-mono" x="270.0" y="44.0" text-anchor="middle">robot_state_publisher</text>
-<path class="a" marker-end="url(#rc-real-a)" d="M100,56 V180"></path>
+<path class="a" marker-end="url(#rc-real-a)" d="M100,56 V192"></path>
 <text class="t-topic" x="106" y="96" text-anchor="start">cmd_vel</text>
-<path class="a" marker-end="url(#rc-real-a)" d="M160,180 V56"></path>
+<path class="a" marker-end="url(#rc-real-a)" d="M160,192 V56"></path>
 <text class="t-topic" x="166" y="112" text-anchor="start">odom</text>
-<path class="a" marker-end="url(#rc-real-a)" d="M300,180 V56"></path>
+<path class="a" marker-end="url(#rc-real-a)" d="M300,192 V56"></path>
 <text class="t-topic" x="294" y="86" text-anchor="end">joint_states</text>
-<rect class="c-shared" x="30" y="160" width="304" height="86" rx="6"></rect>
-<text class="t-cont" x="38" y="239">Controller manager</text>
-<text class="t-yaml" x="174" y="173" text-anchor="start">diffbot_control.yaml</text>
-<rect class="n" x="38" y="180" width="146" height="44" rx="4"></rect>
-<text class="t-node" x="111.0" y="199.5" text-anchor="middle">mobile_base_controller</text>
-<text class="t-sub" x="111.0" y="212.5" text-anchor="middle">diff_drive_controller</text>
-<rect class="n" x="190" y="180" width="138" height="44" rx="4"></rect>
-<text class="t-node" x="259.0" y="206.0" text-anchor="middle">joint_state_controller</text>
-<path class="a" marker-end="url(#rc-real-a)" d="M160,224 V290"></path>
-<text class="t-flow" x="154" y="258" text-anchor="end">velocity</text>
-<text class="t-flow" x="154" y="270" text-anchor="end">commands</text>
-<path class="a" marker-end="url(#rc-real-a)" d="M176,290 V224"></path>
-<path class="a" marker-end="url(#rc-real-a)" d="M262,290 V224"></path>
-<text class="t-flow" x="219" y="258" text-anchor="middle">positions,</text>
-<text class="t-flow" x="219" y="270" text-anchor="middle">velocities</text>
+<rect class="c-shared" x="30" y="160" width="304" height="98" rx="6"></rect>
+<text class="t-cont" x="38" y="251">Controller manager</text>
+<text class="t-yaml" x="166" y="173" text-anchor="start">diffbot_control.yaml</text>
+<text class="t-yaml" x="166" y="185" text-anchor="start">+ geometry.yaml</text>
+<rect class="n" x="38" y="192" width="146" height="44" rx="4"></rect>
+<text class="t-node" x="111.0" y="211.5" text-anchor="middle">mobile_base_controller</text>
+<text class="t-sub" x="111.0" y="224.5" text-anchor="middle">diff_drive_controller</text>
+<rect class="n" x="190" y="192" width="138" height="44" rx="4"></rect>
+<text class="t-node" x="259.0" y="218.0" text-anchor="middle">joint_state_controller</text>
+<path class="a" marker-end="url(#rc-real-a)" d="M160,236 V290"></path>
+<text class="t-flow" x="154" y="270" text-anchor="end">velocity</text>
+<text class="t-flow" x="154" y="282" text-anchor="end">commands</text>
+<path class="a" marker-end="url(#rc-real-a)" d="M176,290 V236"></path>
+<path class="a" marker-end="url(#rc-real-a)" d="M262,290 V236"></path>
+<text class="t-flow" x="219" y="270" text-anchor="middle">positions,</text>
+<text class="t-flow" x="219" y="282" text-anchor="middle">velocities</text>
 <rect class="n" x="38" y="290" width="290" height="56" rx="4"></rect>
 <text class="t-node" x="183.0" y="309.0" text-anchor="middle">Hardware interface</text>
 <text class="t-mono" x="183.0" y="322.0" text-anchor="middle">DiffBotHWInterface</text>
@@ -4818,7 +4820,7 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <td style="text-align: left;">The odometry</td>
 <td style="text-align: left;"><code>/diffbot/mobile_base_controller/odom</code></td>
 <td style="text-align: left;">diff_drive_controller</td>
-<td style="text-align: left;">The pose that the controller computes from the wheel angles, with the wheel radius and separation from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a></td>
+<td style="text-align: left;">The pose that the controller computes from the wheel angles, with the robot's wheel radius and separation from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config"><code>config/&lt;model&gt;/geometry.yaml</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;">The true pose</td>
@@ -4889,7 +4891,7 @@ true pose: forward 0.019 m, left -0.016 m, turned 1.263 rad
 <text class="t-node" x="270.0" y="277.5" text-anchor="middle">distance the model rolls</text>
 <text class="t-sub" x="270.0" y="290.5" text-anchor="middle">Gazebo physics, ideally</text>
 </svg>
-<figcaption>The configured radius <span class="arithmatex">\(r_\text{cfg}\)</span> from <code>diffbot_control.yaml</code> is used twice on the way to the odometry, the model's radius <span class="arithmatex">\(r_\text{model}\)</span> from the URDF once on the way to the true pose.</figcaption>
+<figcaption>The configured radius <span class="arithmatex">\(r_\text{cfg}\)</span> from <code>diffbot_control/config/&lt;model&gt;/geometry.yaml</code> is used twice on the way to the odometry, the model's radius <span class="arithmatex">\(r_\text{model}\)</span> from the URDF once on the way to the true pose.</figcaption>
 </figure>
 
 <p>For a straight drive at <span class="arithmatex">\(v\)</span> for the time <span class="arithmatex">\(t\)</span>, with the configured radius <span class="arithmatex">\(r_\text{cfg}\)</span> and the model's radius <span class="arithmatex">\(r_\text{model}\)</span>, and assuming that the wheels follow their speed command exactly and don't slip, the wheels turn by the angle <span class="arithmatex">\(\Delta\phi\)</span> (rad), and:</p>
@@ -4905,7 +4907,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <p><strong>Why the agreement checks can be narrower.</strong> Both measurements observe the same drive, so the timing and the wheel speed affect both. Their difference is usually smaller than either one's difference from the expected motion; the wheel geometry and slip still make them disagree (<a href="#why-the-odometry-and-the-true-pose-differ">Why the odometry and the true pose differ</a>).</p>
 <p><strong>What a pass shows.</strong> "True" means the pose of the robot model in Gazebo, not of the real robot. A passing test shows that the robot model and the controller configuration work together in the simulation; it doesn't calibrate the real robot. The tolerances allow what the robots measure in normal runs and reject the mistakes that were tried on purpose, but smaller mistakes may pass (<a href="#the-checks">the checks</a>).</p>
 <h3 id="on-the-real-robot">On the real robot</h3>
-<p>Switch the figure to the second tab, <em>Real robot</em>. The blue box stays the same: the controller manager with the two controllers, configured by <code>diffbot_control.yaml</code>. Only the hardware interface and what's below it change.</p>
+<p>Switch the figure to the second tab, <em>Real robot</em>. The blue box stays the same: the controller manager with the two controllers, configured by <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a> and the robot's <code>geometry.yaml</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot/geometry.yaml">DiffBot</a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/remo/geometry.yaml">Remo</a>). Only the hardware interface and what's below it change.</p>
 <p>On the real robot, the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base</code></a> node takes Gazebo's place. It creates the hardware interface <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_hw_interface.cpp"><code>DiffBotHWInterface</code></a> and a controller manager, and runs the loop itself: <code>read()</code>, update the controllers, <code>write()</code>. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/launch/diffbot.launch">launch file</a> loads the same <code>diffbot_control.yaml</code> and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics:</p>
 <ul>
 <li>It subscribes to <code>measured_joint_states</code>, the wheel angles and velocities that the Teensy publishes, and <code>read()</code> passes the latest values to the controllers.</li>
@@ -4918,7 +4920,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <p><code>test_forward()</code> calls <code>measure_motion()</code>, which calls <code>drive()</code>, <code>stop()</code> and, once for the odometry and once for the true pose, <code>relative_pose()</code>. Then <code>test_forward()</code> checks the two motions it got back. While this runs, the subscriber callbacks keep the latest odometry pose and true pose up to date in the background. <code>test_turn()</code> uses the same <code>measure_motion()</code>.</p>
 <p>The code blocks show the files at the diffbot commit that this page pins, with their comments, and the line numbers are the files'. The link above each block opens the same lines on GitHub.</p>
 <h3 id="1-the-test-file">1. The test file</h3>
-<p>A <code>.test</code> file is a launch file for rostest. <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/sim_drive_diffbot.test"><code>sim_drive_diffbot.test</code></a>:</p>
+<p>A <code>.test</code> file is a launch file for rostest. <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/sim_drive_diffbot.test"><code>sim_drive_diffbot.test</code></a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_drive_diffbot.test</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4972,7 +4974,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <p>rostest turns each <code>&lt;test&gt;</code> element into a test of its own and runs them one after another, in alphabetical order of their names: first <code>drive_diffbot</code>, then <code>publish_diffbot</code>. For each one, it starts a ROS master, launches everything in the file that isn't a test node, here <code>sim_drive.launch</code> (<a href="#2-the-launch-file">step 2</a>), and runs the test node until it ends. Then it reads the node's results and stops everything again (<a href="https://github.com/ros/ros_comm/blob/noetic-devel/tools/rostest/src/rostest/runner.py"><code>runner.py</code></a>). So each test node gets a freshly started Gazebo, and the two don't affect each other. <code>time-limit</code> is how long rostest waits for a node before it counts the test as failed.</p>
 <p><code>sim_drive_remo.test</code> differs only in the robot model, the port and the test names.</p>
 <h3 id="2-the-launch-file">2. The launch file</h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/sim_drive.launch"><code>sim_drive.launch</code></a> starts the robot in Gazebo and its controllers:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/sim_drive.launch"><code>sim_drive.launch</code></a> starts the robot in Gazebo and its controllers:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_drive.launch</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -5019,11 +5021,11 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/launch/diffbot_view.launch"><code>diffbot_view.launch</code></a> starts the Gazebo server on the <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/worlds/diffbot_empty.world">empty world</a>, which has a ground plane for the robot to stand on and a light. It runs with simulation time: Gazebo publishes its clock, and all nodes use it instead of the computer's clock (<code>use_sim_time</code>). On a slow computer the test takes longer, but the robot drives the same distance. Then <code>spawn_model</code> adds the robot from its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to the world, at x = −2 m, y = −0.5 m, while the simulation is already running.</li>
-<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/diffbot_control.launch"><code>diffbot_control.launch</code></a> loads <code>diffbot_control.yaml</code>, the controller configuration that the real robot uses too, and <code>pid.yaml</code>, the gains of Gazebo's wheel velocity controllers. Its <code>controller_spawner</code> asks the controller manager to load and start the two controllers. It also starts <code>robot_state_publisher</code>, which the test doesn't use. <code>rqt_robot_steering</code>, a window with sliders to drive the robot, stays off, because it needs a display.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/diffbot_control.launch"><code>diffbot_control.launch</code></a> loads <code>diffbot_control.yaml</code> and the robot's <code>geometry.yaml</code>, the controller configuration that the real robot uses too, and <code>pid.yaml</code>, the gains of Gazebo's wheel velocity controllers. Its <code>controller_spawner</code> asks the controller manager to load and start the two controllers. It also starts <code>robot_state_publisher</code>, which the test doesn't use. <code>rqt_robot_steering</code>, a window with sliders to drive the robot, stays off, because it needs a display.</li>
 </ul>
 <p><a href="#how-it-works">How it works</a> shows how these parts work together.</p>
 <h3 id="3-connecting-to-the-robot">3. Connecting to the robot</h3>
-<p>rostest starts <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a> as a ROS node. Its last line, <code>rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)</code>, runs the <a href="https://docs.python.org/3/library/unittest.html">unittest</a> class <code>TestDrive</code> and writes the results to a file that rostest reads. unittest calls <code>setUpClass()</code> once, then the test methods. <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L113-L133"><code>test_drive.py</code>, lines 113–133</a>:</p>
+<p>rostest starts <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code></a> as a ROS node. Its last line, <code>rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)</code>, runs the <a href="https://docs.python.org/3/library/unittest.html">unittest</a> class <code>TestDrive</code> and writes the results to a file that rostest reads. unittest calls <code>setUpClass()</code> once, then the test methods. <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L113-L133"><code>test_drive.py</code>, lines 113–133</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: TestDrive.setUpClass()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
@@ -5072,7 +5074,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <li>The two subscribers call <code>on_odom()</code> for each odometry message, and <code>on_model_states()</code> for each <code>model_states</code> message. Gazebo publishes <code>model_states</code> in every simulation step, so <code>queue_size=1</code> keeps only the newest message instead of falling behind.</li>
 <li><code>rospy.wait_for_message()</code> waits for the first message on a topic. If none comes within the timeout, it raises an exception and the tests fail, for example when the controller doesn't start because of a wrong joint name.</li>
 </ul>
-<p>The callbacks, <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L135-L145">lines 135–145</a>:</p>
+<p>The callbacks, <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L135-L145">lines 135–145</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: the subscriber callbacks</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
@@ -5096,7 +5098,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
         <span class="bp">cls</span><span class="o">.</span><span class="n">true_pose</span> <span class="o">=</span> <span class="n">to_pose2d</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">pose</span><span class="p">[</span><span class="n">msg</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">MODEL_NAME</span><span class="p">)])</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>rospy calls them in background threads whenever a message arrives, so <code>odom_pose</code> and <code>true_pose</code> always hold the latest pose. <code>msg.name.index(MODEL_NAME)</code> finds the robot's position in the list of model names, and its pose is at the same position in <code>msg.pose</code>.</p>
-<p>Both convert the ROS pose to a <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L47-L52"><code>Pose2D</code></a>, a <a href="https://docs.python.org/3/library/typing.html#typing.NamedTuple">named tuple</a> with <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> and the heading <span class="arithmatex">\(\theta\)</span>, as on <a href="../../theory/modeling-control/robot-representations/#robot-pose">Robot Representations</a>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L69-L78">Lines 69–78</a>:</p>
+<p>Both convert the ROS pose to a <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L47-L52"><code>Pose2D</code></a>, a <a href="https://docs.python.org/3/library/typing.html#typing.NamedTuple">named tuple</a> with <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> and the heading <span class="arithmatex">\(\theta\)</span>, as on <a href="../../theory/modeling-control/robot-representations/#robot-pose">Robot Representations</a>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L69-L78">Lines 69–78</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: to_pose2d()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
@@ -5119,7 +5121,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 </code></pre></div></td></tr></tbody></table></div>
 <p>A <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">quaternion</a> has four numbers that describe any rotation in 3D, without the special cases of three angles (<a href="http://wiki.ros.org/tf2/Tutorials/Quaternions">tf2 quaternion tutorial</a>). ROS's axes and angles follow <a href="https://www.ros.org/reps/rep-0103.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>: x forward, y to the left, z up, and the yaw grows when the robot turns to the left.</p>
 <h3 id="4-test_forward">4. <code>test_forward()</code></h3>
-<p>The constants at the top of the file name the commands, <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L36-L44">lines 36–44</a>:</p>
+<p>The constants at the top of the file name the commands, <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L36-L44">lines 36–44</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: the commands</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
@@ -5138,7 +5140,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <span class="c1"># A late wake-up or message can add more; the tolerances leave room for it</span>
 <span class="n">COMMAND_RATE</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># Hz</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>test_forward()</code>, with the comment before the two tests, <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L179-L201">lines 179–201</a>:</p>
+<p><code>test_forward()</code>, with the comment before the two tests, <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L179-L201">lines 179–201</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: test_forward()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
 <span class="normal">180</span>
 <span class="normal">181</span>
@@ -5181,13 +5183,13 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
         <span class="c1"># Straight ahead (about 1 mm to the side measured), and without turning</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">motion</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">motions</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">motion</span><span class="o">.</span><span class="n">turned</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">motions</span><span class="p">)</span>
-    <span class="c1"># The odometry and the true distance are 0.010 to 0.011 m apart. A wheel_radius in</span>
-    <span class="c1"># diffbot_control.yaml 10 % bigger or smaller than now gave about 0.044 m and 0.076 m</span>
+    <span class="c1"># The odometry and the true distance are at most 0.001 m apart. A wheel_radius in</span>
+    <span class="c1"># config/&lt;model&gt;/geometry.yaml 10 % bigger or smaller gave about 0.053 m and 0.064 m</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">odom_motion</span><span class="o">.</span><span class="n">forward</span><span class="p">,</span> <span class="n">true_motion</span><span class="o">.</span><span class="n">forward</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">motions</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>It has two parts. <code>measure_motion()</code> drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: <code>odom_motion</code> with the odometry, and <code>true_motion</code> with the true pose. Each one is a <code>RelativePose</code>, with how far the robot moved forward and to the left, and how much it turned (<a href="#relative_pose"><code>relative_pose()</code></a>). <code>motions</code> describes both, for the checks' failure messages. The rest are the checks (<a href="#the-checks">The checks</a>). The call names its arguments, so it reads without looking up <code>measure_motion()</code>.</p>
 <h4 id="measure_motion"><code>measure_motion()</code></h4>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L164-L177">Lines 164–177</a>:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L164-L177">Lines 164–177</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: measure_motion()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
 <span class="normal">165</span>
 <span class="normal">166</span>
@@ -5218,7 +5220,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 </code></pre></div></td></tr></tbody></table></div>
 <p>It keeps the latest odometry pose and true pose as the start poses, drives (<a href="#drive"><code>drive()</code></a>), stops (<a href="#stop"><code>stop()</code></a>), and computes, for each source, where the robot ended up relative to where it started (<a href="#relative_pose"><code>relative_pose()</code></a>). The logged lines are the ones in <a href="#read-the-results">Read the results</a>.</p>
 <h4 id="drive"><code>drive()</code></h4>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L147-L157">Lines 147–157</a>:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L147-L157">Lines 147–157</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: drive()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
@@ -5246,7 +5248,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <li><code>rospy.Time.now()</code> and <code>rospy.Rate</code> follow Gazebo's clock (<a href="#2-the-launch-file">step 2</a>), so <code>duration</code> and <code>COMMAND_RATE</code> are in simulation time. Why the command is sent 20 times per second is in the comment above <code>COMMAND_RATE</code>.</li>
 </ul>
 <h4 id="stop"><code>stop()</code></h4>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L159-L162">Lines 159–162</a>:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L159-L162">Lines 159–162</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: stop()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
@@ -5296,7 +5298,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 \]</div>
 <p>and the angle it turned is <span class="arithmatex">\(\text{turned} = \theta_1 - \theta_0\)</span>.</p>
 <p>The matrix is the transpose of the rotation matrix <span class="arithmatex">\(R(\theta_0)\)</span>, which turns a vector from the robot's frame into the frame of the poses; the transpose turns it back. This is the relative pose, a standard operation on poses: with homogeneous transforms, it is <span class="arithmatex">\(T_0^{-1} T_1\)</span> (Peter Corke, <em>Robotics, Vision and Control</em>, chapter 2, <a href="https://www.amazon.com/dp/3031064682?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/3031064682?tag=fjp-21">Amazon.de</a>, affiliate links). Moving or rotating the frame of the poses changes both poses the same way, so the relative pose stays the same, and the motion from the odometry and from the true pose can be compared.</p>
-<p><code>RelativePose</code> holds the three numbers, <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L55-L66">lines 55–66</a>:</p>
+<p><code>RelativePose</code> holds the three numbers, <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L55-L66">lines 55–66</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: RelativePose</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
@@ -5321,7 +5323,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
     <span class="n">left</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">turned</span><span class="p">:</span> <span class="nb">float</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>relative_pose()</code> computes them, with <code>wrap()</code> for the angle, <a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L81-L110">lines 81–110</a>:</p>
+<p><code>relative_pose()</code> computes them, with <code>wrap()</code> for the angle, <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L81-L110">lines 81–110</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: wrap() and relative_pose()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
 <span class="normal"> 82</span>
 <span class="normal"> 83</span>
@@ -5412,21 +5414,21 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <tr>
 <td style="text-align: left;"><code>turned</code></td>
 <td style="text-align: left;">0 ± 0.2 rad</td>
-<td style="text-align: left;">0.005 rad or less</td>
+<td style="text-align: left;">About 0.007 rad or less</td>
 <td style="text-align: left;">Its heading changes, for example because one wheel turns slower</td>
 </tr>
 <tr>
 <td style="text-align: left;">Odometry and true <code>forward</code></td>
 <td style="text-align: left;">Within 0.03 m</td>
-<td style="text-align: left;">0.010 to 0.011 m apart</td>
-<td style="text-align: left;">The controller's wheel radius doesn't match the model: a <code>wheel_radius</code> 10 % bigger or smaller than the configured 0.0325 m gave about 0.044 m and 0.076 m</td>
+<td style="text-align: left;">At most 0.001 m apart</td>
+<td style="text-align: left;">The controller's wheel radius doesn't match the model: a <code>wheel_radius</code> in <code>geometry.yaml</code> 10 % bigger or smaller gave about 0.053 m and 0.064 m</td>
 </tr>
 </tbody>
 </table>
-<p>A bigger mistake already fails the true pose's <code>forward</code> check: with a <code>wheel_radius</code> 20 % bigger than configured, the robot drove only 0.49 m.</p>
+<p>A bigger mistake already fails the true pose's <code>forward</code> check: with a <code>wheel_radius</code> 20 % bigger than the robot's, it drove only 0.48 m.</p>
 <p><a href="#why-the-results-differ-from-the-commands">Why the results differ from the commands</a> explains why the robots drive 0.56 to 0.62 m instead of 0.6 m.</p>
 <h3 id="5-test_turn">5. <code>test_turn()</code></h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/470870ea678414b6a3e5f28c7650cd752d0c6821/diffbot_gazebo/test/test_drive.py#L203-L220">Lines 203–220</a>. The highlighted lines are the ones that differ from <code>test_forward()</code>:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_gazebo/test/test_drive.py#L203-L222">Lines 203–222</a>. The highlighted lines are the ones that differ from <code>test_forward()</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_drive.py: test_turn()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
 <span class="normal">204</span>
 <span class="normal">205</span>
@@ -5444,23 +5446,27 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <span class="normal">217</span>
 <span class="normal">218</span>
 <span class="normal">219</span>
-<span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">odom_motion</span><span class="p">,</span> <span class="n">true_motion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure_motion</span><span class="p">(</span>
 <span class="hll">        <span class="n">linear_velocity</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">angular_velocity</span><span class="o">=</span><span class="n">TURN_VELOCITY</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">DURATION</span><span class="p">)</span>
 </span>    <span class="n">motions</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'odometry </span><span class="si">{</span><span class="n">odom_motion</span><span class="si">}</span><span class="s1">, true pose </span><span class="si">{</span><span class="n">true_motion</span><span class="si">}</span><span class="s1">'</span>
-    <span class="c1"># w * t = 1.5 rad to the left, on the spot. In Gazebo the robots turn less (DiffBot about</span>
-    <span class="c1"># 1.3 rad, Remo 0.92 to 1.34 rad): Gazebo's wheel velocity controller</span>
+    <span class="c1"># w * t = 1.5 rad to the left, on the spot. In Gazebo the robots turn less (DiffBot 1.13 to</span>
+    <span class="c1"># 1.14 rad, Remo 1.14 to 1.16 rad): Gazebo's wheel velocity controller</span>
     <span class="c1"># (diffbot_control/config/pid.yaml) has only a P gain, which leaves Remo's wheels at about</span>
-    <span class="c1"># 80 % of the commanded speed, and the wheels slip. Until the gains are tuned (#116), the</span>
-    <span class="c1"># tolerance is wide; a robot that turns right or not at all still fails</span>
+    <span class="c1"># 80 % of the commanded speed, and DiffBot's wheels touch the ground at their outer edges</span>
+    <span class="c1"># (#118). Until the gains are tuned (#116), the tolerance is wide; a robot that turns right</span>
+    <span class="c1"># or not at all still fails</span>
 <span class="hll">    <span class="n">expected_turn</span> <span class="o">=</span> <span class="n">TURN_VELOCITY</span> <span class="o">*</span> <span class="n">DURATION</span>
 </span>    <span class="k">for</span> <span class="n">motion</span> <span class="ow">in</span> <span class="p">(</span><span class="n">odom_motion</span><span class="p">,</span> <span class="n">true_motion</span><span class="p">):</span>
 <span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">motion</span><span class="o">.</span><span class="n">turned</span><span class="p">,</span> <span class="n">expected_turn</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">motions</span><span class="p">)</span>
 </span>        <span class="c1"># On the spot: its center drifts 2 to 4 cm in Gazebo</span>
 <span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">motion</span><span class="o">.</span><span class="n">forward</span><span class="p">,</span> <span class="n">motion</span><span class="o">.</span><span class="n">left</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
 </span><span class="hll">                               <span class="n">msg</span><span class="o">=</span><span class="n">motions</span><span class="p">)</span>
-</span>    <span class="c1"># The wheels slip a little when turning on the spot (0.02 to 0.11 rad apart). With a</span>
-    <span class="c1"># wheel_radius 15 % bigger than now, DiffBot's were 0.27 rad apart, but Remo's only 0.11</span>
+</span>    <span class="c1"># DiffBot turns 15 % less than its odometry (0.20 to 0.21 rad apart): Gazebo puts its</span>
+    <span class="c1"># wheels' contacts at their outer edges (#118). Remo's are about 0.01 rad apart. A</span>
+    <span class="c1"># wheel_radius 10 % bigger gave 0.31 rad for DiffBot, but Remo's only 0.11</span>
 <span class="hll">    <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">odom_motion</span><span class="o">.</span><span class="n">turned</span><span class="p">,</span> <span class="n">true_motion</span><span class="o">.</span><span class="n">turned</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">motions</span><span class="p">)</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 <p>It commands the angular velocity instead of the linear one and expects 0.5 rad/s for 3 s, so 1.5 rad to the left; the controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. <a href="https://docs.python.org/3/library/math.html#math.hypot"><code>math.hypot</code></a><code>(forward, left)</code> is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever <code>test_forward()</code> left the robot; that doesn't matter, because it checks only the motion from there.</p>
@@ -5477,7 +5483,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <tr>
 <td style="text-align: left;"><code>turned</code></td>
 <td style="text-align: left;">1.5 ± 1.0 rad</td>
-<td style="text-align: left;">DiffBot about 1.3 rad, Remo 0.92 to 1.34 rad</td>
+<td style="text-align: left;">DiffBot 1.13 to 1.14 rad, Remo 1.14 to 1.16 rad</td>
 <td style="text-align: left;">The robot turns right, for example with swapped wheel joints, or doesn't turn</td>
 </tr>
 <tr>
@@ -5489,8 +5495,8 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <tr>
 <td style="text-align: left;">Odometry and true <code>turned</code></td>
 <td style="text-align: left;">Within 0.25 rad</td>
-<td style="text-align: left;">0.02 to 0.11 rad apart</td>
-<td style="text-align: left;">They turn clearly differently. A <code>wheel_radius</code> 15 % bigger than configured gave 0.27 rad for DiffBot, which fails, but only 0.11 rad for Remo, which passes</td>
+<td style="text-align: left;">DiffBot 0.20 to 0.21 rad apart, Remo about 0.01 rad</td>
+<td style="text-align: left;">They turn clearly differently. A <code>wheel_radius</code> 10 % bigger gave 0.31 rad for DiffBot, which fails, but only 0.11 rad for Remo, which passes</td>
 </tr>
 </tbody>
 </table>
@@ -5503,19 +5509,20 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <ul>
 <li><strong>Timing:</strong> <code>drive()</code> sends the command for 3 s of simulation time, but the last command stays in effect until <code>stop()</code>, nominally up to 50 ms longer: 1 cm or 0.025 rad more (the comment above <code>COMMAND_RATE</code>).</li>
 <li><strong>Acceleration and braking:</strong> diff_drive_controller limits the acceleration (<code>diffbot_control.yaml</code>: 0.6 m/s² and 6 rad/s²), and it limits braking the same way, because <code>min_acceleration</code> defaults to the negative maximum. Speeding up to 0.2 m/s takes 0.33 s and covers 3.3 cm less than an instant start would. Braking after the zero command takes just as long and covers the same 3.3 cm more. <code>measure_motion()</code> measures after <code>stop()</code> has waited until the robot stands still, so the two cancel. The angular limit hardly matters for the turn.</li>
-<li><strong>Wheel speed:</strong> in the simulation, each wheel's velocity is controlled by <code>DefaultRobotHWSim</code>'s <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller with the gains from <code>pid.yaml</code>, which has only a P gain. A controller with only a P gain can leave a speed error, especially under load. This is clearly visible when Remo turns on the spot: its wheels reach only about 80 % of the commanded speed, and their speed jitters (<a href="https://github.com/ros-mobile-robots/diffbot/issues/116">diffbot#116</a>). DiffBot's odometry, which counts the wheel turns, shows 0.56 to 0.59 m instead of 0.6 m, and 1.37 rad instead of 1.5 rad. Slower wheels can contribute to that, as can what happens while the robot starts and stops, but the test doesn't measure these effects separately.</li>
+<li><strong>Wheel speed:</strong> in the simulation, each wheel's velocity is controlled by <code>DefaultRobotHWSim</code>'s <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller with the gains from <code>pid.yaml</code>, which has only a P gain. A controller with only a P gain can leave a speed error, especially under load. This is clearly visible when Remo turns on the spot: its wheels reach only about 80 % of the commanded speed, and their speed jitters (<a href="https://github.com/ros-mobile-robots/diffbot/issues/116">diffbot#116</a>). DiffBot's odometry, which counts the wheel turns, shows 0.56 to 0.59 m instead of 0.6 m, and 1.33 to 1.35 rad instead of 1.5 rad. Slower wheels can contribute to that, as can what happens while the robot starts and stops, but the test doesn't measure these effects separately.</li>
 </ul>
 <h3 id="why-the-odometry-and-the-true-pose-differ">Why the odometry and the true pose differ</h3>
-<p>The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from <code>diffbot_control.yaml</code>. The true pose comes from the simulated robot. Two things make them differ:</p>
+<p>The odometry only knows how far the wheels turned, and converts that with the wheel radius and separation from the robot's <code>geometry.yaml</code>. These are the robot's measured values, the same as in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>: radius 0.0333 m and separation 0.138 m for DiffBot, 0.0330 m and 0.144 m for Remo. The simulated robot can still move differently, because the odometry can't see how the wheels touch the ground:</p>
 <ul>
-<li><strong>The configured geometry doesn't match the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>.</strong> Both robots use <code>diffbot_control.yaml</code>, with a wheel radius of 0.0325 m and a wheel separation of 0.145 m. The URDFs have a wheel radius of 0.0331 m, and a separation of 0.135 m for DiffBot and 0.139 m for Remo. The simulated wheel rolls 1.8 % farther per turn than the odometry assumes, so the odometry's 0.580 m become 0.590 m.</li>
-<li><strong>The odometry can't see slip.</strong> With the configured geometry, DiffBot's wheel turns give 1.37 rad, which is what its odometry reports. With the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s geometry, the same wheel turns would turn the robot about 1.50 rad, but the simulated robot turned only 1.26 rad: about 16 % of the wheels' motion slipped. When the robot drives straight, the wheels hardly slip.</li>
+<li><strong>Driving straight,</strong> the odometry and the true pose agree to 1 mm.</li>
+<li><strong>Turning on the spot,</strong> DiffBot's wheel turns give 1.33 to 1.35 rad, which is what its odometry reports, but the simulated robot turned only 1.13 to 1.14 rad, 15 % less. The ratio, 0.85, is the ratio of its wheel separation, 0.138 m, to the distance between the wheels' outer edges, 0.163 m: in Gazebo, DiffBot's collision cylinders touch the ground at their outer edges, so the robot turns as if its wheels were farther apart. A turn with narrower collision wheels confirmed this (<a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>). Remo's odometry and true pose are only about 0.01 rad apart.</li>
 </ul>
+<p>Before <a href="https://github.com/ros-mobile-robots/diffbot/pull/119">diffbot#119</a>, both robots used one geometry, a wheel radius of 0.0325 m and a separation of 0.145 m, while their URDFs had nominal values (0.0331 m, 0.135 and 0.139 m). The true distance was then 1.8 % longer than the odometry, and DiffBot's wheels turned 9 % too fast for a commanded turn, which hid part of the effect.</p>
 <p>The checks that compare the odometry and the true pose allow these differences. <a href="#three-views-of-the-motion">Three views of the motion</a> explains why a wrong configuration can stay hidden in the odometry, and <a href="#the-checks">the checks</a> what the agreement checks rejected.</p>
 <h3 id="why-the-robots-and-repeated-runs-differ">Why the robots and repeated runs differ</h3>
 <ul>
-<li><strong>The models differ a lot.</strong> Both robots share the controller configuration and the wheel controller gains, but DiffBot's wheels weigh 0.5 kg each and use Gazebo's default contact settings. Remo's wheels weigh 32 g, with very stiff contacts and no contact damping (<code>robot.gazebo.xacro</code> in <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/include/robot.gazebo.xacro">remo_description</a>).</li>
-<li><strong>The variation differs a lot.</strong> Over four runs, DiffBot's turn varied by about 0.01 rad, Remo's between 0.92 and 1.34 rad.</li>
+<li><strong>The models differ a lot.</strong> Both robots share the wheel controller gains, but DiffBot's model gives each wheel a placeholder mass of 0.5 kg (the real wheels weigh 32 g, like Remo's) and uses Gazebo's default contact settings. Remo's model has the measured 32 g wheels, with very stiff contacts and no contact damping (<code>robot.gazebo.xacro</code> in <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/include/robot.gazebo.xacro">remo_description</a>).</li>
+<li><strong>The variation differs.</strong> In two runs, DiffBot turned 1.13 and 1.14 rad, Remo 1.14 and 1.16 rad; with the earlier geometry, Remo's turn varied between 0.92 and 1.34 rad.</li>
 <li><strong>A likely reason, not yet proven:</strong> Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. Remo's light model with stiff contacts would turn such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step.</li>
 </ul>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a> matches the geometry, masses and contact settings to each robot, and <a href="https://github.com/ros-mobile-robots/diffbot/issues/116">diffbot#116</a> then tunes the wheel controllers and narrows the turn's tolerance.</p>
@@ -5558,7 +5565,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <p><strong>Look at the measured values</strong> in the result file, as in <a href="#read-the-results">Read the results</a>. The first two lines are now <code>test_backward()</code>'s motions. In our run, DiffBot drove −0.57 m by the odometry and −0.58 m by the true pose, and turned 0.1 rad to the right on the way, more than when it drives forward. Remo drove −0.58 and −0.59 m, almost without turning.</p>
 </li>
 <li>
-<p><strong>Choose the tolerances.</strong> Each tolerance should allow what both robots measure and reject the mistakes the test should catch. To see what a mistake gives, make one on purpose: for example, make <code>wheel_radius</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a> 10 % bigger, run the test again, look at the values, and undo the change. Then set each tolerance between the two, and write in a comment what you measured.</p>
+<p><strong>Choose the tolerances.</strong> Each tolerance should allow what both robots measure and reject the mistakes the test should catch. To see what a mistake gives, make one on purpose: for example, make <code>wheel_radius</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/9525be6ae3e84c61adfe1be73b1a80464c64e183/diffbot_control/config/diffbot/geometry.yaml"><code>config/diffbot/geometry.yaml</code></a> 10 % bigger, run the test again, look at the values, and undo the change. Then set each tolerance between the two, and write in a comment what you measured.</p>
 </li>
 <li>
 <p><strong>Keep the file's style:</strong> <a href="https://peps.python.org/pep-0008/">PEP 8</a> with ROS 2's line length of 99 characters (<a href="https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini">ament_flake8's settings</a>), <a href="https://docs.python.org/3/library/typing.html">type hints</a>, and named constants instead of bare numbers in the commands.</p>
