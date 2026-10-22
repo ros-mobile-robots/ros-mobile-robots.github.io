@@ -122,7 +122,7 @@ A configured radius that's too big makes the controller command fewer wheel turn
 
 ### On the real robot
 
-Switch the figure to the second tab, *Real robot*. The blue box stays the same: the controller manager with the two controllers, configured by `diffbot_control.yaml` and the robot's `geometry.yaml`. Only the hardware interface and what's below it change.
+Switch the figure to the second tab, *Real robot*. The blue box stays the same: the controller manager with the two controllers, configured by [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) and the robot's `geometry.yaml` ([DiffBot]({{ diffbot_repo_url }}/diffbot_control/config/diffbot/geometry.yaml), [Remo]({{ diffbot_repo_url }}/diffbot_control/config/remo/geometry.yaml)). Only the hardware interface and what's below it change.
 
 On the real robot, the [`diffbot_base`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) node takes Gazebo's place. It creates the hardware interface [`DiffBotHWInterface`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_hw_interface.cpp) and a controller manager, and runs the loop itself: `read()`, update the controllers, `write()`. Its [launch file]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) loads the same `diffbot_control.yaml` and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics:
 
@@ -341,11 +341,11 @@ The checks that compare the odometry and the true pose allow these differences. 
 
 ### Why the robots and repeated runs differ
 
-- **The models differ.** DiffBot's wheels weigh 0.5 kg each, have a sphere collision and Gazebo's default contact settings. Remo's wheels weigh 32 g, also have a sphere collision, and slightly soft, damped contacts with a friction of 1 (`robot.gazebo.xacro` in [remo_description]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)). Each has its own wheel gains.
+- **The models differ.** DiffBot's model gives each wheel a placeholder mass of 0.5 kg (the real wheels weigh 32 g, like Remo's), a sphere collision and Gazebo's default contact settings. Remo's model has the measured 32 g wheels, also with a sphere collision, and slightly soft, damped contacts with a friction of 1 (`robot.gazebo.xacro` in [remo_description]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)). Each has its own wheel gains.
 - **Repeated runs agree.** In three runs, DiffBot's turn varied by 0.003 rad and Remo's by 0.002 rad. With its earlier collision cylinders and contact settings, a friction of 200, very stiff contacts and no damping, Remo's wheels jittered when turning, and its turn varied between 0.92 and 1.34 rad ([remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2)).
 - **Why runs can still differ:** Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. A sensitive model, such as Remo's with its old cylinders and contacts, turns such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step: CI once measured an outlier turn for DiffBot ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)).
 
-[diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118) tracks what's left, such as DiffBot's wheel and caster masses of 0.5 kg each.
+[diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118) tracks what's left, such as the placeholder masses of DiffBot's wheels and caster wheel, 0.5 kg each.
 
 ## How to add a test
 
