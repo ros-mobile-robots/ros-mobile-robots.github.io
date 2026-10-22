@@ -127,6 +127,8 @@ The following shows a more detailed part list and assembly of the robot platform
 
 Order list
 
+--8<-- "includes/affiliate-note.md"
+
 | Part                    | Store |
 |:------------------------|:---------------------------------------------------------------------------:|
 | Raspberry Pi 4 B (4 Gb) | [Amazon.com][amazon_rpi_4_model_b_us], [Amazon.de][amazon_rpi_4_model_b_ger] |
