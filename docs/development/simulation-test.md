@@ -337,7 +337,7 @@ The checks that compare the odometry and the true pose allow these differences. 
 
 ### Why the robots and repeated runs differ
 
-- **The models differ a lot.** Both robots share the wheel controller gains, but DiffBot's wheels weigh 0.5 kg each and use Gazebo's default contact settings. Remo's wheels weigh 32 g, with very stiff contacts and no contact damping (`robot.gazebo.xacro` in [remo_description]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)).
+- **The models differ a lot.** Both robots share the wheel controller gains, but DiffBot's model gives each wheel a placeholder mass of 0.5 kg (the real wheels weigh 32 g, like Remo's) and uses Gazebo's default contact settings. Remo's model has the measured 32 g wheels, with very stiff contacts and no contact damping (`robot.gazebo.xacro` in [remo_description]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)).
 - **The variation differs.** In two runs, DiffBot turned 1.13 and 1.14 rad, Remo 1.14 and 1.16 rad; with the earlier geometry, Remo's turn varied between 0.92 and 1.34 rad.
 - **A likely reason, not yet proven:** Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. Remo's light model with stiff contacts would turn such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step.
 
