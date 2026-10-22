@@ -16,9 +16,9 @@ Austria
 E-mail: [ros@fjp.at](mailto:ros@fjp.at)<br>
 Phone: [+43 699 17251989](tel:+4369917251989)
 
-## Purpose of this website
+## Purpose and editorial direction
 
-ros-mobile-robots.com documents DiffBot and Remo, two differential drive robots for ROS: how to build them, their software, and the robotics theory behind them.
+Technical information and educational documentation about building, programming and understanding mobile robots with ROS, particularly DiffBot and Remo.
 Some pages show advertising (Google AdSense) and contain affiliate links (Amazon Associates).
 The 3D printing files for Remo are sold through Gumroad.
 
@@ -29,7 +29,9 @@ Links to other websites are provided for convenience; their operators are respon
 
 ## Copyright and licenses
 
-The text and illustrations are licensed under [CC BY-NC-SA 4.0](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.text), and the code under the [BSD 3-Clause License](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.code), unless stated otherwise.
+Unless stated otherwise, original text and illustrations contributed to this documentation are available under [CC BY-NC-SA 4.0](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.text), and original documentation code examples under the [BSD 3-Clause License](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.code).
+Third-party images, software and quoted code retain their respective copyright and license terms; see their credits and license notices.
+These licenses don't cover the Remo files sold through Gumroad.
 
 ## Privacy
 
