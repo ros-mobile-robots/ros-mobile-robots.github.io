@@ -209,7 +209,7 @@ For the robot base you have at least two options to choose from: DiffBot, built 
 
     The acrylic plate has many holes for the kit's mounting plates, which hold the development boards, such as the Raspberry Pi 4 B. The two drive wheels and the caster wheel let the robot turn on the spot, but not move sideways: a differential drive robot is nonholonomic ([Modeling a Differential Drive Robot](theory/modeling-control/modeling-differential-drive-robot.md)).
 
-    DiffBot uses the same [DG01D-E motors](#motor-and-wheel-encoder) with built-in quadrature encoders as Remo, and the same nominal 65 mm wheel type. Its first version ([source code from October 2020](https://github.com/ros-mobile-robots/diffbot/tree/f8300495f42312beb56ce287e7c6fd3d9ccf3fab/ros/src)) used the kit's motors without encoders and separate optical speed sensors that count the slots of a punched disk on each motor ([Alternative Optical Sensor](#odometry)).
+    DiffBot uses the same [DG01D-E motors](#motor-and-wheel-encoder) with built-in quadrature encoders as Remo, and the same nominal 65 mm wheel type. Its first version ([source code from April 2020](https://github.com/ros-mobile-robots/diffbot/tree/f98446cfa658ab520c61faa58146299a4697c736/ros/src)) used the kit's motors without encoders and separate optical speed sensors that count the slots of a punched disk on each motor ([Alternative Optical Sensor](#odometry)).
 
 === "Remo"
 
@@ -322,7 +322,7 @@ For the used odometry sensor see the section below [Motor and Wheel Encoder](#mo
 
 <details markdown="1"><summary>Alternative Optical Sensor</summary>
 
-To estimate the change in position over time ([odometry](https://en.wikipedia.org/wiki/Odometry)), DiffBot's [first version](https://github.com/ros-mobile-robots/diffbot/tree/f8300495f42312beb56ce287e7c6fd3d9ccf3fab/ros/src), with motors without encoders, used
+To estimate the change in position over time ([odometry](https://en.wikipedia.org/wiki/Odometry)), DiffBot's [first version](https://github.com/ros-mobile-robots/diffbot/tree/f98446cfa658ab520c61faa58146299a4697c736/ros/src), with motors without encoders, used
 an [optical speed sensor](https://en.wikipedia.org/wiki/Wheel_speed_sensor#Optical_sensor). 
 Specifically the [Joy-IT Speed Sensor](https://joy-it.net/en/products/SEN-Speed) which combines a LM393 ([datasheet](http://www.ti.com/lit/ds/symlink/lm2903-n.pdf)) [comperator](https://en.wikipedia.org/wiki/Comparator) and a H206 slot-type opto interrupter.
 The [Wheel Encoders (LM393)](lm393_speed_sensor.md) page shows the ROS node that read these sensors for odometry.
