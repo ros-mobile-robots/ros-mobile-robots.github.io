@@ -122,7 +122,7 @@ A configured radius that's too big makes the controller command fewer wheel turn
 
 ### On the real robot
 
-Switch the figure to the second tab, *Real robot*. The blue box stays the same: the controller manager with the two controllers, configured by `diffbot_control.yaml` and the robot's `geometry.yaml`. Only the hardware interface and what's below it change.
+Switch the figure to the second tab, *Real robot*. The blue box stays the same: the controller manager with the two controllers, configured by [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) and the robot's `geometry.yaml` ([DiffBot]({{ diffbot_repo_url }}/diffbot_control/config/diffbot/geometry.yaml), [Remo]({{ diffbot_repo_url }}/diffbot_control/config/remo/geometry.yaml)). Only the hardware interface and what's below it change.
 
 On the real robot, the [`diffbot_base`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) node takes Gazebo's place. It creates the hardware interface [`DiffBotHWInterface`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_hw_interface.cpp) and a controller manager, and runs the loop itself: `read()`, update the controllers, `write()`. Its [launch file]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) loads the same `diffbot_control.yaml` and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics:
 
