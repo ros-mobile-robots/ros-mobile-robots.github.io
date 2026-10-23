@@ -66,6 +66,13 @@ class ValidateTest(unittest.TestCase):
         data['parts']['motor']['offers'][0]['ref'] = 'shop_usa'
         self.assertError(data, "parts.motor.offers[0].ref: 'shop_usa' is not defined")
 
+    def test_reference_cannot_break_the_table(self):
+        for reference in ('shop|us', 'shop\\us'):
+            with self.subTest(reference=reference):
+                data = catalog()
+                data['parts']['motor']['offers'][0]['ref'] = reference
+                self.assertError(data, 'parts.motor.offers[0].ref:')
+
     def test_references_compare_without_case(self):
         data = catalog()
         data['parts']['motor']['offers'][0]['ref'] = 'Shop_US'
@@ -86,7 +93,7 @@ class ValidateTest(unittest.TestCase):
     def test_url_cannot_break_the_link_or_the_table(self):
         for url in ('https://example.com/item|extra-cell', 'https://example.com/a\nb',
                     'https://example.com/a\rb', 'https://example.com/a b',
-                    'https://example.com/a)b', 'https://example.com/a]b'):
+                    'https://example.com/a)b', 'https://example.com/a]b', 'https://example.com/a\\'):
             with self.subTest(url=url):
                 data = catalog()
                 data['parts']['motor']['offers'][1]['url'] = url

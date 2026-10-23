@@ -26,12 +26,12 @@ FIELDS = {
     'entry': ({'part', 'quantity'}, {'legacy_price', 'note'}),
 }
 ID = re.compile(r'[a-z0-9][a-z0-9.-]*\Z')
-REFERENCE_ID = re.compile(r'[^\s\[\]]+\Z')
+REFERENCE_ID = re.compile(r'[^\s\[\]|\\]+\Z')
 # Markdown's own pattern, so that a definition counts here exactly when the page's links use it
 DEFINITION = ReferenceProcessor.RE
 COMMENT = re.compile(r'<!--.*-->\s*\Z')
 # Rendered into [label](url): characters that would end the link or the table cell aren't allowed
-URL = re.compile(r'https://[^\s|()<>\[\]]+\Z')
+URL = re.compile(r'https://[^\s|()<>\[\]\\]+\Z')
 REFERENCE_LINK = re.compile(r'\[([^\]]*)\]\[([^\]]*)\]')
 INLINE_LINK = re.compile(r'\]\(([^)\s]*)')
 EXTERNAL_OR_DOCS_ROOT = re.compile(r'[a-z][a-z0-9+.-]*:|/')
@@ -152,7 +152,7 @@ def validate(catalog, references):
                     error(f'{offer_path}.ref', f'{reference!r} is not defined in {LINKS}')
             elif not isinstance(offer['url'], str) or not URL.match(offer['url']):
                 error(f'{offer_path}.url', 'expected an https:// link without spaces, line breaks, '
-                      '"|", brackets or parentheses')
+                      '"|", "\\", brackets or parentheses')
 
     configurations = catalog.get('configurations')
     if not isinstance(configurations, dict):
