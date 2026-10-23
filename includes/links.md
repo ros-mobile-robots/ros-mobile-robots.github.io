@@ -1,7 +1,7 @@
 [amazon_rpi_4_ger]: https://amzn.to/3J0TXuF
 [amazon_rpi_4_us]: https://www.amazon.com/dp/B0899VXM8F?tag=fjp033-20
 
-[sandisk_64gb_ger]: https://amzn.to/4nFmYuR
+[sandisk_64gb_ger]: https://www.amazon.de/dp/B09X7C7LL1?tag=fjp-21
 [sandisk_64gb_us]: https://www.amazon.com/dp/B09X7C7LL1?tag=fjp033-20
 
 [amazon_rplidar_a2m12_ger]: https://amzn.to/4hnsd0d
@@ -68,7 +68,6 @@
 <!-- DiffBot parts list -->
 [amazon_rpi_4_model_b_us]: https://www.amazon.com/dp/B07TD42S27?tag=fjp033-20
 [amazon_rpi_4_model_b_ger]: https://amzn.to/2IchIAc
-[amazon_sdcard_ultra_64gb_us]: https://www.amazon.com/dp/B073JYVKNX?tag=fjp033-20
 [amazon_robot_car_chassis_us]: https://www.amazon.com/dp/B07DNYQ3PX?tag=fjp033-20
 [amazon_robot_car_chassis_ger]: https://amzn.to/2Gy3CJ4
 [amazon_rplidar_a2m8_us]: https://www.amazon.com/dp/B07VPNHPQQ?tag=fjp033-20
