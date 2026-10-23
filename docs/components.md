@@ -20,23 +20,7 @@ satisfy the requirements for the ROS Navigation Stack. These parts are introduce
 
 Bill of Materials (BOM) for [REMO robot](packages/remo_description.md):
 
-| **Part**                | **Quantity** | **Cost** | **Store** | **Notes** |
-|:------------------------|:------------:| --- |  --- |  --- |
-| Raspberry Pi 4 B (4 GB or 8 GB) | 1 | $55.0 | [Sparkfun (4 GB)](https://www.sparkfun.com/products/15447), [Amazon.com (8 GB)][amazon_rpi_4_us], [Amazon.de (8 GB starter set)][amazon_rpi_4_ger] | 4 GB is enough |
-| SanDisk 64 GB SD Card Class 10 | 1 | $13.99 | [Amazon.com][sandisk_64gb_us], [Amazon.de][sandisk_64gb_ger] | |
-| SLAMTEC RPLiDAR A2M12 (12 m) | 1 | $319.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html), [Amazon.com][amazon_rplidar_a2m12_us], [Amazon.de][amazon_rplidar_a2m12_ger] | Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1 |
-| SLAMTEC RPLiDAR A1M8 (12 m) | 1 | $99.00 | [Robotshop](https://www.robotshop.com/en/rplidar-a1m8-360-laser-scanner.html), [Amazon.com][amazon_rplidar_a1m8_us], [Amazon.de][amazon_rplidar_a1m8_ger] | Cheaper alternative to RPLiDAR A2M8 |
-| Adafruit DC Motor (+ Stepper) FeatherWing  | 1 | $19.95 | [adafruit.com](https://www.adafruit.com/product/2927), [Amazon.us][amazon_ada2927_us], [Amazon.de][amazon_ada2927_ger] | |
-| Teensy 4.0 or 3.2 | 1 | $32.29 | [Amazon.com][amazon_teensy_4.0_us], [Amazon.de][amazon_teensy_4.0_ger], [PJRC Teensy 4.0](https://www.pjrc.com/store/teensy40.html) | |
-| Breadboard (half size, 400 points) | 1 | -- | | Holds the Teensy, see [assembly step 15](hardware_setup/assembly.md#step-15-breadboard-parts) |
-| Hobby Motor with Encoder - Metal Gear (DG01D-E) | 2 | $12.50 | [Amazon.com][amazon_hobby_motor_us], [Amazon.de][amazon_hobby_motor_ger], [Sparkfun](https://www.sparkfun.com/products/16413), [RobotShop](https://www.robotshop.com/products/sparkfun-hobby-motor-w-encoder-metal-gear-dg01d-e) | On Amazon.de it's sold by BerryBase |
-| Powerbank (e.g 15'000 mAh, or 10'000 mAh) | 1 | $23.99 | [Anker 10K Amazon.com][amazon_anker_powerbank_pc10k_us], [Anker 10K Amazon.de][amazon_anker_powerbank_pc10k_ger] | The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm |
-| Battery pack (for four or eight batteries) | 1 | $5.59 |  [Amazon.com][amazon_battery_holder_8x_aa_us], [Amazon.de][amazon_battery_holder_8x_aa_ger] | |
-| USB C to USB C cable | 1 | $6.99 | [Amazon.com][amazon_usb_c_cable_50cm_us], [Amazon.de][amazon_usb_c_cable_50cm_ger] | USB C to USB C for Powerbank to [SBC](https://en.wikipedia.org/wiki/Single-board_computer) |
-| Remo Base  | 1 | -- | [Remo STL files on Gumroad](https://fjp.gumroad.com/l/GnMpU) | 3D printed, see [3D printing](hardware_setup/3D_print.md) |
-| Caster ball | 1 | $6.30 | [Amazon.com][amazon_caster_ball_us], [Amazon.de][amazon_caster_ball_ger] | 25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing][amazon_ball_bearing_ger] for the caster |
-| Wheels      | 2 | $3.50 | [Amazon.com][amazon_wheels_us], [Amazon.de][amazon_wheels_ger], [Sparkfun](https://www.sparkfun.com/products/13259), [exp-tech.de](https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair) | Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately |
-| Power supply | 1 | $7.50 | [Amazon.com][amazon_power_supply_us], [Amazon.de][amazon_power_supply_ger] | USB C, 5V, 3.5A |
+{{ parts_list("remo") }}
 
 ### USB Wi-Fi Dongle (optional)
 

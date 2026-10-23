@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
+      # The parts lists' macro (macros/parts.py) with catalog mistakes the build must reject
+      - name: test the parts lists
+        run: python -m unittest discover -s tests -v
       - name: build documentation
         run: mkdocs build --strict
 

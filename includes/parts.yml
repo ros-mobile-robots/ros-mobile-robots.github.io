@@ -1,0 +1,192 @@
+# The parts that the parts lists on Components show. Each part and its store links are written
+# once here; a robot's list (a configuration) names the parts it uses, in table order.
+# docs/components.md shows a list with {{ parts_list("remo") }}; macros/parts.py renders it and
+# checks this whole file on every build.
+#
+# parts.<id>:
+#   name     the part's text in the table
+#   offers   store links: `label` is the link text, and either `ref` (a reference defined in
+#            includes/links.md, where the affiliate links are) or `url` (a direct link)
+# configurations.<robot>.entries:
+#   part           a part id from above
+#   quantity       how many the robot needs
+#   legacy_price   the price the hand-written table showed, unchanged and undated; a row without
+#                  one shows "--"
+#   note           short Markdown; links to pages start at docs/ (/hardware_setup/assembly.md),
+#                  so they work on any page
+
+parts:
+  rpi-4b:
+    name: Raspberry Pi 4 B (4 GB or 8 GB)
+    offers:
+      - label: Sparkfun (4 GB)
+        url: https://www.sparkfun.com/products/15447
+      - label: Amazon.com (8 GB)
+        ref: amazon_rpi_4_us
+      - label: Amazon.de (8 GB starter set)
+        ref: amazon_rpi_4_ger
+  sandisk-64gb:
+    name: SanDisk 64 GB SD Card Class 10
+    offers:
+      - label: Amazon.com
+        ref: sandisk_64gb_us
+      - label: Amazon.de
+        ref: sandisk_64gb_ger
+  rplidar-a2m12:
+    name: SLAMTEC RPLiDAR A2M12 (12 m)
+    offers:
+      - label: Robotshop
+        url: https://www.robotshop.com/en/rplidar-a2m8-360-laser-scanner.html
+      - label: Amazon.com
+        ref: amazon_rplidar_a2m12_us
+      - label: Amazon.de
+        ref: amazon_rplidar_a2m12_ger
+  rplidar-a1m8:
+    name: SLAMTEC RPLiDAR A1M8 (12 m)
+    offers:
+      - label: Robotshop
+        url: https://www.robotshop.com/en/rplidar-a1m8-360-laser-scanner.html
+      - label: Amazon.com
+        ref: amazon_rplidar_a1m8_us
+      - label: Amazon.de
+        ref: amazon_rplidar_a1m8_ger
+  featherwing-motor:
+    name: Adafruit DC Motor (+ Stepper) FeatherWing
+    offers:
+      - label: adafruit.com
+        url: https://www.adafruit.com/product/2927
+      - label: Amazon.us
+        ref: amazon_ada2927_us
+      - label: Amazon.de
+        ref: amazon_ada2927_ger
+  teensy:
+    name: Teensy 4.0 or 3.2
+    offers:
+      - label: Amazon.com
+        ref: amazon_teensy_4.0_us
+      - label: Amazon.de
+        ref: amazon_teensy_4.0_ger
+      - label: PJRC Teensy 4.0
+        url: https://www.pjrc.com/store/teensy40.html
+  breadboard-half:
+    name: Breadboard (half size, 400 points)
+  dg01d-e:
+    name: Hobby Motor with Encoder - Metal Gear (DG01D-E)
+    offers:
+      - label: Amazon.com
+        ref: amazon_hobby_motor_us
+      - label: Amazon.de
+        ref: amazon_hobby_motor_ger
+      - label: Sparkfun
+        url: https://www.sparkfun.com/products/16413
+      - label: RobotShop
+        url: https://www.robotshop.com/products/sparkfun-hobby-motor-w-encoder-metal-gear-dg01d-e
+  powerbank:
+    name: Powerbank (e.g 15'000 mAh, or 10'000 mAh)
+    offers:
+      - label: Anker 10K Amazon.com
+        ref: amazon_anker_powerbank_pc10k_us
+      - label: Anker 10K Amazon.de
+        ref: amazon_anker_powerbank_pc10k_ger
+  battery-holder-aa:
+    name: Battery pack (for four or eight batteries)
+    offers:
+      - label: Amazon.com
+        ref: amazon_battery_holder_8x_aa_us
+      - label: Amazon.de
+        ref: amazon_battery_holder_8x_aa_ger
+  usb-c-cable:
+    name: USB C to USB C cable
+    offers:
+      - label: Amazon.com
+        ref: amazon_usb_c_cable_50cm_us
+      - label: Amazon.de
+        ref: amazon_usb_c_cable_50cm_ger
+  remo-base:
+    name: Remo Base
+    offers:
+      - label: Remo STL files on Gumroad
+        url: https://fjp.gumroad.com/l/GnMpU
+  caster-ball:
+    name: Caster ball
+    offers:
+      - label: Amazon.com
+        ref: amazon_caster_ball_us
+      - label: Amazon.de
+        ref: amazon_caster_ball_ger
+  wheels:
+    name: Wheels
+    offers:
+      - label: Amazon.com
+        ref: amazon_wheels_us
+      - label: Amazon.de
+        ref: amazon_wheels_ger
+      - label: Sparkfun
+        url: https://www.sparkfun.com/products/13259
+      - label: exp-tech.de
+        url: https://www.exp-tech.de/plattformen/robotik/sonstige/6536/wheel-65mm-rubber-tire-pair
+  power-supply-usb-c:
+    name: Power supply
+    offers:
+      - label: Amazon.com
+        ref: amazon_power_supply_us
+      - label: Amazon.de
+        ref: amazon_power_supply_ger
+
+configurations:
+  remo:
+    entries:
+      - part: rpi-4b
+        quantity: 1
+        legacy_price: "$55.0"
+        note: 4 GB is enough
+      - part: sandisk-64gb
+        quantity: 1
+        legacy_price: "$13.99"
+      - part: rplidar-a2m12
+        quantity: 1
+        legacy_price: "$319.00"
+        note: Other, less expensive, LiDARs will work as well, e.g., RPLiDAR A1
+      - part: rplidar-a1m8
+        quantity: 1
+        legacy_price: "$99.00"
+        note: Cheaper alternative to RPLiDAR A2M8
+      - part: featherwing-motor
+        quantity: 1
+        legacy_price: "$19.95"
+      - part: teensy
+        quantity: 1
+        legacy_price: "$32.29"
+      - part: breadboard-half
+        quantity: 1
+        note: Holds the Teensy, see [assembly step 15](/hardware_setup/assembly.md#step-15-breadboard-parts)
+      - part: dg01d-e
+        quantity: 2
+        legacy_price: "$12.50"
+        note: On Amazon.de it's sold by BerryBase
+      - part: powerbank
+        quantity: 1
+        legacy_price: "$23.99"
+        note: 'The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm'
+      - part: battery-holder-aa
+        quantity: 1
+        legacy_price: "$5.59"
+      - part: usb-c-cable
+        quantity: 1
+        legacy_price: "$6.99"
+        note: USB C to USB C for Powerbank to [SBC](https://en.wikipedia.org/wiki/Single-board_computer)
+      - part: remo-base
+        quantity: 1
+        note: 3D printed, see [3D printing](/hardware_setup/3D_print.md)
+      - part: caster-ball
+        quantity: 1
+        legacy_price: "$6.30"
+        note: '25.4 mm (1-inch) diameter; Alternatively any smooth, durable 3/4" [ball bearing][amazon_ball_bearing_ger] for the caster'
+      - part: wheels
+        quantity: 2
+        legacy_price: "$3.50"
+        note: Wheels are often part of a [robotics kit](https://joy-it.net/en/products/robot05) or can be purchased separately
+      - part: power-supply-usb-c
+        quantity: 1
+        legacy_price: "$7.50"
+        note: USB C, 5V, 3.5A

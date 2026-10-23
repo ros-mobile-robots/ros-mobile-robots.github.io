@@ -126,6 +126,8 @@ plugins:
   - glightbox
   # includes/glossary.yml is the glossary variable, which docs/glossary.md lists
   - macros:
+      # parts_list(): the parts lists on Components, from includes/parts.yml
+      module_name: macros/parts
       include_yaml:
         - glossary: includes/glossary.yml
   - mkdocs-jupyter:
