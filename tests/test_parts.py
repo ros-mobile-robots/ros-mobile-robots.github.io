@@ -6,6 +6,8 @@ import sys
 import unittest
 from pathlib import Path
 
+import markdown
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'macros'))
 
@@ -81,6 +83,15 @@ class ValidateTest(unittest.TestCase):
         data['parts']['motor']['offers'][1]['url'] = 'http://example.com'
         self.assertError(data, 'parts.motor.offers[1].url: expected an https:// link')
 
+    def test_url_cannot_break_the_link_or_the_table(self):
+        for url in ('https://example.com/item|extra-cell', 'https://example.com/a\nb',
+                    'https://example.com/a\rb', 'https://example.com/a b',
+                    'https://example.com/a)b', 'https://example.com/a]b'):
+            with self.subTest(url=url):
+                data = catalog()
+                data['parts']['motor']['offers'][1]['url'] = url
+                self.assertError(data, 'parts.motor.offers[1].url: expected an https:// link')
+
     def test_quantity_must_be_a_whole_number_of_at_least_one(self):
         for quantity in (0, -1, 1.5, '2', True, None):
             with self.subTest(quantity=quantity):
@@ -108,6 +119,7 @@ class ValidateTest(unittest.TestCase):
     def test_cells_cannot_hold_a_pipe_or_line_break(self):
         self.assertError(catalog(note='a | b'), 'a table cell can hold neither')
         self.assertError(catalog(note='a\nb'), 'a table cell can hold neither')
+        self.assertError(catalog(note='a\rb'), 'a table cell can hold neither')
 
     def test_part_ids(self):
         data = catalog()
@@ -132,6 +144,32 @@ class LoadTest(unittest.TestCase):
         self.assertEqual(references, {'shop_us'})
         self.assertEqual(errors, ['includes/links.md:3: [Shop_US] is defined twice'])
 
+    def test_an_indented_definition_counts_as_a_duplicate(self):
+        # Markdown accepts up to three spaces before a definition; this one would replace the link
+        references, errors = parts.link_references(
+            '[shop_us]: https://a.example\n   [shop_us]: https://b.example\n')
+        self.assertEqual(errors, ['includes/links.md:2: [shop_us] is defined twice'])
+
+    def test_a_definition_without_a_link_is_an_error(self):
+        references, errors = parts.link_references('[shop_us]: \n')
+        self.assertEqual(references, set())
+        self.assertEqual(errors, ['includes/links.md:1: not a link reference definition '
+                                  '([id]: https://...)'])
+
+    def test_definitions_count_exactly_when_markdown_uses_them(self):
+        for line, used in (('[a]: https://a.example', True),
+                           ('   [a]: https://a.example', True),
+                           ('[a]: https://a.example "Title"', True),
+                           ('[a]: ', False),
+                           ('[a]:', False),
+                           ('    [a]: https://a.example', False),
+                           ('<!-- [a]: https://a.example -->', False)):
+            with self.subTest(line=line):
+                rendered = markdown.markdown('[shop][a]\n\n' + line)
+                self.assertEqual('<a href=' in rendered, used)
+                references, errors = parts.link_references(line)
+                self.assertEqual('a' in references and not errors, used)
+
 
 class RenderTest(unittest.TestCase):
 
@@ -142,6 +180,28 @@ class RenderTest(unittest.TestCase):
             '| see [step 1](/assembly.md) |',
             '| Breadboard | 1 | -- |  |  |',
         ])
+
+    def test_the_repository_lists_render_every_link(self):
+        # The real catalog through Markdown with includes/links.md appended, as on the page: every
+        # store and note link becomes a link, and every row keeps its five cells
+        data = parts.load_catalog((ROOT / parts.CATALOG).read_text(encoding='utf-8'))
+        links = (ROOT / parts.LINKS).read_text(encoding='utf-8')
+        for name, configuration in data['configurations'].items():
+            with self.subTest(configuration=name):
+                entries = configuration['entries']
+                expected_links = sum(
+                    len(data['parts'][entry['part']].get('offers', []))
+                    + len(parts.REFERENCE_LINK.findall(entry.get('note', '')))
+                    + len(parts.INLINE_LINK.findall(entry.get('note', '')))
+                    for entry in entries)
+                html = markdown.markdown(parts.render_table(data, name) + '\n\n' + links,
+                                         extensions=['tables'])
+                self.assertEqual(html.count('<a href='), expected_links)
+                self.assertNotIn('][', html)
+                rows = html.split('<tbody>')[1].split('<tr>')[1:]
+                self.assertEqual(len(rows), len(entries))
+                for row in rows:
+                    self.assertEqual(row.count('<td'), 5)
 
     def test_unknown_configuration(self):
         with self.assertRaisesRegex(parts.CatalogError, "there is no configuration 'robo'"):

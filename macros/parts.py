@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 
 import yaml
+from markdown.blockprocessors import ReferenceProcessor
 from mkdocs.exceptions import PluginError
 
 CATALOG = 'includes/parts.yml'
@@ -25,7 +26,12 @@ FIELDS = {
     'entry': ({'part', 'quantity'}, {'legacy_price', 'note'}),
 }
 ID = re.compile(r'[a-z0-9][a-z0-9.-]*\Z')
-DEFINITION = re.compile(r'\[([^\]]+)\]:\s')
+REFERENCE_ID = re.compile(r'[^\s\[\]]+\Z')
+# Markdown's own pattern, so that a definition counts here exactly when the page's links use it
+DEFINITION = ReferenceProcessor.RE
+COMMENT = re.compile(r'<!--.*-->\s*\Z')
+# Rendered into [label](url): characters that would end the link or the table cell aren't allowed
+URL = re.compile(r'https://[^\s|()<>\[\]]+\Z')
 REFERENCE_LINK = re.compile(r'\[([^\]]*)\]\[([^\]]*)\]')
 INLINE_LINK = re.compile(r'\]\(([^)\s]*)')
 EXTERNAL_OR_DOCS_ROOT = re.compile(r'[a-z][a-z0-9+.-]*:|/')
@@ -61,14 +67,19 @@ def load_catalog(text):
 
 def link_references(text):
     """The references that includes/links.md defines, in lowercase as Markdown compares them,
-    and the errors for references defined twice."""
+    and the errors for lines that are neither a definition nor a one-line <!-- comment --> and for
+    references defined twice (the later one would silently win)."""
     references, errors = set(), []
     for number, line in enumerate(text.splitlines(), 1):
+        if not line.strip() or COMMENT.match(line):
+            continue
         match = DEFINITION.match(line)
-        if match:
-            reference = match[1].lower()
-            if reference in references:
-                errors.append(f'{LINKS}:{number}: [{match[1]}] is defined twice')
+        reference = match[1].strip().lower() if match else ''
+        if not match or not REFERENCE_ID.match(reference):
+            errors.append(f'{LINKS}:{number}: not a link reference definition ([id]: https://...)')
+        elif reference in references:
+            errors.append(f'{LINKS}:{number}: [{match[1].strip()}] is defined twice')
+        else:
             references.add(reference)
     return references, errors
 
@@ -95,7 +106,7 @@ def validate(catalog, references):
         if not isinstance(value, str) or not value.strip():
             error(path, 'expected text')
             return
-        if '|' in value or '\n' in value:
+        if re.search(r'[|\r\n]', value):
             error(path, 'a table cell can hold neither "|" nor a line break')
         if not links:
             if '[' in value or ']' in value:
@@ -135,10 +146,13 @@ def validate(catalog, references):
             if ('ref' in offer) == ('url' in offer):
                 error(offer_path, 'needs either ref or url, not both')
             elif 'ref' in offer:
-                if not isinstance(offer['ref'], str) or offer['ref'].lower() not in references:
-                    error(f'{offer_path}.ref', f'{offer["ref"]!r} is not defined in {LINKS}')
-            elif not isinstance(offer['url'], str) or not offer['url'].startswith('https://'):
-                error(f'{offer_path}.url', 'expected an https:// link')
+                reference = offer['ref']
+                if (not isinstance(reference, str) or not REFERENCE_ID.match(reference)
+                        or reference.lower() not in references):
+                    error(f'{offer_path}.ref', f'{reference!r} is not defined in {LINKS}')
+            elif not isinstance(offer['url'], str) or not URL.match(offer['url']):
+                error(f'{offer_path}.url', 'expected an https:// link without spaces, line breaks, '
+                      '"|", brackets or parentheses')
 
     configurations = catalog.get('configurations')
     if not isinstance(configurations, dict):
