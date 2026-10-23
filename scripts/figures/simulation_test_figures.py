@@ -62,9 +62,10 @@ class Fig:
 
     def svg(self, ident):
         body = "\n".join(self.parts)
-        # Arrowheads for the arrow classes the figure uses: a (gray), ab and the thinner ab2 (blue)
+        # Arrowheads for the arrow classes the figure uses: a and the dotted am2 (gray), ab and the
+        # thinner ab2 (blue)
         markers = ""
-        for cls, head in (("a", "a-head"), ("ab", "a-head-b"), ("ab2", "a-head-b")):
+        for cls, head in (("a", "a-head"), ("am2", "a-head"), ("ab", "a-head-b"), ("ab2", "a-head-b")):
             if f'class="{cls}"' in body:
                 markers += (f'<marker id="{ident}-{cls}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
                             f'<path class="{head}" d="M0,0 L10,5 L0,10 z"/></marker>')
@@ -119,10 +120,11 @@ sim.box(18, 146, 324, 272, "c-plugin", label="gazebo_ros_control plugin")
 top(sim, "test_drive.py", "publishtest", branch=True)
 controllers(sim)
 hw_arrows(sim)
-sim.box(38, 290, 290, 56, "n", [("Hardware interface", "t-node"), ("DefaultRobotHWSim", "t-mono"), ("readSim(), writeSim()", "t-sub")])
-sim.path("M200,444 V346")
+sim.box(38, 290, 290, 64, "n", [("Hardware interface", "t-node"), ("DefaultRobotHWSim", "t-mono"), ("readSim(), writeSim()", "t-sub"),
+                                 ("config/<model>/pid.yaml", "t-yaml")])
+sim.path("M200,444 V354")
 sim.text(194, 384, "joint states", "t-flow", "end")
-sim.path("M270,346 V444")
+sim.path("M270,354 V444")
 sim.text(276, 384, "commands", "t-flow")
 sim.box(38, 444, 290, 48, "hw", [("Physics", "t-node"), ("robot model from the URDF", "t-sub")])
 sim.path("M38,468 H12 V40 H30")
@@ -174,6 +176,7 @@ STYLE = """<style>
 .rc-fig .ab2{fill:none;stroke:#448aff;stroke-width:1.2}
 .rc-fig .a-head-b{fill:#448aff}
 .rc-fig .am{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.rc-fig .am2{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3;stroke-dasharray:2 3}
 .rc-fig .dot{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.3}
 .rc-fig .t-blue{font-size:11px;fill:#448aff;paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
 .rc-fig .t-pt{font-size:11px;paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
@@ -313,3 +316,55 @@ caption = ("The configured radius <span class=\"arithmatex\">\\(r_\\text{cfg}\\)
            "way to the true pose.")
 open("includes/simulation-test-wheel-radius.html", "w").write(
     f'<figure class="rc-single">\n{wr.svg("rc-radius")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
+
+# Turning on the spot: the robot turns about the midpoint of its axle, and base_footprint, which
+# is behind it, moves on an arc. Top view of Remo, to scale (14 px per cm): wheel separation
+# 14.4 cm, wheel diameter 6.6 cm, width 2.5 cm, base_footprint 3.6 cm behind the axle.
+pv = Fig(300, "Turning on the spot: base_footprint moves on an arc around the axle's midpoint")
+P = (180, 150)
+SCALE, SEP, DIA, WID, D = 14, 14.4, 6.6, 2.5, 3.6
+THETA = math.degrees(1.5)
+
+
+def oriented_rect(c, heading, length, width):
+    """A rectangle centered at c, its length along heading (degrees, counterclockwise from x)."""
+    pts = [along(along(c, heading, sl * length / 2), heading + 90, sw * width / 2)
+           for sl, sw in ((1, 1), (1, -1), (-1, -1), (-1, 1))]
+    return "M" + " L".join(pt(p) for p in pts) + " Z"
+
+
+# The wheels, the axle and an arrow to the front: solid at the start (facing up), dotted after
+# turning 1.5 rad to the left. The arrow is beside the axle's midpoint, on the robot's right, so it
+# turns with the robot and doesn't lie on the other pose's axle
+for heading, cls, arrow in ((90, "n", "a"), (90 + THETA, "am", "am2")):
+    for side in (1, -1):
+        pv.path(oriented_rect(along(P, heading + 90 * side, SEP / 2 * SCALE), heading, DIA * SCALE, WID * SCALE), cls)
+    pv.path(f"M{pt(along(P, heading + 90, SEP / 2 * SCALE - WID * SCALE / 2))} "
+            f"L{pt(along(P, heading - 90, SEP / 2 * SCALE - WID * SCALE / 2))}", cls)
+    side = along(P, heading - 90, 50)
+    pv.path(f"M{pt(along(side, heading, 20))} L{pt(along(side, heading, 66))}", arrow)
+front0 = along(along(P, 0, 50), 90, 66)
+pv.text(front0[0] + 6, front0[1] + 8, "front at the start", "t-pt")
+front1 = along(along(P, 90 + THETA - 90, 50), 90 + THETA, 66)
+pv.text(front1[0] - 4, front1[1] - 8, "front after", "t-pt", "middle")
+b0 = along(P, 270, D * SCALE)
+b1 = along(P, 270 + THETA, D * SCALE)
+pv.path(arc(P, 270, 270 + THETA, D * SCALE), "am")
+pv.path(f"M{pt(P)} L{pt(b0)}", "am")
+pv.path(f"M{pt(b0)} L{pt(along(b0, math.degrees(math.atan2(b0[1] - b1[1], b1[0] - b0[0])), math.dist(b0, b1) - 6))}", "ab2")
+pv.dot(*P, 3.5)
+pv.dot(*b0)
+pv.dot(*b1)
+pv.text(P[0] - 8, P[1] - 10, "axle's midpoint", "t-pt", "end")
+pv.text(b0[0] - 10, b0[1] + 4, "base_footprint at the start", "t-pt", "end")
+pv.path(f"M{pt(along(b1, -60, 6))} L{pt((252, 214))}", "am")
+pv.text(256, 220, "after 1.5 rad", "t-pt")
+pv.text(P[0] - 8, (P[1] + b0[1]) / 2 + 4, "3.6 cm", "t-pt", "end")
+# Below the arc, left of the leader to "after 1.5 rad"
+pv.text(b0[0] + 22, b0[1] + 18, "4.9 cm", "t-blue")
+pv.text(P[0], 286, "Solid: start \u00b7 Dotted: after the turn", "t-node", "middle")
+caption = ("Remo from above, with the wheel geometry to scale. In an ideal 1.5 rad turn to the left, the "
+           "axle's midpoint stays where it is. <code>base_footprint</code> follows the dotted arc and ends "
+           "up 4.9 cm from its start, as the blue arrow shows.")
+open("includes/simulation-test-pivot.html", "w").write(
+    f'<figure class="rc-single">\n{pv.svg("rc-pivot")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
