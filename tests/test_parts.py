@@ -67,11 +67,14 @@ class ValidateTest(unittest.TestCase):
         self.assertError(data, "parts.motor.offers[0].ref: 'shop_usa' is not defined")
 
     def test_reference_cannot_break_the_table(self):
+        # defined, so only the check of the id's characters can reject it
         for reference in ('shop|us', 'shop\\us'):
             with self.subTest(reference=reference):
                 data = catalog()
                 data['parts']['motor']['offers'][0]['ref'] = reference
-                self.assertError(data, 'parts.motor.offers[0].ref:')
+                errors = parts.validate(data, REFERENCES | {reference})
+                self.assertTrue(any('parts.motor.offers[0].ref:' in error for error in errors),
+                                errors)
 
     def test_references_compare_without_case(self):
         data = catalog()
@@ -156,6 +159,14 @@ class LoadTest(unittest.TestCase):
         references, errors = parts.link_references(
             '[shop_us]: https://a.example\n   [shop_us]: https://b.example\n')
         self.assertEqual(errors, ['includes/links.md:2: [shop_us] is defined twice'])
+
+    def test_a_definition_whose_id_could_break_the_table_is_an_error(self):
+        for reference in ('shop|us', 'shop\\us'):
+            with self.subTest(reference=reference):
+                references, errors = parts.link_references(f'[{reference}]: https://a.example\n')
+                self.assertEqual(references, set())
+                self.assertEqual(errors, ['includes/links.md:1: not a link reference definition '
+                                          '([id]: https://...)'])
 
     def test_a_definition_without_a_link_is_an_error(self):
         references, errors = parts.link_references('[shop_us]: \n')
