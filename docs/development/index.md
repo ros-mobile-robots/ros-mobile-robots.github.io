@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions to the code and the documentation are welcome. Please follow the [best practices](#best-practices) below where you can. Questions and help with your build go to diffbot's [Discussions](https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a), where the answers stay easy to find; issues are for bugs and planned changes.
+Contributions to the code and the documentation are welcome. Please follow the [best practices](#best-practices) below where you can. Questions and help with your build go to diffbot's [Discussions](https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a), where the answers stay easy to find; bugs and feature requests go to the issues of the repository they affect (see [Repositories](#repositories)).
 
 This section explains how DiffBot and Remo are developed: where the code lives, how changes get in, and how the development environment and the automated checks work.
 
