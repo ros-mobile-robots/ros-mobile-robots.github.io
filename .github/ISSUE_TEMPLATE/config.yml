@@ -1,0 +1,7 @@
+# GitHub shows this link when someone opens a new issue: questions go to diffbot's Discussions,
+# the one place for questions about both robots, so that issues stay for bugs and planned work
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and help with your build
+    url: https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a
+    about: Ask in diffbot's Discussions (Q&A), which cover both robots and this documentation.
