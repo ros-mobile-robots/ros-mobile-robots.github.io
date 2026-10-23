@@ -2,7 +2,7 @@
 
 This repository is the source of [ros-mobile-robots.com](https://ros-mobile-robots.com), the documentation of the DiffBot and Remo robots: building them, their ROS packages, and the robotics theory behind them. It's built with [MkDocs](https://www.mkdocs.org/) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/). The robots' code is in [diffbot](https://github.com/ros-mobile-robots/diffbot) and [remo_description](https://github.com/ros-mobile-robots/remo_description).
 
-Corrections, clearer explanations and missing steps are welcome, as issues or pull requests. For a new page or a larger change, open an issue first.
+Ask questions and get help with your build in diffbot's [Discussions](https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a), which cover both robots and this documentation. Corrections, clearer explanations and missing steps are welcome, as issues or pull requests. For a new page or a larger change, open an issue first.
 
 ## Build and preview
 
