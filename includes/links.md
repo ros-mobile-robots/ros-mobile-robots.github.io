@@ -82,5 +82,9 @@
 [amazon_book_probabilistic_robotics_ger]: https://www.amazon.de/dp/0262201623?tag=fjp-21
 [amazon_book_corke_rvc_us]: https://www.amazon.com/dp/3031064682?tag=fjp033-20
 [amazon_book_corke_rvc_ger]: https://www.amazon.de/dp/3031064682?tag=fjp-21
+[amazon_book_feedback_systems_us]: https://www.amazon.com/dp/0691193983?tag=fjp033-20
+[amazon_book_feedback_systems_ger]: https://www.amazon.de/dp/0691193983?tag=fjp-21
+[amazon_book_modern_robotics_us]: https://www.amazon.com/dp/1107156300?tag=fjp033-20
+[amazon_book_modern_robotics_ger]: https://www.amazon.de/dp/1107156300?tag=fjp-21
 [amazon_book_papoulis_probability_ger]: https://amzn.to/3lC0ZWV
 [amazon_book_mastering_ros_ger]: https://amzn.to/3tpmT55

@@ -219,6 +219,7 @@ nav:
       - Representations and models: theory/modeling-control/robot-representations.md
       - Modeling a Differential Drive Robot: theory/modeling-control/modeling-differential-drive-robot.md
       - Odometry: theory/modeling-control/odometry.md
+      - Wheel Dynamics in Simulation: theory/modeling-control/wheel-dynamics-simulation.md
       - Motion and Odometry: theory/motion-and-odometry.md
     - Robot Vision:
       - Camera Calibration: theory/robot-vision/camera-calibration.md

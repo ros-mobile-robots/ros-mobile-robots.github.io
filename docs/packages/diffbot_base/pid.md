@@ -11,6 +11,9 @@ different locations in the source code. Either the two PIDs are in the
 The current approach (starting from version 1.0.0) operates the PIDs in the
 low-level base controller firmware.
 
+!!! note "In the simulation"
+    In Gazebo, there is no firmware: `gazebo_ros_control` controls each wheel's speed with its own PID, with each robot's gains in `diffbot_control/config/<model>/pid.yaml`. [Wheel Dynamics in Simulation](../../theory/modeling-control/wheel-dynamics-simulation.md#turning-a-wheel-speed-command-into-torque) explains that PID and why its gains depend on the wheel's inertia and the time step.
+
 Regardless of the location (high or low-level), each PID is passed the error
 between velocity measured by the encoders and the target velocity computed by
 the `diff_drive_controller` for a specific wheel joint. The
