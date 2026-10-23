@@ -128,6 +128,10 @@ plugins:
   - macros:
       # parts_list(): the parts lists on Components, from includes/parts.yml
       module_name: macros/parts
+      # A misspelled variable or a failing macro stops the build, instead of rendering as
+      # empty text or as an error message on the page
+      on_undefined: strict
+      on_error_fail: true
       include_yaml:
         - glossary: includes/glossary.yml
   - mkdocs-jupyter:
