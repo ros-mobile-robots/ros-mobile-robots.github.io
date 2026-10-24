@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -26,10 +26,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -599,6 +599,8 @@
       
         
       
+        
+      
     
     
     
@@ -856,6 +858,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4235,11 +4265,11 @@
   <h1>Microcontroller</h1>
 
 <h2 id="why-a-microcontroller">Why a Microcontroller?</h2>
-<p>A <a href="https://en.wikipedia.org/wiki/Microcontroller">microcontroller</a> (MCU) is a small computer on a single chip, with its own processor, memory and input and output pins. It runs one program, usually without an operating system, so it can react to a signal within microseconds.</p>
+<p>A <a href="https://en.wikipedia.org/wiki/Microcontroller">microcontroller</a> (<abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>) is a small computer on a single chip, with its own processor, memory and input and output pins. It runs one program, usually without an operating system, so it can react to a signal within microseconds.</p>
 <p>The robot's single board computer, a Raspberry Pi, runs Linux and ROS: mapping, navigation and the connection to your PC. But the standard Linux setup used here doesn't guarantee when an ordinary program gets its turn, because many processes share the processor. Linux can be configured for <a href="https://en.wikipedia.org/wiki/Real-time_operating_system">real-time</a> work, but this setup isn't. Driving the motors needs exactly that guarantee:</p>
 <ul>
 <li><strong>Counting encoder pulses:</strong> every pulse from the wheel encoders has to be counted, also while Linux is busy with other work. A missed pulse means a wrong distance.</li>
-<li><strong>Speed control:</strong> the PID controllers that keep the wheels at the commanded speed have to run at a steady rate (see the <a href="../../packages/diffbot_base/low-level/">low-level PID approach</a>).</li>
+<li><strong>Speed control:</strong> the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers that keep the wheels at the commanded speed have to run at a steady rate (see the <a href="../../packages/diffbot_base/low-level/">low-level <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> approach</a>).</li>
 </ul>
 <p>So the microcontroller does this time-critical work: it counts the encoder pulses, runs the speed control and drives the motors through the motor driver. Over USB, it receives the commanded wheel speeds from the Raspberry Pi and sends back the wheels' measured positions and speeds, computed from the encoder counts.</p>
 <h2 id="which-microcontroller">Which Microcontroller?</h2>
@@ -4248,7 +4278,7 @@
 <li><strong>Interrupts on every digital pin:</strong> the firmware counts the encoders with PJRC's <a href="https://www.pjrc.com/teensy/td_libs_Encoder.html">Encoder library</a>, which works best when both signals of an encoder are on interrupt pins. On the Teensy, all digital pins are; an Arduino Uno has only two, pins 2 and 3.</li>
 <li><strong>Speed and memory to spare:</strong> a faster processor and much more RAM than the classic Arduinos, which leaves room for rosserial (see <a href="#other-boards-such-as-an-arduino">below</a>).</li>
 </ul>
-<p>The firmware has two PlatformIO environments, and CI builds both:</p>
+<p>The firmware has two PlatformIO environments, and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds both:</p>
 <table>
 <thead>
 <tr>
@@ -4314,7 +4344,7 @@
 <p>In <a href="https://github.com/ros-mobile-robots/diffbot/discussions/94">discussion #94</a>, a port to an Arduino Mega 2560 kept failing with "Unable to sync with device", "Mismatched protocol version" and checksum errors. Tight memory was one suspected cause, alongside message rates, baud rate and the ported code, but the cause wasn't confirmed. Ports to STM32 boards with 64 KB and 128 KB RAM then connected, but still had sync and checksum errors, and the builder ordered a Teensy.</p>
 </details>
 <h3 id="without-rosserial-a-simple-serial-protocol">Without rosserial: a simple serial protocol</h3>
-<p>A different design avoids running ROS on the board at all. In <a href="https://github.com/hbrobotics/ros_arduino_bridge">ros_arduino_bridge</a>, a ROS 1 project, the Arduino firmware only understands a few short text commands over the serial port (<a href="https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/commands.h"><code>commands.h</code></a>, handled in <a href="https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/ROSArduinoBridge.ino"><code>ROSArduinoBridge.ino</code></a>), and a Python node on the computer translates between them and ROS topics; it also converts speeds from metres per second to ticks per PID cycle. The main commands:</p>
+<p>A different design avoids running ROS on the board at all. In <a href="https://github.com/hbrobotics/ros_arduino_bridge">ros_arduino_bridge</a>, a ROS 1 project, the Arduino firmware only understands a few short text commands over the serial port (<a href="https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/commands.h"><code>commands.h</code></a>, handled in <a href="https://github.com/hbrobotics/ros_arduino_bridge/blob/indigo-devel/ros_arduino_firmware/src/libraries/ROSArduinoBridge/ROSArduinoBridge.ino"><code>ROSArduinoBridge.ino</code></a>), and a Python node on the computer translates between them and ROS topics; it also converts speeds from metres per second to ticks per <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> cycle. The main commands:</p>
 <table>
 <thead>
 <tr>
@@ -4333,19 +4363,19 @@
 </tr>
 <tr>
 <td style="text-align: left;"><code>m &lt;left&gt; &lt;right&gt;</code></td>
-<td style="text-align: left;">Set the wheel speeds, in encoder ticks per PID cycle; the firmware's PID controllers keep them. The PID runs 30 times a second by default, so <code>m 20 20</code> means about 600 ticks per second</td>
+<td style="text-align: left;">Set the wheel speeds, in encoder ticks per <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> cycle; the firmware's <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers keep them. The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> runs 30 times a second by default, so <code>m 20 20</code> means about 600 ticks per second</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>u &lt;kp&gt;:&lt;kd&gt;:&lt;ki&gt;:&lt;ko&gt;</code></td>
-<td style="text-align: left;">Set the PID gains; <code>ko</code> divides the PID output to scale it</td>
+<td style="text-align: left;">Set the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> gains; <code>ko</code> divides the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> output to scale it</td>
 </tr>
 </tbody>
 </table>
 <p>For safety, the motors stop by default when no new speed command arrives for two seconds. Because the board only parses short commands and keeps no ROS message buffers, a small Arduino is enough.</p>
-<p>The same protocol also works with ROS 2: <a href="https://github.com/joshnewans/diffdrive_arduino">diffdrive_arduino</a> is a ros2_control hardware interface for this firmware, and its author's <a href="https://github.com/joshnewans/ros_arduino_bridge">fork of ros_arduino_bridge</a> adds a command for raw PWM values (<code>o &lt;left&gt; &lt;right&gt;</code>). It's an option for DiffBot's ROS 2 firmware, which is on the <a href="https://github.com/orgs/ros-mobile-robots/projects/3">roadmap</a>.</p>
+<p>The same protocol also works with ROS 2: <a href="https://github.com/joshnewans/diffdrive_arduino">diffdrive_arduino</a> is a ros2_control hardware interface for this firmware, and its author's <a href="https://github.com/joshnewans/ros_arduino_bridge">fork of ros_arduino_bridge</a> adds a command for raw <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> values (<code>o &lt;left&gt; &lt;right&gt;</code>). It's an option for DiffBot's ROS 2 firmware, which is on the <a href="https://github.com/orgs/ros-mobile-robots/projects/3">roadmap</a>.</p>
 <h2 id="teensy-setup">Teensy Setup</h2>
-<p>The Teensy 3.2 microcontroller (MCU) is used to get the ticks from the encoders attached to the motors and send this information (counts) as a message over the <code>/diffbot/ticks_left</code>
-and <code>/diffbot/ticks_right</code> topics. For this rosserial is running on the Teensy MCU which allows it to create a node on the Teensy that can communicate with
+<p>The Teensy 3.2 microcontroller (<abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>) is used to get the ticks from the encoders attached to the motors and send this information (counts) as a message over the <code>/diffbot/ticks_left</code>
+and <code>/diffbot/ticks_right</code> topics. For this rosserial is running on the Teensy <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> which allows it to create a node on the Teensy that can communicate with
 the ROS Master running on the Raspberry Pi.</p>
 <p>To setup rosserial on the work PC and the Raspberry Pi the following package has to be installed:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install ros-noetic-rosserial</span>
@@ -4436,10 +4466,10 @@ The code for the motor encoders uses it as basis together with a pubsub example 
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">DiffBot</label><label for="__tabbed_1_2">Remo</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="DiffBot Fritzing" src="../../fritzing/diffbot_architecture.svg"></a></p>
 </div>
 <div class="tabbed-block">
-<p></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Remo Fritzing" src="../../fritzing/remo_architecture.svg"></a></p>
 </div>
 </div>
 </div>
@@ -4533,7 +4563,7 @@ The code for the motor encoders uses it as basis together with a pubsub example 
 Build instructions using Visual Studio Code including the PlatformIO plugin are shown in the following video:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/Mn6DY1tNUcU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
-<p>When using <code>base_controller</code> you should use the low level PID controllers running on the MCU.</p>
+<p>When using <code>base_controller</code> you should use the low level <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers running on the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>.</p>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->
@@ -4692,11 +4722,11 @@ Build instructions using Visual Studio Code including the PlatformIO plugin are 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
     <style>
@@ -4791,4 +4821,111 @@ Build instructions using Visual Studio Code including the PlatformIO plugin are 
 });
 const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
-</script></body></html>
+</script><script data-mkdocs-jupyter-mathjax="{&quot;url&quot;: &quot;https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js&quot;, &quot;version&quot;: 4}">
+/* Shared by full pages and Material's instant navigation. */
+(() => {
+  const config = JSON.parse(document.currentScript.dataset.mkdocsJupyterMathjax);
+  if (window.mkdocsJupyterMathJax) return;
+
+  let loading;
+  let queue = Promise.resolve();
+  let previous = [];
+
+  const ready = async () => {
+    if (!loading) {
+      loading = (async () => {
+        let math = window.MathJax;
+        if (!math?.typesetPromise) {
+          const url = new URL(config.url, document.baseURI).href;
+          const existing = Array.from(document.scripts).find(script =>
+            script.src && (script.src === url || script.id === 'MathJax-script' ||
+              (/mathjax/i.test(script.src) &&
+               /\/(?:MathJax|latest|(?:tex|mml)(?:-mml)?-(?:chtml|svg))\.js(?:[?#]|$)/i.test(script.src))));
+          if (existing) {
+            if (!math?.startup?.promise) {
+              await new Promise((resolve, reject) => {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+              });
+            }
+          } else {
+            // Keep site macros, delimiters and startup hooks when supplied.
+            const options = math || {};
+            window.MathJax = {
+              ...options,
+              loader: {
+                ...options.loader,
+                load: Array.from(new Set(['ui/safe', ...(options.loader?.load || [])]))
+              },
+              startup: { typeset: false, ...options.startup },
+              tex: {
+                tags: 'ams',
+                useLabelIds: true,
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                ...options.tex
+              }
+            };
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = config.url;
+              script.id = 'MathJax-script';
+              script.async = true;
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+        }
+        math = window.MathJax;
+        await math.startup.promise;
+        return math;
+      })();
+    }
+    const math = await loading;
+    // A site owner can extend the v3 queue again on each navigation.
+    await math.startup.promise;
+    return math;
+  };
+
+  const unrendered = node => {
+    if (node.matches('mjx-container')) return [];
+    if (!node.querySelector('mjx-container')) return [node];
+    // In v3, scanning generated assistive MathML again produces nested output.
+    return Array.from(node.children).flatMap(unrendered);
+  };
+
+  const refresh = () => {
+    // A separate chain also serializes v3, without changing v4's startup promise.
+    queue = queue.then(async () => {
+      const notebooks = Array.from(document.querySelectorAll('.jupyter-wrapper'));
+      if (!notebooks.length && !previous.length) return;
+      if (notebooks.length === previous.length &&
+          notebooks.every((node, index) => node === previous[index])) return;
+      const math = await ready();
+      if (previous.length) {
+        math.typesetClear(previous);
+        math.texReset();
+      }
+      previous = notebooks.filter(node => node.isConnected);
+      const pending = previous.flatMap(unrendered);
+      if (pending.length) await math.typesetPromise(pending);
+    }).catch(error => console.error('mkdocs-jupyter: MathJax rendering failed', error));
+    return queue;
+  };
+
+  window.mkdocsJupyterMathJax = { refresh };
+  const start = () => {
+    if (typeof document$ !== 'undefined') document$.subscribe(refresh);
+    else refresh();
+  };
+  // Theme bundles and user-provided MathJax scripts can follow notebook content.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else start();
+})();
+
+</script>
+</body></html>

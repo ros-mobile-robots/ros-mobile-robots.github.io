@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -26,10 +26,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -601,6 +601,8 @@
       
         
       
+        
+      
     
     
     
@@ -968,6 +970,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4202,7 +4232,7 @@
 </tr>
 <tr>
 <td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/devcontainer.yml"><code>.github/workflows/devcontainer.yml</code></a></td>
-<td style="text-align: left;">CI builds the same container on every pull request</td>
+<td style="text-align: left;"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the same container on every pull request</td>
 </tr>
 </tbody>
 </table>
@@ -4225,11 +4255,11 @@
 <li><strong>Build and start:</strong> the image is built, and the container starts with your clone mounted at <code>~/catkin_ws/src/diffbot</code>. VS Code and the CLI change the UID and GID of the user <code>ros</code> to yours, so files created in the container belong to you on the host (<a href="https://containers.dev/implementors/json_reference/"><code>updateRemoteUserUID</code></a>).</li>
 <li><strong>In the container:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.devcontainer/noetic/setup.sh"><code>setup.sh</code></a> runs once. It imports <code>rplidar_ros</code> and <code>remo_description</code> with <a href="https://github.com/dirk-thomas/vcstool"><code>vcs import</code></a> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>, runs <code>rosdep install</code> again for anything added since the image was built, builds the workspace with <code>catkin build</code> and adds the workspace to <code>~/.bashrc</code>.</li>
 </ol>
-<p>The container imports the public <code>remo_description</code>, which has empty placeholder STL files, so Remo has no meshes in RViz and Gazebo. The real files come from the Gumroad download described in its <a href="https://github.com/ros-mobile-robots/remo_description#stl-mesh-files">README</a>, or from <a href="../../insiders/#remo-stl-files">Remo Insiders</a>. The dev container doesn't fetch them for you yet (<a href="https://github.com/ros-mobile-robots/diffbot/issues/104">diffbot#104</a>). DiffBot's own meshes are part of <code>diffbot_description</code>.</p>
+<p>The container imports the public <code>remo_description</code>, which has empty placeholder <abbr title="Stereolithography. A 3D file format that describes a surface as triangles, used for 3D printing and robot meshes.">STL</abbr> files, so Remo has no meshes in RViz and Gazebo. The real files come from the Gumroad download described in its <a href="https://github.com/ros-mobile-robots/remo_description#stl-mesh-files">README</a>, or from <a href="../../insiders/#remo-stl-files">Remo Insiders</a>. The dev container doesn't fetch them for you yet (<a href="https://github.com/ros-mobile-robots/diffbot/issues/104">diffbot#104</a>). DiffBot's own meshes are part of <code>diffbot_description</code>.</p>
 <h2 id="vs-code-and-the-container">VS Code and the container</h2>
 <p>With the <a href="https://code.visualstudio.com/docs/devcontainers/containers">Dev Containers extension</a>, VS Code is split in two. Its window, with the editor, the theme and other UI extensions, runs on your PC as a normal program (on Windows, as a Windows program). The extension installs a VS Code Server in the container (<a href="https://code.visualstudio.com/docs/remote/remote-overview">Remote Development</a>), and the workspace extensions, the terminals, the build, the running programs and the debugger run there, with full access to ROS and the container's tools. The source code stays on the host and is mounted into the container (see <a href="#creating-the-container">Creating the container</a> above), so your files remain when the container is removed.</p>
 <figure>
-  
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="../images/vscode-dev-container-architecture.png" alt="VS Code dev container architecture: VS Code on the local OS, VS Code Server and tools in the container, source code mounted from the local OS into the container"></a>
   <figcaption>Diagram: <a href="https://code.visualstudio.com/docs/devcontainers/containers">Visual Studio Code documentation</a>, Microsoft, <a href="https://creativecommons.org/licenses/by/3.0/us/">CC BY 3.0 US</a></figcaption>
 </figure>
 
@@ -4238,7 +4268,7 @@
 <p>ROS 1 nodes connect to each other directly, in both directions: the machines need "full bi-directional connectivity, on all ports" (<a href="http://wiki.ros.org/ROS/NetworkSetup">ROS NetworkSetup</a>). So the robot must be able to reach your PC too:</p>
 <ul>
 <li><strong>Linux PC:</strong> the host's IP address is the PC's address on your network, so this works as usual.</li>
-<li><strong>Windows with WSL 2:</strong> by default, WSL 2 has its own private IP address behind network translation (NAT), and devices on your network can't connect to it. WSL's mirrored networking changes that, see <a href="../../processing_units/ros-network-setup/#work-machine-on-windows-wsl-2">Work machine on Windows (WSL 2)</a>. This isn't tested with the robot yet.</li>
+<li><strong>Windows with <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2:</strong> by default, <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 has its own private IP address behind network translation (NAT), and devices on your network can't connect to it. <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr>'s mirrored networking changes that, see <a href="../../processing_units/ros-network-setup/#work-machine-on-windows-wsl-2">Work machine on Windows (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2)</a>. This isn't tested with the robot yet.</li>
 </ul>
 <h2 id="gui-apps-x11-and-wslg">GUI apps: X11 and WSLg</h2>
 <p>The container has no screen of its own; it's "headless". Linux GUI apps don't need one: a program like RViz is an X client: it connects to an X server and sends it what to draw, and the X server shows the window (<a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml">X Window System</a>). The container borrows the host's X server. It gets the socket folder <code>/tmp/.X11-unix</code>, through which clients reach the X server, and the <a href="https://www.x.org/releases/current/doc/man/man7/X.7.xhtml#heading5"><code>DISPLAY</code></a> variable, which says which display to use. So RViz runs in the container, but its window opens on your desktop like any other.</p>
@@ -4247,7 +4277,7 @@
 <summary>How WSLg shows Linux windows on Windows</summary>
 <p>An X11 program like RViz connects through the X socket to XWayland, WSLg's X server. Weston, a Wayland compositor, collects the windows and sends them over a remote desktop (RDP) connection to Windows, which shows each one as a normal window. All of this runs in a small "system distro" next to your Ubuntu.</p>
 <p></p><figure>
-  
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="../images/wslg-architecture.png" alt="WSLg architecture: X11 and Wayland apps in the user distro connect to XWayland and Weston in the WSLg system distro, which sends windows to the Windows host over RDP"></a>
   <figcaption>Diagram: <a href="https://github.com/microsoft/wslg">WSLg</a>, Microsoft, <a href="https://github.com/microsoft/wslg/blob/main/LICENSE">MIT License</a> (<a href="../images/WSLg-LICENSE.txt">license text</a>)</figcaption>
 </figure><p></p>
 </details>
@@ -4419,11 +4449,11 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
     <style>
@@ -4518,4 +4548,111 @@
 });
 const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
-</script></body></html>
+</script><script data-mkdocs-jupyter-mathjax="{&quot;url&quot;: &quot;https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js&quot;, &quot;version&quot;: 4}">
+/* Shared by full pages and Material's instant navigation. */
+(() => {
+  const config = JSON.parse(document.currentScript.dataset.mkdocsJupyterMathjax);
+  if (window.mkdocsJupyterMathJax) return;
+
+  let loading;
+  let queue = Promise.resolve();
+  let previous = [];
+
+  const ready = async () => {
+    if (!loading) {
+      loading = (async () => {
+        let math = window.MathJax;
+        if (!math?.typesetPromise) {
+          const url = new URL(config.url, document.baseURI).href;
+          const existing = Array.from(document.scripts).find(script =>
+            script.src && (script.src === url || script.id === 'MathJax-script' ||
+              (/mathjax/i.test(script.src) &&
+               /\/(?:MathJax|latest|(?:tex|mml)(?:-mml)?-(?:chtml|svg))\.js(?:[?#]|$)/i.test(script.src))));
+          if (existing) {
+            if (!math?.startup?.promise) {
+              await new Promise((resolve, reject) => {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+              });
+            }
+          } else {
+            // Keep site macros, delimiters and startup hooks when supplied.
+            const options = math || {};
+            window.MathJax = {
+              ...options,
+              loader: {
+                ...options.loader,
+                load: Array.from(new Set(['ui/safe', ...(options.loader?.load || [])]))
+              },
+              startup: { typeset: false, ...options.startup },
+              tex: {
+                tags: 'ams',
+                useLabelIds: true,
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                ...options.tex
+              }
+            };
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = config.url;
+              script.id = 'MathJax-script';
+              script.async = true;
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+        }
+        math = window.MathJax;
+        await math.startup.promise;
+        return math;
+      })();
+    }
+    const math = await loading;
+    // A site owner can extend the v3 queue again on each navigation.
+    await math.startup.promise;
+    return math;
+  };
+
+  const unrendered = node => {
+    if (node.matches('mjx-container')) return [];
+    if (!node.querySelector('mjx-container')) return [node];
+    // In v3, scanning generated assistive MathML again produces nested output.
+    return Array.from(node.children).flatMap(unrendered);
+  };
+
+  const refresh = () => {
+    // A separate chain also serializes v3, without changing v4's startup promise.
+    queue = queue.then(async () => {
+      const notebooks = Array.from(document.querySelectorAll('.jupyter-wrapper'));
+      if (!notebooks.length && !previous.length) return;
+      if (notebooks.length === previous.length &&
+          notebooks.every((node, index) => node === previous[index])) return;
+      const math = await ready();
+      if (previous.length) {
+        math.typesetClear(previous);
+        math.texReset();
+      }
+      previous = notebooks.filter(node => node.isConnected);
+      const pending = previous.flatMap(unrendered);
+      if (pending.length) await math.typesetPromise(pending);
+    }).catch(error => console.error('mkdocs-jupyter: MathJax rendering failed', error));
+    return queue;
+  };
+
+  window.mkdocsJupyterMathJax = { refresh };
+  const start = () => {
+    if (typeof document$ !== 'undefined') document$.subscribe(refresh);
+    else refresh();
+  };
+  // Theme bundles and user-provided MathJax scripts can follow notebook content.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else start();
+})();
+
+</script>
+</body></html>

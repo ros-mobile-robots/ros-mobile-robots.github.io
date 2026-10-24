@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -26,10 +26,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -601,6 +601,8 @@
       
         
       
+        
+      
     
     
     
@@ -966,6 +968,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4152,39 +4182,39 @@
 
 <h1 id="set-up-your-pc">Set Up Your PC</h1>
 <p>Your PC, the development PC, runs the simulation and the tools for the real robot in a <a href="../../development/dev-container/">dev container</a>. This page prepares it once: the operating system, Docker, a tool to start the container, and the display access for windows like RViz and Gazebo. After that, install Git as described in <a href="../git-and-github/">Git and GitHub</a>, and start the container as described in <a href="../../development/dev-container/">Use the Dev Container</a>.</p>
-<p>The commands on this page run on the <em>host</em>: your Linux, or on Windows the Ubuntu in WSL 2. If the terms host, container, X server and X client are new to you, the diagrams in <a href="../../development/dev-container/#how-the-pieces-fit-together">How the pieces fit together</a> explain them.</p>
+<p>The commands on this page run on the <em>host</em>: your Linux, or on Windows the Ubuntu in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2. If the terms host, container, X server and X client are new to you, the diagrams in <a href="../../development/dev-container/#how-the-pieces-fit-together">How the pieces fit together</a> explain them.</p>
 <h2 id="operating-system">Operating system</h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (WSL 2)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Linux</label><label for="__tabbed_1_2">Windows (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>A Linux PC with a desktop, for example <a href="https://ubuntu.com/download/desktop">Ubuntu</a> 24.04 LTS. Docker Engine supports Ubuntu 22.04, 24.04 and 26.04 (<a href="https://docs.docker.com/engine/install/ubuntu/#os-requirements">OS requirements</a>). Other distributions with Docker Engine should work, but aren't tested.</p>
+<p>A Linux PC with a desktop, for example <a href="https://ubuntu.com/download/desktop">Ubuntu</a> 24.04 <abbr title="Long-term support. A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic.">LTS</abbr>. Docker Engine supports Ubuntu 22.04, 24.04 and 26.04 (<a href="https://docs.docker.com/engine/install/ubuntu/#os-requirements">OS requirements</a>). Other distributions with Docker Engine should work, but aren't tested.</p>
 <p>The PC doesn't need ROS: ROS Noetic runs in the container, on Ubuntu 20.04.</p>
 </div>
 <div class="tabbed-block">
-<p><a href="https://learn.microsoft.com/en-us/windows/wsl/">WSL 2</a> (Windows Subsystem for Linux) runs an Ubuntu inside Windows. To install it, open PowerShell as administrator, run the following, and restart Windows (<a href="https://learn.microsoft.com/en-us/windows/wsl/install">Install WSL</a>):</p>
+<p><a href="https://learn.microsoft.com/en-us/windows/wsl/"><abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2</a> (Windows Subsystem for Linux) runs an Ubuntu inside Windows. To install it, open PowerShell as administrator, run the following, and restart Windows (<a href="https://learn.microsoft.com/en-us/windows/wsl/install">Install <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr></a>):</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">wsl</span> <span class="p">-</span><span class="n">-install</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>This installs WSL and Ubuntu. If WSL is already installed, update it with <code>wsl --update</code>. For windows like RViz and Gazebo, WSL needs Windows 11 or Windows 10 build 19044 or later (see below). The setup was tested with Ubuntu 24.04 in WSL 2.</p>
+<p>This installs <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> and Ubuntu. If <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> is already installed, update it with <code>wsl --update</code>. For windows like RViz and Gazebo, <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> needs Windows 11 or Windows 10 build 19044 or later (see below). The setup was tested with Ubuntu 24.04 in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2.</p>
 <p>From here on, run the commands in a terminal of that Ubuntu, not in PowerShell.</p>
 </div>
 </div>
 </div>
 <h2 id="docker">Docker</h2>
-<p>The dev container runs on <a href="https://docs.docker.com/engine/">Docker Engine</a>, the part of Docker that builds images and runs containers. There are two ways to get it: install Docker Engine directly in your Linux (on Windows, in the Ubuntu in WSL 2), or, on Windows, install Docker Desktop, an app that brings its own Docker Engine. Use one of them, not both. Docker Engine is the tested setup. On Linux, use Docker Engine: Docker Desktop for Linux also exists, but it runs the containers in a virtual machine, so they don't get your PC's network and display directly.</p>
+<p>The dev container runs on <a href="https://docs.docker.com/engine/">Docker Engine</a>, the part of Docker that builds images and runs containers. There are two ways to get it: install Docker Engine directly in your Linux (on Windows, in the Ubuntu in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2), or, on Windows, install Docker Desktop, an app that brings its own Docker Engine. Use one of them, not both. Docker Engine is the tested setup. On Linux, use Docker Engine: Docker Desktop for Linux also exists, but it runs the containers in a virtual machine, so they don't get your PC's network and display directly.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Docker Engine (tested)</label><label for="__tabbed_2_2">Docker Desktop (untested)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>Install Docker Engine as described in Docker's guide <a href="https://docs.docker.com/engine/install/ubuntu/">Install Docker Engine on Ubuntu</a>, with Docker's apt repository. This works the same in the Ubuntu in WSL 2.</p>
+<p>Install Docker Engine as described in Docker's guide <a href="https://docs.docker.com/engine/install/ubuntu/">Install Docker Engine on Ubuntu</a>, with Docker's apt repository. This works the same in the Ubuntu in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2.</p>
 <p>Ubuntu's own packages work too, and this setup was tested with them (Docker 29 on Ubuntu 24.04). Docker calls them unofficial, and they can be older than Docker's releases:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker.io docker-buildx</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Either way, then follow Docker's <a href="https://docs.docker.com/engine/install/linux-postinstall/">post-installation steps</a>, so you can use Docker without <code>sudo</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo usermod -aG docker $USER</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Log out and in again so the new <code>docker</code> group applies. On WSL 2, run <code>wsl --shutdown</code> in Windows PowerShell and open Ubuntu again. Docker runs as a systemd service, which WSL turns on by default for current Ubuntu versions (<a href="https://learn.microsoft.com/en-us/windows/wsl/systemd">systemd in WSL</a>).</p>
+<p>Log out and in again so the new <code>docker</code> group applies. On <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2, run <code>wsl --shutdown</code> in Windows PowerShell and open Ubuntu again. Docker runs as a systemd service, which <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> turns on by default for current Ubuntu versions (<a href="https://learn.microsoft.com/en-us/windows/wsl/systemd">systemd in <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr></a>).</p>
 </div>
 <div class="tabbed-block">
-<p><a href="https://docs.docker.com/desktop/">Docker Desktop</a> is an app for Windows, macOS and Linux that runs Docker Engine in its own virtual machine. On Windows, that's a separate WSL distribution called <code>docker-desktop</code>, and its <a href="https://docs.docker.com/desktop/features/wsl/">WSL integration</a> makes the <code>docker</code> command available in your Ubuntu. Uninstall Docker Engine from your Ubuntu first, because the two conflict.</p>
+<p><a href="https://docs.docker.com/desktop/">Docker Desktop</a> is an app for Windows, macOS and Linux that runs Docker Engine in its own virtual machine. On Windows, that's a separate <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> distribution called <code>docker-desktop</code>, and its <a href="https://docs.docker.com/desktop/features/wsl/"><abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> integration</a> makes the <code>docker</code> command available in your Ubuntu. Uninstall Docker Engine from your Ubuntu first, because the two conflict.</p>
 <p>Two things are different from Docker Engine:</p>
 <ul>
 <li>The container's "host" is Docker Desktop's virtual machine, not your Ubuntu. Its host network, which this setup uses, is an opt-in feature from version 4.34 (Settings → Resources → Network → <strong>Enable host networking</strong>) and only carries TCP and UDP (<a href="https://docs.docker.com/engine/network/drivers/host/#docker-desktop">Docker docs</a>).</li>
@@ -4199,10 +4229,10 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>It downloads a small test image and prints a message from the container.</p>
 <h2 id="a-way-to-start-the-container">A way to start the container</h2>
-<p><a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a> is the easiest. On Windows, VS Code also needs the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl">WSL extension</a>, so it can reach Docker in the Ubuntu. The <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> works from a terminal (<code>npm install -g @devcontainers/cli</code>, which needs Node.js). Plain Docker works too. All three are shown under <a href="../../development/dev-container/#usage">Usage</a>.</p>
+<p><a href="https://code.visualstudio.com/">VS Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a> is the easiest. On Windows, VS Code also needs the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl"><abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> extension</a>, so it can reach Docker in the Ubuntu. The <a href="https://github.com/devcontainers/cli">Dev Container CLI</a> works from a terminal (<code>npm install -g @devcontainers/cli</code>, which needs Node.js). Plain Docker works too. All three are shown under <a href="../../development/dev-container/#usage">Usage</a>.</p>
 <h2 id="for-windows-like-rviz-and-gazebo">For windows like RViz and Gazebo</h2>
 <p>RViz, Gazebo and other GUI programs run inside the container, which has no screen of its own. They are X clients: they show their windows on your desktop through your host's X server (see <a href="../../development/dev-container/#how-the-pieces-fit-together">How the pieces fit together</a>), and the X server has to let them in. This is set up once, depending on your host. It's only needed for the container: with ROS installed directly on your PC, its windows open like those of any other program.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">Linux</label><label for="__tabbed_3_2">Windows (WSL 2)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"><div class="tabbed-labels"><label for="__tabbed_3_1">Linux</label><label for="__tabbed_3_2">Windows (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Install <code>xauth</code> on the host:</p>
@@ -4211,16 +4241,16 @@
 <p>With the usual cookie-based setup, the X server only accepts clients that present the display's <em>cookie</em>. In X11, a cookie is a secret: a random 128-bit value that your desktop creates when you log in. Clients without it, for example other users' programs, can't draw on your screen or read it. Any client that has the cookie can connect, which is how the container gets access (<a href="https://www.x.org/releases/current/doc/man/man7/Xsecurity.7.xhtml">X security</a>). It has nothing to do with web cookies. <a href="https://www.x.org/releases/current/doc/man/man1/xauth.1.xhtml"><code>xauth</code></a> is the standard tool for these cookies, and the setup uses it to hand yours to the container (see <a href="../../development/dev-container-internals/#gui-apps-x11-and-wslg">GUI apps</a>).</p>
 </div>
 <div class="tabbed-block">
-<p>Nothing to install: WSLg shows the windows on the Windows desktop. It's part of WSL 2 on Windows 11 and on Windows 10 build 19044 or later (see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>).</p>
+<p>Nothing to install: WSLg shows the windows on the Windows desktop. It's part of <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 on Windows 11 and on Windows 10 build 19044 or later (see the <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">prerequisites</a>).</p>
 </div>
 </div>
 </div>
-<h2 id="real-robot-from-windows-with-wsl-2-optional">Real robot from Windows with WSL 2 (optional)</h2>
-<p>Only needed if your PC runs Windows and you want to connect to the real robot. By default, WSL 2 sits behind its own network translation (NAT), so the robot can't connect to your PC, and ROS 1 needs connections in both directions. WSL's <em>mirrored networking</em> removes that barrier; it needs Windows 11 22H2 or later. Why, how to set it up and how to test it: <a href="../../processing_units/ros-network-setup/#work-machine-on-windows-wsl-2">Work machine on Windows (WSL 2)</a>.</p>
+<h2 id="real-robot-from-windows-with-wsl-2-optional">Real robot from Windows with <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 (optional)</h2>
+<p>Only needed if your PC runs Windows and you want to connect to the real robot. By default, <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 sits behind its own network translation (NAT), so the robot can't connect to your PC, and ROS 1 needs connections in both directions. <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr>'s <em>mirrored networking</em> removes that barrier; it needs Windows 11 22H2 or later. Why, how to set it up and how to test it: <a href="../../processing_units/ros-network-setup/#work-machine-on-windows-wsl-2">Work machine on Windows (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2)</a>.</p>
 <p>You don't need it on Linux, where the container uses the PC's own network address. You also don't need it for simulation, because then all ROS nodes run in the container on your PC, and no other device has to connect to it.</p>
 <div class="admonition warning">
 <p class="admonition-title">Not tested with the robot yet</p>
-<p>Microsoft lists "Connect to WSL directly from your local area network (LAN)" as a benefit of mirrored networking (<a href="https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking">Mirrored mode networking</a>), but nobody has tested this setup with DiffBot or Remo yet.</p>
+<p>Microsoft lists "Connect to <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> directly from your local area network (LAN)" as a benefit of mirrored networking (<a href="https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking">Mirrored mode networking</a>), but nobody has tested this setup with DiffBot or Remo yet.</p>
 </div>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
@@ -4380,11 +4410,11 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
     <style>
@@ -4479,4 +4509,111 @@
 });
 const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 document$.subscribe(()=>{ lightbox.reload(); });
-</script></body></html>
+</script><script data-mkdocs-jupyter-mathjax="{&quot;url&quot;: &quot;https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js&quot;, &quot;version&quot;: 4}">
+/* Shared by full pages and Material's instant navigation. */
+(() => {
+  const config = JSON.parse(document.currentScript.dataset.mkdocsJupyterMathjax);
+  if (window.mkdocsJupyterMathJax) return;
+
+  let loading;
+  let queue = Promise.resolve();
+  let previous = [];
+
+  const ready = async () => {
+    if (!loading) {
+      loading = (async () => {
+        let math = window.MathJax;
+        if (!math?.typesetPromise) {
+          const url = new URL(config.url, document.baseURI).href;
+          const existing = Array.from(document.scripts).find(script =>
+            script.src && (script.src === url || script.id === 'MathJax-script' ||
+              (/mathjax/i.test(script.src) &&
+               /\/(?:MathJax|latest|(?:tex|mml)(?:-mml)?-(?:chtml|svg))\.js(?:[?#]|$)/i.test(script.src))));
+          if (existing) {
+            if (!math?.startup?.promise) {
+              await new Promise((resolve, reject) => {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+              });
+            }
+          } else {
+            // Keep site macros, delimiters and startup hooks when supplied.
+            const options = math || {};
+            window.MathJax = {
+              ...options,
+              loader: {
+                ...options.loader,
+                load: Array.from(new Set(['ui/safe', ...(options.loader?.load || [])]))
+              },
+              startup: { typeset: false, ...options.startup },
+              tex: {
+                tags: 'ams',
+                useLabelIds: true,
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                ...options.tex
+              }
+            };
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = config.url;
+              script.id = 'MathJax-script';
+              script.async = true;
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+        }
+        math = window.MathJax;
+        await math.startup.promise;
+        return math;
+      })();
+    }
+    const math = await loading;
+    // A site owner can extend the v3 queue again on each navigation.
+    await math.startup.promise;
+    return math;
+  };
+
+  const unrendered = node => {
+    if (node.matches('mjx-container')) return [];
+    if (!node.querySelector('mjx-container')) return [node];
+    // In v3, scanning generated assistive MathML again produces nested output.
+    return Array.from(node.children).flatMap(unrendered);
+  };
+
+  const refresh = () => {
+    // A separate chain also serializes v3, without changing v4's startup promise.
+    queue = queue.then(async () => {
+      const notebooks = Array.from(document.querySelectorAll('.jupyter-wrapper'));
+      if (!notebooks.length && !previous.length) return;
+      if (notebooks.length === previous.length &&
+          notebooks.every((node, index) => node === previous[index])) return;
+      const math = await ready();
+      if (previous.length) {
+        math.typesetClear(previous);
+        math.texReset();
+      }
+      previous = notebooks.filter(node => node.isConnected);
+      const pending = previous.flatMap(unrendered);
+      if (pending.length) await math.typesetPromise(pending);
+    }).catch(error => console.error('mkdocs-jupyter: MathJax rendering failed', error));
+    return queue;
+  };
+
+  window.mkdocsJupyterMathJax = { refresh };
+  const start = () => {
+    if (typeof document$ !== 'undefined') document$.subscribe(refresh);
+    else refresh();
+  };
+  // Theme bundles and user-provided MathJax scripts can follow notebook content.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else start();
+})();
+
+</script>
+</body></html>
