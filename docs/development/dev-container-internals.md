@@ -13,7 +13,7 @@ What the files in diffbot's [`.devcontainer/noetic/`](https://github.com/ros-mob
 
 ## The image
 
-The [Dockerfile]({{ diffbot_repo_url }}/.devcontainer/noetic/Dockerfile) starts from [`osrf/ros:noetic-desktop-full`](https://hub.docker.com/r/osrf/ros), the official ROS image with ROS Noetic, Gazebo 11 and RViz on Ubuntu 20.04. On top it installs [catkin tools](https://catkin-tools.readthedocs.io/), [vcstool](https://github.com/dirk-thomas/vcstool) and a few shell tools, and creates the user `ros` (UID 1000, sudo without password).
+The [Dockerfile]({{ diffbot_repo_url }}/.devcontainer/noetic/Dockerfile) starts from [`osrf/ros:noetic-desktop-full`](https://hub.docker.com/r/osrf/ros), the official ROS image with ROS Noetic, [Gazebo 11](../simulators.md) and RViz on Ubuntu 20.04. On top it installs [catkin tools](https://catkin-tools.readthedocs.io/), [vcstool](https://github.com/dirk-thomas/vcstool) and a few shell tools, and creates the user `ros` (UID 1000, sudo without password).
 
 The packages' dependencies are installed with [rosdep](http://wiki.ros.org/rosdep) from their `package.xml` files. The Dockerfile has two [stages](https://docs.docker.com/build/building/multi-stage/) for this:
 

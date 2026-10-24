@@ -1,6 +1,6 @@
 # Simulation Test
 
-[`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) has a simulation test: it drives DiffBot and Remo in [Gazebo Classic 11](https://classic.gazebosim.org/), the simulator that ROS Noetic uses, and checks where they went. Both [CI workflows](ci.md#diffbot) run it on every pull request ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110)). It catches mistakes in the robot model and the controller configuration, which the simulation shares with the real robot:
+[`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) has a simulation test: it drives DiffBot and Remo in [Gazebo Classic 11](https://classic.gazebosim.org/), the simulator that ROS Noetic uses ([Simulators](../simulators.md)), and checks where they went. Both [CI workflows](ci.md#diffbot) run it on every pull request ([diffbot#110](https://github.com/ros-mobile-robots/diffbot/issues/110)). It catches mistakes in the robot model and the controller configuration, which the simulation shares with the real robot:
 
 - **Left and right wheel joints swapped:** the robot turns right when it's told to turn left.
 - **A wheel radius in the controller configuration that doesn't match the robot model:** the odometry can still report about the expected distance while the robot drives a different one.

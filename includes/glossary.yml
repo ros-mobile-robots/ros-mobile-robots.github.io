@@ -16,6 +16,11 @@
   definition: Building and testing the code automatically on every push and pull request.
   link: development/ci.md
 
+- term: DART
+  expansion: Dynamic Animation and Robotics Toolkit
+  definition: A physics engine for robots; the new Gazebo uses it by default, instead of Gazebo Classic's ODE.
+  link: simulators.md
+
 - term: DC
   expansion: direct current
   definition: Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.
@@ -25,6 +30,10 @@
   expansion: degrees of freedom
   definition: The number of independent ways something can move; a pose on the ground has three, x, y and the heading.
   link: theory/modeling-control/robot-representations.md
+
+- term: EGL
+  definition: The interface between rendering APIs such as OpenGL and the operating system; with it, Gazebo can render on a server without a display.
+  link: simulators.md
 
 - term: EKF
   expansion: extended Kalman filter
@@ -61,6 +70,11 @@
   expansion: microcontroller unit
   definition: A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.
   link: processing_units/teensy-mcu.md
+
+- term: ODE
+  expansion: Open Dynamics Engine
+  definition: The physics engine that Gazebo Classic uses by default; it computes contacts, friction and the motion of the joints in each time step.
+  link: simulators.md
 
 - term: PID
   expansion: proportional-integral-derivative
