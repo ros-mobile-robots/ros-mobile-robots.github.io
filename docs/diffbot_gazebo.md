@@ -12,6 +12,9 @@ As described in the [Creating your own Gazebo ROS Package](http://gazebosim.org/
 !!! tip "Simulation test"
     CI drives DiffBot and Remo in this simulation on every pull request, without a display. [Simulation Test](development/simulation-test.md) shows how Gazebo, `gazebo_ros_control` and the controllers work together.
 
+!!! info "Simulators"
+    DiffBot and Remo use Gazebo Classic 11 with ROS Noetic. [Simulators](simulators.md) explains its end of life, the new Gazebo for ROS 2, and other simulators and when to use them.
+
 ```console
 fjp@ubuntu:~/git/diffbot/ros/src$ catkin create pkg diffbot_gazebo
 Creating package "diffbot_gazebo" in "/home/fjp/git/diffbot/ros/src"...
