@@ -2038,6 +2038,8 @@
       
         
       
+        
+      
     
     
     
@@ -2305,6 +2307,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../simulators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../diffbot_control/" class="md-nav__link">
         
   
@@ -2358,7 +2388,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8">
         
           
           <div class="md-nav__link md-nav__container">
@@ -2380,14 +2410,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4592,7 +4622,7 @@
 
 
 <h1 id="simulation-test">Simulation Test</h1>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> has a simulation test: it drives DiffBot and Remo in <a href="https://classic.gazebosim.org/">Gazebo Classic 11</a>, the simulator that ROS Noetic uses, and checks where they went. Both <a href="../ci/#diffbot"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> workflows</a> run it on every pull request (<a href="https://github.com/ros-mobile-robots/diffbot/issues/110">diffbot#110</a>). It catches mistakes in the robot model and the controller configuration, which the simulation shares with the real robot:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> has a simulation test: it drives DiffBot and Remo in <a href="https://classic.gazebosim.org/">Gazebo Classic 11</a>, the simulator that ROS Noetic uses (<a href="../../simulators/">Simulators</a>), and checks where they went. Both <a href="../ci/#diffbot"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> workflows</a> run it on every pull request (<a href="https://github.com/ros-mobile-robots/diffbot/issues/110">diffbot#110</a>). It catches mistakes in the robot model and the controller configuration, which the simulation shares with the real robot:</p>
 <ul>
 <li><strong>Left and right wheel joints swapped:</strong> the robot turns right when it's told to turn left.</li>
 <li><strong>A wheel radius in the controller configuration that doesn't match the robot model:</strong> the odometry can still report about the expected distance while the robot drives a different one.</li>
