@@ -28,16 +28,16 @@
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 205" role="img" aria-labelledby="wd-contacts-t"><title id="wd-contacts-t">Front view of DiffBot's drive wheels with a cylinder and a sphere collision</title><defs><marker id="wd-contacts-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="dim-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <text class="t-head" x="105" y="18" text-anchor="middle">Cylinder collision</text>
-<text class="t-muted" x="105" y="32" text-anchor="middle">contacts at the outer edges</text>
+<text class="t-muted" x="105" y="32" text-anchor="middle">hypothesis: contacts at the outer edges</text>
 <rect class="part" x="65" y="113.7" width="80" height="26" rx="3"/>
 <path class="axis" d="M65,126.7 L36,126.7"/>
 <rect class="part" x="23.5" y="93.4" width="25" height="66.6" rx="4"/>
 <path class="ref" d="M36,85.4 L36,164"/>
-<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"/><circle class="mk f1" cx="23.5" cy="160" r="4.5"/></g>
+<g class="pt"><title>Hypothesized effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"/><circle class="mk f1" cx="23.5" cy="160" r="4.5"/></g>
 <path class="axis" d="M145,126.7 L174,126.7"/>
 <rect class="part" x="161.5" y="93.4" width="25" height="66.6" rx="4"/>
 <path class="ref" d="M174,85.4 L174,164"/>
-<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"/><circle class="mk f1" cx="186.5" cy="160" r="4.5"/></g>
+<g class="pt"><title>Hypothesized effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"/><circle class="mk f1" cx="186.5" cy="160" r="4.5"/></g>
 <path class="ground" d="M8,160 L202,160"/>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M36,77.4 L174,77.4"/>
 <text class="t-muted t-halo" x="105" y="72.4" text-anchor="middle">0.138 m between the centers</text>
@@ -62,7 +62,7 @@
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,178 L404,178"/>
 <text class="t-halo" x="335" y="193" text-anchor="middle">0.138 m between the contacts</text>
 </svg>
-<figcaption>Front view of DiffBot's drive wheels, to scale. The dots show the effective contact positions that explain the turn ratios below. The dashed circle is the sphere collision; changing it leaves the model's visual and cylinder inertia unchanged.</figcaption>
+<figcaption>Front view of DiffBot's drive wheels, to scale. The dots show where the wheels would have to push to explain the turn ratios of experiment E1 below: for the cylinder, a hypothesis at its outer edges, not a measured contact position. The dashed circle is the sphere collision; changing it leaves the model's visual and cylinder inertia unchanged.</figcaption>
 </figure>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 214" role="img" aria-labelledby="wd-turn-t"><title id="wd-turn-t">Experiment E1: the true turn over the odometry's turn with a cylinder and a sphere collision</title><defs></defs>
@@ -78,7 +78,7 @@
 <text class="t-muted" x="348.8" y="188" text-anchor="middle">1.00</text>
 <path class="grid" d="M406.5,36 L406.5,174"/>
 <text class="t-muted" x="406.5" y="188" text-anchor="middle">1.05</text>
-<text class="t-muted" x="268" y="204" text-anchor="middle">true turn / odometry turn</text>
+<text class="t-muted" x="268" y="204" text-anchor="middle">true turn ÷ odometry turn (1 = they agree)</text>
 <path class="ref" d="M348.8,36 L348.8,174"/>
 <text class="t-muted" x="352.8" y="32" text-anchor="start">center plane: 1</text>
 <rect class="f2" x="118.5" y="7.5" width="9" height="9" rx="1"/>
@@ -86,7 +86,7 @@
 <circle class="f1" cx="201.4" cy="12" r="4.5"/>
 <text class="t-muted" x="210.4" y="16" text-anchor="start">sphere</text>
 <path class="ref" d="M262.2,12 L278.2,12"/>
-<text class="t-muted" x="283.2" y="16" text-anchor="start">outer edges</text>
+<text class="t-muted" x="283.2" y="16" text-anchor="start">outer-edge hypothesis</text>
 <text x="108" y="60" text-anchor="end">DiffBot, left</text>
 <path class="ref" d="M171.8,45 L171.8,67"/>
 <g class="pt"><title>DiffBot, left turn, cylinder, run 1: 1.269 / 1.499 rad = 0.846</title><circle class="hit" cx="169" cy="56" r="12"/><rect class="mk f2" x="164.5" y="51.5" width="9" height="9" rx="1"/></g>
@@ -121,7 +121,7 @@
 <g class="pt"><title>Remo, right turn, sphere, run 2: 1.501 / 1.501 rad = 1.000</title><circle class="hit" cx="348.8" cy="158" r="12"/><circle class="mk f1" cx="348.8" cy="158" r="4.5"/></g>
 <g class="pt"><title>Remo, right turn, sphere, run 3: 1.500 / 1.500 rad = 1.000</title><circle class="hit" cx="351.3" cy="158" r="12"/><circle class="mk f1" cx="351.3" cy="158" r="4.5"/></g>
 </svg>
-<figcaption>Experiment E1: commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s) to the left and to the right, three runs each, with only the drive wheels' collision changed. The dashed ticks are the ratios that contacts at the wheels' outer edges predict: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.</figcaption>
+<figcaption>Experiment E1: each point is one turn, the angle the robot turned in Gazebo divided by the angle its odometry reports. Commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s) to the left and to the right, three runs per shape, with only the drive wheels' collision changed. The dashed ticks are the ratios if the wheels pushed at their outer edges: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.</figcaption>
 </figure>
 
 ??? info "The data"

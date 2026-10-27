@@ -6,7 +6,7 @@
 <text class="t-muted" x="167" y="16" text-anchor="start">right wheel</text>
 <path class="ref" d="M250.3,12 L266.3,12"/>
 <text class="t-muted" x="271.3" y="16" text-anchor="start">commanded</text>
-<text class="t-head" x="48" y="50" text-anchor="start">Reference: friction 1, kp 1e7, kd 1</text>
+<text class="t-head" x="48" y="50" text-anchor="start">Reference: wheel friction 1, kp 1e7, kd 1</text>
 <path class="grid" d="M48,143.3 L430,143.3"/>
 <text class="t-muted" x="42" y="146.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,126.7 L430,126.7"/>
@@ -65,7 +65,7 @@
 <rect class="band" x="413" y="70" width="8.5" height="80"><title>t 3.85 s: left -0.00, right 0.01 rad/s, commanded 0.00 / 0.00</title></rect>
 <rect class="band" x="421.5" y="70" width="8.5" height="80"><title>t 3.95 s: left -0.02, right -0.02 rad/s, commanded 0.00 / 0.00</title></rect>
 <text class="t-muted" x="48" y="64" text-anchor="start">left / right wheel 100 % / 100 % of the command, true / odometry turn 1.00</text>
-<text class="t-head" x="48" y="178" text-anchor="start">Friction 200 only</text>
+<text class="t-head" x="48" y="178" text-anchor="start">Wheel friction 200 only</text>
 <path class="grid" d="M48,271.3 L430,271.3"/>
 <text class="t-muted" x="42" y="274.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,254.7 L430,254.7"/>
@@ -124,7 +124,7 @@
 <rect class="band" x="413" y="198" width="8.5" height="80"><title>t 3.85 s: left -0.01, right -0.03 rad/s, commanded 0.00 / 0.00</title></rect>
 <rect class="band" x="421.5" y="198" width="8.5" height="80"><title>t 3.95 s: left -0.01, right 0.01 rad/s, commanded 0.00 / 0.00</title></rect>
 <text class="t-muted" x="48" y="192" text-anchor="start">left / right wheel 100 % / 100 % of the command, true / odometry turn 1.00</text>
-<text class="t-head" x="48" y="306" text-anchor="start">Contact stiffness kp 1e12 only</text>
+<text class="t-head" x="48" y="306" text-anchor="start">Wheel contact stiffness kp 1e12 only</text>
 <path class="grid" d="M48,399.3 L430,399.3"/>
 <text class="t-muted" x="42" y="402.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,382.7 L430,382.7"/>
@@ -183,7 +183,7 @@
 <rect class="band" x="413" y="326" width="8.5" height="80"><title>t 3.85 s: left -0.05, right 0.03 rad/s, commanded 0.00 / 0.00</title></rect>
 <rect class="band" x="421.5" y="326" width="8.5" height="80"><title>t 3.95 s: left -0.03, right 0.07 rad/s, commanded 0.00 / 0.00</title></rect>
 <text class="t-muted" x="48" y="320" text-anchor="start">left / right wheel 122 % / 71 % of the command, true / odometry turn 0.76</text>
-<text class="t-head" x="48" y="434" text-anchor="start">Contact damping kd 0 only</text>
+<text class="t-head" x="48" y="434" text-anchor="start">Wheel contact damping kd 0 only</text>
 <path class="grid" d="M48,527.3 L430,527.3"/>
 <text class="t-muted" x="42" y="530.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,510.7 L430,510.7"/>
@@ -249,7 +249,7 @@
 <text class="t-muted" x="48" y="448" text-anchor="start">left / right wheel 100 % / 100 % of the command, true / odometry turn 1.00</text>
 <text class="t-muted" x="14" y="110" text-anchor="middle">rad/s</text>
 </svg>
-<figcaption>Experiment E3: Remo turning on the spot to the left at 0.5 rad/s for 3 s, with its sphere collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Below each title: the left / right wheel's mean speed as a share of the command over the last 2 s of the command, and the true turn over the odometry's, both from the two runs.</figcaption>
+<figcaption>Experiment E3: Remo turning on the spot to the left at 0.5 rad/s for 3 s, with its sphere collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Below each title: the left / right wheel's mean speed as a share of the command over the last 2 s of the command, and the true turn over the odometry's, both from the two runs. The settings are the wheels'; Gazebo combines them with the ground's, so wheel friction 200 acts as the ground's 100 and 50, and wheel damping 0 gives a combined 1.</figcaption>
 </figure>
 
 ??? info "The data"
@@ -258,9 +258,9 @@
 
     | Contact setting | Left wheel | Right wheel | True / odometry turn, two runs |
     |---|---|---|---|
-    | Reference: friction 1, kp 1e7, kd 1 | 100 %, sd up to 0.024 rad/s | 100 %, sd up to 0.024 rad/s | 1.000, 1.000 |
-    | Friction 200 only | 100 %, sd up to 0.027 rad/s | 100 %, sd up to 0.028 rad/s | 1.000, 1.000 |
-    | Contact stiffness kp 1e12 only | 122 %, sd up to 0.057 rad/s | 71 %, sd up to 0.047 rad/s | 0.758, 0.758 |
-    | Contact damping kd 0 only | 100 %, sd up to 0.028 rad/s | 100 %, sd up to 0.028 rad/s | 1.000, 1.000 |
-    | Friction 200, kp 1e12 and kd 0 together | 122 %, sd up to 0.059 rad/s | 70 %, sd up to 0.049 rad/s | 0.758, 0.758 |
+    | Reference: wheel friction 1, kp 1e7, kd 1 | 100 %, sd up to 0.024 rad/s | 100 %, sd up to 0.024 rad/s | 1.000, 1.000 |
+    | Wheel friction 200 only | 100 %, sd up to 0.027 rad/s | 100 %, sd up to 0.028 rad/s | 1.000, 1.000 |
+    | Wheel contact stiffness kp 1e12 only | 122 %, sd up to 0.057 rad/s | 71 %, sd up to 0.047 rad/s | 0.758, 0.758 |
+    | Wheel contact damping kd 0 only | 100 %, sd up to 0.028 rad/s | 100 %, sd up to 0.028 rad/s | 1.000, 1.000 |
+    | Wheel friction 200, kp 1e12 and kd 0 together | 122 %, sd up to 0.059 rad/s | 70 %, sd up to 0.049 rad/s | 0.758, 0.758 |
 

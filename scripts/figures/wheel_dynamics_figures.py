@@ -148,7 +148,7 @@ L, WW, R = 138, 25, 33.3
 def wheels_panel(s, x0, sphere):
     cx, ground, yc = x0 + 105, 160, 160 - R
     s.text(x0 + 105, 18, "Cylinder collision" if not sphere else "Sphere collision", "t-head", "middle")
-    s.text(x0 + 105, 32, "contacts at the outer edges" if not sphere else "contact in the center plane", "t-muted", "middle")
+    s.text(x0 + 105, 32, "hypothesis: contacts at the outer edges" if not sphere else "contact in the center plane", "t-muted", "middle")
     s.add(f'<rect class="part" x="{f1(cx - 40)}" y="{f1(yc - 13)}" width="80" height="26" rx="3"/>')
     for side in (-1, 1):
         c = cx + side * L / 2
@@ -163,7 +163,7 @@ def wheels_panel(s, x0, sphere):
         # The wheel pushes the robot forward at its contact: an arrow out of the page is drawn
         # as the contact dot; its position is what decides the turn
         s.marker(px, ground, "circle", "f1",
-                 f"Effective contact {'in the center plane' if sphere else 'at the outer edge'}: "
+                 f"{'Effective contact in the center plane' if sphere else 'Hypothesized effective contact at the outer edge'}: "
                  f"{abs(px - cx) / 1000:.4f} m from the robot's center")
     s.line(x0 + 8, ground, x0 + 202, ground, "ground")
     # Dimensions: between the wheel centers above, between the contacts below
@@ -178,8 +178,9 @@ def wheels_panel(s, x0, sphere):
 contacts = Svg("wd-contacts", 440, 205, "Front view of DiffBot's drive wheels with a cylinder and a sphere collision")
 wheels_panel(contacts, 0, sphere=False)
 wheels_panel(contacts, 230, sphere=True)
-fig_contacts = figure(contacts, "Front view of DiffBot's drive wheels, to scale. The dots show the effective contact "
-                                "positions that explain the turn ratios below. The dashed circle is the sphere collision; "
+fig_contacts = figure(contacts, "Front view of DiffBot's drive wheels, to scale. The dots show where the wheels would have to "
+                                "push to explain the turn ratios of experiment E1 below: for the cylinder, a hypothesis at its "
+                                "outer edges, not a measured contact position. The dashed circle is the sphere collision; "
                                 "changing it leaves the model's visual and cylinder inertia unchanged.")
 
 # --- E1: true turn over the odometry's turn with each collision -------------------------------
@@ -201,10 +202,10 @@ top = 44
 for v in (0.80, 0.85, 0.90, 0.95, 1.00, 1.05):
     turn.line(x_of(v), top - 8, x_of(v), top + 4 * 34 - 6, "grid")
     turn.text(x_of(v), top + 4 * 34 + 8, f"{v:.2f}", "t-muted", "middle")
-turn.text(x_of(0.93), top + 4 * 34 + 24, "true turn / odometry turn", "t-muted", "middle")
+turn.text(x_of(0.93), top + 4 * 34 + 24, "true turn ÷ odometry turn (1 = they agree)", "t-muted", "middle")
 turn.line(x_of(1.0), top - 8, x_of(1.0), top + 4 * 34 - 6, "ref")
 turn.text(x_of(1.0) + 4, top - 12, "center plane: 1", "t-muted")
-turn.legend(118, 16, [("square", "f2", "cylinder"), ("circle", "f1", "sphere"), ("ref", "", "outer edges")])
+turn.legend(118, 16, [("square", "f2", "cylinder"), ("circle", "f1", "sphere"), ("ref", "", "outer-edge hypothesis")])
 for i, (robot, way) in enumerate(ROWS):
     y = top + 12 + i * 34
     turn.text(108, y + 4, f"{NAMES[robot]}, {way}", "", "end")
@@ -220,9 +221,10 @@ for i, (robot, way) in enumerate(ROWS):
                                           f"{abs(true):.3f} / {abs(odom):.3f} rad = {ratio:.3f}")
             if ratio > hi:
                 turn.text(x - 8, y - 9, f"{ratio:.2f} →", "t-muted t-halo", "end")
-fig_turn = figure(turn, "Experiment E1: commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s) to the left and to the right, three runs each, with "
-                        "only the drive wheels' collision changed. The dashed ticks are the ratios that contacts at the "
-                        "wheels' outer edges predict: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.")
+fig_turn = figure(turn, "Experiment E1: each point is one turn, the angle the robot turned in Gazebo divided by the angle its "
+                        "odometry reports. Commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s) to the left and to the right, "
+                        "three runs per shape, with only the drive wheels' collision changed. The dashed ticks are the ratios "
+                        "if the wheels pushed at their outer edges: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.")
 turn_rows = []
 for robot, way in ROWS:
     for shape, name in (("cyl", "cylinder"), ("ref", "sphere")):
@@ -270,10 +272,10 @@ fig_sink = figure(sink, "Experiment E2: Remo at rest with its sphere collisions 
 
 # --- E3: wheel speeds with one contact setting changed -------------------------------------------
 SPEED_PANELS = [
-    ("remo-ref", "Reference: friction 1, kp 1e7, kd 1"),
-    ("remo-mu200", "Friction 200 only"),
-    ("remo-kp1e12", "Contact stiffness kp 1e12 only"),
-    ("remo-kd0", "Contact damping kd 0 only"),
+    ("remo-ref", "Reference: wheel friction 1, kp 1e7, kd 1"),
+    ("remo-mu200", "Wheel friction 200 only"),
+    ("remo-kp1e12", "Wheel contact stiffness kp 1e12 only"),
+    ("remo-kd0", "Wheel contact damping kd 0 only"),
 ]
 with open("scripts/figures/data/wheel-dynamics-speeds.csv") as f:
     speed_rows = list(csv.DictReader(f))
@@ -335,7 +337,8 @@ fig_speeds = figure(speed_figure(),
                     "Experiment E3: Remo turning on the spot to the left at 0.5 rad/s for 3 s, with its sphere "
                     "collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Below each title: "
                     "the left / right wheel's mean speed as a share of the command over the last 2 s of the command, "
-                    "and the true turn over the odometry's, both from the two runs.")
+                    "and the true turn over the odometry's, both from the two runs. The settings are the wheels'; Gazebo combines them "
+                    "with the ground's, so wheel friction 200 acts as the ground's 100 and 50, and wheel damping 0 gives a combined 1.")
 
 # --- Stability of the P velocity loop -----------------------------------------------------------
 # e_{k+1} = (1 - P h / J) e_k, from e_0 = 1. Remo: J = 1.7424e-5 kg m^2, h = 1 ms.
@@ -396,7 +399,7 @@ sink_data = data_block(["Time at rest", *sink_series],
 stab_data = data_block(["Step", *[f"P h / J = {g:.2f}" for g, _ in CASES]],
                        [[f"{k}", *[f"{(1 - g) ** k:.3f}" for g, _ in CASES]] for k in range(9)])
 e3_rows = []
-for key, title in SPEED_PANELS + [("remo-combined", "Friction 200, kp 1e12 and kd 0 together")]:
+for key, title in SPEED_PANELS + [("remo-combined", "Wheel friction 200, kp 1e12 and kd 0 together")]:
     st, ratio = tracking(key)
     e3_rows.append([title, f"{st['left'][0]:.0f} %, sd up to {st['left'][1]:.3f} rad/s",
                     f"{st['right'][0]:.0f} %, sd up to {st['right'][1]:.3f} rad/s", ", ".join(f"{r:.3f}" for r in ratio)])
