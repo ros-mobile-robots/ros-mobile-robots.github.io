@@ -357,6 +357,8 @@ The checks that compare the odometry and the true pose allow these differences. 
 
 [diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118) tracks what's left, such as the placeholder masses of DiffBot's wheels and caster wheel, 0.5 kg each.
 
+[Wheel Dynamics in Simulation](../theory/modeling-control/wheel-dynamics-simulation.md) explains the collision shapes, contacts and wheel gains behind these numbers, and [Tuning the simulated robot](../diffbot_gazebo.md#tuning-the-simulated-robot) lists each robot's values and how to tune them.
+
 ## How to add a test
 
 As an example, this adds a test that drives backward. It runs for both robots, because both test files run `test_drive.py`.

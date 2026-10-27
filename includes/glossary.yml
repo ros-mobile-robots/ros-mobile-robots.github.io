@@ -73,8 +73,8 @@
 
 - term: ODE
   expansion: Open Dynamics Engine
-  definition: The physics engine that Gazebo Classic uses by default; it computes contacts, friction and the motion of the joints in each time step.
-  link: simulators.md
+  definition: The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.
+  link: theory/modeling-control/wheel-dynamics-simulation.md#modeling-ground-contact
 
 - term: PID
   expansion: proportional-integral-derivative
@@ -100,6 +100,11 @@
   expansion: single-board computer
   definition: A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.
   link: processing_units/index.md
+
+- term: SDF
+  expansion: Simulation Description Format
+  definition: The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.
+  link: theory/modeling-control/wheel-dynamics-simulation.md#from-urdf-to-sdf
 
 - term: SLAM
   expansion: simultaneous localization and mapping

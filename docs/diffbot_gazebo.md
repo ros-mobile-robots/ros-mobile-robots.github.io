@@ -5,15 +5,75 @@ categories: [robotics]
 tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, ubuntu, focal, package, gazebo, simulation]
 ---
 
-## Simulate DiffBot in Gazebo
-
-As described in the [Creating your own Gazebo ROS Package](http://gazebosim.org/tutorials?tut=ros_roslaunch#CreatingyourownGazeboROSPackage), it is common in ROS to create a package that contains all the world files and launch files used with Gazebo. These files are located in a ROS package named `/MYROBOT_gazebo`. For DiffBot the package is named `diffbot_gazebo`. Another example that follows best pratices is `rrbot` which can be found in the [gazebo_ros_demos](https://github.com/ros-simulation/gazebo_ros_demos) repository.
-
 !!! tip "Simulation test"
     CI drives DiffBot and Remo in this simulation on every pull request, without a display. [Simulation Test](development/simulation-test.md) shows how Gazebo, `gazebo_ros_control` and the controllers work together.
 
 !!! info "Simulators"
     DiffBot and Remo use Gazebo Classic 11 with ROS Noetic. [Simulators](simulators.md) explains its end of life, the new Gazebo for ROS 2, and other simulators and when to use them.
+
+## Tuning the simulated robot
+
+How a simulated robot drives depends on more than its kinematics: on its collision shapes, masses, contact settings and the gains of its simulated motors. [Wheel Dynamics in Simulation](theory/modeling-control/wheel-dynamics-simulation.md) explains what each of them does. This section lists DiffBot's and Remo's settings, why they have these values, and how to tune them.
+
+### The current settings
+
+The tables show the settings of the [diffbot repository](https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2) at `b896a3a` and [remo_description](https://github.com/ros-mobile-robots/remo_description/tree/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462) at `ba0b2c5`, the revisions that the experiments on the theory page used; the source links below are pinned to those revisions. The **Basis** column says where a value comes from: *measured* on the robot, *derived* from other values, Gazebo's *default*, *selected* and tested in the simulation, a *placeholder*, or *not modeled*. The **Reason / limitation** column says what the value is for and what it doesn't cover.
+
+#### Geometry and mass
+
+| Setting | DiffBot | Remo | Basis | Reason / limitation |
+|---|---|---|---|---|
+| Wheel radius | 0.0333 m | 0.0330 m | measured | Half the mean of the two wheels' diameters. The loaded rolling radius isn't measured. |
+| Wheel separation | 0.138 m | 0.144 m | measured | Center to center, as the kinematic model and odometry use it. |
+| Wheel width | 0.025 m | 0.025 m | measured | Used for the inertia; the collision is a sphere. |
+| Wheel collision | sphere with the wheel radius | sphere with the wheel radius | selected, tested on flat ground | Puts an upright wheel's ideal contact in its center plane, where the kinematic model assumes it. It doesn't reproduce a tire's footprint, or contacts on slopes and edges. |
+| Wheel mass | 0.5 kg | 0.032 kg | DiffBot: placeholder; Remo: measured | DiffBot's wheels weigh 32 g too; its mass and gains are corrected together ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)). |
+| Wheel inertia about the axle | $2.8 \cdot 10^{-4}$ kg m² | $1.74 \cdot 10^{-5}$ kg m² | derived: $\frac{1}{2} m r^2$ of a solid cylinder | Follows the mass and radius, independent of the collision shape. A real wheel with a heavy tire has somewhat more. |
+| Robot mass, model / weighed | 2640 g / about 895 g | 1154 g / 1303 g | model: sum of the links; weighed | DiffBot's model still has placeholders; its 895 g are 705 g weighed without its RPLidar A2M8 plus the lidar's 190 g from its datasheet. Remo's model lacks about 149 g, for example cables and screws. |
+
+Sources: [`front_wheel.yaml` (DiffBot)](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_description/config/diffbot/front_wheel.yaml), [`front_wheel.yaml` (Remo)](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/config/remo/front_wheel.yaml), [`geometry.yaml`](https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config), the wheel collision and `cylinder_inertia` in [DiffBot's](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_description/urdf/include/common_macros.urdf.xacro#L55-L70) and [Remo's](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/common_macros.urdf.xacro#L55-L70) `common_macros.urdf.xacro`.
+
+#### Contacts
+
+| Setting | DiffBot | Remo | Basis | Reason / limitation |
+|---|---|---|---|---|
+| Friction `mu1`, `mu2` | 1, 1 | 1, 1 | DiffBot: default; Remo: selected | A usual order of magnitude for rubber on a hard floor, not measured for these tires and floors. Gazebo uses the smaller coefficient of the wheel and the ground. Friction 200 changed nothing measurable in Remo's wheel tracking ([experiment E3](theory/modeling-control/wheel-dynamics-simulation.md#which-contact-setting-makes-the-wheels-miss-their-commands)). |
+| `fdir1` | not set | not set | selected | Left unset to avoid a direction that turns with the sphere's frame and leaves the contact plane, as `0 0 1` would; a direction along the axle would stay in the contact plane, but Gazebo Classic uses only one of the two surfaces' `fdir1` in each contact. |
+| Contact `kp`, `kd` | $10^{12}$ N/m, 1 N s/m | $10^{7}$ N/m, 1 N s/m | DiffBot: default; Remo: selected | With the stiff default, Remo's light wheels missed their commands; damping 0 alone made no difference ([experiment E3](theory/modeling-control/wheel-dynamics-simulation.md#which-contact-setting-makes-the-wheels-miss-their-commands)). DiffBot's wheels follow their commands with the default, but with their placeholder mass. |
+| `minDepth` | 0 | 0 | DiffBot: default; Remo: selected | With Remo's compliant contacts, a positive value let the wheels creep into the ground. Zero is the tested choice for these wheels, not a universal rule. |
+| `maxVel` | 0.01 m/s | 0.01 m/s | default | Limits how fast a penetration is corrected. |
+
+Sources: [Remo's contacts](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/include/robot.gazebo.xacro#L39-L66), with the `friction` argument of [`remo.urdf.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462/urdf/remo.urdf.xacro). DiffBot's wheels set none, so Gazebo's defaults apply.
+
+#### Control and world
+
+| Setting | DiffBot | Remo | Basis | Reason / limitation |
+|---|---|---|---|---|
+| Wheel velocity PID `p`, `i`, `d` | 0.06, 0.6, 0 | 0.03, 0.6, 0 | selected, tested at a 1 ms step | Remo's P is below its free-wheel limit of about 0.035. DiffBot's P suits its placeholder wheel mass, not 32 g wheels. Neither is shown to be optimal. |
+| `i_clamp`, `antiwindup` | 0.05 N m, true | 0.05 N m, true | selected | The I term can supply up to 0.05 N m; without `i_clamp`, an I gain does nothing. |
+| Wheel torque limit | none | none | not modeled | A real motor has a stall torque. |
+| Physics | ODE, quick solver with 150 iterations, 1 ms step | the same | inherited from the world | The simulation test's `diffbot_empty.world`. Other worlds differ, for example `playground.world` with a 10 ms step, and the gains depend on the step. |
+
+Sources: `pid.yaml` of [DiffBot](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config/diffbot/pid.yaml) and [Remo](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_control/config/remo/pid.yaml), [the test world](https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_gazebo/worlds/diffbot_empty.world#L13-L32).
+
+How these values were found: [diffbot#119](https://github.com/ros-mobile-robots/diffbot/pull/119) (geometry), [diffbot#120](https://github.com/ros-mobile-robots/diffbot/pull/120) and [remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2) (collisions and contacts), [diffbot#121](https://github.com/ros-mobile-robots/diffbot/pull/121) (gains); the masses are still open in [diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118).
+
+### How to tune
+
+Tune the model in this order, so that a later step doesn't hide an error of an earlier one. One error can hide another: for example, wheels that sink into the ground can change where they touch it. So after each fix, go through the later steps again.
+
+1. **Geometry and inertia first.** Measure the wheel diameters and their separation, center to center, and enter them in the URDF's `front_wheel.yaml` and the controller's `geometry.yaml`. Check the expanded URDF with `xacro`: the wheel joints' distance, the collision radius, and an inertia whose $\frac{1}{2} m r^2$ is about the joint axis.
+2. **Record a baseline.** Note the world, its time step and solver (the gains depend on the time step), and run the [simulation test](development/simulation-test.md): the odometry and the true pose, driving straight and turning on the spot.
+3. **Check the spawn and the settling.** The robot has to stay at its spawn pose without NaN velocities, and its wheels have to stay on the ground: a wheel link's height above the ground should stay at its radius over a minute (`/gazebo/link_states`). *Example:* with compliant contacts and a positive `minDepth`, Remo's wheels crept about 8 mm into the ground within a minute, and the turn test still passed. Only the height showed it.
+4. **Wheel speed tracking.** Turn on the spot in both directions and drive straight, and compare the wheel joints' speeds in `/diffbot/joint_states` with the commanded ones: their mean and their standard deviation. A lasting error can come from the controller, a torque limit or the contact load; jitter can come from contact solving or an unstable loop. Keep P below the free-wheel limit $2J/h$. *Example:* with a P gain alone, Remo's wheels reached only about 80 % of the command when turning on the spot, because turning needs torque; an I term with `i_clamp` removed the error.
+5. **Agreement with the true motion.** Compare the odometry with the true pose. *Example:* wheel speeds within 1 % of the command, but a true turn of only about 0.85 of the odometry's. Then test the effective contact separation, for example with a different collision shape, and keep the controller as it is.
+6. **One change at a time.** After each change, repeat straight driving and turns in both directions, for both robots, and run each case more than once to see how much the results vary.
+
+Don't compensate one error with another setting: a wrong geometry with gains, or an unstable velocity loop with heavier wheels than the real ones. The simulation test catches regressions, but passing it doesn't make the simulation accurate at other speeds, on other floors or slopes.
+
+## Simulate DiffBot in Gazebo
+
+As described in the [Creating your own Gazebo ROS Package](http://gazebosim.org/tutorials?tut=ros_roslaunch#CreatingyourownGazeboROSPackage), it is common in ROS to create a package that contains all the world files and launch files used with Gazebo. These files are located in a ROS package named `/MYROBOT_gazebo`. For DiffBot the package is named `diffbot_gazebo`. Another example that follows best pratices is `rrbot` which can be found in the [gazebo_ros_demos](https://github.com/ros-simulation/gazebo_ros_demos) repository.
 
 ```console
 fjp@ubuntu:~/git/diffbot/ros/src$ catkin create pkg diffbot_gazebo
@@ -213,286 +273,19 @@ A quick way to verify if the conversion from [xacro](http://wiki.ros.org/xacro) 
 First convert the xacro model to a urdf model with the `xacro` command:
 
 ```console
-xacro src/diffbot_description/urdf/diffbot.xacro -o diffbot.urdf
+xacro $(rospack find diffbot_description)/urdf/diffbot.urdf.xacro -o diffbot.urdf
 ```
 
-This will output the urdf into a file named `diffbot.urdf` in the current working directory.
+This will output the urdf into a file named `diffbot.urdf` in the current working directory. For Remo, use `$(rospack find remo_description)/urdf/remo.urdf.xacro` and `remo.urdf`.
 
 Then use the `gz` command to create a sdf:
 
 ```
 # gazebo3 and above
-gz sdf -p MODEL.urdf
+gz sdf -p diffbot.urdf
 ```
 
-<details markdown="1"><summary>DiffBot sdf.</summary>
-```xml
-<sdf version='1.7'>
-  <model name='diffbot'>
-    <link name='base_footprint'>
-      <inertial>
-        <pose>-0.012273 0 0.040818 0 -0 0</pose>
-        <mass>5.5</mass>
-        <inertia>
-          <ixx>0.0387035</ixx>
-          <ixy>0</ixy>
-          <ixz>0.000552273</ixz>
-          <iyy>0.0188626</iyy>
-          <iyz>0</iyz>
-          <izz>0.0561591</izz>
-        </inertia>
-      </inertial>
-      <collision name='base_footprint_collision'>
-        <pose>0 0 0 0 -0 0</pose>
-        <geometry>
-          <box>
-            <size>0.001 0.001 0.001</size>
-          </box>
-        </geometry>
-        <surface>
-          <contact>
-            <ode/>
-          </contact>
-          <friction>
-            <ode/>
-          </friction>
-        </surface>
-      </collision>
-      <collision name='base_footprint_fixed_joint_lump__base_link_collision_1'>
-        <pose>0 0 0.04 0 -0 0</pose>
-        <geometry>
-          <box>
-            <size>0.3 0.15 0.02</size>
-          </box>
-        </geometry>
-        <surface>
-          <contact>
-            <ode/>
-          </contact>
-          <friction>
-            <ode/>
-          </friction>
-        </surface>
-      </collision>
-      <collision name='base_footprint_fixed_joint_lump__caster_link_collision_2'>
-        <pose>-0.135 0 0.029 0 -0 0</pose>
-        <geometry>
-          <sphere>
-            <radius>0.025</radius>
-          </sphere>
-        </geometry>
-        <surface>
-          <contact>
-            <ode/>
-          </contact>
-          <friction>
-            <ode/>
-          </friction>
-        </surface>
-      </collision>
-      <visual name='base_footprint_fixed_joint_lump__base_link_visual'>
-        <pose>0 0 0.04 0 -0 0</pose>
-        <geometry>
-          <box>
-            <size>0.3 0.15 0.02</size>
-          </box>
-        </geometry>
-        <material>
-          <script>
-            <name>Gazebo/White</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-          </script>
-        </material>
-      </visual>
-      <visual name='base_footprint_fixed_joint_lump__caster_link_visual_1'>
-        <pose>-0.115 0 0.029 0 -0 0</pose>
-        <geometry>
-          <sphere>
-            <radius>0.025</radius>
-          </sphere>
-        </geometry>
-      </visual>
-      <velocity_decay/>
-      <velocity_decay/>
-      <gravity>1</gravity>
-      <velocity_decay/>
-    </link>
-    <joint name='front_left_wheel_joint' type='revolute'>
-      <pose relative_to='base_footprint'>0.105 -0.085 0.04 0 -0 0</pose>
-      <parent>base_footprint</parent>
-      <child>front_left_wheel</child>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <limit>
-          <lower>-1e+16</lower>
-          <upper>1e+16</upper>
-        </limit>
-        <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-        </dynamics>
-      </axis>
-    </joint>
-    <link name='front_left_wheel'>
-      <pose relative_to='front_left_wheel_joint'>0 0 0 0 -0 0</pose>
-      <inertial>
-        <pose>0 0 0 0 -0 0</pose>
-        <mass>2.5</mass>
-        <inertia>
-          <ixx>0.00108333</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.00108333</iyy>
-          <iyz>0</iyz>
-          <izz>0.002</izz>
-        </inertia>
-      </inertial>
-      <collision name='front_left_wheel_collision'>
-        <pose>0 0 0 1.5708 -0 0</pose>
-        <geometry>
-          <cylinder>
-            <length>0.02</length>
-            <radius>0.04</radius>
-          </cylinder>
-        </geometry>
-        <surface>
-          <contact>
-            <ode>
-              <kp>1e+07</kp>
-              <kd>1</kd>
-            </ode>
-          </contact>
-          <friction>
-            <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
-              <fdir1>1 0 0</fdir1>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-      <visual name='front_left_wheel_visual'>
-        <pose>0 0 0 1.5708 -0 0</pose>
-        <geometry>
-          <cylinder>
-            <length>0.02</length>
-            <radius>0.04</radius>
-          </cylinder>
-        </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Grey</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-          </script>
-        </material>
-      </visual>
-      <gravity>1</gravity>
-      <velocity_decay/>
-    </link>
-    <joint name='front_right_wheel_joint' type='revolute'>
-      <pose relative_to='base_footprint'>0.105 0.085 0.04 0 -0 0</pose>
-      <parent>base_footprint</parent>
-      <child>front_right_wheel</child>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <limit>
-          <lower>-1e+16</lower>
-          <upper>1e+16</upper>
-        </limit>
-        <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-        </dynamics>
-      </axis>
-    </joint>
-    <link name='front_right_wheel'>
-      <pose relative_to='front_right_wheel_joint'>0 0 0 0 -0 0</pose>
-      <inertial>
-        <pose>0 0 0 0 -0 0</pose>
-        <mass>2.5</mass>
-        <inertia>
-          <ixx>0.00108333</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.00108333</iyy>
-          <iyz>0</iyz>
-          <izz>0.002</izz>
-        </inertia>
-      </inertial>
-      <collision name='front_right_wheel_collision'>
-        <pose>0 0 0 1.5708 -0 0</pose>
-        <geometry>
-          <cylinder>
-            <length>0.02</length>
-            <radius>0.04</radius>
-          </cylinder>
-        </geometry>
-        <surface>
-          <contact>
-            <ode>
-              <kp>1e+07</kp>
-              <kd>1</kd>
-            </ode>
-          </contact>
-          <friction>
-            <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
-              <fdir1>1 0 0</fdir1>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-      <visual name='front_right_wheel_visual'>
-        <pose>0 0 0 1.5708 -0 0</pose>
-        <geometry>
-          <cylinder>
-            <length>0.02</length>
-            <radius>0.04</radius>
-          </cylinder>
-        </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Grey</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-          </script>
-        </material>
-      </visual>
-      <gravity>1</gravity>
-      <velocity_decay/>
-    </link>
-    <plugin name='gazebo_ros_control' filename='libgazebo_ros_control.so'>
-      <robotNamespace>/diffbot</robotNamespace>
-      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-    </plugin>
-    <static>0</static>
-    <plugin name='differential_drive_controller' filename='libgazebo_ros_diff_drive.so'>
-      <legacyMode>1</legacyMode>
-      <rosDebugLevel>Debug</rosDebugLevel>
-      <publishWheelTF>0</publishWheelTF>
-      <robotNamespace>/</robotNamespace>
-      <publishTf>1</publishTf>
-      <publishWheelJointState>0</publishWheelJointState>
-      <alwaysOn>1</alwaysOn>
-      <updateRate>100.0</updateRate>
-      <leftJoint>front_left_wheel_joint</leftJoint>
-      <rightJoint>front_right_wheel_joint</rightJoint>
-      <wheelSeparation>0.3</wheelSeparation>
-      <wheelDiameter>0.08</wheelDiameter>
-      <broadcastTF>1</broadcastTF>
-      <wheelTorque>30</wheelTorque>
-      <wheelAcceleration>1.8</wheelAcceleration>
-      <commandTopic>cmd_vel</commandTopic>
-      <odometryFrame>odom</odometryFrame>
-      <odometryTopic>odom</odometryTopic>
-      <robotBaseFrame>base_footprint</robotBaseFrame>
-    </plugin>
-  </model>
-</sdf>
-```
-</details>
-
-
+Each link's `collision/surface` element in the output holds its contact settings. [From URDF to SDF](theory/modeling-control/wheel-dynamics-simulation.md#from-urdf-to-sdf) explains them, with Remo's wheel as an example.
 
 In case the output looks like the following, there are most certainly missing [`<inertial>`](http://wiki.ros.org/urdf/Tutorials/Adding%20Physical%20and%20Collision%20Properties%20to%20a%20URDF%20Model#Inertia) tags in the `<link>` tag.
 For the Gazebo simulator the `<inertial>` must be present, in order to simulate the dynamics of the robot. 
