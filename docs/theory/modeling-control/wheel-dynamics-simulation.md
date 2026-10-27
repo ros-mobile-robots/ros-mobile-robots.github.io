@@ -148,7 +148,7 @@ For each contact, Gazebo combines the two surfaces' settings: the stiffnesses li
 | Stiff: Gazebo's defaults | $10^{12}$, 1 | $5 \cdot 10^{11}$, 2 | 0.999999996 | $2.0 \cdot 10^{-9}$ |
 | Compliant | $10^{7}$, 1 | $10^{7}$, 2 | 0.9998 | $1.0 \cdot 10^{-4}$ |
 
-Both rows have an ERP close to 1: both correct almost all of a penetration in the next step. They differ in the CFM, by a factor of about 50 000. The CFM sets how soft the constraint is: the compliant contact acts like a spring of $10^7$ N/m, the stiff one like $5 \cdot 10^{11}$ N/m.
+Both rows have an ERP close to 1, so they ask for a similar position correction. That doesn't mean that either one removes almost all of a penetration in one step: the penetration allowance, the compliance, the load and other constraints matter too ([How much penetration is tolerated?](#how-much-penetration-is-tolerated)). The rows differ in the CFM, by a factor of about 50 000. The CFM sets how soft the constraint is: the compliant contact acts like a spring of $10^7$ N/m, the stiff one like $5 \cdot 10^{11}$ N/m.
 
 These are equivalences, not material properties: `kp` and `kd` set ERP and CFM, and it doesn't help to treat the two pairs as independent settings. A real tire's stiffness is a starting point at most. Each robot's settings are in [Tuning the simulated robot](../../diffbot_gazebo.md#contacts).
 

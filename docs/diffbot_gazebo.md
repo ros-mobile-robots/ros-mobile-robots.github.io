@@ -17,7 +17,7 @@ How a simulated robot drives depends on more than its kinematics: on its collisi
 
 ### The current settings
 
-The tables show the settings of the [diffbot repository](https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2) at `b896a3a` and [remo_description](https://github.com/ros-mobile-robots/remo_description/tree/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462) at `ba0b2c5`, the revisions that the experiments on the theory page used; the linked source files show later changes. The **Basis** column says where a value comes from: *measured* on the robot, *derived* from other values, Gazebo's *default*, *selected* and tested in the simulation, a *placeholder*, or *not modeled*. The **Reason / limitation** column says what the value is for and what it doesn't cover.
+The tables show the settings of the [diffbot repository](https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2) at `b896a3a` and [remo_description](https://github.com/ros-mobile-robots/remo_description/tree/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462) at `ba0b2c5`, the revisions that the experiments on the theory page used; the source links below are pinned to those revisions. The **Basis** column says where a value comes from: *measured* on the robot, *derived* from other values, Gazebo's *default*, *selected* and tested in the simulation, a *placeholder*, or *not modeled*. The **Reason / limitation** column says what the value is for and what it doesn't cover.
 
 #### Geometry and mass
 
