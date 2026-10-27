@@ -11,14 +11,14 @@
         <link rel="prev" href="../packages/remo_description/">
       
       
-        <link rel="next" href="../diffbot_control/">
+        <link rel="next" href="../simulators/">
       
       
         
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -26,10 +26,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -2040,6 +2040,8 @@
       
         
       
+        
+      
     
     
     
@@ -2545,6 +2547,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../simulators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../diffbot_control/" class="md-nav__link">
         
   
@@ -2601,7 +2631,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8">
         
           
           <div class="md-nav__link md-nav__container">
@@ -2623,14 +2653,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="">
+              <label class="md-nav__link " for="__nav_4_8" id="__nav_4_8_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4451,6 +4481,10 @@
 <p class="admonition-title">Simulation test</p>
 <p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> drives DiffBot and Remo in this simulation on every pull request, without a display. <a href="../development/simulation-test/">Simulation Test</a> shows how Gazebo, <code>gazebo_ros_control</code> and the controllers work together.</p>
 </div>
+<div class="admonition info">
+<p class="admonition-title">Simulators</p>
+<p>DiffBot and Remo use Gazebo Classic 11 with ROS Noetic. <a href="../simulators/">Simulators</a> explains its end of life, the new Gazebo for ROS 2, and other simulators and when to use them.</p>
+</div>
 <h2 id="tuning-the-simulated-robot">Tuning the simulated robot</h2>
 <p>How a simulated robot drives depends on more than its kinematics: on its collision shapes, masses, contact settings and the gains of its simulated motors. <a href="../theory/modeling-control/wheel-dynamics-simulation/">Wheel Dynamics in Simulation</a> explains what each of them does. This section lists DiffBot's and Remo's settings, why they have these values, and how to tune them.</p>
 <h3 id="the-current-settings">The current settings</h3>
@@ -4543,7 +4577,7 @@
 <td>not set</td>
 <td>not set</td>
 <td>selected</td>
-<td>Left unset to avoid a direction that turns with the sphere's frame and leaves the contact plane, as <code>0 0 1</code> would; a direction along the axle would also be valid on flat ground.</td>
+<td>Left unset to avoid a direction that turns with the sphere's frame and leaves the contact plane, as <code>0 0 1</code> would; a direction along the axle would stay in the contact plane, but Gazebo Classic uses only one of the two surfaces' <code>fdir1</code> in each contact.</td>
 </tr>
 <tr>
 <td>Contact <code>kp</code>, <code>kd</code></td>
@@ -4848,7 +4882,7 @@ First convert the xacro model to a urdf model with the <code>xacro</code> comman
 <p>Then use the <code>gz</code> command to create a sdf:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code># gazebo3 and above
-gz sdf -p MODEL.urdf
+gz sdf -p diffbot.urdf
 </code></pre></div></td></tr></tbody></table></div>
 <p>The output below is historical: it comes from DiffBot's model of 2020, with 2.5 kg wheels and cylinder collisions with a 0.04 m radius. It only shows what <code>gz sdf</code> prints. The current values are in <a href="#tuning-the-simulated-robot">Tuning the simulated robot</a>.</p>
 <details>
@@ -5498,13 +5532,13 @@ See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XM
         
         
           
-          <a href="../diffbot_control/" class="md-footer__link md-footer__link--next" aria-label="Next: Control">
+          <a href="../simulators/" class="md-footer__link md-footer__link--next" aria-label="Next: Simulators">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Control
+                Simulators
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -5545,11 +5579,11 @@ See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XM
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
     <style>
@@ -5633,10 +5667,15 @@ See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XM
 <script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
     try {
         var img = element.querySelector('img');
-        if (img && img.src) {
-            element.setAttribute('href', img.src);
+        if (img) {
+            const imageSrc = img.dataset.src || img.src;
+            if (imageSrc) {
+                element.setAttribute('href', imageSrc);
+            } else {
+                console.log('No img element with src or data-src attribute found');
+            }
         } else {
-            console.log('No img element with src attribute found');
+            console.log('No img element found');
         }
     } catch (error) {
         console.log('Error:', error);

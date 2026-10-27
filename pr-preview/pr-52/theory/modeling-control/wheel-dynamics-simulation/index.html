@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -26,10 +26,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -2054,6 +2054,8 @@
       
         
       
+        
+      
     
     
     
@@ -2321,6 +2323,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../simulators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../diffbot_control/" class="md-nav__link">
         
   
@@ -2374,7 +2404,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8">
         
           
           <div class="md-nav__link md-nav__container">
@@ -2396,14 +2426,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4739,7 +4769,7 @@ J = \frac{1}{2} m r^2 .
 <p><code>fdir1</code> sets the first friction direction, in the collision's own frame; without it, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> picks the two directions itself. <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> requires the direction to lie in the contact plane, and it uses it as given, without projecting it (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287"><code>contact.cpp</code></a>). Gazebo turns it with the collision's pose (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133"><code>ODEPhysics.cc</code></a>). That makes <code>fdir1</code> easy to get wrong on a wheel:</p>
 <ul>
 <li>A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> wheel cylinder is usually rotated so that its z axis is the axle, which doesn't move as the wheel spins. <code>fdir1</code> <code>0 0 1</code> then stays along the axle, in the contact plane.</li>
-<li>A sphere has no such rotation: its frame spins with the wheel, so the same <code>0 0 1</code> tilts into the contact normal. With equal coefficients, leave <code>fdir1</code> unset; otherwise choose a direction along the axle in the sphere's frame. On Remo, a sphere with <code>fdir1</code> <code>0 0 1</code> made the robot drive about 2 % less than its odometry; without <code>fdir1</code>, the two agree.</li>
+<li>A sphere has no such rotation: its frame spins with the wheel, so the same <code>0 0 1</code> tilts into the contact normal. With equal coefficients, leave <code>fdir1</code> unset. A direction along the axle in the sphere's frame would stay in the contact plane, but Gazebo Classic uses only the first of the two surfaces' <code>fdir1</code> and ignores the second's (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1166"><code>ODEPhysics.cc</code></a>), so whether a wheel's <code>fdir1</code> takes effect depends on whether Gazebo treats the wheel as the first or the second collision in a contact. On Remo, a sphere with <code>fdir1</code> <code>0 0 1</code> made the robot drive about 2 % less than its odometry; without <code>fdir1</code>, the two agree.</li>
 </ul>
 <p>Friction limits the force; it doesn't make a wheel roll. Higher friction doesn't fix a wrong wheel speed or a wrong geometry.</p>
 <h3 id="how-stiff-is-a-contact">How stiff is a contact?</h3>
@@ -4789,7 +4819,7 @@ J = \frac{1}{2} m r^2 .
 <li><strong><code>minDepth</code>:</strong> a penetration allowance, in meters. <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> subtracts it from the penetration before it corrects the rest. It is a dead band, not a limit on the depth.</li>
 <li><strong><code>maxVel</code>:</strong> the maximum velocity at which a penetration is corrected, in m/s. It isn't a speed limit for the wheel or the robot.</li>
 </ul>
-<p>For a wheel on the static ground plane, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>). Inside the dead band, nothing pushes a wheel back out, and a positive CFM lets it press into the ground under its load.</p>
+<p>For a wheel on the static ground plane, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>). Inside the dead band, nothing pushes a wheel back out, and a positive CFM lets it press into the ground under its load. Gazebo copies each wheel collision's <code>minDepth</code> to its <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> body (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODELink.cc#L350-L379"><code>ODELink.cc</code></a>), where it takes precedence over the world's <code>contact_surface_layer</code>: the test world sets that layer to 0.01 m (<a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_gazebo/worlds/diffbot_empty.world#L29"><code>diffbot_empty.world</code></a>), but Remo's wheels, with <code>minDepth</code> 0, have no dead band.</p>
 <p><em>Predict before you look:</em> with a <code>minDepth</code> of 10 mm, does a wheel sink until it is 10 mm deep?</p>
 <p><strong>Experiment E2</strong> leaves Remo at rest for 90 s, with its sphere collisions and compliant contacts, and changes only <code>minDepth</code>:</p>
 <figure class="wd-figure">
@@ -5052,7 +5082,7 @@ J = \frac{1}{2} m r^2 .
 <p>The <a href="../../../packages/diffbot_base/pid/"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Controllers</a> page and <a href="https://fbsbook.org"><em>Feedback Systems</em></a>, chapter 11, explain <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> control, integral windup and tuning in general.</p>
 <p><code>DefaultRobotHWSim</code> limits the torque to the joint's effort limit, from the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s <code>&lt;limit effort="..."&gt;</code> or the <code>joint_limits</code> parameters (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L404-L454">lines 404–454</a>). Without either, as on DiffBot and Remo, a simulated motor has no torque limit, unlike a real one.</p>
 <h3 id="which-contact-setting-changes-wheel-tracking">Which contact setting changes wheel tracking?</h3>
-<p>The wheel's velocity loop works against the contact: the ground decides how much torque a wheel needs and how its speed responds. Remo's reference contacts are compliant and damped, with friction 1, on a sphere collision with <code>minDepth</code> 0. <strong>Experiment E3</strong> compares them with runs that change one setting to a much harder value each, and with a run that changes all three. Remo turns on the spot to the left, twice per setting.</p>
+<p>The wheel's velocity loop works against the contact: the ground decides how much torque a wheel needs and how its speed responds. Remo's reference contacts are compliant and damped, with friction 1, on a sphere collision with <code>minDepth</code> 0. <strong>Experiment E3</strong> compares them with runs that change one setting to a much harder value each, and with a run that changes all three. Remo turns on the spot to the left and to the right, twice per setting; the figure shows the left turns, and the right turns agree with them.</p>
 <p><em>Predict before you look:</em> which of the three settings would you expect to matter?</p>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 562" role="img" aria-labelledby="wd-speeds-t"><title id="wd-speeds-t">Experiment E3: Remo's wheel speeds while turning on the spot, with one contact setting changed</title><defs></defs>
@@ -5310,7 +5340,7 @@ J = \frac{1}{2} m r^2 .
 
 <details class="info">
 <summary>The data</summary>
-<p>Experiment E3. Two runs per setting. These are 50 Hz samples of the joint states: faster motion may alias, so the traces and standard deviations don't rule out rapid oscillations. Every sample of the left turns is in scripts/figures/data/wheel-dynamics-speeds.csv.</p>
+<p>Experiment E3. Two runs per setting. The joint states come at 50 Hz: an oscillation faster than 25 Hz shows up in the traces as a slower one or not at all. Every sample of the left turns is in scripts/figures/data/wheel-dynamics-speeds.csv.</p>
 <table>
 <thead>
 <tr>
@@ -5354,7 +5384,7 @@ J = \frac{1}{2} m r^2 .
 </tbody>
 </table>
 </details>
-<p>Friction 200 and damping 0 don't change anything measurable. The stiffness alone does: with <span class="arithmatex">\(k_p = 10^{12}\)</span>, the wheels miss their commands, one at 122 % and the other at 71 %, and the robot turns only 0.76 of what its odometry says. All three changes together behave like the stiffness alone. So in this configuration, the contact stiffness decides; the experiment doesn't show why. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states are 50 Hz samples: faster motion may alias, so these traces and standard deviations don't rule out rapid oscillations.</p>
+<p>Friction 200 and damping 0 don't change anything measurable. The stiffness alone does: with <span class="arithmatex">\(k_p = 10^{12}\)</span>, the wheels miss their commands, one at about 120 % and the other at about 70 %, and the robot turns only 0.76 of what its odometry says. All three changes together behave like the stiffness alone. So in this configuration, the contact stiffness decides; the experiment doesn't show why. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states come at 50 Hz: an oscillation faster than 25 Hz shows up in these samples as a slower one or not at all, so a smooth trace doesn't rule it out.</p>
 <h2 id="why-the-time-step-matters">Why the time step matters</h2>
 <p>Gazebo updates the wheel torque once per physics step <span class="arithmatex">\(h\)</span>. Take a wheel that doesn't touch the ground, as at spawn, and only a P gain. Within one step, the torque is constant:</p>
 <div class="arithmatex">\[
@@ -5739,11 +5769,11 @@ e_{k+1} = \left( 1 - \frac{P h}{J} \right) e_k .
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
-      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
     <style>
@@ -5827,10 +5857,15 @@ e_{k+1} = \left( 1 - \frac{P h}{J} \right) e_k .
 <script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
     try {
         var img = element.querySelector('img');
-        if (img && img.src) {
-            element.setAttribute('href', img.src);
+        if (img) {
+            const imageSrc = img.dataset.src || img.src;
+            if (imageSrc) {
+                element.setAttribute('href', imageSrc);
+            } else {
+                console.log('No img element with src or data-src attribute found');
+            }
         } else {
-            console.log('No img element with src attribute found');
+            console.log('No img element found');
         }
     } catch (error) {
         console.log('Error:', error);
