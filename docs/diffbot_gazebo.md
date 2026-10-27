@@ -282,7 +282,7 @@ Then use the `gz` command to create a sdf:
 
 ```
 # gazebo3 and above
-gz sdf -p MODEL.urdf
+gz sdf -p diffbot.urdf
 ```
 
 The output below is historical: it comes from DiffBot's model of 2020, with 2.5 kg wheels and cylinder collisions with a 0.04 m radius. It only shows what `gz sdf` prints. The current values are in [Tuning the simulated robot](#tuning-the-simulated-robot).
