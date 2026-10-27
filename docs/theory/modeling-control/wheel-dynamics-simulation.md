@@ -6,7 +6,7 @@ A simulated robot can show effects that its kinematic model can't explain:
 - Its wheels jitter when it turns on the spot.
 - A higher motor gain, meant to follow the commands better, makes the model explode at spawn.
 
-All three come from parts of the simulation that the [kinematic model](modeling-differential-drive-robot.md) and [odometry](odometry.md) leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for ROS 1 Noetic with Gazebo Classic 11 and its default physics engine, ODE (Open Dynamics Engine). The [new Gazebo](../../simulators.md#the-new-gazebo-for-ros-2), ROS 2 and other physics engines name and implement some of these parameters differently.
+All three come from parts of the simulation that the [kinematic model](modeling-differential-drive-robot.md) and [odometry](odometry.md) leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for [ROS 1 Noetic](https://wiki.ros.org/noetic) with [Gazebo Classic 11](../../simulators.md#what-diffbot-and-remo-use-gazebo-classic-11) and its default physics engine, [ODE](https://www.ode.org/) (Open Dynamics Engine). Two kinds of parameters are specific to that setup: the friction and contact settings (`mu1`, `mu2`, `fdir1`, `kp`, `kd`, `minDepth`, `maxVel`) are written for ODE, and the wheel's velocity PID comes from `gazebo_ros_control`. The [new Gazebo for ROS 2](../../simulators.md#the-new-gazebo-for-ros-2) has no ODE: it uses DART by default and `gz_ros2_control` instead, so these settings can have other names, other effects or none there, and have to be checked again. The ideas carry over: where a wheel pushes on the ground, how its inertia responds to a torque, and why a motor gain depends on the time step.
 
 After this page, you can:
 
@@ -38,13 +38,14 @@ graph TD
   W -- "measured wheel speeds ω" --> PID;
   W -- "wheel positions, via the hardware interface" --> ODOM["2 Odometry (diff_drive_controller)"];
   W -- "motion of the robot" --> TRUE["3 True pose in Gazebo"];
+  class CMD,ODOM,TRUE view;
 ```
 
-The numbers mark three views of the same motion, which the [Simulation Test](../../development/simulation-test.md#three-views-of-the-motion) compares:
+The three boxes with a thick orange border, numbered 1 to 3, are three views of the same motion, which the [Simulation Test](../../development/simulation-test.md#three-views-of-the-motion) compares:
 
-1. the **command**: what `cmd_vel` asks for;
-2. the **odometry**: what the wheel turns add up to, with the configured wheel radius and separation;
-3. the **true pose**: where Gazebo's physics put the robot.
+- **1 Command:** what `cmd_vel` asks for;
+- **2 Odometry:** what the wheel turns add up to, with the configured wheel radius and separation;
+- **3 True pose:** where Gazebo's physics put the robot.
 
 Comparing them narrows down where to look; it doesn't prove a single cause. Wheel speeds that miss their commands point first to the motor loop and the contact load. Wheels that follow their commands while the true pose differs from the odometry point first to the geometry and the contacts. And a wheel that sinks into the ground at rest points to the contact settings, whatever the motion does.
 
