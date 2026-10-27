@@ -28,7 +28,7 @@ The container runs as the user `ros` with UID 1000, not as root, and its workspa
 
 ## Set up the robot's host
 
-These steps run once, on the Raspberry Pi.
+These steps run once, on the Raspberry Pi. They follow Ubuntu's and Docker's documentation, but haven't been run on a Raspberry Pi for this robot yet.
 
 1. **Ubuntu Server 24.04.** Flash *Ubuntu Server 24.04 LTS (64-bit)* to the microSD card with [Raspberry Pi Imager](https://www.raspberrypi.com/software/), which lists it under the other general-purpose operating systems. In Imager's settings, set your user, the Wi-Fi and SSH, then boot the Raspberry Pi and log in over SSH from your PC. Ubuntu supports the [Raspberry Pi 4 B](https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/raspberry-pi/) with this release.
 2. **The clock.** ROS compares time stamps from the robot and the PC, so both clocks have to be synchronized. Ubuntu does that by default with systemd-timesyncd; check that `timedatectl` on the robot shows `System clock synchronized: yes` ([time synchronization](https://documentation.ubuntu.com/server/how-to/networking/timedatectl-and-timesyncd/)).
@@ -63,39 +63,41 @@ These steps run once, on the Raspberry Pi.
 
 ## Run the bringup
 
-On the Raspberry Pi, in the `diffbot` folder. The first start builds the image on the Raspberry Pi, which compiles the packages and takes a while; later starts reuse it.
+**Settings** go into a file `.docker/robot/.env` in the `diffbot` folder, one `NAME=value` per line. Set the ROS network first if the PC runs the ROS master: start `roscore` in the PC's dev container, and set the two variables here and on the PC as on [ROS Network Setup](ros-network-setup.md).
+
+| Setting | Default | What it's for |
+|:--|:--|:--|
+| `ROBOT_MODEL` | `remo` | `diffbot` runs DiffBot's bringup; the image has both models |
+| `ROS_MASTER_URI`, `ROS_IP` | not set | The PC's ROS master and the robot's own IP address. Without them, roslaunch starts a master on the robot |
+| `TEENSY_DEVICE`, `LIDAR_DEVICE` | `/dev/teensy`, `/dev/rplidar` | The devices on the host |
+| `DIALOUT_GID` | `20` | The numeric ID of the host's group that owns the serial devices, `dialout` on Ubuntu |
+| `ROBOT_DATA` | `~/robot-data` | The folder for logs and bags |
+
+The container uses the host's network (`network_mode: host`), so ROS reaches the PC as a native installation would.
+
+**Start the bringup** on the Raspberry Pi, in the `diffbot` folder. The first start builds the image on the Raspberry Pi, which compiles the packages and takes a while; later starts reuse it.
 
 ```console
 docker compose -f .docker/robot/compose.yaml up --build
 ```
 
-This runs Remo's bringup ([`compose.yaml`]({{ diffbot_repo_url }}/.docker/robot/compose.yaml)): the hardware interface, the controllers and rosserial to the Teensy, which drives the motors and reads the encoders. To start the lidar too, add its profile:
+This runs Remo's bringup ([`compose.yaml`]({{ diffbot_repo_url }}/.docker/robot/compose.yaml)): the hardware interface, the controllers and rosserial to the Teensy, which drives the motors and reads the encoders. To start the lidar too, use this command instead; it adds the lidar's profile:
 
 ```console
 docker compose -f .docker/robot/compose.yaml --profile lidar up
 ```
 
-`Ctrl+C` stops the containers; `docker compose -f .docker/robot/compose.yaml down` removes them.
+Leave this terminal open: it shows the bringup's output, and `Ctrl+C` there stops the containers. For everything else, open a second SSH session to the Raspberry Pi from your PC and go to the `diffbot` folder (`cd ~/diffbot`).
 
-**Settings** go into a file `.docker/robot/.env`, one `NAME=value` per line:
-
-| Setting | Default | What it's for |
-|:--|:--|:--|
-| `ROBOT_MODEL` | `remo` | `diffbot` runs DiffBot's bringup; the image has both models |
-| `ROS_MASTER_URI`, `ROS_IP` | not set | The PC's ROS master and the robot's own IP address, as on [ROS Network Setup](ros-network-setup.md). Without them, roslaunch starts a master on the robot |
-| `TEENSY_DEVICE`, `LIDAR_DEVICE` | `/dev/teensy`, `/dev/rplidar` | The devices on the host |
-| `DIALOUT_GID` | `20` | The numeric ID of the host's group that owns the serial devices, `dialout` on Ubuntu |
-| `ROBOT_DATA` | `~/robot-data` | The folder for logs and bags |
-
-The container uses the host's network (`network_mode: host`), so ROS reaches the PC as a native installation would; [ROS Network Setup](ros-network-setup.md) still applies on both sides.
-
-**ROS commands in the running container** go through its entry point, which loads ROS and the workspace. For example, to list the topics or to drive the robot with the keyboard:
+**ROS commands in the running container** go through its entry point, which loads ROS and the workspace. In the second session, for example, list the topics, or drive the robot with the keyboard:
 
 ```console
 docker compose -f .docker/robot/compose.yaml exec bringup /entrypoint.sh rostopic list
 docker compose -f .docker/robot/compose.yaml exec bringup /entrypoint.sh \
     rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/diffbot/mobile_base_controller/cmd_vel
 ```
+
+The bringup's output is also available later, with `docker compose -f .docker/robot/compose.yaml logs -f bringup`, and ROS's log files are in `~/robot-data/log`. `docker compose -f .docker/robot/compose.yaml down` removes the stopped containers.
 
 **After the Teensy was reset, reflashed or unplugged,** stop the containers and start them again (`down`, then `up`). A container gets its devices when it starts, and a reconnected Teensy is a new device for the kernel. A restart also starts a new odometry, so a measurement run ends there.
 
