@@ -60,6 +60,8 @@ odometry: forward 0.001 m, left -0.000 m, turned 1.489 rad
 true pose: forward 0.001 m, left -0.000 m, turned 1.489 rad
 ```
 
+This output comes from DiffBot's model as of [diffbot#137](https://github.com/ros-mobile-robots/diffbot/pull/137). The code walkthrough below is pinned to the earlier `7190c9a`, before `base_footprint` moved to the axle's midpoint; its 3 to 5 cm of true-pose movement during the turn and its 0.15 m tolerance describe that revision.
+
 Each drive is measured twice: with the robot's odometry and with its true pose in Gazebo ([How it works](#how-it-works)). The first two lines are `test_forward`, which commands 0.6 m straight ahead; the last two are `test_turn`, which commands 1.5 rad on the spot. `forward`, `left` and `turned` describe the motion as seen from where the robot started ([`relative_pose()`][s-rel]). The numbers aren't exactly the commanded ones: the checks accept a range around each expected value ([the checks][s-checks]), and [Why the results differ from the commands](#why-the-results-differ-from-the-commands) explains where the differences come from.
 
 ## How it works
