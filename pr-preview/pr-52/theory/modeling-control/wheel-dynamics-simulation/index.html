@@ -56,6 +56,9 @@
           [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
           [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
           [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          /* Nodes that a diagram highlights with "class A,B view;", in both schemes */
+          .mermaid .node.view rect { fill: #fff3e0 !important; stroke: #e65100 !important; stroke-width: 3px !important; }
+          [data-md-color-scheme="slate"] .mermaid .node.view rect { fill: #3d2a12 !important; stroke: #ffb74d !important; }
           [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
           [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
           [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
@@ -4502,7 +4505,7 @@
 <li>Its wheels jitter when it turns on the spot.</li>
 <li>A higher motor gain, meant to follow the commands better, makes the model explode at spawn.</li>
 </ul>
-<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for ROS 1 Noetic with Gazebo Classic 11 and its default physics engine, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> (Open Dynamics Engine). The <a href="../../../simulators/#the-new-gazebo-for-ros-2">new Gazebo</a>, ROS 2 and other physics engines name and implement some of these parameters differently.</p>
+<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for <a href="https://wiki.ros.org/noetic">ROS 1 Noetic</a> with <a href="../../../simulators/#what-diffbot-and-remo-use-gazebo-classic-11">Gazebo Classic 11</a> and its default physics engine, <a href="https://www.ode.org/"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr></a> (Open Dynamics Engine). Two kinds of parameters are specific to that setup: the friction and contact settings (<code>mu1</code>, <code>mu2</code>, <code>fdir1</code>, <code>kp</code>, <code>kd</code>, <code>minDepth</code>, <code>maxVel</code>) are written for <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>, and the wheel's velocity <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> comes from <code>gazebo_ros_control</code>. The <a href="../../../simulators/#the-new-gazebo-for-ros-2">new Gazebo for ROS 2</a> has no <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>: it uses <abbr title="Dynamic Animation and Robotics Toolkit. A physics engine for robots; the new Gazebo uses it by default, instead of Gazebo Classic's ODE.">DART</abbr> by default and <code>gz_ros2_control</code> instead, so these settings can have other names, other effects or none there, and have to be checked again. The ideas carry over: where a wheel pushes on the ground, how its inertia responds to a torque, and, when a sampled motor controller computes the torque, why its gain depends on the update interval.</p>
 <p>After this page, you can:</p>
 <ul>
 <li>tell apart a wheel's three descriptions in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>: how it looks, where it collides and how its mass is distributed;</li>
@@ -4529,13 +4532,14 @@
   G[ground contact: collision shape, friction, kp, kd] -- "contact forces" --&gt; W;
   W -- "measured wheel speeds ω" --&gt; PID;
   W -- "wheel positions, via the hardware interface" --&gt; ODOM["2 Odometry (diff_drive_controller)"];
-  W -- "motion of the robot" --&gt; TRUE["3 True pose in Gazebo"];</div>
-<p>The numbers mark three views of the same motion, which the <a href="../../../development/simulation-test/#three-views-of-the-motion">Simulation Test</a> compares:</p>
-<ol>
-<li>the <strong>command</strong>: what <code>cmd_vel</code> asks for;</li>
-<li>the <strong>odometry</strong>: what the wheel turns add up to, with the configured wheel radius and separation;</li>
-<li>the <strong>true pose</strong>: where Gazebo's physics put the robot.</li>
-</ol>
+  W -- "motion of the robot" --&gt; TRUE["3 True pose in Gazebo"];
+  class CMD,ODOM,TRUE view;</div>
+<p>The three boxes with a thick orange border, numbered 1 to 3, are three views of the same motion, which the <a href="../../../development/simulation-test/#three-views-of-the-motion">Simulation Test</a> compares:</p>
+<ul>
+<li><strong>1 Command:</strong> what <code>cmd_vel</code> asks for;</li>
+<li><strong>2 Odometry:</strong> what the wheel turns add up to, with the configured wheel radius and separation;</li>
+<li><strong>3 True pose:</strong> where Gazebo's physics put the robot.</li>
+</ul>
 <p>Comparing them narrows down where to look; it doesn't prove a single cause. Wheel speeds that miss their commands point first to the motor loop and the contact load. Wheels that follow their commands while the true pose differs from the odometry point first to the geometry and the contacts. And a wheel that sinks into the ground at rest points to the contact settings, whatever the motion does.</p>
 <p>The next sections follow the chain: <a href="#representing-a-wheel">Representing a wheel</a> and <a href="#modeling-ground-contact">Modeling ground contact</a> explain the wheel and the contact, <a href="#turning-a-wheel-speed-command-into-torque">Turning a wheel-speed command into torque</a> the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>, and <a href="#why-the-time-step-matters">Why the time step matters</a> how often they act on each other. The robot body's inertia, the caster's contacts and the solver's settings affect the motion too, but the diagram doesn't show them separately. It describes the simulated motor, not the electrical dynamics of the real one.</p>
 <h2 id="representing-a-wheel">Representing a wheel</h2>
