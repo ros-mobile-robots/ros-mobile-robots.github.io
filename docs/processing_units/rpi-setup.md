@@ -6,7 +6,7 @@ These are the instructions to set up Ubuntu 20.04 Focal Fossa on the robot's com
 
 ## Ubuntu 20.04 image for the Raspberry Pi
 
-ROS Noetic needs Ubuntu 20.04. Its standard support ended in May 2025 (see [ROS Setup](ros-setup.md)), and Raspberry Pi Imager no longer lists it. The official image from Ubuntu is still available: Ubuntu Server 20.04.5, without a desktop, which the robot doesn't need, because you work on it over SSH from your PC. A container to run Noetic on a current OS is planned in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109).
+ROS Noetic needs Ubuntu 20.04. Its standard support ended in May 2025 (see [ROS Setup](ros-setup.md)), and Raspberry Pi Imager no longer lists it. The official image from Ubuntu is still available: Ubuntu Server 20.04.5, without a desktop, which the robot doesn't need, because you work on it over SSH from your PC. The experimental [Robot Container](robot-container.md) runs Noetic on a current OS instead, Ubuntu Server 24.04.
 
 Download `ubuntu-20.04.5-preinstalled-server-arm64+raspi.img.xz` from [Ubuntu's 20.04 release folder](https://cdimage.ubuntu.com/ubuntu/releases/20.04/release/), and compare its checksum with the `SHA256SUMS` file there.
 
