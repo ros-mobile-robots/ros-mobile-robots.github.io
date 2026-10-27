@@ -2914,6 +2914,8 @@
       
         
       
+        
+      
     
     
     
@@ -3058,6 +3060,34 @@
     
   
     Odometry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/modeling-control/wheel-dynamics-simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wheel Dynamics in Simulation
   
 
     
@@ -5596,6 +5626,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
 <li><strong>Why runs can still differ:</strong> Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. A sensitive model, such as Remo's with its old cylinders and contacts, turns such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step: <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> once measured an outlier turn for DiffBot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a>).</li>
 </ul>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/issues/118">diffbot#118</a> tracks what's left, such as the placeholder masses of DiffBot's wheels and caster wheel, 0.5 kg each.</p>
+<p><a href="../../theory/modeling-control/wheel-dynamics-simulation/">Wheel Dynamics in Simulation</a> explains the collision shapes, contacts and wheel gains behind these numbers, and <a href="../../diffbot_gazebo/#tuning-the-simulated-robot">Tuning the simulated robot</a> lists each robot's values and how to tune them.</p>
 <h2 id="how-to-add-a-test">How to add a test</h2>
 <p>As an example, this adds a test that drives backward. It runs for both robots, because both test files run <code>test_drive.py</code>.</p>
 <ol>

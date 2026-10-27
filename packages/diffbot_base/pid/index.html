@@ -3013,6 +3013,8 @@
       
         
       
+        
+      
     
     
     
@@ -3157,6 +3159,34 @@
     
   
     Odometry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../theory/modeling-control/wheel-dynamics-simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wheel Dynamics in Simulation
   
 
     
@@ -4181,6 +4211,10 @@ different locations in the source code. Either the two PIDs are in the</p>
 </ul>
 <p>The current approach (starting from version 1.0.0) operates the PIDs in the
 low-level base controller firmware.</p>
+<div class="admonition note">
+<p class="admonition-title">In the simulation</p>
+<p>In Gazebo, there is no firmware: <code>gazebo_ros_control</code> controls each wheel's speed with its own <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>, with each robot's gains in <code>diffbot_control/config/&lt;model&gt;/pid.yaml</code>. <a href="../../../theory/modeling-control/wheel-dynamics-simulation/#turning-a-wheel-speed-command-into-torque">Wheel Dynamics in Simulation</a> explains that <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> and why its gains depend on the wheel's inertia and the time step.</p>
+</div>
 <p>Regardless of the location (high or low-level), each <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is passed the error
 between velocity measured by the encoders and the target velocity computed by
 the <code>diff_drive_controller</code> for a specific wheel joint. The
