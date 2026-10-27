@@ -54,10 +54,10 @@ grep -o '\(odometry\|true pose\): [^<&]*' ~/.ros/test_results/diffbot_gazebo/ros
 ```
 
 ```text
-odometry: forward 0.580 m, left -0.000 m, turned -0.000 rad
-true pose: forward 0.578 m, left -0.000 m, turned -0.000 rad
-odometry: forward 0.000 m, left -0.000 m, turned 1.500 rad
-true pose: forward 0.017 m, left -0.020 m, turned 1.471 rad
+odometry: forward 0.580 m, left 0.000 m, turned 0.000 rad
+true pose: forward 0.580 m, left 0.000 m, turned 0.000 rad
+odometry: forward 0.001 m, left -0.000 m, turned 1.489 rad
+true pose: forward 0.001 m, left -0.000 m, turned 1.489 rad
 ```
 
 Each drive is measured twice: with the robot's odometry and with its true pose in Gazebo ([How it works](#how-it-works)). The first two lines are `test_forward`, which commands 0.6 m straight ahead; the last two are `test_turn`, which commands 1.5 rad on the spot. `forward`, `left` and `turned` describe the motion as seen from where the robot started ([`relative_pose()`][s-rel]). The numbers aren't exactly the commanded ones: the checks accept a range around each expected value ([the checks][s-checks]), and [Why the results differ from the commands](#why-the-results-differ-from-the-commands) explains where the differences come from.
@@ -351,11 +351,11 @@ The checks that compare the odometry and the true pose allow these differences. 
 
 ### Why the robots and repeated runs differ
 
-- **The models differ.** DiffBot's model gives each wheel a placeholder mass of 0.5 kg (the real wheels weigh 32 g, like Remo's), a sphere collision and Gazebo's default contact settings. Remo's model has the measured 32 g wheels, also with a sphere collision, and slightly soft, damped contacts with a friction of 1 (`robot.gazebo.xacro` in [remo_description]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)). Each has its own wheel gains.
-- **Repeated runs agree.** In three runs, DiffBot's turn varied by 0.003 rad and Remo's by 0.002 rad. With its earlier collision cylinders and contact settings, a friction of 200, very stiff contacts and no damping, Remo's wheels jittered when turning, and its turn varied between 0.92 and 1.34 rad ([remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2)).
+- **The models differ.** Both have the measured 32 g wheels with a sphere collision and slightly soft, damped contacts with a friction of 1 (DiffBot's in [`common_macros.urdf.xacro`]({{ diffbot_repo_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro), Remo's in [`robot.gazebo.xacro`]({{ remo_repo_url }}/urdf/include/robot.gazebo.xacro)). They differ in their bodies and casters, and each has its own wheel gains ([Tuning the simulated robot](../diffbot_gazebo.md#the-current-settings)).
+- **Repeated runs agree.** In three runs of the same left turn, DiffBot's turn varied by 0.001 rad ([diffbot#137](https://github.com/ros-mobile-robots/diffbot/pull/137)) and Remo's by 0.002 rad. With its earlier collision cylinders and contact settings, a friction of 200, very stiff contacts and no damping, Remo's wheels jittered when turning, and its turn varied between 0.92 and 1.34 rad ([remo_description#2](https://github.com/ros-mobile-robots/remo_description/pull/2)).
 - **Why runs can still differ:** Gazebo's physics computes the same result from the same inputs, but the test node's commands reach the simulation asynchronously, a few simulation steps earlier or later from run to run. A sensitive model, such as Remo's with its old cylinders and contacts, turns such small differences into visibly different results. A run of ROS and Gazebo isn't guaranteed to be repeatable step for step: CI once measured an outlier turn for DiffBot ([diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118)).
 
-[diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118) tracks what's left, such as the placeholder masses of DiffBot's wheels and caster wheel, 0.5 kg each.
+[diffbot#118](https://github.com/ros-mobile-robots/diffbot/issues/118) tracks what's left of matching the models to the robots.
 
 [Wheel Dynamics in Simulation](../theory/modeling-control/wheel-dynamics-simulation.md) explains the collision shapes, contacts and wheel gains behind these numbers, and [Tuning the simulated robot](../diffbot_gazebo.md#tuning-the-simulated-robot) lists each robot's values and how to tune them.
 
