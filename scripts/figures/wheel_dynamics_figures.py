@@ -402,8 +402,8 @@ for key, title in SPEED_PANELS + [("remo-combined", "Friction 200, kp 1e12 and k
                     f"{st['right'][0]:.0f} %, sd up to {st['right'][1]:.3f} rad/s", ", ".join(f"{r:.3f}" for r in ratio)])
 speeds_data = data_block(
     ["Contact setting", "Left wheel", "Right wheel", "True / odometry turn, two runs"], e3_rows,
-    "Experiment E3. Two runs per setting. The joint states come at 50 Hz: an oscillation at 25 Hz or "
-    "faster shows up in the traces as a slower one or not at all. Every sample of the left turns is in "
+    "Experiment E3. Two runs per setting. The joint states come at 50 Hz: an oscillation faster than "
+    "25 Hz shows up in the traces as a slower one or not at all. Every sample of the left turns is in "
     "scripts/figures/data/wheel-dynamics-speeds.csv.")
 
 open("includes/wheel-dynamics-contacts.html", "w").write(STYLE + "\n" + fig_contacts + fig_turn + contacts_data)

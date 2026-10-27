@@ -197,7 +197,7 @@ The wheel's velocity loop works against the contact: the ground decides how much
 
 --8<-- "includes/wheel-dynamics-wheel-speeds.html"
 
-Friction 200 and damping 0 don't change anything measurable. The stiffness alone does: with $k_p = 10^{12}$, the wheels miss their commands, one at about 120 % and the other at about 70 %, and the robot turns only 0.76 of what its odometry says. All three changes together behave like the stiffness alone. So in this configuration, the contact stiffness decides; the experiment doesn't show why. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states come at 50 Hz: an oscillation at 25 Hz or faster shows up in these samples as a slower one or not at all, so a smooth trace doesn't rule it out.
+Friction 200 and damping 0 don't change anything measurable. The stiffness alone does: with $k_p = 10^{12}$, the wheels miss their commands, one at about 120 % and the other at about 70 %, and the robot turns only 0.76 of what its odometry says. All three changes together behave like the stiffness alone. So in this configuration, the contact stiffness decides; the experiment doesn't show why. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states come at 50 Hz: an oscillation faster than 25 Hz shows up in these samples as a slower one or not at all, so a smooth trace doesn't rule it out.
 
 ## Why the time step matters
 
