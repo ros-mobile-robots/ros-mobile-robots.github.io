@@ -3319,10 +3319,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#choosing-the-next-check" class="md-nav__link">
+  <a href="#troubleshooting-which-check-first" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choosing the next check
+        Troubleshooting: which check first?
       
     </span>
   </a>
@@ -4380,10 +4380,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#choosing-the-next-check" class="md-nav__link">
+  <a href="#troubleshooting-which-check-first" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choosing the next check
+        Troubleshooting: which check first?
       
     </span>
   </a>
@@ -4502,31 +4502,42 @@
 <li>Its wheels jitter when it turns on the spot.</li>
 <li>A higher motor gain, meant to follow the commands better, makes the model explode at spawn.</li>
 </ul>
-<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for ROS 1 Noetic with Gazebo Classic 11 and its default physics engine, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> (Open Dynamics Engine). The new Gazebo, ROS 2 and other physics engines name and implement some of these parameters differently.</p>
+<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for ROS 1 Noetic with Gazebo Classic 11 and its default physics engine, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> (Open Dynamics Engine). The <a href="../../../simulators/#the-new-gazebo-for-ros-2">new Gazebo</a>, ROS 2 and other physics engines name and implement some of these parameters differently.</p>
 <p>After this page, you can:</p>
 <ul>
-<li>tell a wheel's visual, collision and inertial models apart, and say which one a symptom points to;</li>
-<li>read wheel speed tracking, the agreement of odometry and true motion, and the wheels' settling height as three different measurements;</li>
-<li>choose a controlled check for a contact or velocity-loop problem, including what it assumes about the time step.</li>
+<li>tell apart a wheel's three descriptions in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>: how it looks, where it collides and how its mass is distributed;</li>
+<li>use three measurements, the wheel speeds, the odometry compared with Gazebo's motion, and the wheels' height at rest, to narrow down a simulation problem;</li>
+<li>change one setting at a time, and estimate how a wheel's inertia and the physics time step affect the stability of a simple motor loop.</li>
 </ul>
 <p>The page uses DiffBot and Remo as worked examples. Their current settings, the reasons for them and a tuning procedure are on the Simulation page, in <a href="../../../diffbot_gazebo/#tuning-the-simulated-robot">Tuning the simulated robot</a>.</p>
+<details class="info">
+<summary>About the experiments E1 to E3</summary>
+<p>The measurements on this page come from three controlled experiments in Gazebo Classic, run for this page in the <a href="../../../development/dev-container/">dev container</a> with the <a href="https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2">diffbot repository</a> at <code>b896a3a</code> and <a href="https://github.com/ros-mobile-robots/remo_description/tree/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462">remo_description</a> at <code>ba0b2c5</code>:</p>
+<ul>
+<li><strong>E1</strong> compares the drive wheels' collision shapes, cylinder and sphere, on both robots: three runs per shape.</li>
+<li><strong>E2</strong> measures how far Remo's wheels sink into the ground at rest, for three <code>minDepth</code> values: two runs per value.</li>
+<li><strong>E3</strong> changes one of the contact settings of Remo's wheels at a time, and all of them together: two runs per setting.</li>
+</ul>
+<p>Each run starts a fresh simulation. In E1 and E3, the robot then turns left, turns right and drives forward, one after the other, each for 3 s. The measured data and the script that draws the figures are in this repository, in <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/scripts/figures"><code>scripts/figures</code></a>; the script that ran the simulations isn't published yet. The results describe these model revisions and settings, not every robot or later revision.</p>
+</details>
 <h2 id="what-determines-the-motion">What determines the motion</h2>
-<p>A velocity command passes through several models before the robot moves:</p>
+<p>To find a simulation problem, first follow a velocity command through the model. The diagram is a simplified chain for this Gazebo Classic setup: it shows where a wheel-speed error, a disagreement with the odometry or a ground-contact problem can enter. It follows the code of these packages, and the data flow that Gazebo's <a href="https://classic.gazebosim.org/tutorials?tut=ros_control">ROS Control tutorial</a> and the <a href="https://joss.theoj.org/papers/10.21105/joss.00456">ros_control paper</a> (Chitta et al., 2017) describe:</p>
 <div class="mermaid">graph TD
-  CMD[cmd_vel] --&gt; C[diff_drive_controller];
+  CMD["1 Command: cmd_vel"] --&gt; C[diff_drive_controller];
   C -- "wheel speed commands ω*" --&gt; PID[velocity PID in DefaultRobotHWSim];
-  PID -- "torque τ" --&gt; W[wheel with inertia J];
+  PID -- "torque τ" --&gt; W["robot mechanics: wheels with inertia J, body, caster"];
   G[ground contact: collision shape, friction, kp, kd] -- "contact forces" --&gt; W;
   W -- "measured wheel speeds ω" --&gt; PID;
-  W -- "joint states" --&gt; ODOM["odometry (diff_drive_controller)"];
-  W -- "motion of the robot" --&gt; TRUE[true pose in Gazebo];</div>
-<p>So there are three views of the same motion, and the <a href="../../../development/simulation-test/">Simulation Test</a> compares them:</p>
-<ul>
+  W -- "wheel positions, via the hardware interface" --&gt; ODOM["2 Odometry (diff_drive_controller)"];
+  W -- "motion of the robot" --&gt; TRUE["3 True pose in Gazebo"];</div>
+<p>The numbers mark three views of the same motion, which the <a href="../../../development/simulation-test/#three-views-of-the-motion">Simulation Test</a> compares:</p>
+<ol>
 <li>the <strong>command</strong>: what <code>cmd_vel</code> asks for;</li>
 <li>the <strong>odometry</strong>: what the wheel turns add up to, with the configured wheel radius and separation;</li>
 <li>the <strong>true pose</strong>: where Gazebo's physics put the robot.</li>
-</ul>
-<p>Each comparison points to a different part of the chain. Wheel speeds that miss their commands point to the motor and the contact load. Wheels that follow their commands while the true pose differs from the odometry point to geometry and contacts. And a wheel that sinks into the ground at rest points to the contact settings, whatever the motion does.</p>
+</ol>
+<p>Comparing them narrows down where to look; it doesn't prove a single cause. Wheel speeds that miss their commands point first to the motor loop and the contact load. Wheels that follow their commands while the true pose differs from the odometry point first to the geometry and the contacts. And a wheel that sinks into the ground at rest points to the contact settings, whatever the motion does.</p>
+<p>The next sections follow the chain: <a href="#representing-a-wheel">Representing a wheel</a> and <a href="#modeling-ground-contact">Modeling ground contact</a> explain the wheel and the contact, <a href="#turning-a-wheel-speed-command-into-torque">Turning a wheel-speed command into torque</a> the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>, and <a href="#why-the-time-step-matters">Why the time step matters</a> how often they act on each other. The robot body's inertia, the caster's contacts and the solver's settings affect the motion too, but the diagram doesn't show them separately. It describes the simulated motor, not the electrical dynamics of the real one.</p>
 <h2 id="representing-a-wheel">Representing a wheel</h2>
 <p>A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> link has three separate descriptions (<a href="https://wiki.ros.org/urdf/XML/link"><abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> link specification</a>):</p>
 <ul>
@@ -4536,10 +4547,9 @@
 </ul>
 <p>They don't have to agree. DiffBot's and Remo's wheels look like their mesh, collide as a sphere and are modeled with a solid cylinder's inertia.</p>
 <h3 id="where-does-a-wheel-push-on-the-ground">Where does a wheel push on the ground?</h3>
-<p>The <a href="../modeling-differential-drive-robot/">kinematic model</a> assumes that each wheel pushes on the ground in its center plane, so the turn rate is <span class="arithmatex">\(\omega = (v_r - v_l) / L\)</span>, with the wheel separation <span class="arithmatex">\(L\)</span> between the wheel centers. The odometry uses the same <span class="arithmatex">\(L\)</span>. If the wheels push at an effective separation <span class="arithmatex">\(L_\text{eff}\)</span> instead, and their speeds are the same, the robot turns <span class="arithmatex">\(L / L_\text{eff}\)</span> of what its odometry reports.</p>
-<p>On flat ground, a sphere with the wheel's radius touches at one point in the wheel's center plane. A cylinder touches along a line across its width, which the physics engine reduces to a few contact points. Where the resulting forces act depends on the contact solver; the turn ratio shows the effective position.</p>
-<p><em>Predict before you look:</em> if the effective separation grows while the wheel speeds stay the same, does the robot turn more or less than its odometry says?</p>
-<p><strong>Experiment E1</strong> changes only the drive wheels' collision, cylinder or sphere, on both robots. Each robot is commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s), to the left and then to the right, three times, in a fresh simulation per run.</p>
+<p>The <a href="../modeling-differential-drive-robot/">kinematic model</a> assumes that each wheel pushes on the ground in its center plane. With the wheel separation <span class="arithmatex">\(b\)</span> between the wheel centers, the robot then turns at <span class="arithmatex">\(\omega = (v_r - v_l) / b\)</span>, and the odometry uses the same <span class="arithmatex">\(b\)</span>. (The kinematic model and <a href="../odometry/">odometry</a> pages write this distance as <span class="arithmatex">\(2L\)</span>.) If the wheels push at an effective separation <span class="arithmatex">\(b_\text{eff}\)</span> instead, the same wheel speeds turn the robot <span class="arithmatex">\(b / b_\text{eff}\)</span> of what its odometry reports: less, if <span class="arithmatex">\(b_\text{eff}\)</span> is larger than <span class="arithmatex">\(b\)</span>.</p>
+<p>On flat ground, a sphere with the wheel's radius touches at one point in the wheel's center plane. A cylinder touches along a line across its width, which the physics engine reduces to a few contact points. Where the resulting forces act depends on the contact solver, and the experiment below measures only their effect on the turn. One explanation to test is that a cylinder pushes at its outer edges. For DiffBot, with 0.025 m wide wheels, the effective separation would then be <span class="arithmatex">\(b_\text{eff} = 0.138 + 0.025 = 0.163\)</span> m, and the robot would turn <span class="arithmatex">\(0.138 / 0.163 = 0.847\)</span> of what its odometry reports, about 15 % less. The front-view sketch below shows this outer-edge hypothesis next to the sphere's single contact.</p>
+<p><strong>Experiment E1</strong> changes only the drive wheels' collision, cylinder or sphere, on both robots. Each robot turns 1.5 rad on the spot (0.5 rad/s for 3 s), to the left and then to the right, in three runs per shape. The E1 turn-ratio plot below the sketch shows each turn as the angle the robot really turned in Gazebo divided by the angle its odometry reports, both as magnitudes: at 1 they agree, below 1 the robot turned less than its odometry says, above 1 more.</p>
 <style>
 .md-typeset figure.wd-figure{margin:1em auto;width:100%;max-width:500px}
 .wd-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif;--wd-s1:#2a78d6;--wd-s2:#eb6834;--wd-s3:#1baf7a}
@@ -4570,16 +4580,16 @@
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 205" role="img" aria-labelledby="wd-contacts-t"><title id="wd-contacts-t">Front view of DiffBot's drive wheels with a cylinder and a sphere collision</title><defs><marker id="wd-contacts-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="dim-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
 <text class="t-head" x="105" y="18" text-anchor="middle">Cylinder collision</text>
-<text class="t-muted" x="105" y="32" text-anchor="middle">contacts at the outer edges</text>
+<text class="t-muted" x="105" y="32" text-anchor="middle">hypothesis: contacts at the outer edges</text>
 <rect class="part" x="65" y="113.7" width="80" height="26" rx="3"></rect>
 <path class="axis" d="M65,126.7 L36,126.7"></path>
 <rect class="part" x="23.5" y="93.4" width="25" height="66.6" rx="4"></rect>
 <path class="ref" d="M36,85.4 L36,164"></path>
-<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"></circle><circle class="mk f1" cx="23.5" cy="160" r="4.5"></circle></g>
+<g class="pt"><title>Hypothesized effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="23.5" cy="160" r="12"></circle><circle class="mk f1" cx="23.5" cy="160" r="4.5"></circle></g>
 <path class="axis" d="M145,126.7 L174,126.7"></path>
 <rect class="part" x="161.5" y="93.4" width="25" height="66.6" rx="4"></rect>
 <path class="ref" d="M174,85.4 L174,164"></path>
-<g class="pt"><title>Effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"></circle><circle class="mk f1" cx="186.5" cy="160" r="4.5"></circle></g>
+<g class="pt"><title>Hypothesized effective contact at the outer edge: 0.0815 m from the robot's center</title><circle class="hit" cx="186.5" cy="160" r="12"></circle><circle class="mk f1" cx="186.5" cy="160" r="4.5"></circle></g>
 <path class="ground" d="M8,160 L202,160"></path>
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M36,77.4 L174,77.4"></path>
 <text class="t-muted t-halo" x="105" y="72.4" text-anchor="middle">0.138 m between the centers</text>
@@ -4604,7 +4614,7 @@
 <path class="dim" marker-start="url(#wd-contacts-dim)" marker-end="url(#wd-contacts-dim)" d="M266,178 L404,178"></path>
 <text class="t-halo" x="335" y="193" text-anchor="middle">0.138 m between the contacts</text>
 </svg>
-<figcaption>Front view of DiffBot's drive wheels, to scale. The dots show the effective contact positions that explain the turn ratios below. The dashed circle is the sphere collision; changing it leaves the model's visual and cylinder inertia unchanged.</figcaption>
+<figcaption>Front view of DiffBot's drive wheels, to scale. The dots show where the wheels would have to push to explain the turn ratios of experiment E1 below: for the cylinder, a hypothesis at its outer edges, not a measured contact position. The dashed circle is the sphere collision; changing it leaves the model's visual and cylinder inertia unchanged.</figcaption>
 </figure>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 214" role="img" aria-labelledby="wd-turn-t"><title id="wd-turn-t">Experiment E1: the true turn over the odometry's turn with a cylinder and a sphere collision</title><defs></defs>
@@ -4620,7 +4630,7 @@
 <text class="t-muted" x="348.8" y="188" text-anchor="middle">1.00</text>
 <path class="grid" d="M406.5,36 L406.5,174"></path>
 <text class="t-muted" x="406.5" y="188" text-anchor="middle">1.05</text>
-<text class="t-muted" x="268" y="204" text-anchor="middle">true turn / odometry turn</text>
+<text class="t-muted" x="268" y="204" text-anchor="middle">true turn ÷ odometry turn (1 = they agree)</text>
 <path class="ref" d="M348.8,36 L348.8,174"></path>
 <text class="t-muted" x="352.8" y="32" text-anchor="start">center plane: 1</text>
 <rect class="f2" x="118.5" y="7.5" width="9" height="9" rx="1"></rect>
@@ -4628,7 +4638,7 @@
 <circle class="f1" cx="201.4" cy="12" r="4.5"></circle>
 <text class="t-muted" x="210.4" y="16" text-anchor="start">sphere</text>
 <path class="ref" d="M262.2,12 L278.2,12"></path>
-<text class="t-muted" x="283.2" y="16" text-anchor="start">outer edges</text>
+<text class="t-muted" x="283.2" y="16" text-anchor="start">outer-edge hypothesis</text>
 <text x="108" y="60" text-anchor="end">DiffBot, left</text>
 <path class="ref" d="M171.8,45 L171.8,67"></path>
 <g class="pt"><title>DiffBot, left turn, cylinder, run 1: 1.269 / 1.499 rad = 0.846</title><circle class="hit" cx="169" cy="56" r="12"></circle><rect class="mk f2" x="164.5" y="51.5" width="9" height="9" rx="1"></rect></g>
@@ -4663,7 +4673,7 @@
 <g class="pt"><title>Remo, right turn, sphere, run 2: 1.501 / 1.501 rad = 1.000</title><circle class="hit" cx="348.8" cy="158" r="12"></circle><circle class="mk f1" cx="348.8" cy="158" r="4.5"></circle></g>
 <g class="pt"><title>Remo, right turn, sphere, run 3: 1.500 / 1.500 rad = 1.000</title><circle class="hit" cx="351.3" cy="158" r="12"></circle><circle class="mk f1" cx="351.3" cy="158" r="4.5"></circle></g>
 </svg>
-<figcaption>Experiment E1: commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s) to the left and to the right, three runs each, with only the drive wheels' collision changed. The dashed ticks are the ratios that contacts at the wheels' outer edges predict: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.</figcaption>
+<figcaption>Experiment E1: each point is one turn, the angle the robot turned in Gazebo divided by the angle its odometry reports. Commanded to turn 1.5 rad on the spot (0.5 rad/s for 3 s) to the left and to the right, three runs per shape, with only the drive wheels' collision changed. The dashed ticks are the ratios if the wheels pushed at their outer edges: 0.138 / 0.163 m for DiffBot, 0.144 / 0.169 m for Remo.</figcaption>
 </figure>
 
 <details class="info">
@@ -4739,21 +4749,25 @@
 </tbody>
 </table>
 </details>
-<p>In every run, the wheels' mean speeds over the last 2 s of the command are close to their commands (Remo's within 1.2 %, DiffBot's within about 7 %), so the motor isn't what differs:</p>
+<p>In every turn, the wheels' mean speeds over the last 2 s of the command are close to their commands (Remo's within 1.2 %, DiffBot's within about 7 %), so the motor isn't what differs. The E1 turn-ratio plot then shows:</p>
 <ul>
 <li><strong>Spheres:</strong> the true turn is 0.98 to 0.99 of the odometry's on DiffBot, and 1.000 on Remo.</li>
-<li><strong>Cylinders:</strong> DiffBot turns about 0.847 of its odometry's angle in all six turns, the ratio that contacts at the outer edges predict, 0.138 m / 0.163 m. Remo turns 0.852 to the left, again its outer-edge ratio, but 0.87 to the right in these runs, and once 1.21.</li>
+<li><strong>Cylinders:</strong> DiffBot turns about 0.847 of its odometry's angle in all six turns, the outer-edge ratio. Remo turns 0.852 to the left, again its outer-edge ratio, <span class="arithmatex">\(0.144 / 0.169\)</span>, but 0.87 to the right in these runs, and once 1.21, the point at the plot's right edge.</li>
 </ul>
-<p>So the cylinders' contacts act as if they were at the outer edges, or less predictably; the experiment shows their effect, not where the contact forces act. On flat ground, a sphere puts the effective contact where the kinematic model assumes it.</p>
-<p>A sphere has limits too: it only represents an upright wheel on flat ground. On a slope or an edge it can touch the ground beside the real tire.</p>
+<p>So the cylinders behave as if they pushed at their outer edges, or less predictably; the experiment shows this effect, not where the contact forces act. On flat ground, a sphere puts the effective contact where the kinematic model assumes it.</p>
+<p>A sphere has limits too. It doesn't reproduce the tire's width, deformation or contact patch, and it only represents an upright wheel on flat ground: on a slope or an edge, it can touch the ground beside the real tire. Other tasks may need another shape.</p>
 <h3 id="how-does-the-mass-distribution-enter">How does the mass distribution enter?</h3>
-<p>For a wheel that spins about its axle, the inertia that matters is the one about that axis. A solid cylinder of mass <span class="arithmatex">\(m\)</span> and radius <span class="arithmatex">\(r\)</span> has</p>
+<p>How fast a wheel spins up depends on its moment of inertia <span class="arithmatex">\(J\)</span> about the axle: its resistance to angular acceleration, which grows with its mass and with how far that mass is from the axle. A solid cylinder of mass <span class="arithmatex">\(m\)</span> and radius <span class="arithmatex">\(r\)</span> has</p>
 <div class="arithmatex">\[
 J = \frac{1}{2} m r^2 .
 \]</div>
-<p>A torque <span class="arithmatex">\(\tau\)</span> on the wheel accelerates it at <span class="arithmatex">\(\dot{\omega} = \tau / J\)</span>, so a light wheel responds faster to the same torque. That is good for following commands, and it also makes the velocity loop easier to destabilize (<a href="#why-the-time-step-matters">Why the time step matters</a>). Remo's 32 g wheels with a radius of 0.033 m have <span class="arithmatex">\(J = 0.5 \cdot 0.032 \cdot 0.033^2 = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}\)</span>.</p>
+<p>The net torque <span class="arithmatex">\(\tau\)</span> about the axle, the motor's torque together with the torque of the contact forces, accelerates the wheel at <span class="arithmatex">\(\dot{\omega} = \tau / J\)</span>. This is Newton's second law for rotation; OpenStax's free <em>University Physics</em>, volume 1, explains <a href="https://openstax.org/books/university-physics-volume-1/pages/10-6-torque">torque</a>, the <a href="https://openstax.org/books/university-physics-volume-1/pages/10-4-moment-of-inertia-and-rotational-kinetic-energy">moment of inertia</a> and <a href="https://openstax.org/books/university-physics-volume-1/pages/10-7-newtons-second-law-for-rotation">the second law for rotation</a>. So a light wheel responds faster to the same torque. That is good for following commands, but it also means that the same motor correction changes the wheel's speed more within one physics step; <a href="#why-the-time-step-matters">Why the time step matters</a> estimates when a simple P controller starts to overshoot. Remo's 32 g wheels with a radius of 0.033 m have <span class="arithmatex">\(J = 0.5 \cdot 0.032 \cdot 0.033^2 = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}\)</span>.</p>
 <p>The collision shape doesn't change the inertia. A wheel with a sphere collision is still modeled with a cylinder's inertia; a solid sphere's <span class="arithmatex">\(\frac{2}{5} m r^2\)</span> would be 20 % less. A real wheel with a heavy tire has more inertia than a uniform disk of the same mass, so the solid cylinder is an approximation.</p>
-<p>The inertia tensor is given in the inertial frame. A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> cylinder's axis is its z axis, while the wheel's joint axis is its y axis, so the inertial origin has to rotate the cylinder's <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> onto the joint axis. A wrong rotation gives the wheel the smaller inertia about a diameter, <span class="arithmatex">\(\frac{1}{12} m (3r^2 + l^2)\)</span>, which doesn't show in RViz but changes its dynamics. <em>Modern Robotics</em>, <a href="https://modernrobotics.northwestern.edu/nu-gm-book-resource/8-2-dynamics-of-a-single-rigid-body-part-1-of-2/">section 8.2</a>, explains the rotational inertia of a rigid body and how it changes with the frame.</p>
+<p>Check that the model's <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> is about the wheel's joint axis. A wrong rotation of the inertia doesn't show in RViz, but changes how the wheel spins up.</p>
+<details class="info">
+<summary>Why the inertia has to be rotated onto the joint axis</summary>
+<p>The inertia tensor is given in the inertial frame. A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> cylinder's axis is its z axis, while the wheel's joint axis is its y axis, so the inertial origin has to rotate the cylinder's <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> onto the joint axis. A wrong rotation gives the wheel the smaller inertia about a diameter, <span class="arithmatex">\(\frac{1}{12} m (3r^2 + l^2)\)</span>, with the wheel width <span class="arithmatex">\(l\)</span>. <em>Modern Robotics</em>, <a href="https://modernrobotics.northwestern.edu/nu-gm-book-resource/8-2-dynamics-of-a-single-rigid-body-part-1-of-2/">section 8.2</a>, explains the rotational inertia of a rigid body and how it changes with the frame.</p>
+</details>
 <h2 id="modeling-ground-contact">Modeling ground contact</h2>
 <p><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> treats a contact as a constraint: the two bodies must not move into each other, and the friction force must not exceed its limit. Gazebo creates these constraints from the collision shapes in each time step, with the parameters below. The <a href="https://ode.org/ode-latest-userguide.html"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide</a> and Gazebo's <a href="https://classic.gazebosim.org/tutorials?tut=friction">Friction</a> and <a href="https://classic.gazebosim.org/tutorials?tut=physics_params">Physics Parameters</a> tutorials describe them in full.</p>
 <h3 id="how-much-tangential-force-can-a-contact-carry">How much tangential force can a contact carry?</h3>
@@ -4766,14 +4780,15 @@ J = \frac{1}{2} m r^2 .
 \lvert f_1 \rvert \le \mu_1 f_n , \qquad \lvert f_2 \rvert \le \mu_2 f_n .
 \]</div>
 <p><code>mu1</code> and <code>mu2</code> are these two coefficients, not a static and a dynamic friction coefficient. For each contact, Gazebo uses the smaller coefficient of the two surfaces (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1257-L1261"><code>ODEPhysics.cc</code></a>). Gazebo's ground plane has <code>mu</code> 100 and <code>mu2</code> 50, so with lower wheel coefficients, the wheel's decide.</p>
-<p><code>fdir1</code> sets the first friction direction, in the collision's own frame; without it, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> picks the two directions itself. <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> requires the direction to lie in the contact plane, and it uses it as given, without projecting it (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287"><code>contact.cpp</code></a>). Gazebo turns it with the collision's pose (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133"><code>ODEPhysics.cc</code></a>). That makes <code>fdir1</code> easy to get wrong on a wheel:</p>
+<p><code>fdir1</code> sets the first friction direction, in the collision's own frame; without it, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> picks the two directions itself. <strong>For a sphere wheel with equal coefficients, as on DiffBot and Remo, leave <code>fdir1</code> unset.</strong> The direction is easy to get wrong on a wheel: <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> requires it to lie in the contact plane and uses it as given, without projecting it (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L272-L287"><code>contact.cpp</code></a>), and Gazebo turns it with the collision's pose (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1133"><code>ODEPhysics.cc</code></a>):</p>
 <ul>
 <li>A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> wheel cylinder is usually rotated so that its z axis is the axle, which doesn't move as the wheel spins. <code>fdir1</code> <code>0 0 1</code> then stays along the axle, in the contact plane.</li>
-<li>A sphere has no such rotation: its frame spins with the wheel, so the same <code>0 0 1</code> tilts into the contact normal. With equal coefficients, leave <code>fdir1</code> unset. A direction along the axle in the sphere's frame would stay in the contact plane, but Gazebo Classic uses only the first of the two surfaces' <code>fdir1</code> and ignores the second's (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1166"><code>ODEPhysics.cc</code></a>), so whether a wheel's <code>fdir1</code> takes effect depends on whether Gazebo treats the wheel as the first or the second collision in a contact. On Remo, a sphere with <code>fdir1</code> <code>0 0 1</code> made the robot drive about 2 % less than its odometry; without <code>fdir1</code>, the two agree.</li>
+<li>A sphere has no such rotation: its frame spins with the wheel, so the same <code>0 0 1</code> tilts into the contact normal. On Remo, a sphere with <code>fdir1</code> <code>0 0 1</code> made the robot drive about 2 % less than its odometry; without <code>fdir1</code>, the two agree.</li>
 </ul>
+<p>A direction along the axle in the sphere's frame would stay in the contact plane. But Gazebo Classic applies only the <code>fdir1</code> of the first of the two collisions in a contact and ignores the second's (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEPhysics.cc#L1127-L1166"><code>ODEPhysics.cc</code></a>), so whether a wheel's <code>fdir1</code> takes effect depends on whether Gazebo treats the wheel as the first or the second collision.</p>
 <p>Friction limits the force; it doesn't make a wheel roll. Higher friction doesn't fix a wrong wheel speed or a wrong geometry.</p>
 <h3 id="how-stiff-is-a-contact">How stiff is a contact?</h3>
-<p>In each time step, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> corrects a part of the penetration between two bodies. Two parameters control how hard a constraint is (<a href="https://ode.org/ode-latest-userguide.html#sec_3_7_0"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide, sections 3.7 and 3.8</a>):</p>
+<p>A contact in <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> isn't perfectly rigid: two bodies can press into each other a little, and the solver pushes them apart again. In each time step, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> corrects a part of the penetration between the two bodies. Two parameters control how hard such a constraint is (<a href="https://ode.org/ode-latest-userguide.html#sec_3_7_0"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide, sections 3.7 and 3.8</a>):</p>
 <ul>
 <li><strong>ERP</strong>, the error reduction parameter, between 0 and 1: the fraction of the penetration that is corrected in the next step.</li>
 <li><strong>CFM</strong>, the constraint force mixing: 0 makes the constraint hard; a positive value lets the bodies press into each other, more the larger it is.</li>
@@ -4812,6 +4827,7 @@ J = \frac{1}{2} m r^2 .
 </tr>
 </tbody>
 </table>
+<p>Both rows have an ERP close to 1: both correct almost all of a penetration in the next step. They differ in the CFM, by a factor of about 50 000. The CFM sets how soft the constraint is: the compliant contact acts like a spring of <span class="arithmatex">\(10^7\)</span> N/m, the stiff one like <span class="arithmatex">\(5 \cdot 10^{11}\)</span> N/m.</p>
 <p>These are equivalences, not material properties: <code>kp</code> and <code>kd</code> set ERP and CFM, and it doesn't help to treat the two pairs as independent settings. A real tire's stiffness is a starting point at most. Each robot's settings are in <a href="../../../diffbot_gazebo/#contacts">Tuning the simulated robot</a>.</p>
 <h3 id="how-much-penetration-is-tolerated">How much penetration is tolerated?</h3>
 <p>Two more parameters limit the correction:</p>
@@ -4819,9 +4835,9 @@ J = \frac{1}{2} m r^2 .
 <li><strong><code>minDepth</code>:</strong> a penetration allowance, in meters. <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> subtracts it from the penetration before it corrects the rest. It is a dead band, not a limit on the depth.</li>
 <li><strong><code>maxVel</code>:</strong> the maximum velocity at which a penetration is corrected, in m/s. It isn't a speed limit for the wheel or the robot.</li>
 </ul>
-<p>For a wheel on the static ground plane, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>). Inside the dead band, nothing pushes a wheel back out, and a positive CFM lets it press into the ground under its load. Gazebo copies each wheel collision's <code>minDepth</code> to its <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> body (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODELink.cc#L350-L379"><code>ODELink.cc</code></a>), where it takes precedence over the world's <code>contact_surface_layer</code>: the test world sets that layer to 0.01 m (<a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_gazebo/worlds/diffbot_empty.world#L29"><code>diffbot_empty.world</code></a>), but Remo's wheels, with <code>minDepth</code> 0, have no dead band.</p>
+<p>For a wheel on the static ground plane, <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> uses the wheel's own <code>minDepth</code> and <code>maxVel</code>, and limits <code>maxVel</code> by the world's <code>contact_max_correcting_vel</code> (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L127-L149"><code>contact.cpp</code></a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/deps/opende/src/joints/contact.cpp#L222-L237">lines 222–237</a>). Inside the dead band, no position correction pushes a wheel back out, and a positive CFM lets it press into the ground under its load. Gazebo copies each wheel collision's <code>minDepth</code> to its <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> body (<a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODELink.cc#L350-L379"><code>ODELink.cc</code></a>), where it takes precedence over the world's <code>contact_surface_layer</code>: the test world sets that layer to 0.01 m (<a href="https://github.com/ros-mobile-robots/diffbot/blob/b896a3a1a233e7131835895ad343832d035b18f2/diffbot_gazebo/worlds/diffbot_empty.world#L29"><code>diffbot_empty.world</code></a>), but Remo's wheels, with <code>minDepth</code> 0, have no dead band.</p>
 <p><em>Predict before you look:</em> with a <code>minDepth</code> of 10 mm, does a wheel sink until it is 10 mm deep?</p>
-<p><strong>Experiment E2</strong> leaves Remo at rest for 90 s, with its sphere collisions and compliant contacts, and changes only <code>minDepth</code>:</p>
+<p><strong>Experiment E2</strong> leaves Remo at rest for 90 s, with its sphere collisions and compliant contacts, and changes only <code>minDepth</code>. The E2 settling plot shows how deep the wheels are in the ground over time: the wheel radius minus the height of the wheel's center above the ground.</p>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 236" role="img" aria-labelledby="wd-sink-t"><title id="wd-sink-t">Experiment E2: how far Remo's wheels sink into the ground at rest, for three minDepth values</title><defs></defs>
 <path class="axis" d="M48,196 L378,196"></path>
@@ -5020,7 +5036,7 @@ J = \frac{1}{2} m r^2 .
 </tbody>
 </table>
 </details>
-<p>With 1 mm, the wheels sink to the configured 1 mm within 3 s. With 10 mm, they creep at a steady 0.37 mm/s for about 20 s and stop at about 8.3 mm, a quarter of the wheel radius, not at 10 mm. With 0, no sinkage is measurable. The run doesn't show why the creep stops at 8.3 mm; the compliance, the load and the other contacts all play a part. DiffBot's stiff default contacts, with <code>minDepth</code> 0, don't sink either.</p>
+<p>In the E2 settling plot, with 1 mm, the wheels sink to the configured 1 mm within 3 s. With 10 mm, they creep at a steady 0.37 mm/s for about 20 s and stop at about 8.3 mm, a quarter of the wheel radius, not at 10 mm. With 0, no sinkage is measurable. The run doesn't show why the creep stops at 8.3 mm; the compliance, the load and the other contacts all play a part. DiffBot's stiff default contacts, with <code>minDepth</code> 0, don't sink either.</p>
 <p>A positive allowance isn't always wrong: the <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide suggests a small surface layer to keep contacts from being created and broken in every step (<a href="https://ode.org/ode-latest-userguide.html#sec_5_2_0"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide, section 5.2</a>). For small, light wheels with compliant contacts, start with zero, and check the settling height and the wheel speeds.</p>
 <h3 id="from-urdf-to-sdf">From <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr></h3>
 <p>Gazebo converts the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, its own format. The <code>&lt;gazebo reference="..."&gt;</code> elements of a link set its collision's surface (<a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a>). <code>gz sdf -p robot.urdf</code> shows the result:</p>
@@ -5067,23 +5083,75 @@ J = \frac{1}{2} m r^2 .
 </tbody>
 </table>
 <p>The defaults are from the SDFormat 1.7 specification that Gazebo 11 uses (<a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L52-L199"><code>surface.sdf</code></a>).</p>
+<p>For example, this is the collision of Remo's front left wheel in the output of <code>gz sdf -p</code>, from <a href="https://github.com/ros-mobile-robots/remo_description/tree/2.0.0">remo_description 2.0.0</a> with its default arguments and Gazebo 11.15.1. The sphere is the collision shape, <code>contact</code> holds the stiffness, damping and penetration settings, and <code>friction</code> the two coefficients. <code>fdir1</code> doesn't appear, because Remo leaves it unset:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;collision</span><span class="w"> </span><span class="na">name=</span><span class="s">'front_left_wheel_collision'</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;pose&gt;</span>0<span class="w"> </span>0<span class="w"> </span>0<span class="w"> </span>0<span class="w"> </span>-0<span class="w"> </span>0<span class="nt">&lt;/pose&gt;</span>
+<span class="w">  </span><span class="nt">&lt;geometry&gt;</span>
+<span class="w">    </span><span class="nt">&lt;sphere&gt;</span>
+<span class="w">      </span><span class="nt">&lt;radius&gt;</span>0.033<span class="nt">&lt;/radius&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/sphere&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/geometry&gt;</span>
+<span class="w">  </span><span class="nt">&lt;surface&gt;</span>
+<span class="w">    </span><span class="nt">&lt;contact&gt;</span>
+<span class="w">      </span><span class="nt">&lt;ode&gt;</span>
+<span class="w">        </span><span class="nt">&lt;kp&gt;</span>1e+07<span class="nt">&lt;/kp&gt;</span>
+<span class="w">        </span><span class="nt">&lt;kd&gt;</span>1<span class="nt">&lt;/kd&gt;</span>
+<span class="w">        </span><span class="nt">&lt;max_vel&gt;</span>0.01<span class="nt">&lt;/max_vel&gt;</span>
+<span class="w">        </span><span class="nt">&lt;min_depth&gt;</span>0<span class="nt">&lt;/min_depth&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/ode&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/contact&gt;</span>
+<span class="w">    </span><span class="nt">&lt;friction&gt;</span>
+<span class="w">      </span><span class="nt">&lt;ode&gt;</span>
+<span class="w">        </span><span class="nt">&lt;mu&gt;</span>1<span class="nt">&lt;/mu&gt;</span>
+<span class="w">        </span><span class="nt">&lt;mu2&gt;</span>1<span class="nt">&lt;/mu2&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/ode&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/friction&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/surface&gt;</span>
+<span class="nt">&lt;/collision&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>To see your own model's output, expand its xacro file to a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and convert it, as in <a href="../../../diffbot_gazebo/#troubleshooting">Troubleshooting</a> on the Simulation page.</p>
 <h2 id="turning-a-wheel-speed-command-into-torque">Turning a wheel-speed command into torque</h2>
-<p>On the real robot, the <a href="../../../packages/diffbot_base/pid/">motor <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> in the firmware</a> makes the motors reach the wheel speeds that <code>diff_drive_controller</code> commands. In Gazebo, <code>gazebo_ros_control</code>'s <code>DefaultRobotHWSim</code> takes the place of the firmware. If the parameter server has gains for a wheel joint under <code>/&lt;robot namespace&gt;/gazebo_ros_control/pid_gains/&lt;joint&gt;</code>, it controls the joint with a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> that computes a torque from the speed error and applies it to the joint (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L217-L231"><code>default_robot_hw_sim.cpp</code></a>, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L370-L380">lines 370–380</a>). Without gains, it sets the joint's velocity directly, a different behavior. DiffBot and Remo load gains.</p>
-<p>The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is control_toolbox's <code>Pid</code> (<a href="https://github.com/ros-controls/control_toolbox/blob/14b2a6120de57b038a05562839ee1ba4dabee2aa/src/pid.cpp#L336-L369"><code>pid.cpp</code></a>). With the speed error <span class="arithmatex">\(e = \omega^* - \omega\)</span> in rad/s, it computes the torque</p>
-<div class="arithmatex">\[
-\tau = P e + I \int e \, dt + D \dot{e} ,
-\]</div>
-<p>in N m, so P is in N m s/rad and I in N m/rad. Its parameters:</p>
+<p>On the real robot, the <a href="../../../packages/diffbot_base/pid/">motor <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> in the firmware</a> makes the motors reach the wheel speeds that <code>diff_drive_controller</code> commands. In Gazebo, <code>gazebo_ros_control</code>'s <code>DefaultRobotHWSim</code> takes the place of the firmware. If the parameter server has gains for a wheel joint under <code>/&lt;robot namespace&gt;/gazebo_ros_control/pid_gains/&lt;joint&gt;</code>, it controls the joint with a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> that computes a torque from the speed error and applies it to the joint (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L217-L231"><code>default_robot_hw_sim.cpp</code></a>, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L370-L380">lines 370–380</a>). Without <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> gains, Gazebo Classic 11 with <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> sends the wheel-speed target to <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>'s joint motor instead, with the joint's effort limit as its maximum torque (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L355-L380">lines 355–380</a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEJoint.cc#L440-L454"><code>ODEJoint.cc</code></a>). That bypasses the torque <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> described here; with a finite limit, the wheel can still fall short of the requested speed under load. DiffBot and Remo load <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> gains, so the examples on this page use the torque-controlled path.</p>
+<p>The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is control_toolbox's <code>Pid</code> (<a href="https://github.com/ros-controls/control_toolbox/blob/14b2a6120de57b038a05562839ee1ba4dabee2aa/src/pid.cpp#L336-L369"><code>pid.cpp</code></a>). In every update, it goes from the speed error to a torque, and <code>DefaultRobotHWSim</code> then limits that torque:</p>
+<ol>
+<li><strong>Speed error:</strong> <span class="arithmatex">\(e = \omega^* - \omega\)</span>, in rad/s.</li>
+<li><strong>Torque:</strong> <span class="arithmatex">\(\tau = P e + I \int e \, dt + D \dot{e}\)</span>, in N m, so P is in N m s/rad and I in N m/rad. The I term alone is limited to ±<code>i_clamp</code>.</li>
+<li><strong>Torque limit:</strong> the total torque is limited to the joint's effort limit, if it has one (see below).</li>
+</ol>
+<p>Its parameters:</p>
 <ul>
-<li><strong><code>p</code>, <code>i</code>, <code>d</code>:</strong> the gains. A P gain alone needs a speed error to produce a torque, so a wheel that needs torque, for example to turn the robot on the spot against friction, stays slower than commanded. The I term grows until it supplies that torque, and the error goes to zero, as long as that torque is within <code>i_clamp</code> and the loop is stable.</li>
+<li><strong><code>p</code>, <code>i</code>, <code>d</code>:</strong> the gains. The <code>d</code> here is the motor loop's derivative gain; it has nothing to do with a contact's damping <code>kd</code>. A P gain alone needs a speed error to produce a torque, so a wheel that needs torque, for example to turn the robot on the spot against friction, stays slower than commanded. The I term grows until it supplies that torque, and the error goes to zero, as long as that torque is within <code>i_clamp</code> and the loop is stable.</li>
 <li><strong><code>i_clamp</code>:</strong> limits the I term's torque to ±<code>i_clamp</code> (N m), not the total torque. It defaults to 0, so an I gain without <code>i_clamp</code> does nothing.</li>
 <li><strong><code>antiwindup</code>:</strong> with <code>true</code>, the integral of the error stops growing once the I term reaches <code>i_clamp</code>. With <code>false</code>, the I term is still limited, but the integral keeps growing and takes longer to come back when the error changes sign.</li>
 </ul>
+<p><em>Example:</em> Remo's gains are P 0.03, I 0.6 and <code>i_clamp</code> 0.05 N m. A lasting speed error of 1 rad/s gives 0.03 N m from the P term at once, and the I term grows by 0.6 N m per second, until it reaches 0.05 N m after about 0.08 s. Remo has no effort limit, so nothing limits their sum.</p>
 <p>The <a href="../../../packages/diffbot_base/pid/"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Controllers</a> page and <a href="https://fbsbook.org"><em>Feedback Systems</em></a>, chapter 11, explain <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> control, integral windup and tuning in general.</p>
 <p><code>DefaultRobotHWSim</code> limits the torque to the joint's effort limit, from the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s <code>&lt;limit effort="..."&gt;</code> or the <code>joint_limits</code> parameters (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L404-L454">lines 404–454</a>). Without either, as on DiffBot and Remo, a simulated motor has no torque limit, unlike a real one.</p>
 <h3 id="which-contact-setting-changes-wheel-tracking">Which contact setting changes wheel tracking?</h3>
-<p>The wheel's velocity loop works against the contact: the ground decides how much torque a wheel needs and how its speed responds. Remo's reference contacts are compliant and damped, with friction 1, on a sphere collision with <code>minDepth</code> 0. <strong>Experiment E3</strong> compares them with runs that change one setting to a much harder value each, and with a run that changes all three. Remo turns on the spot to the left and to the right, twice per setting; the figure shows the left turns, and the right turns agree with them.</p>
-<p><em>Predict before you look:</em> which of the three settings would you expect to matter?</p>
+<p>The wheel's velocity loop works against the contact: the ground decides how much torque a wheel needs and how its speed responds. <strong>Experiment E3</strong> asks which of the wheels' contact settings makes Remo's wheels miss their speed commands. It starts from Remo's reference contacts, a sphere collision with friction 1, <code>kp</code> <span class="arithmatex">\(10^7\)</span>, <code>kd</code> 1 and <code>minDepth</code> 0, and changes one wheel setting to a much harder value per run: friction 200, <code>kp</code> <span class="arithmatex">\(10^{12}\)</span> or <code>kd</code> 0, and in one more run all three. Gazebo combines each with the ground's surface, as explained above: wheel friction 200 acts as the ground's 100 and 50, and wheel damping 0 still gives a combined damping of 1. Remo turns on the spot to the left and to the right, in two runs per setting. The E3 wheel-speed plot shows the left turns; the right turns agree with them.</p>
 <figure class="wd-figure">
 <svg class="wd-fig" viewBox="0 0 440 562" role="img" aria-labelledby="wd-speeds-t"><title id="wd-speeds-t">Experiment E3: Remo's wheel speeds while turning on the spot, with one contact setting changed</title><defs></defs>
 <path class="ln s1" d="M48,12 L64,12"></path>
@@ -5092,7 +5160,7 @@ J = \frac{1}{2} m r^2 .
 <text class="t-muted" x="167" y="16" text-anchor="start">right wheel</text>
 <path class="ref" d="M250.3,12 L266.3,12"></path>
 <text class="t-muted" x="271.3" y="16" text-anchor="start">commanded</text>
-<text class="t-head" x="48" y="50" text-anchor="start">Reference: friction 1, kp 1e7, kd 1</text>
+<text class="t-head" x="48" y="50" text-anchor="start">Reference: wheel friction 1, kp 1e7, kd 1</text>
 <path class="grid" d="M48,143.3 L430,143.3"></path>
 <text class="t-muted" x="42" y="146.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,126.7 L430,126.7"></path>
@@ -5151,7 +5219,7 @@ J = \frac{1}{2} m r^2 .
 <rect class="band" x="413" y="70" width="8.5" height="80"><title>t 3.85 s: left -0.00, right 0.01 rad/s, commanded 0.00 / 0.00</title></rect>
 <rect class="band" x="421.5" y="70" width="8.5" height="80"><title>t 3.95 s: left -0.02, right -0.02 rad/s, commanded 0.00 / 0.00</title></rect>
 <text class="t-muted" x="48" y="64" text-anchor="start">left / right wheel 100 % / 100 % of the command, true / odometry turn 1.00</text>
-<text class="t-head" x="48" y="178" text-anchor="start">Friction 200 only</text>
+<text class="t-head" x="48" y="178" text-anchor="start">Wheel friction 200 only</text>
 <path class="grid" d="M48,271.3 L430,271.3"></path>
 <text class="t-muted" x="42" y="274.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,254.7 L430,254.7"></path>
@@ -5210,7 +5278,7 @@ J = \frac{1}{2} m r^2 .
 <rect class="band" x="413" y="198" width="8.5" height="80"><title>t 3.85 s: left -0.01, right -0.03 rad/s, commanded 0.00 / 0.00</title></rect>
 <rect class="band" x="421.5" y="198" width="8.5" height="80"><title>t 3.95 s: left -0.01, right 0.01 rad/s, commanded 0.00 / 0.00</title></rect>
 <text class="t-muted" x="48" y="192" text-anchor="start">left / right wheel 100 % / 100 % of the command, true / odometry turn 1.00</text>
-<text class="t-head" x="48" y="306" text-anchor="start">Contact stiffness kp 1e12 only</text>
+<text class="t-head" x="48" y="306" text-anchor="start">Wheel contact stiffness kp 1e12 only</text>
 <path class="grid" d="M48,399.3 L430,399.3"></path>
 <text class="t-muted" x="42" y="402.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,382.7 L430,382.7"></path>
@@ -5269,7 +5337,7 @@ J = \frac{1}{2} m r^2 .
 <rect class="band" x="413" y="326" width="8.5" height="80"><title>t 3.85 s: left -0.05, right 0.03 rad/s, commanded 0.00 / 0.00</title></rect>
 <rect class="band" x="421.5" y="326" width="8.5" height="80"><title>t 3.95 s: left -0.03, right 0.07 rad/s, commanded 0.00 / 0.00</title></rect>
 <text class="t-muted" x="48" y="320" text-anchor="start">left / right wheel 122 % / 71 % of the command, true / odometry turn 0.76</text>
-<text class="t-head" x="48" y="434" text-anchor="start">Contact damping kd 0 only</text>
+<text class="t-head" x="48" y="434" text-anchor="start">Wheel contact damping kd 0 only</text>
 <path class="grid" d="M48,527.3 L430,527.3"></path>
 <text class="t-muted" x="42" y="530.8" text-anchor="end">-2</text>
 <path class="grid" d="M48,510.7 L430,510.7"></path>
@@ -5335,7 +5403,7 @@ J = \frac{1}{2} m r^2 .
 <text class="t-muted" x="48" y="448" text-anchor="start">left / right wheel 100 % / 100 % of the command, true / odometry turn 1.00</text>
 <text class="t-muted" x="14" y="110" text-anchor="middle">rad/s</text>
 </svg>
-<figcaption>Experiment E3: Remo turning on the spot to the left at 0.5 rad/s for 3 s, with its sphere collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Below each title: the left / right wheel's mean speed as a share of the command over the last 2 s of the command, and the true turn over the odometry's, both from the two runs.</figcaption>
+<figcaption>Experiment E3: Remo turning on the spot to the left at 0.5 rad/s for 3 s, with its sphere collisions, minDepth 0 and its gains (P 0.03, I 0.6); first of two runs per setting. Below each title: the left / right wheel's mean speed as a share of the command over the last 2 s of the command, and the true turn over the odometry's, both from the two runs. The settings are the wheels'; Gazebo combines them with the ground's, so wheel friction 200 acts as the ground's 100 and 50, and wheel damping 0 gives a combined 1.</figcaption>
 </figure>
 
 <details class="info">
@@ -5352,31 +5420,31 @@ J = \frac{1}{2} m r^2 .
 </thead>
 <tbody>
 <tr>
-<td>Reference: friction 1, kp 1e7, kd 1</td>
+<td>Reference: wheel friction 1, kp 1e7, kd 1</td>
 <td>100 %, sd up to 0.024 rad/s</td>
 <td>100 %, sd up to 0.024 rad/s</td>
 <td>1.000, 1.000</td>
 </tr>
 <tr>
-<td>Friction 200 only</td>
+<td>Wheel friction 200 only</td>
 <td>100 %, sd up to 0.027 rad/s</td>
 <td>100 %, sd up to 0.028 rad/s</td>
 <td>1.000, 1.000</td>
 </tr>
 <tr>
-<td>Contact stiffness kp 1e12 only</td>
+<td>Wheel contact stiffness kp 1e12 only</td>
 <td>122 %, sd up to 0.057 rad/s</td>
 <td>71 %, sd up to 0.047 rad/s</td>
 <td>0.758, 0.758</td>
 </tr>
 <tr>
-<td>Contact damping kd 0 only</td>
+<td>Wheel contact damping kd 0 only</td>
 <td>100 %, sd up to 0.028 rad/s</td>
 <td>100 %, sd up to 0.028 rad/s</td>
 <td>1.000, 1.000</td>
 </tr>
 <tr>
-<td>Friction 200, kp 1e12 and kd 0 together</td>
+<td>Wheel friction 200, kp 1e12 and kd 0 together</td>
 <td>122 %, sd up to 0.059 rad/s</td>
 <td>70 %, sd up to 0.049 rad/s</td>
 <td>0.758, 0.758</td>
@@ -5384,9 +5452,10 @@ J = \frac{1}{2} m r^2 .
 </tbody>
 </table>
 </details>
-<p>Friction 200 and damping 0 don't change anything measurable. The stiffness alone does: with <span class="arithmatex">\(k_p = 10^{12}\)</span>, the wheels miss their commands, one at about 120 % and the other at about 70 %, and the robot turns only 0.76 of what its odometry says. All three changes together behave like the stiffness alone. So in this configuration, the contact stiffness decides; the experiment doesn't show why. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states come at 50 Hz: an oscillation faster than 25 Hz shows up in these samples as a slower one or not at all, so a smooth trace doesn't rule it out.</p>
+<p>In these runs, a stiffer wheel contact was the only single change that clearly worsened the tracking. With <code>kp</code> <span class="arithmatex">\(10^{12}\)</span>, one wheel reached about 120 % of its command on average and the other about 70 %, and the robot turned only 0.76 of what its odometry says. Wheel friction 200 and wheel damping 0 changed nothing measurable, and all three changes together behave like the stiffness alone. The experiment doesn't show why the stiffness matters. DiffBot runs with the same stiff default contacts and its wheels follow their commands, but they are modeled with 0.5 kg instead of 32 g, so the effect depends on more than the stiffness. The joint states come at 50 Hz: an oscillation faster than 25 Hz shows up in these samples as a slower one or not at all, so a smooth trace doesn't rule it out.</p>
 <h2 id="why-the-time-step-matters">Why the time step matters</h2>
-<p>Gazebo updates the wheel torque once per physics step <span class="arithmatex">\(h\)</span>. Take a wheel that doesn't touch the ground, as at spawn, and only a P gain. Within one step, the torque is constant:</p>
+<p>A motor correction acts for a whole physics step: <code>gazebo_ros_control</code> writes the wheel torque once per physics step <span class="arithmatex">\(h\)</span>, and the torque stays constant until the next one (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L224-L256"><code>gazebo_ros_control_plugin.cpp</code></a>). If one step's correction is too large, the wheel overshoots its commanded speed, and repeated overshoots can grow. For a free wheel with only a P gain, fresh speed feedback in every step and no torque limit, the error decays only if <span class="arithmatex">\(0 &lt; P &lt; 2J/h\)</span>. This gives a first estimate of the gain scale, to check again whenever you change a wheel's inertia or the physics step. It isn't a stability guarantee for the whole robot, but it helps to understand the model that exploded at spawn at the top of this page.</p>
+<p>A free wheel, one that doesn't touch the ground, is the simplest case: only its inertia counts. It is close to a wheel at spawn, before the robot settles on the ground. For example, with <span class="arithmatex">\(P h / J = 1.5\)</span> and a speed error of 1 rad/s, one step's torque changes the wheel's speed by 1.5 rad/s: the wheel overshoots, and the error becomes −0.5 rad/s. With <span class="arithmatex">\(P h / J = 2.5\)</span>, the error becomes −1.5 rad/s, larger than before. In general, with only a P gain, the torque is constant within one step:</p>
 <div class="arithmatex">\[
 e_k = \omega^* - \omega_k , \qquad \tau_k = P e_k , \qquad
 \omega_{k+1} = \omega_k + \frac{h}{J} \tau_k .
@@ -5562,10 +5631,10 @@ e_{k+1} = \left( 1 - \frac{P h}{J} \right) e_k .
 </table>
 </details>
 <p><em>Before you read on:</em> what happens to <span class="arithmatex">\(P h / J\)</span> when the wheel mass is halved?</p>
-<p>For Remo, <span class="arithmatex">\(J = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}\)</span> and <span class="arithmatex">\(h\)</span> = 1 ms give <span class="arithmatex">\(P &lt; 2J/h = 0.035\)</span> N m s/rad. With P 0.03, the factor is <span class="arithmatex">\(1 - \frac{0.03 \cdot 0.001}{1.74 \cdot 10^{-5}} \approx -0.72\)</span>: the error changes sign and decays. With P 0.06, it is <span class="arithmatex">\(-2.44\)</span>, and Remo's model spawned at the origin with NaN velocities. Halving the mass halves <span class="arithmatex">\(J\)</span>, doubles <span class="arithmatex">\(P h / J\)</span>, and halves the gain that the loop tolerates. So a gain has to be checked again whenever the wheel mass changes: DiffBot's wheels are modeled with a placeholder of 0.5 kg (<span class="arithmatex">\(J = 2.8 \cdot 10^{-4}\,\mathrm{kg\,m^2}\)</span>, limit about 0.55), while its real 32 g wheels would allow only about 0.035, below its P 0.06.</p>
+<p>For Remo, <span class="arithmatex">\(J = 1.74 \cdot 10^{-5}\,\mathrm{kg\,m^2}\)</span> and <span class="arithmatex">\(h\)</span> = 1 ms give <span class="arithmatex">\(P &lt; 2J/h = 0.035\)</span> N m s/rad. With P 0.03, the factor is <span class="arithmatex">\(1 - \frac{0.03 \cdot 0.001}{1.74 \cdot 10^{-5}} \approx -0.72\)</span>: the error changes sign and decays. With P 0.06, it is <span class="arithmatex">\(-2.44\)</span>, and in our test, Remo's model spawned at the origin with NaN velocities, which fits this estimate. Halving the mass halves <span class="arithmatex">\(J\)</span>, doubles <span class="arithmatex">\(P h / J\)</span>, and halves the gain that the loop tolerates. So a gain has to be checked again whenever the wheel mass changes: DiffBot's wheels are modeled with a placeholder of 0.5 kg (<span class="arithmatex">\(J = 2.8 \cdot 10^{-4}\,\mathrm{kg\,m^2}\)</span>, limit about 0.55), while its real 32 g wheels would allow only about 0.035, below its P 0.06.</p>
 <p>The estimate assumes a lot: one free wheel with a constant inertia, only a P gain, fresh speed feedback in every step, and no torque limit, friction in the bearings, delay or contact forces. The actual loop has an I term, and a wheel on the ground also moves the robot. So a gain below the limit doesn't prove that the simulation is stable, and a gain above it doesn't mean that Gazebo must explode. It tells the scale at which the gain becomes a problem.</p>
-<p>The time step is the physics step of the world, <code>max_step_size</code>, not its real-time update rate, nor the rate of <code>/cmd_vel</code> or of the joint states. DiffBot's simulation test uses <code>diffbot_empty.world</code>, with 1 ms. Other worlds can differ: <code>playground.world</code> has 10 ms, which lowers Remo's limit tenfold, to about 0.0035, below its P 0.03. Check the physics of the world you use before you carry gains over. <code>gazebo_ros_control</code> writes the torque in every physics step, but reads the joint states and updates the controllers only every <code>controlPeriod</code>, which defaults to the physics step (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L224-L256"><code>gazebo_ros_control_plugin.cpp</code></a>). A longer <code>controlPeriod</code> adds a delay that this estimate doesn't include.</p>
-<h2 id="choosing-the-next-check">Choosing the next check</h2>
+<p>The time step is the physics step of the world, <code>max_step_size</code>, not its real-time update rate, nor the rate of <code>/cmd_vel</code> or of the joint states. DiffBot's simulation test uses <code>diffbot_empty.world</code>, with 1 ms. Other worlds can differ: <code>playground.world</code> has 10 ms, which lowers Remo's limit tenfold, to about 0.0035, below its P 0.03. Check the physics of the world you use before you carry gains over. <code>gazebo_ros_control</code> writes the torque in every physics step, but reads the joint states and updates the controllers only every <code>controlPeriod</code>, which defaults to the physics step (same source as above). A longer <code>controlPeriod</code> adds a delay that this estimate doesn't include.</p>
+<h2 id="troubleshooting-which-check-first">Troubleshooting: which check first?</h2>
 <p>A symptom rarely has one cause, but it suggests which measurement to take first. Change one setting at a time, as in <a href="../../../diffbot_gazebo/#how-to-tune">Tuning the simulated robot</a>:</p>
 <table>
 <thead>
@@ -5601,12 +5670,14 @@ e_{k+1} = \left( 1 - \frac{P h}{J} \right) e_k .
 <p>To go further on one topic, start with the official reference next to its explanation above, then one chapter of a book:</p>
 <ul>
 <li><strong><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide</strong> (<a href="https://ode.org/ode-latest-userguide.html">ode.org</a>) and Gazebo Classic's tutorials <a href="https://classic.gazebosim.org/tutorials?tut=friction">Friction</a>, <a href="https://classic.gazebosim.org/tutorials?tut=physics_params">Physics Parameters</a>, <a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a> and <a href="https://classic.gazebosim.org/tutorials?tut=ros_control">ROS Control</a>: the reference for the contact model and the parameters that Gazebo Classic actually uses.</li>
-<li>Karl Johan Åström and Richard M. Murray, <em>Feedback Systems: An Introduction for Scientists and Engineers</em>, 2nd edition, Princeton University Press 2021 (<a href="https://fbsbook.org">free online at fbsbook.org</a>; <a href="https://www.amazon.com/dp/0691193983?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/0691193983?tag=fjp-21">Amazon.de</a>, affiliate links): chapter 11, <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> control, with integral windup and tuning.</li>
+<li>OpenStax, <em>University Physics</em>, volume 1, <a href="https://openstax.org/books/university-physics-volume-1/pages/10-introduction">chapter 10</a> (free online): torque, the moment of inertia and Newton's second law for rotation, the basics behind <a href="#how-does-the-mass-distribution-enter">How does the mass distribution enter?</a></li>
+<li>Karl Johan Åström and Richard M. Murray, <em>Feedback Systems: An Introduction for Scientists and Engineers</em>, 2nd edition, Princeton University Press 2021 (<a href="https://fbsbook.org">book website</a>; <a href="https://www.amazon.com/dp/0691193983?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/0691193983?tag=fjp-21">Amazon.de</a>, affiliate links): chapter 11, <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> control, with integral windup and tuning.</li>
 <li>Kevin M. Lynch and Frank C. Park, <em>Modern Robotics: Mechanics, Planning, and Control</em>, Cambridge University Press 2017 (<a href="http://modernrobotics.org">free preprint and videos at modernrobotics.org</a>; <a href="https://www.amazon.com/dp/1107156300?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/1107156300?tag=fjp-21">Amazon.de</a>, affiliate links): section 8.2 for the inertia of a rigid body, chapter 13 for wheeled mobile robots and their rolling constraints.</li>
 </ul>
 <p>For more depth:</p>
 <ul>
 <li>Gene F. Franklin, J. David Powell and Michael Workman, <em>Digital Control of Dynamic Systems</em>, 3rd edition (<a href="https://scsolutions.com/publication/digital-control-of-dynamic-systems-third-edition/">e-edition at SC Solutions</a>): sampled systems and the choice of the sample rate (chapters 3 to 5 and 11), the background of the stability estimate above.</li>
+<li>ETH Zurich, Robotic Systems Lab, <a href="https://ethz.ch/content/dam/ethz/special-interest/mavt/robotics-n-intelligent-systems/rsl-dam/documents/RobotDynamics2017/RD_HS2017script.pdf"><em>Robot Dynamics</em> lecture notes</a> (2017, free PDF): the dynamics of rigid bodies and robots with the Newton–Euler equations, and contact forces, as soft contacts or as constraints.</li>
 <li>David Baraff, <a href="https://www.cs.cmu.edu/~baraff/sigcourse/notesd2.pdf"><em>Rigid Body Simulation II: Nonpenetration Constraints</em></a>, SIGGRAPH course notes: how a simulator computes contact and friction forces as constraints. A concept, not <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>'s exact solver.</li>
 <li>Roland Siegwart, Illah R. Nourbakhsh and Davide Scaramuzza, <em>Introduction to Autonomous Mobile Robots</em>, 2nd edition, MIT Press 2011: wheel types and their rolling and sliding constraints, an alternative to <em>Modern Robotics</em>' chapter 13.</li>
 <li>Roy Featherstone, <em>Rigid Body Dynamics Algorithms</em>, Springer 2008: the algorithms of physics engines, with a chapter on contact and impact. Advanced.</li>
