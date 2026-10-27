@@ -4827,7 +4827,7 @@ J = \frac{1}{2} m r^2 .
 </tr>
 </tbody>
 </table>
-<p>Both rows have an ERP close to 1: both correct almost all of a penetration in the next step. They differ in the CFM, by a factor of about 50 000. The CFM sets how soft the constraint is: the compliant contact acts like a spring of <span class="arithmatex">\(10^7\)</span> N/m, the stiff one like <span class="arithmatex">\(5 \cdot 10^{11}\)</span> N/m.</p>
+<p>Both rows have an ERP close to 1, so they ask for a similar position correction. That doesn't mean that either one removes almost all of a penetration in one step: the penetration allowance, the compliance, the load and other constraints matter too (<a href="#how-much-penetration-is-tolerated">How much penetration is tolerated?</a>). The rows differ in the CFM, by a factor of about 50 000. The CFM sets how soft the constraint is: the compliant contact acts like a spring of <span class="arithmatex">\(10^7\)</span> N/m, the stiff one like <span class="arithmatex">\(5 \cdot 10^{11}\)</span> N/m.</p>
 <p>These are equivalences, not material properties: <code>kp</code> and <code>kd</code> set ERP and CFM, and it doesn't help to treat the two pairs as independent settings. A real tire's stiffness is a starting point at most. Each robot's settings are in <a href="../../../diffbot_gazebo/#contacts">Tuning the simulated robot</a>.</p>
 <h3 id="how-much-penetration-is-tolerated">How much penetration is tolerated?</h3>
 <p>Two more parameters limit the correction:</p>
