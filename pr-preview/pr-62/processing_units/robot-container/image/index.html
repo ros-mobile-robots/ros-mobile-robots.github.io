@@ -4418,14 +4418,14 @@
 <h1 id="image-and-tests">Image and Tests</h1>
 <p>How the <a href="../">robot container's</a> image is built, what takes its space, and how <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> tests it. You don't need this page to use the robot container. It's for changing the image, or for understanding it.</p>
 <h2 id="how-the-image-is-built">How the image is built</h2>
-<p>The image is defined in the diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot"><code>.docker/robot</code></a> folder. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot/Dockerfile"><code>Dockerfile</code></a> starts from the official ROS image <a href="https://hub.docker.com/_/ros"><code>ros:noetic-ros-base</code></a>, which exists for arm64 and amd64, and adds the robot's packages in three steps, with the same tools as a native workspace:</p>
+<p>The image is defined in the diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot"><code>.docker/robot</code></a> folder. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot/Dockerfile"><code>Dockerfile</code></a> starts from the official ROS image <a href="https://hub.docker.com/_/ros"><code>ros:noetic-ros-base</code></a>, which exists for arm64 and amd64, and adds the robot's packages in three steps, with the same tools as a native workspace:</p>
 <ol>
-<li><strong>vcstool</strong> fetches the repositories listed in <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/remo_robot.repos"><code>remo_robot.repos</code></a>: Remo's model <code>remo_description</code> and the lidar driver <code>rplidar_ros</code>.</li>
+<li><strong>vcstool</strong> fetches the repositories listed in <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/remo_robot.repos"><code>remo_robot.repos</code></a>: Remo's model <code>remo_description</code> and the lidar driver <code>rplidar_ros</code>.</li>
 <li><strong>rosdep</strong> installs the Ubuntu and ROS packages that the packages' <code>package.xml</code> files declare as dependencies.</li>
 <li><strong>catkin</strong> builds the packages, in the workspace <code>/home/ros/catkin_ws</code>.</li>
 </ol>
 <p>A <a href="https://wiki.ros.org/catkin/workspaces">catkin workspace</a> is a folder whose <code>src</code> folder holds the source code of ROS packages, which catkin builds together. The image has one, with the diffbot repository and the two fetched repositories in <code>src</code> (<a href="../setup/#6-the-diffbot-repository">folders in the container</a>). The dev container on your PC has its own.</p>
-<p>Which packages are built is a list in the Dockerfile (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot/Dockerfile#L42-L45">lines 42–45</a>): the packages that the bringup and the lidar need, for both robots.</p>
+<p>Which packages are built is a list in the Dockerfile (<a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot/Dockerfile#L42-L45">lines 42–45</a>): the packages that the bringup and the lidar need, for both robots.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Dockerfile</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
@@ -4447,7 +4447,7 @@
 <li><strong>The robot's part, 0.7 GB:</strong> almost all of it comes with RViz, which the robot models declare (<a href="../#limitations-and-planned-work">Limitations</a>): graphics drivers (Mesa), the window toolkit Qt and the 3D engine OGRE. The built workspace itself is about 70 MB.</li>
 </ul>
 <h2 id="how-its-tested">How it's tested</h2>
-<p>The workflow <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.github/workflows/robot_container.yml"><code>robot_container.yml</code></a> runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (<code>ubuntu-24.04-arm</code>, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes.</p>
+<p>The workflow <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.github/workflows/robot_container.yml"><code>robot_container.yml</code></a> runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (<code>ubuntu-24.04-arm</code>, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">robot_container.yml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
@@ -4462,7 +4462,7 @@
 <span class="w">      </span><span class="nt">runner</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ubuntu-24.04-arm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ubuntu-24.04</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.runner }}</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Each run checks that <code>env.example</code> gives a valid configuration, builds the image, and runs <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot/smoke_test.sh"><code>smoke_test.sh</code></a> in it twice: directly in the image, and through <code>compose.yaml</code> with its mounts and groups. The test checks, without hardware, that:</p>
+<p>Each run checks that <code>env.example</code> gives a valid configuration, builds the image, and runs <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot/smoke_test.sh"><code>smoke_test.sh</code></a> in it twice: directly in the image, and through <code>compose.yaml</code> with its mounts and groups. The test checks, without hardware, that:</p>
 <ul>
 <li>the packages and the programs that talk to the hardware are there,</li>
 <li>both robot models expand with xacro,</li>

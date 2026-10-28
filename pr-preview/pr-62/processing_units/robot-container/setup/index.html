@@ -4836,7 +4836,7 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~</span>
 <span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Git is already installed on Ubuntu Server. Cloning needs no GitHub account and no Git settings: your name, email and editor only matter when you commit changes (<a href="../../../getting-started/git-and-github/">Git and GitHub</a>). The robot's Docker files are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot"><code>.docker/robot</code></a>. The dot at the start of the folder name hides it from a plain <code>ls</code>, like <code>.github</code>. In this repository, it marks folders for tools, apart from the ROS packages. It's not Docker's own settings folder <code>~/.docker</code>.</p>
+<p>Git is already installed on Ubuntu Server. Cloning needs no GitHub account and no Git settings: your name, email and editor only matter when you commit changes (<a href="../../../getting-started/git-and-github/">Git and GitHub</a>). The robot's Docker files are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot"><code>.docker/robot</code></a>. The dot at the start of the folder name hides it from a plain <code>ls</code>, like <code>.github</code>. In this repository, it marks folders for tools, apart from the ROS packages. It's not Docker's own settings folder <code>~/.docker</code>.</p>
 <p>After the next steps, the robot's files are in these places on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -4869,7 +4869,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><a href="../image/#how-the-image-is-built">Image and Tests</a> explains how the workspace gets into the image. <code>.ros</code> isn't part of the image: Compose mounts the Raspberry Pi's folder <code>~/robot-data</code> there, so the logs stay on the Raspberry Pi when the containers are removed.</p>
 <h2 id="7-stable-device-names">7. Stable device names</h2>
-<p>The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always <code>/dev/ttyACM0</code>. <a href="https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html">udev</a>, the service that creates the device files, can add fixed names by rules. The repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot/99-diffbot-robot.rules">rules</a> name the Teensy <code>/dev/teensy</code> and the lidar <code>/dev/rplidar</code>, recognized by their USB vendor and product IDs:</p>
+<p>The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always <code>/dev/ttyACM0</code>. <a href="https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html">udev</a>, the service that creates the device files, can add fixed names by rules. The repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot/99-diffbot-robot.rules">rules</a> name the Teensy <code>/dev/teensy</code> and the lidar <code>/dev/rplidar</code>, recognized by their USB vendor and product IDs:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -4884,7 +4884,7 @@
 <li><code>udevadm trigger</code> replays the events of the devices that are already plugged in, so they get the new names without unplugging them.</li>
 <li><code>ls -l</code> shows the new names as links to the kernel's devices, for example <code>/dev/teensy -&gt; ttyACM0</code>, for the devices that are plugged in.</li>
 </ol>
-<p><code>lsusb</code> lists the USB devices with their IDs: the Teensy is <code>16c0:0483</code>, the lidar's USB adapter <code>10c4:ea60</code>. Two devices with the same IDs need a rule with their serial number, as the <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot/99-diffbot-robot.rules#L7-L8">rules file explains</a>.</p>
+<p><code>lsusb</code> lists the USB devices with their IDs: the Teensy is <code>16c0:0483</code>, the lidar's USB adapter <code>10c4:ea60</code>. Two devices with the same IDs need a rule with their serial number, as the <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot/99-diffbot-robot.rules#L7-L8">rules file explains</a>.</p>
 <h2 id="8-the-folder-for-logs">8. The folder for logs</h2>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">mkdir -p ~/robot-data</span>
@@ -4892,7 +4892,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>The containers write ROS's log files into this folder. Inside the container, they run as the user <code>ros</code> with the user ID (UID) 1000, so the folder must be writable for UID 1000. The first user on Ubuntu, the one from Imager, usually has that ID, which <code>id -u</code> shows. If it shows another number, give the folder to UID 1000: <code>sudo chown 1000:1000 ~/robot-data</code>.</p>
 <h2 id="9-settings">9. Settings</h2>
-<p>The settings are in the file <code>.env</code> in the folder <code>~/diffbot/.docker/robot</code>, next to <code>compose.yaml</code>. Create it from the template <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot/env.example"><code>env.example</code></a>, which explains each setting, and edit it, on the Raspberry Pi:</p>
+<p>The settings are in the file <code>.env</code> in the folder <code>~/diffbot/.docker/robot</code>, next to <code>compose.yaml</code>. Create it from the template <a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot/env.example"><code>env.example</code></a>, which explains each setting, and edit it, on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/diffbot/.docker/robot</span>
@@ -4976,7 +4976,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><a href="https://manpages.ubuntu.com/manpages/noble/man1/stat.1.html"><code>stat</code></a> shows a file's details, and <code>%g</code> its group's number. <code>-L</code> follows the link <code>/dev/teensy</code> to the real device. Without it, <code>stat</code> shows the group of the link itself. Write the number into <code>.env</code>: Compose doesn't run commands in it.</p>
 <h3 id="how-composeyaml-uses-the-settings">How <code>compose.yaml</code> uses the settings</h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9/.docker/robot/compose.yaml"><code>compose.yaml</code></a> describes two services, <code>bringup</code> and <code>lidar</code>. A service is a container that Compose starts, with its image, devices and settings. What both containers share is written once, in the block <code>x-robot</code>, and each service takes it over with <code>&lt;&lt;: *robot</code> (lines 17–42):</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59/.docker/robot/compose.yaml"><code>compose.yaml</code></a> describes two services, <code>bringup</code> and <code>lidar</code>. A service is a container that Compose starts, with its image, devices and settings. What both containers share is written once, in the block <code>x-robot</code>, and each service takes it over with <code>&lt;&lt;: *robot</code> (lines 17–42):</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">compose.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
 <span class="normal">18</span>
 <span class="normal">19</span>
