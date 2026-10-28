@@ -9,6 +9,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | CI | [`.github/workflows/diffbot_ci_action.yml`]({{ diffbot_repo_url }}/.github/workflows/diffbot_ci_action.yml) | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
 | Build base controller | [`.github/workflows/build_base_controller.yml`]({{ diffbot_repo_url }}/.github/workflows/build_base_controller.yml) | Builds the Teensy firmware in [`diffbot_base/scripts/base_controller`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/scripts/base_controller) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_base/scripts/base_controller/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
 | Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
+| Robot container | [`.github/workflows/robot_container.yml`]({{ diffbot_repo_url }}/.github/workflows/robot_container.yml) | Builds the [robot image](../processing_units/robot-container/index.md) when it or its packages change, natively on GitHub's arm64 and amd64 runners. It checks the settings template and runs the image's smoke test without hardware, in the image and through Docker Compose |
 
 ### industrial_ci
 
@@ -35,7 +36,7 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` and the firmware without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114).
 
-**Planned** in the Docker and CI phase of the [roadmap](index.md#roadmap): a **robot container** ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)), an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. CI will build it for arm64 and run a smoke test in it, without the robot's hardware.
+**Robot container smoke test:** the [robot image](../processing_units/robot-container/image.md#how-its-tested) is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)).
 
 ### GitHub Actions versions
 
