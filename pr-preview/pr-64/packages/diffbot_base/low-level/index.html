@@ -4340,8 +4340,8 @@ individual components that get included. The main code is explained next:</p>
 <li>
 <p>First, we define the global ROS node handle, which is referenced in other
    classes, such as BaseController, where it is needed to publish and
-   subscribe. Its <code>ros::NodeHandle::now()</code> gives the ROS time, which stamps
-   the messages; the update rates are kept with the Teensy's own clock, as the
+   subscribe. Its <code>ros::NodeHandle::now()</code> provides ROS time for time stamps;
+   the time between updates comes from the Teensy's own clock, as the
    <a href="#timing-with-the-teensys-clock"><code>loop()</code> section</a> below explains:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="n">nh</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4472,8 +4472,9 @@ be negative until the clock caught up again: no control updates and no
 emergency stop for that long, while the motors keep their last command. With
 <code>millis()</code>, a jump of ROS time doesn't change the rates.</p>
 <p>The differences are computed with unsigned integers (<code>uint32_t</code>), so they stay
-right when the counters start again from zero: <code>millis()</code> after about 49 days,
-<code>micros()</code> after about 71 minutes.</p>
+right when the counters start again from zero, <code>millis()</code> after about 49 days
+and <code>micros()</code> after about 71 minutes, as long as the two times are less than
+one such cycle apart: the loop runs many times per second.</p>
 <p>After the control loop update block, if an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
 odometry to obtain more precise odometry. Finally, in the main <code>loop()</code>, all the
