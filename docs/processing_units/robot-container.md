@@ -361,18 +361,6 @@ To look at the robot's log files on the PC, copy them, on the PC:
 scp -r robot@192.168.1.20:robot-data/log/latest robot-logs
 ```
 
-To see the robot's data over time, for example each wheel's measured speed next to its commanded speed, use [PlotJuggler](https://plotjuggler.io/) on your PC, in the dev container. It plots topics live, or from a recorded bag. A bag is a file with the messages of the topics you chose. With `/rosout` in the bag, PlotJuggler's *ROS /rosout Visualization* also lists the nodes' messages, up to the moment you point to in the plot. Install it, record while you drive, and stop the recording with `Ctrl+C`:
-
-```console
-sudo apt update && sudo apt install ros-noetic-plotjuggler-ros
-rosbag record -O drive.bag /rosout /diffbot/wheel_cmd_velocities /diffbot/measured_joint_states /diffbot/mobile_base_controller/cmd_vel /diffbot/mobile_base_controller/odom
-rosrun plotjuggler plotjuggler
-```
-
-`/diffbot/wheel_cmd_velocities` are the wheels' commanded speeds and `/diffbot/measured_joint_states` their measured ones, both in rad/s. `cmd_vel` is the speed you asked the whole robot for, forward and turning, and `odom` the speed and position the controller computes from the wheels.
-
-Then load `drive.bag` in PlotJuggler, with `/rosout` among the selected topics. To see the messages, switch on *ROS /rosout Visualization* among PlotJuggler's publishers: it starts switched off ([PlotJuggler's ROS plugins](https://github.com/PlotJuggler/plotjuggler-ros-plugins/blob/2.1.1/README.md)). The install lasts until the dev container is rebuilt.
-
 ## How the image is built
 
 The image is defined in the diffbot repository's [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot) folder. Its [`Dockerfile`]({{ robot_container_src_url }}/.docker/robot/Dockerfile) starts from the official ROS image [`ros:noetic-ros-base`](https://hub.docker.com/_/ros), which exists for arm64 and amd64, and adds the robot's packages in three steps, with the same tools as a native workspace:
