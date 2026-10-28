@@ -1496,10 +1496,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-a-fixed-ip-address" class="md-nav__link">
+  <a href="#3-fixed-ip-addresses" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. A fixed IP address
+        3. Fixed IP addresses
       
     </span>
   </a>
@@ -4326,10 +4326,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-a-fixed-ip-address" class="md-nav__link">
+  <a href="#3-fixed-ip-addresses" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. A fixed IP address
+        3. Fixed IP addresses
       
     </span>
   </a>
@@ -4659,13 +4659,28 @@
 <span class="go">sudo reboot</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>cloud-init status --wait</code>:</strong> <a href="https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status">cloud-init</a> is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi (<a href="#3-a-fixed-ip-address">step 3</a>), so it may still be installing packages when you log in. The command returns when cloud-init is done.</li>
+<li><strong><code>cloud-init status --wait</code>:</strong> <a href="https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status">cloud-init</a> is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi (<a href="#3-fixed-ip-addresses">step 3</a>), so it may still be installing packages when you log in. The command returns when cloud-init is done.</li>
 <li><strong><code>sudo apt update &amp;&amp; sudo apt full-upgrade</code>:</strong> the system on the SD card is as old as the image. This installs all updates published since, the Linux kernel included. Ubuntu installs security updates automatically (<a href="https://ubuntu.com/server/docs/how-to/software/automatic-updates/">automatic updates</a>), the others need this command from time to time.</li>
 <li><strong><code>sudo reboot</code>:</strong> restarts the Raspberry Pi, so that it runs the new kernel. After the restart, log in again.</li>
 </ul>
-<h3 id="3-a-fixed-ip-address">3. A fixed IP address</h3>
-<p><code>ROS_MASTER_URI</code> and <code>ROS_IP</code> in the <a href="#settings">settings</a> hold IP addresses, so the robot's address and your PC's must not change. Give both a fixed address in your router: most routers call this a <em>DHCP reservation</em> or <em>static lease</em>.</p>
-<p>Imager also had Avahi installed in step 2, a service that announces the Raspberry Pi's name on the network as <code>remo.local</code>, with your hostname. So <code>ssh robot@remo.local</code> works too, from PCs that look up these names, as Ubuntu Desktop and macOS do. ROS uses the IP addresses anyway: the containers on the Raspberry Pi and the dev container on your PC can't look up <code>.local</code> names. That needs mDNS (multicast DNS), the protocol behind these names, and their images don't include it. ROS's own pages explain the two variables, <a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI"><code>ROS_MASTER_URI</code></a> and <a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME"><code>ROS_IP</code></a>, and how to check the network (<a href="https://wiki.ros.org/ROS/NetworkSetup">ROS/NetworkSetup</a>).</p>
+<h3 id="3-fixed-ip-addresses">3. Fixed IP addresses</h3>
+<p>ROS on the robot and on your PC find each other by IP address. Two settings hold the addresses, on both machines:</p>
+<ul>
+<li><strong><code>ROS_MASTER_URI</code>:</strong> where the ROS master runs. That's usually your PC, where you start <code>roscore</code>. Both machines get the same value: <code>http://</code>, the PC's address and <code>11311</code>, the master's port.</li>
+<li><strong><code>ROS_IP</code>:</strong> the machine's own address. The Raspberry Pi gets its own, and the PC its own. ROS tells the other machine to reach this machine's nodes at this address.</li>
+</ul>
+<p>With this page's example addresses, <code>192.168.1.10</code> for the PC and <code>192.168.1.20</code> for the Raspberry Pi, the Raspberry Pi gets in its <a href="#settings">settings</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Raspberry Pi: .docker/robot/.env</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">ROS_MASTER_URI</span><span class="o">=</span>http://192.168.1.10:11311
+<span class="nv">ROS_IP</span><span class="o">=</span><span class="m">192</span>.168.1.20
+</code></pre></div></td></tr></tbody></table></div>
+<p>and your PC, as in <a href="../ros-network-setup/">ROS Network Setup</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">PC: in the dev container</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">ROS_MASTER_URI</span><span class="o">=</span>http://192.168.1.10:11311
+<span class="nb">export</span><span class="w"> </span><span class="nv">ROS_IP</span><span class="o">=</span><span class="m">192</span>.168.1.10
+</code></pre></div></td></tr></tbody></table></div>
+<p>So neither address may change. Give both machines a fixed address in your router: most routers call this a <em>DHCP reservation</em> or <em>static lease</em>. ROS's own pages explain the two variables, <a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI"><code>ROS_MASTER_URI</code></a> and <a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME"><code>ROS_IP</code></a>, and how to check the network (<a href="https://wiki.ros.org/ROS/NetworkSetup">ROS/NetworkSetup</a>).</p>
+<p>Imager also had Avahi installed in step 2, a service that announces the Raspberry Pi's name on the network as <code>remo.local</code>, with your hostname. So <code>ssh robot@remo.local</code> works too, from PCs that look up these names, as Ubuntu Desktop and macOS do. ROS uses the IP addresses anyway: the containers on the Raspberry Pi and the dev container on your PC can't look up <code>.local</code> names. That needs mDNS (multicast DNS), the protocol behind these names, and their images don't include it. Adding it would mean changing both images and running Avahi on your PC too, so this page uses IP addresses.</p>
 <h3 id="4-the-clock">4. The clock</h3>
 <p>ROS compares time stamps from the robot and the PC, for example to match a lidar scan with the robot's pose, so both clocks have to be right. The Raspberry Pi 4 has no battery-backed clock: after switching it on, its time is wrong until it has synchronized over the network. Check on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">timedatectl</span>
