@@ -47,6 +47,25 @@
         <script src="../../js/katex-0.19.0/katex.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../../js/katex-0.19.0/katex.min.css">
         
+        <script src="../../js/mermaid-8.8.0/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <style>
+          /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
+             give the diagrams dark fills with light lines and text, in the light theme's hues. Being
+             CSS, they also apply when visitors switch the scheme without reloading. */
+          [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          /* Nodes that a diagram highlights with "class A,B view;", in both schemes */
+          .mermaid .node.view rect { fill: #fff3e0 !important; stroke: #e65100 !important; stroke-width: 3px !important; }
+          [data-md-color-scheme="slate"] .mermaid .node.view rect { fill: #3d2a12 !important; stroke: #ffb74d !important; }
+          [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel { background-color: #3a3c48 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
+        </style>
+        
 
     
       
@@ -1432,21 +1451,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#what-runs-where" class="md-nav__link">
+  <a href="#how-it-fits-together" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What runs where
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-in-the-image" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What's in the image
+        How it fits together
       
     </span>
   </a>
@@ -1462,13 +1470,151 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Set up the robot's host">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-flash-ubuntu-server-2404" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Flash Ubuntu Server 24.04
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-first-login-and-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. First login and updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-a-fixed-ip-address" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. A fixed IP address
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-clock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The clock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-docker-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Docker Engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-the-diffbot-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The diffbot repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-stable-device-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Stable device names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-the-folder-for-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. The folder for logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-the-bringup" class="md-nav__link">
+  <a href="#settings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run the bringup
+        Settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-check-and-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start, check and stop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-something-doesnt-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When something doesn't work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-image-is-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the image is built
       
     </span>
   </a>
@@ -1487,10 +1633,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#not-yet" class="md-nav__link">
+  <a href="#limitations-and-planned-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Not yet
+        Limitations and planned work
       
     </span>
   </a>
@@ -4135,21 +4281,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#what-runs-where" class="md-nav__link">
+  <a href="#how-it-fits-together" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What runs where
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-in-the-image" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What's in the image
+        How it fits together
       
     </span>
   </a>
@@ -4165,13 +4300,151 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Set up the robot's host">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-flash-ubuntu-server-2404" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Flash Ubuntu Server 24.04
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-first-login-and-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. First login and updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-a-fixed-ip-address" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. A fixed IP address
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-clock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The clock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-docker-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Docker Engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-the-diffbot-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The diffbot repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-stable-device-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Stable device names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-the-folder-for-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. The folder for logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-the-bringup" class="md-nav__link">
+  <a href="#settings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run the bringup
+        Settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-check-and-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start, check and stop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-something-doesnt-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When something doesn't work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-image-is-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the image is built
       
     </span>
   </a>
@@ -4190,10 +4463,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#not-yet" class="md-nav__link">
+  <a href="#limitations-and-planned-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Not yet
+        Limitations and planned work
       
     </span>
   </a>
@@ -4295,85 +4568,209 @@
 
 
 <h1 id="robot-container">Robot Container</h1>
-<p>The robot's computer can run ROS Noetic in a <a href="https://docs.docker.com/get-started/docker-overview/">Docker</a> container instead of a native installation. ROS Noetic needs Ubuntu 20.04, whose standard support ended in May 2025 (<a href="../ros-setup/">ROS Setup</a>). With the container, the Raspberry Pi runs a current host OS, Ubuntu Server 24.04, and the container brings Ubuntu 20.04 and ROS Noetic along. Ubuntu 24.04 is also the OS of ROS 2 Jazzy, the planned next ROS version for the robots (<a href="https://github.com/ros-mobile-robots/diffbot/issues/136">diffbot#136</a>), so the SD card doesn't have to be set up again for it.</p>
+<p>The robot's computer, a Raspberry Pi 4 B, can run ROS Noetic in a <a href="https://docs.docker.com/get-started/docker-overview/">Docker</a> container instead of a native installation. ROS Noetic needs Ubuntu 20.04, whose standard support ended in May 2025 (<a href="../ros-setup/">ROS Setup</a>). With the container, the Raspberry Pi runs a current operating system, Ubuntu Server 24.04, and the container brings Ubuntu 20.04 and ROS Noetic along. Ubuntu 24.04 is also the OS of ROS 2 Jazzy, the planned next ROS version for the robots (<a href="https://github.com/ros-mobile-robots/diffbot/issues/136">diffbot#136</a>), so the SD card doesn't have to be set up again for it.</p>
+<p>The container doesn't make ROS Noetic itself supported again: Noetic reached its end of life on 31 May 2025, and its packages get no more updates. What gets updates is the operating system around it.</p>
 <div class="admonition warning">
-<p class="admonition-title">Experimental: not tested on the robot yet</p>
-<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the image for arm64, the Raspberry Pi's architecture, and for amd64, and tests it without hardware (<a href="#how-its-tested">How it's tested</a>). It hasn't driven a robot yet: the test with teleop and the lidar on a Raspberry Pi with Remo is still open in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>. The native setup, <a href="../rpi-setup/">Raspberry Pi Setup</a> and <a href="../ros-setup/">ROS Setup</a>, stays documented as the alternative.</p>
+<p class="admonition-title">Experimental: not tested on a robot yet</p>
+<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the image for arm64, the Raspberry Pi's processor architecture, and tests it without hardware (<a href="#how-its-tested">How it's tested</a>). It hasn't driven a robot yet. The test with teleop and the lidar on a Raspberry Pi in Remo is open in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>, and the steps on this page follow Ubuntu's and Docker's documentation but haven't been run on that Raspberry Pi either. The native setup, <a href="../rpi-setup/">Raspberry Pi Setup</a> and <a href="../ros-setup/">ROS Setup</a>, stays documented as the alternative.</p>
 </div>
-<h2 id="what-runs-where">What runs where</h2>
+<h2 id="how-it-fits-together">How it fits together</h2>
+<div class="mermaid">graph LR
+  subgraph PC [Your PC]
+    DEV[Dev container:&lt;br/&gt;roscore, RViz,&lt;br/&gt;teleop, navigation]
+  end
+  subgraph PI [Raspberry Pi: Ubuntu Server 24.04, Docker]
+    B[bringup container:&lt;br/&gt;hardware interface,&lt;br/&gt;controllers, rosserial]
+    L[lidar container:&lt;br/&gt;rplidar_ros, optional]
+  end
+  T[Teensy:&lt;br/&gt;motors, encoders]
+  S[Lidar]
+  DEV ---|ROS over Wi-Fi or LAN,&lt;br/&gt;both directions| B
+  DEV ---|ROS| L
+  B ---|USB serial| T
+  L ---|USB serial| S
+  DEV -.-&gt;|firmware, flashed&lt;br/&gt;from the PC| T</div>
+<p>Two containers run on the Raspberry Pi, both from the same image: the bringup and, if the robot has one, the lidar. They talk ROS with your PC over the network, in both directions, and to the Teensy and the lidar over USB. The Teensy's firmware isn't part of the container: you flash it from the PC.</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">Where</th>
-<th style="text-align: left;">What</th>
-<th style="text-align: left;">Set up on</th>
+<th style="text-align: left;">What runs there</th>
+<th style="text-align: left;">Explained in</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;">Your PC</td>
-<td style="text-align: left;">The <a href="../../development/dev-container/">dev container</a> with ROS Noetic, Gazebo and RViz, and usually the ROS master</td>
-<td style="text-align: left;"><a href="../../getting-started/set-up-your-pc/">Set Up Your PC</a></td>
+<td style="text-align: left;">The <a href="../../development/dev-container/">dev container</a> with ROS Noetic, Gazebo and RViz, and usually the ROS master (<code>roscore</code>)</td>
+<td style="text-align: left;"><a href="../../getting-started/set-up-your-pc/">Set Up Your PC</a>, <a href="../ros-network-setup/">ROS Network Setup</a></td>
 </tr>
 <tr>
-<td style="text-align: left;">The robot's host: the Raspberry Pi with Ubuntu Server 24.04</td>
-<td style="text-align: left;">Docker Engine, the udev rules for the serial devices, a folder for ROS logs and bags</td>
-<td style="text-align: left;">This page</td>
+<td style="text-align: left;">The Raspberry Pi, the robot's host</td>
+<td style="text-align: left;">Ubuntu Server 24.04 and Docker Engine, the udev rules for the serial devices, the diffbot repository with the settings, and a folder for ROS logs</td>
+<td style="text-align: left;"><a href="#set-up-the-robots-host">Set up the robot's host</a>, <a href="#settings">Settings</a> on this page</td>
 </tr>
 <tr>
-<td style="text-align: left;">The robot container, on the Raspberry Pi</td>
-<td style="text-align: left;">ROS Noetic and the robot's packages: the bringup, the hardware interface, the controllers, rosserial for the <a href="../teensy-mcu/">Teensy</a>, the robot models and the lidar driver</td>
-<td style="text-align: left;">Built from the diffbot repository</td>
+<td style="text-align: left;">The robot containers, on the Raspberry Pi</td>
+<td style="text-align: left;">ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robot models and the lidar driver. Docker builds their image on the Raspberry Pi from the diffbot repository</td>
+<td style="text-align: left;"><a href="#start-check-and-stop">Start, check and stop</a>, <a href="#how-the-image-is-built">How the image is built</a> on this page</td>
+</tr>
+<tr>
+<td style="text-align: left;">The Teensy</td>
+<td style="text-align: left;">The firmware that drives the motors and reads the encoders</td>
+<td style="text-align: left;"><a href="../teensy-mcu/">Microcontroller</a>: flash it from the PC before the first start</td>
 </tr>
 </tbody>
 </table>
-<p>Each command below says where it runs. The Teensy is still flashed from the PC (<a href="../teensy-mcu/">Microcontroller</a>): the container only talks to it over its USB serial port.</p>
-<h2 id="whats-in-the-image">What's in the image</h2>
-<p>The image is defined in the diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/.docker/robot"><code>.docker/robot</code></a> folder. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.docker/robot/Dockerfile"><code>Dockerfile</code></a> starts from the official <a href="https://hub.docker.com/_/ros"><code>ros:noetic-ros-base</code></a> image, which exists for arm64 and amd64, and builds the packages that the bringup and the lidar need, for both robots:</p>
-<ul>
-<li><code>diffbot_bringup</code>, <code>diffbot_base</code>, <code>diffbot_control</code>, <code>diffbot_description</code> and <code>diffbot_msgs</code> from the diffbot repository;</li>
-<li><code>remo_description</code> and the lidar driver <code>rplidar_ros</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/remo_robot.repos"><code>remo_robot.repos</code></a>.</li>
-</ul>
-<p>Gazebo, navigation and <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> aren't in it: they run on the PC. The camera isn't either: the Raspberry Pi camera driver, <code>raspicam_node</code>, needs the legacy camera stack, which current OSes no longer have (<a href="https://github.com/ros-mobile-robots/diffbot/issues/111">diffbot#111</a>). The image is about 3.9 GB on amd64; the official base image is 2.9 GB of that.</p>
-<p>The container runs as the user <code>ros</code> with UID 1000, not as root, and its workspace is <code>~/catkin_ws</code>.</p>
 <h2 id="set-up-the-robots-host">Set up the robot's host</h2>
-<p>These steps run once, on the Raspberry Pi. They follow Ubuntu's and Docker's documentation, but haven't been run on a Raspberry Pi for this robot yet.</p>
+<p>These steps run once. Each one says where it runs: on your PC, or on the Raspberry Pi over SSH.</p>
+<h3 id="1-flash-ubuntu-server-2404">1. Flash Ubuntu Server 24.04</h3>
+<p>On your PC, with <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a> and the robot's microSD card:</p>
 <ol>
-<li><strong>Ubuntu Server 24.04.</strong> Flash <em>Ubuntu Server 24.04 <abbr title="Long-term support. A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic.">LTS</abbr> (64-bit)</em> to the microSD card with <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>, which lists it under the other general-purpose operating systems. In Imager's settings, set your user, the Wi-Fi and SSH, then boot the Raspberry Pi and log in over SSH from your PC. Ubuntu supports the <a href="https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/raspberry-pi/">Raspberry Pi 4 B</a> with this release.</li>
-<li><strong>The clock.</strong> ROS compares time stamps from the robot and the PC, so both clocks have to be synchronized. Ubuntu does that by default with systemd-timesyncd; check that <code>timedatectl</code> on the robot shows <code>System clock synchronized: yes</code> (<a href="https://documentation.ubuntu.com/server/how-to/networking/timedatectl-and-timesyncd/">time synchronization</a>).</li>
-<li>
-<p><strong>Docker Engine and Compose.</strong> Ubuntu's own packages are enough, as on the PC (<a href="../../getting-started/set-up-your-pc/#docker">Set Up Your PC</a>); <a href="https://docs.docker.com/engine/install/ubuntu/">Docker's guide</a> describes the alternative from Docker's repository. Add your user to the <code>docker</code> group and log in again:</p>
+<li><strong>Device:</strong> Raspberry Pi 4.</li>
+<li><strong>OS:</strong> <em>Other general-purpose OS</em> → <em>Ubuntu</em> → <em>Ubuntu Server 24.04.5 <abbr title="Long-term support. A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic.">LTS</abbr> (64-bit)</em>. Ubuntu supports the <a href="https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/raspberry-pi/">Raspberry Pi 4 B</a> with this release.</li>
+<li><strong>Storage:</strong> your microSD card. Writing erases everything on it.</li>
+<li><strong>Customisation:</strong> a hostname for the robot, for example <code>remo</code>, your time zone and keyboard, a user name and password, your Wi-Fi, and <em>Enable SSH</em> with password authentication. Imager writes these settings onto the card, and Ubuntu applies them at the first boot.</li>
+<li><strong>Write</strong>, then put the card into the Raspberry Pi and switch it on.</li>
+</ol>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Choose the OS</label><label for="__tabbed_1_2">Enable SSH</label><label for="__tabbed_1_3">Before writing</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Raspberry Pi Imager's OS step, with Ubuntu Server 24.04.5 LTS (64-bit) selected in the Ubuntu list" src="../images/robot-container/imager-os.png" style="border: 1px solid var(--md-default-fg-color--lightest)"></a></p>
+</div>
+<div class="tabbed-block">
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Raspberry Pi Imager's customisation step for SSH, with SSH enabled and password authentication selected" src="../images/robot-container/imager-ssh.png" style="border: 1px solid var(--md-default-fg-color--lightest)"></a></p>
+</div>
+<div class="tabbed-block">
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Raspberry Pi Imager's summary before writing: Raspberry Pi 4, Ubuntu Server 24.04.5 LTS (64-bit), and the customisations hostname, localisation, user account, Wi-Fi and SSH" src="../images/robot-container/imager-summary.png" style="border: 1px solid var(--md-default-fg-color--lightest)"></a></p>
+</div>
+</div>
+</div>
+<p>The screenshots show Raspberry Pi Imager 2.0.12 with example settings, before writing. Use your own SD card, time zone, network and credentials. <a href="https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi">Ubuntu's guide</a> shows the same steps.</p>
+<h3 id="2-first-login-and-updates">2. First login and updates</h3>
+<p>The first boot takes a few minutes, while Ubuntu applies Imager's settings. Find the Raspberry Pi's IP address in your router's list of devices, under the hostname you chose. Then, on your PC:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh robot@192.168.1.20</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>with your user name and the robot's address. All further steps run in this SSH session, on the Raspberry Pi. Wait until the first-boot setup has finished, then install the current updates and restart:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt update</span>
-<span class="go">sudo apt install docker.io docker-compose-v2 git</span>
-<span class="go">sudo usermod -aG docker $USER</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cloud-init status --wait</span>
+<span class="go">sudo apt update &amp;&amp; sudo apt full-upgrade</span>
+<span class="go">sudo reboot</span>
 </code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p><strong>The diffbot repository</strong>, cloned into your home folder:</p>
+<p><a href="https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status">cloud-init</a> is the tool that applies Imager's settings, and <code>status --wait</code> returns when it's done. Ubuntu installs security updates automatically (<a href="https://ubuntu.com/server/docs/how-to/software/automatic-updates/">automatic updates</a>). Other updates need <code>sudo apt update &amp;&amp; sudo apt full-upgrade</code> from time to time. After the restart, log in again.</p>
+<h3 id="3-a-fixed-ip-address">3. A fixed IP address</h3>
+<p><code>ROS_MASTER_URI</code> and <code>ROS_IP</code> in the <a href="#settings">settings</a> hold IP addresses, so the robot's address and your PC's must not change. Give both a fixed address in your router: most routers call this a <em>DHCP reservation</em> or <em>static lease</em>. Names like <code>remo.local</code> don't work out of the box, because Ubuntu Server doesn't include the service that announces them (Avahi).</p>
+<h3 id="4-the-clock">4. The clock</h3>
+<p>ROS compares time stamps from the robot and the PC, for example to match a lidar scan with the robot's pose, so both clocks have to be right. The Raspberry Pi 4 has no battery-backed clock: after switching it on, its time is wrong until it has synchronized over the network. Check on the Raspberry Pi:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">timedatectl</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>It shows <code>System clock synchronized: yes</code> once the clock is right. Ubuntu's time service, systemd-timesyncd, asks time servers on the network (NTP), for example Ubuntu's own or one your router announces. It doesn't synchronize with your PC, but your PC sets its clock from time servers too, so both agree. <code>timedatectl timesync-status</code> shows which server the Raspberry Pi uses (<a href="https://documentation.ubuntu.com/server/how-to/networking/timedatectl-and-timesyncd/">time synchronization</a>). The container uses the Raspberry Pi's clock, so it needs no setup of its own.</p>
+<h3 id="5-docker-engine">5. Docker Engine</h3>
+<p>Docker Engine builds the image and runs the containers. Install it the same way as on your PC (<a href="../../getting-started/set-up-your-pc/#docker">Set Up Your PC</a>):</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Docker's repository</label><label for="__tabbed_2_2">Ubuntu's packages</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Follow Docker's guide <a href="https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository">Install Docker Engine on Ubuntu</a>, section <em>Install using the apt repository</em>. It works the same on the Raspberry Pi, whose Ubuntu is the arm64 version. It adds Docker's package repository and installs:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+<div class="tabbed-block">
+<p>Ubuntu has its own Docker packages. Docker calls them unofficial, and they can be older than Docker's releases:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install docker.io docker-compose-v2 docker-buildx</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p>Then let your user run Docker without <code>sudo</code>, log out, and log in again so the new group applies (<a href="https://docs.docker.com/engine/install/linux-postinstall/">post-installation steps</a>):</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
-<span class="go">cd diffbot</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo usermod -aG docker $USER</span>
+<span class="go">exit</span>
 </code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p><strong>Stable device names.</strong> The kernel numbers serial devices in the order they appear, so the Teensy isn't always <code>/dev/ttyACM0</code>. The repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.docker/robot/99-diffbot-robot.rules">udev rules</a> give the Teensy the name <code>/dev/teensy</code> and the lidar <code>/dev/rplidar</code>, by their USB vendor and product IDs:</p>
+<p>After logging in again, check that Docker works:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker run --rm hello-world</span>
+</code></pre></div></td></tr></tbody></table></div>
+<div class="admonition info">
+<p class="admonition-title">What these packages are for</p>
+<ul>
+<li><strong>Docker Engine</strong> (<code>docker-ce</code>, or <code>docker.io</code> from Ubuntu): the background service <code>dockerd</code>, which builds images and runs containers. <strong>containerd</strong> is the part underneath that starts the containers.</li>
+<li><strong>The Docker CLI</strong> (<code>docker-ce-cli</code>, part of <code>docker.io</code> in Ubuntu): the <code>docker</code> command.</li>
+<li><strong>Buildx</strong> (<code>docker-buildx-plugin</code> or <code>docker-buildx</code>): the builder that <code>docker build</code> and Compose use.</li>
+<li><strong>Compose</strong> (<code>docker-compose-plugin</code> or <code>docker-compose-v2</code>): the <code>docker compose</code> command. It reads a <code>compose.yaml</code> file that describes the containers, their devices and their settings, so one command starts them all.</li>
+</ul>
+<p>That's all the robot needs: it builds one image and runs it with Compose. Members of the <code>docker</code> group can control Docker without <code>sudo</code>, which amounts to root access on the Raspberry Pi (<a href="https://docs.docker.com/engine/security/#docker-daemon-attack-surface">Docker's security notes</a>).</p>
+</div>
+<h3 id="6-the-diffbot-repository">6. The diffbot repository</h3>
+<p>Clone the <a href="https://github.com/ros-mobile-robots/diffbot">diffbot repository</a> into your home folder:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~</span>
+<span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Git is already installed on Ubuntu Server. Cloning needs no GitHub account and no Git settings: your name, email and editor only matter when you commit changes (<a href="../../getting-started/git-and-github/">Git and GitHub</a>). The robot's Docker files are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot"><code>.docker/robot</code></a>. The dot at the start of the folder name hides it from a plain <code>ls</code>, like <code>.github</code>. In this repository, it marks folders for tools, apart from the ROS packages. It's not Docker's own settings folder <code>~/.docker</code>.</p>
+<p>After the next steps, the robot's files are in these places on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo cp .docker/robot/99-diffbot-robot.rules /etc/udev/rules.d/</span>
-<span class="go">sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code>/home/robot/              your home folder (user robot)
+├── diffbot/              the diffbot repository
+│   └── .docker/robot/
+│       ├── compose.yaml  the containers
+│       ├── env.example   the settings template
+│       └── .env          your settings
+└── robot-data/           ROS logs (step 8)
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>.env</code> is a copy of <code>env.example</code> with your <a href="#settings">settings</a>. The packages built in the image are inside it, in <code>/home/ros/catkin_ws</code>, not in your home folder.</p>
+<h3 id="7-stable-device-names">7. Stable device names</h3>
+<p>The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always <code>/dev/ttyACM0</code>. <a href="https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html">udev</a>, the service that creates the device files, can add fixed names by rules. The repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot/99-diffbot-robot.rules">rules</a> name the Teensy <code>/dev/teensy</code> and the lidar <code>/dev/rplidar</code>, recognized by their USB vendor and product IDs:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo cp ~/diffbot/.docker/robot/99-diffbot-robot.rules /etc/udev/rules.d/</span>
+<span class="go">sudo udevadm control --reload-rules</span>
+<span class="go">sudo udevadm trigger</span>
 <span class="go">ls -l /dev/teensy /dev/rplidar</span>
 </code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p><strong>A folder for ROS logs and bags</strong>, which the container mounts as its <code>~/.ros</code>. Create it as your user: the first user on Ubuntu has UID 1000, like <code>ros</code> in the container, so the container can write to it.</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">mkdir -p ~/robot-data</span>
-</code></pre></div></td></tr></tbody></table></div>
-</li>
+<ol>
+<li><code>cp</code> installs the rules where udev reads them. The number <code>99</code> makes them come after the system's own rules.</li>
+<li><code>udevadm control --reload-rules</code> makes udev read its rule files again (<a href="https://manpages.ubuntu.com/manpages/noble/en/man8/udevadm.8.html">udevadm</a>).</li>
+<li><code>udevadm trigger</code> replays the events of the devices that are already plugged in, so they get the new names without unplugging them.</li>
+<li><code>ls -l</code> shows the new names as links to the kernel's devices, for example <code>/dev/teensy -&gt; ttyACM0</code>, for the devices that are plugged in.</li>
 </ol>
-<h2 id="run-the-bringup">Run the bringup</h2>
-<p><strong>Settings</strong> go into a file <code>.docker/robot/.env</code> in the <code>diffbot</code> folder, one <code>NAME=value</code> per line. Set the ROS network first if the PC runs the ROS master: start <code>roscore</code> in the PC's dev container, and set the two variables here and on the PC as on <a href="../ros-network-setup/">ROS Network Setup</a>.</p>
+<p><code>lsusb</code> lists the USB devices with their IDs: the Teensy is <code>16c0:0483</code>, the lidar's USB adapter <code>10c4:ea60</code>. Two devices with the same IDs need a rule with their serial number, as the rules file explains.</p>
+<h3 id="8-the-folder-for-logs">8. The folder for logs</h3>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">mkdir -p ~/robot-data</span>
+<span class="go">id -u</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The containers write ROS's log files into this folder. Inside the container, they run as the user <code>ros</code> with the user ID (UID) 1000, so the folder must be writable for UID 1000. The first user on Ubuntu, the one from Imager, usually has that ID, which <code>id -u</code> shows. If it shows another number, give the folder to UID 1000: <code>sudo chown 1000:1000 ~/robot-data</code>.</p>
+<h2 id="settings">Settings</h2>
+<p>The settings are in the file <code>.env</code> in the folder <code>~/diffbot/.docker/robot</code>, next to <code>compose.yaml</code>. Docker Compose reads it from there. Create it from the template <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot/env.example"><code>env.example</code></a>, which explains each setting, and edit it, on the Raspberry Pi:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/diffbot/.docker/robot</span>
+<span class="go">cp env.example .env</span>
+<span class="go">nano .env</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>For Remo with a lidar and the ROS master on your PC, it contains, besides comments:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">.docker/robot/.env</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">ROBOT_MODEL</span><span class="o">=</span>remo<span class="w"> </span><span class="c1"># (1)!</span>
+<span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>lidar<span class="w"> </span><span class="c1"># (2)!</span>
+<span class="nv">ROS_MASTER_URI</span><span class="o">=</span>http://192.168.1.10:11311<span class="w"> </span><span class="c1"># (3)!</span>
+<span class="nv">ROS_IP</span><span class="o">=</span><span class="m">192</span>.168.1.20<span class="w"> </span><span class="c1"># (4)!</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ol>
+<li>The robot this Raspberry Pi is in: <code>remo</code> or <code>diffbot</code>. It selects the robot model and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.</li>
+<li>Starts the lidar driver too. Leave this line out on a robot without a lidar. To switch the lidar off later, run <code>docker compose down</code> while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.</li>
+<li>The PC that runs <code>roscore</code>: <code>http://</code> and the PC's IP address, and <code>11311</code>, the ROS master's port.</li>
+<li>The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address.</li>
+</ol>
+<p>On your PC, set <code>ROS_MASTER_URI</code> to the same value, and <code>ROS_IP</code> to the PC's own address, as described in <a href="../ros-network-setup/">ROS Network Setup</a>. Without <code>ROS_MASTER_URI</code>, the bringup starts its own ROS master on the robot, which is enough to check the robot alone.</p>
+<p>All settings:</p>
 <table>
 <thead>
 <tr>
@@ -4386,61 +4783,344 @@
 <tr>
 <td style="text-align: left;"><code>ROBOT_MODEL</code></td>
 <td style="text-align: left;"><code>remo</code></td>
-<td style="text-align: left;"><code>diffbot</code> runs DiffBot's bringup; the image has both models</td>
+<td style="text-align: left;"><code>remo</code> or <code>diffbot</code>, the robot the container runs on</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>ROS_MASTER_URI</code>, <code>ROS_IP</code></td>
+<td style="text-align: left;"><code>COMPOSE_PROFILES</code></td>
 <td style="text-align: left;">not set</td>
-<td style="text-align: left;">The PC's ROS master and the robot's own IP address. Without them, roslaunch starts a master on the robot</td>
+<td style="text-align: left;"><code>lidar</code> starts the lidar container too</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ROS_MASTER_URI</code></td>
+<td style="text-align: left;">not set</td>
+<td style="text-align: left;">The ROS master on the PC. Without it, the bringup starts a master on the robot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ROS_IP</code></td>
+<td style="text-align: left;">not set</td>
+<td style="text-align: left;">The robot's own IP address. <code>ROS_HOSTNAME</code> with a name works too, if the PC can resolve that name</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>TEENSY_DEVICE</code>, <code>LIDAR_DEVICE</code></td>
 <td style="text-align: left;"><code>/dev/teensy</code>, <code>/dev/rplidar</code></td>
-<td style="text-align: left;">The devices on the host</td>
+<td style="text-align: left;">The serial devices on the host, from <a href="#7-stable-device-names">step 7</a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>DIALOUT_GID</code></td>
 <td style="text-align: left;"><code>20</code></td>
-<td style="text-align: left;">The numeric ID of the host's group that owns the serial devices, <code>dialout</code> on Ubuntu</td>
+<td style="text-align: left;">The number of the group that owns the serial devices on the host</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>ROBOT_DATA</code></td>
 <td style="text-align: left;"><code>~/robot-data</code></td>
-<td style="text-align: left;">The folder for logs and bags</td>
+<td style="text-align: left;">The folder for logs, from <a href="#8-the-folder-for-logs">step 8</a></td>
 </tr>
 </tbody>
 </table>
-<p>The container uses the host's network (<code>network_mode: host</code>), so ROS reaches the PC as a native installation would.</p>
-<p><strong>Start the bringup</strong> on the Raspberry Pi, in the <code>diffbot</code> folder. The first start builds the image on the Raspberry Pi, which compiles the packages and takes a while; later starts reuse it.</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose -f .docker/robot/compose.yaml up --build</span>
+<p><strong>Why <code>DIALOUT_GID</code> is a number:</strong> inside the container, the user <code>ros</code> may open the Teensy's device only as a member of the group that owns it, <code>dialout</code> on Ubuntu. Docker can add a group to the container's user by name or by number, but it looks a name up in the container's own list of groups, where the same name could have another number than on the host. So <code>compose.yaml</code> adds the host's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">stat -Lc %g /dev/teensy</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>This runs Remo's bringup (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.docker/robot/compose.yaml"><code>compose.yaml</code></a>): the hardware interface, the controllers and rosserial to the Teensy, which drives the motors and reads the encoders. To start the lidar too, use this command instead; it adds the lidar's profile:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose -f .docker/robot/compose.yaml --profile lidar up</span>
+<p><code>-L</code> follows the link to the real device. Without it, <code>stat</code> shows the group of the link itself. Write the number into <code>.env</code>: Compose doesn't run commands in it.</p>
+<details class="info">
+<summary>How <code>compose.yaml</code> uses the settings</summary>
+<p>Both containers share these settings (<a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot/compose.yaml"><code>compose.yaml</code></a>, lines 17–41):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">compose.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Settings that both services share (a YAML anchor)</span>
+<span class="nt">x-robot</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;robot</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">diffbot-robot:noetic</span>
+<span class="w">  </span><span class="c1"># The host's network, so that ROS reaches the PC as in the native setup, without port lists</span>
+<span class="w">  </span><span class="nt">network_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">  </span><span class="c1"># Let the user ros in the container open the serial devices: add the numeric ID of the group</span>
+<span class="w">  </span><span class="c1"># that owns them on the host. A group name could have a different ID in the container.</span>
+<span class="w">  </span><span class="nt">group_add</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"${DIALOUT_GID:-20}"</span>
+<span class="w">  </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ROS_MASTER_URI</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ROS_IP</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ROS_HOSTNAME</span>
+<span class="w">  </span><span class="c1"># ROS logs and bags in a host folder. The long syntax doesn't create a missing folder: Docker</span>
+<span class="w">  </span><span class="c1"># would create it for root, and the user ros couldn't write its logs.</span>
+<span class="w">  </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bind</span>
+<span class="w">      </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${ROBOT_DATA:-${HOME}/robot-data}</span>
+<span class="w">      </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/ros/.ros</span>
+<span class="w">      </span><span class="nt">bind</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">create_host_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="c1"># The containers' output (docker compose logs) in Docker's local log format, which rotates its</span>
+<span class="w">  </span><span class="c1"># files (5 files of 20 MB per container), so it can't fill the SD card</span>
+<span class="w">  </span><span class="nt">logging</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Leave this terminal open: it shows the bringup's output, and <code>Ctrl+C</code> there stops the containers. For everything else, open a second SSH session to the Raspberry Pi from your PC and go to the <code>diffbot</code> folder (<code>cd ~/diffbot</code>).</p>
-<p><strong>ROS commands in the running container</strong> go through its entry point, which loads ROS and the workspace. In the second session, for example, list the topics, or drive the robot with the keyboard:</p>
+<ul>
+<li><strong><code>network_mode: host</code></strong> (line 21): the containers use the Raspberry Pi's network directly, so their ROS nodes are reachable at its IP address, like native ones. ROS 1 needs this: besides the master's port 11311, every node opens its own random port, and the other nodes connect to it directly (<a href="../ros-network-setup/">ROS Network Setup</a>).</li>
+<li><strong><code>group_add</code></strong> (line 24): the group with the number from <code>DIALOUT_GID</code>.</li>
+<li><strong><code>environment</code></strong> (lines 26–29): passes the ROS network settings from <code>.env</code> into the containers.</li>
+<li><strong><code>volumes</code></strong> (lines 32–37): mounts the logs folder as the containers' <code>~/.ros</code>, where ROS writes its logs. Compose doesn't create a missing folder: Docker would create it for root, and the user <code>ros</code> couldn't write into it.</li>
+<li><strong><code>logging</code></strong> (lines 40–41): Docker's <a href="https://docs.docker.com/engine/logging/drivers/local/">local log format</a>, which keeps at most five files of 20 MB per container, so the containers' output can't fill the SD card.</li>
+</ul>
+<p>Each service then adds its device and its command: <code>bringup.launch</code> with the model, or <code>lidar.launch</code>.</p>
+</details>
+<h2 id="start-check-and-stop">Start, check and stop</h2>
+<p>Flash the Teensy's firmware first (<a href="../teensy-mcu/">Microcontroller</a>), and connect the Teensy and the lidar to the Raspberry Pi's USB ports. If the ROS master runs on your PC, start <code>roscore</code> there, in the dev container.</p>
+<p><strong>Start</strong> the robot, on the Raspberry Pi:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/diffbot/.docker/robot</span>
+<span class="go">docker compose up -d --build</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>up</code> starts the containers described in <code>compose.yaml</code>: the bringup, and the lidar if <code>COMPOSE_PROFILES=lidar</code> is set. <code>-d</code> runs them in the background and gives you the prompt back. <code>--build</code> builds the image first. The first build downloads the official ROS image and compiles the robot's packages on the Raspberry Pi, which takes a while. Later builds reuse the steps whose input didn't change, so they're usually much faster.</p>
+<p><strong>Check</strong> on the Raspberry Pi that the containers run, and follow their output:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose ps -a</span>
+<span class="go">docker compose logs -f</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>ps -a</code> lists the containers with their state, also those that stopped: <code>bringup</code>, and <code>lidar</code> if it's on, should be running. <code>logs -f</code> follows the bringup's and the lidar's output. <code>Ctrl+C</code> stops following, and the robot keeps running.</p>
+<p>Then check on your PC, in the dev container, that the robot's topics have data. A topic that's listed but has no messages isn't enough:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose -f .docker/robot/compose.yaml exec bringup /entrypoint.sh rostopic list</span>
-<span class="go">docker compose -f .docker/robot/compose.yaml exec bringup /entrypoint.sh \</span>
-<span class="go">    rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/diffbot/mobile_base_controller/cmd_vel</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostopic hz /diffbot/measured_joint_states</span>
+<span class="go">rostopic echo -n 1 /diffbot/mobile_base_controller/odom</span>
+<span class="go">rostopic hz /diffbot/scan</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The bringup's output is also available later, with <code>docker compose -f .docker/robot/compose.yaml logs -f bringup</code>, and ROS's log files are in <code>~/robot-data/log</code>. <code>docker compose -f .docker/robot/compose.yaml down</code> removes the stopped containers.</p>
-<p><strong>After the Teensy was reset, reflashed or unplugged,</strong> stop the containers and start them again (<code>down</code>, then <code>up</code>). A container gets its devices when it starts, and a reconnected Teensy is a new device for the kernel. A restart also starts a new odometry, so a measurement run ends there.</p>
-<h2 id="how-its-tested">How it's tested</h2>
-<p>The workflow <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/robot_container.yml"><code>robot_container.yml</code></a> builds the image on GitHub's arm64 and amd64 runners whenever the image or its packages change, and runs <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.docker/robot/smoke_test.sh"><code>smoke_test.sh</code></a> in it twice: directly in the image, and through <code>compose.yaml</code> with its mounts and groups. The test checks that:</p>
+<p><code>measured_joint_states</code> comes from the Teensy: messages at a steady rate mean that rosserial talks with the firmware and the encoders are read. <code>odom</code> is the controller's odometry. <code>scan</code> comes from the lidar, if it runs.</p>
+<p><strong>Drive</strong> from your PC, first with the wheels off the ground, then slowly on the floor:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/diffbot/mobile_base_controller/cmd_vel</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><strong>Stop</strong> the robot, on the Raspberry Pi:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose down</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>down</code> stops and removes the containers. The image stays for the next start, and so do the ROS logs in <code>~/robot-data</code>. The output that <code>docker compose logs</code> shows is removed with the containers. Before you switch the Raspberry Pi off, shut it down with <code>sudo poweroff</code>, so the SD card isn't written to while the power goes.</p>
+<p>All commands run on the Raspberry Pi, in <code>~/diffbot/.docker/robot</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Start, or restart after a change</td>
+<td style="text-align: left;"><code>docker compose up -d --build</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Is it running?</td>
+<td style="text-align: left;"><code>docker compose ps -a</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Follow the output</td>
+<td style="text-align: left;"><code>docker compose logs -f</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Stop</td>
+<td style="text-align: left;"><code>docker compose down</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Update the code</td>
+<td style="text-align: left;"><code>git pull</code>, then <code>docker compose up -d --build</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Switch off</td>
+<td style="text-align: left;"><code>docker compose down</code>, then <code>sudo poweroff</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">After the Teensy was reset, reflashed or unplugged</p>
+<p>Stop the containers and start them again: <code>docker compose down</code>, then <code>docker compose up -d</code>. A container gets its devices when it starts, and a reconnected Teensy is a new device for the kernel, which the running container doesn't see. A new start also starts a new odometry, so a measurement run ends there.</p>
+</div>
+<details class="info">
+<summary>Running a command in a container</summary>
+<p>Most ROS commands run on your PC. To run one on the robot itself, for example when no PC is connected:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose exec bringup /entrypoint.sh rostopic list</span>
+</code></pre></div></td></tr></tbody></table></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Part</th>
+<th style="text-align: left;">From</th>
+<th style="text-align: left;">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>docker compose</code></td>
+<td style="text-align: left;">Docker</td>
+<td style="text-align: left;">Works on the containers that <code>compose.yaml</code> in the current folder describes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>exec</code></td>
+<td style="text-align: left;">Docker</td>
+<td style="text-align: left;">Runs a command in a running container</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bringup</code></td>
+<td style="text-align: left;"><code>compose.yaml</code></td>
+<td style="text-align: left;">The name of the service, the container to run it in</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>/entrypoint.sh</code></td>
+<td style="text-align: left;">the diffbot repository</td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot/entrypoint.sh">Our script</a> that loads ROS and the workspace, then runs the rest of the line. Docker runs it when a container starts, but <code>exec</code> starts a new process without it, so the command names it</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>rostopic list</code></td>
+<td style="text-align: left;">ROS</td>
+<td style="text-align: left;">The command itself</td>
+</tr>
+</tbody>
+</table>
+<p><code>docker compose exec bringup /entrypoint.sh bash</code> opens a shell in the container, with ROS loaded.</p>
+</details>
+<h2 id="when-something-doesnt-work">When something doesn't work</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">What you see</th>
+<th style="text-align: left;">Check</th>
+<th style="text-align: left;">Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SSH can't connect</td>
+<td style="text-align: left;">The router lists the Raspberry Pi. The first boot takes a few minutes</td>
+<td style="text-align: left;">Wait. If it never appears, check the Wi-Fi name and password in Imager and write the card again</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>docker</code> commands fail with <em>permission denied</em> for <code>docker.sock</code></td>
+<td style="text-align: left;"><code>groups</code> lists <code>docker</code></td>
+<td style="text-align: left;">Log out and in again after <code>usermod</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Compose stops with <em>bind source path does not exist</em></td>
+<td style="text-align: left;"><code>ls -ld ~/robot-data</code></td>
+<td style="text-align: left;"><code>mkdir -p ~/robot-data</code>, or set <code>ROBOT_DATA</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Compose stops with <em>error gathering device information</em> for <code>/dev/teensy</code> or <code>/dev/rplidar</code></td>
+<td style="text-align: left;"><code>ls -l /dev/teensy /dev/rplidar</code>, <code>lsusb</code></td>
+<td style="text-align: left;">Plug the device in, install the udev rules (<a href="#7-stable-device-names">step 7</a>). Without a lidar, remove <code>COMPOSE_PROFILES=lidar</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">The bringup's output shows <em>Permission denied</em> for <code>/dev/ttyACM0</code></td>
+<td style="text-align: left;"><code>stat -Lc %g /dev/teensy</code></td>
+<td style="text-align: left;">Write that number into <code>DIALOUT_GID</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">The bringup stops with <em>cannot create log directory</em> and <em>Permission denied</em> for <code>/home/ros/.ros/log</code></td>
+<td style="text-align: left;"><code>ls -ldn ~/robot-data ~/robot-data/log</code>: UID 1000 must be able to write, for example owner <code>1000</code> with <code>drwx</code></td>
+<td style="text-align: left;"><code>sudo chown -R 1000:1000 ~/robot-data</code>, then <code>sudo chmod -R u+rwX ~/robot-data</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">The bringup stops with <em>unable to contact ROS master</em></td>
+<td style="text-align: left;"><code>roscore</code> runs on the PC. <code>ping</code> the PC's address from the Raspberry Pi</td>
+<td style="text-align: left;">Correct <code>ROS_MASTER_URI</code>. A PC with <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 needs <a href="../ros-network-setup/#work-machine-on-windows-wsl-2">mirrored networking</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">The PC lists the robot's topics, but <code>rostopic hz</code> shows no messages</td>
+<td style="text-align: left;"><code>ROS_IP</code> on each machine is its own address</td>
+<td style="text-align: left;">Correct <code>ROS_IP</code> on the robot or the PC. Both directions must work (<a href="../ros-network-setup/">ROS Network Setup</a>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">The bringup's output shows <em>Unable to sync with device</em></td>
+<td style="text-align: left;">The Teensy has the firmware, the USB cable carries data</td>
+<td style="text-align: left;">Flash the firmware (<a href="../teensy-mcu/">Microcontroller</a>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">No <code>/diffbot/scan</code></td>
+<td style="text-align: left;"><code>docker compose ps -a</code> lists <code>lidar</code> as running</td>
+<td style="text-align: left;">Set <code>COMPOSE_PROFILES=lidar</code>, then <code>docker compose up -d</code>. If it exited, its output in <code>docker compose logs lidar</code> tells why</td>
+</tr>
+<tr>
+<td style="text-align: left;">The lidar still runs after removing <code>COMPOSE_PROFILES=lidar</code></td>
+<td style="text-align: left;"><code>docker compose ps -a</code></td>
+<td style="text-align: left;"><code>docker compose --profile lidar down</code>, then <code>docker compose up -d</code></td>
+</tr>
+</tbody>
+</table>
+<p>After changing <code>.env</code>, run <code>docker compose up -d</code> again: Compose recreates the containers whose settings changed. To switch the lidar off, run <code>docker compose down</code> first, while <code>COMPOSE_PROFILES=lidar</code> is still set.</p>
+<h2 id="logs">Logs</h2>
 <ul>
-<li>the packages and the programs that talk to the hardware are there;</li>
-<li>both robot models expand with xacro;</li>
-<li>the launch files parse;</li>
-<li>Remo's bringup starts without hardware: the robot model loads and both controllers run. Without a Teensy, rosserial can't open its port and the hardware interface gets no wheel feedback, so the test can't show that the robot drives.</li>
+<li><strong>The containers' output</strong>, everything the bringup and the lidar driver print: <code>docker compose logs</code> on the Raspberry Pi, until the containers are removed with <code>down</code>.</li>
+<li><strong>ROS's log files</strong> of the robot's nodes: <code>~/robot-data/log</code> on the Raspberry Pi, with a folder per start and the link <code>latest</code> to the newest one. roslaunch writes its own log there, and the nodes theirs.</li>
+<li><strong>The messages of all nodes</strong>, from the robot and the PC: the ROS master's <code>rosout</code> node collects them on the machine that runs <code>roscore</code>. With the master on your PC, <code>rqt_console</code> there shows them live, with filters by node and severity (<a href="https://wiki.ros.org/rqt_console">rqt_console</a>).</li>
 </ul>
-<p>That needs the real robot: teleop and lidar scans on a Raspberry Pi with Remo, the open test in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>. <a href="../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> lists all workflows.</p>
-<h2 id="not-yet">Not yet</h2>
+<p>To look at the robot's log files on the PC, copy them, on the PC:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">scp -r robot@192.168.1.20:robot-data/log/latest robot-logs</span>
+</code></pre></div></td></tr></tbody></table></div>
+<h2 id="how-the-image-is-built">How the image is built</h2>
+<p>The image is defined in the diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot"><code>.docker/robot</code></a> folder. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot/Dockerfile"><code>Dockerfile</code></a> starts from the official ROS image <a href="https://hub.docker.com/_/ros"><code>ros:noetic-ros-base</code></a>, which exists for arm64 and amd64, and adds the robot's packages in three steps, with the same tools as a native workspace:</p>
+<ol>
+<li><strong>vcstool</strong> fetches the repositories listed in <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/remo_robot.repos"><code>remo_robot.repos</code></a>: Remo's model <code>remo_description</code> and the lidar driver <code>rplidar_ros</code>.</li>
+<li><strong>rosdep</strong> installs the Ubuntu and ROS packages that the packages' <code>package.xml</code> files declare as dependencies.</li>
+<li><strong>catkin</strong> builds the packages, in <code>/home/ros/catkin_ws</code>.</li>
+</ol>
+<p>Which packages are in the image is a list in the Dockerfile (<a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot/Dockerfile#L42-L45">lines 42–45</a>): the packages that the bringup and the lidar need, for both robots.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Dockerfile</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># The packages to build: the ones that the bringup and the lidar need, for both robots (the image</span>
+<span class="c"># has DiffBot's and Remo's models); diffbot_gazebo, the navigation and SLAM packages stay out.</span>
+<span class="k">ARG</span><span class="w"> </span><span class="nv">PACKAGES</span><span class="o">=</span><span class="s2">"diffbot_bringup diffbot_base diffbot_control diffbot_description diffbot_msgs remo_description rplidar_ros"</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">DIFFBOT_PACKAGES</span><span class="o">=</span><span class="nv">$PACKAGES</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The list is needed because rosdep reads the dependencies of the packages it's given, but doesn't follow them from one package of the workspace to the next. And <code>diffbot_bringup</code> doesn't declare all the packages that its launch files start yet (<a href="https://github.com/ros-mobile-robots/diffbot/issues/131">diffbot#131</a>). Gazebo, navigation and <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> aren't in the image: they run on the PC.</p>
+<p>The image is about 3.9 GB on an amd64 PC, of which 2.9 GB is the official ROS image, and about 0.7 GB compressed. It hasn't been measured on the Raspberry Pi yet. Docker builds it on the Raspberry Pi with the first <code>docker compose up -d --build</code>. The container runs as the user <code>ros</code> with UID 1000, not as root.</p>
+<h2 id="how-its-tested">How it's tested</h2>
+<p>The workflow <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.github/workflows/robot_container.yml"><code>robot_container.yml</code></a> runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (<code>ubuntu-24.04-arm</code>, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">robot_container.yml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">build</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fail-fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">matrix</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># ubuntu-24.04-arm: GitHub's arm64 runner, free for public repositories</span>
+<span class="w">      </span><span class="nt">runner</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ubuntu-24.04-arm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ubuntu-24.04</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.runner }}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Each run checks that <code>env.example</code> gives a valid configuration, builds the image, and runs <a href="https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a/.docker/robot/smoke_test.sh"><code>smoke_test.sh</code></a> in it twice: directly in the image, and through <code>compose.yaml</code> with its mounts and groups. The test checks, without hardware, that:</p>
 <ul>
-<li><strong>The camera</strong>, see <a href="#whats-in-the-image">What's in the image</a>.</li>
-<li><strong>Starting at boot.</strong> Start the bringup by hand for now; an automatic start needs the behavior at a reset or a missing device checked first.</li>
-<li><strong>A smaller image</strong>, without the desktop packages that the robot model packages still declare.</li>
+<li>the packages and the programs that talk to the hardware are there,</li>
+<li>both robot models expand with xacro,</li>
+<li>the launch files parse, and the lidar driver runs in the robot's namespace, so its scans are on <code>/diffbot/scan</code>,</li>
+<li>Remo's bringup starts: the robot model loads and both controllers run.</li>
+</ul>
+<p>The result is the workflow's check on the pull request, passed or failed. The image itself is deleted with the runner: it isn't published. Without a Teensy, rosserial can't open its port and the hardware interface gets no wheel feedback, so the test can't show that the robot drives. That needs the real robot: teleop and lidar scans on a Raspberry Pi in Remo, the open test in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>.</p>
+<p><a href="../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> describes all workflows of the diffbot repository, what each one checks, and how to run the checks on your PC.</p>
+<h2 id="limitations-and-planned-work">Limitations and planned work</h2>
+<ul>
+<li><strong>Ready-made images.</strong> Today the Raspberry Pi builds the image itself. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> could publish the images it builds, so the robot only downloads them, and a known version could be installed again.</li>
+<li><strong>The camera.</strong> The Raspberry Pi camera driver, <code>raspicam_node</code>, needs the Raspberry Pi's legacy camera stack, which current operating systems no longer have. A driver for libcamera is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/111">diffbot#111</a>.</li>
+<li><strong><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> and <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr></strong>, for sensors on the Raspberry Pi's pins, aren't passed into the containers yet.</li>
+<li><strong>Starting at boot.</strong> For now, start the robot with the command in <a href="#start-check-and-stop">Start, check and stop</a> after logging in. An automatic start needs the Teensy, the network, the synchronized clock and the PC's ROS master when the Raspberry Pi boots. Docker's restart policy alone can't handle a missing device, so this needs its own tests.</li>
+<li><strong>A smaller image.</strong> <code>diffbot_description</code> declares RViz as a dependency, because it has launch files that open RViz. So the image contains RViz with its graphics libraries, which the robot never shows. Moving the visualization launch files into a package of their own would leave them out.</li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
@@ -4600,7 +5280,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
