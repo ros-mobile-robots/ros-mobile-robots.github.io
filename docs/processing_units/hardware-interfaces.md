@@ -36,7 +36,7 @@ Four digital pins on the Teensy microcontroller are in use for the two quadratur
 
 
 !!! info
-    See the [`diffbot_base`](https://github.com/fjp/diffbot/tree/noetic-devel/diffbot_base/scripts/encoders) package for the running software script to read the encoder ticks.
+    See the [`sketches`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/sketches) folder in `diffbot_firmware` for the script that reads the encoder ticks.
 
 ## Single Board Computer I2C Connection
 

@@ -7,7 +7,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | Workflow | File | What it checks |
 |:---------|:-----|:---------------|
 | CI | [`.github/workflows/diffbot_ci_action.yml`]({{ diffbot_repo_url }}/.github/workflows/diffbot_ci_action.yml) | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
-| Build base controller | [`.github/workflows/build_base_controller.yml`]({{ diffbot_repo_url }}/.github/workflows/build_base_controller.yml) | Builds the Teensy firmware in [`diffbot_base/scripts/base_controller`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/scripts/base_controller) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_base/scripts/base_controller/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
+| Firmware | [`.github/workflows/firmware.yml`]({{ diffbot_repo_url }}/.github/workflows/firmware.yml) | Builds the Teensy firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
 | Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
 
 ### industrial_ci
@@ -61,7 +61,7 @@ The workflows use the latest major versions of the GitHub actions, which run on 
     sudo apt install python3-venv
     python3 -m venv ~/.venvs/platformio
     ~/.venvs/platformio/bin/pip install platformio
-    cd diffbot_base/scripts/base_controller
+    cd diffbot_firmware
     ~/.venvs/platformio/bin/pio run
     ```
 
