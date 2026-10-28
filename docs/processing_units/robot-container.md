@@ -202,14 +202,14 @@ nano .env
 For Remo with a lidar and the ROS master on your PC, it contains, besides comments:
 
 ```bash title=".docker/robot/.env"
-ROBOT_MODEL=remo                          # (1)!
-COMPOSE_PROFILES=lidar                    # (2)!
-ROS_MASTER_URI=http://192.168.1.10:11311  # (3)!
-ROS_IP=192.168.1.20                       # (4)!
+ROBOT_MODEL=remo # (1)!
+COMPOSE_PROFILES=lidar # (2)!
+ROS_MASTER_URI=http://192.168.1.10:11311 # (3)!
+ROS_IP=192.168.1.20 # (4)!
 ```
 
 1. The robot this Raspberry Pi is in: `remo` or `diffbot`. It selects the robot model and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.
-2. Starts the lidar driver too. Leave this line out on a robot without a lidar.
+2. Starts the lidar driver too. Leave this line out on a robot without a lidar. To switch the lidar off later, run `docker compose down` while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.
 3. The PC that runs `roscore`: `http://` and the PC's IP address, and `11311`, the ROS master's port.
 4. The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address.
 
@@ -261,16 +261,16 @@ cd ~/diffbot/.docker/robot
 docker compose up -d --build
 ```
 
-`up` starts the containers described in `compose.yaml`: the bringup, and the lidar if `COMPOSE_PROFILES=lidar` is set. `-d` runs them in the background and gives you the prompt back. `--build` builds the image first. The first build downloads the official ROS image and compiles the robot's packages on the Raspberry Pi, which takes a while. Later builds reuse what didn't change, and take seconds when nothing changed.
+`up` starts the containers described in `compose.yaml`: the bringup, and the lidar if `COMPOSE_PROFILES=lidar` is set. `-d` runs them in the background and gives you the prompt back. `--build` builds the image first. The first build downloads the official ROS image and compiles the robot's packages on the Raspberry Pi, which takes a while. Later builds reuse the steps whose input didn't change, so they're usually much faster.
 
 **Check** on the Raspberry Pi that the containers run, and follow their output:
 
 ```console
-docker compose ps
+docker compose ps -a
 docker compose logs -f
 ```
 
-`ps` lists the containers with their state. `logs -f` follows the bringup's and the lidar's output. `Ctrl+C` stops following, and the robot keeps running.
+`ps -a` lists the containers with their state, also those that stopped: `bringup`, and `lidar` if it's on, should be running. `logs -f` follows the bringup's and the lidar's output. `Ctrl+C` stops following, and the robot keeps running.
 
 Then check on your PC, in the dev container, that the robot's topics have data. A topic that's listed but has no messages isn't enough:
 
@@ -301,7 +301,7 @@ All commands run on the Raspberry Pi, in `~/diffbot/.docker/robot`:
 | Task | Command |
 |:--|:--|
 | Start, or restart after a change | `docker compose up -d --build` |
-| Is it running? | `docker compose ps` |
+| Is it running? | `docker compose ps -a` |
 | Follow the output | `docker compose logs -f` |
 | Stop | `docker compose down` |
 | Update the code | `git pull`, then `docker compose up -d --build` |
@@ -336,13 +336,14 @@ All commands run on the Raspberry Pi, in `~/diffbot/.docker/robot`:
 | Compose stops with *bind source path does not exist* | `ls -ld ~/robot-data` | `mkdir -p ~/robot-data`, or set `ROBOT_DATA` |
 | Compose stops with *error gathering device information* for `/dev/teensy` or `/dev/rplidar` | `ls -l /dev/teensy /dev/rplidar`, `lsusb` | Plug the device in, install the udev rules ([step 7](#7-stable-device-names)). Without a lidar, remove `COMPOSE_PROFILES=lidar` |
 | The bringup's output shows *Permission denied* for `/dev/ttyACM0` | `stat -Lc %g /dev/teensy` | Write that number into `DIALOUT_GID` |
-| The bringup stops with *cannot create log directory* and *Permission denied* for `/home/ros/.ros/log` | `ls -ldn ~/robot-data`: the owner must be 1000 | `sudo chown 1000:1000 ~/robot-data` |
+| The bringup stops with *cannot create log directory* and *Permission denied* for `/home/ros/.ros/log` | `ls -ldn ~/robot-data ~/robot-data/log`: UID 1000 must be able to write, for example owner `1000` with `drwx` | `sudo chown -R 1000:1000 ~/robot-data`, then `sudo chmod -R u+rwX ~/robot-data` |
 | The bringup stops with *unable to contact ROS master* | `roscore` runs on the PC. `ping` the PC's address from the Raspberry Pi | Correct `ROS_MASTER_URI`. A PC with WSL 2 needs [mirrored networking](ros-network-setup.md#work-machine-on-windows-wsl-2) |
 | The PC lists the robot's topics, but `rostopic hz` shows no messages | `ROS_IP` on each machine is its own address | Correct `ROS_IP` on the robot or the PC. Both directions must work ([ROS Network Setup](ros-network-setup.md)) |
 | The bringup's output shows *Unable to sync with device* | The Teensy has the firmware, the USB cable carries data | Flash the firmware ([Microcontroller](teensy-mcu.md)) |
-| No `/diffbot/scan` | `docker compose ps` lists `lidar` | Set `COMPOSE_PROFILES=lidar`, then `down` and `up -d` |
+| No `/diffbot/scan` | `docker compose ps -a` lists `lidar` as running | Set `COMPOSE_PROFILES=lidar`, then `docker compose up -d`. If it exited, its output in `docker compose logs lidar` tells why |
+| The lidar still runs after removing `COMPOSE_PROFILES=lidar` | `docker compose ps -a` | `docker compose --profile lidar down`, then `docker compose up -d` |
 
-After changing `.env`, run `docker compose up -d` again: Compose recreates the containers whose settings changed.
+After changing `.env`, run `docker compose up -d` again: Compose recreates the containers whose settings changed. To switch the lidar off, run `docker compose down` first, while `COMPOSE_PROFILES=lidar` is still set.
 
 ## Logs
 
