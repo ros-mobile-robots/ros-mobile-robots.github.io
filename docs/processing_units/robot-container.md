@@ -88,7 +88,7 @@ sudo reboot
 
 `ROS_MASTER_URI` and `ROS_IP` in the [settings](#settings) hold IP addresses, so the robot's address and your PC's must not change. Give both a fixed address in your router: most routers call this a *DHCP reservation* or *static lease*.
 
-Imager also had Avahi installed in step 2, a service that announces the Raspberry Pi's name on the network as `remo.local`, with your hostname. So `ssh robot@remo.local` works too, from PCs that look up these names, as Ubuntu Desktop and macOS do. ROS uses the IP addresses anyway: the containers on the Raspberry Pi and the dev container on your PC can't look up `.local` names, because their images don't include the lookup (mDNS). ROS's own pages explain the two variables, [`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI) and [`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME), and how to check the network ([ROS/NetworkSetup](https://wiki.ros.org/ROS/NetworkSetup)).
+Imager also had Avahi installed in step 2, a service that announces the Raspberry Pi's name on the network as `remo.local`, with your hostname. So `ssh robot@remo.local` works too, from PCs that look up these names, as Ubuntu Desktop and macOS do. ROS uses the IP addresses anyway: the containers on the Raspberry Pi and the dev container on your PC can't look up `.local` names. That needs mDNS (multicast DNS), the protocol behind these names, and their images don't include it. ROS's own pages explain the two variables, [`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI) and [`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME), and how to check the network ([ROS/NetworkSetup](https://wiki.ros.org/ROS/NetworkSetup)).
 
 ### 4. The clock
 
@@ -361,15 +361,17 @@ To look at the robot's log files on the PC, copy them, on the PC:
 scp -r robot@192.168.1.20:robot-data/log/latest robot-logs
 ```
 
-To see the robot's data over time, for example the measured wheel speeds next to the commands, use [PlotJuggler](https://plotjuggler.io/) on your PC, in the dev container. It plots topics live, or from a recorded bag. A bag is a file with the messages of the topics you chose. With `/rosout` in the bag, PlotJuggler's *ROS /rosout Visualization* also lists the nodes' messages, up to the moment you point to in the plot. Install it, record while you drive, and stop the recording with `Ctrl+C`:
+To see the robot's data over time, for example each wheel's measured speed next to its commanded speed, use [PlotJuggler](https://plotjuggler.io/) on your PC, in the dev container. It plots topics live, or from a recorded bag. A bag is a file with the messages of the topics you chose. With `/rosout` in the bag, PlotJuggler's *ROS /rosout Visualization* also lists the nodes' messages, up to the moment you point to in the plot. Install it, record while you drive, and stop the recording with `Ctrl+C`:
 
 ```console
 sudo apt update && sudo apt install ros-noetic-plotjuggler-ros
-rosbag record -O drive.bag /rosout /diffbot/measured_joint_states /diffbot/mobile_base_controller/cmd_vel /diffbot/mobile_base_controller/odom
+rosbag record -O drive.bag /rosout /diffbot/wheel_cmd_velocities /diffbot/measured_joint_states /diffbot/mobile_base_controller/cmd_vel /diffbot/mobile_base_controller/odom
 rosrun plotjuggler plotjuggler
 ```
 
-Then open `drive.bag` in PlotJuggler. The install lasts until the dev container is rebuilt.
+`/diffbot/wheel_cmd_velocities` are the wheels' commanded speeds and `/diffbot/measured_joint_states` their measured ones, both in rad/s. `cmd_vel` is the speed you asked the whole robot for, forward and turning, and `odom` the speed and position the controller computes from the wheels.
+
+Then load `drive.bag` in PlotJuggler, with `/rosout` among the selected topics. To see the messages, switch on *ROS /rosout Visualization* among PlotJuggler's publishers: it starts switched off ([PlotJuggler's ROS plugins](https://github.com/PlotJuggler/plotjuggler-ros-plugins/blob/2.1.1/README.md)). The install lasts until the dev container is rebuilt.
 
 ## How the image is built
 
@@ -387,12 +389,20 @@ Which packages are built is a list in the Dockerfile ([lines 42–45]({{ robot_c
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/Dockerfile:42:45"
 ```
 
-The list is needed because rosdep reads only the `package.xml` files it's given. If `diffbot_bringup` named `diffbot_base` as a dependency, rosdep would recognize `diffbot_base` as a package of the workspace, but wouldn't read its `package.xml` to install what `diffbot_base` needs, such as rosserial. We checked this with rosdep 0.25.1 in the ROS image. So rosdep gets the `package.xml` of each package to build. catkin does follow these dependencies: `catkin build diffbot_bringup` would build the workspace packages that `diffbot_bringup` declares first. But its `package.xml` doesn't declare the packages its launch files start yet, only `teleop_twist_keyboard`. Adding them there, as `<exec_depend>` lines, is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
+The list is needed because rosdep reads only the `package.xml` files it's given. In its `package.xml`, a package declares each other package it needs when the robot runs with an `<exec_depend>` line, for example:
 
-Unpacked, the image takes about 3.2 GB on an amd64 PC, and about 0.7 GB compressed. `docker images` shows about 3.9 GB, because Docker keeps both. It hasn't been measured on the Raspberry Pi yet. What takes the space, measured with `du` and `dpkg-query` in the image:
+```xml title="diffbot_bringup/package.xml"
+<exec_depend>diffbot_base</exec_depend>
+```
 
-- **The official ROS image, 2.4 GB:** besides ROS, it has the tools to build ROS packages, such as the C++ compiler, CMake and Boost's headers. 1.2 GB of it is a Fortran compiler (flang) with its LLVM libraries: ROS's `pluginlib` depends on all of Boost, whose MPI library needs OpenMPI, and OpenMPI's development package needs a Fortran compiler.
-- **The robot's part, 0.7 GB:** almost all of it comes with RViz, which the robot models declare ([Limitations](#limitations-and-planned-work)): graphics drivers (Mesa), Qt and OGRE. The built workspace itself is about 70 MB.
+With this line, rosdep would recognize `diffbot_base` as a package of the workspace. But it wouldn't read `diffbot_base`'s own `package.xml`, so it wouldn't install what `diffbot_base` needs, such as rosserial (our test with rosdep 0.25.1 in the ROS image). That's why rosdep gets the `package.xml` of each package to build.
+
+catkin does follow these lines: `catkin build diffbot_bringup` would first build the workspace packages that `diffbot_bringup` declares. But today `diffbot_bringup` declares only `teleop_twist_keyboard`, not the packages its launch files start. Adding them is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
+
+Unpacked, the image takes about 3.2 GB on an amd64 PC, and about 0.7 GB compressed. On that PC, `docker images` shows about 3.9 GB, because Docker's containerd image store keeps both ([disk space usage](https://docs.docker.com/engine/storage/containerd/#disk-space-usage)). That's the default for Docker Engine 29 and later on a fresh installation. Older installations keep only the unpacked files. It hasn't been measured on the Raspberry Pi yet. What takes the space, measured with `du` and `dpkg-query` in the image:
+
+- **The official ROS image, 2.4 GB:** besides ROS, it has the tools to build ROS packages, such as the C++ compiler, CMake and Boost's headers. 1.2 GB of it is a Fortran compiler, flang, with the compiler libraries it's built on (LLVM). It comes in through Boost: ROS's `pluginlib` depends on all of Boost. That includes Boost.MPI, for programs that run on several computers at once, which needs OpenMPI, and OpenMPI's development package needs a Fortran compiler.
+- **The robot's part, 0.7 GB:** almost all of it comes with RViz, which the robot models declare ([Limitations](#limitations-and-planned-work)): graphics drivers (Mesa), the window toolkit Qt and the 3D engine OGRE. The built workspace itself is about 70 MB.
 
 Docker builds the image on the Raspberry Pi with the first `docker compose up -d --build`. The container runs as the user `ros` with UID 1000, not as root.
 
