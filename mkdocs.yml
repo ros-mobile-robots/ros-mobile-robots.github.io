@@ -63,10 +63,10 @@ extra:
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   diffbot_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7190c9a902d2205133967d32db5ce3548f24f0a8
   diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8
-  # The diffbot commit that the code excerpts and file links on Robot Container show. Update both
+  # The diffbot commit that the code excerpts and file links on the Robot Container pages show. Update both
   # when that code changes, and check the excerpts' line ranges against the new commit
-  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7c60261b85c91d341e97c774b25bd425158bba5a
-  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7c60261b85c91d341e97c774b25bd425158bba5a
+  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/91da63ba7f657887f77f83919f470b3a7ec79c53
+  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/91da63ba7f657887f77f83919f470b3a7ec79c53
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
@@ -183,7 +183,12 @@ nav:
       - Raspberry Pi Setup: processing_units/rpi-setup.md
       - Jetson Nano Setup: processing_units/jetson-nano-setup.md
       - ROS Setup: processing_units/ros-setup.md
-      - Robot Container: processing_units/robot-container.md
+      - Robot Container:
+        - processing_units/robot-container/index.md
+        - Set Up the Raspberry Pi: processing_units/robot-container/setup.md
+        - Start, Check and Stop: processing_units/robot-container/usage.md
+        - Troubleshooting: processing_units/robot-container/troubleshooting.md
+        - Image and Tests: processing_units/robot-container/image.md
       - ROS Network Setup: processing_units/ros-network-setup.md
       - Microcontroller: processing_units/teensy-mcu.md
       - Hardware Interfaces: processing_units/hardware-interfaces.md
