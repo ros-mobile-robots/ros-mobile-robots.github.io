@@ -80,15 +80,27 @@ sudo apt update && sudo apt full-upgrade
 sudo reboot
 ```
 
-- **`cloud-init status --wait`:** [cloud-init](https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status) is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi ([step 3](#3-a-fixed-ip-address)), so it may still be installing packages when you log in. The command returns when cloud-init is done.
+- **`cloud-init status --wait`:** [cloud-init](https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status) is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi ([step 3](#3-fixed-ip-addresses)), so it may still be installing packages when you log in. The command returns when cloud-init is done.
 - **`sudo apt update && sudo apt full-upgrade`:** the system on the SD card is as old as the image. This installs all updates published since, the Linux kernel included. Ubuntu installs security updates automatically ([automatic updates](https://ubuntu.com/server/docs/how-to/software/automatic-updates/)), the others need this command from time to time.
 - **`sudo reboot`:** restarts the Raspberry Pi, so that it runs the new kernel. After the restart, log in again.
 
-### 3. A fixed IP address
+### 3. Fixed IP addresses
 
-`ROS_MASTER_URI` and `ROS_IP` in the [settings](#settings) hold IP addresses, so the robot's address and your PC's must not change. Give both a fixed address in your router: most routers call this a *DHCP reservation* or *static lease*.
+ROS on the robot and on your PC find each other by IP address. Two settings hold the addresses, on both machines:
 
-Imager also had Avahi installed in step 2, a service that announces the Raspberry Pi's name on the network as `remo.local`, with your hostname. So `ssh robot@remo.local` works too, from PCs that look up these names, as Ubuntu Desktop and macOS do. ROS uses the IP addresses anyway: the containers on the Raspberry Pi and the dev container on your PC can't look up `.local` names. That needs mDNS (multicast DNS), the protocol behind these names, and their images don't include it. ROS's own pages explain the two variables, [`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI) and [`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME), and how to check the network ([ROS/NetworkSetup](https://wiki.ros.org/ROS/NetworkSetup)).
+- **`ROS_MASTER_URI`:** where the ROS master runs. That's usually your PC, where you start `roscore`. Both machines get the same value: `http://`, the PC's address and `11311`, the master's port.
+- **`ROS_IP`:** the machine's own address. The Raspberry Pi gets its own, and the PC its own. ROS tells the other machine to reach this machine's nodes at this address.
+
+With this page's example addresses, `192.168.1.10` for the PC and `192.168.1.20` for the Raspberry Pi:
+
+| Where | `ROS_MASTER_URI` | `ROS_IP` |
+|:--|:--|:--|
+| Raspberry Pi, in the [settings](#settings) | `http://192.168.1.10:11311` | `192.168.1.20` |
+| Your PC, as in [ROS Network Setup](ros-network-setup.md) | `http://192.168.1.10:11311` | `192.168.1.10` |
+
+So neither address may change. Give both machines a fixed address in your router: most routers call this a *DHCP reservation* or *static lease*. ROS's own pages explain the two variables, [`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI) and [`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME), and how to check the network ([ROS/NetworkSetup](https://wiki.ros.org/ROS/NetworkSetup)).
+
+Imager also had Avahi installed in step 2, a service that announces the Raspberry Pi's name on the network as `remo.local`, with your hostname. So `ssh robot@remo.local` works too, from PCs that look up these names, as Ubuntu Desktop and macOS do. ROS uses the IP addresses anyway: the containers on the Raspberry Pi and the dev container on your PC can't look up `.local` names. That needs mDNS (multicast DNS), the protocol behind these names, and their images don't include it. Adding it would mean changing both images and running Avahi on your PC too, so this page uses IP addresses.
 
 ### 4. The clock
 
