@@ -137,8 +137,8 @@ individual components that get included. The main code is explained next:
 
 1. First, we define the global ROS node handle, which is referenced in other
    classes, such as BaseController, where it is needed to publish and
-   subscribe. Its `ros::NodeHandle::now()` gives the ROS time, which stamps
-   the messages; the update rates are kept with the Teensy's own clock, as the
+   subscribe. Its `ros::NodeHandle::now()` provides ROS time for time stamps;
+   the time between updates comes from the Teensy's own clock, as the
    [`loop()` section](#timing-with-the-teensys-clock) below explains:
 
     ```cpp
@@ -274,8 +274,9 @@ emergency stop for that long, while the motors keep their last command. With
 `millis()`, a jump of ROS time doesn't change the rates.
 
 The differences are computed with unsigned integers (`uint32_t`), so they stay
-right when the counters start again from zero: `millis()` after about 49 days,
-`micros()` after about 71 minutes.
+right when the counters start again from zero, `millis()` after about 49 days
+and `micros()` after about 71 minutes, as long as the two times are less than
+one such cycle apart: the loop runs many times per second.
 
 After the control loop update block, if an IMU is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
