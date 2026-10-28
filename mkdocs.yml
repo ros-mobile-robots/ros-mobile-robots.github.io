@@ -65,8 +65,8 @@ extra:
   diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8
   # The diffbot commit that the code excerpts and file links on the Robot Container pages show. Update both
   # when that code changes, and check the excerpts' line ranges against the new commit
-  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/91da63ba7f657887f77f83919f470b3a7ec79c53
-  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/91da63ba7f657887f77f83919f470b3a7ec79c53
+  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9
+  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/f5832c13a2fa5d966b8a4fd73bbee27a0fe9e6e9
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots

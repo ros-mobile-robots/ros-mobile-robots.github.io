@@ -23,7 +23,7 @@ On the Raspberry Pi, list the containers:
 docker compose ps -a
 ```
 
-On a robot without a lidar, it shows one container, the bringup, with the status `Up`:
+On a robot without a lidar, it shows one container, the bringup, with the status `Up`. This output, like the one below, was recorded without hardware:
 
 ```text
 NAME                      IMAGE                  COMMAND                  SERVICE   CREATED          STATUS          PORTS
@@ -38,7 +38,7 @@ Then follow the containers' output:
 docker compose logs -f
 ```
 
-Each line starts with the container it comes from. `Ctrl+C` stops following, and the robot keeps running. The bringup's output starts like this, shortened at the `...`:
+Each line starts with the container it comes from. `Ctrl+C` stops following, and the robot keeps running. The bringup's output starts like this, shortened at the `...`. It was recorded with the robot image without hardware, with this page's example addresses:
 
 ```text
 bringup-1  | started roslaunch server http://192.168.1.20:43309/
@@ -69,7 +69,7 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 
 With the Teensy, rosserial then prints *Requesting topics...*, and a line *Setup publisher on …* or *Setup subscriber on …* for each topic of the firmware. The controller spawner ends with *Started controllers: joint_state_controller, mobile_base_controller*.
 
-The output above comes from the robot image without hardware, with this page's example addresses. The Teensy's lines will be added after the test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)).
+The Teensy's lines will be added after the test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)).
 
 Then check on your PC, in the dev container, that the robot's topics have data. A topic that's listed but has no messages isn't enough:
 

@@ -326,23 +326,23 @@ stat -Lc %g /dev/teensy
 
 ### How `compose.yaml` uses the settings
 
-[`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml) describes two services, `bringup` and `lidar`. A service is a container that Compose starts, with its image, devices and settings. What both containers share is written once, in the block `x-robot`, and each service takes it over with `<<: *robot` (lines 17–46):
+[`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml) describes two services, `bringup` and `lidar`. A service is a container that Compose starts, with its image, devices and settings. What both containers share is written once, in the block `x-robot`, and each service takes it over with `<<: *robot` (lines 17–42):
 
 ```yaml title="compose.yaml" linenums="17"
---8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:17:46"
+--8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:17:42"
 ```
 
 - **`network_mode: host`** (line 21): the containers use the Raspberry Pi's network directly, so their ROS nodes are reachable at its IP address, like native ones. ROS 1 needs this: besides the master's port 11311, every node opens its own random port, and the other nodes connect to it directly ([ROS Network Setup](../ros-network-setup.md)).
 - **`group_add`** (lines 24–25): the group with the number from `DIALOUT_GID`.
-- **`environment`** (lines 26–33): the environment variables inside the containers. `ROS_MASTER_URI`, `ROS_IP` and `ROS_HOSTNAME` are listed without a value: Compose takes their values from `.env`, or from the shell, when it creates the containers. A variable that's set in neither isn't set in the containers either ([`environment`](https://docs.docker.com/reference/compose-file/services/#environment)). The two other lines make Python and ROS write each line of output at once. Without a terminal, they would collect it first, and `docker compose logs` would show it late.
-- **`volumes`** (lines 36–41): mounts the logs folder as the containers' `~/.ros`, where ROS writes its logs. Compose doesn't create a missing folder: Docker would create it for root, and the user `ros` couldn't write into it.
-- **`logging`** (lines 45–46): Docker's [local log format](https://docs.docker.com/engine/logging/drivers/local/). By default, it keeps at most five files of 20 MB per container and deletes the oldest, so the containers' output can't fill the SD card. Docker's default format, json-file, keeps everything.
+- **`environment`** (lines 26–29): the environment variables inside the containers. `ROS_MASTER_URI`, `ROS_IP` and `ROS_HOSTNAME` are listed without a value: Compose takes their values from `.env`, or from the shell, when it creates the containers. A variable that's set in neither isn't set in the containers either ([`environment`](https://docs.docker.com/reference/compose-file/services/#environment)).
+- **`volumes`** (lines 32–37): mounts the logs folder as the containers' `~/.ros`, where ROS writes its logs. Compose doesn't create a missing folder: Docker would create it for root, and the user `ros` couldn't write into it.
+- **`logging`** (lines 41–42): Docker's [local log format](https://docs.docker.com/engine/logging/drivers/local/). By default, it keeps at most five files of 20 MB per container and deletes the oldest, so the containers' output can't fill the SD card. Docker's default format, json-file, keeps everything unless rotation is configured.
 
-Each service then adds what's its own (lines 48–68):
+Each service then adds what's its own (lines 44–64):
 
-```yaml title="compose.yaml" linenums="48"
---8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:48:68"
+```yaml title="compose.yaml" linenums="44"
+--8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:44:64"
 ```
 
-- **`bringup`** (lines 51–58): `build` tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in `.docker/robot`. Its `context` is the whole repository, the folder whose files the Dockerfile can copy into the image. `devices` passes the Teensy into the container as `/dev/ttyACM0`, where the bringup's launch file expects it. `command` starts `bringup.launch` with the robot model from `ROBOT_MODEL`.
-- **`lidar`** (lines 62–68): runs only with the profile `lidar`, which `COMPOSE_PROFILES` selects. Compose starts it after the bringup (`depends_on`). It gets the lidar as `/dev/ttyUSB0` and starts `lidar.launch`, the lidar driver alone.
+- **`bringup`** (lines 47–54): `build` tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in `.docker/robot`. Its `context` is the whole repository, the folder whose files the Dockerfile can copy into the image. `devices` passes the Teensy into the container as `/dev/ttyACM0`, where the bringup's launch file expects it. `command` starts `bringup.launch` with the robot model from `ROBOT_MODEL`.
+- **`lidar`** (lines 58–64): runs only with the profile `lidar`, which `COMPOSE_PROFILES` selects. Compose starts it after the bringup (`depends_on`). It gets the lidar as `/dev/ttyUSB0` and starts `lidar.launch`, the lidar driver alone.

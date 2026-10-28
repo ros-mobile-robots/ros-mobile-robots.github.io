@@ -28,7 +28,7 @@ With this line, rosdep would recognize `diffbot_base` as a package of the worksp
 
 catkin does follow these lines: `catkin build diffbot_bringup` would first build the workspace packages that `diffbot_bringup` declares. But today `diffbot_bringup` declares only `teleop_twist_keyboard`, not the packages its launch files start. Adding them is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
 
-Docker builds the image on the Raspberry Pi with the first `docker compose up -d --build` ([Start](usage.md#start)). The container runs as the user `ros` with UID 1000, not as root.
+Docker builds the image on the Raspberry Pi with the first `docker compose up -d --build` ([Start](usage.md#start)). The container runs as the user `ros` with UID 1000, not as root. The image also sets `PYTHONUNBUFFERED` and `ROSCONSOLE_STDOUT_LINE_BUFFERED`, so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and `docker compose logs` would show it late.
 
 ## What takes the space
 
@@ -41,8 +41,8 @@ Unpacked, the image takes about 3.2 GB on an amd64 PC, and about 0.7 GB compress
 
 The workflow [`robot_container.yml`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml) runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (`ubuntu-24.04-arm`, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes.
 
-```yaml title="robot_container.yml" linenums="32"
---8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:32:38"
+```yaml title="robot_container.yml" linenums="37"
+--8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:37:43"
 ```
 
 Each run checks that `env.example` gives a valid configuration, builds the image, and runs [`smoke_test.sh`]({{ robot_container_src_url }}/.docker/robot/smoke_test.sh) in it twice: directly in the image, and through `compose.yaml` with its mounts and groups. The test checks, without hardware, that:
