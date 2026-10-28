@@ -201,10 +201,6 @@
          <lastmod>2026-10-28</lastmod>
     </url>
     <url>
-         <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/robot-container/</loc>
-         <lastmod>2026-10-28</lastmod>
-    </url>
-    <url>
          <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/ros-network-setup/</loc>
          <lastmod>2026-10-28</lastmod>
     </url>
@@ -218,6 +214,26 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/teensy-mcu/</loc>
+         <lastmod>2026-10-28</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/robot-container/</loc>
+         <lastmod>2026-10-28</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/robot-container/image/</loc>
+         <lastmod>2026-10-28</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/robot-container/setup/</loc>
+         <lastmod>2026-10-28</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/robot-container/troubleshooting/</loc>
+         <lastmod>2026-10-28</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/pr-preview/pr-62/processing_units/robot-container/usage/</loc>
          <lastmod>2026-10-28</lastmod>
     </url>
     <url>
