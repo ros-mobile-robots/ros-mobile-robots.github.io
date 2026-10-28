@@ -109,18 +109,22 @@ introduced next:
     ```cpp
     diffbot::JointState diffbot::Encoder::jointState() {
         long encoder_ticks = encoder.read();
-        ros::Time current_time = nh_.now();
-        ros::Duration dt = current_time - prev_update_time_;
-        double dts = dt.toSec();
+        uint32_t current_us = micros();
+        double dts = (current_us - prev_update_us_) * 1e-6;
         double delta_ticks = encoder_ticks - prev_encoder_ticks_;
         double delta_angle = ticksToAngle(delta_ticks);
         joint_state_.angular_position_ += delta_angle;
         joint_state_.angular_velocity_ = delta_angle / dts;
-        prev_update_time_ = current_time;
+        prev_update_us_ = current_us;
         prev_encoder_ticks_ = encoder_ticks;
         return joint_state_;
     }
     ```
+
+    The time between two calls comes from the Teensy's own clock,
+    [`micros()`](https://docs.arduino.cc/language-reference/en/functions/time/micros/),
+    in microseconds since the board started, for the reason explained in the
+    [`loop()` section](#timing-with-the-teensys-clock) below.
 
 - `pid`: Defines a PID controller to compute PWM signals based on the velocity
   error between measured and commanded angular wheel joint velocities. For more
@@ -132,9 +136,10 @@ few global variables to keep the code organized and make it possible to test the
 individual components that get included. The main code is explained next:
 
 1. First, we define the global ROS node handle, which is referenced in other
-   classes, such as BaseController, where it is needed to publish, subscribe, or
-   get the current time, using `ros::NodeHandle::now()`, to keep track of the
-   update rates:
+   classes, such as BaseController, where it is needed to publish and
+   subscribe. Its `ros::NodeHandle::now()` gives the ROS time, which stamps
+   the messages; the update rates are kept with the Teensy's own clock, as the
+   [`loop()` section](#timing-with-the-teensys-clock) below explains:
 
     ```cpp
     ros::NodeHandle nh;
@@ -217,16 +222,17 @@ After the `setup()` function follows the `loop()` function, to read from sensors
 and write to actuators, which happens at specific rates, defined in the
 `diffbot_base_config.h` header. The bookkeeping of when these read/write
 functionalities occurred is kept in the `BaseController` class inside its
-`lastUpdateRates` struct. Reading from the encoders and writing motor commands
-happens in the same code block as the control rate:
+`LastUpdateTime` struct, which `lastUpdateTime()` returns. Reading from the
+encoders and writing motor commands happens in the same code block as the
+control rate:
 
 ```cpp
 void loop() {
-ros::Duration command_dt = nh.now() - base_controller.lastUpdateTime().control;
-if (command_dt.toSec() >= ros::Duration(1.0 / base_controller.publishRate().control_, 0).toSec()) {
+uint32_t now_ms = millis();
+if (now_ms - base_controller.lastUpdateTime().control >= 1000.0 / base_controller.publishRate().control_) {
   base_controller.read();
   base_controller.write();
-  base_controller.lastUpdateTime().control = nh.now();
+  base_controller.lastUpdateTime().control = now_ms;
 }
 ```
 
@@ -245,6 +251,31 @@ The following steps in this code block happen continuously at the control rate:
    with the two motor controllers.
 3. To keep calling this method at the desired control rate, the
    `lastUpdateTime().control` variable is updated with the current time.
+
+The next block stops the motors when no wheel command has arrived for
+`E_STOP_COMMAND_RECEIVED_DURATION` seconds (5 s), for example because the
+connection to the robot's computer is lost: `BaseController::eStop()` sets the
+commanded wheel velocities to zero, and the next control update drives the
+motors with them. `commandCallback()` records when the last command arrived, in
+`lastUpdateTime().command_received`.
+
+### Timing with the Teensy's clock
+
+The times in `LastUpdateTime` and in the encoder come from the Teensy's own
+clock:
+[`millis()`](https://docs.arduino.cc/language-reference/en/functions/time/millis/)
+counts the milliseconds since the board started, `micros()` the microseconds.
+They only count up. ROS time, from `nh.now()`, is the robot computer's clock:
+rosserial synchronizes the Teensy with it every few seconds, and it can jump,
+for example when the computer corrects its clock, or when the Teensy connects
+to a computer whose clock is earlier. A time difference in ROS time would then
+be negative until the clock caught up again: no control updates and no
+emergency stop for that long, while the motors keep their last command. With
+`millis()`, a jump of ROS time doesn't change the rates.
+
+The differences are computed with unsigned integers (`uint32_t`), so they stay
+right when the counters start again from zero: `millis()` after about 49 days,
+`micros()` after about 71 minutes.
 
 After the control loop update block, if an IMU is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
