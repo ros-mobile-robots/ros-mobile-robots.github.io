@@ -80,11 +80,15 @@ sudo apt update && sudo apt full-upgrade
 sudo reboot
 ```
 
-[cloud-init](https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status) is the tool that applies Imager's settings, and `status --wait` returns when it's done. Ubuntu installs security updates automatically ([automatic updates](https://ubuntu.com/server/docs/how-to/software/automatic-updates/)). Other updates need `sudo apt update && sudo apt full-upgrade` from time to time. After the restart, log in again.
+- **`cloud-init status --wait`:** [cloud-init](https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status) is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi ([step 3](#3-a-fixed-ip-address)), so it may still be installing packages when you log in. The command returns when cloud-init is done.
+- **`sudo apt update && sudo apt full-upgrade`:** the system on the SD card is as old as the image. This installs all updates published since, the Linux kernel included. Ubuntu installs security updates automatically ([automatic updates](https://ubuntu.com/server/docs/how-to/software/automatic-updates/)), the others need this command from time to time.
+- **`sudo reboot`:** restarts the Raspberry Pi, so that it runs the new kernel. After the restart, log in again.
 
 ### 3. A fixed IP address
 
-`ROS_MASTER_URI` and `ROS_IP` in the [settings](#settings) hold IP addresses, so the robot's address and your PC's must not change. Give both a fixed address in your router: most routers call this a *DHCP reservation* or *static lease*. Names like `remo.local` don't work out of the box, because Ubuntu Server doesn't include the service that announces them (Avahi).
+`ROS_MASTER_URI` and `ROS_IP` in the [settings](#settings) hold IP addresses, so the robot's address and your PC's must not change. Give both a fixed address in your router: most routers call this a *DHCP reservation* or *static lease*.
+
+Imager also had Avahi installed in step 2, a service that announces the Raspberry Pi's name on the network as `remo.local`, with your hostname. So `ssh robot@remo.local` works too, from PCs that look up these names, as Ubuntu Desktop and macOS do. ROS uses the IP addresses anyway: the containers on the Raspberry Pi and the dev container on your PC can't look up `.local` names, because their images don't include the lookup (mDNS). ROS's own pages explain the two variables, [`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI) and [`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME), and how to check the network ([ROS/NetworkSetup](https://wiki.ros.org/ROS/NetworkSetup)).
 
 ### 4. The clock
 
@@ -210,8 +214,8 @@ ROS_IP=192.168.1.20 # (4)!
 
 1. The robot this Raspberry Pi is in: `remo` or `diffbot`. It selects the robot model and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.
 2. Starts the lidar driver too. Leave this line out on a robot without a lidar. To switch the lidar off later, run `docker compose down` while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.
-3. The PC that runs `roscore`: `http://` and the PC's IP address, and `11311`, the ROS master's port.
-4. The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address.
+3. The PC that runs `roscore`: `http://` and the PC's IP address, and `11311`, the ROS master's port ([`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI)).
+4. The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address ([`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME)).
 
 On your PC, set `ROS_MASTER_URI` to the same value, and `ROS_IP` to the PC's own address, as described in [ROS Network Setup](ros-network-setup.md). Without `ROS_MASTER_URI`, the bringup starts its own ROS master on the robot, which is enough to check the robot alone.
 
@@ -357,23 +361,40 @@ To look at the robot's log files on the PC, copy them, on the PC:
 scp -r robot@192.168.1.20:robot-data/log/latest robot-logs
 ```
 
+To see the robot's data over time, for example the measured wheel speeds next to the commands, use [PlotJuggler](https://plotjuggler.io/) on your PC, in the dev container. It plots topics live, or from a recorded bag. A bag is a file with the messages of the topics you chose. With `/rosout` in the bag, PlotJuggler's *ROS /rosout Visualization* also lists the nodes' messages, up to the moment you point to in the plot. Install it, record while you drive, and stop the recording with `Ctrl+C`:
+
+```console
+sudo apt update && sudo apt install ros-noetic-plotjuggler-ros
+rosbag record -O drive.bag /rosout /diffbot/measured_joint_states /diffbot/mobile_base_controller/cmd_vel /diffbot/mobile_base_controller/odom
+rosrun plotjuggler plotjuggler
+```
+
+Then open `drive.bag` in PlotJuggler. The install lasts until the dev container is rebuilt.
+
 ## How the image is built
 
 The image is defined in the diffbot repository's [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot) folder. Its [`Dockerfile`]({{ robot_container_src_url }}/.docker/robot/Dockerfile) starts from the official ROS image [`ros:noetic-ros-base`](https://hub.docker.com/_/ros), which exists for arm64 and amd64, and adds the robot's packages in three steps, with the same tools as a native workspace:
 
 1. **vcstool** fetches the repositories listed in [`remo_robot.repos`]({{ robot_container_src_url }}/remo_robot.repos): Remo's model `remo_description` and the lidar driver `rplidar_ros`.
 2. **rosdep** installs the Ubuntu and ROS packages that the packages' `package.xml` files declare as dependencies.
-3. **catkin** builds the packages, in `/home/ros/catkin_ws`.
+3. **catkin** builds the packages, in the workspace `/home/ros/catkin_ws`.
 
-Which packages are in the image is a list in the Dockerfile ([lines 42–45]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L42-L45)): the packages that the bringup and the lidar need, for both robots.
+A [catkin workspace](https://wiki.ros.org/catkin/workspaces) is a folder whose `src` folder holds the source code of ROS packages, which catkin builds together. The image has one, with the diffbot repository and the two fetched repositories in `src`. The dev container on your PC has its own.
+
+Which packages are built is a list in the Dockerfile ([lines 42–45]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L42-L45)): the packages that the bringup and the lidar need, for both robots.
 
 ```dockerfile title="Dockerfile" linenums="42"
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/Dockerfile:42:45"
 ```
 
-The list is needed because rosdep reads the dependencies of the packages it's given, but doesn't follow them from one package of the workspace to the next. And `diffbot_bringup` doesn't declare all the packages that its launch files start yet ([diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131)). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
+The list is needed because rosdep reads only the `package.xml` files it's given. If `diffbot_bringup` named `diffbot_base` as a dependency, rosdep would recognize `diffbot_base` as a package of the workspace, but wouldn't read its `package.xml` to install what `diffbot_base` needs, such as rosserial. We checked this with rosdep 0.25.1 in the ROS image. So rosdep gets the `package.xml` of each package to build. catkin does follow these dependencies: `catkin build diffbot_bringup` would build the workspace packages that `diffbot_bringup` declares first. But its `package.xml` doesn't declare the packages its launch files start yet, only `teleop_twist_keyboard`. Adding them there, as `<exec_depend>` lines, is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
 
-The image is about 3.9 GB on an amd64 PC, of which 2.9 GB is the official ROS image, and about 0.7 GB compressed. It hasn't been measured on the Raspberry Pi yet. Docker builds it on the Raspberry Pi with the first `docker compose up -d --build`. The container runs as the user `ros` with UID 1000, not as root.
+Unpacked, the image takes about 3.2 GB on an amd64 PC, and about 0.7 GB compressed. `docker images` shows about 3.9 GB, because Docker keeps both. It hasn't been measured on the Raspberry Pi yet. What takes the space, measured with `du` and `dpkg-query` in the image:
+
+- **The official ROS image, 2.4 GB:** besides ROS, it has the tools to build ROS packages, such as the C++ compiler, CMake and Boost's headers. 1.2 GB of it is a Fortran compiler (flang) with its LLVM libraries: ROS's `pluginlib` depends on all of Boost, whose MPI library needs OpenMPI, and OpenMPI's development package needs a Fortran compiler.
+- **The robot's part, 0.7 GB:** almost all of it comes with RViz, which the robot models declare ([Limitations](#limitations-and-planned-work)): graphics drivers (Mesa), Qt and OGRE. The built workspace itself is about 70 MB.
+
+Docker builds the image on the Raspberry Pi with the first `docker compose up -d --build`. The container runs as the user `ros` with UID 1000, not as root.
 
 ## How it's tested
 
@@ -400,4 +421,4 @@ The result is the workflow's check on the pull request, passed or failed. The im
 - **The camera.** The Raspberry Pi camera driver, `raspicam_node`, needs the Raspberry Pi's legacy camera stack, which current operating systems no longer have. A driver for libcamera is planned in [diffbot#111](https://github.com/ros-mobile-robots/diffbot/issues/111).
 - **I2C and GPIO**, for sensors on the Raspberry Pi's pins, aren't passed into the containers yet.
 - **Starting at boot.** For now, start the robot with the command in [Start, check and stop](#start-check-and-stop) after logging in. An automatic start needs the Teensy, the network, the synchronized clock and the PC's ROS master when the Raspberry Pi boots. Docker's restart policy alone can't handle a missing device, so this needs its own tests.
-- **A smaller image.** `diffbot_description` declares RViz as a dependency, because it has launch files that open RViz. So the image contains RViz with its graphics libraries, which the robot never shows. Moving the visualization launch files into a package of their own would leave them out.
+- **A smaller image.** `diffbot_description` and `remo_description` declare RViz as a dependency, because they have launch files that open RViz. So the image contains RViz with its graphics libraries, about 0.7 GB, which the robot never shows. Moving the visualization launch files into packages of their own would leave them out.
