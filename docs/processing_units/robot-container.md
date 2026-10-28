@@ -91,12 +91,19 @@ ROS on the robot and on your PC find each other by IP address. Two settings hold
 - **`ROS_MASTER_URI`:** where the ROS master runs. That's usually your PC, where you start `roscore`. Both machines get the same value: `http://`, the PC's address and `11311`, the master's port.
 - **`ROS_IP`:** the machine's own address. The Raspberry Pi gets its own, and the PC its own. ROS tells the other machine to reach this machine's nodes at this address.
 
-With this page's example addresses, `192.168.1.10` for the PC and `192.168.1.20` for the Raspberry Pi:
+With this page's example addresses, `192.168.1.10` for the PC and `192.168.1.20` for the Raspberry Pi, the Raspberry Pi gets in its [settings](#settings):
 
-| Where | `ROS_MASTER_URI` | `ROS_IP` |
-|:--|:--|:--|
-| Raspberry Pi, in the [settings](#settings) | `http://192.168.1.10:11311` | `192.168.1.20` |
-| Your PC, as in [ROS Network Setup](ros-network-setup.md) | `http://192.168.1.10:11311` | `192.168.1.10` |
+```bash title="Raspberry Pi: .docker/robot/.env"
+ROS_MASTER_URI=http://192.168.1.10:11311
+ROS_IP=192.168.1.20
+```
+
+and your PC, as in [ROS Network Setup](ros-network-setup.md):
+
+```bash title="PC: in the dev container"
+export ROS_MASTER_URI=http://192.168.1.10:11311
+export ROS_IP=192.168.1.10
+```
 
 So neither address may change. Give both machines a fixed address in your router: most routers call this a *DHCP reservation* or *static lease*. ROS's own pages explain the two variables, [`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI) and [`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME), and how to check the network ([ROS/NetworkSetup](https://wiki.ros.org/ROS/NetworkSetup)).
 
