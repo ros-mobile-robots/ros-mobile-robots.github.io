@@ -61,6 +61,9 @@ extra:
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   diffbot_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7190c9a902d2205133967d32db5ce3548f24f0a8
   diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8
+  # The diffbot commit of the geometry test (diffbot #141), for the geometry.yaml excerpts on
+  # Testing and CI. Move it to #141's merge commit before this page's pull request merges
+  geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/bb36b5c372486c7c88e525f0e0f0a21b42b75c45
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
