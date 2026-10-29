@@ -40,23 +40,13 @@ Only `diffbot_gazebo` registers catkin tests so far: the simulation test and the
 
 #### Geometry test
 
-Each robot's wheel radius and wheel separation are written down twice, in its URDF and in the controller's `geometry.yaml`. [`test_geometry_consistency.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_geometry_consistency.py) checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (`roslaunch --dump-params`), and compares the drive wheels' collision radius and the distance between their joints in the URDF with the controller's values. For Remo, these are the values it compares:
+Each robot's wheel radius and wheel separation are written down twice, in its URDF and in the controller's `geometry.yaml`. [`test_geometry_consistency.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_geometry_consistency.py) checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (`roslaunch --dump-params`), and compares the drive wheels' collision radius and the distance between their joints in the URDF with the controller's values. For Remo, these are the values it compares. The two values in each row must be the same:
 
-```mermaid
-graph LR
-  subgraph urdf [URDF]
-    RL["front_left_wheel<br>radius 0.033 m"]
-    RR["front_right_wheel<br>radius 0.033 m"]
-    J["wheel joints<br>0.144 m apart"]
-  end
-  subgraph yaml [geometry.yaml]
-    WR["wheel_radius<br>0.033"]
-    WS["wheel_separation<br>0.144"]
-  end
-  RL ---|same| WR
-  RR ---|same| WR
-  J ---|same| WS
-```
+| Remo's URDF | | Remo's `geometry.yaml` |
+|:--|:-:|:--|
+| `front_left_wheel`<br>radius 0.033 m | ⟷ | `wheel_radius`<br>0.033 |
+| `front_right_wheel`<br>radius 0.033 m | ⟷ | `wheel_radius`<br>0.033 |
+| Wheel joints<br>0.144 m apart | ⟷ | `wheel_separation`<br>0.144 |
 
 The radii are the wheels' collision spheres. The separation is the straight-line distance between the two wheel joints' positions in the URDF's root frame, `base_footprint`: `front_left_wheel_joint` is at y = 0.072 m and `front_right_wheel_joint` at y = −0.072 m, with the same x and z. xacro computes these values from the description package's YAML files, for Remo `front_wheel.yaml` and `base.yaml` in remo_description. A difference of up to 0.1 mm passes.
 
