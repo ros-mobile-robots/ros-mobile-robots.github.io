@@ -33,15 +33,17 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 ### PR description
 
-diffbot's [pull request template]({{ diffbot_repo_url }}/.github/pull_request_template.md) has a section `## Documentation` for the docs pull request or the page on this site that explains the change. A template only fills in the text when a pull request is opened, and nothing kept that section from staying empty. The PR description workflow reads the description and fails when the section is missing, or when it has none of these:
+diffbot's [pull request template]({{ diffbot_repo_url }}/.github/pull_request_template.md) has a placeholder under `## Documentation` for the docs pull request or the page on this site that explains the change. The PR description workflow checks that it was filled in with one of these:
 
-- a docs pull request, as `ros-mobile-robots/ros-mobile-robots.github.io#N` or its URL
-- a link to a page on ros-mobile-robots.com
-- `None` at the start of a line, when nothing user-visible changes
+- a docs pull request, as `ros-mobile-robots/ros-mobile-robots.github.io#N` or its URL on GitHub
+- a link to a page on ros-mobile-robots.com that already explains the change
+- `None` or `None needed`, alone or with a reason after a dash or colon, when nothing user-visible changes
 
-The template's comments don't count. The workflow runs when a pull request is opened, edited or gets new commits, so fixing the description makes the check pass again, without a new commit.
+The template's comments don't count. The check looks at the format only. Whether the linked page really explains the change is for the review.
 
-The description reaches the workflow's Python script as an environment variable. Anyone who opens a pull request writes its description, and a {% raw %}`${{ }}`{% endraw %} expression inside the script would put that text into the shell command. GitHub recommends the environment variable for this ([script injection](https://docs.github.com/en/actions/reference/security/secure-use#good-practices-for-mitigating-script-injection-attacks)).
+The workflow runs when a pull request is opened, reopened or edited, and when it gets new commits. So after fixing the description, the new run shows the result, without a new commit. "Re-run jobs" on the old, failed run doesn't help, because a re-run keeps the old event with the old description.
+
+The description reaches the workflow's Python script as an environment variable. Anyone who opens a pull request writes its description, and interpolating it into the `run:` script with {% raw %}`${{ }}`{% endraw %} would put that text into the shell command. GitHub recommends the environment variable for this ([script injection](https://docs.github.com/en/actions/reference/security/secure-use#good-practices-for-mitigating-script-injection-attacks)). The script also never prints the description, because the runner treats some text in its log as commands.
 
 ### Tests
 
