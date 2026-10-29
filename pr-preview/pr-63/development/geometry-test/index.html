@@ -4635,7 +4635,7 @@
 
 
 <h1 id="geometry-test">Geometry Test</h1>
-<p>Each robot's wheel radius and wheel separation are written down twice: in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, the robot's model, and in the controller's <code>geometry.yaml</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a> checks that the two agree, for DiffBot and Remo, without starting Gazebo or the robot. It also checks the wheel joints that the controller drives by name. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs it on every pull request, with the other <a href="../ci/#tests">tests</a>.</p>
+<p>Each robot's wheel radius and wheel separation are written down twice: in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, the robot's model, and in the controller's <code>geometry.yaml</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a> checks that the two agree, for DiffBot and Remo, without starting Gazebo or the robot. It also checks the wheel joints that the controller drives by name. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs it on every pull request, with the other <a href="../ci/#tests">tests</a>.</p>
 <p>The <a href="../simulation-test/">simulation test</a> drives the robots in Gazebo and would notice large differences only: a wheel separation that's off by less than about 7 % can pass its turn. Neither test can show that the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> matches the real wheels. That needs a measurement on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/138">diffbot#138</a> for Remo, <a href="https://github.com/ros-mobile-robots/diffbot/issues/161">diffbot#161</a> for DiffBot).</p>
 <h2 id="what-it-compares">What it compares</h2>
 <p>For Remo, these are the values. The two values in each row must be the same:</p>
@@ -4655,7 +4655,7 @@
 <li><strong>The separation</strong> is the straight-line distance between the two wheel joints, the points the wheels turn about. <code>front_left_wheel_joint</code> is at y = 0.072 m and <code>front_right_wheel_joint</code> at y = −0.072 m, with the same x and z.</li>
 <li><strong>The tolerance</strong> is 0.1 mm: a larger difference fails.</li>
 </ul>
-<p>xacro computes the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s values from the YAML files of the robot's description package, for Remo <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/front_wheel.yaml"><code>front_wheel.yaml</code></a> and <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/base.yaml"><code>base.yaml</code></a> in <a href="https://github.com/ros-mobile-robots/remo_description/tree/2.0.0">remo_description</a>, for DiffBot the same files in <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_description/config/diffbot"><code>diffbot_description/config/diffbot</code></a>. The test compares these nominal values only. A calibration of the real robot belongs in diff_drive_controller's multipliers, such as <a href="http://wiki.ros.org/diff_drive_controller#Parameters"><code>wheel_separation_multiplier</code></a>, "used to account for a difference between the robot model and a real robot". The test leaves them alone.</p>
+<p>xacro computes the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s values from the YAML files of the robot's description package, for Remo <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/front_wheel.yaml"><code>front_wheel.yaml</code></a> and <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/base.yaml"><code>base.yaml</code></a> in <a href="https://github.com/ros-mobile-robots/remo_description/tree/2.0.0">remo_description</a>, for DiffBot the same files in <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_description/config/diffbot"><code>diffbot_description/config/diffbot</code></a>. The test compares these nominal values only. A calibration of the real robot belongs in diff_drive_controller's multipliers, such as <a href="http://wiki.ros.org/diff_drive_controller#Parameters"><code>wheel_separation_multiplier</code></a>, "used to account for a difference between the robot model and a real robot". The test leaves them alone.</p>
 <h2 id="run-it">Run it</h2>
 <p>In the <a href="../dev-container/">dev container</a>, in the built workspace:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4746,10 +4746,10 @@
 <span class="go">======================================================================</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>In the message, 0.1440 m is the distance between the wheel joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, and 0.1450 m is <code>wheel_separation</code> in <code>geometry.yaml</code>. Don't copy one into the other: measure the robot to find out which one is right (<a href="../../diffbot_gazebo/#how-to-tune">How to tune</a>).</p>
-<p><strong>In <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></strong>, <code>catkin build --catkin-make-args run_tests</code> runs all of the workspace's tests, the simulation tests with Gazebo included, and <code>catkin_test_results build</code> reports them. <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/CMakeLists.txt#L221-L224">diffbot_gazebo's CMakeLists.txt</a> registers this file with catkin's <a href="https://docs.ros.org/en/noetic/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-add-nosetests"><code>catkin_add_nosetests</code></a>, which adds Python tests that <a href="https://nose.readthedocs.io/">nose</a>, a Python test runner, runs. nose runs the file's unittest classes and writes the results where <code>catkin_test_results</code> counts them.</p>
+<p><strong>In <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></strong>, <code>catkin build --catkin-make-args run_tests</code> runs all of the workspace's tests, the simulation tests with Gazebo included, and <code>catkin_test_results build</code> reports them. <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/CMakeLists.txt#L221-L224">diffbot_gazebo's CMakeLists.txt</a> registers this file with catkin's <a href="https://docs.ros.org/en/noetic/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-add-nosetests"><code>catkin_add_nosetests</code></a>, which adds Python tests that <a href="https://nose.readthedocs.io/">nose</a>, a Python test runner, runs. nose runs the file's unittest classes and writes the results where <code>catkin_test_results</code> counts them.</p>
 <h2 id="how-it-works">How it works</h2>
 <p>The code excerpts show the files at the diffbot commit that this page pins, with their line numbers. The link above each block opens the same lines on GitHub.</p>
-<p>The file starts with the names it uses throughout, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L46-L62">lines 46–62</a>:</p>
+<p>The file starts with the names it uses throughout, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L46-L62">lines 46–62</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: names</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
@@ -4786,7 +4786,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>TOLERANCE</code> is 0.1 mm. <code>NAMESPACE</code> and <code>CONTROLLER</code> are the beginnings of the parameter names that roslaunch reports (step 1). <code>HARDWARE_JOINTS</code> and <code>ROBOT_DESCRIPTION</code> are the full names of the hardware interface's joint list and of the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. <code>VELOCITY_INTERFACES</code> are the two spellings of the velocity interface that Gazebo accepts (<a href="#a-velocity-interface-for-each-wheel">velocity interface</a>). <code>Params</code>, <code>Vector</code> and <code>Matrix</code> are short names for the types that the functions pass around.</p>
 <h3 id="1-the-launch-files-supply-the-values">1. The launch files supply the values</h3>
-<p><code>TestModels</code> checks the real robots' configuration, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L488-L507">lines 488–507</a>:</p>
+<p><code>TestModels</code> checks the real robots' configuration, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L488-L507">lines 488–507</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: TestModels</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">488</span>
 <span class="normal">489</span>
 <span class="normal">490</span>
@@ -4828,7 +4828,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dump_params</span><span class="p">(</span><span class="s1">'diffbot_base'</span><span class="p">,</span> <span class="s1">'diffbot.launch'</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">))</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>It checks each robot in <code>MODELS</code>, DiffBot and Remo. <code>test_simulation()</code> combines the parameters of the two launch files that start the simulation: <code>diffbot_view.launch</code> loads the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, and <code>diffbot_control.launch</code> loads the controller's configuration. <code>test_robot()</code> takes the parameters of <code>diffbot.launch</code>, which loads both on the real robot. <code>check()</code> fails when <code>mismatches()</code> reports a problem.</p>
-<p><code>dump_params()</code> gets the parameters, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L65-L86">lines 65–86</a>:</p>
+<p><code>dump_params()</code> gets the parameters, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L65-L86">lines 65–86</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: dump_params()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
@@ -5215,7 +5215,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </details>
 <h3 id="2-the-wheel-setup-and-the-checks">2. The wheel setup and the checks</h3>
-<p><code>wheel_setup()</code> reads what the checks need from <code>params</code> once, into a <code>WheelSetup</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L193-L240">lines 193–240</a>:</p>
+<p><code>wheel_setup()</code> reads what the checks need from <code>params</code> once, into a <code>WheelSetup</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L193-L240">lines 193–240</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: WheelSetup and wheel_setup()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
@@ -5313,7 +5313,7 @@
     <span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>ET.fromstring()</code> parses the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s XML from <code>ROBOT_DESCRIPTION</code>, and <code>robot</code> is its root element. The controller takes a name or a list of names for each side, and <code>wheel_joint_names()</code> turns both into a list. <code>hardware_joint_names</code> stays what the parameter holds, because a check reports it when it's wrong.</p>
-<p>Each check is a function of its own, named for what it checks. It takes the wheel setup and returns its problems as messages, an empty list when there's none. <code>mismatches()</code> runs them in the order of <code>CHECKS</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L321-L337">lines 321–337</a>:</p>
+<p>Each check is a function of its own, named for what it checks. It takes the wheel setup and returns its problems as messages, an empty list when there's none. <code>mismatches()</code> runs them in the order of <code>CHECKS</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L321-L337">lines 321–337</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: CHECKS and mismatches()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">321</span>
 <span class="normal">322</span>
 <span class="normal">323</span>
@@ -5351,12 +5351,12 @@
 <p>The next section explains the checks in this order.</p>
 <h3 id="3-the-checks">3. The checks</h3>
 <h4 id="the-controller-names-a-wheel-on-each-side">The controller names a wheel on each side</h4>
-<p>The controller finds its wheels by the names of their joints, in <code>diffbot_control.yaml</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_control/config/diffbot_control.yaml#L27-L28">lines 27–28</a>:</p>
+<p>The controller finds its wheels by the names of their joints, in <code>diffbot_control.yaml</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_control/config/diffbot_control.yaml#L27-L28">lines 27–28</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control.yaml: the controller's wheels</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
 <span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">left_wheel</span><span class="p">:</span><span class="w"> </span><span class="s">'front_left_wheel_joint'</span>
 <span class="nt">right_wheel</span><span class="p">:</span><span class="w"> </span><span class="s">'front_right_wheel_joint'</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>check_wheels_named()</code> reports a side without a name, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L243-L247">lines 243–247</a>:</p>
+<p><code>check_wheels_named()</code> reports a side without a name, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L243-L247">lines 243–247</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: check_wheels_named()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
@@ -5368,7 +5368,7 @@
             <span class="k">for</span> <span class="n">side</span><span class="p">,</span> <span class="n">joint_names</span> <span class="ow">in</span> <span class="n">sides</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">joint_names</span><span class="p">]</span>
 </code></pre></div></td></tr></tbody></table></div>
 <h4 id="the-wheel-joints-are-continuous-joints-in-the-urdf">The wheel joints are continuous joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr></h4>
-<p>A joint connects two links of the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. A wheel joint is where the wheel turns, and a <code>continuous</code> joint turns without limits, as a wheel does. In DiffBot's model, the wheel macro creates each wheel joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_description/urdf/include/common_macros.urdf.xacro#L89-L94">lines 89–94</a>. xacro replaces <code>${prefix}</code> with <code>front_left</code> or <code>front_right</code>, and the test reads the expanded <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>:</p>
+<p>A joint connects two links of the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. A wheel joint is where the wheel turns, and a <code>continuous</code> joint turns without limits, as a wheel does. In DiffBot's model, the wheel macro creates each wheel joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_description/urdf/include/common_macros.urdf.xacro#L89-L94">lines 89–94</a>. xacro replaces <code>${prefix}</code> with <code>front_left</code> or <code>front_right</code>, and the test reads the expanded <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_macros.urdf.xacro: the wheel joint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">89</span>
 <span class="normal">90</span>
 <span class="normal">91</span>
@@ -5381,7 +5381,7 @@
 <span class="w">  </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"${pos_x_joint} ${reflect* pos_y_joint} ${pos_z_joint}"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/joint&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Remo's model has the same macro in <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/urdf/include/common_macros.urdf.xacro">remo_description</a>. <code>check_wheel_joints()</code> looks for each of the controller's wheel joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and checks its type, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L250-L259">lines 250–259</a>:</p>
+<p>Remo's model has the same macro in <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/urdf/include/common_macros.urdf.xacro">remo_description</a>. <code>check_wheel_joints()</code> looks for each of the controller's wheel joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and checks its type, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L250-L259">lines 250–259</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: check_wheel_joints()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">250</span>
 <span class="normal">251</span>
 <span class="normal">252</span>
@@ -5404,7 +5404,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>The other checks only look at the wheel joints that the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> has (<code>urdf_wheel_joints()</code>), so a missing joint is reported once, here.</p>
 <h4 id="a-velocity-interface-for-each-wheel">A velocity interface for each wheel</h4>
-<p>In ros_control, a hardware interface is how a controller reads and commands a joint. diff_drive_controller commands each wheel's velocity, so it needs a velocity interface. In the simulation, Gazebo's ros_control plugin gives it one for each joint from the joint's transmission in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_description/urdf/include/common_macros.urdf.xacro#L96-L105">lines 96–105</a>:</p>
+<p>In ros_control, a hardware interface is how a controller reads and commands a joint. diff_drive_controller commands each wheel's velocity, so it needs a velocity interface. In the simulation, Gazebo's ros_control plugin gives it one for each joint from the joint's transmission in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_description/urdf/include/common_macros.urdf.xacro#L96-L105">lines 96–105</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_macros.urdf.xacro: the wheel's transmission</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
@@ -5425,7 +5425,7 @@
 <span class="w">  </span><span class="nt">&lt;/actuator&gt;</span>
 <span class="nt">&lt;/transmission&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The plugin, <code>DefaultRobotHWSim</code>, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L90-L103">skips a transmission with more than one joint</a> and <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L124-L146">uses the first <code>hardwareInterface</code> of the joint</a>. <code>transmission_interfaces()</code> reads the transmissions the same way, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L164-L181">lines 164–181</a>:</p>
+<p>The plugin, <code>DefaultRobotHWSim</code>, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L90-L103">skips a transmission with more than one joint</a> and <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L124-L146">uses the first <code>hardwareInterface</code> of the joint</a>. <code>transmission_interfaces()</code> reads the transmissions the same way, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L164-L181">lines 164–181</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: transmission_interfaces()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
 <span class="normal">165</span>
 <span class="normal">166</span>
@@ -5462,7 +5462,7 @@
                 <span class="n">joint</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span> <span class="k">for</span> <span class="n">joint</span> <span class="ow">in</span> <span class="n">transmission_joints</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">interface_by_joint</span><span class="p">,</span> <span class="n">joints_in_shared_transmissions</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>check_velocity_interfaces()</code> uses the result for each wheel joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L262-L275">lines 262–275</a>:</p>
+<p><code>check_velocity_interfaces()</code> uses the result for each wheel joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L262-L275">lines 262–275</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: check_velocity_interfaces()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
 <span class="normal">263</span>
 <span class="normal">264</span>
@@ -5496,7 +5496,7 @@
 <p>It checks the transmissions that these robots need: one joint per transmission, with the velocity interface first. Gazebo accepts more forms, which the test doesn't try to recognize.</p>
 </div>
 <h4 id="the-hardware-interfaces-joint-order">The hardware interface's joint order</h4>
-<p>On the real robot, diffbot_base's hardware interface reads its joints from the same file, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_control/config/diffbot_control.yaml#L1-L6">lines 1–6</a>:</p>
+<p>On the real robot, diffbot_base's hardware interface reads its joints from the same file, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_control/config/diffbot_control.yaml#L1-L6">lines 1–6</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control.yaml: the hardware interface's joints</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -5509,7 +5509,7 @@
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">front_left_wheel_joint</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">front_right_wheel_joint</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>They must be the controller's wheels, the left one first. <code>check_hardware_joint_order()</code> compares the two lists, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L278-L287">lines 278–287</a>:</p>
+<p>They must be the controller's wheels, the left one first. <code>check_hardware_joint_order()</code> compares the two lists, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L278-L287">lines 278–287</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: check_hardware_joint_order()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
@@ -5533,7 +5533,7 @@
 <p>The simulation loads the same list without using it, so there it's a check of the shared configuration.</p>
 <details class="info">
 <summary>Why the order matters on the robot</summary>
-<p>The hardware interface registers each joint in the order of the list, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_base/src/diffbot_hw_interface.cpp#L82-L99">lines 82–99</a>:</p>
+<p>The hardware interface registers each joint in the order of the list, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_base/src/diffbot_hw_interface.cpp#L82-L99">lines 82–99</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_hw_interface.cpp: registering the joints</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
@@ -5570,7 +5570,7 @@
 <span class="w">    </span><span class="n">hardware_interface</span><span class="o">::</span><span class="n">JointHandle</span><span class="w"> </span><span class="nf">joint_handle</span><span class="p">(</span><span class="n">joint_state_handle</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
 <span class="w">    </span><span class="n">velocity_joint_interface_</span><span class="p">.</span><span class="n">registerHandle</span><span class="p">(</span><span class="n">joint_handle</span><span class="p">);</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>It sends the wheel velocity commands to the Teensy in the same order, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_base/src/diffbot_hw_interface.cpp#L178-L186">lines 178–186</a>:</p>
+<p>It sends the wheel velocity commands to the Teensy in the same order, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_base/src/diffbot_hw_interface.cpp#L178-L186">lines 178–186</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_hw_interface.cpp: the wheel commands</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">178</span>
 <span class="normal">179</span>
 <span class="normal">180</span>
@@ -5589,7 +5589,7 @@
 
 <span class="n">pub_wheel_cmd_velocities_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">wheel_cmd_msg</span><span class="p">);</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The firmware takes the first value for the left wheel, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_firmware/lib/base_controller/base_controller.h#L472-L478">lines 472–478</a>:</p>
+<p>The firmware takes the first value for the left wheel, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_firmware/lib/base_controller/base_controller.h#L472-L478">lines 472–478</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: commandCallback()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">472</span>
 <span class="normal">473</span>
 <span class="normal">474</span>
@@ -5607,7 +5607,7 @@
 <p>With the list reversed, the left wheel's commands would drive the right motor. The planned refactor of diffbot_base and the firmware removes this trap: the configuration binds each joint to an actuator channel by name, and the messages carry each channel's ID instead of a position in a list. That also leaves room for robots with four wheels or steering (<a href="https://github.com/ros-mobile-robots/diffbot/issues/148">diffbot#148</a>).</p>
 </details>
 <h4 id="the-wheel-radius">The wheel radius</h4>
-<p><code>check_wheel_radius()</code> compares each wheel's collision radius with <code>wheel_radius</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L290-L299">lines 290–299</a>:</p>
+<p><code>check_wheel_radius()</code> compares each wheel's collision radius with <code>wheel_radius</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L290-L299">lines 290–299</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: check_wheel_radius()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">290</span>
 <span class="normal">291</span>
 <span class="normal">292</span>
@@ -5628,7 +5628,7 @@
                 <span class="n">link_name</span><span class="p">,</span> <span class="n">urdf_radius</span><span class="p">,</span> <span class="n">setup</span><span class="o">.</span><span class="n">wheel_radius</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">problems</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>collision_radius()</code> reads a wheel link's collision shape, a sphere or a cylinder, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L154-L161">lines 154–161</a>:</p>
+<p><code>collision_radius()</code> reads a wheel link's collision shape, a sphere or a cylinder, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L154-L161">lines 154–161</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: collision_radius()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
@@ -5645,7 +5645,7 @@
         <span class="n">shape</span> <span class="o">=</span> <span class="n">required</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="s1">'cylinder'</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">'radius'</span><span class="p">])</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>within_tolerance()</code> checks that the difference is at most 0.1 mm, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L184-L190">lines 184–190</a>. It checks "within" rather than "too large", because ordered comparisons with a NaN, a value that isn't a number, are false, so a NaN would never be "too large":</p>
+<p><code>within_tolerance()</code> checks that the difference is at most 0.1 mm, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L184-L190">lines 184–190</a>. It checks "within" rather than "too large", because ordered comparisons with a NaN, a value that isn't a number, are false, so a NaN would never be "too large":</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: within_tolerance()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">184</span>
 <span class="normal">185</span>
 <span class="normal">186</span>
@@ -5661,7 +5661,7 @@
     <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">urdf_value</span> <span class="o">-</span> <span class="n">controller_value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">TOLERANCE</span>
 </code></pre></div></td></tr></tbody></table></div>
 <h4 id="the-wheel-separation">The wheel separation</h4>
-<p><code>check_wheel_separation()</code> compares the distance between the first wheel joint of each side with <code>wheel_separation</code>, as diff_drive_controller takes the first wheel on each side, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L302-L317">lines 302–317</a>:</p>
+<p><code>check_wheel_separation()</code> compares the distance between the first wheel joint of each side with <code>wheel_separation</code>, as diff_drive_controller takes the first wheel on each side, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L302-L317">lines 302–317</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: check_wheel_separation()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">302</span>
 <span class="normal">303</span>
 <span class="normal">304</span>
@@ -5694,7 +5694,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="s1">'the wheel joints are </span><span class="si">{:.4f}</span><span class="s1"> m apart, but wheel_separation is </span><span class="si">{:.4f}</span><span class="s1"> m'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
         <span class="n">urdf_separation</span><span class="p">,</span> <span class="n">setup</span><span class="o">.</span><span class="n">wheel_separation</span><span class="p">)]</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Each joint's origin in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> is given in its parent link's frame. To compare the two wheel joints, <code>joint_position()</code> moves a joint's position up the tree into the frame of the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s root link, <code>base_footprint</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L134-L151">lines 134–151</a>:</p>
+<p>Each joint's origin in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> is given in its parent link's frame. To compare the two wheel joints, <code>joint_position()</code> moves a joint's position up the tree into the frame of the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s root link, <code>base_footprint</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L134-L151">lines 134–151</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: joint_position()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
 <span class="normal">135</span>
 <span class="normal">136</span>
@@ -5731,7 +5731,7 @@
         <span class="n">link_name</span> <span class="o">=</span> <span class="n">required</span><span class="p">(</span><span class="n">parent_joint</span><span class="p">,</span> <span class="s1">'parent'</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'link'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">position</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Each step rotates the point into the parent's frame and adds the offset of the joint between them, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L127-L131">lines 127–131</a>:</p>
+<p>Each step rotates the point into the parent's frame and adds the offset of the joint between them, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L127-L131">lines 127–131</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: transform()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
@@ -5754,9 +5754,9 @@
 </table>
 </div>
 
-<p>The right wheel joint ends at (0, −0.072, 0.033), 0.144 m away. <code>joint_origin()</code> reads an origin's position and its roll, pitch and yaw, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L117-L124">lines 117–124</a>, and <code>rotation_matrix()</code> turns them into a rotation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L97-L114">lines 97–114</a>.</p>
+<p>The right wheel joint ends at (0, −0.072, 0.033), 0.144 m away. <code>joint_origin()</code> reads an origin's position and its roll, pitch and yaw, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L117-L124">lines 117–124</a>, and <code>rotation_matrix()</code> turns them into a rotation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L97-L114">lines 97–114</a>.</p>
 <h3 id="4-the-comparisons-own-tests">4. The comparison's own tests</h3>
-<p><code>TestComparison</code> checks that each check notices its kind of problem. It uses a small <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with Remo's wheels, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L343-L370">lines 343–370</a>, and launch parameters that hold it, with values that agree with it, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L372-L386">lines 372–386</a>:</p>
+<p><code>TestComparison</code> checks that each check notices its kind of problem. It uses a small <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with Remo's wheels, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L343-L370">lines 343–370</a>, and launch parameters that hold it, with values that agree with it, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L372-L386">lines 372–386</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: TestComparison.launch_params()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">372</span>
 <span class="normal">373</span>
 <span class="normal">374</span>
@@ -5787,7 +5787,7 @@
             <span class="n">CONTROLLER</span> <span class="o">+</span> <span class="s1">'right_wheel'</span><span class="p">:</span> <span class="n">right_wheel</span><span class="p">,</span>
             <span class="n">HARDWARE_JOINTS</span><span class="p">:</span> <span class="p">[</span><span class="s1">'front_left_wheel_joint'</span><span class="p">,</span> <span class="s1">'front_right_wheel_joint'</span><span class="p">]}</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Each test changes one thing and checks the message, for example a wrong separation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83/diffbot_gazebo/test/test_geometry_consistency.py#L400-L403">lines 400–403</a>:</p>
+<p>Each test changes one thing and checks the message, for example a wrong separation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py#L400-L403">lines 400–403</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_geometry_consistency.py: TestComparison.test_wrong_separation()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">400</span>
 <span class="normal">401</span>
 <span class="normal">402</span>
