@@ -18,11 +18,11 @@ The BNO055 shares the Teensy's first I2C bus, `Wire`, with the motor driver ([Ad
 
 | BNO055 breakout | Teensy | Note |
 |:--|:--|:--|
-| VIN | 3.3V | The breakout takes 3.3 to 5 V; 3.3 V is the Teensy's logic level |
+| VIN | 3.3V | The breakout takes 3.3 to 5 V. 3.3 V is the Teensy's logic level |
 | GND | GND | |
 | SDA | 18 (SDA) | The breakout has a 10 kΩ pull-up resistor on SDA and SCL |
 | SCL | 19 (SCL) | |
-| ADR | not connected | I2C address 0x28; connected to 3.3 V, 0x29 (then set `IMU_BNO055_ADDRESS`) |
+| ADR | not connected | I2C address 0x28. Connected to 3.3 V: 0x29, then set `IMU_BNO055_ADDRESS` |
 
 The other pins (RST, INT, PS0, PS1) stay unconnected. Adafruit's [pinouts page](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts) describes all of them. The motor driver's address is 0x60, so the two don't collide.
 
@@ -48,7 +48,7 @@ The settings are in [`diffbot_base_config.h`]({{ diffbot_repo_url }}/diffbot_fir
 [`lib/imu`]({{ diffbot_repo_url }}/diffbot_firmware/lib/imu/README.md) has a small driver of its own for the BNO055, instead of Adafruit's library, so that every I2C transfer is checked and the start-up's waits don't hold up the firmware's loop:
 
 - **The start-up doesn't block the motor control.** A reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's [datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf)). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, IMU mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does at most a few transfers. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at I2C's standard clock of 100 kHz. Whether the control loop keeps its rate when the bus has a fault is one of the [bench checks](#bench-checks).
-- **A sample is published only if it's good:** the read succeeded and took at most `IMU_READ_BUDGET_US` (10 ms; a later result is dropped, but the budget can't cut a transfer short), the chip still is in IMU mode with the right units and its fusion runs. A stalled or unplugged IMU stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again; a missing IMU is looked for every `IMU_RETRY_PERIOD` seconds (10 s). The robot drives without an IMU, too.
+- **A sample is published only if it's good:** the read succeeded and took at most `IMU_READ_BUDGET_US` (10 ms: a later result is dropped, but the budget can't cut a transfer short), the chip still is in IMU mode with the right units and its fusion runs. A stalled or unplugged IMU stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again. A missing IMU is looked for every `IMU_RETRY_PERIOD` seconds (10 s). The robot drives without an IMU, too.
 - **Stamps are ROS time,** which rosserial takes from the robot's computer: the Teensy's clock is synchronized with it every few seconds. Until the first synchronization after a connection, the firmware publishes nothing, because a stamp would carry the Teensy's uptime instead of ROS time.
 - **The 50 Hz rate counts on the Teensy's own clock** (`millis()`), so it doesn't change when ROS time jumps, for example when the Teensy connects to a computer whose clock is earlier.
 
