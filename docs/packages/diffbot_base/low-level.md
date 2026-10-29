@@ -246,37 +246,50 @@ The following steps in this code block happen continuously at the control rate:
    receives the commanded wheel joint velocities (topic `wheel_cmd_velocities`,
    type `diffbot_msgs::WheelsCmdStamped`) inside the
    `BaseController::commandCallback(const diffbot_msgs::WheelsCmdStamped&)`
-   callback method. In `BaseController::read()`, the PID is called to compute
+   callback method. In `BaseController::write()`, the PID is called to compute
    the motor PWM signals from the velocity error and the motor speeds are set
    with the two motor controllers.
 3. To keep calling this method at the desired control rate, the
    `lastUpdateTime().control` variable is updated with the current time.
 
-The next block stops the motors when no wheel command has arrived for
-`E_STOP_COMMAND_RECEIVED_DURATION` seconds (5 s), for example because the
-connection to the robot's computer is lost: `BaseController::eStop()` sets the
-commanded wheel velocities to zero, and the next control update drives the
-motors with them. `commandCallback()` records when the last command arrived, in
-`lastUpdateTime().command_received`.
+On each pass, the firmware also checks how long it has been since a wheel
+command arrived. When that reaches 5 seconds
+(`E_STOP_COMMAND_RECEIVED_DURATION`), `BaseController::eStop()` sets both
+target wheel velocities to zero. `commandCallback()` records the arrival time
+using `millis()`. The control step comes before the timeout check, so the zero
+targets are used on a later control step. This doesn't directly switch off
+the motors or reset the PIDs: stored PID error can keep the motor output
+nonzero. A reliable stop when commands stop arriving is tracked in
+[diffbot#146](https://github.com/ros-mobile-robots/diffbot/issues/146).
 
 ### Timing with the Teensy's clock
 
-The times in `LastUpdateTime` and in the encoder come from the Teensy's own
-clock:
-[`millis()`](https://docs.arduino.cc/language-reference/en/functions/time/millis/)
-counts the milliseconds since the board started, `micros()` the microseconds.
-They only count up. ROS time, from `nh.now()`, is the robot computer's clock:
-rosserial synchronizes the Teensy with it every few seconds, and it can jump,
-for example when the computer corrects its clock, or when the Teensy connects
-to a computer whose clock is earlier. A time difference in ROS time would then
-be negative until the clock caught up again: no control updates and no
-emergency stop for that long, while the motors keep their last command. With
-`millis()`, a jump of ROS time doesn't change the rates.
+The firmware needs to measure elapsed time: whether 50 ms have passed since
+the last control step, or 5 s since the last wheel command. A correction to the
+Raspberry Pi's time of day must not change those intervals.
 
-The differences are computed with unsigned integers (`uint32_t`), so they stay
-right when the counters start again from zero, `millis()` after about 49 days
-and `micros()` after about 71 minutes, as long as the two times are less than
-one such cycle apart: the loop runs many times per second.
+Earlier firmware used `nh.now()`, ROS time that rosserial synchronizes with the
+robot's computer. If that time moved backward, control updates could pause and
+the command timeout could be delayed. A forward jump could make a recent
+command appear too old. The encoder's speed calculation also depended on this
+clock.
+
+There was a separate error in the control-rate check: it passed 0.05 to a
+whole-seconds argument, which became zero. That allowed a control step on every
+loop pass while ROS time advanced normally. The corrected check waits at least
+50 ms between recorded steps, giving a nominal rate of 20 Hz. Blocking work can
+make an update late. Because the PID accumulates error per step, this rate
+change can affect the wheels' response with unchanged gains.
+
+The intervals now come from the Teensy's local counters.
+[`millis()`](https://docs.arduino.cc/language-reference/en/functions/time/millis/)
+measures milliseconds for scheduling and command age,
+[`micros()`](https://docs.arduino.cc/language-reference/en/functions/time/micros/)
+microseconds for the encoder speed. ROS clock synchronization doesn't alter
+them. The counters return to zero after about 49.7 days and 71.6 minutes. The
+differences are computed with unsigned integers (`uint32_t`), which handles
+that as long as the two readings are less than one counter cycle apart and come
+from the same run of the firmware.
 
 After the control loop update block, if an IMU is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
