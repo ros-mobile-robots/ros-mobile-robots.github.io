@@ -67,6 +67,10 @@ extra:
   # when that code changes, and check the excerpts' line ranges against the new commit
   robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7044c2beef568d2372e49f74705c8f992d473c59
   robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59
+  # The diffbot commit that the code excerpts on Geometry Test show. Update both when that code
+  # changes, and check the excerpts' line ranges and highlighted lines against the new commit
+  geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885
+  geometry_src_url: https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
@@ -273,6 +277,7 @@ nav:
   - Contributing:
     - development/index.md
     - Testing and CI: development/ci.md
+    - Geometry Test: development/geometry-test.md
     - Simulation Test: development/simulation-test.md
   - Insiders: insiders/index.md
 
