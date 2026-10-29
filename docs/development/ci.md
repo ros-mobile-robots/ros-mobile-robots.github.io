@@ -9,6 +9,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | CI | [`.github/workflows/diffbot_ci_action.yml`]({{ diffbot_repo_url }}/.github/workflows/diffbot_ci_action.yml) | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
 | Firmware | [`.github/workflows/firmware.yml`]({{ diffbot_repo_url }}/.github/workflows/firmware.yml) | Builds the Teensy firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
 | Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
+| PR description | [`.github/workflows/pr_description.yml`]({{ diffbot_repo_url }}/.github/workflows/pr_description.yml) | Checks that the pull request's description links its documentation: the docs pull request, a page on this site, or `None` ([how](#pr-description)) |
 | Robot container | [`.github/workflows/robot_container.yml`]({{ diffbot_repo_url }}/.github/workflows/robot_container.yml) | Builds the [robot image](../processing_units/robot-container/index.md) when it or its packages change, natively on GitHub's arm64 and amd64 runners. It checks the settings template and runs the image's smoke test without hardware, in the image and through Docker Compose |
 
 ### industrial_ci
@@ -29,6 +30,18 @@ catkin_test_results build
 ```
 
 So a broken Dockerfile, a missing dependency or a failing build shows up in the PR, not on a developer's machine weeks later.
+
+### PR description
+
+diffbot's [pull request template]({{ diffbot_repo_url }}/.github/pull_request_template.md) has a section `## Documentation` for the docs pull request or the page on this site that explains the change. A template only fills in the text when a pull request is opened, and nothing kept that section from staying empty. The PR description workflow reads the description and fails when the section is missing, or when it has none of these:
+
+- a docs pull request, as `ros-mobile-robots/ros-mobile-robots.github.io#N` or its URL
+- a link to a page on ros-mobile-robots.com
+- `None` at the start of a line, when nothing user-visible changes
+
+The template's comments don't count. The workflow runs when a pull request is opened, edited or gets new commits, so fixing the description makes the check pass again, without a new commit.
+
+The description reaches the workflow's Python script as an environment variable. Anyone who opens a pull request writes its description, and a {% raw %}`${{ }}`{% endraw %} expression inside the script would put that text into the shell command. GitHub recommends the environment variable for this ([script injection](https://docs.github.com/en/actions/reference/security/secure-use#good-practices-for-mitigating-script-injection-attacks)).
 
 ### Tests
 
