@@ -67,6 +67,10 @@ extra:
   # when that code changes, and check the excerpts' line ranges against the new commit
   robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7044c2beef568d2372e49f74705c8f992d473c59
   robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59
+  # The diffbot commit that the workflow excerpts on Testing and CI show (diffbot #163). Move both to
+  # #163's merge commit before this page's pull request merges, and check the excerpts' line ranges
+  ci_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/bb81df1cca3ff858c8392fe6ba2968f823eb61bd
+  ci_src_url: https://github.com/ros-mobile-robots/diffbot/blob/bb81df1cca3ff858c8392fe6ba2968f823eb61bd
   # The diffbot commit that the code excerpts on Geometry Test show. Update both when that code
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885
