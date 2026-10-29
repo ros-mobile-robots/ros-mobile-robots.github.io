@@ -13,7 +13,7 @@ In a terminal on your PC, in your diffbot clone's root folder. On Windows, that'
 .docker/firmware/pio run -e teensy31
 ```
 
-`pio` is PlatformIO's command, and `-e` selects one of the boards in [`platformio.ini`]({{ firmware_src_url }}/diffbot_firmware/platformio.ini). The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a build looks like this:
+`pio` is PlatformIO's command, and `-e` selects one of the boards in [`platformio.ini`]({{ firmware_src_url }}/diffbot_firmware/platformio.ini): `teensy40` builds for the Teensy 4.0, `teensy31` for the Teensy 3.1/3.2. Without `-e`, `pio run` builds `teensy40`. The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a build looks like this:
 
 ```console
 Processing teensy40 (platform: teensy; board: teensy40; framework: arduino)
@@ -38,7 +38,7 @@ teensy40       SUCCESS   00:00:01.501
 
 The firmware file is then `diffbot_firmware/.pio/build/<board>/firmware.hex`, and it belongs to you. PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html) flashes it onto the Teensy. Don't build in the container and on the PC at the same time, because both write to `diffbot_firmware/.pio`.
 
-**Another user and group ID:** the script uses yours (`id -u` and `id -g`) unless you set `LOCAL_UID` and `LOCAL_GID`, for example `LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/pio run -e teensy40`. In the container, `id` then shows:
+**Another user and group ID:** the script uses yours (`id -u` and `id -g`) unless you set `LOCAL_UID` and `LOCAL_GID`, for example `LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/pio run -e teensy40`. That ID needs write access to your clone. In the container, `id` then shows:
 
 ```console
 uid=1234(pio) gid=1234(pio) groups=1234(pio)
@@ -83,7 +83,7 @@ Then it builds the image, [lines 18–31]({{ firmware_src_url }}/.docker/firmwar
 --8<-- "{{ firmware_src_raw }}/.docker/firmware/pio:18:31"
 ```
 
-`config --images` asks Compose for the image's name, which contains your IDs. When that image doesn't exist yet, the build shows Docker's progress, because it downloads for a while. Otherwise the build takes seconds, because Docker reuses the cached layers whose inputs haven't changed, and the script keeps its output and prints it only when the build fails.
+`config --images` asks Compose for the image's name, which contains your IDs. When that image doesn't exist yet, the build shows Docker's progress, because it downloads for a while. Otherwise the build takes seconds when the Dockerfile and `requirements.txt` haven't changed, because Docker reuses its cached layers. The script keeps the build's output and prints it only when the build fails.
 
 Last, it runs PlatformIO in the container, [lines 33–38]({{ firmware_src_url }}/.docker/firmware/pio#L33-L38):
 
@@ -120,7 +120,7 @@ The Teensy toolchain isn't in the image: PlatformIO downloads it into `/pio-core
 --8<-- "{{ firmware_src_raw }}/.docker/firmware/Dockerfile:18:35"
 ```
 
-`USER_UID` and `USER_GID` have no default. A build without them stops, so the image can't be built for other IDs by mistake.
+`USER_UID` and `USER_GID` have no default. A build without both stops instead of silently using 1000.
 
 ### Your user ID, and the other containers
 
@@ -129,7 +129,7 @@ The ID travels in four steps: the script takes `id -u`, Compose passes it to the
 The other containers solve the same problem differently:
 
 - **The [dev container](dev-container-internals.md)** creates its user `ros` with 1000, the usual ID of the first user on Linux. VS Code changes that user to your IDs when it creates the container ([`updateRemoteUserUID`](https://containers.dev/implementors/json_reference/#-general-devcontainerjson-properties-), on by default on Linux). The firmware container runs without VS Code, so it gets your IDs at build time instead.
-- **The [robot container](../processing_units/robot-container/index.md)** runs as `ros` with 1000 on the Raspberry Pi, the robot's first user. The planned published image ([diffbot#151](https://github.com/ros-mobile-robots/diffbot/pull/151)) is the same for every robot, so it can't carry a user's IDs.
+- **The [robot container](../processing_units/robot-container/index.md)** runs as `ros` with 1000 on the Raspberry Pi, the robot's first user. The planned published image ([diffbot#151](https://github.com/ros-mobile-robots/diffbot/pull/151)) is built once per architecture with the IDs 1000, not for each robot's user. [Setup](../processing_units/robot-container/setup.md#8-the-folder-for-logs) covers a robot whose first user has another ID.
 
 ### In CI
 
@@ -139,7 +139,7 @@ The [Firmware workflow]({{ firmware_src_url }}/.github/workflows/firmware.yml) b
 --8<-- "{{ firmware_src_raw }}/.github/workflows/firmware.yml:20:44"
 ```
 
-Each CI job starts on a fresh machine, where a Docker volume would be empty. So the first step sets `PIO_CORE` to a folder in `$RUNNER_TEMP`, the runner's temporary folder, and a line `NAME=value` in the file that `$GITHUB_ENV` names makes it an environment variable for the later steps ([environment files](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable)). [`actions/cache`](https://github.com/actions/cache) restores that folder from an earlier run and saves it after the job, one cache per board. The script then sets the IDs to the runner's user, as on your PC.
+Each CI job starts on a fresh machine, where a Docker volume would be empty. So the first step sets `PIO_CORE` to a folder in `$RUNNER_TEMP`, the runner's temporary folder, and a line `NAME=value` in the file that `$GITHUB_ENV` names makes it an environment variable for the later steps ([environment files](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable)). [`actions/cache`](https://github.com/actions/cache) restores a matching cache from an earlier run, if there is one, and saves a new one after a successful job when no cache had the exact key. The key holds the board, the runner's OS and architecture, and a hash of `requirements.txt` and `platformio.ini`. The script then sets the IDs to the runner's user, as on your PC.
 
 ## Planned
 
