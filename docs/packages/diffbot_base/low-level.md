@@ -222,16 +222,33 @@ After the `setup()` function follows the `loop()` function, to read from sensors
 and write to actuators, which happens at specific rates, defined in the
 `diffbot_base_config.h` header. The bookkeeping of when these read/write
 functionalities occurred is kept in the `BaseController` class inside its
-`LastUpdateTime` struct, which `lastUpdateTime()` returns. Reading from the
-encoders and writing motor commands happens in the same code block as the
-control rate:
+`LastUpdateTime` struct, which `lastUpdateTime()` returns. `loop()` hands the
+command timeout and the control step to `driveStep()`:
 
 ```cpp
 void loop() {
-uint32_t now_ms = millis();
-if (now_ms - base_controller.lastUpdateTime().control >= 1000.0 / base_controller.publishRate().control_) {
+  uint32_t now_ms = millis();
+  driveStep(base_controller, command_timeout, now_ms,
+            1000.0 / base_controller.publishRate().control_,
+            []() { nh.logwarn("Wheel command timeout: motors stopped"); });
+  // ... the IMU, the debug output, nh.spinOnce()
+}
+```
+
+`driveStep()` (in `lib/drive_step`) checks the command timeout first, then
+reads from the encoders and writes the motor commands at the control rate:
+
+```cpp
+if (command_timeout.update(now_ms, base_controller.lastUpdateTime().command_received,
+                           base_controller.commandCount())) {
+  base_controller.eStop();
+  log_timeout();
+}
+if (now_ms - base_controller.lastUpdateTime().control >= control_period_ms) {
   base_controller.read();
-  base_controller.write();
+  if (!command_timeout.timedOut()) {
+    base_controller.write();
+  }
   base_controller.lastUpdateTime().control = now_ms;
 }
 ```
@@ -252,20 +269,34 @@ The following steps in this code block happen continuously at the control rate:
 3. To keep calling this method at the desired control rate, the
    `lastUpdateTime().control` variable is updated with the current time.
 
-On each pass, the firmware also checks how long it has been since a wheel
-command arrived. When that reaches 5 seconds
-(`E_STOP_COMMAND_RECEIVED_DURATION`), `BaseController::eStop()` sets both
-target wheel velocities to zero. `commandCallback()` records the arrival time
-using `millis()`. The control step comes before the timeout check, so the zero
-targets are used on a later control step. This doesn't directly switch off
-the motors or reset the PIDs: stored PID error can keep the motor output
-nonzero. A reliable stop when commands stop arriving is tracked in
-[diffbot#146](https://github.com/ros-mobile-robots/diffbot/issues/146).
+Before the control step, `driveStep()` checks how long it has been since a
+wheel command arrived. `commandCallback()` records the arrival time with
+`millis()` and counts the commands. When no command has arrived for
+`COMMAND_TIMEOUT_MS`, 1 second, `BaseController::eStop()` stops the motors:
+
+- it sets both target wheel velocities to zero,
+- it resets both PIDs, so that no stored error drives the motors later,
+- and it sets both motors to zero. On the Adafruit FeatherWing that releases
+  them, so they coast without braking.
+
+Only then the firmware logs the timeout, once, because sending the log message
+can wait for the USB connection. The control step keeps reading and publishing
+the wheel states, but doesn't drive the motors until the next command arrives.
+Before the first command, the motors aren't driven either. The next command
+ends the timeout: `CommandTimeout` notices it by the changed command count, not
+by its time, because an old time can look new again once `millis()` has gone
+around.
+
+The hardware interface on the robot's computer sends a command 10 times a
+second, also while the robot stands, so 1 second is about ten missed commands.
+It's when the firmware stops driving, not a stopping distance: the wheels coast
+to a stop. Unit tests on the PC check the timeout, the order in `driveStep()`
+and the PID's reset (`pio test -e native`).
 
 ### Timing with the Teensy's clock
 
 The firmware needs to measure elapsed time: whether 50 ms have passed since
-the last control step, or 5 s since the last wheel command. A correction to the
+the last control step, or 1 s since the last wheel command. A correction to the
 Raspberry Pi's time of day must not change those intervals.
 
 Earlier firmware used `nh.now()`, ROS time that rosserial synchronizes with the
