@@ -57,7 +57,7 @@ test_robot (__main__.TestModels) ... ok
 test_simulation (__main__.TestModels) ... ok
 
 ----------------------------------------------------------------------
-Ran 17 tests in 3.060s
+Ran 17 tests in 3.434s
 
 OK
 ```
@@ -70,10 +70,10 @@ OK
 FAIL: test_robot (__main__.TestModels) (model='remo')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 495, in test_robot
+  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 507, in test_robot
     self.check(model, dump_params('diffbot_base', 'diffbot.launch', model=model))
-  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 481, in check
-    self.assertEqual(mismatches(urdf, params), [],
+  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 493, in check
+    self.assertEqual(mismatches(params), [],
 AssertionError: Lists differ: ['the wheel joints are 0.1440 m apart, but wheel_separation is 0.1450 m'] != []
 
 First list contains 1 additional elements.
@@ -94,28 +94,28 @@ In the message, 0.1440 m is the distance between the wheel joints in the URDF, a
 
 The code excerpts show the files at the diffbot commit that this page pins, with their line numbers. The link above each block opens the same lines on GitHub.
 
-The file starts with the names it uses throughout, [lines 45–59]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L45-L59):
+The file starts with the names it uses throughout, [lines 46–62]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L46-L62):
 
-```python title="test_geometry_consistency.py: names" linenums="45"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:45:59"
+```python title="test_geometry_consistency.py: names" linenums="46"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:46:62"
 ```
 
-`TOLERANCE` is 0.1 mm. `NAMESPACE` and `CONTROLLER` are the beginnings of the parameter names that roslaunch reports (step 1), and `HARDWARE_JOINTS` is the full name of the hardware interface's joint list. `VELOCITY_INTERFACES` are the two spellings of the velocity interface that Gazebo accepts ([velocity interface](#a-velocity-interface-for-each-wheel)). `Params`, `Vector` and `Matrix` are short names for the types that the functions pass around.
+`TOLERANCE` is 0.1 mm. `NAMESPACE` and `CONTROLLER` are the beginnings of the parameter names that roslaunch reports (step 1). `HARDWARE_JOINTS` and `ROBOT_DESCRIPTION` are the full names of the hardware interface's joint list and of the URDF. `VELOCITY_INTERFACES` are the two spellings of the velocity interface that Gazebo accepts ([velocity interface](#a-velocity-interface-for-each-wheel)). `Params`, `Vector` and `Matrix` are short names for the types that the functions pass around.
 
 ### 1. The launch files supply the values
 
-`TestModels` checks the real robots' configuration, [lines 475–495]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L475-L495):
+`TestModels` checks the real robots' configuration, [lines 488–507]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L488-L507):
 
-```python title="test_geometry_consistency.py: TestModels" linenums="475"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:475:495"
+```python title="test_geometry_consistency.py: TestModels" linenums="488"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:488:507"
 ```
 
 It checks each robot in `MODELS`, DiffBot and Remo. `test_simulation()` combines the parameters of the two launch files that start the simulation: `diffbot_view.launch` loads the URDF, and `diffbot_control.launch` loads the controller's configuration. `test_robot()` takes the parameters of `diffbot.launch`, which loads both on the real robot. `check()` fails when `mismatches()` reports a problem.
 
-`dump_params()` gets the parameters, [lines 62–83]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L62-L83):
+`dump_params()` gets the parameters, [lines 65–86]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L65-L86):
 
-```python title="test_geometry_consistency.py: dump_params()" linenums="62"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:62:83"
+```python title="test_geometry_consistency.py: dump_params()" linenums="65"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:65:86"
 ```
 
 `roslaunch --dump-params` reads a launch file and the files it includes, and prints the parameters that it would set, as YAML. It starts no node, so these are the values the launch files would load, not values read from a running robot. When roslaunch can't load a file, for example because remo_description is missing, it prints nothing and still ends without an error. So an empty result is an error too.
@@ -123,7 +123,9 @@ It checks each robot in `MODELS`, DiffBot and Remo. `test_simulation()` combines
 **What `params` holds:** every parameter that the launch files set, by its full name. Two kinds matter for the test:
 
 - **The controller's configuration,** from `diffbot_control.yaml` and the robot's `geometry.yaml`: for example `/diffbot/mobile_base_controller/wheel_radius`, a number.
-- **`/diffbot/robot_description`,** the URDF that xacro expanded from the description package, all of it as one string. `mismatches()` gets it as its first argument, `urdf`, and the whole dictionary as `params`.
+- **`/diffbot/robot_description`,** the URDF that xacro expanded from the description package, all of it as one string.
+
+`mismatches()` takes the whole dictionary, and `wheel_setup()` (step 2) reads the URDF from it. Both come from the real launch files, which is why they're what the robot gets. The simulation's dictionary combines two launch files, so one dictionary alone doesn't prove that two values come from the same file.
 
 ??? example "The controller's values, and the parameters that roslaunch reports"
     **The controller's values:** each robot's `geometry.yaml` sets them for `diff_drive_controller`. Its comment says where the URDF has the same values.
@@ -288,18 +290,18 @@ It checks each robot in `MODELS`, DiffBot and Remo. `test_simulation()` combines
 
 ### 2. The wheel setup and the checks
 
-`wheel_setup()` reads what the checks need from the URDF and the parameters once, into a `WheelSetup`, [lines 190–233]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L190-L233):
+`wheel_setup()` reads what the checks need from `params` once, into a `WheelSetup`, [lines 193–240]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L193-L240):
 
-```python title="test_geometry_consistency.py: WheelSetup and wheel_setup()" linenums="190"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:190:233"
+```python title="test_geometry_consistency.py: WheelSetup and wheel_setup()" linenums="193"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:193:240"
 ```
 
-`ET.fromstring()` parses the URDF's XML, and `robot` is its root element. The controller takes a name or a list of names for each side, and `wheel_joint_names()` turns both into a list. `hardware_joint_names` stays what the parameter holds, because a check reports it when it's wrong.
+`ET.fromstring()` parses the URDF's XML from `ROBOT_DESCRIPTION`, and `robot` is its root element. The controller takes a name or a list of names for each side, and `wheel_joint_names()` turns both into a list. `hardware_joint_names` stays what the parameter holds, because a check reports it when it's wrong.
 
-Each check is a function of its own, named for what it checks. It takes the wheel setup and returns its problems as messages, an empty list when there's none. `mismatches()` runs them in the order of `CHECKS`, [lines 314–330]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L314-L330):
+Each check is a function of its own, named for what it checks. It takes the wheel setup and returns its problems as messages, an empty list when there's none. `mismatches()` runs them in the order of `CHECKS`, [lines 321–337]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L321-L337):
 
-```python title="test_geometry_consistency.py: CHECKS and mismatches()" linenums="314"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:314:330"
+```python title="test_geometry_consistency.py: CHECKS and mismatches()" linenums="321"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:321:337"
 ```
 
 The next section explains the checks in this order.
@@ -314,10 +316,10 @@ The controller finds its wheels by the names of their joints, in `diffbot_contro
 --8<-- "{{ geometry_src_raw }}/diffbot_control/config/diffbot_control.yaml:27:28"
 ```
 
-`check_wheels_named()` reports a side without a name, [lines 236–240]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L236-L240):
+`check_wheels_named()` reports a side without a name, [lines 243–247]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L243-L247):
 
-```python title="test_geometry_consistency.py: check_wheels_named()" linenums="236"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:236:240"
+```python title="test_geometry_consistency.py: check_wheels_named()" linenums="243"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:243:247"
 ```
 
 #### The wheel joints are continuous joints in the URDF
@@ -328,10 +330,10 @@ A joint connects two links of the URDF. A wheel joint is where the wheel turns, 
 --8<-- "{{ geometry_src_raw }}/diffbot_description/urdf/include/common_macros.urdf.xacro:89:94"
 ```
 
-Remo's model has the same macro in [remo_description](https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/urdf/include/common_macros.urdf.xacro). `check_wheel_joints()` looks for each of the controller's wheel joints in the URDF and checks its type, [lines 243–252]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L243-L252):
+Remo's model has the same macro in [remo_description](https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/urdf/include/common_macros.urdf.xacro). `check_wheel_joints()` looks for each of the controller's wheel joints in the URDF and checks its type, [lines 250–259]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L250-L259):
 
-```python title="test_geometry_consistency.py: check_wheel_joints()" linenums="243"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:243:252"
+```python title="test_geometry_consistency.py: check_wheel_joints()" linenums="250"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:250:259"
 ```
 
 The other checks only look at the wheel joints that the URDF has (`urdf_wheel_joints()`), so a missing joint is reported once, here.
@@ -344,16 +346,16 @@ In ros_control, a hardware interface is how a controller reads and commands a jo
 --8<-- "{{ geometry_src_raw }}/diffbot_description/urdf/include/common_macros.urdf.xacro:96:105"
 ```
 
-The plugin, `DefaultRobotHWSim`, [skips a transmission with more than one joint](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L90-L103) and [uses the first `hardwareInterface` of the joint](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L124-L146). `transmission_interfaces()` reads the transmissions the same way, [lines 161–178]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L161-L178):
+The plugin, `DefaultRobotHWSim`, [skips a transmission with more than one joint](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L90-L103) and [uses the first `hardwareInterface` of the joint](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L124-L146). `transmission_interfaces()` reads the transmissions the same way, [lines 164–181]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L164-L181):
 
-```python title="test_geometry_consistency.py: transmission_interfaces()" linenums="161"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:161:178"
+```python title="test_geometry_consistency.py: transmission_interfaces()" linenums="164"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:164:181"
 ```
 
-`check_velocity_interfaces()` uses the result for each wheel joint, [lines 255–268]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L255-L268):
+`check_velocity_interfaces()` uses the result for each wheel joint, [lines 262–275]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L262-L275):
 
-```python title="test_geometry_consistency.py: check_velocity_interfaces()" linenums="255"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:255:268"
+```python title="test_geometry_consistency.py: check_velocity_interfaces()" linenums="262"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:262:275"
 ```
 
 !!! note "What this check covers"
@@ -367,10 +369,10 @@ On the real robot, diffbot_base's hardware interface reads its joints from the s
 --8<-- "{{ geometry_src_raw }}/diffbot_control/config/diffbot_control.yaml:1:6"
 ```
 
-They must be the controller's wheels, the left one first. `check_hardware_joint_order()` compares the two lists, [lines 271–280]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L271-L280):
+They must be the controller's wheels, the left one first. `check_hardware_joint_order()` compares the two lists, [lines 278–287]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L278-L287):
 
-```python title="test_geometry_consistency.py: check_hardware_joint_order()" linenums="271"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:271:280"
+```python title="test_geometry_consistency.py: check_hardware_joint_order()" linenums="278"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:278:287"
 ```
 
 The simulation loads the same list without using it, so there it's a check of the shared configuration.
@@ -398,42 +400,42 @@ The simulation loads the same list without using it, so there it's a check of th
 
 #### The wheel radius
 
-`check_wheel_radius()` compares each wheel's collision radius with `wheel_radius`, [lines 283–292]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L283-L292):
+`check_wheel_radius()` compares each wheel's collision radius with `wheel_radius`, [lines 290–299]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L290-L299):
 
-```python title="test_geometry_consistency.py: check_wheel_radius()" linenums="283"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:283:292"
+```python title="test_geometry_consistency.py: check_wheel_radius()" linenums="290"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:290:299"
 ```
 
-`collision_radius()` reads a wheel link's collision shape, a sphere or a cylinder, [lines 151–158]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L151-L158):
+`collision_radius()` reads a wheel link's collision shape, a sphere or a cylinder, [lines 154–161]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L154-L161):
 
-```python title="test_geometry_consistency.py: collision_radius()" linenums="151"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:151:158"
+```python title="test_geometry_consistency.py: collision_radius()" linenums="154"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:154:161"
 ```
 
-`within_tolerance()` checks that the difference is at most 0.1 mm, [lines 181–187]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L181-L187). It checks "within" rather than "too large", because ordered comparisons with a NaN, a value that isn't a number, are false, so a NaN would never be "too large":
+`within_tolerance()` checks that the difference is at most 0.1 mm, [lines 184–190]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L184-L190). It checks "within" rather than "too large", because ordered comparisons with a NaN, a value that isn't a number, are false, so a NaN would never be "too large":
 
-```python title="test_geometry_consistency.py: within_tolerance()" linenums="181"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:181:187"
+```python title="test_geometry_consistency.py: within_tolerance()" linenums="184"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:184:190"
 ```
 
 #### The wheel separation
 
-`check_wheel_separation()` compares the distance between the first wheel joint of each side with `wheel_separation`, as diff_drive_controller takes the first wheel on each side, [lines 295–310]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L295-L310):
+`check_wheel_separation()` compares the distance between the first wheel joint of each side with `wheel_separation`, as diff_drive_controller takes the first wheel on each side, [lines 302–317]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L302-L317):
 
-```python title="test_geometry_consistency.py: check_wheel_separation()" linenums="295"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:295:310"
+```python title="test_geometry_consistency.py: check_wheel_separation()" linenums="302"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:302:317"
 ```
 
-Each joint's origin in the URDF is given in its parent link's frame. To compare the two wheel joints, `joint_position()` moves a joint's position up the tree into the frame of the URDF's root link, `base_footprint`, [lines 131–148]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L131-L148):
+Each joint's origin in the URDF is given in its parent link's frame. To compare the two wheel joints, `joint_position()` moves a joint's position up the tree into the frame of the URDF's root link, `base_footprint`, [lines 134–151]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L134-L151):
 
-```python title="test_geometry_consistency.py: joint_position()" linenums="131"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:131:148"
+```python title="test_geometry_consistency.py: joint_position()" linenums="134"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:134:151"
 ```
 
-Each step rotates the point into the parent's frame and adds the offset of the joint between them, [lines 124–128]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L124-L128):
+Each step rotates the point into the parent's frame and adds the offset of the joint between them, [lines 127–131]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L127-L131):
 
-```python title="test_geometry_consistency.py: transform()" linenums="124"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:124:128"
+```python title="test_geometry_consistency.py: transform()" linenums="127"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:127:131"
 ```
 
 For Remo's left wheel joint, none of the joints on the way is rotated, so only the offsets add up:
@@ -449,20 +451,20 @@ For Remo's left wheel joint, none of the joints on the way is rotated, so only t
 </table>
 </div>
 
-The right wheel joint ends at (0, −0.072, 0.033), 0.144 m away. `joint_origin()` reads an origin's position and its roll, pitch and yaw, [lines 114–121]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L114-L121), and `rotation_matrix()` turns them into a rotation, [lines 94–111]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L94-L111).
+The right wheel joint ends at (0, −0.072, 0.033), 0.144 m away. `joint_origin()` reads an origin's position and its roll, pitch and yaw, [lines 117–124]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L117-L124), and `rotation_matrix()` turns them into a rotation, [lines 97–114]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L97-L114).
 
 ### 4. The comparison's own tests
 
-`TestComparison` checks that each check notices its kind of problem. It uses a small URDF with Remo's wheels, [lines 336–363]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L336-L363), and parameters that agree with it, [lines 365–373]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L365-L373):
+`TestComparison` checks that each check notices its kind of problem. It uses a small URDF with Remo's wheels, [lines 343–370]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L343-L370), and launch parameters that hold it, with values that agree with it, [lines 372–386]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L372-L386):
 
-```python title="test_geometry_consistency.py: TestComparison.controller_params()" linenums="365"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:365:373"
+```python title="test_geometry_consistency.py: TestComparison.launch_params()" linenums="372"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:372:386"
 ```
 
-Each test changes one thing and checks the message, for example a wrong separation, [lines 387–390]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L387-L390):
+Each test changes one thing and checks the message, for example a wrong separation, [lines 400–403]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L400-L403):
 
-```python title="test_geometry_consistency.py: TestComparison.test_wrong_separation()" linenums="387"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:387:390"
+```python title="test_geometry_consistency.py: TestComparison.test_wrong_separation()" linenums="400"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:400:403"
 ```
 
 The others: a wrong radius, a list of wheels instead of a name, an unknown wheel joint, a fixed wheel joint, renamed joints and links, an effort interface instead of a velocity interface, the velocity interface second, both wheels in one transmission, a NaN radius and separation, no right wheel, and the hardware interface's joints reversed or missing.

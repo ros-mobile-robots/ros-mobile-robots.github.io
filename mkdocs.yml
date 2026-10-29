@@ -70,8 +70,8 @@ extra:
   # The diffbot commit that the code excerpts on Geometry Test show (diffbot #141). Move both to
   # #141's merge commit before this page's pull request merges, and check the excerpts' line
   # ranges and highlighted lines against it
-  geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/f87f8b2334b7deb96b714bc8baeb0ea979814a3a
-  geometry_src_url: https://github.com/ros-mobile-robots/diffbot/blob/f87f8b2334b7deb96b714bc8baeb0ea979814a3a
+  geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/06459661478e942c170b841308cb8866944f8d83
+  geometry_src_url: https://github.com/ros-mobile-robots/diffbot/blob/06459661478e942c170b841308cb8866944f8d83
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
