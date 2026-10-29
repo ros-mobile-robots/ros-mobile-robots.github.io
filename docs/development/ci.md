@@ -33,7 +33,148 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 **Simulation test:** [`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks.
 
-**Geometry test:** each robot's wheel radius and wheel separation are written down twice, in its URDF and in the controller's `geometry.yaml`. [`test_geometry_consistency.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_geometry_consistency.py) checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (`roslaunch --dump-params`), and compares the drive wheels' collision radius and the distance between their joints in the URDF with the controller's values. The simulation test would only notice large differences. Neither test can show that the URDF matches the real wheels; that needs a measurement on the robot ([diffbot#138](https://github.com/ros-mobile-robots/diffbot/issues/138)).
+**Geometry test:** each robot's wheel radius and wheel separation are written down twice, in its URDF and in the controller's `geometry.yaml`. [`test_geometry_consistency.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_geometry_consistency.py) checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (`roslaunch --dump-params`), and compares the drive wheels' collision radius and the distance between their joints in the URDF with the controller's values. The simulation test would only notice large differences. Neither test can show that the URDF matches the real wheels. That needs a measurement on the robot ([diffbot#138](https://github.com/ros-mobile-robots/diffbot/issues/138)).
+
+??? example "The controller's values, and the parameters that roslaunch reports"
+    **The controller's values:** each robot's `geometry.yaml` sets them for `diff_drive_controller`. Its comment says where the URDF has the same values.
+
+    === "DiffBot"
+
+        ```yaml title="diffbot_control/config/diffbot/geometry.yaml"
+        --8<-- "{{ diffbot_src_raw }}/diffbot_control/config/diffbot/geometry.yaml"
+        ```
+
+    === "Remo"
+
+        ```yaml title="diffbot_control/config/remo/geometry.yaml"
+        --8<-- "{{ diffbot_src_raw }}/diffbot_control/config/remo/geometry.yaml"
+        ```
+
+    **What roslaunch reports:** `roslaunch --dump-params` reads a launch file and the files it includes, and prints the parameters that it would set, without starting a node. The test reads three of them, highlighted below: `robot_description`, the URDF that xacro expanded, and `wheel_radius` and `wheel_separation` from `geometry.yaml`. The outputs are Remo's, recorded in the [dev container](dev-container.md) with `noetic-devel` and remo_description 2.0.0. Remo's `robot_description` has 912 lines, so it's cut after its first characters here. With `model:=diffbot`, the two values are DiffBot's, 0.0333 and 0.138.
+
+    === "Real robot"
+
+        On the robot, [`diffbot.launch`]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) loads the URDF and `geometry.yaml` for the hardware interface and the controllers:
+
+        ```console hl_lines="47 48 51"
+        $ roslaunch --dump-params diffbot_base diffbot.launch model:=remo
+        /diffbot/debug/base_controller: true
+        /diffbot/debug/hardware_interface: false
+        /diffbot/encoder_resolution: 542
+        /diffbot/gain: 1.0
+        /diffbot/hardware_interface/joints:
+        - front_left_wheel_joint
+        - front_right_wheel_joint
+        /diffbot/joint_state_controller/extra_joints:
+        - effort: 0.0
+          name: rear_caster_rotation_joint
+          position: 0.01
+          velocity: 0.0
+        - effort: 0.0
+          name: rear_caster_wheel_joint
+          position: 0.01
+          velocity: 0.0
+        /diffbot/joint_state_controller/publish_rate: 50
+        /diffbot/joint_state_controller/type: joint_state_controller/JointStateController
+        /diffbot/mobile_base_controller/angular/z/has_acceleration_limits: true
+        /diffbot/mobile_base_controller/angular/z/has_velocity_limits: true
+        /diffbot/mobile_base_controller/angular/z/max_acceleration: 6.0
+        /diffbot/mobile_base_controller/angular/z/max_velocity: 8.0
+        /diffbot/mobile_base_controller/base_frame_id: base_footprint
+        /diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint
+        /diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true
+        /diffbot/mobile_base_controller/linear/x/has_velocity_limits: true
+        /diffbot/mobile_base_controller/linear/x/max_acceleration: 0.6
+        /diffbot/mobile_base_controller/linear/x/max_velocity: 0.3
+        /diffbot/mobile_base_controller/pose_covariance_diagonal:
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.03
+        /diffbot/mobile_base_controller/publish_rate: 50
+        /diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint
+        /diffbot/mobile_base_controller/twist_covariance_diagonal:
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.03
+        /diffbot/mobile_base_controller/type: diff_drive_controller/DiffDriveController
+        /diffbot/mobile_base_controller/wheel_radius: 0.033
+        /diffbot/mobile_base_controller/wheel_separation: 0.144
+        /diffbot/motor_constant: 1.0
+        /diffbot/pwm_limit: 1.0
+        /diffbot/robot_description: "<?xml version=\"1.0\" ?>\n<!-- …
+        /diffbot/trim: 0.0
+        ```
+
+    === "Simulation"
+
+        In the simulation, two launch files share the work. [`diffbot_view.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot_view.launch) loads the URDF for Gazebo, and [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch) loads `geometry.yaml`. The test combines their parameters:
+
+        ```console hl_lines="2 57 58"
+        $ roslaunch --dump-params diffbot_gazebo diffbot_view.launch model:=remo
+        /diffbot/robot_description: "<?xml version=\"1.0\" ?>\n<!-- …
+        /gazebo/enable_ros_network: true
+        /use_sim_time: true
+        $ roslaunch --dump-params diffbot_control diffbot_control.launch model:=remo rqt_robot_steering:=false
+        /diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/antiwindup: true
+        /diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/d: 0.0
+        /diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/i: 0.6
+        /diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/i_clamp: 0.05
+        /diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/p: 0.03
+        /diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/antiwindup: true
+        /diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/d: 0.0
+        /diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/i: 0.6
+        /diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/i_clamp: 0.05
+        /diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/p: 0.03
+        /diffbot/hardware_interface/joints:
+        - front_left_wheel_joint
+        - front_right_wheel_joint
+        /diffbot/joint_state_controller/extra_joints:
+        - effort: 0.0
+          name: rear_caster_rotation_joint
+          position: 0.01
+          velocity: 0.0
+        - effort: 0.0
+          name: rear_caster_wheel_joint
+          position: 0.01
+          velocity: 0.0
+        /diffbot/joint_state_controller/publish_rate: 50
+        /diffbot/joint_state_controller/type: joint_state_controller/JointStateController
+        /diffbot/mobile_base_controller/angular/z/has_acceleration_limits: true
+        /diffbot/mobile_base_controller/angular/z/has_velocity_limits: true
+        /diffbot/mobile_base_controller/angular/z/max_acceleration: 6.0
+        /diffbot/mobile_base_controller/angular/z/max_velocity: 8.0
+        /diffbot/mobile_base_controller/base_frame_id: base_footprint
+        /diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint
+        /diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true
+        /diffbot/mobile_base_controller/linear/x/has_velocity_limits: true
+        /diffbot/mobile_base_controller/linear/x/max_acceleration: 0.6
+        /diffbot/mobile_base_controller/linear/x/max_velocity: 0.3
+        /diffbot/mobile_base_controller/pose_covariance_diagonal:
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.03
+        /diffbot/mobile_base_controller/publish_rate: 50
+        /diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint
+        /diffbot/mobile_base_controller/twist_covariance_diagonal:
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.001
+        - 0.03
+        /diffbot/mobile_base_controller/type: diff_drive_controller/DiffDriveController
+        /diffbot/mobile_base_controller/wheel_radius: 0.033
+        /diffbot/mobile_base_controller/wheel_separation: 0.144
+        ```
 
 The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` and the firmware without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114).
 
