@@ -69,10 +69,10 @@ values such as the following:
 After including Remo-specific definitions, next follows the custom libraries in
 the `lib` folder:
 
-    ```cpp
-    #include "base_controller.h"
-    #include "adafruit_feather_wing/adafruit_feather_wing.h"
-    ```
+```cpp
+#include "base_controller.h"
+#include "adafruit_feather_wing/adafruit_feather_wing.h"
+```
 
 These include directives and the libraries that get included with them are
 introduced next:
