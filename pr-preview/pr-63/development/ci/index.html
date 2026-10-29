@@ -1212,6 +1212,8 @@
       
         
       
+        
+      
     
     
     
@@ -1345,6 +1347,201 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../processing_units/robot-container/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Container
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Robot Container
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processing_units/robot-container/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set Up the Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processing_units/robot-container/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processing_units/robot-container/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processing_units/robot-container/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image and Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4303,14 +4500,19 @@
 <td style="text-align: left;">Builds and tests all catkin packages with <a href="https://github.com/ros-industrial/industrial_ci">industrial_ci</a>, against ROS Noetic packages from the ROS <code>testing</code> and <code>main</code> repositories (one job each)</td>
 </tr>
 <tr>
-<td style="text-align: left;">Build base controller</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/build_base_controller.yml"><code>.github/workflows/build_base_controller.yml</code></a></td>
-<td style="text-align: left;">Builds the Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/scripts/base_controller"><code>diffbot_base/scripts/base_controller</code></a> with <a href="https://platformio.org/">PlatformIO</a>, once for each board in its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/base_controller/platformio.ini"><code>platformio.ini</code></a>: <code>teensy40</code> (Teensy 4.0) and <code>teensy31</code> (Teensy 3.1/3.2)</td>
+<td style="text-align: left;">Firmware</td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/firmware.yml"><code>.github/workflows/firmware.yml</code></a></td>
+<td style="text-align: left;">Builds the Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> with <a href="https://platformio.org/">PlatformIO</a>, once for each board in its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>: <code>teensy40</code> (Teensy 4.0) and <code>teensy31</code> (Teensy 3.1/3.2)</td>
 </tr>
 <tr>
 <td style="text-align: left;">Dev container</td>
 <td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/devcontainer.yml"><code>.github/workflows/devcontainer.yml</code></a></td>
 <td style="text-align: left;">Builds the <a href="../dev-container/">dev container</a> image, creates the container (which builds the workspace), then builds and runs the tests in it</td>
+</tr>
+<tr>
+<td style="text-align: left;">Robot container</td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/robot_container.yml"><code>.github/workflows/robot_container.yml</code></a></td>
+<td style="text-align: left;">Builds the <a href="../../processing_units/robot-container/">robot image</a> when it or its packages change, natively on GitHub's arm64 and amd64 runners. It checks the settings template and runs the image's smoke test without hardware, in the image and through Docker Compose</td>
 </tr>
 </tbody>
 </table>
@@ -4327,9 +4529,297 @@
 <p>So a broken Dockerfile, a missing dependency or a failing build shows up in the PR, not on a developer's machine weeks later.</p>
 <h3 id="tests">Tests</h3>
 <p><strong>Simulation test:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. <a href="../simulation-test/">Simulation Test</a> explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks.</p>
-<p><strong>Geometry test:</strong> each robot's wheel radius and wheel separation are written down twice, in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and in the controller's <code>geometry.yaml</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a> checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (<code>roslaunch --dump-params</code>), and compares the drive wheels' collision radius and the distance between their joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with the controller's values. The simulation test would only notice large differences. Neither test can show that the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> matches the real wheels; that needs a measurement on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/138">diffbot#138</a>).</p>
+<p><strong>Geometry test:</strong> each robot's wheel radius and wheel separation are written down twice, in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and in the controller's <code>geometry.yaml</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a> checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (<code>roslaunch --dump-params</code>), and compares the drive wheels' collision radius and the distance between their joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with the controller's values. The simulation test would only notice large differences. Neither test can show that the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> matches the real wheels. That needs a measurement on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/138">diffbot#138</a>).</p>
+<details class="example">
+<summary>The controller's values, and the parameters that roslaunch reports</summary>
+<p><strong>The controller's values:</strong> each robot's <code>geometry.yaml</code> sets them for <code>diff_drive_controller</code>. Its comment says where the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> has the same values.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">DiffBot</label><label for="__tabbed_1_2">Remo</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control/config/diffbot/geometry.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># DiffBot's wheel geometry for diff_drive_controller, the hardware interface (diffbot_base) and the</span>
+<span class="c1"># Teensy firmware, measured on the robot, the same values as in its URDF:</span>
+<span class="c1"># - wheel_radius: half the mean of the two wheels' diameters, 66.3 and 66.8 mm</span>
+<span class="c1">#   (radius in diffbot_description/config/diffbot/front_wheel.yaml)</span>
+<span class="c1"># - wheel_separation: from the middle of one tire to the middle of the other (in the URDF: base</span>
+<span class="c1">#   y_size 0.08 + 2 * (y_offset 0.0165 + length / 2 0.0125), base.yaml and front_wheel.yaml)</span>
+<span class="c1"># The launch files load it after diffbot_control.yaml, with the model argument</span>
+<span class="nt">diffbot</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mobile_base_controller</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">wheel_radius</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0333</span><span class="w">      </span><span class="c1"># m</span>
+<span class="w">    </span><span class="nt">wheel_separation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.138</span><span class="w">   </span><span class="c1"># m</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control/config/remo/geometry.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Remo's wheel geometry for diff_drive_controller, the hardware interface (diffbot_base) and the</span>
+<span class="c1"># Teensy firmware, measured on the robot, the same values as in its URDF:</span>
+<span class="c1"># - wheel_radius: half the mean of the two wheels' diameters, 65.5 and 66.5 mm</span>
+<span class="c1">#   (radius in remo_description/config/remo/front_wheel.yaml)</span>
+<span class="c1"># - wheel_separation: from the middle of one tire to the middle of the other (in the URDF: base</span>
+<span class="c1">#   y_size 0.08 + 2 * (y_offset 0.0195 + length / 2 0.0125), base.yaml and front_wheel.yaml)</span>
+<span class="c1"># The launch files load it after diffbot_control.yaml, with the model argument</span>
+<span class="nt">diffbot</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mobile_base_controller</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">wheel_radius</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0330</span><span class="w">      </span><span class="c1"># m</span>
+<span class="w">    </span><span class="nt">wheel_separation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.144</span><span class="w">   </span><span class="c1"># m</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p><strong>What roslaunch reports:</strong> <code>roslaunch --dump-params</code> reads a launch file and the files it includes, and prints the parameters that it would set, without starting a node. The test reads three of them, highlighted below: <code>robot_description</code>, the robot description generated by <a href="../../robot-description/">xacro</a>, which expands the model's XML macros, and <code>wheel_radius</code> and <code>wheel_separation</code> from <code>geometry.yaml</code>.</p>
+<p>The outputs below are Remo's, checked in the <a href="../dev-container/">dev container</a> with diffbot <a href="https://github.com/ros-mobile-robots/diffbot/commit/c00651e"><code>c00651e</code></a> (<code>noetic-devel</code>) and remo_description 2.0.0. Remo's <code>robot_description</code> has 912 lines, so it's cut after its first characters here. With <code>model:=diffbot</code>, the wheel radius is 0.0333 m and the wheel separation is 0.138 m.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Real robot</label><label for="__tabbed_2_2">Simulation</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>On the robot, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/launch/diffbot.launch"><code>diffbot.launch</code></a> loads the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and <code>geometry.yaml</code> for the hardware interface and the controllers:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">$ </span>roslaunch<span class="w"> </span>--dump-params<span class="w"> </span>diffbot_base<span class="w"> </span>diffbot.launch<span class="w"> </span>model:<span class="o">=</span>remo
+<span class="go">/diffbot/debug/base_controller: true</span>
+<span class="go">/diffbot/debug/hardware_interface: false</span>
+<span class="go">/diffbot/encoder_resolution: 542</span>
+<span class="go">/diffbot/gain: 1.0</span>
+<span class="go">/diffbot/hardware_interface/joints:</span>
+<span class="go">- front_left_wheel_joint</span>
+<span class="go">- front_right_wheel_joint</span>
+<span class="go">/diffbot/joint_state_controller/extra_joints:</span>
+<span class="go">- effort: 0.0</span>
+<span class="go">  name: rear_caster_rotation_joint</span>
+<span class="go">  position: 0.01</span>
+<span class="go">  velocity: 0.0</span>
+<span class="go">- effort: 0.0</span>
+<span class="go">  name: rear_caster_wheel_joint</span>
+<span class="go">  position: 0.01</span>
+<span class="go">  velocity: 0.0</span>
+<span class="go">/diffbot/joint_state_controller/publish_rate: 50</span>
+<span class="go">/diffbot/joint_state_controller/type: joint_state_controller/JointStateController</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/has_acceleration_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/has_velocity_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/max_acceleration: 6.0</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/max_velocity: 8.0</span>
+<span class="go">/diffbot/mobile_base_controller/base_frame_id: base_footprint</span>
+<span class="go">/diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/has_velocity_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/max_acceleration: 0.6</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/max_velocity: 0.3</span>
+<span class="go">/diffbot/mobile_base_controller/pose_covariance_diagonal:</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.03</span>
+<span class="go">/diffbot/mobile_base_controller/publish_rate: 50</span>
+<span class="go">/diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint</span>
+<span class="go">/diffbot/mobile_base_controller/twist_covariance_diagonal:</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.03</span>
+<span class="go">/diffbot/mobile_base_controller/type: diff_drive_controller/DiffDriveController</span>
+<span class="hll"><span class="go">/diffbot/mobile_base_controller/wheel_radius: 0.033</span>
+</span><span class="hll"><span class="go">/diffbot/mobile_base_controller/wheel_separation: 0.144</span>
+</span><span class="go">/diffbot/motor_constant: 1.0</span>
+<span class="go">/diffbot/pwm_limit: 1.0</span>
+<span class="hll"><span class="go">/diffbot/robot_description: "&lt;?xml version=\"1.0\" ?&gt;\n&lt;!-- …</span>
+</span><span class="go">/diffbot/trim: 0.0</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+<div class="tabbed-block">
+<p>In the simulation, two launch files share the work. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/launch/diffbot_view.launch"><code>diffbot_view.launch</code></a> loads the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> for Gazebo, and <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/diffbot_control.launch"><code>diffbot_control.launch</code></a> loads <code>geometry.yaml</code>. The test combines their parameters:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">$ </span>roslaunch<span class="w"> </span>--dump-params<span class="w"> </span>diffbot_gazebo<span class="w"> </span>diffbot_view.launch<span class="w"> </span>model:<span class="o">=</span>remo
+<span class="hll"><span class="go">/diffbot/robot_description: "&lt;?xml version=\"1.0\" ?&gt;\n&lt;!-- …</span>
+</span><span class="go">/gazebo/enable_ros_network: true</span>
+<span class="go">/use_sim_time: true</span>
+<span class="gp">$ </span>roslaunch<span class="w"> </span>--dump-params<span class="w"> </span>diffbot_control<span class="w"> </span>diffbot_control.launch<span class="w"> </span>model:<span class="o">=</span>remo<span class="w"> </span>rqt_robot_steering:<span class="o">=</span><span class="nb">false</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/antiwindup: true</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/d: 0.0</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/i: 0.6</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/i_clamp: 0.05</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_left_wheel_joint/p: 0.03</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/antiwindup: true</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/d: 0.0</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/i: 0.6</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/i_clamp: 0.05</span>
+<span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/p: 0.03</span>
+<span class="go">/diffbot/hardware_interface/joints:</span>
+<span class="go">- front_left_wheel_joint</span>
+<span class="go">- front_right_wheel_joint</span>
+<span class="go">/diffbot/joint_state_controller/extra_joints:</span>
+<span class="go">- effort: 0.0</span>
+<span class="go">  name: rear_caster_rotation_joint</span>
+<span class="go">  position: 0.01</span>
+<span class="go">  velocity: 0.0</span>
+<span class="go">- effort: 0.0</span>
+<span class="go">  name: rear_caster_wheel_joint</span>
+<span class="go">  position: 0.01</span>
+<span class="go">  velocity: 0.0</span>
+<span class="go">/diffbot/joint_state_controller/publish_rate: 50</span>
+<span class="go">/diffbot/joint_state_controller/type: joint_state_controller/JointStateController</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/has_acceleration_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/has_velocity_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/max_acceleration: 6.0</span>
+<span class="go">/diffbot/mobile_base_controller/angular/z/max_velocity: 8.0</span>
+<span class="go">/diffbot/mobile_base_controller/base_frame_id: base_footprint</span>
+<span class="go">/diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/has_velocity_limits: true</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/max_acceleration: 0.6</span>
+<span class="go">/diffbot/mobile_base_controller/linear/x/max_velocity: 0.3</span>
+<span class="go">/diffbot/mobile_base_controller/pose_covariance_diagonal:</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.03</span>
+<span class="go">/diffbot/mobile_base_controller/publish_rate: 50</span>
+<span class="go">/diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint</span>
+<span class="go">/diffbot/mobile_base_controller/twist_covariance_diagonal:</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.001</span>
+<span class="go">- 0.03</span>
+<span class="go">/diffbot/mobile_base_controller/type: diff_drive_controller/DiffDriveController</span>
+<span class="hll"><span class="go">/diffbot/mobile_base_controller/wheel_radius: 0.033</span>
+</span><span class="hll"><span class="go">/diffbot/mobile_base_controller/wheel_separation: 0.144</span>
+</span></code></pre></div></td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+</details>
 <p>The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for <code>diffbot_base</code> and the firmware without the robot are planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>.</p>
-<p><strong>Planned</strong> in the Docker and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> phase of the <a href="../#roadmap">roadmap</a>: a <strong>robot container</strong> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>), an arm64 Docker image with ROS Noetic for the robot's Raspberry Pi, to run on a current host OS. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> will build it for arm64 and run a smoke test in it, without the robot's hardware.</p>
+<p><strong>Robot container smoke test:</strong> the <a href="../../processing_units/robot-container/image/#how-its-tested">robot image</a> is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>).</p>
 <h3 id="github-actions-versions">GitHub Actions versions</h3>
 <p>The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> workflow failed before building anything because <code>actions/cache@v2</code> had been switched off (<a href="https://github.blog/changelog/2024-12-05-notice-of-upcoming-releases-and-breaking-changes-for-github-actions/">GitHub notice</a>), and Node 20 actions were retired in September 2026 (<a href="https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/">GitHub changelog</a>). When a check fails during "Set up job", an outdated action is the likely cause.</p>
 <h3 id="writing-tests-and-debugging">Writing tests and debugging</h3>
@@ -4354,7 +4844,7 @@
 <span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install python3-venv</span>
 <span class="go">python3 -m venv ~/.venvs/platformio</span>
 <span class="go">~/.venvs/platformio/bin/pip install platformio</span>
-<span class="go">cd diffbot_base/scripts/base_controller</span>
+<span class="go">cd diffbot_firmware</span>
 <span class="go">~/.venvs/platformio/bin/pio run</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>pio run</code> builds the Teensy 4.0, the default environment; <code>pio run -e teensy31</code> builds the Teensy 3.1/3.2.</p>
@@ -4550,7 +5040,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     

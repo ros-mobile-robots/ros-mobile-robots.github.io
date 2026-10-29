@@ -1214,6 +1214,8 @@
       
         
       
+        
+      
     
     
     
@@ -1347,6 +1349,201 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../processing_units/robot-container/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Container
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Robot Container
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set Up the Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image and Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4178,9 +4375,8 @@ controller in <a href="../">DiffBot Base</a>, the low-level firmware is implemen
 the same as Arduino (based on Wiring) and it is available as a plugin for the
 Visual Studio Code editor. On the development PC, we can flash the robot
 firmware to the board with this plugin. We will get the firmware code from the
-<code>diffbot_base</code> ROS package, located in the
-<a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/scripts/base_controller"><code>scripts/base_controller</code></a>
-subfolder. Opening this folder in Visual Studio Code will recognize it as a
+<a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a>
+folder of the diffbot repository. Opening this folder in Visual Studio Code will recognize it as a
 PlatformIO workspace because it contains the <code>platformio.ini</code> file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
@@ -4200,7 +4396,7 @@ receive wheel velocity commands from the high-level
 <code>hardware_interface::RobotHW</code> class, discussed in the next section. The
 following code snippets are part of the low-level base controller’s <code>main.cpp</code>
 file and show the used libraries, found in
-<code>diffbot_base/scripts/base_controller</code>, in the <code>lib</code> and <code>src</code> folders. <code>src</code>
+<code>diffbot_firmware</code>, in the <code>lib</code> and <code>src</code> folders. <code>src</code>
 contains <code>main.cpp</code> consisting of the <code>setup()</code> and <code>loop()</code> functions, common
 to every Arduino sketch and starts off by including the following headers:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4420,9 +4616,9 @@ at the imu rate and published for a node that fuses the data with the encoder
 odometry to obtain more precise odometry. Finally, in the main <code>loop()</code>, all the
 callbacks waiting in the ROS callback queue are processed with a call to
 <code>nh.spinOnce()</code>.</p>
-<p>MThis describes the low-level base controller. For more details and the complete
-library code, please refer to the <code>diffbot_base/scripts/base_controller</code>
-package. </p>
+<p>This describes the low-level base controller. For more details and the complete
+library code, please refer to the <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a>
+folder.</p>
 <p>In the following section, the <code>diffbot::DiffBotHWInterface</code> class is described.</p>
 <h2 id="ros-control-high-level-hardware-interface-for-a-differential-drive-robot">ROS Control high-level hardware interface for a differential drive robot</h2>
 <p>The <a href="http://wiki.ros.org/ros_control">ros_control</a> meta package contains the
@@ -4753,7 +4949,7 @@ started nodes interact with each other.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
