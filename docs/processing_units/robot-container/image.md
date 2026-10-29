@@ -1,6 +1,6 @@
 # Image and Tests
 
-How the [robot container's](index.md) image is built, what takes its space, and how CI tests it. You don't need this page to use the robot container. It's for changing the image, or for understanding it.
+How the [robot container's](index.md) image is built, what takes its space, and how CI tests and publishes it. You don't need this page to use the robot container. It's for changing the image, or for understanding it.
 
 ## How the image is built
 
@@ -12,10 +12,10 @@ The image is defined in the diffbot repository's [`.docker/robot`]({{ robot_cont
 
 A [catkin workspace](https://wiki.ros.org/catkin/workspaces) is a folder whose `src` folder holds the source code of ROS packages, which catkin builds together. The image has one, with the diffbot repository and the two fetched repositories in `src` ([folders in the container](setup.md#6-the-diffbot-repository)). The dev container on your PC has its own.
 
-Which packages are built is a list in the Dockerfile ([lines 42–45]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L42-L45)): the packages that the bringup and the lidar need, for both robots.
+Which packages are built is a list in the Dockerfile ([lines 49–52]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L49-L52)): the packages that the bringup and the lidar need, for both robots.
 
-```dockerfile title="Dockerfile" linenums="42"
---8<-- "{{ robot_container_src_raw }}/.docker/robot/Dockerfile:42:45"
+```dockerfile title="Dockerfile" linenums="49"
+--8<-- "{{ robot_container_src_raw }}/.docker/robot/Dockerfile:49:52"
 ```
 
 The list is needed because rosdep reads only the `package.xml` files it's given. In its `package.xml`, a package declares each other package it needs when the robot runs with an `<exec_depend>` line, for example:
@@ -28,7 +28,7 @@ With this line, rosdep would recognize `diffbot_base` as a package of the worksp
 
 catkin does follow these lines: `catkin build diffbot_bringup` would first build the workspace packages that `diffbot_bringup` declares. But today `diffbot_bringup` declares only `teleop_twist_keyboard`, not the packages its launch files start. Adding them is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
 
-Docker builds the image on the Raspberry Pi with the first `docker compose up -d --build` ([Start](usage.md#start)). The container runs as the user `ros` with UID 1000, not as root. The image also sets `PYTHONUNBUFFERED` and `ROSCONSOLE_STDOUT_LINE_BUFFERED`, so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and `docker compose logs` would show it late.
+CI builds the image and publishes it ([How it's tested](#how-its-tested)). Docker builds it on the Raspberry Pi only for [your own build](usage.md#versions-and-your-own-build). The container runs as the user `ros` with UID 1000, not as root. The image also sets `PYTHONUNBUFFERED` and `ROSCONSOLE_STDOUT_LINE_BUFFERED`, so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and `docker compose logs` would show it late.
 
 ## What takes the space
 
@@ -41,8 +41,8 @@ Unpacked, the image takes about 3.2 GB on an amd64 PC, and about 0.7 GB compress
 
 The workflow [`robot_container.yml`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml) runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (`ubuntu-24.04-arm`, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes.
 
-```yaml title="robot_container.yml" linenums="37"
---8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:37:43"
+```yaml title="robot_container.yml" linenums="57"
+--8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:57:67"
 ```
 
 Each run checks that `env.example` gives a valid configuration, builds the image, and runs [`smoke_test.sh`]({{ robot_container_src_url }}/.docker/robot/smoke_test.sh) in it twice: directly in the image, and through `compose.yaml` with its mounts and groups. The test checks, without hardware, that:
@@ -52,6 +52,14 @@ Each run checks that `env.example` gives a valid configuration, builds the image
 - the launch files parse, and the lidar driver runs in the robot's namespace, so its scans are on `/diffbot/scan`,
 - Remo's bringup starts: the robot model loads and both controllers run.
 
-The result is the workflow's check on the pull request, passed or failed. The image itself is deleted with the runner: it isn't published. Without a Teensy, rosserial can't open its port and the hardware interface gets no wheel feedback, so the test can't show that the robot drives. That needs the real robot: teleop and lidar scans on a Raspberry Pi in Remo, the open test in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109).
+For a pull request, the result is the workflow's check, passed or failed, and the image is deleted with the runner. After a change is merged into `noetic-devel`, both runs save the image they tested, and a third job publishes them if both passed:
+
+```yaml title="robot_container.yml" linenums="120"
+--8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:120:132"
+```
+
+Only this job may write packages, and it runs nothing from the images. Its script, [`publish_image.sh`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh), checks that each archive holds the right architecture and commit, copies both images to the registry, and combines them under one name. It writes the version and `noetic` only after the registry has answered whether they exist, so it can't replace a version that it couldn't see. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version `noetic-<commit>` is published once and never replaced, and `noetic` only moves to a later commit.
+
+Without a Teensy, rosserial can't open its port and the hardware interface gets no wheel feedback, so the test can't show that the robot drives. That needs the real robot: teleop and lidar scans on a Raspberry Pi in Remo, the open test in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109).
 
 [Testing and CI](../../development/ci.md) describes all workflows of the diffbot repository, what each one checks, and how to run the checks on your PC.

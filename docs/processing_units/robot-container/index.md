@@ -38,7 +38,7 @@ What runs where, and which page explains it:
 |:--|:--|:--|
 | Your PC | The [dev container](../../development/dev-container.md) with ROS Noetic, Gazebo and RViz, and usually the ROS master (`roscore`) | [Set Up Your PC](../../getting-started/set-up-your-pc.md), [ROS Network Setup](../ros-network-setup.md) |
 | The Raspberry Pi, the robot's computer | Ubuntu Server 24.04 and Docker Engine, the udev rules for the serial devices, the diffbot repository with the settings, and a folder for ROS logs | [Set Up the Raspberry Pi](setup.md) |
-| The robot containers, on the Raspberry Pi | ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robot models and the lidar driver. Docker builds their image on the Raspberry Pi, from the diffbot repository | [Start, Check and Stop](usage.md), [Image and Tests](image.md) |
+| The robot containers, on the Raspberry Pi | ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robot models and the lidar driver. CI builds and tests their image and publishes it, and Docker downloads it to the Raspberry Pi | [Start, Check and Stop](usage.md), [Image and Tests](image.md) |
 | The Teensy | The firmware that drives the motors and reads the encoders | [Microcontroller](../teensy-mcu.md): flash it from the PC before the first start |
 
 ## The pages of this section
@@ -50,7 +50,6 @@ What runs where, and which page explains it:
 
 ## Limitations and planned work
 
-- **Ready-made images.** Today the Raspberry Pi builds the image itself. CI could publish the images it builds, so the robot only downloads them, and a known version could be installed again.
 - **The camera.** The Raspberry Pi camera driver, `raspicam_node`, needs the Raspberry Pi's legacy camera stack, which current operating systems no longer have. A driver for libcamera is planned in [diffbot#111](https://github.com/ros-mobile-robots/diffbot/issues/111).
 - **I2C and GPIO on the Raspberry Pi** aren't passed into the containers yet. The current robots don't need them: the motor driver and the optional IMU connect to the Teensy, which reaches the Raspberry Pi over USB ([Processing Units](../index.md)). Parts on the Raspberry Pi's own pins wouldn't work in the containers yet, such as the Grove motor driver of earlier DiffBot versions or the ultrasonic ranger ([Hardware Interfaces](../hardware-interfaces.md)).
 - **Starting at boot.** For now, start the robot with the command in [Start, Check and Stop](usage.md#start) after logging in. An automatic start needs the Teensy, the network, the synchronized clock and the PC's ROS master when the Raspberry Pi boots. Docker's restart policy alone can't handle a missing device, so this needs its own tests.
