@@ -44,7 +44,7 @@ Each robot's wheel radius and wheel separation are written down twice, in its UR
 
 <div class="comparison-table">
 <table>
-<thead><tr><th>Remo's URDF</th><th></th><th>Remo's <code>geometry.yaml</code></th></tr></thead>
+<thead><tr><th scope="col">Remo's URDF</th><td></td><th scope="col">Remo's <code>geometry.yaml</code></th></tr></thead>
 <tbody>
 <tr><td><code>front_left_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
 <tr><td><code>front_right_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
