@@ -1214,6 +1214,8 @@
       
         
       
+        
+      
     
     
     
@@ -1347,6 +1349,201 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../processing_units/robot-container/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Container
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Robot Container
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set Up the Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../processing_units/robot-container/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image and Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4447,34 +4644,45 @@ control rate:</p>
    receives the commanded wheel joint velocities (topic <code>wheel_cmd_velocities</code>,
    type <code>diffbot_msgs::WheelsCmdStamped</code>) inside the
    <code>BaseController::commandCallback(const diffbot_msgs::WheelsCmdStamped&amp;)</code>
-   callback method. In <code>BaseController::read()</code>, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is called to compute
+   callback method. In <code>BaseController::write()</code>, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is called to compute
    the motor <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals from the velocity error and the motor speeds are set
    with the two motor controllers.</li>
 <li>To keep calling this method at the desired control rate, the
    <code>lastUpdateTime().control</code> variable is updated with the current time.</li>
 </ol>
-<p>The next block stops the motors when no wheel command has arrived for
-<code>E_STOP_COMMAND_RECEIVED_DURATION</code> seconds (5 s), for example because the
-connection to the robot's computer is lost: <code>BaseController::eStop()</code> sets the
-commanded wheel velocities to zero, and the next control update drives the
-motors with them. <code>commandCallback()</code> records when the last command arrived, in
-<code>lastUpdateTime().command_received</code>.</p>
+<p>On each pass, the firmware also checks how long it has been since a wheel
+command arrived. When that reaches 5 seconds
+(<code>E_STOP_COMMAND_RECEIVED_DURATION</code>), <code>BaseController::eStop()</code> sets both
+target wheel velocities to zero. <code>commandCallback()</code> records the arrival time
+using <code>millis()</code>. The control step comes before the timeout check, so the zero
+targets are used on a later control step. This doesn't directly switch off
+the motors or reset the PIDs: stored <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> error can keep the motor output
+nonzero. A reliable stop when commands stop arriving is tracked in
+<a href="https://github.com/ros-mobile-robots/diffbot/issues/146">diffbot#146</a>.</p>
 <h3 id="timing-with-the-teensys-clock">Timing with the Teensy's clock</h3>
-<p>The times in <code>LastUpdateTime</code> and in the encoder come from the Teensy's own
-clock:
+<p>The firmware needs to measure elapsed time: whether 50 ms have passed since
+the last control step, or 5 s since the last wheel command. A correction to the
+Raspberry Pi's time of day must not change those intervals.</p>
+<p>Earlier firmware used <code>nh.now()</code>, ROS time that rosserial synchronizes with the
+robot's computer. If that time moved backward, control updates could pause and
+the command timeout could be delayed. A forward jump could make a recent
+command appear too old. The encoder's speed calculation also depended on this
+clock.</p>
+<p>There was a separate error in the control-rate check: it passed 0.05 to a
+whole-seconds argument, which became zero. That allowed a control step on every
+loop pass while ROS time advanced normally. The corrected check waits at least
+50 ms between recorded steps, giving a nominal rate of 20 Hz. Blocking work can
+make an update late. Because the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> accumulates error per step, this rate
+change can affect the wheels' response with unchanged gains.</p>
+<p>The intervals now come from the Teensy's local counters.
 <a href="https://docs.arduino.cc/language-reference/en/functions/time/millis/"><code>millis()</code></a>
-counts the milliseconds since the board started, <code>micros()</code> the microseconds.
-They only count up. ROS time, from <code>nh.now()</code>, is the robot computer's clock:
-rosserial synchronizes the Teensy with it every few seconds, and it can jump,
-for example when the computer corrects its clock, or when the Teensy connects
-to a computer whose clock is earlier. A time difference in ROS time would then
-be negative until the clock caught up again: no control updates and no
-emergency stop for that long, while the motors keep their last command. With
-<code>millis()</code>, a jump of ROS time doesn't change the rates.</p>
-<p>The differences are computed with unsigned integers (<code>uint32_t</code>), so they stay
-right when the counters start again from zero, <code>millis()</code> after about 49 days
-and <code>micros()</code> after about 71 minutes, as long as the two times are less than
-one such cycle apart: the loop runs many times per second.</p>
+measures milliseconds for scheduling and command age,
+<a href="https://docs.arduino.cc/language-reference/en/functions/time/micros/"><code>micros()</code></a>
+microseconds for the encoder speed. ROS clock synchronization doesn't alter
+them. The counters return to zero after about 49.7 days and 71.6 minutes. The
+differences are computed with unsigned integers (<code>uint32_t</code>), which handles
+that as long as the two readings are less than one counter cycle apart and come
+from the same run of the firmware.</p>
 <p>After the control loop update block, if an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
 odometry to obtain more precise odometry. Finally, in the main <code>loop()</code>, all the
@@ -4813,7 +5021,7 @@ started nodes interact with each other.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
