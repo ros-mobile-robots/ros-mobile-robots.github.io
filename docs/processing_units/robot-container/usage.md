@@ -23,7 +23,7 @@ On the Raspberry Pi, list the containers:
 docker compose ps -a
 ```
 
-On a robot without a lidar, it shows one container, the bringup, with the status `Up`. This output, like the one below, was recorded without hardware:
+On a robot without a lidar, it shows one container, the bringup, with the status `Up`. This output, like the one below, was recorded without hardware, with the image built locally as `diffbot-robot:noetic`. With the published image, the `IMAGE` column shows `ghcr.io/ros-mobile-robots/diffbot-robot:noetic`:
 
 ```text
 NAME                      IMAGE                  COMMAND                  SERVICE   CREATED          STATUS          PORTS
