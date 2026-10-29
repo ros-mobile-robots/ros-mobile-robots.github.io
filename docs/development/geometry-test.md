@@ -40,6 +40,7 @@ It needs remo_description in the workspace, as the dev container has it, but it 
 ```console
 test_agreement (__main__.TestComparison) ... ok
 test_effort_interface (__main__.TestComparison) ... ok
+test_fixed_wheel_joint (__main__.TestComparison) ... ok
 test_hardware_joints_missing (__main__.TestComparison) ... ok
 test_hardware_joints_reversed (__main__.TestComparison) ... ok
 test_nan_radius (__main__.TestComparison) ... ok
@@ -56,12 +57,12 @@ test_robot (__main__.TestModels) ... ok
 test_simulation (__main__.TestModels) ... ok
 
 ----------------------------------------------------------------------
-Ran 16 tests in 3.100s
+Ran 17 tests in 3.060s
 
 OK
 ```
 
-16 tests: 14 check the comparison itself with a small made-up model ([step 4](#4-the-comparisons-own-tests)), and 2 check the robots as their launch files load them, each for DiffBot and Remo.
+17 tests: 15 check the comparison itself with a small made-up model ([step 4](#4-the-comparisons-own-tests)), and 2 check the robots as their launch files load them, each for DiffBot and Remo.
 
 **When the two disagree:** with Remo's `wheel_separation` changed to 0.145 m on purpose, both model tests fail for Remo with the same message. The first failure:
 
@@ -69,9 +70,9 @@ OK
 FAIL: test_robot (__main__.TestModels) (model='remo')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 489, in test_robot
+  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 495, in test_robot
     self.check(model, dump_params('diffbot_base', 'diffbot.launch', model=model))
-  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 475, in check
+  File "src/diffbot/diffbot_gazebo/test/test_geometry_consistency.py", line 481, in check
     self.assertEqual(mismatches(urdf, params), [],
 AssertionError: Lists differ: ['the wheel joints are 0.1440 m apart, but wheel_separation is 0.1450 m'] != []
 
@@ -99,14 +100,14 @@ The file starts with the names it uses throughout, [lines 45–59]({{ geometry_s
 --8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:45:59"
 ```
 
-`TOLERANCE` is 0.1 mm. `NAMESPACE`, `CONTROLLER` and `HARDWARE_JOINTS` are the beginnings of the parameter names that roslaunch reports (step 1). `VELOCITY_INTERFACES` are the two spellings of the velocity interface that Gazebo accepts ([velocity interface](#a-velocity-interface-for-each-wheel)). `Params`, `Vector` and `Matrix` are short names for the types that the functions pass around.
+`TOLERANCE` is 0.1 mm. `NAMESPACE` and `CONTROLLER` are the beginnings of the parameter names that roslaunch reports (step 1), and `HARDWARE_JOINTS` is the full name of the hardware interface's joint list. `VELOCITY_INTERFACES` are the two spellings of the velocity interface that Gazebo accepts ([velocity interface](#a-velocity-interface-for-each-wheel)). `Params`, `Vector` and `Matrix` are short names for the types that the functions pass around.
 
 ### 1. The launch files supply the values
 
-`TestModels` checks the real robots' configuration, [lines 469–489]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L469-L489):
+`TestModels` checks the real robots' configuration, [lines 475–495]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L475-L495):
 
-```python title="test_geometry_consistency.py: TestModels" linenums="469"
---8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:469:489"
+```python title="test_geometry_consistency.py: TestModels" linenums="475"
+--8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:475:495"
 ```
 
 It checks each robot in `MODELS`, DiffBot and Remo. `test_simulation()` combines the parameters of the two launch files that start the simulation: `diffbot_view.launch` loads the URDF, and `diffbot_control.launch` loads the controller's configuration. `test_robot()` takes the parameters of `diffbot.launch`, which loads both on the real robot. `check()` fails when `mismatches()` reports a problem.
@@ -464,4 +465,4 @@ Each test changes one thing and checks the message, for example a wrong separati
 --8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:387:390"
 ```
 
-The others: a wrong radius, a list of wheels instead of a name, an unknown wheel joint, renamed joints and links, an effort interface instead of a velocity interface, the velocity interface second, both wheels in one transmission, a NaN radius and separation, no right wheel, and the hardware interface's joints reversed or missing.
+The others: a wrong radius, a list of wheels instead of a name, an unknown wheel joint, a fixed wheel joint, renamed joints and links, an effort interface instead of a velocity interface, the velocity interface second, both wheels in one transmission, a NaN radius and separation, no right wheel, and the hardware interface's joints reversed or missing.
