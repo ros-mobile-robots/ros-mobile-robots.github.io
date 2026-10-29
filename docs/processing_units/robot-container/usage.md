@@ -10,10 +10,10 @@ On the Raspberry Pi:
 
 ```console
 cd ~/diffbot/.docker/robot
-docker compose up -d --build
+docker compose up -d --no-build
 ```
 
-`up` creates and starts the containers described in `compose.yaml`: the bringup, and the lidar if `COMPOSE_PROFILES=lidar` is set. `-d` runs them in the background and gives you the prompt back. `--build` builds the image first, from the [Dockerfile](image.md#how-the-image-is-built) that `compose.yaml` names. The first build downloads the official ROS image and compiles the robot's packages on the Raspberry Pi, which takes a while. Later builds reuse the steps whose input didn't change, so they're usually much faster.
+`up` creates and starts the containers described in `compose.yaml`: the bringup, and the lidar if `COMPOSE_PROFILES=lidar` is set. `-d` runs them in the background and gives you the prompt back. The first start downloads the image that CI published, [`ghcr.io/ros-mobile-robots/diffbot-robot`](https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot), with the packages already compiled. Compressed, it's about 0.7 GB for amd64. Later starts use the downloaded image. `--no-build` makes a failed download an error. Without it, Compose would build the image on the Raspberry Pi instead, which takes long.
 
 ## Check
 
@@ -23,7 +23,7 @@ On the Raspberry Pi, list the containers:
 docker compose ps -a
 ```
 
-On a robot without a lidar, it shows one container, the bringup, with the status `Up`. This output, like the one below, was recorded without hardware:
+On a robot without a lidar, it shows one container, the bringup, with the status `Up`. This output, like the one below, was recorded without hardware, with the image built locally as `diffbot-robot:noetic`. With the published image, the `IMAGE` column shows `ghcr.io/ros-mobile-robots/diffbot-robot:noetic`:
 
 ```text
 NAME                      IMAGE                  COMMAND                  SERVICE   CREATED          STATUS          PORTS
@@ -105,15 +105,15 @@ On the Raspberry Pi, in `~/diffbot/.docker/robot`:
 
 | Task | Command |
 |:--|:--|
-| Start, or restart after a change | `docker compose up -d --build` |
+| Start, or restart after a change of `.env` | `docker compose up -d --no-build` |
 | Is it running? | `docker compose ps -a` |
 | Follow the output | `docker compose logs -f` |
 | Stop | `docker compose down` |
-| Update the code | `git pull`, then `docker compose up -d --build` |
+| Update | `git pull`, `docker compose pull --policy always`, then `docker compose up -d --no-build` |
 | Switch off | `docker compose down`, then `sudo poweroff` |
 
 !!! warning "After the Teensy was reset, reflashed or unplugged"
-    Stop the containers and start them again: `docker compose down`, then `docker compose up -d`. A container gets its devices when it starts, and a reconnected Teensy is a new device for the kernel, which the running container doesn't see. A new start also starts a new odometry, so a measurement run ends there.
+    Stop the containers and start them again: `docker compose down`, then `docker compose up -d --no-build`. A container gets its devices when it starts, and a reconnected Teensy is a new device for the kernel, which the running container doesn't see. A new start also starts a new odometry, so a measurement run ends there.
 
 ??? info "Running a command in a container"
     Most ROS commands run on your PC. To run one on the robot itself, for example when no PC is connected:
@@ -131,6 +131,51 @@ On the Raspberry Pi, in `~/diffbot/.docker/robot`:
     | `rostopic list` | ROS | The command itself |
 
     `docker compose exec bringup /entrypoint.sh bash` opens a shell in the container, with ROS loaded.
+
+## Versions and your own build
+
+`noetic`, the default, is the newest image that CI published from the `noetic-devel` branch. `docker compose pull --policy always` downloads it again when there's a newer one, and `docker compose up -d --no-build` then recreates the containers with it.
+
+Each published image also has a name with the full commit it was built from, `noetic-<commit>`, which never changes. Its digest, `sha256:` followed by 64 characters, names exactly the same image content. The [package's page](https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot) lists both. To stay on one version, or to go back to an earlier one, set it in `.env`, by its commit:
+
+```bash title=".docker/robot/.env"
+ROBOT_IMAGE=ghcr.io/ros-mobile-robots/diffbot-robot:noetic-<commit>
+```
+
+Or exactly, by its digest. `@` and the digest replace `:` and the name:
+
+```bash title=".docker/robot/.env"
+ROBOT_IMAGE=ghcr.io/ros-mobile-robots/diffbot-robot@sha256:<digest>
+```
+
+Use the digest of the version itself, the one the package's page shows for `noetic-<commit>`, not the digest of one architecture's image. Then download and restart:
+
+```console
+docker compose pull --policy always
+docker compose up -d --no-build
+```
+
+To go back to the newest, remove the line from `.env` and run both commands again. Removing the line alone changes nothing that runs. The version only covers the image. `compose.yaml`, the udev rules and `.env` come from your clone of the repository, and the Teensy's firmware from your last flash.
+
+**For a test report**, for example the robot test in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109), note what ran, on the Raspberry Pi:
+
+- the image's digest, in the `DIGEST` column of `docker images --digests ghcr.io/ros-mobile-robots/diffbot-robot`, for the tag you ran
+- the commit the image was built from:
+
+    ```console
+    docker inspect --format '{{ '{{' }}index .Config.Labels "org.opencontainers.image.revision"{{ '}}' }}' $(docker compose ps -q bringup)
+    ```
+
+- your clone's commit, `git -C ~/diffbot rev-parse HEAD`, and the settings in `.env`
+- the commit you flashed the Teensy's firmware from, on your PC
+
+**Your own build**, to run changed packages: set `ROBOT_IMAGE=diffbot-robot:local` in `.env`, and build the image from your clone, on the Raspberry Pi:
+
+```console
+docker compose up -d --build --pull never
+```
+
+The first build downloads the official ROS image and compiles the robot's packages, which takes a while. Later builds reuse the steps whose input didn't change, so they're usually much faster. The name `diffbot-robot:local` keeps your build apart from the published versions. To go back to them, remove the line from `.env` and run `docker compose pull --policy always` and `docker compose up -d --no-build`.
 
 ## Logs
 
