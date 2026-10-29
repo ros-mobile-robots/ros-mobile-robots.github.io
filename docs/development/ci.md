@@ -9,6 +9,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | CI | [`.github/workflows/diffbot_ci_action.yml`]({{ diffbot_repo_url }}/.github/workflows/diffbot_ci_action.yml) | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
 | Firmware | [`.github/workflows/firmware.yml`]({{ diffbot_repo_url }}/.github/workflows/firmware.yml) | Builds the Teensy firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
 | Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
+| PR description | [`.github/workflows/pr_description.yml`]({{ diffbot_repo_url }}/.github/workflows/pr_description.yml) | Checks that the pull request's description links its documentation: the docs pull request, a page on this site, or `None` ([how](#pr-description)) |
 | Robot container | [`.github/workflows/robot_container.yml`]({{ diffbot_repo_url }}/.github/workflows/robot_container.yml) | Builds the [robot image](../processing_units/robot-container/index.md) when it or its packages change, natively on GitHub's arm64 and amd64 runners. It checks the settings template and runs the image's smoke test without hardware, in the image and through Docker Compose |
 
 ### industrial_ci
@@ -29,6 +30,72 @@ catkin_test_results build
 ```
 
 So a broken Dockerfile, a missing dependency or a failing build shows up in the PR, not on a developer's machine weeks later.
+
+### PR description
+
+diffbot's [pull request template]({{ diffbot_repo_url }}/.github/pull_request_template.md) has a placeholder under `## Documentation` for the docs pull request or the page on this site that explains the change. A template only fills in the text when a pull request is opened, so [`pr_description.yml`]({{ ci_src_url }}/.github/workflows/pr_description.yml) checks that the section was filled in.
+
+#### What it accepts
+
+- a docs pull request, as `ros-mobile-robots/ros-mobile-robots.github.io#N` or its URL on GitHub
+- a link to a page on ros-mobile-robots.com that already explains the change
+- `None` or `None needed`, alone or with a reason after a dash or colon, when nothing user-visible changes
+
+The template's comments don't count. The check looks at the format only. Whether the linked page really explains the change is for the review.
+
+#### When it runs
+
+The excerpts show the workflow at the diffbot commit that this page pins, with its line numbers. [lines 7–20]({{ ci_src_url }}/.github/workflows/pr_description.yml#L7-L20):
+
+```yaml title="pr_description.yml: when it runs" linenums="7"
+--8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:7:20"
+```
+
+- **`types`:** the workflow runs when a pull request is opened, reopened or edited, and when it gets new commits. So after fixing the description, the new run shows the result, without a new commit. "Re-run jobs" on the old, failed run doesn't help: a re-run repeats the old event, with the old description.
+- **`concurrency`:** runs for the same pull request share a group. When a new run starts, for example after another edit, GitHub cancels the one still running.
+- **`permissions: {}`:** the check only reads the event, so it turns off the `GITHUB_TOKEN` permissions that a workflow can set ([permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions)). The token can't be used to write to the repository.
+
+#### How the script works
+
+The job has one step, a Python script, [lines 30–34]({{ ci_src_url }}/.github/workflows/pr_description.yml#L30-L34):
+
+```yaml title="pr_description.yml: the step" linenums="30" hl_lines="2 3"
+--8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:30:34"
+```
+
+`env` puts the description into the environment variable `BODY`. [`python3 -`](https://docs.python.org/3/using/cmdline.html#interface-options) reads Python code from its standard input: the shell's `<<'EOF'` passes it the lines that follow, up to a line with only `EOF`. The quotes around `EOF` keep the shell from changing anything in those lines. The script removes the template's comments and finds the section from `## Documentation` to the next `##` heading or the end of the description, [lines 40–44]({{ ci_src_url }}/.github/workflows/pr_description.yml#L40-L44):
+
+```yaml title="pr_description.yml: the section" linenums="40"
+--8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:40:44"
+```
+
+Then it looks for the three accepted forms, [lines 46–67]({{ ci_src_url }}/.github/workflows/pr_description.yml#L46-L67):
+
+```yaml title="pr_description.yml: the accepted forms" linenums="46"
+--8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:46:67"
+```
+
+- **`docs_pr`:** the docs repository's full reference with a number. The `(?<![\w./-])` before it makes sure that it isn't the end of a longer name or path.
+- **`linked()`:** a link counts only with `https` and the right host. `urlsplit()` takes the link apart, so `https://ros-mobile-robots.com.example.org` (host `ros-mobile-robots.com.example.org`) and `https://ros-mobile-robots.com@example.org` (host `example.org`) don't count. On github.com, only the docs repository's pull requests count. Punctuation after a bare link, such as the period at the end of a sentence, isn't part of it.
+- **`none`:** `None` at the start of a line, alone or with a reason after a dash or colon. "None yet, a docs PR will follow" doesn't count.
+
+Last, it reports the result, [lines 69–82]({{ ci_src_url }}/.github/workflows/pr_description.yml#L69-L82):
+
+```yaml title="pr_description.yml: the result" linenums="69"
+--8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:69:82"
+```
+
+The printed `::error title=…::…` line is a [workflow command](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-error-message): the runner, the machine that runs the job, turns it into an error annotation on the pull request. The exit code 1 fails the check.
+
+#### Why the description is an environment variable
+
+GitHub replaces each {% raw %}`${{ … }}`{% endraw %} expression in a `run:` script with its value [before the shell runs the script](https://docs.github.com/en/actions/concepts/security/script-injections#understanding-the-risk-of-script-injections). Anyone who opens a pull request writes its description. If the description were inserted between triple double quotes in a Python string, a crafted description could close the string with `"""` and add Python statements of its own, which would run on the runner. That's a script injection.
+
+With `env`, the description stays data. GitHub puts it into the variable `BODY`, and the script reads it with `os.environ.get("BODY")` as a string, which is never run. GitHub recommends this for untrusted input such as a pull request's title or description ([good practices](https://docs.github.com/en/actions/reference/security/secure-use#good-practices-for-mitigating-script-injection-attacks)).
+
+#### Why the script prints no description
+
+The runner reads every line that the script prints, and runs the workflow commands among them, such as the `::error` line above. If the script printed the description, a description with a line like `::error::…` would create an annotation of its own. So the script prints only fixed text. The runner lists the step's environment, the description included, at the top of the step's log, but it doesn't run commands from that list. In a [test run](https://github.com/ros-mobile-robots/diffbot/actions/runs/40921591951/job/123615973689) on [diffbot#163](https://github.com/ros-mobile-robots/diffbot/pull/163), a description with `##[error]` and `::error::` lines showed them in that list and created no annotation.
 
 ### Tests
 
