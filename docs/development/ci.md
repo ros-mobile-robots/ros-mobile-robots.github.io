@@ -60,11 +60,12 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 
     ```console
     export LOCAL_UID=$(id -u) LOCAL_GID=$(id -g)
+    docker compose -f .docker/firmware/compose.yaml build firmware
     docker compose -f .docker/firmware/compose.yaml run --rm firmware pio run -e teensy40
     docker compose -f .docker/firmware/compose.yaml run --rm firmware pio run -e teensy31
     ```
 
-    `LOCAL_UID` and `LOCAL_GID` are your user and group IDs: the container runs as you, so the build's files in `diffbot_firmware/.pio` belong to you. The first build downloads the Teensy toolchain into a Docker volume, which takes about a minute, and later builds take seconds. The firmware file is then `diffbot_firmware/.pio/build/<board>/firmware.hex`, which PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html) can flash. The container runs Debian 12 with PlatformIO 6.2.0, independent of ROS.
+    `LOCAL_UID` and `LOCAL_GID` are your user and group IDs: the container runs as you, so the build's files in `diffbot_firmware/.pio` belong to you. The image and its volume carry both IDs in their names, so another user on the same PC gets their own. `build` makes the image, again after its Dockerfile changed. The first firmware build downloads the Teensy toolchain into the volume, which needs the internet and took about a minute on our test PC, and later builds took seconds. Don't build in the container and on the PC at the same time, because both write to `diffbot_firmware/.pio`. The firmware file is then `diffbot_firmware/.pio/build/<board>/firmware.hex`, which PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html) can flash. The container runs Debian 12 with PlatformIO 6.2.0, independent of ROS.
 
     The firmware doesn't build in the ROS [dev container](dev-container.md): the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than its Ubuntu 20.04 has. In our test, the Teensy tool `teensy_size` stopped with a missing `GLIBC_2.34` there. The firmware container has glibc 2.36.
 
