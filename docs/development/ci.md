@@ -53,7 +53,7 @@ The excerpts show the workflow at the diffbot commit that this page pins, with i
 
 - **`types`:** the workflow runs when a pull request is opened, reopened or edited, and when it gets new commits. So after fixing the description, the new run shows the result, without a new commit. "Re-run jobs" on the old, failed run doesn't help: a re-run repeats the old event, with the old description.
 - **`concurrency`:** runs for the same pull request share a group. When a new run starts, for example after another edit, GitHub cancels the one still running.
-- **`permissions: {}`:** the job gets a token without any permission, because it only reads the event. Even a mistake in the script couldn't change the repository.
+- **`permissions: {}`:** the check only reads the event, so it turns off the `GITHUB_TOKEN` permissions that a workflow can set ([permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions)). The token can't be used to write to the repository.
 
 #### How the script works
 
@@ -63,7 +63,7 @@ The job has one step, a Python script, [lines 30–34]({{ ci_src_url }}/.github/
 --8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:30:34"
 ```
 
-`env` puts the description into the environment variable `BODY`, and `python3 -` runs the script that follows until the line `EOF`. The script removes the template's comments and finds the section from `## Documentation` to the next `##` heading, [lines 40–44]({{ ci_src_url }}/.github/workflows/pr_description.yml#L40-L44):
+`env` puts the description into the environment variable `BODY`. [`python3 -`](https://docs.python.org/3/using/cmdline.html#interface-options) reads Python code from its standard input: the shell's `<<'EOF'` passes it the lines that follow, up to a line with only `EOF`. The quotes around `EOF` keep the shell from changing anything in those lines. The script removes the template's comments and finds the section from `## Documentation` to the next `##` heading or the end of the description, [lines 40–44]({{ ci_src_url }}/.github/workflows/pr_description.yml#L40-L44):
 
 ```yaml title="pr_description.yml: the section" linenums="40"
 --8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:40:44"
@@ -76,26 +76,26 @@ Then it looks for the three accepted forms, [lines 46–67]({{ ci_src_url }}/.gi
 ```
 
 - **`docs_pr`:** the docs repository's full reference with a number. The `(?<![\w./-])` before it makes sure that it isn't the end of a longer name or path.
-- **`linked()`:** a link counts only with the right host. `urlsplit()` takes the link apart, so `https://ros-mobile-robots.com.example.org` (host `ros-mobile-robots.com.example.org`) and `https://ros-mobile-robots.com@example.org` (host `example.org`) don't count. On github.com, only the docs repository's pull requests count. Punctuation after a bare link, such as the period at the end of a sentence, isn't part of it.
+- **`linked()`:** a link counts only with `https` and the right host. `urlsplit()` takes the link apart, so `https://ros-mobile-robots.com.example.org` (host `ros-mobile-robots.com.example.org`) and `https://ros-mobile-robots.com@example.org` (host `example.org`) don't count. On github.com, only the docs repository's pull requests count. Punctuation after a bare link, such as the period at the end of a sentence, isn't part of it.
 - **`none`:** `None` at the start of a line, alone or with a reason after a dash or colon. "None yet, a docs PR will follow" doesn't count.
 
-Last, it reports the result, [lines 69–81]({{ ci_src_url }}/.github/workflows/pr_description.yml#L69-L81):
+Last, it reports the result, [lines 69–82]({{ ci_src_url }}/.github/workflows/pr_description.yml#L69-L82):
 
 ```yaml title="pr_description.yml: the result" linenums="69"
---8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:69:81"
+--8<-- "{{ ci_src_raw }}/.github/workflows/pr_description.yml:69:82"
 ```
 
-A line that starts with `::error` is a [workflow command](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-error-message): the runner, the machine that runs the job, turns it into an error annotation on the pull request. The exit code 1 fails the check.
+The printed `::error title=…::…` line is a [workflow command](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-error-message): the runner, the machine that runs the job, turns it into an error annotation on the pull request. The exit code 1 fails the check.
 
 #### Why the description is an environment variable
 
-GitHub replaces each {% raw %}`${{ … }}`{% endraw %} expression in a `run:` script with its value [before the shell runs the script](https://docs.github.com/en/actions/concepts/security/script-injections#understanding-the-risk-of-script-injections). Anyone who opens a pull request writes its description. If the script contained the description as an expression, for example as a Python string, its text would become part of the script: a description with `"""` in it would end the string, and the text after it would run as Python code on the runner. That's a script injection.
+GitHub replaces each {% raw %}`${{ … }}`{% endraw %} expression in a `run:` script with its value [before the shell runs the script](https://docs.github.com/en/actions/concepts/security/script-injections#understanding-the-risk-of-script-injections). Anyone who opens a pull request writes its description. If the description were inserted between triple double quotes in a Python string, a crafted description could close the string with `"""` and add Python statements of its own, which would run on the runner. That's a script injection.
 
 With `env`, the description stays data. GitHub puts it into the variable `BODY`, and the script reads it with `os.environ.get("BODY")` as a string, which is never run. GitHub recommends this for untrusted input such as a pull request's title or description ([good practices](https://docs.github.com/en/actions/reference/security/secure-use#good-practices-for-mitigating-script-injection-attacks)).
 
 #### Why the script prints no description
 
-The runner reads every line that the script prints, and runs the workflow commands among them, such as the `::error` line above. If the script printed the description, a description with a line like `::error::…` would create an annotation of its own. So the script prints only fixed text. The runner lists the step's environment, the description included, at the top of the step's log, but it doesn't run commands from that list: on [diffbot#163](https://github.com/ros-mobile-robots/diffbot/pull/163), a description with `::error::` lines created no annotation.
+The runner reads every line that the script prints, and runs the workflow commands among them, such as the `::error` line above. If the script printed the description, a description with a line like `::error::…` would create an annotation of its own. So the script prints only fixed text. The runner lists the step's environment, the description included, at the top of the step's log, but it doesn't run commands from that list. In a [test run](https://github.com/ros-mobile-robots/diffbot/actions/runs/40921591951/job/123615973689) on [diffbot#163](https://github.com/ros-mobile-robots/diffbot/pull/163), a description with `##[error]` and `::error::` lines showed them in that list and created no annotation.
 
 ### Tests
 
