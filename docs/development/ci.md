@@ -7,7 +7,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | Workflow | File | What it checks |
 |:---------|:-----|:---------------|
 | CI | [`.github/workflows/diffbot_ci_action.yml`]({{ diffbot_repo_url }}/.github/workflows/diffbot_ci_action.yml) | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
-| Firmware | [`.github/workflows/firmware.yml`]({{ diffbot_repo_url }}/.github/workflows/firmware.yml) | Builds the Teensy firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2) |
+| Firmware | [`.github/workflows/firmware.yml`]({{ diffbot_repo_url }}/.github/workflows/firmware.yml) | Builds the Teensy firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) with [PlatformIO](https://platformio.org/), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2), and runs the firmware's unit tests on the PC (`native`) |
 | Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
 | Robot container | [`.github/workflows/robot_container.yml`]({{ diffbot_repo_url }}/.github/workflows/robot_container.yml) | Builds the [robot image](../processing_units/robot-container/index.md) when it or its packages change, natively on GitHub's arm64 and amd64 runners. It checks the settings template and runs the image's smoke test without hardware, in the image and through Docker Compose |
 
@@ -32,9 +32,13 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 ### Tests
 
-**Simulation test:** [`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks.
+**Simulation test:** [`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, `test_imu.py` checks the simulated IMU and `test_odom_tf.py` that only the drive controller publishes `odom → base_footprint`.
 
-The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` and the firmware without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114).
+**EKF tests:** the [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU has three: in `diffbot_control`, the IMU gate's checks and the EKF on a stepped simulated clock; in `diffbot_gazebo`, both robots in Gazebo with a wrong wheel separation, and the `ekf` switch in the launch files.
+
+**Firmware unit tests:** the Teensy firmware's IMU code runs on the PC with fake hardware (`pio test -e native`, [IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)). The firmware workflow runs them after building both boards.
+
+The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114).
 
 **Robot container smoke test:** the [robot image](../processing_units/robot-container/image.md#how-its-tested) is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)).
 

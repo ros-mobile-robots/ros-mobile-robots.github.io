@@ -1,177 +1,68 @@
-# ROS Driver for Adafruit IMU Bosch BNO055
+# IMU: Bosch BNO055
 
-The [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout - BNO055](https://www.adafruit.com/product/2472) is based on
-the [BNO055 from Bosch](https://www.bosch-sensortec.com/products/smart-sensors/bno055/). This is system in package solution which features a MEMS accelerometer,
-magnetometer and gyroscope and putting them on a single die with a high speed ARM Cortex-M0 based processor to digest all the sensor data,
-abstract the sensor fusion and real time requirements away, and spit out data you can use in quaternions, Euler angles or vectors.
+An inertial measurement unit (IMU) measures how the robot turns and accelerates: its gyroscope measures the **angular velocity** about three axes, its accelerometer the **specific force**, the acceleration minus gravity, which at rest reads about +9.8 m/s² upwards. DiffBot and Remo use the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout](https://www.adafruit.com/product/2472) with Bosch's [BNO055](https://www.bosch-sensortec.com/en/products/smart-sensor-systems/bno055): an accelerometer, a gyroscope and a magnetometer in one package, with a processor that fuses them.
 
 <figure markdown>
   ![Adafruit Bosch BNO055 IMU]({{ asset_dir }}/components/bno055.jpg)
   <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
 
-## High level Driver (I2C)
+The robot uses one value from it: the **yaw rate**, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over rosserial.
 
-When connecting the IMU directly via i2c to the single board computer (SBC), which is referred to as the high level approach, we can make use of
-[`ros-imu-bno055`](https://github.com/dheera/ros-imu-bno055) ROS package.
+!!! warning "Not tested on the robot yet"
+    The firmware, its unit tests and the simulated IMU run without hardware. The wiring below and the [bench checks](#bench-checks) on the robot are still open, and so is where the board sits on the robot, which its URDF's `imu_link` has to match.
 
+## Wiring to the Teensy
 
-## Low Level Driver
+The BNO055 shares the Teensy's first I2C bus, `Wire`, with the motor driver ([Adafruit Motor FeatherWing](../../components.md)). On the Teensy 4.0 and 3.2, `Wire` uses pin 18 for SDA and pin 19 for SCL ([PJRC: Wire library](https://www.pjrc.com/teensy/td_libs_Wire.html)):
 
-In case we connect the Bosch IMU to the low level microcontroller board (e.g. Teensy or Arduino) there is
-[Adafruit BNO055](https://github.com/adafruit/Adafruit_BNO055) library which can be used.
+| BNO055 breakout | Teensy | Note |
+|:--|:--|:--|
+| VIN | 3.3V | The breakout takes 3.3 to 5 V; 3.3 V is the Teensy's logic level |
+| GND | GND | |
+| SDA | 18 (SDA) | The breakout has a 10 kΩ pull-up resistor on SDA and SCL |
+| SCL | 19 (SCL) | |
+| ADR | not connected | I2C address 0x28; connected to 3.3 V, 0x29 (then set `IMU_BNO055_ADDRESS`) |
 
+The other pins (RST, INT, PS0, PS1) stay unconnected. Adafruit's [pinouts page](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts) describes all of them. The motor driver's address is 0x60, so the two don't collide.
 
-## Pinout
+## What the firmware publishes
 
-The following sections are found at [learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts). For the robot the power pins as well as the I2C pins are important.
+The firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) reads the BNO055 in its IMU fusion mode (IMUPLUS: accelerometer and gyroscope, without the magnetometer) and publishes `/diffbot/imu/data_raw`, a [`sensor_msgs/Imu`](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html) message, at 50 Hz:
 
-### Power Pins
+| Field | Content |
+|:--|:--|
+| `header.frame_id` | `imu_link`: the sensor's own axes. The robot's URDF places this frame where the board sits |
+| `header.stamp` | ROS time before the read |
+| `angular_velocity` | rad/s, from the gyroscope |
+| `linear_acceleration` | m/s², the specific force, including gravity |
+| `orientation` | not provided: `orientation_covariance[0]` is −1, which [REP 145](https://www.ros.org/reps/rep-0145.html) defines as "no data" for a field |
+| covariances | diagonal starting values, not measured yet: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)² |
 
-- VIN: 3.3-5.0V power supply input
-- 3VO: 3.3V output from the on-board linear voltage regulator, you can grab up to about 50mA as necessary
-- GND: The common/GND pin for power and logic
+The chip's own orientation estimate isn't read: the EKF uses only the angular velocity. The topic's name is REP 145's for accelerometer and gyroscope data without an orientation.
 
-### I2C Pins
+The settings are in [`diffbot_base_config.h`]({{ diffbot_repo_url }}/diffbot_firmware/lib/config/diffbot_base_config.h): `IMU_ENABLED` (0 for a robot without an IMU), `IMU_BNO055_ADDRESS`, the rate, the frame, the covariances, and the retry and time limits below. The comment there explains the covariances' starting values with the datasheet's noise and offsets.
 
-- SCL - I2C clock pin, connect to your microcontrollers I2C clock line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.
-- SDA - I2C data pin, connect to your microcontrollers I2C data line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.
+## How the firmware reads it
 
-### Other Pins
+[`lib/imu`]({{ diffbot_repo_url }}/diffbot_firmware/lib/imu/README.md) has a small driver of its own for the BNO055, instead of Adafruit's library, so that every I2C transfer is checked and the start-up's waits don't hold up the firmware's loop:
 
-- RST: Hardware reset pin. Set this pin low then high to cause a reset on the sensor. This pin is 5V safe.
-- INT: The HW interrupt output pin, which can be configured to generate an interrupt signal when certain events occur like movement detected by the accelerometer, etc. (not currently supported in the Adafruit library, but the chip and HW is capable of generating this signal). The voltage level out is 3V
-- ADR: Set this pin high to change the default I2C address for the BNO055 if you need to connect two ICs on the same I2C bus. The default address is 0x28. If this pin is connected to 3V, the address will be 0x29
-- PS0 and PS1: These pins can be used to change the mode of the device (it can also do HID-I2C and UART) and also are provided in case Bosch provides a firmware update at some point for the ARM Cortex M0 MCU inside the sensor. They should normally be left unconnected.
+- **The start-up doesn't block the motor control.** A reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's [datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf)). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, IMU mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does at most a few transfers. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at I2C's standard clock of 100 kHz. Whether the control loop keeps its rate when the bus has a fault is one of the [bench checks](#bench-checks).
+- **A sample is published only if it's good:** the read succeeded and took at most `IMU_READ_BUDGET_US` (10 ms; a later result is dropped, but the budget can't cut a transfer short), the chip still is in IMU mode with the right units and its fusion runs. A stalled or unplugged IMU stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again; a missing IMU is looked for every `IMU_RETRY_PERIOD` seconds (10 s). The robot drives without an IMU, too.
+- **Stamps are ROS time,** which rosserial takes from the robot's computer: the Teensy's clock is synchronized with it every few seconds. Until the first synchronization after a connection, the firmware publishes nothing, because a stamp would carry the Teensy's uptime instead of ROS time.
+- **The 50 Hz rate counts on the Teensy's own clock** (`millis()`), so it doesn't change when ROS time jumps, for example when the Teensy connects to a computer whose clock is earlier.
 
+**Unit tests on the PC:** `pio test -e native` in `base_controller` runs the driver, the bus code, the time-sync check and the publisher with a fake sensor, I2C bus, serial port and clock, and with rosserial's own message parser. CI runs them in the firmware workflow ([Testing and CI](../../development/ci.md)). They check the logic, not the hardware.
 
-## Wiring
+## Bench checks
 
-You can easily wire this breakout to a microcontroller or single board computer (SBC). 
-The following sections will show both options using Teensy as a microcontroller and
-Raspberry Pi 4 B as SBC. For another kind of microcontroller or SBC, just make sure it has I2C capability and port the code.
+With the bringup running on the robot and its wheels off the ground:
 
-### Single Board Computer
+1. **Rate and stamps:** `rostopic hz /diffbot/imu/data_raw` shows about 50 Hz, and the stamps in `rostopic echo /diffbot/imu/data_raw` are the current ROS time.
+2. **Axes and signs:** at rest, the acceleration's upward axis reads about +9.8 m/s². Turning the robot counterclockwise by hand, seen from above, gives a positive angular velocity about the upward axis ([REP 103](https://www.ros.org/reps/rep-0103.html)). Both decide how `imu_link` sits in the URDF.
+3. **Noise and bias:** a stationary recording of a few minutes (`rosbag record /diffbot/imu/data_raw`) gives the gyroscope's bias and variance at 50 Hz, to replace the covariances' starting values.
+4. **Faults:** unplugging the IMU stops the topic within a sample and logs a warning, and the wheels keep following commands; plugged back in, it's found at the next try, at most `IMU_RETRY_PERIOD` (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The motors still stop when the commands stop.
+5. **Timing:** the control loop keeps its rate with the IMU running, for example `rostopic hz /diffbot/measured_joint_states`.
 
-The following sections show how to wire and use the BNO055 with the Raspberry Pi 4 B SBC.
-
-#### Wiring
-
-To connect the assembled BNO055 breakout to a Raspberry Pi 4 B, follow the wiring diagram.
-
-TODO Fritzing wiring diagram
-I2C to hub or one of the I2C pins (SCL and SDA) of the Raspberry Pi 
-Power (Vin) to 3.3V or 5V of the Raspberry Pi
-GND to GND
-
-<figure>
-    <a href="{{ asset_dir }}/hardware/i2c-rpi-pinout.png"><img src="{{ asset_dir }}/hardware/i2c-rpi-pinout.png"></a>
-    <figcaption><a href="https://pinout.xyz/pinout/i2c" title="I2C Pinout">I2C Pinout</a> on Raspberry Pi 4 B.</figcaption>
-</figure>
-
-- Connect Vin (red wire) to the power supply, 3-5V is fine.
-- Connect the SCL (yellow wire) pin to the I2C clock SCL pin on your SBC or an I2C hub that is connected to the SBC.
-- Connect the SDA (blue wire) pin to the I2C data SDA pin on your SBC or an I2C hub that is connected to the SBC.
-
-#### Software
-
-Refer to https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython
-as well as to the [CircuitPython Guide](https://learn.adafruit.com/circuitpython-essentials/circuitpython-essentials)
-
-1. Make sure you have python3-venv installed:
-
-    ```console
-    sudo apt install python3.8-venv
-    ```
-   
-2. Create a virtual environment:
-
-     ```console
-     $ python3 -m venv venv
-     ```
-    
-3. Activate the venv
-
-    ```console
-    $ source venv/bin/activate
-    (venv) fjp@remo:~/test_imu$
-    ```
-
-4. Install the CircuitPython driver for the BNO055:
-
-    ```console
-    pip install adafruit-circuitpython-bno055
-    ```
-    
-5. Create a simple test program or copy the [example programs](https://github.com/adafruit/Adafruit_CircuitPython_BNO055/tree/main/examples):
-
-    ```console
-    $ vim imu.py
-    ```
-    
-    and copy the following content:
-    
-    ```python
-    import adafruit_bno055
-
-    # This driver takes an instantiated and active I2C object as an argument to its constructor.
-    # The way to create an I2C object depends on the board you are using.
-    # For boards with labeled SCL and SDA pins, you can:
-    import board
-
-    i2c = board.I2C()
-
-    # Once you have the I2C object, you can create the sensor object:
-    sensor = adafruit_bno055.BNO055_I2C(i2c)
-
-    # And then you can start reading the measurements:
-    print(sensor.temperature)
-    print(sensor.euler)
-    print(sensor.gravity)
-    ```
-    
-6. TODO i2c permissions to execute with non-admin user or use sudo
-7. Execute the python script:
-
-    ```console
-    python imu.py
-    ```
-    
-    This should result in an output similar to:
-    
-    ```console
-    (venv) root@remo:/home/fjp/test_imu# python imu.py
-    29
-    (8.0, 0.0, 0.0)
-    (0.0, 0.0, 0.0)
-    ```
-
-### Microcontroller
-
-The following sections show how to wire and use the BNO055 with the Teensy microcontroller board using 
-the [PlatformIO](https://platformio.org/) plugin of Visual Studio Code.
-
-!!! info
-    Instructions to connect the BNO055 with an Arduino microcontroller are found at 
-    [learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code).
-
-#### Wiring
-
-To connect the assembled BNO055 breakout to a Raspberry Pi 4 B, follow the wiring diagram.
-
-TODO Fritzing wiring diagram
-
-- Connect Vin (red wire) to the power supply, 3-5V is fine. Use the same voltage that the microcontroller logic is based off of. For most Arduinos, that is 5V
-- Connect GND (black wire) to common power/data ground
-- Connect the SCL (yellow wire) pin to the I2C clock SCL pin on your microcontoller.
-- Connect the SDA (blue wire) pin to the I2C data SDA pin on your microcontoller.
-
-#### Software
-
-The [Adafruit_BNO055 driver](https://github.com/adafruit/Adafruit_BNO055) supports reading raw sensor data,
-or you can use the [Adafruit Unified Sensor](https://learn.adafruit.com/using-the-adafruit-unified-sensor-driver/introduction) system to retrieve orientation data in a standard data format.
-
-In the Arduino library manager you can install both, the Adafruit_BNO055 driver and the Adafruit Unified Sensor.
-
-!!! note "TODO"
-    Add PlatformIO instructions
+??? info "Trying the breakout on the Raspberry Pi"
+    To check a breakout on its own, it can also be connected to the Raspberry Pi's I2C pins ([pinout](https://pinout.xyz/pinout/i2c)): VIN to 3.3 V, GND to GND, SDA to SDA, SCL to SCL. Adafruit's guide reads it with Python and its CircuitPython library: first [prepare the Pi for it](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi) (I2C on, the Blinka library), then [slow down the Pi's I2C clock](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching), which the BNO055 needs because it stretches the clock, and then run the [BNO055 example](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython).
