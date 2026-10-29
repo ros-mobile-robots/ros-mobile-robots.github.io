@@ -4375,9 +4375,8 @@ controller in <a href="../">DiffBot Base</a>, the low-level firmware is implemen
 the same as Arduino (based on Wiring) and it is available as a plugin for the
 Visual Studio Code editor. On the development PC, we can flash the robot
 firmware to the board with this plugin. We will get the firmware code from the
-<code>diffbot_base</code> ROS package, located in the
-<a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/scripts/base_controller"><code>scripts/base_controller</code></a>
-subfolder. Opening this folder in Visual Studio Code will recognize it as a
+<a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a>
+folder of the diffbot repository. Opening this folder in Visual Studio Code will recognize it as a
 PlatformIO workspace because it contains the <code>platformio.ini</code> file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
@@ -4397,7 +4396,7 @@ receive wheel velocity commands from the high-level
 <code>hardware_interface::RobotHW</code> class, discussed in the next section. The
 following code snippets are part of the low-level base controller’s <code>main.cpp</code>
 file and show the used libraries, found in
-<code>diffbot_base/scripts/base_controller</code>, in the <code>lib</code> and <code>src</code> folders. <code>src</code>
+<code>diffbot_firmware</code>, in the <code>lib</code> and <code>src</code> folders. <code>src</code>
 contains <code>main.cpp</code> consisting of the <code>setup()</code> and <code>loop()</code> functions, common
 to every Arduino sketch and starts off by including the following headers:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4617,9 +4616,9 @@ at the imu rate and published for a node that fuses the data with the encoder
 odometry to obtain more precise odometry. Finally, in the main <code>loop()</code>, all the
 callbacks waiting in the ROS callback queue are processed with a call to
 <code>nh.spinOnce()</code>.</p>
-<p>MThis describes the low-level base controller. For more details and the complete
-library code, please refer to the <code>diffbot_base/scripts/base_controller</code>
-package. </p>
+<p>This describes the low-level base controller. For more details and the complete
+library code, please refer to the <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a>
+folder.</p>
 <p>In the following section, the <code>diffbot::DiffBotHWInterface</code> class is described.</p>
 <h2 id="ros-control-high-level-hardware-interface-for-a-differential-drive-robot">ROS Control high-level hardware interface for a differential drive robot</h2>
 <p>The <a href="http://wiki.ros.org/ros_control">ros_control</a> meta package contains the

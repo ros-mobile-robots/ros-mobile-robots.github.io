@@ -4500,7 +4500,7 @@
 </ul>
 <p>So the microcontroller does this time-critical work: it counts the encoder pulses, runs the speed control and drives the motors through the motor driver. Over USB, it receives the commanded wheel speeds from the Raspberry Pi and sends back the wheels' measured positions and speeds, computed from the encoder counts.</p>
 <h2 id="which-microcontroller">Which Microcontroller?</h2>
-<p>The firmware in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/base_controller"><code>diffbot_base/scripts/base_controller</code></a> runs on a <a href="https://www.pjrc.com/teensy/">Teensy</a>, a small board by PJRC with a 32-bit ARM processor. It's programmed like an Arduino, with the <a href="https://www.pjrc.com/teensy/teensyduino.html">Teensyduino</a> add-on or PlatformIO, so most Arduino code works on it. Two things make it a good fit here:</p>
+<p>The firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> runs on a <a href="https://www.pjrc.com/teensy/">Teensy</a>, a small board by PJRC with a 32-bit ARM processor. It's programmed like an Arduino, with the <a href="https://www.pjrc.com/teensy/teensyduino.html">Teensyduino</a> add-on or PlatformIO, so most Arduino code works on it. Two things make it a good fit here:</p>
 <ul>
 <li><strong>Interrupts on every digital pin:</strong> the firmware counts the encoders with PJRC's <a href="https://www.pjrc.com/teensy/td_libs_Encoder.html">Encoder library</a>, which works best when both signals of an encoder are on interrupt pins. On the Teensy, all digital pins are; an Arduino Uno has only two, pins 2 and 3.</li>
 <li><strong>Speed and memory to spare:</strong> a faster processor and much more RAM than the classic Arduinos, which leaves room for rosserial (see <a href="#other-boards-such-as-an-arduino">below</a>).</li>
@@ -4652,7 +4652,7 @@ more instructions to setup the Arduino IDE can be found in the <a href="http://w
 <h2 id="encoder-program">Encoder Program</h2>
 <p>When installing Teensyduino new example programs are provided. One of them is to test Encoders. 
 The code for the motor encoders uses it as basis together with a pubsub example from rosserial:</p>
-<p>The program is <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/encoders/encoders/encoders.ino"><code>encoders.ino</code></a> in the diffbot repository.</p>
+<p>The program is <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/sketches/encoders/encoders.ino"><code>encoders.ino</code></a> in the diffbot repository.</p>
 <p>After the program is flashed to the Teensy board it can be tested with the following procedure:</p>
 <ol>
 <li>Start a ROS <a href="http://wiki.ros.org/Master">master</a> by executing <a href="http://wiki.ros.org/roscore"><code>roscore</code></a> in a new terminal.</li>
@@ -4786,7 +4786,7 @@ The code for the motor encoders uses it as basis together with a pubsub example 
 </code></pre></div></td></tr></tbody></table></div>
 <p>The found value 540 for a full turn of the wheel is important for the hardware interface.</p>
 <h2 id="base-controller">Base Controller</h2>
-<p>If you are working with Remo the recommende way is to use <code>base_controller</code> from <code>diffbot_base/scripts</code> instead of the <code>encoders.ino</code>.
+<p>If you are working with Remo, the recommended way is to use the firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> instead of <code>encoders.ino</code>.
 Build instructions using Visual Studio Code including the PlatformIO plugin are shown in the following video:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/Mn6DY1tNUcU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
