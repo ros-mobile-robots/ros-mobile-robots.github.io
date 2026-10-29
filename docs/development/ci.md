@@ -34,7 +34,7 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 **Simulation test:** [`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, `test_imu.py` checks the simulated IMU and `test_odom_tf.py` that only the drive controller publishes `odom → base_footprint`.
 
-**EKF tests:** the [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU has three: in `diffbot_control`, the IMU gate's checks and the EKF on a stepped simulated clock; in `diffbot_gazebo`, both robots in Gazebo with a wrong wheel separation, and the `ekf` switch in the launch files.
+**EKF tests:** the [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU has three. In `diffbot_control`, the IMU gate's checks and the EKF on a stepped simulated clock. In `diffbot_gazebo`, both robots in Gazebo with a wrong wheel separation, and the `ekf` switch in the launch files.
 
 **Firmware unit tests:** the Teensy firmware's IMU code runs on the PC with fake hardware (`pio test -e native`, [IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)). The firmware workflow runs them in a separate job.
 
