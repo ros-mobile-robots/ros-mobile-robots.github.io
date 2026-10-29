@@ -4164,6 +4164,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simulation-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulation test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geometry-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometry test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robot-container-smoke-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot container smoke test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4355,6 +4394,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simulation-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulation test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geometry-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometry test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robot-container-smoke-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot container smoke test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4528,8 +4606,30 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>So a broken Dockerfile, a missing dependency or a failing build shows up in the PR, not on a developer's machine weeks later.</p>
 <h3 id="tests">Tests</h3>
-<p><strong>Simulation test:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. <a href="../simulation-test/">Simulation Test</a> explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks.</p>
-<p><strong>Geometry test:</strong> each robot's wheel radius and wheel separation are written down twice, in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and in the controller's <code>geometry.yaml</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a> checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (<code>roslaunch --dump-params</code>), and compares the drive wheels' collision radius and the distance between their joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with the controller's values. The simulation test would only notice large differences. Neither test can show that the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> matches the real wheels. That needs a measurement on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/138">diffbot#138</a>).</p>
+<p>Only <code>diffbot_gazebo</code> registers catkin tests so far: the simulation test and the geometry test below. The robot image has a smoke test of its own. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Unit tests for the firmware on the PC (<a href="https://github.com/ros-mobile-robots/diffbot/issues/158">diffbot#158</a>) and tests for <code>diffbot_base</code> without the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>) are planned.</p>
+<h4 id="simulation-test">Simulation test</h4>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. <a href="../simulation-test/">Simulation Test</a> explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks.</p>
+<h4 id="geometry-test">Geometry test</h4>
+<p>Each robot's wheel radius and wheel separation are written down twice, in its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and in the controller's <code>geometry.yaml</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a> checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (<code>roslaunch --dump-params</code>), and compares the drive wheels' collision radius and the distance between their joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with the controller's values. For Remo, these are the values it compares. The two values in each row must be the same:</p>
+<div class="comparison-table">
+<table>
+<thead><tr><th scope="col">Remo's URDF</th><td></td><th scope="col">Remo's <code>geometry.yaml</code></th></tr></thead>
+<tbody>
+<tr><td><code>front_left_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
+<tr><td><code>front_right_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
+<tr><td>Wheel joints<br>0.144 m apart</td><td>⟷</td><td><code>wheel_separation</code><br>0.144</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The radii are the wheels' collision spheres. The separation is the straight-line distance between the two wheel joints' positions in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s root frame, <code>base_footprint</code>: <code>front_left_wheel_joint</code> is at y = 0.072 m and <code>front_right_wheel_joint</code> at y = −0.072 m, with the same x and z. xacro computes these values from the description package's YAML files, for Remo <code>front_wheel.yaml</code> and <code>base.yaml</code> in remo_description. A difference of up to 0.1 mm passes.</p>
+<p>The test also checks the wheel joints that the controller names in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a>:</p>
+<ul>
+<li><code>left_wheel</code> and <code>right_wheel</code> are continuous joints in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>.</li>
+<li>Each one's single-joint transmission starts with a velocity interface. Gazebo gives the controller the transmission's first interface, and skips a transmission with more than one joint.</li>
+<li>The hardware interface's <code>joints</code> are the same two, the left one first, because the real robot's <code>diffbot_base</code> treats the first one as the left motor.</li>
+</ul>
+<p>The simulation test would only notice large differences. Neither test can show that the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> matches the real wheels. That needs a measurement on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/138">diffbot#138</a>).</p>
 <details class="example">
 <summary>The controller's values, and the parameters that roslaunch reports</summary>
 <p><strong>The controller's values:</strong> each robot's <code>geometry.yaml</code> sets them for <code>diff_drive_controller</code>. Its comment says where the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> has the same values.</p>
@@ -4546,8 +4646,16 @@
 <span class="normal"> 8</span>
 <span class="normal"> 9</span>
 <span class="normal">10</span>
-<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># DiffBot's wheel geometry for diff_drive_controller, the hardware interface (diffbot_base) and the</span>
-<span class="c1"># Teensy firmware, measured on the robot, the same values as in its URDF:</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># DiffBot's nominal wheel geometry for diff_drive_controller's odometry and wheel commands,</span>
+<span class="c1"># measured on the robot and kept consistent with its URDF. The hardware interface (diffbot_base)</span>
+<span class="c1"># also reads wheel_radius to convert its speed limit to rad/s for host-side PID limits and</span>
+<span class="c1"># motor-command scaling. The Teensy firmware fetches wheel_radius at startup, but its active</span>
+<span class="c1"># motor-control loop does not use it.</span>
+<span class="c1"># The values, and where the URDF has them:</span>
 <span class="c1"># - wheel_radius: half the mean of the two wheels' diameters, 66.3 and 66.8 mm</span>
 <span class="c1">#   (radius in diffbot_description/config/diffbot/front_wheel.yaml)</span>
 <span class="c1"># - wheel_separation: from the middle of one tire to the middle of the other (in the URDF: base</span>
@@ -4570,8 +4678,16 @@
 <span class="normal"> 8</span>
 <span class="normal"> 9</span>
 <span class="normal">10</span>
-<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Remo's wheel geometry for diff_drive_controller, the hardware interface (diffbot_base) and the</span>
-<span class="c1"># Teensy firmware, measured on the robot, the same values as in its URDF:</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Remo's nominal wheel geometry for diff_drive_controller's odometry and wheel commands,</span>
+<span class="c1"># measured on the robot and kept consistent with its URDF. The hardware interface (diffbot_base)</span>
+<span class="c1"># also reads wheel_radius to convert its speed limit to rad/s for host-side PID limits and</span>
+<span class="c1"># motor-command scaling. The Teensy firmware fetches wheel_radius at startup, but its active</span>
+<span class="c1"># motor-control loop does not use it.</span>
+<span class="c1"># The values, and where the URDF has them:</span>
 <span class="c1"># - wheel_radius: half the mean of the two wheels' diameters, 65.5 and 66.5 mm</span>
 <span class="c1">#   (radius in remo_description/config/remo/front_wheel.yaml)</span>
 <span class="c1"># - wheel_separation: from the middle of one tire to the middle of the other (in the URDF: base</span>
@@ -4585,7 +4701,7 @@
 </div>
 </div>
 </div>
-<p><strong>What roslaunch reports:</strong> <code>roslaunch --dump-params</code> reads a launch file and the files it includes, and prints the parameters that it would set, without starting a node. The test reads three of them, highlighted below: <code>robot_description</code>, the robot description generated by <a href="../../robot-description/">xacro</a>, which expands the model's XML macros, and <code>wheel_radius</code> and <code>wheel_separation</code> from <code>geometry.yaml</code>.</p>
+<p><strong>What roslaunch reports:</strong> <code>roslaunch --dump-params</code> reads a launch file and the files it includes, and prints the parameters that it would set, without starting a node. The test reads six of them, highlighted below. For the geometry, it reads <code>robot_description</code>, the robot description generated by <a href="../../robot-description/">xacro</a>, which expands the model's XML macros, and <code>wheel_radius</code> and <code>wheel_separation</code> from <code>geometry.yaml</code>. For the joints, it reads the controller's <code>left_wheel</code> and <code>right_wheel</code>, and the hardware interface's <code>joints</code>.</p>
 <p>The outputs below are Remo's, checked in the <a href="../dev-container/">dev container</a> with diffbot <a href="https://github.com/ros-mobile-robots/diffbot/commit/c00651e"><code>c00651e</code></a> (<code>noetic-devel</code>) and remo_description 2.0.0. Remo's <code>robot_description</code> has 912 lines, so it's cut after its first characters here. With <code>model:=diffbot</code>, the wheel radius is 0.0333 m and the wheel separation is 0.138 m.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Real robot</label><label for="__tabbed_2_2">Simulation</label></div>
 <div class="tabbed-content">
@@ -4647,10 +4763,10 @@
 <span class="go">/diffbot/debug/hardware_interface: false</span>
 <span class="go">/diffbot/encoder_resolution: 542</span>
 <span class="go">/diffbot/gain: 1.0</span>
-<span class="go">/diffbot/hardware_interface/joints:</span>
-<span class="go">- front_left_wheel_joint</span>
-<span class="go">- front_right_wheel_joint</span>
-<span class="go">/diffbot/joint_state_controller/extra_joints:</span>
+<span class="hll"><span class="go">/diffbot/hardware_interface/joints:</span>
+</span><span class="hll"><span class="go">- front_left_wheel_joint</span>
+</span><span class="hll"><span class="go">- front_right_wheel_joint</span>
+</span><span class="go">/diffbot/joint_state_controller/extra_joints:</span>
 <span class="go">- effort: 0.0</span>
 <span class="go">  name: rear_caster_rotation_joint</span>
 <span class="go">  position: 0.01</span>
@@ -4666,8 +4782,8 @@
 <span class="go">/diffbot/mobile_base_controller/angular/z/max_acceleration: 6.0</span>
 <span class="go">/diffbot/mobile_base_controller/angular/z/max_velocity: 8.0</span>
 <span class="go">/diffbot/mobile_base_controller/base_frame_id: base_footprint</span>
-<span class="go">/diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint</span>
-<span class="go">/diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true</span>
+<span class="hll"><span class="go">/diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint</span>
+</span><span class="go">/diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true</span>
 <span class="go">/diffbot/mobile_base_controller/linear/x/has_velocity_limits: true</span>
 <span class="go">/diffbot/mobile_base_controller/linear/x/max_acceleration: 0.6</span>
 <span class="go">/diffbot/mobile_base_controller/linear/x/max_velocity: 0.3</span>
@@ -4679,8 +4795,8 @@
 <span class="go">- 0.001</span>
 <span class="go">- 0.03</span>
 <span class="go">/diffbot/mobile_base_controller/publish_rate: 50</span>
-<span class="go">/diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint</span>
-<span class="go">/diffbot/mobile_base_controller/twist_covariance_diagonal:</span>
+<span class="hll"><span class="go">/diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint</span>
+</span><span class="go">/diffbot/mobile_base_controller/twist_covariance_diagonal:</span>
 <span class="go">- 0.001</span>
 <span class="go">- 0.001</span>
 <span class="go">- 0.001</span>
@@ -4770,10 +4886,10 @@
 <span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/i: 0.6</span>
 <span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/i_clamp: 0.05</span>
 <span class="go">/diffbot/gazebo_ros_control/pid_gains/front_right_wheel_joint/p: 0.03</span>
-<span class="go">/diffbot/hardware_interface/joints:</span>
-<span class="go">- front_left_wheel_joint</span>
-<span class="go">- front_right_wheel_joint</span>
-<span class="go">/diffbot/joint_state_controller/extra_joints:</span>
+<span class="hll"><span class="go">/diffbot/hardware_interface/joints:</span>
+</span><span class="hll"><span class="go">- front_left_wheel_joint</span>
+</span><span class="hll"><span class="go">- front_right_wheel_joint</span>
+</span><span class="go">/diffbot/joint_state_controller/extra_joints:</span>
 <span class="go">- effort: 0.0</span>
 <span class="go">  name: rear_caster_rotation_joint</span>
 <span class="go">  position: 0.01</span>
@@ -4789,8 +4905,8 @@
 <span class="go">/diffbot/mobile_base_controller/angular/z/max_acceleration: 6.0</span>
 <span class="go">/diffbot/mobile_base_controller/angular/z/max_velocity: 8.0</span>
 <span class="go">/diffbot/mobile_base_controller/base_frame_id: base_footprint</span>
-<span class="go">/diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint</span>
-<span class="go">/diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true</span>
+<span class="hll"><span class="go">/diffbot/mobile_base_controller/left_wheel: front_left_wheel_joint</span>
+</span><span class="go">/diffbot/mobile_base_controller/linear/x/has_acceleration_limits: true</span>
 <span class="go">/diffbot/mobile_base_controller/linear/x/has_velocity_limits: true</span>
 <span class="go">/diffbot/mobile_base_controller/linear/x/max_acceleration: 0.6</span>
 <span class="go">/diffbot/mobile_base_controller/linear/x/max_velocity: 0.3</span>
@@ -4802,8 +4918,8 @@
 <span class="go">- 0.001</span>
 <span class="go">- 0.03</span>
 <span class="go">/diffbot/mobile_base_controller/publish_rate: 50</span>
-<span class="go">/diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint</span>
-<span class="go">/diffbot/mobile_base_controller/twist_covariance_diagonal:</span>
+<span class="hll"><span class="go">/diffbot/mobile_base_controller/right_wheel: front_right_wheel_joint</span>
+</span><span class="go">/diffbot/mobile_base_controller/twist_covariance_diagonal:</span>
 <span class="go">- 0.001</span>
 <span class="go">- 0.001</span>
 <span class="go">- 0.001</span>
@@ -4818,8 +4934,8 @@
 </div>
 </div>
 </details>
-<p>The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for <code>diffbot_base</code> and the firmware without the robot are planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>.</p>
-<p><strong>Robot container smoke test:</strong> the <a href="../../processing_units/robot-container/image/#how-its-tested">robot image</a> is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>).</p>
+<h4 id="robot-container-smoke-test">Robot container smoke test</h4>
+<p>The <a href="../../processing_units/robot-container/image/#how-its-tested">robot image</a> is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>).</p>
 <h3 id="github-actions-versions">GitHub Actions versions</h3>
 <p>The workflows use the latest major versions of the GitHub actions, which run on Node 24. GitHub retires old versions: in 2026 the <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> workflow failed before building anything because <code>actions/cache@v2</code> had been switched off (<a href="https://github.blog/changelog/2024-12-05-notice-of-upcoming-releases-and-breaking-changes-for-github-actions/">GitHub notice</a>), and Node 20 actions were retired in September 2026 (<a href="https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/">GitHub changelog</a>). When a check fails during "Set up job", an outdated action is the likely cause.</p>
 <h3 id="writing-tests-and-debugging">Writing tests and debugging</h3>
@@ -5054,6 +5170,11 @@
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Testing and CI: a small comparison table that stays readable on a phone, with larger text,
+         narrow cells and identifiers that don't break */
+      .md-typeset .comparison-table table { font-size: .8rem; }
+      .md-typeset .comparison-table table th, .md-typeset .comparison-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .comparison-table table code { font-size: .875em; white-space: nowrap; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
