@@ -8,7 +8,7 @@ The [simulation test](simulation-test.md) drives the robots in Gazebo and would 
 
 For Remo, these are the values. The two values in each row must be the same:
 
-<div class="comparison-table">
+<div class="readable-table">
 <table>
 <thead><tr><th scope="col">Remo's URDF</th><td></td><th scope="col">Remo's <code>geometry.yaml</code></th></tr></thead>
 <tbody>
@@ -87,7 +87,7 @@ First extra element 0:
 
 The first number comes from the URDF, the second from `geometry.yaml`. Don't copy one into the other: measure the robot to find out which one is right ([How to tune](../diffbot_gazebo.md#how-to-tune)).
 
-**In CI**, `catkin build --catkin-make-args run_tests` and `catkin_test_results build` run all of the workspace's tests, the simulation tests with Gazebo included. [diffbot_gazebo's CMakeLists.txt]({{ geometry_src_url }}/diffbot_gazebo/CMakeLists.txt#L221-L224) registers this file with `catkin_add_nosetests`. It runs the file's unittest classes with [nose](https://nose.readthedocs.io/), a Python test runner, and writes the results where `catkin_test_results` counts them.
+**In CI**, `catkin build --catkin-make-args run_tests` runs all of the workspace's tests, the simulation tests with Gazebo included, and `catkin_test_results build` reports them. [diffbot_gazebo's CMakeLists.txt]({{ geometry_src_url }}/diffbot_gazebo/CMakeLists.txt#L221-L224) registers this file with `catkin_add_nosetests`. It runs the file's unittest classes with [nose](https://nose.readthedocs.io/), a Python test runner, and writes the results where `catkin_test_results` counts them.
 
 ## How it works
 
@@ -284,7 +284,7 @@ A `continuous` joint turns without limits, as a wheel does. Remo's model has the
 
 **The velocity interface.** In ros_control, a hardware interface is how a controller reads and commands a joint. diff_drive_controller commands each wheel's velocity, so it needs a velocity interface. In the simulation, Gazebo's ros_control plugin gives it one for each joint from the joint's transmission in the URDF, [lines 96–105]({{ geometry_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L96-L105):
 
-```xml title="common_macros.urdf.xacro: the wheel's transmission" linenums="96" hl_lines="98 99 100"
+```xml title="common_macros.urdf.xacro: the wheel's transmission" linenums="96" hl_lines="3 4 5"
 --8<-- "{{ geometry_src_raw }}/diffbot_description/urdf/include/common_macros.urdf.xacro:96:105"
 ```
 
@@ -351,7 +351,7 @@ The simulation loads the same list without using it, so there it's a check of th
 --8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:227:231"
 ```
 
-`within_tolerance()` checks that the difference is at most 0.1 mm, [lines 188–194]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L188-L194). It checks "within" rather than "too large", because a NaN, a value that isn't a number, compares false with everything, so it would never be too large:
+`within_tolerance()` checks that the difference is at most 0.1 mm, [lines 188–194]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L188-L194). It checks "within" rather than "too large", because ordered comparisons with a NaN, a value that isn't a number, are false, so a NaN would never be "too large":
 
 ```python title="test_geometry_consistency.py: within_tolerance()" linenums="188"
 --8<-- "{{ geometry_src_raw }}/diffbot_gazebo/test/test_geometry_consistency.py:188:194"
@@ -371,11 +371,16 @@ Each step rotates the point into the parent's frame and adds the offset of the j
 
 For Remo's left wheel joint, none of the joints on the way is rotated, so only the offsets add up:
 
-| Position in the frame of | Step | Position (m) |
-|:--|:--|:--|
-| `chassis_link` | the wheel joint's origin | (0.036, 0.072, −0.0336) |
-| `base_link` | plus the chassis joint's origin (−0.036, 0, 0) | (0, 0.072, −0.0336) |
-| `base_footprint` | plus the base link joint's origin (0, 0, 0.0666) | (0, 0.072, 0.033) |
+<div class="readable-table">
+<table>
+<thead><tr><th scope="col">In the frame of</th><th scope="col">Step</th><th scope="col">Position (m)</th></tr></thead>
+<tbody>
+<tr><td><code>chassis_link</code></td><td>the wheel joint's origin</td><td>(0.036, 0.072, −0.0336)</td></tr>
+<tr><td><code>base_link</code></td><td>plus the chassis joint's origin (−0.036, 0, 0)</td><td>(0, 0.072, −0.0336)</td></tr>
+<tr><td><code>base_footprint</code></td><td>plus the base link joint's origin (0, 0, 0.0666)</td><td>(0, 0.072, 0.033)</td></tr>
+</tbody>
+</table>
+</div>
 
 The right wheel joint ends at (0, −0.072, 0.033), 0.144 m away. `joint_origin()` reads an origin's position and its roll, pitch and yaw, [lines 112–119]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L112-L119), and `rotation_matrix()` turns them into a rotation, [lines 92–109]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L92-L109). The last part of `mismatches()` compares the distance with `wheel_separation`, [lines 238–247]({{ geometry_src_url }}/diffbot_gazebo/test/test_geometry_consistency.py#L238-L247):
 
