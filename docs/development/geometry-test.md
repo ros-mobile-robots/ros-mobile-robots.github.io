@@ -396,7 +396,7 @@ The simulation loads the same list without using it, so there it's a check of th
     --8<-- "{{ geometry_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:472:478"
     ```
 
-    With the list reversed, the left wheel's commands would drive the right motor. The planned refactor of diffbot_base and the firmware removes this trap: joints are mapped to motors by name, and the messages name the left and the right wheel ([diffbot#148](https://github.com/ros-mobile-robots/diffbot/issues/148)).
+    With the list reversed, the left wheel's commands would drive the right motor. The planned refactor of diffbot_base and the firmware removes this trap: the configuration binds each joint to an actuator channel by name, and the messages carry each channel's ID instead of a position in a list. That also leaves room for robots with four wheels or steering ([diffbot#148](https://github.com/ros-mobile-robots/diffbot/issues/148)).
 
 #### The wheel radius
 
