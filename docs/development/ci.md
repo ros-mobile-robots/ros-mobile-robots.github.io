@@ -42,11 +42,16 @@ Only `diffbot_gazebo` registers catkin tests so far: the simulation test and the
 
 Each robot's wheel radius and wheel separation are written down twice, in its URDF and in the controller's `geometry.yaml`. [`test_geometry_consistency.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_geometry_consistency.py) checks that they agree, for both robots, without Gazebo. It asks roslaunch which parameters the simulation's and the real robot's launch files set (`roslaunch --dump-params`), and compares the drive wheels' collision radius and the distance between their joints in the URDF with the controller's values. For Remo, these are the values it compares. The two values in each row must be the same:
 
-| Remo's URDF | | Remo's `geometry.yaml` |
-|:--|:-:|:--|
-| `front_left_wheel`<br>radius 0.033 m | ⟷ | `wheel_radius`<br>0.033 |
-| `front_right_wheel`<br>radius 0.033 m | ⟷ | `wheel_radius`<br>0.033 |
-| Wheel joints<br>0.144 m apart | ⟷ | `wheel_separation`<br>0.144 |
+<div class="comparison-table">
+<table>
+<thead><tr><th>Remo's URDF</th><th></th><th>Remo's <code>geometry.yaml</code></th></tr></thead>
+<tbody>
+<tr><td><code>front_left_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
+<tr><td><code>front_right_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
+<tr><td>Wheel joints<br>0.144 m apart</td><td>⟷</td><td><code>wheel_separation</code><br>0.144</td></tr>
+</tbody>
+</table>
+</div>
 
 The radii are the wheels' collision spheres. The separation is the straight-line distance between the two wheel joints' positions in the URDF's root frame, `base_footprint`: `front_left_wheel_joint` is at y = 0.072 m and `front_right_wheel_joint` at y = −0.072 m, with the same x and z. xacro computes these values from the description package's YAML files, for Remo `front_wheel.yaml` and `base.yaml` in remo_description. A difference of up to 0.1 mm passes.
 
