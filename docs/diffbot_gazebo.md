@@ -266,8 +266,13 @@ See the source of the [`gazebo_ros_range`](https://github.com/ros-simulation/gaz
 
 #### Inertial Measurement Unit (IMU)
 
-This section follows Gazebo tutorial [Adding an IMU](http://gazebosim.org/tutorials?tut=ros_gzplugins#IMU(GazeboRosImu). Note use GazeboRosImuSensor?
+Both robots' models have an IMU, so that the [EKF](packages/imu/robot_localization.md) runs in the simulation as on the robot. The xacro macro `imu_sensor` in `common_sensors.xacro` ([DiffBot's]({{ diffbot_repo_url }}/diffbot_description/urdf/include/common_sensors.xacro), and Remo's in remo_description) adds the link `imu_link` on `chassis_link`, with a small box for the board, and Gazebo's IMU sensor with the plugin `libgazebo_ros_imu_sensor.so` from [gazebo_plugins](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp). The plugin measures the link's angular velocity and acceleration in Gazebo at 50 Hz, adds Gaussian noise with a standard deviation of 0.005 (rad/s and m/s²) to every value, and publishes `/diffbot/imu/gazebo`.
 
+Where the board sits is an assumption until it's mounted on the robot: the xacro arguments `imu_xyz` and `imu_rpy` set `imu_joint`'s origin on `chassis_link`, for example `xacro diffbot.urdf.xacro imu_xyz:="0 0 0.01"`.
+
+The plugin also estimates an orientation, which the robot's firmware doesn't provide. [`imu_raw_adapter.py`]({{ diffbot_repo_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py), started by `diffbot_view.launch`, removes it and publishes the rest unchanged, with its stamp, as `/diffbot/imu/data_raw`: the same topic and contents as the [firmware](packages/imu/driver-bno055.md#what-the-firmware-publishes), so the EKF gets the same input in the simulation and on the robot.
+
+The [simulation test](development/simulation-test.md) checks the simulated IMU in `test_imu.py`: its rate, its frame, the orientation marked as missing, gravity on the upward axis at rest, and a positive yaw rate in a left turn.
 
 ## Troubleshooting
 
