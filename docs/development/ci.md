@@ -36,7 +36,7 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 **EKF tests:** the [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU has three: in `diffbot_control`, the IMU gate's checks and the EKF on a stepped simulated clock; in `diffbot_gazebo`, both robots in Gazebo with a wrong wheel separation, and the `ekf` switch in the launch files.
 
-**Firmware unit tests:** the Teensy firmware's IMU code runs on the PC with fake hardware (`pio test -e native`, [IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)). The firmware workflow runs them after building both boards.
+**Firmware unit tests:** the Teensy firmware's IMU code runs on the PC with fake hardware (`pio test -e native`, [IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)). The firmware workflow runs them in a separate job.
 
 The other packages have no tests yet. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` without the robot are planned in [diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114).
 

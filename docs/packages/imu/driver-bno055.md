@@ -52,7 +52,7 @@ The settings are in [`diffbot_base_config.h`]({{ diffbot_repo_url }}/diffbot_fir
 - **Stamps are ROS time,** which rosserial takes from the robot's computer: the Teensy's clock is synchronized with it every few seconds. Until the first synchronization after a connection, the firmware publishes nothing, because a stamp would carry the Teensy's uptime instead of ROS time.
 - **The 50 Hz rate counts on the Teensy's own clock** (`millis()`), so it doesn't change when ROS time jumps, for example when the Teensy connects to a computer whose clock is earlier.
 
-**Unit tests on the PC:** `pio test -e native` in `base_controller` runs the driver, the bus code, the time-sync check and the publisher with a fake sensor, I2C bus, serial port and clock, and with rosserial's own message parser. CI runs them in the firmware workflow ([Testing and CI](../../development/ci.md)). They check the logic, not the hardware.
+**Unit tests on the PC:** `pio test -e native` in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) runs the driver, the bus code, the time-sync check and the publisher with a fake sensor, I2C bus, serial port and clock, and with rosserial's own message parser. CI runs them in the firmware workflow ([Testing and CI](../../development/ci.md)). They check the logic, not the hardware.
 
 ## Bench checks
 
@@ -61,7 +61,7 @@ With the bringup running on the robot and its wheels off the ground:
 1. **Rate and stamps:** `rostopic hz /diffbot/imu/data_raw` shows about 50 Hz, and the stamps in `rostopic echo /diffbot/imu/data_raw` are the current ROS time.
 2. **Axes and signs:** at rest, the acceleration's upward axis reads about +9.8 m/s². Turning the robot counterclockwise by hand, seen from above, gives a positive angular velocity about the upward axis ([REP 103](https://www.ros.org/reps/rep-0103.html)). Both decide how `imu_link` sits in the URDF.
 3. **Noise and bias:** a stationary recording of a few minutes (`rosbag record /diffbot/imu/data_raw`) gives the gyroscope's bias and variance at 50 Hz, to replace the covariances' starting values.
-4. **Faults:** unplugging the IMU stops the topic within a sample and logs a warning, and the wheels keep following commands; plugged back in, it's found at the next try, at most `IMU_RETRY_PERIOD` (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The motors still stop when the commands stop.
+4. **Faults:** unplugging the IMU stops the topic within a sample and logs a warning, and the wheels keep following commands; plugged back in, it's found at the next try, at most `IMU_RETRY_PERIOD` (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The command timeout keeps working: after 5 s without a wheel command, it sets the target speeds to zero, which doesn't guarantee yet that the motors stop ([diffbot#146](https://github.com/ros-mobile-robots/diffbot/issues/146)).
 5. **Timing:** the control loop keeps its rate with the IMU running, for example `rostopic hz /diffbot/measured_joint_states`.
 
 ??? info "Trying the breakout on the Raspberry Pi"
