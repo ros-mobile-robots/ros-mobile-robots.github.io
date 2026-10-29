@@ -131,35 +131,14 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 ### Running the checks locally
 
 - **Workspace build and tests:** in the [dev container](dev-container.md), in `~/catkin_ws`, run the two commands from the [dev container workflow](#dev-container-workflow) above.
-- **Firmware:** build it in its own container, [`.docker/firmware`]({{ diffbot_repo_url }}/.docker/firmware), as CI does. It needs only Docker, not PlatformIO on your PC. The script [`.docker/firmware/pio`]({{ diffbot_repo_url }}/.docker/firmware/pio) runs PlatformIO's `pio` command in that container. From the diffbot folder:
+- **Firmware:** build it in its own container, as CI does. It needs only Docker, not PlatformIO on your PC. From your diffbot clone's root folder on the PC, not inside the dev container:
 
     ```console
     .docker/firmware/pio run -e teensy40
     .docker/firmware/pio run -e teensy31
     ```
 
-    Run these commands in a terminal on your PC, in your diffbot clone: on Windows, in the Ubuntu of WSL 2, not inside the dev container. The first build needs the internet and took about a minute on our test PC, and later builds took seconds. The firmware file is then `diffbot_firmware/.pio/build/<board>/firmware.hex`, which PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html) can flash.
-
-    ??? info "How the firmware container works"
-        - **Why a container of its own:** the ROS [dev container](dev-container.md) runs Ubuntu 20.04, whose C library is too old for the current PlatformIO Teensy tools: they need glibc 2.34 or later. In our test, the Teensy tool `teensy_size` stopped with a missing `GLIBC_2.34` there. The firmware container runs Debian 12, with glibc 2.36, and doesn't need ROS.
-        - **The image** ([`Dockerfile`]({{ diffbot_repo_url }}/.docker/firmware/Dockerfile)): Python 3.12, PlatformIO 6.2.0, pinned in `requirements.txt`, and a compiler for programs that run on the PC, such as unit tests. The Teensy toolchain isn't in the image: PlatformIO downloads it on the first build.
-        - **The script** first builds the image with [Docker Compose](https://docs.docker.com/compose/) and [`compose.yaml`]({{ diffbot_repo_url }}/.docker/firmware/compose.yaml). The first build shows Docker's progress. Later builds took about 2 seconds on our test PC, because Docker reuses the cached image layers whose inputs haven't changed. They only show their output when they fail. Then it runs `pio` with your arguments in the container, in `diffbot_firmware`. In a script or in CI, without a terminal, it runs the container without one.
-        - **Your user:** the script passes your user and group ID (`id -u` and `id -g`) to Compose as `LOCAL_UID` and `LOCAL_GID`. The build creates a user with these IDs in the image, and the container runs as that user. So the files that the build writes into `diffbot_firmware/.pio` belong to you. The image and its volume carry both IDs in their names, so another user on the same PC gets their own. To use other IDs, set both variables, for example `LOCAL_UID=1001 LOCAL_GID=1001 .docker/firmware/pio run -e teensy40`.
-        - **The downloads:** PlatformIO keeps them in the container's folder `/pio-core`. On your PC, that's a Docker [volume](https://docs.docker.com/engine/storage/volumes/), a storage area that Docker keeps between runs, so only the first build downloads. Don't build in the container and on the PC at the same time, because both write to `diffbot_firmware/.pio`.
-        - **In CI:** the Firmware workflow runs the same script. Each CI job starts on a fresh machine, where a Docker volume would be empty. So the workflow sets `PIO_CORE` to a folder on the machine, which `compose.yaml` then mounts as `/pio-core` instead of the volume, and [`actions/cache`](https://github.com/actions/cache) saves that folder between runs.
-        - **Planned** in [diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149): flashing from the container, and a VS Code dev container for the firmware with the same image.
-
-    Or install PlatformIO on your PC. These steps were tested on Ubuntu 24.04 (WSL 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:
-
-    ```console
-    sudo apt install python3-venv
-    python3 -m venv ~/.venvs/platformio
-    ~/.venvs/platformio/bin/pip install platformio
-    cd diffbot_firmware
-    ~/.venvs/platformio/bin/pio run
-    ```
-
-    `pio run` builds the Teensy 4.0, the default environment, and `pio run -e teensy31` the Teensy 3.1/3.2.
+    [Firmware Container](firmware-container.md) explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.
 
 ## This documentation site
 
