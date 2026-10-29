@@ -32,7 +32,7 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 ### Tests
 
-Only `diffbot_gazebo` has tests so far: the simulation test and the geometry test below. The robot image has a smoke test of its own. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Unit tests for the firmware on the PC ([diffbot#158](https://github.com/ros-mobile-robots/diffbot/issues/158)) and tests for `diffbot_base` without the robot ([diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114)) are planned.
+Only `diffbot_gazebo` registers catkin tests so far: the simulation test and the geometry test below. The robot image has a smoke test of its own. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Unit tests for the firmware on the PC ([diffbot#158](https://github.com/ros-mobile-robots/diffbot/issues/158)) and tests for `diffbot_base` without the robot ([diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114)) are planned.
 
 #### Simulation test
 
@@ -44,26 +44,26 @@ Each robot's wheel radius and wheel separation are written down twice, in its UR
 
 ```mermaid
 graph LR
-  subgraph urdf [Remo's URDF, expanded by xacro]
-    RL["front_left_wheel<br>collision radius 0.033 m"]
-    RR["front_right_wheel<br>collision radius 0.033 m"]
-    J["front_left_wheel_joint at y = 0.072 m<br>front_right_wheel_joint at y = −0.072 m"]
+  subgraph urdf [URDF]
+    RL["front_left_wheel<br>radius 0.033 m"]
+    RR["front_right_wheel<br>radius 0.033 m"]
+    J["wheel joints<br>0.144 m apart"]
   end
-  subgraph yaml [Remo's geometry.yaml]
-    WR["wheel_radius: 0.033"]
-    WS["wheel_separation: 0.144"]
+  subgraph yaml [geometry.yaml]
+    WR["wheel_radius<br>0.033"]
+    WS["wheel_separation<br>0.144"]
   end
   RL ---|same| WR
   RR ---|same| WR
-  J ---|0.144 m apart, same| WS
+  J ---|same| WS
 ```
 
-xacro computes the URDF's values from the description package's YAML files, for Remo `front_wheel.yaml` and `base.yaml` in remo_description. The joints' positions are in the URDF's root frame, `base_footprint`, and a difference of up to 0.1 mm passes.
+The radii are the wheels' collision spheres. The separation is the straight-line distance between the two wheel joints' positions in the URDF's root frame, `base_footprint`: `front_left_wheel_joint` is at y = 0.072 m and `front_right_wheel_joint` at y = −0.072 m, with the same x and z. xacro computes these values from the description package's YAML files, for Remo `front_wheel.yaml` and `base.yaml` in remo_description. A difference of up to 0.1 mm passes.
 
 The test also checks the wheel joints that the controller names in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml):
 
 - `left_wheel` and `right_wheel` are continuous joints in the URDF.
-- Each one's transmission starts with a velocity interface. Gazebo gives the controller the transmission's first interface.
+- Each one's single-joint transmission starts with a velocity interface. Gazebo gives the controller the transmission's first interface, and skips a transmission with more than one joint.
 - The hardware interface's `joints` are the same two, the left one first, because the real robot's `diffbot_base` treats the first one as the left motor.
 
 The simulation test would only notice large differences. Neither test can show that the URDF matches the real wheels. That needs a measurement on the robot ([diffbot#138](https://github.com/ros-mobile-robots/diffbot/issues/138)).
