@@ -11,7 +11,7 @@ So the microcontroller does this time-critical work: it counts the encoder pulse
 
 ## Which Microcontroller?
 
-The firmware in [`diffbot_base/scripts/base_controller`]({{ diffbot_repo_url }}/diffbot_base/scripts/base_controller) runs on a [Teensy](https://www.pjrc.com/teensy/), a small board by PJRC with a 32-bit ARM processor. It's programmed like an Arduino, with the [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html) add-on or PlatformIO, so most Arduino code works on it. Two things make it a good fit here:
+The firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) runs on a [Teensy](https://www.pjrc.com/teensy/), a small board by PJRC with a 32-bit ARM processor. It's programmed like an Arduino, with the [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html) add-on or PlatformIO, so most Arduino code works on it. Two things make it a good fit here:
 
 - **Interrupts on every digital pin:** the firmware counts the encoders with PJRC's [Encoder library](https://www.pjrc.com/teensy/td_libs_Encoder.html), which works best when both signals of an encoder are on interrupt pins. On the Teensy, all digital pins are; an Arduino Uno has only two, pins 2 and 3.
 - **Speed and memory to spare:** a faster processor and much more RAM than the classic Arduinos, which leaves room for rosserial (see [below](#other-boards-such-as-an-arduino)).
@@ -119,7 +119,7 @@ If the output is empty it might be the case that the board is connected to anoth
 When installing Teensyduino new example programs are provided. One of them is to test Encoders. 
 The code for the motor encoders uses it as basis together with a pubsub example from rosserial:
 
-The program is [`encoders.ino`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/encoders/encoders/encoders.ino) in the diffbot repository.
+The program is [`encoders.ino`]({{ diffbot_repo_url }}/diffbot_firmware/sketches/encoders/encoders.ino) in the diffbot repository.
 
 
 After the program is flashed to the Teensy board it can be tested with the following procedure:
@@ -226,7 +226,7 @@ The found value 540 for a full turn of the wheel is important for the hardware i
 
 ## Base Controller
 
-If you are working with Remo the recommende way is to use `base_controller` from `diffbot_base/scripts` instead of the `encoders.ino`.
+If you are working with Remo, the recommended way is to use the firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) instead of `encoders.ino`.
 Build instructions using Visual Studio Code including the PlatformIO plugin are shown in the following video:
 
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/Mn6DY1tNUcU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
