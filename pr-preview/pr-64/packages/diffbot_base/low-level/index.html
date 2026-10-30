@@ -4654,27 +4654,56 @@ introduced next:</p>
   directly obtain the joint state, which is returned by this method in the
   <code>JointState</code> struct, that consists of the measured angular position (rad) and
   angular velocity (rad/s) of the wheel joints:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">diffbot</span><span class="o">::</span><span class="n">JointState</span><span class="w"> </span><span class="nf">diffbot::Encoder::jointState</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<p><a id="the-encoder-excerpt"></a></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">encoder_diffbot.cpp: angle and speed</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">diffbot</span><span class="o">::</span><span class="n">JointState</span><span class="w"> </span><span class="nf">diffbot::Encoder::jointState</span><span class="p">()</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">current_us</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_us</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_update_us_</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// This function calculates the motor's rotational (angular) velocity based on encoder ticks and delta time.</span>
+<span class="w">    </span><span class="c1">// The Teensy's local microsecond counter, which ROS time synchronization doesn't change (see</span>
+<span class="w">    </span><span class="c1">// BaseController::LastUpdateTime). It returns to zero after about 71.6 minutes. Unsigned</span>
+<span class="w">    </span><span class="c1">// subtraction still gives the elapsed time if two calls are less than one cycle apart.</span>
+<span class="hll"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">current_us</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+</span>
+<span class="w">    </span><span class="c1">// Convert the delta time to seconds</span>
+<span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_us</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_update_us_</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">;</span>
+</span>
+<span class="w">    </span><span class="c1">//calculate wheel's speed (RPM)</span>
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_encoder_ticks_</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticksToAngle</span><span class="p">(</span><span class="n">delta_ticks</span><span class="p">);</span>
+
 <span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_position_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_angle</span><span class="p">;</span>
+
+
 <span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dts</span><span class="p">;</span>
+
 <span class="w">    </span><span class="n">prev_update_us_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_us</span><span class="p">;</span>
 <span class="w">    </span><span class="n">prev_encoder_ticks_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="p">;</span>
+
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">joint_state_</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4955,62 +4984,10 @@ compares it with these time stamps:</p>
   <code>E_STOP_COMMAND_RECEIVED_DURATION</code>, 5 s, converted to milliseconds.</li>
 </ul>
 <h4 id="the-encoders-speed">The encoders' speed</h4>
-<p>Each control step reads both encoders. <code>Encoder::jointState()</code> divides the
-angle that the wheel turned by the time since its last reading, from <code>micros()</code>,
-<a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39">lines 14–39</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">encoder_diffbot.cpp: angle and speed</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">diffbot</span><span class="o">::</span><span class="n">JointState</span><span class="w"> </span><span class="nf">diffbot::Encoder::jointState</span><span class="p">()</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
-<span class="w">    </span><span class="c1">// This function calculates the motor's rotational (angular) velocity based on encoder ticks and delta time.</span>
-<span class="w">    </span><span class="c1">// The Teensy's local microsecond counter, which ROS time synchronization doesn't change (see</span>
-<span class="w">    </span><span class="c1">// BaseController::LastUpdateTime). It returns to zero after about 71.6 minutes. Unsigned</span>
-<span class="w">    </span><span class="c1">// subtraction still gives the elapsed time if two calls are less than one cycle apart.</span>
-<span class="hll"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">current_us</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
-</span>
-<span class="w">    </span><span class="c1">// Convert the delta time to seconds</span>
-<span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_us</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_update_us_</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">;</span>
-</span>
-<span class="w">    </span><span class="c1">//calculate wheel's speed (RPM)</span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_encoder_ticks_</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticksToAngle</span><span class="p">(</span><span class="n">delta_ticks</span><span class="p">);</span>
-
-<span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_position_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_angle</span><span class="p">;</span>
-
-
-<span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dts</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">prev_update_us_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_us</span><span class="p">;</span>
-<span class="w">    </span><span class="n">prev_encoder_ticks_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">joint_state_</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p><code>dts</code> is that time in seconds, and <code>angular_velocity_</code> is the wheel's speed in
+<p>Each control step reads both encoders. <code>Encoder::jointState()</code>, in the
+<a href="#the-encoder-excerpt">encoder excerpt</a> above, divides the angle that the wheel
+turned by the time since its last reading, from <code>micros()</code>. <code>dts</code> is that time
+in seconds, and <code>angular_velocity_</code> is the wheel's speed in
 radians per second, although a comment in the code mentions RPM.</p>
 <h4 id="when-the-counters-wrap">When the counters wrap</h4>
 <p><code>millis()</code> and <code>micros()</code> return 32-bit unsigned integers. They return to zero
