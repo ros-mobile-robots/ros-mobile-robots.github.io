@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -814,6 +816,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -3998,6 +4028,8 @@
       
         
       
+        
+      
     
     
     
@@ -4070,6 +4102,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4356,7 +4416,7 @@
 <ol>
 <li><strong>Issue:</strong> describe the bug or feature, or pick an existing issue and comment that you're on it.</li>
 <li><strong>Branch:</strong> name it after the kind of change, for example <code>feat/imu-driver</code>, <code>fix/encoder-ticks</code>, <code>docs/dev-container</code> or <code>chore/ci-actions</code>.</li>
-<li><strong>Pull request:</strong> against <code>noetic-devel</code> in diffbot, or <code>main</code> in this repository. Explain what changes and how you tested it.</li>
+<li><strong>Pull request:</strong> against <code>noetic-devel</code> in diffbot, or <code>main</code> in this repository. Explain what changes and how you tested it. In diffbot, link the docs pull request or an existing page under <code>## Documentation</code>, or write <code>None</code> when nothing user-visible changes. A <a href="ci/#pr-description">check</a> makes sure of it.</li>
 <li><strong>Checks and review:</strong> the <a href="ci/"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> checks</a> must pass, and every PR gets a review.</li>
 <li><strong>Merge:</strong> PRs are squash-merged. The PR title and description become the commit message, so they should read like one. The branch is deleted after the merge.</li>
 </ol>
@@ -4549,6 +4609,16 @@
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
