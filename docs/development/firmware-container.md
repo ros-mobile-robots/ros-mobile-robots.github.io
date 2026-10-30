@@ -181,17 +181,36 @@ The other containers solve the same problem differently:
 
 ### In CI
 
-The [Firmware workflow]({{ firmware_src_url }}/.github/workflows/firmware.yml) builds each board through the same script, [lines 20–44]({{ firmware_src_url }}/.github/workflows/firmware.yml#L20-L44):
+The [Firmware workflow]({{ firmware_src_url }}/.github/workflows/firmware.yml) builds each board through the same script, [lines 20–46]({{ firmware_src_url }}/.github/workflows/firmware.yml#L20-L46):
 
 ```yaml title="firmware.yml: the steps" linenums="20"
---8<-- "{{ firmware_src_raw }}/.github/workflows/firmware.yml:20:44"
+--8<-- "{{ firmware_src_raw }}/.github/workflows/firmware.yml:20:46"
 ```
 
 Each CI job starts on a fresh machine, where a Docker volume would be empty, so PlatformIO would download the Teensy toolchain in every job. The steps avoid that:
 
 - **Settings for the firmware container:** `PIO_CORE` gets a folder in `$RUNNER_TEMP`, a temporary folder that GitHub empties at the start and end of each job. Each step runs in a new shell, so a variable set with `export` would be gone in the next step. Instead, the step appends the line `PIO_CORE=<folder>` to a file whose path GitHub puts in `$GITHUB_ENV`. After the step, GitHub sets each `NAME=value` line of that file as an environment variable in the later steps ([environment files](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable)).
-- **[`actions/cache`](https://github.com/actions/cache):** restores the folder from an earlier run, from the cache with the exact key or else from the newest one with the same start (`restore-keys`). After a successful job, it saves the folder as a new cache when no cache had the exact key. The key holds the board, the runner's OS and architecture, and a hash of `requirements.txt` and `platformio.ini`. So a new PlatformIO version or a changed board configuration starts a new cache. One cache per board keeps the two jobs from writing the same one.
+- **[`actions/cache`](https://github.com/actions/cache):** restores the `PIO_CORE` folder from an earlier run at the start of the job, and saves it when needed after a successful job. [The cache](#the-cache) below explains how.
 - **Build the firmware:** runs the script as on your PC. It sets the user and group IDs to the runner's, and Compose mounts the `PIO_CORE` folder as the container's `/pio-core`.
+
+#### The cache
+
+`PIO_CORE` holds what PlatformIO downloads for the Teensy, about 510 MiB in our test: mostly the compiler for the Teensy's ARM processor (275 MiB) and the Arduino framework for the Teensy (100 MiB), plus PJRC's Teensy tools, PlatformIO's Teensy platform and the downloaded archives of the libraries in `platformio.ini`. Both boards need the same packages. The installed libraries aren't part of it, because PlatformIO installs them into the project, in `diffbot_firmware/.pio/libdeps`.
+
+The cache is reused between workflow runs, not between the two boards. `matrix` runs the job twice at the same time, once with `matrix.env` set to `teensy31` and once with `teensy40`. The board is part of the cache key, so each board has a cache of its own, and the two jobs never try to save the same one. For Remo's board, the key looks like `pio-core-Linux-X64-teensy40-1a2b…`. The hash at the end comes from `requirements.txt` and `platformio.ini`, so it changes when PlatformIO's version or the configuration of the boards changes. For that board, the runs go like this, with `1a2b` and `5e6f` standing for whole keys with these hashes:
+
+<div class="readable-table">
+<table>
+<thead><tr><th scope="col">Run</th><th scope="col">Restored at the start</th><th scope="col">Saved at the end</th></tr></thead>
+<tbody>
+<tr><td>The very first run</td><td>Nothing. PlatformIO downloads everything.</td><td><code>1a2b</code></td></tr>
+<tr><td>A later run with the same key</td><td><code>1a2b</code>, the exact key</td><td>Nothing, because it exists</td></tr>
+<tr><td>After a change of <code>requirements.txt</code> or <code>platformio.ini</code>, which makes the key <code>5e6f</code></td><td><code>1a2b</code>, through <code>restore-keys</code></td><td><code>5e6f</code></td></tr>
+</tbody>
+</table>
+</div>
+
+In the third run, no cache has the exact key. `restore-keys` then restores the newest cache whose key starts with `pio-core-Linux-X64-teensy40-`, the same board with an older hash. PlatformIO uses the packages that are already in the folder and downloads only the missing ones. A saved cache can't change, so the job saves the folder under the new key. A run on a pull request also finds the caches of its base branch, `noetic-devel`, so the first run on a new branch usually gets the exact key. GitHub's documentation explains [the matching](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#cache-key-matching) and [which branches' caches a run can use](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#restrictions-for-accessing-a-cache).
 
 ## Planned
 
