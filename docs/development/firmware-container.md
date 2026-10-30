@@ -5,18 +5,29 @@ The Teensy firmware in [`diffbot_firmware`]({{ firmware_src_url }}/diffbot_firmw
 ??? info "Why not in the dev container"
     The dev container can't run the current Teensy tools: its Ubuntu 20.04 has glibc 2.31, the C library, and the PlatformIO Teensy tools need 2.34 or later. In our test, the tool `teensy_size` stopped there with a missing `GLIBC_2.34`. The firmware container's Debian 12 has glibc 2.36.
 
-    A VS Code dev container for the firmware, with this container's image, is planned in [diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149). Until then, build from a terminal on your PC, as below.
+    A VS Code dev container for the firmware is planned in [diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149). Until then, build from a terminal on your PC, as below.
 
 ## Use it
 
-In a terminal on your PC, in your diffbot clone's root folder. On Windows, that's the Ubuntu of WSL 2, not the dev container:
+Open a terminal on your PC and go to the root folder of your diffbot clone. On Windows, use the Ubuntu of WSL 2, not the dev container. Then build the firmware for your robot's Teensy:
 
-```console
-.docker/firmware/pio run -e teensy40
-.docker/firmware/pio run -e teensy31
-```
+=== "Remo: Teensy 4.0"
 
-`pio` is PlatformIO's command, and `-e` selects one of the boards in [`platformio.ini`]({{ firmware_src_url }}/diffbot_firmware/platformio.ini): `teensy40` builds for the Teensy 4.0, `teensy31` for the Teensy 3.1/3.2. Without `-e`, `pio run` builds `teensy40`. The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a build looks like this:
+    ```console
+    .docker/firmware/pio run -e teensy40
+    ```
+
+=== "DiffBot: Teensy 3.2"
+
+    ```console
+    .docker/firmware/pio run -e teensy31
+    ```
+
+[`.docker/firmware/pio`]({{ firmware_src_url }}/.docker/firmware/pio) is our script, named after PlatformIO's command `pio`. It starts the container and runs `pio` in it with the arguments you give it. So `.docker/firmware/pio run -e teensy40` runs `pio run -e teensy40` in the container, and [the script](#the-script) below shows how. `pio run` builds the firmware, and `-e` selects the board, one of the environments in [`platformio.ini`]({{ firmware_src_url }}/diffbot_firmware/platformio.ini): `teensy40` for the Teensy 4.0, `teensy31` for the Teensy 3.1 and 3.2. Without `-e`, `pio run` builds `teensy40`. [Which Microcontroller?](../processing_units/teensy-mcu.md#which-microcontroller) lists the Teensy of each robot.
+
+You only need the build for your robot. When you change the firmware, build both, as [CI](#in-ci) does, because the change has to work on both boards.
+
+The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a Teensy 4.0 build looks like this:
 
 ```console
 Processing teensy40 (platform: teensy; board: teensy40; framework: arduino)
@@ -146,4 +157,4 @@ Each CI job starts on a fresh machine, where a Docker volume would be empty. So 
 
 ## Planned
 
-[diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149) tracks the next steps: the firmware's unit tests in this container and in CI ([diffbot#157](https://github.com/ros-mobile-robots/diffbot/issues/157)), flashing from the container, a VS Code dev container for the firmware with the same image, and pinning the Teensy platform and libraries.
+[diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149) tracks the next steps: the firmware's unit tests in this container and in CI ([diffbot#157](https://github.com/ros-mobile-robots/diffbot/issues/157)), flashing from the container, a VS Code dev container for the firmware, and pinning the Teensy platform and libraries.

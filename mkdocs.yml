@@ -73,8 +73,8 @@ extra:
   ci_src_url: https://github.com/ros-mobile-robots/diffbot/blob/22e3f0e15052910c90f7f18decc0833a84271ab6
   # The diffbot commit that the excerpts on Firmware Container show (diffbot #150). Move both to
   # #150's merge commit before this page's pull request merges, and check the excerpts' line ranges
-  firmware_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3112a0fd58ac59078a9cedf8ee99a451a7f5251e
-  firmware_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e
+  firmware_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/bb7d646be7a872158111f6b5eef71ff50543cc5c
+  firmware_src_url: https://github.com/ros-mobile-robots/diffbot/blob/bb7d646be7a872158111f6b5eef71ff50543cc5c
   # The diffbot commit that the code excerpts on Geometry Test show. Update both when that code
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885

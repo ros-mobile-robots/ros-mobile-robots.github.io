@@ -131,7 +131,7 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 ### Running the checks locally
 
 - **Workspace build and tests:** in the [dev container](dev-container.md), in `~/catkin_ws`, run the two commands from the [dev container workflow](#dev-container-workflow) above.
-- **Firmware:** build it in its own container, as CI does. It needs only Docker, not PlatformIO on your PC. From your diffbot clone's root folder on the PC, not inside the dev container:
+- **Firmware:** build it in its own container, as CI does. It needs only Docker, not PlatformIO on your PC. When you change the firmware, build both boards, because the change has to work on both. From your diffbot clone's root folder on the PC, not inside the dev container:
 
     ```console
     .docker/firmware/pio run -e teensy40
