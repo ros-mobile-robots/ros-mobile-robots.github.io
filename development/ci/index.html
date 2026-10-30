@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -814,6 +816,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -4754,7 +4784,7 @@
 <tr>
 <td style="text-align: left;">Firmware</td>
 <td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/firmware.yml"><code>.github/workflows/firmware.yml</code></a></td>
-<td style="text-align: left;">Builds the Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> with <a href="https://platformio.org/">PlatformIO</a>, once for each board in its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>: <code>teensy40</code> (Teensy 4.0) and <code>teensy31</code> (Teensy 3.1/3.2)</td>
+<td style="text-align: left;">Builds the Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> with <a href="https://platformio.org/">PlatformIO</a>, in the firmware's container (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.docker/firmware"><code>.docker/firmware</code></a>), once for each board in its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>: <code>teensy40</code> (Teensy 4.0) and <code>teensy31</code> (Teensy 3.1/3.2)</td>
 </tr>
 <tr>
 <td style="text-align: left;">Dev container</td>
@@ -4960,18 +4990,12 @@
 <ul>
 <li><strong>Workspace build and tests:</strong> in the <a href="../dev-container/">dev container</a>, in <code>~/catkin_ws</code>, run the two commands from the <a href="#dev-container-workflow">dev container workflow</a> above.</li>
 <li>
-<p><strong>Firmware:</strong> build it on the host, not in the <a href="../dev-container/">ROS container</a>: the current PlatformIO Teensy tools need a newer C library (glibc 2.34 or later) than Ubuntu 20.04 has. In our test, the Teensy tool <code>teensy_size</code> stopped with a missing <code>GLIBC_2.34</code> in the ROS container. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds on Ubuntu 24.04, and the steps below were tested on Ubuntu 24.04 (<abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2) with Python 3.12 and PlatformIO 6.2. From the diffbot folder:</p>
+<p><strong>Firmware:</strong> build it in its own container, as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does. It needs only Docker, not PlatformIO on your PC. When you change the firmware, build both boards, because the change has to work on both. From your diffbot clone's root folder on the PC, not inside the dev container:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install python3-venv</span>
-<span class="go">python3 -m venv ~/.venvs/platformio</span>
-<span class="go">~/.venvs/platformio/bin/pip install platformio</span>
-<span class="go">cd diffbot_firmware</span>
-<span class="go">~/.venvs/platformio/bin/pio run</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio run -e teensy40</span>
+<span class="go">.docker/firmware/run.sh pio run -e teensy31</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>pio run</code> builds the Teensy 4.0, the default environment; <code>pio run -e teensy31</code> builds the Teensy 3.1/3.2.</p>
+<p><a href="../firmware-container/">Firmware Container</a> explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.</p>
 </li>
 </ul>
 <h2 id="this-documentation-site">This documentation site</h2>
@@ -5183,6 +5207,11 @@
       .md-typeset .readable-table table { font-size: .8rem; }
       .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
       .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
