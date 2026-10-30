@@ -2774,6 +2774,73 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Implementing the low-level base controller for Remo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timing-with-the-teensys-clock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing with the Teensy's clock
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Timing with the Teensy's clock">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-time-stamps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The time stamps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-control-step-and-the-command-timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The control step and the command timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-encoders-speed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The encoders' speed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-the-counters-wrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When the counters wrap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4319,6 +4386,73 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Implementing the low-level base controller for Remo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timing-with-the-teensys-clock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing with the Teensy's clock
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Timing with the Teensy's clock">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-time-stamps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The time stamps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-control-step-and-the-command-timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The control step and the command timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-encoders-speed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The encoders' speed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-the-counters-wrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When the counters wrap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4489,6 +4623,12 @@ the <code>lib</code> folder:</p>
 #include "adafruit_feather_wing/adafruit_feather_wing.h"
 ```
 </code></pre></div></td></tr></tbody></table></div>
+<div class="admonition info">
+<p class="admonition-title">Code excerpts</p>
+<p>The code excerpts on this page show the firmware at the diffbot commit that
+this page pins, with their line numbers. The link before each excerpt opens
+the same lines on GitHub.</p>
+</div>
 <p>These include directives and the libraries that get included with them are
 introduced next:</p>
 <ul>
@@ -4520,32 +4660,63 @@ introduced next:</p>
   directly obtain the joint state, which is returned by this method in the
   <code>JointState</code> struct, that consists of the measured angular position (rad) and
   angular velocity (rad/s) of the wheel joints:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">diffbot</span><span class="o">::</span><span class="n">JointState</span><span class="w"> </span><span class="nf">diffbot::Encoder::jointState</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<p><a id="the-encoder-excerpt"></a></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">encoder_diffbot.cpp: angle and speed</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">diffbot</span><span class="o">::</span><span class="n">JointState</span><span class="w"> </span><span class="nf">diffbot::Encoder::jointState</span><span class="p">()</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
-<span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">current_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nh_</span><span class="p">.</span><span class="n">now</span><span class="p">();</span>
-<span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_update_time_</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">.</span><span class="n">toSec</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// This function calculates the motor's rotational (angular) velocity based on encoder ticks and delta time.</span>
+<span class="w">    </span><span class="c1">// The Teensy's local microsecond counter, which ROS time synchronization doesn't change (see</span>
+<span class="w">    </span><span class="c1">// BaseController::LastUpdateTime). It returns to zero after about 71.6 minutes. Unsigned</span>
+<span class="w">    </span><span class="c1">// subtraction still gives the elapsed time if two calls are less than one cycle apart.</span>
+<span class="hll"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">current_us</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+</span>
+<span class="w">    </span><span class="c1">// Convert the delta time to seconds</span>
+<span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_us</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_update_us_</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">;</span>
+</span>
+<span class="w">    </span><span class="c1">//calculate wheel's speed (RPM)</span>
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_encoder_ticks_</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticksToAngle</span><span class="p">(</span><span class="n">delta_ticks</span><span class="p">);</span>
+
 <span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_position_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_angle</span><span class="p">;</span>
+
+
 <span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dts</span><span class="p">;</span>
-<span class="w">    </span><span class="n">prev_update_time_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">prev_update_us_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_us</span><span class="p">;</span>
 <span class="w">    </span><span class="n">prev_encoder_ticks_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="p">;</span>
+
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">joint_state_</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>The time between two calls comes from the Teensy's own clock,
+<a href="https://docs.arduino.cc/language-reference/en/functions/time/micros/"><code>micros()</code></a>,
+in microseconds since the board started, for the reason explained in the
+<a href="#timing-with-the-teensys-clock"><code>loop()</code> section</a> below.</p>
 </li>
 <li>
 <p><code>pid</code>: Defines a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller to compute <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals based on the velocity
@@ -4559,9 +4730,10 @@ individual components that get included. The main code is explained next:</p>
 <ol>
 <li>
 <p>First, we define the global ROS node handle, which is referenced in other
-   classes, such as BaseController, where it is needed to publish, subscribe, or
-   get the current time, using <code>ros::NodeHandle::now()</code>, to keep track of the
-   update rates:</p>
+   classes, such as BaseController, where it is needed to publish and
+   subscribe. Its <code>ros::NodeHandle::now()</code> provides ROS time for time stamps.
+   The time between updates comes from the Teensy's own clock, as the
+   <a href="#timing-with-the-teensys-clock"><code>loop()</code> section</a> below explains:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="w"> </span><span class="n">nh</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
 </li>
@@ -4639,20 +4811,46 @@ choice that, when added, would make the <code>MotorControllerIntf</code> less ge
 and write to actuators, which happens at specific rates, defined in the
 <code>diffbot_base_config.h</code> header. The bookkeeping of when these read/write
 functionalities occurred is kept in the <code>BaseController</code> class inside its
-<code>lastUpdateRates</code> struct. Reading from the encoders and writing motor commands
-happens in the same code block as the control rate:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="w"> </span><span class="n">command_dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nh</span><span class="p">.</span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">control</span><span class="p">;</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">command_dt</span><span class="p">.</span><span class="n">toSec</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Duration</span><span class="p">(</span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">publishRate</span><span class="p">().</span><span class="n">control_</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">).</span><span class="n">toSec</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">base_controller</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
-<span class="w">  </span><span class="n">base_controller</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
-<span class="w">  </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nh</span><span class="p">.</span><span class="n">now</span><span class="p">();</span>
+<code>LastUpdateTime</code> struct, which <code>lastUpdateTime()</code> returns. Reading from the
+encoders and writing motor commands happens in the same code block as the
+control rate, followed by the command timeout, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/src/main.cpp#L34-L52">lines 34–52</a>:</p>
+<p><a id="the-loop-excerpt"></a></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the control step and the command timeout</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Use the Teensy's elapsed time for scheduling (see BaseController::LastUpdateTime).</span>
+<span class="hll"><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+</span>
+<span class="c1">// The main control loop for the base_conroller.</span>
+<span class="c1">// This block drives the robot based on a defined control rate</span>
+<span class="hll"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">control</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">1000.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">publishRate</span><span class="p">().</span><span class="n">control_</span><span class="p">)</span>
+</span><span class="p">{</span>
+<span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
+<span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
+<span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now_ms</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// After 5 s without a wheel command, set both target velocities to zero.</span>
+<span class="c1">// eStop() does not directly stop the motors or reset the PIDs.</span>
+<span class="hll"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">command_received</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">E_STOP_COMMAND_RECEIVED_DURATION</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000UL</span><span class="p">)</span>
+</span><span class="p">{</span>
+<span class="w">    </span><span class="n">nh</span><span class="p">.</span><span class="n">logwarn</span><span class="p">(</span><span class="s">"Wheel command timeout: targets set to zero"</span><span class="p">);</span>
+<span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">eStop</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The following steps in this code block happen continuously at the control rate:</p>
@@ -4665,17 +4863,162 @@ happens in the same code block as the control rate:</p>
    receives the commanded wheel joint velocities (topic <code>wheel_cmd_velocities</code>,
    type <code>diffbot_msgs::WheelsCmdStamped</code>) inside the
    <code>BaseController::commandCallback(const diffbot_msgs::WheelsCmdStamped&amp;)</code>
-   callback method. In <code>BaseController::read()</code>, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is called to compute
+   callback method. In <code>BaseController::write()</code>, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is called to compute
    the motor <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals from the velocity error and the motor speeds are set
    with the two motor controllers.</li>
 <li>To keep calling this method at the desired control rate, the
    <code>lastUpdateTime().control</code> variable is updated with the current time.</li>
 </ol>
+<p>On each pass, the firmware also checks how long it has been since a wheel
+command arrived. When that reaches 5 seconds
+(<code>E_STOP_COMMAND_RECEIVED_DURATION</code>), <code>BaseController::eStop()</code> sets both
+target wheel velocities to zero. <code>commandCallback()</code> records the arrival time
+using <code>millis()</code>. The control step comes before the timeout check, so the zero
+targets are used on a later control step. This doesn't directly switch off
+the motors or reset the PIDs: stored <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> error can keep the motor output
+nonzero. A reliable stop when commands stop arriving is tracked in
+<a href="https://github.com/ros-mobile-robots/diffbot/issues/146">diffbot#146</a>.</p>
 <p>After the control loop update block, if an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
 odometry to obtain more precise odometry. Finally, in the main <code>loop()</code>, all the
 callbacks waiting in the ROS callback queue are processed with a call to
 <code>nh.spinOnce()</code>.</p>
+<h3 id="timing-with-the-teensys-clock">Timing with the Teensy's clock</h3>
+<p>The firmware measures three kinds of elapsed time: whether 50 ms have passed
+since the last control step, whether 5 s have passed since the last wheel
+command, and how long the encoders took since their last reading. It takes all
+three from the Teensy's own counters.
+<a href="https://docs.arduino.cc/language-reference/en/functions/time/millis/"><code>millis()</code></a>
+counts the milliseconds since the Teensy started, for the control step and the
+command's age.
+<a href="https://docs.arduino.cc/language-reference/en/functions/time/micros/"><code>micros()</code></a>
+counts microseconds, for the encoders' speed. A correction of the Raspberry Pi's
+clock doesn't change these counters.</p>
+<h4 id="the-time-stamps">The time stamps</h4>
+<p><code>BaseController</code> keeps one <code>millis()</code> reading for each event in
+<code>LastUpdateTime</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/lib/base_controller/base_controller.h#L175-L196">lines 175–196</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: the time stamps</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">LastUpdateTime</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Time (ms, millis()) when the last angular wheel command velocity was received.</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">command_received</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Time (ms) when the last control update happened.</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">control</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Time (ms) when the last imu update took place.</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">imu</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Time (ms) when the last debug message was logged.</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">debug</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * @brief Construct a new Last Update Time object</span>
+<span class="cm">     * </span>
+<span class="cm">     * @param start_ms Start time of the program, from millis()</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">LastUpdateTime</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">start_ms</span><span class="p">)</span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">command_received</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span>
+<span class="w">        </span><span class="p">,</span><span class="w"> </span><span class="n">control</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span>
+<span class="w">        </span><span class="p">,</span><span class="w"> </span><span class="n">imu</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span>
+<span class="w">        </span><span class="p">,</span><span class="w"> </span><span class="n">debug</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span><span class="w"> </span><span class="p">{};</span>
+<span class="p">}</span><span class="w"> </span><span class="n">last_update_time_</span><span class="p">;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>command_received</code> is the time of the last wheel command. <code>control</code>, <code>imu</code> and
+<code>debug</code> are the times of the last control step, scheduled <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> update and debug
+message.
+When the <code>BaseController</code> is created, all four get the same reading
+(<a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/lib/base_controller/base_controller.h#L400-L400">line 400</a>).</p>
+<p>The command callback updates <code>command_received</code> each time a wheel command
+arrives on <code>wheel_cmd_velocities</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/lib/base_controller/base_controller.h#L471-L483">lines 471–483</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: a wheel command arrives</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorController</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorDriver</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">diffbot</span><span class="o">::</span><span class="n">BaseController</span><span class="o">&lt;</span><span class="n">TMotorController</span><span class="p">,</span><span class="w"> </span><span class="n">TMotorDriver</span><span class="o">&gt;::</span><span class="n">commandCallback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">diffbot_msgs</span><span class="o">::</span><span class="n">WheelsCmdStamped</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cmd_msg</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Callback function every time the angular wheel commands for each wheel joint are received from 'wheel_cmd_velocities' topic</span>
+<span class="w">    </span><span class="c1">// This callback function receives diffbot_msgs::WheelsCmdStamped message object</span>
+<span class="w">    </span><span class="c1">// where diffbot_msgs::AngularVelocities for both joints are stored</span>
+<span class="w">    </span><span class="n">wheel_cmd_velocity_left_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmd_msg</span><span class="p">.</span><span class="n">wheels_cmd</span><span class="p">.</span><span class="n">angular_velocities</span><span class="p">.</span><span class="n">joint</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">    </span><span class="n">wheel_cmd_velocity_right_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmd_msg</span><span class="p">.</span><span class="n">wheels_cmd</span><span class="p">.</span><span class="n">angular_velocities</span><span class="p">.</span><span class="n">joint</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// Used for the eStop. In case no diffbot_msgs::WheelsCmdStamped messages are received on the wheel_cmd_velocities </span>
+<span class="w">    </span><span class="c1">// topic, the eStop method is called (see main loop in main.cpp)</span>
+<span class="hll"><span class="w">    </span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">command_received</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+</span><span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<h4 id="the-control-step-and-the-command-timeout">The control step and the command timeout</h4>
+<p>The <a href="#the-loop-excerpt"><code>loop()</code> excerpt</a> above reads the counter once per pass, as <code>now_ms</code>, and
+compares it with these time stamps:</p>
+<ul>
+<li><strong>The control step</strong> runs when at least <code>1000.0 / control_</code> milliseconds have
+  passed since the last one. With <code>UPDATE_RATE_CONTROL</code> set to 20 (Hz) in
+  <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/lib/config/diffbot_base_config.h#L25-L29"><code>diffbot_base_config.h</code></a>,
+  that's 50 ms. The step records its time in <code>control</code>. So the firmware runs
+  at most 20 steps per second. Work that blocks the loop, for example a slow
+  serial transfer, makes a step late.</li>
+<li><strong>The command timeout</strong> compares the age of the last wheel command with
+  <code>E_STOP_COMMAND_RECEIVED_DURATION</code>, 5 s, converted to milliseconds.</li>
+</ul>
+<h4 id="the-encoders-speed">The encoders' speed</h4>
+<p>Each control step reads both encoders. <code>Encoder::jointState()</code>, in the
+<a href="#the-encoder-excerpt">encoder excerpt</a> above, divides the angle that the wheel
+turned by the time since its last reading, from <code>micros()</code>. <code>dts</code> is that time
+in seconds, and <code>angular_velocity_</code> is the wheel's speed in
+radians per second, although a comment in the code mentions RPM.</p>
+<h4 id="when-the-counters-wrap">When the counters wrap</h4>
+<p><code>millis()</code> and <code>micros()</code> return 32-bit unsigned integers. After 2³² counts they
+return to zero: 2³² ms (4,294,967,296 ms) is about 49.7 days, and 2³² µs about
+71.6 minutes. Arduino's reference pages for <code>millis()</code> and <code>micros()</code> round these
+to about 50 days and 70 minutes. The differences are computed with
+<code>uint32_t</code>, so <code>now_ms - control</code> still gives the right number of milliseconds
+across that return to zero, as long as the two readings are less than one
+counter cycle apart and come from the same run of the firmware.</p>
+<details class="warning">
+<summary>Pitfalls when measuring time on a microcontroller</summary>
+<ul>
+<li><strong>Don't measure intervals with ROS time.</strong> On the Teensy, <code>nh.now()</code>
+  returns ROS time, which rosserial synchronizes with the robot's computer.
+  When that computer's clock is corrected, ROS time can jump. A jump backward
+  makes a control step or the command timeout wait too long. A jump forward
+  makes a recent command look too old. Clock corrections on the robot's
+  computer don't change the Teensy's counters.</li>
+<li><strong>Check the unit and type of every time value.</strong> Storing 0.05 s in an
+  integer field for whole seconds truncates it to 0, and a check against 0
+  passes on every pass of the loop. Keep intervals in milliseconds or
+  microseconds.</li>
+<li><strong>The step rate is part of the controller.</strong> The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller adds up
+  the error once per step. At another rate, the same gains make the wheels
+  respond differently. Tune the gains at the rate that the firmware runs.</li>
+</ul>
+</details>
 <p>This describes the low-level base controller. For more details and the complete
 library code, please refer to the <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a>
 folder.</p>
