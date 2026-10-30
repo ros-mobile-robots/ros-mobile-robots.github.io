@@ -4566,15 +4566,29 @@
 
 
 <h1 id="firmware-container">Firmware Container</h1>
-<p>The Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/diffbot_firmware"><code>diffbot_firmware</code></a> builds with <a href="https://platformio.org/">PlatformIO</a>, which isn't in the <a href="../dev-container/">dev container</a>. The dev container can't run the current Teensy tools either: its Ubuntu 20.04 has glibc 2.31, the C library, and the PlatformIO Teensy tools need 2.34 or later. In our test, the tool <code>teensy_size</code> stopped there with a missing <code>GLIBC_2.34</code>.</p>
-<p>So the firmware has a container of its own, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware"><code>.docker/firmware</code></a>: Debian 12 with glibc 2.36, Python 3.12, PlatformIO 6.2.0 and a compiler, without ROS. A script runs PlatformIO in it as your user, and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the firmware the same way. You need only Docker.</p>
+<p>The Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/diffbot_firmware"><code>diffbot_firmware</code></a> builds with <a href="https://platformio.org/">PlatformIO</a>, which isn't in the <a href="../dev-container/">dev container</a>. So the firmware has a container of its own, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware"><code>.docker/firmware</code></a>: Debian 12 with Python 3.12, PlatformIO 6.2.0 and a compiler, without ROS. A script runs PlatformIO in it as your user, and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the firmware the same way. You need only Docker.</p>
+<details class="info">
+<summary>Why not in the dev container</summary>
+<p>The dev container can't run the current Teensy tools: its Ubuntu 20.04 has glibc 2.31, the C library, and the PlatformIO Teensy tools need 2.34 or later. In our test, the tool <code>teensy_size</code> stopped there with a missing <code>GLIBC_2.34</code>. The firmware container's Debian 12 has glibc 2.36.</p>
+<p>A VS Code dev container for the firmware is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/149">diffbot#149</a>. Until then, build from a terminal on your PC, as below.</p>
+</details>
 <h2 id="use-it">Use it</h2>
-<p>In a terminal on your PC, in your diffbot clone's root folder. On Windows, that's the Ubuntu of <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2, not the dev container:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/pio run -e teensy40</span>
-<span class="go">.docker/firmware/pio run -e teensy31</span>
+<p>Open a terminal on your PC and go to the root folder of your diffbot clone. On Windows, use the Ubuntu of <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2, not the dev container. Then build the firmware for your robot's Teensy:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Remo: Teensy 4.0</label><label for="__tabbed_1_2">DiffBot: Teensy 3.2</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio run -e teensy40</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>pio</code> is PlatformIO's command, and <code>-e</code> selects one of the boards in <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>: <code>teensy40</code> builds for the Teensy 4.0, <code>teensy31</code> for the Teensy 3.1/3.2. Without <code>-e</code>, <code>pio run</code> builds <code>teensy40</code>. The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a build looks like this:</p>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio run -e teensy31</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/run.sh"><code>.docker/firmware/run.sh</code></a> is our script. It runs a command in the firmware container, here PlatformIO's command <code>pio</code>, and <a href="#the-script">the script</a> below shows how. <code>pio run</code> builds the firmware. <code>-e</code> selects an environment in <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>, and each environment builds for one board: <code>teensy40</code> for the Teensy 4.0, <code>teensy31</code> for the Teensy 3.1 and 3.2. Without <code>-e</code>, <code>pio run</code> builds <code>teensy40</code>. <a href="../../processing_units/teensy-mcu/#which-microcontroller">Which Microcontroller?</a> lists the Teensy of each robot.</p>
+<p>You only need the build for your robot. When you change the firmware, build both, as <a href="#in-ci"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> does, because the change has to work on both boards.</p>
+<p>The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a Teensy 4.0 build looks like this:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -4612,12 +4626,13 @@
 <span class="go">========================= 1 succeeded in 00:00:01.501 =========================</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The firmware file is then <code>diffbot_firmware/.pio/build/&lt;board&gt;/firmware.hex</code>, and it belongs to you. PJRC's <a href="https://www.pjrc.com/teensy/loader.html">Teensy Loader</a> flashes it onto the Teensy. Don't build in the container and on the PC at the same time, because both write to <code>diffbot_firmware/.pio</code>.</p>
-<p><strong>Another user and group ID:</strong> the script uses yours (<code>id -u</code> and <code>id -g</code>) unless you set <code>LOCAL_UID</code> and <code>LOCAL_GID</code>, for example <code>LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/pio run -e teensy40</code>. That ID needs write access to your clone. In the container, <code>id</code> then shows:</p>
+<p><strong>Other commands</strong> run the same way, for example <code>.docker/firmware/run.sh bash</code> for a shell in the container. Shell syntax such as <code>&amp;&amp;</code> needs a shell in the container, for example <code>.docker/firmware/run.sh bash -c 'pwd &amp;&amp; id'</code>. Otherwise the shell on your PC reads it. Commands start in <code>diffbot_firmware</code>. Paths in them are paths in the container, where your clone is <code>/workspace</code>, so a folder on your PC outside your clone doesn't exist there.</p>
+<p><strong>Another user and group ID:</strong> the script uses yours (<code>id -u</code> and <code>id -g</code>) unless you set <code>LOCAL_UID</code> and <code>LOCAL_GID</code>, for example <code>LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/run.sh pio run -e teensy40</code>. That ID needs write access to your clone. In the container, <code>id</code> then shows:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">uid=1234(pio) gid=1234(pio) groups=1234(pio)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <details class="info">
 <summary>Without the script, or without the container</summary>
-<p><strong>With Docker Compose directly,</strong> export both IDs first, because <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/compose.yaml"><code>compose.yaml</code></a> requires them:</p>
+<p><strong>With Docker Compose directly,</strong> export both IDs first, because <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/compose.yaml"><code>compose.yaml</code></a> requires them:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">export LOCAL_UID=$(id -u) LOCAL_GID=$(id -g)</span>
@@ -4639,18 +4654,11 @@
 <h2 id="how-it-works">How it works</h2>
 <p>The excerpts show the files at the diffbot commit that this page pins, with their line numbers. The link above each block opens the same lines on GitHub.</p>
 <h3 id="the-script">The script</h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/pio"><code>.docker/firmware/pio</code></a> runs from anywhere, because it finds <code>compose.yaml</code> next to itself. It first sets the IDs, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/pio#L13-L16">lines 13–16</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">pio: the IDs</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">here</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span><span class="nb">cd</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">"</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">pwd</span><span class="k">)</span><span class="s2">"</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">LOCAL_UID</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">LOCAL_UID</span><span class="k">:-$(</span>id<span class="w"> </span>-u<span class="k">)</span><span class="si">}</span><span class="s2">"</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">LOCAL_GID</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">LOCAL_GID</span><span class="k">:-$(</span>id<span class="w"> </span>-g<span class="k">)</span><span class="si">}</span><span class="s2">"</span>
-<span class="nv">compose</span><span class="o">=(</span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$here</span><span class="s2">/compose.yaml"</span><span class="o">)</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p><code>${LOCAL_UID:-$(id -u)}</code> keeps a <code>LOCAL_UID</code> that you set, and takes your user ID otherwise. <code>export</code> passes both to Docker Compose. <code>compose</code> holds the start of every Compose command, with the path to <code>compose.yaml</code>.</p>
-<p>Then it builds the image, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/pio#L18-L31">lines 18–31</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">pio: the image</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/run.sh"><code>.docker/firmware/run.sh</code></a> runs from anywhere, because it finds <code>compose.yaml</code> next to itself. Without a command, it says how to use it and stops before Docker starts, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/run.sh#L15-L28">lines 15–28</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">run.sh: without a command</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
 <span class="normal">21</span>
@@ -4660,10 +4668,47 @@
 <span class="normal">25</span>
 <span class="normal">26</span>
 <span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># The first build shows its progress, because it downloads the base image and packages. Later</span>
+<span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code>usage<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Usage: </span><span class="nv">$0</span><span class="s2"> COMMAND [ARGUMENT...], for example: </span><span class="nv">$0</span><span class="s2"> pio run -e teensy40"</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Runs COMMAND in the firmware container, in diffbot_firmware, as your user."</span>
+<span class="o">}</span>
+
+<span class="c1"># Without a command, say how to use the script, before Docker starts</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$#</span><span class="s2">"</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>usage<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">2</span>
+<span class="k">fi</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"-h"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"--help"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>usage
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+<span class="k">fi</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>It writes the usage to stderr, the error output, and exits with 2, so that a <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> job or another script that forgot the command fails. <code>--help</code> writes the same to the normal output and exits with 0.</p>
+<p>Then it sets the IDs, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/run.sh#L30-L33">lines 30–33</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">run.sh: the IDs</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">here</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span><span class="nb">cd</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">"</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">pwd</span><span class="k">)</span><span class="s2">"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LOCAL_UID</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">LOCAL_UID</span><span class="k">:-$(</span>id<span class="w"> </span>-u<span class="k">)</span><span class="si">}</span><span class="s2">"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LOCAL_GID</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">LOCAL_GID</span><span class="k">:-$(</span>id<span class="w"> </span>-g<span class="k">)</span><span class="si">}</span><span class="s2">"</span>
+<span class="nv">compose</span><span class="o">=(</span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$here</span><span class="s2">/compose.yaml"</span><span class="o">)</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>${LOCAL_UID:-$(id -u)}</code> keeps a <code>LOCAL_UID</code> that you set, and takes your user ID otherwise. <code>export</code> passes both to Docker Compose. <code>compose</code> holds the start of every Compose command, with the path to <code>compose.yaml</code>.</p>
+<p>Next, it builds the image, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/run.sh#L35-L48">lines 35–48</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">run.sh: the image</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># The first build shows its progress, because it downloads the base image and packages. Later</span>
 <span class="c1"># builds take seconds, because Docker reuses the cached image layers whose inputs haven't changed.</span>
 <span class="c1"># Their output only shows when they fail.</span>
 <span class="nv">image</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span><span class="s2">"</span><span class="si">${</span><span class="nv">compose</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>config<span class="w"> </span>--images<span class="w"> </span>firmware<span class="k">)</span><span class="s2">"</span>
@@ -4679,22 +4724,22 @@
 <span class="k">fi</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>config --images</code> asks Compose for the image's name, which contains your IDs. When that image doesn't exist yet, the build shows Docker's progress, because it downloads for a while. Otherwise the build takes seconds when the Dockerfile and <code>requirements.txt</code> haven't changed, because Docker reuses its cached layers. The script keeps the build's output and prints it only when the build fails.</p>
-<p>Last, it runs PlatformIO in the container, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/pio#L33-L38">lines 33–38</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">pio: the run</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Without a terminal, for example in CI, run without one</span>
+<p>Last, it runs your command in the container, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/run.sh#L50-L55">lines 50–55</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">run.sh: the run</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Without a terminal, for example in CI, run without one</span>
 <span class="nv">tty_flag</span><span class="o">=()</span>
 <span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-t<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-t<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
 <span class="w">    </span><span class="nv">tty_flag</span><span class="o">=(</span>-T<span class="o">)</span>
 <span class="k">fi</span>
-<span class="nb">exec</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">compose</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="si">${</span><span class="nv">tty_flag</span><span class="p">[@]+</span><span class="s2">"</span><span class="si">${</span><span class="nv">tty_flag</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="si">}</span><span class="w"> </span>firmware<span class="w"> </span>pio<span class="w"> </span><span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+<span class="nb">exec</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">compose</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="si">${</span><span class="nv">tty_flag</span><span class="p">[@]+</span><span class="s2">"</span><span class="si">${</span><span class="nv">tty_flag</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="si">}</span><span class="w"> </span>firmware<span class="w"> </span><span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>run --rm</code> starts a container for this one command and removes it afterwards. <code>pio "$@"</code> passes your arguments on, for example <code>run -e teensy40</code>. Without a terminal, in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> for example, <code>-T</code> starts the container without one. <code>exec</code> replaces the script with Docker, so the build's exit code is the script's.</p>
+<p><code>run --rm</code> starts a container for this one command and removes it afterwards. <code>"$@"</code> is your command with its arguments, for example <code>pio run -e teensy40</code>. Each argument reaches the container unchanged, because no shell reads it in between. Without a terminal, in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> for example, <code>-T</code> starts the container without one. <code>exec</code> replaces the script with Docker, so the command's exit code is the script's.</p>
 <h3 id="the-container">The container</h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/compose.yaml"><code>compose.yaml</code></a> describes the image and the container, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/compose.yaml#L17-L38">lines 17–38</a>:</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/compose.yaml"><code>compose.yaml</code></a> describes the image and the container, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/compose.yaml#L17-L38">lines 17–38</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">compose.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
 <span class="normal">18</span>
 <span class="normal">19</span>
@@ -4746,7 +4791,7 @@
 <li><strong><code>volumes</code>:</strong> the whole repository is mounted at <code>/workspace</code>, and the container starts in <code>diffbot_firmware</code>. PlatformIO keeps its downloads in <code>/pio-core</code>: on your PC that's a Docker <a href="https://docs.docker.com/engine/storage/volumes/">volume</a>, a storage area that Docker keeps between runs, again with your IDs in its name. With <code>PIO_CORE</code> set to a folder, that folder is mounted there instead, which <a href="#in-ci"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> uses.</li>
 </ul>
 <h3 id="the-image">The image</h3>
-<p>The <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/Dockerfile">Dockerfile</a> starts from Python on Debian 12 and installs a compiler, for programs that run on the PC such as unit tests, and PlatformIO in the version that <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/requirements.txt"><code>requirements.txt</code></a> pins, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/Dockerfile#L5-L16">lines 5–16</a>:</p>
+<p>The <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/Dockerfile">Dockerfile</a> starts from Python on Debian 12 and installs a compiler, for programs that run on the PC such as unit tests, and PlatformIO in the version that <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/requirements.txt"><code>requirements.txt</code></a> pins, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/Dockerfile#L5-L16">lines 5–16</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Dockerfile: the tools</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 5</span>
 <span class="normal"> 6</span>
 <span class="normal"> 7</span>
@@ -4771,7 +4816,7 @@
 <span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>/tmp/requirements.txt
 <span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>-r<span class="w"> </span>/tmp/requirements.txt<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>/tmp/requirements.txt
 </code></pre></div></td></tr></tbody></table></div>
-<p>The Teensy toolchain isn't in the image: PlatformIO downloads it into <code>/pio-core</code> on the first build. Then the image gets a user with your IDs, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.docker/firmware/Dockerfile#L18-L35">lines 18–35</a>:</p>
+<p>The Teensy toolchain isn't in the image: PlatformIO downloads it into <code>/pio-core</code> on the first build. Then the image gets a user with your IDs, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.docker/firmware/Dockerfile#L18-L35">lines 18–35</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Dockerfile: your user</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
@@ -4790,14 +4835,14 @@
 <span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># A user with your user and group ID, so that the build's files in the mounted repository belong</span>
-<span class="c"># to you. compose.yaml passes them as build arguments, from LOCAL_UID and LOCAL_GID, which the pio</span>
-<span class="c"># script sets to `id -u` and `id -g`. They have no default, so a build without both stops instead</span>
+<span class="c"># to you. compose.yaml passes them as build arguments, from LOCAL_UID and LOCAL_GID, which run.sh</span>
+<span class="c"># sets to `id -u` and `id -g`. They have no default, so a build without both stops instead</span>
 <span class="c"># of silently using 1000. The user's home and the core folder belong to it, so a new volume</span>
 <span class="c"># mounted at /pio-core is writable too.</span>
 <span class="k">ARG</span><span class="w"> </span>USER_UID
 <span class="k">ARG</span><span class="w"> </span>USER_GID
 <span class="k">RUN</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">"</span><span class="nv">$USER_UID</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">"</span><span class="nv">$USER_GID</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="se">\</span>
-<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"USER_UID and USER_GID are missing: build through compose.yaml or the pio script"</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"USER_UID and USER_GID are missing: build through compose.yaml or run.sh"</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="k">fi</span>
 <span class="k">RUN</span><span class="w"> </span><span class="o">(</span>getent<span class="w"> </span>group<span class="w"> </span><span class="s2">"</span><span class="nv">$USER_GID</span><span class="s2">"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>groupadd<span class="w"> </span>--gid<span class="w"> </span><span class="s2">"</span><span class="nv">$USER_GID</span><span class="s2">"</span><span class="w"> </span>pio<span class="o">)</span><span class="w"> </span><span class="se">\</span>
@@ -4817,7 +4862,7 @@
 <li><strong>The <a href="../../processing_units/robot-container/">robot container</a></strong> runs as <code>ros</code> with 1000 on the Raspberry Pi, the robot's first user. The planned published image (<a href="https://github.com/ros-mobile-robots/diffbot/pull/151">diffbot#151</a>) is built once per architecture with the IDs 1000, not for each robot's user. <a href="../../processing_units/robot-container/setup/#8-the-folder-for-logs">Setup</a> covers a robot whose first user has another ID.</li>
 </ul>
 <h3 id="in-ci">In <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></h3>
-<p>The <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.github/workflows/firmware.yml">Firmware workflow</a> builds each board through the same script, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3112a0fd58ac59078a9cedf8ee99a451a7f5251e/.github/workflows/firmware.yml#L20-L44">lines 20–44</a>:</p>
+<p>The <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.github/workflows/firmware.yml">Firmware workflow</a> builds each board through the same script, <a href="https://github.com/ros-mobile-robots/diffbot/blob/894d91f0d03774265cdc3629edba9c4f58c3fba1/.github/workflows/firmware.yml#L20-L44">lines 20–44</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">firmware.yml: the steps</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
 <span class="normal">21</span>
 <span class="normal">22</span>
@@ -4866,11 +4911,11 @@
 <span class="w">    </span><span class="nt">restore-keys</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">      </span><span class="no">pio-core-${{ runner.os }}-${{ runner.arch }}-${{ matrix.env }}-</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build the firmware</span>
-<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.docker/firmware/pio run -e ${{ matrix.env }}</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.docker/firmware/run.sh pio run -e ${{ matrix.env }}</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Each <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> job starts on a fresh machine, where a Docker volume would be empty. So the first step sets <code>PIO_CORE</code> to a folder in <code>$RUNNER_TEMP</code>, the runner's temporary folder, and a line <code>NAME=value</code> in the file that <code>$GITHUB_ENV</code> names makes it an environment variable for the later steps (<a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable">environment files</a>). <a href="https://github.com/actions/cache"><code>actions/cache</code></a> restores a matching cache from an earlier run, if there is one, and saves a new one after a successful job when no cache had the exact key. The key holds the board, the runner's OS and architecture, and a hash of <code>requirements.txt</code> and <code>platformio.ini</code>. The script then sets the IDs to the runner's user, as on your PC.</p>
 <h2 id="planned">Planned</h2>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/issues/149">diffbot#149</a> tracks the next steps: the firmware's unit tests in this container and in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/157">diffbot#157</a>), flashing from the container, a VS Code dev container for the firmware with the same image, and pinning the Teensy platform and libraries.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/issues/149">diffbot#149</a> tracks the next steps: the firmware's unit tests in this container and in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/157">diffbot#157</a>), flashing from the container, a VS Code dev container for the firmware, and pinning the Teensy platform and libraries.</p>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->
@@ -5048,6 +5093,11 @@
       .md-typeset .readable-table table { font-size: .8rem; }
       .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
       .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

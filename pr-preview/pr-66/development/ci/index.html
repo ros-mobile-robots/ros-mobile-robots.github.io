@@ -4990,10 +4990,10 @@
 <ul>
 <li><strong>Workspace build and tests:</strong> in the <a href="../dev-container/">dev container</a>, in <code>~/catkin_ws</code>, run the two commands from the <a href="#dev-container-workflow">dev container workflow</a> above.</li>
 <li>
-<p><strong>Firmware:</strong> build it in its own container, as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does. It needs only Docker, not PlatformIO on your PC. From your diffbot clone's root folder on the PC, not inside the dev container:</p>
+<p><strong>Firmware:</strong> build it in its own container, as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does. It needs only Docker, not PlatformIO on your PC. When you change the firmware, build both boards, because the change has to work on both. From your diffbot clone's root folder on the PC, not inside the dev container:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/pio run -e teensy40</span>
-<span class="go">.docker/firmware/pio run -e teensy31</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio run -e teensy40</span>
+<span class="go">.docker/firmware/run.sh pio run -e teensy31</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><a href="../firmware-container/">Firmware Container</a> explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.</p>
 </li>
@@ -5207,6 +5207,11 @@
       .md-typeset .readable-table table { font-size: .8rem; }
       .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
       .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
