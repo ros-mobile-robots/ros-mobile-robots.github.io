@@ -13,6 +13,11 @@ controller in [DiffBot Base](index.md), the low-level firmware is implemented fi
 
 ## Implementing the low-level base controller for Remo
 
+!!! info "Firmware excerpts"
+    The firmware excerpts on this page, the code blocks with a file name and
+    line numbers, show the firmware at the diffbot commit that this page pins.
+    The link before each excerpt opens the same lines on GitHub.
+
 The low-level base controller is implemented on the Teensy microcontroller using
 [PlatformIO](https://platformio.org/). The programming language in PlatformIO is
 the same as Arduino (based on Wiring) and it is available as a plugin for the
@@ -23,12 +28,10 @@ folder of the diffbot repository. Opening this folder in Visual Studio Code will
 PlatformIO workspace because it contains the `platformio.ini` file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
-libraries are listed:
+libraries are listed, here for Remo's Teensy 4.0, [lines 27–34]({{ low_level_src_url }}/diffbot_firmware/platformio.ini#L27-L34):
 
-```console
-lib_deps = frankjoshua/Rosserial Arduino Library@^0.9.1
-           adafruit/Adafruit Motor Shield V2 Library@^1.0.11
-           Wire
+```ini title="platformio.ini: Remo's Teensy 4.0" linenums="27"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/platformio.ini:27:34"
 ```
 
 As you can see, the firmware depends on `rosserial`, the `Adafruit Motor Shield
@@ -43,11 +46,10 @@ following code snippets are part of the low-level base controller’s `main.cpp`
 file and show the used libraries, found in
 `diffbot_firmware`, in the `lib` and `src` folders. `src`
 contains `main.cpp` consisting of the `setup()` and `loop()` functions, common
-to every Arduino sketch and starts off by including the following headers:
+to every Arduino sketch and starts off by including the following headers, [lines 1–3]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L1-L3):
 
-```cpp
-#include <ros.h>
-#include "diffbot_base_config.h"
+```cpp title="main.cpp: the ROS header and Remo's configuration" linenums="1"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:1:3"
 ```
 
 Besides the ros header file, it includes definitions specific to Remo, which are
@@ -67,17 +69,11 @@ values such as the following:
   encoder values and writes motor commands at a specific rate.
 
 After including Remo-specific definitions, next follows the custom libraries in
-the `lib` folder:
+the `lib` folder, [lines 4–5]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L4-L5):
 
-    ```cpp
-    #include "base_controller.h"
-    #include "adafruit_feather_wing/adafruit_feather_wing.h"
-    ```
-
-!!! info "Code excerpts"
-    The code excerpts on this page show the firmware at the diffbot commit that
-    this page pins, with their line numbers. The link before each excerpt opens
-    the same lines on GitHub.
+```cpp title="main.cpp: the libraries from lib" linenums="4"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:4:5"
+```
 
 These include directives and the libraries that get included with them are
 introduced next:
@@ -108,7 +104,7 @@ introduced next:
   consist of. The encoder library also provides a method `jointState()` to
   directly obtain the joint state, which is returned by this method in the
   `JointState` struct, that consists of the measured angular position (rad) and
-  angular velocity (rad/s) of the wheel joints:
+  angular velocity (rad/s) of the wheel joints, [lines 14–39]({{ low_level_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39):
 
     <a id="the-encoder-excerpt"></a>
 
