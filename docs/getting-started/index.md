@@ -63,6 +63,8 @@ The [Components](../components.md) to buy, and for Remo the [hardware setup](../
 3. [Hardware Interfaces](../processing_units/hardware-interfaces.md): USB, GPIO and I2C for the motor driver and the sensors.
 4. [Packages Setup](../packages/packages-setup.md): install Git, clone diffbot, and build the workspace with its dependencies.
 
+Or, experimental: the [Robot Container](../processing_units/robot-container/index.md), with Ubuntu Server 24.04 on the Raspberry Pi and ROS Noetic in Docker, instead of steps 1, 2 and 4. Its setup covers the serial ports of step 3. I2C and GPIO on the Raspberry Pi aren't passed into the container yet, which the current robots don't need: their motor driver and IMU connect to the Teensy.
+
 [Jetson Nano Setup](../processing_units/jetson-nano-setup.md) describes an older setup with Ubuntu 18.04 and ROS Melodic.
 
 ### :material-chip:{ aria-hidden="true" } 6. Flash the microcontroller

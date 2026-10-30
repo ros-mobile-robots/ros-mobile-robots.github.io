@@ -18,9 +18,8 @@ The low-level base controller is implemented on the Teensy microcontroller using
 the same as Arduino (based on Wiring) and it is available as a plugin for the
 Visual Studio Code editor. On the development PC, we can flash the robot
 firmware to the board with this plugin. We will get the firmware code from the
-`diffbot_base` ROS package, located in the
-[`scripts/base_controller`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_base/scripts/base_controller)
-subfolder. Opening this folder in Visual Studio Code will recognize it as a
+[`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware)
+folder of the diffbot repository. Opening this folder in Visual Studio Code will recognize it as a
 PlatformIO workspace because it contains the `platformio.ini` file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
@@ -42,7 +41,7 @@ receive wheel velocity commands from the high-level
 `hardware_interface::RobotHW` class, discussed in the next section. The
 following code snippets are part of the low-level base controller’s `main.cpp`
 file and show the used libraries, found in
-`diffbot_base/scripts/base_controller`, in the `lib` and `src` folders. `src`
+`diffbot_firmware`, in the `lib` and `src` folders. `src`
 contains `main.cpp` consisting of the `setup()` and `loop()` functions, common
 to every Arduino sketch and starts off by including the following headers:
 
@@ -328,9 +327,9 @@ odometry to obtain more precise odometry. Finally, in the main `loop()`, all the
 callbacks waiting in the ROS callback queue are processed with a call to
 `nh.spinOnce()`.
 
-MThis describes the low-level base controller. For more details and the complete
-library code, please refer to the `diffbot_base/scripts/base_controller`
-package. 
+This describes the low-level base controller. For more details and the complete
+library code, please refer to the [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware)
+folder.
 
 In the following section, the `diffbot::DiffBotHWInterface` class is described.
 
