@@ -1,8 +1,11 @@
 # Firmware Container
 
-The Teensy firmware in [`diffbot_firmware`]({{ firmware_src_url }}/diffbot_firmware) builds with [PlatformIO](https://platformio.org/), which isn't in the [dev container](dev-container.md). The dev container can't run the current Teensy tools either: its Ubuntu 20.04 has glibc 2.31, the C library, and the PlatformIO Teensy tools need 2.34 or later. In our test, the tool `teensy_size` stopped there with a missing `GLIBC_2.34`.
+The Teensy firmware in [`diffbot_firmware`]({{ firmware_src_url }}/diffbot_firmware) builds with [PlatformIO](https://platformio.org/), which isn't in the [dev container](dev-container.md). So the firmware has a container of its own, [`.docker/firmware`]({{ firmware_src_url }}/.docker/firmware): Debian 12 with Python 3.12, PlatformIO 6.2.0 and a compiler, without ROS. A script runs PlatformIO in it as your user, and CI builds the firmware the same way. You need only Docker.
 
-So the firmware has a container of its own, [`.docker/firmware`]({{ firmware_src_url }}/.docker/firmware): Debian 12 with glibc 2.36, Python 3.12, PlatformIO 6.2.0 and a compiler, without ROS. A script runs PlatformIO in it as your user, and CI builds the firmware the same way. You need only Docker.
+??? info "Why not in the dev container"
+    The dev container can't run the current Teensy tools: its Ubuntu 20.04 has glibc 2.31, the C library, and the PlatformIO Teensy tools need 2.34 or later. In our test, the tool `teensy_size` stopped there with a missing `GLIBC_2.34`. The firmware container's Debian 12 has glibc 2.36.
+
+    A VS Code dev container for the firmware, with this container's image, is planned in [diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149). Until then, build from a terminal on your PC, as below.
 
 ## Use it
 
