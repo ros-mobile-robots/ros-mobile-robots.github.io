@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -814,6 +816,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -1212,6 +1242,8 @@
       
         
       
+        
+      
     
     
     
@@ -1345,6 +1377,201 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../processing_units/robot-container/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Container
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Robot Container
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set Up the Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image and Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4042,6 +4269,8 @@
       
         
       
+        
+      
     
     
     
@@ -4111,6 +4340,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4664,7 +4921,7 @@
 <h3 id="how-to-tune">How to tune</h3>
 <p>Tune the model in this order, so that a later step doesn't hide an error of an earlier one. One error can hide another: for example, wheels that sink into the ground can change where they touch it. So after each fix, go through the later steps again.</p>
 <ol>
-<li><strong>Geometry and inertia first.</strong> Measure the wheel diameters and their separation, center to center, and enter them in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s <code>front_wheel.yaml</code> and the controller's <code>geometry.yaml</code>. Check the expanded <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with <code>xacro</code>: the wheel joints' distance, the collision radius, and an inertia whose <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> is about the joint axis.</li>
+<li><strong>Geometry and inertia first.</strong> Measure the wheel diameters and their separation, center to center, and enter them in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s <code>front_wheel.yaml</code> and the controller's <code>geometry.yaml</code>; the <a href="../development/geometry-test/">geometry test</a> checks that both agree. Check the expanded <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> with <code>xacro</code>: the wheel joints' distance, the collision radius, and an inertia whose <span class="arithmatex">\(\frac{1}{2} m r^2\)</span> is about the joint axis.</li>
 <li><strong>Record a baseline.</strong> Note the world, its time step and solver (the gains depend on the time step), and run the <a href="../development/simulation-test/">simulation test</a>: the odometry and the true pose, driving straight and turning on the spot.</li>
 <li><strong>Check the spawn and the settling.</strong> The robot has to stay at its spawn pose without NaN velocities, and its wheels have to stay on the ground: a wheel link's height above the ground should stay at its radius over a minute (<code>/gazebo/link_states</code>). <em>Example:</em> with compliant contacts and a positive <code>minDepth</code>, Remo's wheels crept about 8 mm into the ground within a minute, and the turn test still passed. Only the height showed it.</li>
 <li><strong>Wheel speed tracking.</strong> Turn on the spot in both directions and drive straight, and compare the wheel joints' speeds in <code>/diffbot/joint_states</code> with the commanded ones: their mean and their standard deviation. A lasting error can come from the controller, a torque limit or the contact load; jitter can come from contact solving or an unstable loop. Keep P below the free-wheel limit <span class="arithmatex">\(2J/h\)</span>. <em>Example:</em> with a P gain alone, Remo's wheels reached only about 80 % of the command when turning on the spot, because turning needs torque; an I term with <code>i_clamp</code> removed the error.</li>
@@ -5066,7 +5323,7 @@ See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XM
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
@@ -5080,6 +5337,16 @@ See also <a href="http://wiki.ros.org/urdf/XML/link">http://wiki.ros.org/urdf/XM
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

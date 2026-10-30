@@ -11,7 +11,7 @@
         <link rel="prev" href="../jetson-nano-setup/">
       
       
-        <link rel="next" href="../ros-network-setup/">
+        <link rel="next" href="../robot-container/">
       
       
         
@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -814,6 +816,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -1222,6 +1252,8 @@
       
         
       
+        
+      
     
     
     
@@ -1470,6 +1502,201 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../robot-container/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Container
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Robot Container
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set Up the Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image and Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -3934,6 +4161,8 @@
       
         
       
+        
+      
     
     
     
@@ -4003,6 +4232,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4265,7 +4522,7 @@
 
 
 <h1 id="ros-installation">ROS Installation</h1>
-<p>The robot's computer runs <a href="https://wiki.ros.org/noetic">ROS Noetic</a> on Ubuntu 20.04 Focal Fossa (<a href="../rpi-setup/">Raspberry Pi Setup</a>). ROS Noetic reached its end of life in May 2025, at the same time as the standard support of <a href="https://ubuntu.com/20-04">Ubuntu 20.04</a>; Ubuntu MATE's own support for 20.04 <a href="https://ubuntu-mate.community/t/ubuntu-mate-20-04-lts-reaches-end-of-life/26477">ended in April 2023</a>. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. A container for the robot, to run Noetic on a newer host OS, is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>, and the way to ROS 2 in <a href="https://github.com/ros-mobile-robots/diffbot/issues/107">diffbot#107</a>.</p>
+<p>The robot's computer runs <a href="https://wiki.ros.org/noetic">ROS Noetic</a> on Ubuntu 20.04 Focal Fossa (<a href="../rpi-setup/">Raspberry Pi Setup</a>). ROS Noetic reached its end of life in May 2025, at the same time as the standard support of <a href="https://ubuntu.com/20-04">Ubuntu 20.04</a>; Ubuntu MATE's own support for 20.04 <a href="https://ubuntu-mate.community/t/ubuntu-mate-20-04-lts-reaches-end-of-life/26477">ended in April 2023</a>. This project still uses them, and the ROS package server keeps the final Noetic packages, so the installation below works. The experimental <a href="../robot-container/">Robot Container</a> runs Noetic in Docker on a newer host OS instead; the way to ROS 2 is in <a href="https://github.com/ros-mobile-robots/diffbot/issues/107">diffbot#107</a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">All in one for Remo: <code>raspi-setup.sh</code></p>
 <p>The diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/raspi-setup.sh"><code>raspi-setup.sh</code></a> runs the commands of this page and of <a href="../../packages/packages-setup/">Packages Setup</a> in one go, for Remo. On the robot:</p>
@@ -4600,13 +4857,13 @@ In case you are unsure, you can check with the <code>echo $SHELL</code> command 
         
         
           
-          <a href="../ros-network-setup/" class="md-footer__link md-footer__link--next" aria-label="Next: ROS Network Setup">
+          <a href="../robot-container/" class="md-footer__link md-footer__link--next" aria-label="Next: Robot Container">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                ROS Network Setup
+                Robot Container
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -4647,7 +4904,7 @@ In case you are unsure, you can check with the <code>echo $SHELL</code> command 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
@@ -4661,6 +4918,16 @@ In case you are unsure, you can check with the <code>echo $SHELL</code> command 
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

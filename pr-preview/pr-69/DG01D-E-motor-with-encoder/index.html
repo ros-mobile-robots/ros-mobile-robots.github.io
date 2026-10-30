@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -814,6 +816,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -1220,6 +1250,8 @@
       
         
       
+        
+      
     
     
     
@@ -1356,6 +1388,201 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../processing_units/robot-container/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Container
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Robot Container
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set Up the Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing_units/robot-container/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image and Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -3914,6 +4141,8 @@
       
         
       
+        
+      
     
     
     
@@ -3983,6 +4212,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4242,7 +4499,7 @@ This way we can obtain the geared resolution, meaning the resolution measured at
 It is possible to calculate the resolution at the motor shaft from the resolution measured at the wheel axle when we know the gear reduction ratio. 
 Because the datasheet is not precise about the gearbox ratio (1:48) it is hard to know exactly the pulses, counts, (and cycles) per revolution at the motor shaft itself 
 (where the encoder is attached). The output resolution of the wheel (after the gear reduction) on the other hand can be measured quite easily with a 
-<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/encoders/encoders_test/encoders_test.ino">script encoders_test.ino code</a>. 
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/sketches/encoders_test/encoders_test.ino">script encoders_test.ino code</a>.
 From these measurements it seems that this encoder has only 3 pulses per revolution (ppr) because with the code that reads both edges (rising and falling) of 
 both channels we can observe roughly 542 at the wheel output shaft (lets round it up to 576 counts per wheel revolution to obtain 3 ppr. 
 We could also assume that the gear ratio might not be exactly correct). So 576 counts / 48:1 gear ratio / 2 channels / 2 edges = 3 pulses per revolution at the motor shaft. 
@@ -4485,7 +4742,7 @@ To download and install Pico Scope software on Linux refer to the <a href="https
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
@@ -4499,6 +4756,16 @@ To download and install Pico Scope software on Linux refer to the <a href="https
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

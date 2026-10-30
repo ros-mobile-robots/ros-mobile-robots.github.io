@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -814,6 +816,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -1222,6 +1252,8 @@
       
         
       
+        
+      
     
     
     
@@ -1358,6 +1390,201 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../robot-container/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robot Container
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Robot Container
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set Up the Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot-container/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image and Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -3947,6 +4174,8 @@
       
         
       
+        
+      
     
     
     
@@ -4016,6 +4245,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4303,7 +4560,7 @@
 </ul>
 <p>So the microcontroller does this time-critical work: it counts the encoder pulses, runs the speed control and drives the motors through the motor driver. Over USB, it receives the commanded wheel speeds from the Raspberry Pi and sends back the wheels' measured positions and speeds, computed from the encoder counts.</p>
 <h2 id="which-microcontroller">Which Microcontroller?</h2>
-<p>The firmware in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/base_controller"><code>diffbot_base/scripts/base_controller</code></a> runs on a <a href="https://www.pjrc.com/teensy/">Teensy</a>, a small board by PJRC with a 32-bit ARM processor. It's programmed like an Arduino, with the <a href="https://www.pjrc.com/teensy/teensyduino.html">Teensyduino</a> add-on or PlatformIO, so most Arduino code works on it. Two things make it a good fit here:</p>
+<p>The firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> runs on a <a href="https://www.pjrc.com/teensy/">Teensy</a>, a small board by PJRC with a 32-bit ARM processor. It's programmed like an Arduino, with the <a href="https://www.pjrc.com/teensy/teensyduino.html">Teensyduino</a> add-on or PlatformIO, so most Arduino code works on it. Two things make it a good fit here:</p>
 <ul>
 <li><strong>Interrupts on every digital pin:</strong> the firmware counts the encoders with PJRC's <a href="https://www.pjrc.com/teensy/td_libs_Encoder.html">Encoder library</a>, which works best when both signals of an encoder are on interrupt pins. On the Teensy, all digital pins are; an Arduino Uno has only two, pins 2 and 3.</li>
 <li><strong>Speed and memory to spare:</strong> a faster processor and much more RAM than the classic Arduinos, which leaves room for rosserial (see <a href="#other-boards-such-as-an-arduino">below</a>).</li>
@@ -4455,7 +4712,7 @@ more instructions to setup the Arduino IDE can be found in the <a href="http://w
 <h2 id="encoder-program">Encoder Program</h2>
 <p>When installing Teensyduino new example programs are provided. One of them is to test Encoders. 
 The code for the motor encoders uses it as basis together with a pubsub example from rosserial:</p>
-<p>The program is <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/scripts/encoders/encoders/encoders.ino"><code>encoders.ino</code></a> in the diffbot repository.</p>
+<p>The program is <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/sketches/encoders/encoders.ino"><code>encoders.ino</code></a> in the diffbot repository.</p>
 <p>After the program is flashed to the Teensy board it can be tested with the following procedure:</p>
 <ol>
 <li>Start a ROS <a href="http://wiki.ros.org/Master">master</a> by executing <a href="http://wiki.ros.org/roscore"><code>roscore</code></a> in a new terminal.</li>
@@ -4589,7 +4846,7 @@ The code for the motor encoders uses it as basis together with a pubsub example 
 </code></pre></div></td></tr></tbody></table></div>
 <p>The found value 540 for a full turn of the wheel is important for the hardware interface.</p>
 <h2 id="base-controller">Base Controller</h2>
-<p>If you are working with Remo the recommende way is to use <code>base_controller</code> from <code>diffbot_base/scripts</code> instead of the <code>encoders.ino</code>.
+<p>If you are working with Remo, the recommended way is to use the firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> instead of <code>encoders.ino</code>.
 Build instructions using Visual Studio Code including the PlatformIO plugin are shown in the following video:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/Mn6DY1tNUcU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
@@ -4752,7 +5009,7 @@ Build instructions using Visual Studio Code including the PlatformIO plugin are 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit", "navigation.tabs", "navigation.top", "navigation.indexes", "navigation.sections", "navigation.path", "navigation.footer", "navigation.instant.preview", "content.tooltips", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
     
@@ -4766,6 +5023,16 @@ Build instructions using Visual Studio Code including the PlatformIO plugin are 
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
