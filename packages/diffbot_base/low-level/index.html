@@ -4564,6 +4564,12 @@
 <p>Having explained the two components of the base
 controller in <a href="../">DiffBot Base</a>, the low-level firmware is implemented first, followed by the high-level hardware, detailed in the next section.</p>
 <h2 id="implementing-the-low-level-base-controller-for-remo">Implementing the low-level base controller for Remo</h2>
+<div class="admonition info">
+<p class="admonition-title">Firmware excerpts</p>
+<p>The firmware excerpts on this page, the code blocks with a file name and
+line numbers, show the firmware at the diffbot commit that this page pins.
+The link before each excerpt opens the same lines on GitHub.</p>
+</div>
 <p>The low-level base controller is implemented on the Teensy microcontroller using
 <a href="https://platformio.org/">PlatformIO</a>. The programming language in PlatformIO is
 the same as Arduino (based on Wiring) and it is available as a plugin for the
@@ -4574,12 +4580,22 @@ folder of the diffbot repository. Opening this folder in Visual Studio Code will
 PlatformIO workspace because it contains the <code>platformio.ini</code> file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
-libraries are listed:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">lib_deps = frankjoshua/Rosserial Arduino Library@^0.9.1</span>
-<span class="go">           adafruit/Adafruit Motor Shield V2 Library@^1.0.11</span>
-<span class="go">           Wire</span>
+libraries are listed, here for Remo's Teensy 4.0, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/platformio.ini#L27-L34">lines 27–34</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">platformio.ini: Remo's Teensy 4.0</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">[env:teensy40]</span>
+<span class="na">platform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teensy</span>
+<span class="na">board</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teensy40</span>
+<span class="na">framework</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">arduino</span>
+<span class="na">lib_deps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="na">frankjoshua/Rosserial Arduino Library@^0.9.1</span>
+<span class="w">    </span><span class="na">adafruit/Adafruit Motor Shield V2 Library@^1.0.11</span>
+<span class="w">    </span><span class="na">Wire</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>As you can see, the firmware depends on <code>rosserial</code>, the <code>Adafruit Motor Shield
 V2</code> library, and <code>Wire</code>, an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> library. PlatformIO allows using custom
@@ -4592,9 +4608,11 @@ following code snippets are part of the low-level base controller’s <code>main
 file and show the used libraries, found in
 <code>diffbot_firmware</code>, in the <code>lib</code> and <code>src</code> folders. <code>src</code>
 contains <code>main.cpp</code> consisting of the <code>setup()</code> and <code>loop()</code> functions, common
-to every Arduino sketch and starts off by including the following headers:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ros.h&gt;</span>
+to every Arduino sketch and starts off by including the following headers, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/src/main.cpp#L1-L3">lines 1–3</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the ROS header and Remo's configuration</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ros.h&gt;</span>
+
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"diffbot_base_config.h"</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Besides the ros header file, it includes definitions specific to Remo, which are
@@ -4614,21 +4632,11 @@ values such as the following:</p>
   encoder values and writes motor commands at a specific rate.</li>
 </ul>
 <p>After including Remo-specific definitions, next follows the custom libraries in
-the <code>lib</code> folder:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>```cpp
-#include "base_controller.h"
-#include "adafruit_feather_wing/adafruit_feather_wing.h"
-```
+the <code>lib</code> folder, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/src/main.cpp#L4-L5">lines 4–5</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the libraries from lib</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base_controller.h"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"adafruit_feather_wing/adafruit_feather_wing.h"</span>
 </code></pre></div></td></tr></tbody></table></div>
-<div class="admonition info">
-<p class="admonition-title">Code excerpts</p>
-<p>The code excerpts on this page show the firmware at the diffbot commit that
-this page pins, with their line numbers. The link before each excerpt opens
-the same lines on GitHub.</p>
-</div>
 <p>These include directives and the libraries that get included with them are
 introduced next:</p>
 <ul>
@@ -4659,7 +4667,7 @@ introduced next:</p>
   consist of. The encoder library also provides a method <code>jointState()</code> to
   directly obtain the joint state, which is returned by this method in the
   <code>JointState</code> struct, that consists of the measured angular position (rad) and
-  angular velocity (rad/s) of the wheel joints:</p>
+  angular velocity (rad/s) of the wheel joints, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39">lines 14–39</a>:</p>
 <p><a id="the-encoder-excerpt"></a></p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">encoder_diffbot.cpp: angle and speed</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
 <span class="normal">15</span>
