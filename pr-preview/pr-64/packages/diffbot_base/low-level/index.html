@@ -4623,6 +4623,12 @@ the <code>lib</code> folder:</p>
 #include "adafruit_feather_wing/adafruit_feather_wing.h"
 ```
 </code></pre></div></td></tr></tbody></table></div>
+<div class="admonition info">
+<p class="admonition-title">Code excerpts</p>
+<p>The code excerpts on this page show the firmware at the diffbot commit that
+this page pins, with their line numbers. The link before each excerpt opens
+the same lines on GitHub.</p>
+</div>
 <p>These include directives and the libraries that get included with them are
 introduced next:</p>
 <ul>
@@ -4888,8 +4894,6 @@ command's age.
 <a href="https://docs.arduino.cc/language-reference/en/functions/time/micros/"><code>micros()</code></a>
 counts microseconds, for the encoders' speed. A correction of the Raspberry Pi's
 clock doesn't change these counters.</p>
-<p>The excerpts show the firmware at the diffbot commit that this page pins, with
-their line numbers. The link above each block opens the same lines on GitHub.</p>
 <h4 id="the-time-stamps">The time stamps</h4>
 <p><code>BaseController</code> keeps one <code>millis()</code> reading for each event in
 <code>LastUpdateTime</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/lib/base_controller/base_controller.h#L175-L196">lines 175–196</a>:</p>
@@ -4990,8 +4994,10 @@ turned by the time since its last reading, from <code>micros()</code>. <code>dts
 in seconds, and <code>angular_velocity_</code> is the wheel's speed in
 radians per second, although a comment in the code mentions RPM.</p>
 <h4 id="when-the-counters-wrap">When the counters wrap</h4>
-<p><code>millis()</code> and <code>micros()</code> return 32-bit unsigned integers. They return to zero
-after about 49.7 days and 71.6 minutes. The differences are computed with
+<p><code>millis()</code> and <code>micros()</code> return 32-bit unsigned integers. After 2³² counts they
+return to zero: 2³² ms (4,294,967,296 ms) is about 49.7 days, and 2³² µs about
+71.6 minutes. Arduino's reference pages for <code>millis()</code> and <code>micros()</code> round these
+to about 50 days and 70 minutes. The differences are computed with
 <code>uint32_t</code>, so <code>now_ms - control</code> still gives the right number of milliseconds
 across that return to zero, as long as the two readings are less than one
 counter cycle apart and come from the same run of the firmware.</p>
