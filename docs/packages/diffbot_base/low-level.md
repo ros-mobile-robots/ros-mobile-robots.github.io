@@ -105,19 +105,10 @@ introduced next:
   `JointState` struct, that consists of the measured angular position (rad) and
   angular velocity (rad/s) of the wheel joints:
 
-    ```cpp
-    diffbot::JointState diffbot::Encoder::jointState() {
-        long encoder_ticks = encoder.read();
-        uint32_t current_us = micros();
-        double dts = (current_us - prev_update_us_) * 1e-6;
-        double delta_ticks = encoder_ticks - prev_encoder_ticks_;
-        double delta_angle = ticksToAngle(delta_ticks);
-        joint_state_.angular_position_ += delta_angle;
-        joint_state_.angular_velocity_ = delta_angle / dts;
-        prev_update_us_ = current_us;
-        prev_encoder_ticks_ = encoder_ticks;
-        return joint_state_;
-    }
+    <a id="the-encoder-excerpt"></a>
+
+    ```cpp title="encoder_diffbot.cpp: angle and speed" linenums="14" hl_lines="8 11"
+    --8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp:14:39"
     ```
 
     The time between two calls comes from the Teensy's own clock,
@@ -317,15 +308,10 @@ compares it with these time stamps:
 
 #### The encoders' speed
 
-Each control step reads both encoders. `Encoder::jointState()` divides the
-angle that the wheel turned by the time since its last reading, from `micros()`,
-[lines 14–39]({{ low_level_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39):
-
-```cpp title="encoder_diffbot.cpp: angle and speed" linenums="14" hl_lines="8 11"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp:14:39"
-```
-
-`dts` is that time in seconds, and `angular_velocity_` is the wheel's speed in
+Each control step reads both encoders. `Encoder::jointState()`, in the
+[encoder excerpt](#the-encoder-excerpt) above, divides the angle that the wheel
+turned by the time since its last reading, from `micros()`. `dts` is that time
+in seconds, and `angular_velocity_` is the wheel's speed in
 radians per second, although a comment in the code mentions RPM.
 
 #### When the counters wrap
