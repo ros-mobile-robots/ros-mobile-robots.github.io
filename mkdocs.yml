@@ -7,6 +7,8 @@ theme:
     - content.tabs.link
     # "Copy" button on code blocks, and "Edit this page" (edit_uri) on every page
     - content.code.copy
+    # Numbered (+) explanations inside code blocks, from comments such as # (1)!
+    - content.code.annotate
     - content.action.edit
     - navigation.tabs
     - navigation.top
@@ -61,6 +63,22 @@ extra:
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   diffbot_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7190c9a902d2205133967d32db5ce3548f24f0a8
   diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8
+  # The diffbot commit that the code excerpts and file links on the Robot Container pages show. Update both
+  # when that code changes, and check the excerpts' line ranges against the new commit
+  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7044c2beef568d2372e49f74705c8f992d473c59
+  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59
+  # The diffbot commit that the workflow excerpts on Testing and CI show. Update both when that
+  # workflow changes, and check the excerpts' line ranges and highlighted lines against it
+  ci_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/22e3f0e15052910c90f7f18decc0833a84271ab6
+  ci_src_url: https://github.com/ros-mobile-robots/diffbot/blob/22e3f0e15052910c90f7f18decc0833a84271ab6
+  # The diffbot commit that the excerpts on Firmware Container show (diffbot #150). Move both to
+  # #150's merge commit before this page's pull request merges, and check the excerpts' line ranges
+  firmware_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3541965496d50ce629e00054e8d3acd12e4beed5
+  firmware_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5
+  # The diffbot commit that the code excerpts on Geometry Test show. Update both when that code
+  # changes, and check the excerpts' line ranges and highlighted lines against the new commit
+  geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885
+  geometry_src_url: https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
@@ -162,6 +180,7 @@ nav:
     - Development Environment:
       - Use the Dev Container: development/dev-container.md
       - How the Dev Container Works: development/dev-container-internals.md
+      - Firmware Container: development/firmware-container.md
       - Docker Basics: theory/architecture/docker.md
     - Glossary: glossary.md
   - Hardware:
@@ -177,6 +196,12 @@ nav:
       - Raspberry Pi Setup: processing_units/rpi-setup.md
       - Jetson Nano Setup: processing_units/jetson-nano-setup.md
       - ROS Setup: processing_units/ros-setup.md
+      - Robot Container:
+        - processing_units/robot-container/index.md
+        - Set Up the Raspberry Pi: processing_units/robot-container/setup.md
+        - Start, Check and Stop: processing_units/robot-container/usage.md
+        - Troubleshooting: processing_units/robot-container/troubleshooting.md
+        - Image and Tests: processing_units/robot-container/image.md
       - ROS Network Setup: processing_units/ros-network-setup.md
       - Microcontroller: processing_units/teensy-mcu.md
       - Hardware Interfaces: processing_units/hardware-interfaces.md
@@ -261,6 +286,7 @@ nav:
   - Contributing:
     - development/index.md
     - Testing and CI: development/ci.md
+    - Geometry Test: development/geometry-test.md
     - Simulation Test: development/simulation-test.md
   - Insiders: insiders/index.md
 

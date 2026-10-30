@@ -15,10 +15,10 @@ This package contains the so called hardware interface of DiffBot which represen
     <figcaption><a href="http://wiki.ros.org/ros_control#Overview" title="ROS Control">ROS Control</a> Overview.</figcaption>
 </figure>
 
-This package contains the platform-specific code for the base controller component required by the ROS Navigation Stack. It consists of the firmware based on rosserial
-for the Teensy MCU and the C++ node running on the SBC that instantiates the
+This package contains the platform-specific code for the base controller component required by the ROS Navigation Stack: the C++ node running on the SBC that instantiates the
 ROS Control hardware interface, which includes the `controller_manager` control loop
-for the real robot.
+for the real robot. It talks over rosserial with the Teensy MCU, whose firmware is in
+the separate [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) folder of the diffbot repository.
 
 The low-level `base_controller` component reads the encoder ticks from the hardware,
 calculates angular joint positions and velocities, and publishes them to the
