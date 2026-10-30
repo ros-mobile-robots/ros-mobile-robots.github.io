@@ -14,16 +14,16 @@ Open a terminal on your PC and go to the root folder of your diffbot clone. On W
 === "Remo: Teensy 4.0"
 
     ```console
-    .docker/firmware/pio run -e teensy40
+    .docker/firmware/run.sh pio run -e teensy40
     ```
 
 === "DiffBot: Teensy 3.2"
 
     ```console
-    .docker/firmware/pio run -e teensy31
+    .docker/firmware/run.sh pio run -e teensy31
     ```
 
-[`.docker/firmware/pio`]({{ firmware_src_url }}/.docker/firmware/pio) is our script, named after PlatformIO's command `pio`. It starts the container and runs `pio` in it with the arguments you give it. So `.docker/firmware/pio run -e teensy40` runs `pio run -e teensy40` in the container, and [the script](#the-script) below shows how. `pio run` builds the firmware, and `-e` selects the board, one of the environments in [`platformio.ini`]({{ firmware_src_url }}/diffbot_firmware/platformio.ini): `teensy40` for the Teensy 4.0, `teensy31` for the Teensy 3.1 and 3.2. Without `-e`, `pio run` builds `teensy40`. [Which Microcontroller?](../processing_units/teensy-mcu.md#which-microcontroller) lists the Teensy of each robot.
+[`.docker/firmware/run.sh`]({{ firmware_src_url }}/.docker/firmware/run.sh) is our script. It runs a command in the firmware container, here PlatformIO's command `pio`, and [the script](#the-script) below shows how. `pio run` builds the firmware. `-e` selects an environment in [`platformio.ini`]({{ firmware_src_url }}/diffbot_firmware/platformio.ini), and each environment builds for one board: `teensy40` for the Teensy 4.0, `teensy31` for the Teensy 3.1 and 3.2. Without `-e`, `pio run` builds `teensy40`. [Which Microcontroller?](../processing_units/teensy-mcu.md#which-microcontroller) lists the Teensy of each robot.
 
 You only need the build for your robot. When you change the firmware, build both, as [CI](#in-ci) does, because the change has to work on both boards.
 
@@ -52,7 +52,9 @@ teensy40       SUCCESS   00:00:01.501
 
 The firmware file is then `diffbot_firmware/.pio/build/<board>/firmware.hex`, and it belongs to you. PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html) flashes it onto the Teensy. Don't build in the container and on the PC at the same time, because both write to `diffbot_firmware/.pio`.
 
-**Another user and group ID:** the script uses yours (`id -u` and `id -g`) unless you set `LOCAL_UID` and `LOCAL_GID`, for example `LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/pio run -e teensy40`. That ID needs write access to your clone. In the container, `id` then shows:
+**Other commands** run the same way, for example `.docker/firmware/run.sh bash` for a shell in the container. Shell syntax such as `&&` needs a shell in the container, for example `.docker/firmware/run.sh bash -c 'pwd && id'`. Otherwise the shell on your PC reads it. Commands start in `diffbot_firmware`. Paths in them are paths in the container, where your clone is `/workspace`, so a folder on your PC outside your clone doesn't exist there.
+
+**Another user and group ID:** the script uses yours (`id -u` and `id -g`) unless you set `LOCAL_UID` and `LOCAL_GID`, for example `LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/run.sh pio run -e teensy40`. That ID needs write access to your clone. In the container, `id` then shows:
 
 ```console
 uid=1234(pio) gid=1234(pio) groups=1234(pio)
@@ -83,29 +85,37 @@ The excerpts show the files at the diffbot commit that this page pins, with thei
 
 ### The script
 
-[`.docker/firmware/pio`]({{ firmware_src_url }}/.docker/firmware/pio) runs from anywhere, because it finds `compose.yaml` next to itself. It first sets the IDs, [lines 13–16]({{ firmware_src_url }}/.docker/firmware/pio#L13-L16):
+[`.docker/firmware/run.sh`]({{ firmware_src_url }}/.docker/firmware/run.sh) runs from anywhere, because it finds `compose.yaml` next to itself. Without a command, it says how to use it and stops before Docker starts, [lines 15–28]({{ firmware_src_url }}/.docker/firmware/run.sh#L15-L28):
 
-```bash title="pio: the IDs" linenums="13"
---8<-- "{{ firmware_src_raw }}/.docker/firmware/pio:13:16"
+```bash title="run.sh: without a command" linenums="15"
+--8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:15:28"
+```
+
+It writes the usage to stderr, the error output, and exits with 2, so that a CI job or another script that forgot the command fails. `--help` writes the same to the normal output and exits with 0.
+
+Then it sets the IDs, [lines 30–33]({{ firmware_src_url }}/.docker/firmware/run.sh#L30-L33):
+
+```bash title="run.sh: the IDs" linenums="30"
+--8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:30:33"
 ```
 
 `${LOCAL_UID:-$(id -u)}` keeps a `LOCAL_UID` that you set, and takes your user ID otherwise. `export` passes both to Docker Compose. `compose` holds the start of every Compose command, with the path to `compose.yaml`.
 
-Then it builds the image, [lines 18–31]({{ firmware_src_url }}/.docker/firmware/pio#L18-L31):
+Next, it builds the image, [lines 35–48]({{ firmware_src_url }}/.docker/firmware/run.sh#L35-L48):
 
-```bash title="pio: the image" linenums="18"
---8<-- "{{ firmware_src_raw }}/.docker/firmware/pio:18:31"
+```bash title="run.sh: the image" linenums="35"
+--8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:35:48"
 ```
 
 `config --images` asks Compose for the image's name, which contains your IDs. When that image doesn't exist yet, the build shows Docker's progress, because it downloads for a while. Otherwise the build takes seconds when the Dockerfile and `requirements.txt` haven't changed, because Docker reuses its cached layers. The script keeps the build's output and prints it only when the build fails.
 
-Last, it runs PlatformIO in the container, [lines 33–38]({{ firmware_src_url }}/.docker/firmware/pio#L33-L38):
+Last, it runs your command in the container, [lines 50–55]({{ firmware_src_url }}/.docker/firmware/run.sh#L50-L55):
 
-```bash title="pio: the run" linenums="33"
---8<-- "{{ firmware_src_raw }}/.docker/firmware/pio:33:38"
+```bash title="run.sh: the run" linenums="50"
+--8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:50:55"
 ```
 
-`run --rm` starts a container for this one command and removes it afterwards. `pio "$@"` passes your arguments on, for example `run -e teensy40`. Without a terminal, in CI for example, `-T` starts the container without one. `exec` replaces the script with Docker, so the build's exit code is the script's.
+`run --rm` starts a container for this one command and removes it afterwards. `"$@"` is your command with its arguments, for example `pio run -e teensy40`. Each argument reaches the container unchanged, because no shell reads it in between. Without a terminal, in CI for example, `-T` starts the container without one. `exec` replaces the script with Docker, so the command's exit code is the script's.
 
 ### The container
 

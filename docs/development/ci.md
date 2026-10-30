@@ -134,8 +134,8 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 - **Firmware:** build it in its own container, as CI does. It needs only Docker, not PlatformIO on your PC. When you change the firmware, build both boards, because the change has to work on both. From your diffbot clone's root folder on the PC, not inside the dev container:
 
     ```console
-    .docker/firmware/pio run -e teensy40
-    .docker/firmware/pio run -e teensy31
+    .docker/firmware/run.sh pio run -e teensy40
+    .docker/firmware/run.sh pio run -e teensy31
     ```
 
     [Firmware Container](firmware-container.md) explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.
