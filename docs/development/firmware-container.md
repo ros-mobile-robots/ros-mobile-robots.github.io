@@ -25,7 +25,7 @@ Open a terminal on your PC and go to the root folder of your diffbot clone. On W
 
 [`.docker/firmware/run.sh`]({{ firmware_src_url }}/.docker/firmware/run.sh) is our script. It runs a command in the firmware container, here PlatformIO's command `pio`, and [the script](#the-script) below shows how. `pio run` builds the firmware. `-e` selects an environment in [`platformio.ini`]({{ firmware_src_url }}/diffbot_firmware/platformio.ini), and each environment builds for one board: `teensy40` for the Teensy 4.0, `teensy31` for the Teensy 3.1 and 3.2. Without `-e`, `pio run` builds `teensy40`. [Which Microcontroller?](../processing_units/teensy-mcu.md#which-microcontroller) lists the Teensy of each robot.
 
-You only need the build for your robot. When you change the firmware, build both, as [CI](#in-ci) does, because the change has to work on both boards.
+For your robot, one build is enough. If you change the firmware, build the other board too, because [CI](#in-ci) checks that the firmware builds for both.
 
 The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a Teensy 4.0 build looks like this:
 
@@ -50,7 +50,9 @@ teensy40       SUCCESS   00:00:01.501
 ========================= 1 succeeded in 00:00:01.501 =========================
 ```
 
-The firmware file is then `diffbot_firmware/.pio/build/<board>/firmware.hex`, and it belongs to you. PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html) flashes it onto the Teensy. Don't build in the container and on the PC at the same time, because both write to `diffbot_firmware/.pio`.
+PlatformIO writes each build into its standard build folder, `diffbot_firmware/.pio/build/<environment>/`. So the firmware is `diffbot_firmware/.pio/build/teensy40/firmware.hex` for Remo and `diffbot_firmware/.pio/build/teensy31/firmware.hex` for DiffBot. Git ignores `.pio`. The file belongs to your user, not to root, so you can copy or delete it without `sudo`.
+
+**Flash it** with PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html), an app that you install on your PC. It isn't part of the container. It loads `firmware.hex` onto the Teensy over USB. On Linux, it needs PJRC's [udev rules](https://www.pjrc.com/teensy/loader_linux.html), a file that you copy to `/etc/udev/rules.d/`, so that it may write to the Teensy. Flashing from the container is planned in [diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149). For that, the container needs access to the Teensy's USB port.
 
 **Other commands** run the same way, for example `.docker/firmware/run.sh bash` for a shell in the container. Shell syntax such as `&&` needs a shell in the container, for example `.docker/firmware/run.sh bash -c 'pwd && id'`. Otherwise the shell on your PC reads it. Commands start in `diffbot_firmware`. Paths in them are paths in the container, where your clone is `/workspace`, so a folder on your PC outside your clone doesn't exist there.
 
@@ -79,6 +81,9 @@ uid=1234(pio) gid=1234(pio) groups=1234(pio)
     ~/.venvs/platformio/bin/pio run -e teensy40
     ```
 
+!!! warning "PlatformIO on your PC as well"
+    Don't build with it and in the container at the same time. Both write to `diffbot_firmware/.pio`.
+
 ## How it works
 
 The excerpts show the files at the diffbot commit that this page pins, with their line numbers. The link above each block opens the same lines on GitHub.
@@ -93,29 +98,39 @@ The excerpts show the files at the diffbot commit that this page pins, with thei
 
 It writes the usage to stderr, the error output, and exits with 2, so that a CI job or another script that forgot the command fails. `--help` writes the same to the normal output and exits with 0.
 
-Then it sets the IDs, [lines 30–33]({{ firmware_src_url }}/.docker/firmware/run.sh#L30-L33):
+Then it sets the user and group IDs, [lines 30–33]({{ firmware_src_url }}/.docker/firmware/run.sh#L30-L33):
 
 ```bash title="run.sh: the IDs" linenums="30"
 --8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:30:33"
 ```
 
-`${LOCAL_UID:-$(id -u)}` keeps a `LOCAL_UID` that you set, and takes your user ID otherwise. `export` passes both to Docker Compose. `compose` holds the start of every Compose command, with the path to `compose.yaml`.
+`here` is the script's folder: `dirname` takes the folder from the script's path, and `cd … && pwd` turns it into a full path. `${LOCAL_UID:-$(id -u)}` keeps a `LOCAL_UID` that you set, and takes your user ID otherwise. The same goes for the group ID. `export` makes both environment variables, which the programs that the script starts can read. Docker Compose fills `${LOCAL_UID}` and `${LOCAL_GID}` in `compose.yaml` with them. `compose`, a variable like `here`, is a list with the start of every Compose command: `docker compose -f <folder>/compose.yaml`. The script adds the rest, for example `build firmware`.
 
-Next, it builds the image, [lines 35–48]({{ firmware_src_url }}/.docker/firmware/run.sh#L35-L48):
+Next, it builds the image, [lines 35–49]({{ firmware_src_url }}/.docker/firmware/run.sh#L35-L49):
 
 ```bash title="run.sh: the image" linenums="35"
---8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:35:48"
+--8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:35:49"
 ```
 
-`config --images` asks Compose for the image's name, which contains your IDs. When that image doesn't exist yet, the build shows Docker's progress, because it downloads for a while. Otherwise the build takes seconds when the Dockerfile and `requirements.txt` haven't changed, because Docker reuses its cached layers. The script keeps the build's output and prints it only when the build fails.
+`config --images` asks Compose for the image's name, which contains your user and group IDs. `docker image inspect` checks whether that image exists:
 
-Last, it runs your command in the container, [lines 50–55]({{ firmware_src_url }}/.docker/firmware/run.sh#L50-L55):
+- **Not yet** (`!`): the build shows Docker's progress, because it downloads the base image and the Python packages for a while.
+- **It exists** (`else`): the build usually takes seconds, because Docker reuses the cached result of each step when the Dockerfile and `requirements.txt` haven't changed. Its output goes into the variable `build_log`, not to the terminal. When the build fails, `status` gets the build's exit code, and the script prints the log to stderr and stops with that code.
 
-```bash title="run.sh: the run" linenums="50"
---8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:50:55"
+Last, it runs your command in the container, [lines 51–57]({{ firmware_src_url }}/.docker/firmware/run.sh#L51-L57):
+
+```bash title="run.sh: the run" linenums="51"
+--8<-- "{{ firmware_src_raw }}/.docker/firmware/run.sh:51:57"
 ```
 
-`run --rm` starts a container for this one command and removes it afterwards. `"$@"` is your command with its arguments, for example `pio run -e teensy40`. Each argument reaches the container unchanged, because no shell reads it in between. Without a terminal, in CI for example, `-T` starts the container without one. `exec` replaces the script with Docker, so the command's exit code is the script's.
+`tty_flag` starts as an empty list. `[ ! -t 0 ]` is true when the input isn't a terminal, and `[ ! -t 1 ]` when the output isn't, for example in CI or when the output goes into a file. Then the list gets `-T`, and the container starts without a terminal. Docker Compose before version 2.39.4 checks only the output, so the script checks both itself.
+
+The last line runs your command:
+
+- **`"${compose[@]}" run --rm`** starts a container for this one command and removes it afterwards.
+- **`${tty_flag[@]+"${tty_flag[@]}"}`** inserts `-T` when the list has it, and nothing when it's empty. The shorter `"${tty_flag[@]}"` would stop the script for an empty list in Bash before 4.4, such as macOS's Bash 3.2, because `set -u` treats it as unset.
+- **`firmware "$@"`:** `firmware` is the service in `compose.yaml`, and `"$@"` is your command with its arguments, for example `pio run -e teensy40`. Each argument reaches the container unchanged, because no shell reads it in between.
+- **`exec`** replaces the script's Bash process with the `docker` command, so no Bash waits in between. A signal sent to the script, such as a stop, then reaches Docker. When your command in the container finishes, Docker Compose returns its exit code, 0 for success and another number for an error, so a failed build fails the CI step.
 
 ### The container
 
@@ -125,10 +140,10 @@ Last, it runs your command in the container, [lines 50–55]({{ firmware_src_url
 --8<-- "{{ firmware_src_raw }}/.docker/firmware/compose.yaml:17:38"
 ```
 
-- **`build`:** the image is built from the Dockerfile in this folder, with your IDs as build arguments. `${LOCAL_UID:?…}` stops with that message when `LOCAL_UID` isn't set.
-- **`image`:** the image's name carries your IDs, so another user on the same PC gets an image of their own.
-- **`user`:** the container runs with your IDs, so the files it writes into the repository belong to you.
-- **`volumes`:** the whole repository is mounted at `/workspace`, and the container starts in `diffbot_firmware`. PlatformIO keeps its downloads in `/pio-core`: on your PC that's a Docker [volume](https://docs.docker.com/engine/storage/volumes/), a storage area that Docker keeps between runs, again with your IDs in its name. With `PIO_CORE` set to a folder, that folder is mounted there instead, which [CI](#in-ci) uses.
+- **`build`:** the image is built from the Dockerfile in this folder, with your user and group IDs as build arguments. `${LOCAL_UID:?…}` stops with that message when `LOCAL_UID` isn't set.
+- **`image`:** the image's name carries your user and group IDs, so another user on the same PC gets an image of their own.
+- **`user`:** the container runs with your user and group IDs, so the files it writes into the repository belong to your user.
+- **`volumes`:** the whole repository is mounted at `/workspace`, and the container starts in `diffbot_firmware`. PlatformIO keeps its downloads in `/pio-core`: on your PC that's a Docker [volume](https://docs.docker.com/engine/storage/volumes/), a storage area that Docker keeps between runs, again with your user and group IDs in its name. With `PIO_CORE` set to a folder, that folder is mounted there instead, which [CI](#in-ci) uses.
 
 ### The image
 
@@ -138,21 +153,30 @@ The [Dockerfile]({{ firmware_src_url }}/.docker/firmware/Dockerfile) starts from
 --8<-- "{{ firmware_src_raw }}/.docker/firmware/Dockerfile:5:16"
 ```
 
-The Teensy toolchain isn't in the image: PlatformIO downloads it into `/pio-core` on the first build. Then the image gets a user with your IDs, [lines 18–35]({{ firmware_src_url }}/.docker/firmware/Dockerfile#L18-L35):
+[`requirements.txt`]({{ firmware_src_url }}/.docker/firmware/requirements.txt) holds PlatformIO's version, [line 1]({{ firmware_src_url }}/.docker/firmware/requirements.txt#L1-L1):
+
+```text title="requirements.txt" linenums="1"
+--8<-- "{{ firmware_src_raw }}/.docker/firmware/requirements.txt:1:1"
+```
+
+`==` installs exactly this version, so the builds in this container, on your PC and in CI, use the same PlatformIO. A newer version is a change of this line, which also starts a new cache in [CI](#in-ci).
+
+The Teensy toolchain isn't in the image: PlatformIO downloads it into `/pio-core` on the first build. Then the image gets a user with your user and group IDs, [lines 18–35]({{ firmware_src_url }}/.docker/firmware/Dockerfile#L18-L35):
 
 ```dockerfile title="Dockerfile: your user" linenums="18"
 --8<-- "{{ firmware_src_raw }}/.docker/firmware/Dockerfile:18:35"
 ```
 
-`USER_UID` and `USER_GID` have no default. A build without both stops instead of silently using 1000.
+!!! note "No default IDs"
+    The build arguments `USER_UID` and `USER_GID` have no default value. A build without both stops with an error, instead of quietly creating the user with the ID 1000, which may not be yours.
 
 ### Your user ID, and the other containers
 
-The ID travels in four steps: the script takes `id -u`, Compose passes it to the build as `USER_UID`, the Dockerfile creates the user `pio` with it, and the container runs as that ID. Files that the build writes into your clone, such as `firmware.hex`, then belong to you, not to root or another ID.
+The ID travels in four steps: the script takes `id -u`, Compose passes it to the build as `USER_UID`, the Dockerfile creates the user `pio` with it, and the container runs as that ID. Files that the build writes into your clone, such as `firmware.hex`, then belong to your user, not to root or another ID.
 
 The other containers solve the same problem differently:
 
-- **The [dev container](dev-container-internals.md)** creates its user `ros` with 1000, the usual ID of the first user on Linux. VS Code changes that user to your IDs when it creates the container ([`updateRemoteUserUID`](https://containers.dev/implementors/json_reference/#-general-devcontainerjson-properties-), on by default on Linux). The firmware container runs without VS Code, so it gets your IDs at build time instead.
+- **The [dev container](dev-container-internals.md)** creates its user `ros` with 1000, the usual ID of the first user on Linux. VS Code changes that user to your user and group IDs when it creates the container ([`updateRemoteUserUID`](https://containers.dev/implementors/json_reference/#-general-devcontainerjson-properties-), on by default on Linux). The firmware container runs without VS Code, so it gets your user and group IDs at build time instead.
 - **The [robot container](../processing_units/robot-container/index.md)** runs as `ros` with 1000 on the Raspberry Pi, the robot's first user. The planned published image ([diffbot#151](https://github.com/ros-mobile-robots/diffbot/pull/151)) is built once per architecture with the IDs 1000, not for each robot's user. [Setup](../processing_units/robot-container/setup.md#8-the-folder-for-logs) covers a robot whose first user has another ID.
 
 ### In CI
@@ -163,7 +187,11 @@ The [Firmware workflow]({{ firmware_src_url }}/.github/workflows/firmware.yml) b
 --8<-- "{{ firmware_src_raw }}/.github/workflows/firmware.yml:20:44"
 ```
 
-Each CI job starts on a fresh machine, where a Docker volume would be empty. So the first step sets `PIO_CORE` to a folder in `$RUNNER_TEMP`, the runner's temporary folder, and a line `NAME=value` in the file that `$GITHUB_ENV` names makes it an environment variable for the later steps ([environment files](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable)). [`actions/cache`](https://github.com/actions/cache) restores a matching cache from an earlier run, if there is one, and saves a new one after a successful job when no cache had the exact key. The key holds the board, the runner's OS and architecture, and a hash of `requirements.txt` and `platformio.ini`. The script then sets the IDs to the runner's user, as on your PC.
+Each CI job starts on a fresh machine, where a Docker volume would be empty, so PlatformIO would download the Teensy toolchain in every job. The steps avoid that:
+
+- **Settings for the firmware container:** `PIO_CORE` gets a folder in `$RUNNER_TEMP`, a temporary folder that GitHub empties at the start and end of each job. Each step runs in a new shell, so a variable set with `export` would be gone in the next step. Instead, the step appends the line `PIO_CORE=<folder>` to a file whose path GitHub puts in `$GITHUB_ENV`. After the step, GitHub sets each `NAME=value` line of that file as an environment variable in the later steps ([environment files](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable)).
+- **[`actions/cache`](https://github.com/actions/cache):** restores the folder from an earlier run, from the cache with the exact key or else from the newest one with the same start (`restore-keys`). After a successful job, it saves the folder as a new cache when no cache had the exact key. The key holds the board, the runner's OS and architecture, and a hash of `requirements.txt` and `platformio.ini`. So a new PlatformIO version or a changed board configuration starts a new cache. One cache per board keeps the two jobs from writing the same one.
+- **Build the firmware:** runs the script as on your PC. It sets the user and group IDs to the runner's, and Compose mounts the `PIO_CORE` folder as the container's `/pio-core`.
 
 ## Planned
 
