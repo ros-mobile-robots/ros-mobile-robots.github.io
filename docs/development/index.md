@@ -27,7 +27,7 @@ Issues labelled [`good first issue`](https://github.com/ros-mobile-robots/diffbo
 
 1. **Issue:** describe the bug or feature, or pick an existing issue and comment that you're on it.
 2. **Branch:** name it after the kind of change, for example `feat/imu-driver`, `fix/encoder-ticks`, `docs/dev-container` or `chore/ci-actions`.
-3. **Pull request:** against `noetic-devel` in diffbot, or `main` in this repository. Explain what changes and how you tested it.
+3. **Pull request:** against `noetic-devel` in diffbot, or `main` in this repository. Explain what changes and how you tested it. In diffbot, link the docs pull request or an existing page under `## Documentation`, or write `None` when nothing user-visible changes. A [check](ci.md#pr-description) makes sure of it.
 4. **Checks and review:** the [CI checks](ci.md) must pass, and every PR gets a review.
 5. **Merge:** PRs are squash-merged. The PR title and description become the commit message, so they should read like one. The branch is deleted after the merge.
 
