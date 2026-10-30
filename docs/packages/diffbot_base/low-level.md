@@ -74,6 +74,11 @@ the `lib` folder:
     #include "adafruit_feather_wing/adafruit_feather_wing.h"
     ```
 
+!!! info "Code excerpts"
+    The code excerpts on this page show the firmware at the diffbot commit that
+    this page pins, with their line numbers. The link before each excerpt opens
+    the same lines on GitHub.
+
 These include directives and the libraries that get included with them are
 introduced next:
 
@@ -267,9 +272,6 @@ command's age.
 counts microseconds, for the encoders' speed. A correction of the Raspberry Pi's
 clock doesn't change these counters.
 
-The excerpts show the firmware at the diffbot commit that this page pins, with
-their line numbers. The link above each block opens the same lines on GitHub.
-
 #### The time stamps
 
 `BaseController` keeps one `millis()` reading for each event in
@@ -316,8 +318,10 @@ radians per second, although a comment in the code mentions RPM.
 
 #### When the counters wrap
 
-`millis()` and `micros()` return 32-bit unsigned integers. They return to zero
-after about 49.7 days and 71.6 minutes. The differences are computed with
+`millis()` and `micros()` return 32-bit unsigned integers. After 2³² counts they
+return to zero: 2³² ms (4,294,967,296 ms) is about 49.7 days, and 2³² µs about
+71.6 minutes. Arduino's reference pages for `millis()` and `micros()` round these
+to about 50 days and 70 minutes. The differences are computed with
 `uint32_t`, so `now_ms - control` still gives the right number of milliseconds
 across that return to zero, as long as the two readings are less than one
 counter cycle apart and come from the same run of the firmware.
