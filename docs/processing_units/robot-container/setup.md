@@ -15,7 +15,7 @@ On your PC, with [Raspberry Pi Imager](https://www.raspberrypi.com/software/) an
     - **User:** a user name and password for the Raspberry Pi, for example `robot`.
     - **Wi-Fi:** your network's name and password.
     - **Remote access:** *Enable SSH* with password authentication.
-5. **Write**, then put the card into the Raspberry Pi and switch it on.
+5. **Write:** check the summary and click *Write*. Imager warns that this erases everything on the card. Click *I understand, erase and write* to go on. If Imager asks for your PC's administrator password, enter it. Let the writing and the check (*Verifying*) finish. When the page *Write complete!* says that you can remove the card safely, put it into the Raspberry Pi and switch it on.
 
 === "Device"
 
@@ -49,11 +49,27 @@ On your PC, with [Raspberry Pi Imager](https://www.raspberrypi.com/software/) an
 
     ![Raspberry Pi Imager's customisation step for SSH, with SSH enabled and password authentication selected](images/imager-ssh.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
 
-=== "Write"
+=== "Summary"
 
     ![Raspberry Pi Imager's summary before writing: Raspberry Pi 4, Ubuntu Server 24.04.5 LTS (64-bit), and the customisations hostname, localisation, user account, Wi-Fi and SSH](images/imager-summary.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
 
-The screenshots show Raspberry Pi Imager 2.0.12 with example settings, before writing. Use your own SD card, time zone, network and credentials. [Ubuntu's guide](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi) shows the same steps.
+=== "Erase"
+
+    ![Raspberry Pi Imager's warning after clicking Write: you are about to erase all data on the selected SD card, with the buttons Cancel and I understand, erase and write](images/imager-erase.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+=== "Writing"
+
+    ![Raspberry Pi Imager writing the image to the card, at 51 percent](images/imager-writing.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+=== "Verifying"
+
+    ![Raspberry Pi Imager checking the written data, at 50 percent, with the button Skip verification](images/imager-verifying.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+=== "Done"
+
+    ![Raspberry Pi Imager's page Write complete: the choices, the customisations applied, and that the card was ejected and can be removed](images/imager-done.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+The screenshots show Raspberry Pi Imager 2.0.12 with example settings. Use your own SD card, time zone, network and credentials. [Ubuntu's guide](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi) shows the same steps.
 
 ## 2. First login and updates
 
