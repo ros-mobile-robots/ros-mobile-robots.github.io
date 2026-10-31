@@ -16,7 +16,22 @@
         {% endif %}
         {% if page and page.content and 'class="mermaid"' in page.content %}
         <script src="{{ 'js/mermaid-8.8.0/mermaid.min.js' | url }}"></script>
-        <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <script>
+          // Mermaid lays a diagram out from its size on the page. A diagram in a hidden tab has no
+          // size yet, so each diagram is drawn when it first becomes visible: when the page has
+          // loaded, or when its tab opens.
+          mermaid.initialize({ startOnLoad: false, securityLevel: "loose" });
+          function drawVisibleDiagrams() {
+            var visible = [].filter.call(document.querySelectorAll(".mermaid:not([data-processed])"),
+                                         function (diagram) { return diagram.offsetParent !== null; });
+            if (visible.length) mermaid.init(undefined, visible);
+          }
+          // "load" comes after the theme's styles, which hide the inactive tabs
+          window.addEventListener("load", drawVisibleDiagrams);
+          document.addEventListener("change", function (event) {
+            if (event.target.closest && event.target.closest(".tabbed-set")) setTimeout(drawVisibleDiagrams, 0);
+          });
+        </script>
         <style>
           /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
              give the diagrams dark fills with light lines and text, in the light theme's hues. Being
@@ -191,6 +206,10 @@
       .md-typeset pre > code { padding-right: 3em; }
       /* Highlighted lines still reach the right edge, through that padding */
       .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
+      /* Wide diagrams keep a readable size on a phone and scroll sideways, instead of shrinking
+         to the screen's width, for example the firmware's parts on Low-Level Base Controller */
+      .md-typeset .wide-diagram { overflow-x: auto; }
+      @media screen and (max-width: 44.9375em) { .md-typeset .wide-diagram svg { min-width: 30rem; } }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

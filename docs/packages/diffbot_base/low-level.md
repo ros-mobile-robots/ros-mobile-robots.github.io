@@ -28,10 +28,10 @@ folder of the diffbot repository. Opening this folder in Visual Studio Code will
 PlatformIO workspace because it contains the `platformio.ini` file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
-libraries are listed, here for Remo's Teensy 4.0, [lines 27–34]({{ low_level_src_url }}/diffbot_firmware/platformio.ini#L27-L34):
+libraries are listed, here for Remo's Teensy 4.0, [lines 30–37]({{ low_level_src_url }}/diffbot_firmware/platformio.ini#L30-L37):
 
-```ini title="platformio.ini: Remo's Teensy 4.0" linenums="27"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/platformio.ini:27:34"
+```ini title="platformio.ini: Remo's Teensy 4.0" linenums="30"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/platformio.ini:30:37"
 ```
 
 As you can see, the firmware depends on `rosserial`, the `Adafruit Motor Shield
@@ -70,8 +70,9 @@ values such as the following:
   encoder values and writes motor commands at a specific rate.
 - Command timeout: `COMMAND_TIMEOUT_MS`, how long the firmware drives the motors
   without a new wheel command, explained in [The command timeout](#the-command-timeout).
-- IMU: whether the robot has one (`IMU_ENABLED`), and the BNO055's settings,
-  explained on [IMU (BNO055)](../imu/driver-bno055.md).
+- IMU: the BNO055's address (`IMU_BNO055_ADDRESS`) and the IMU publisher's
+  settings (`IMU_PUBLISHER_CONFIG`), for example `enabled` false for a robot
+  without an IMU, explained on [IMU (BNO055)](../imu/driver-bno055.md).
 
 After including Remo-specific definitions, next follows the custom libraries in
 the `lib` folder, [lines 5–12]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L5-L12):
@@ -134,6 +135,68 @@ introduced next:
   with the I2C bus (`wire_bus.h`) and the node handle's clock synchronization
   (`synced_node_handle.h`), explained on [IMU (BNO055)](../imu/driver-bno055.md).
 
+
+### The firmware's parts
+
+The diagrams show the firmware's parts and how they connect, first as they are, then as diffbot#148 plans them. An arrow points from a part to the part it uses. A line without an arrow connects parts that exchange messages.
+
+=== "Today"
+
+    <div class="wide-diagram" markdown>
+
+    ```mermaid
+    graph TB
+      HW[Robot's computer:<br/>diffbot_base hardware interface]
+      subgraph TEENSY [Teensy firmware]
+        NH[SyncedNodeHandleT:<br/>rosserial's node handle]
+        LOOP[loop]
+        DS[driveStep and<br/>CommandTimeout]
+        BC[BaseController:<br/>encoders, PIDs,<br/>motor controllers]
+        IP[ImuPublisher]
+        BNO[Bno055 driver<br/>on an I2cBus]
+      end
+      FW[Motor driver<br/>FeatherWing]
+      IMU[BNO055 sensor]
+      HW ---|rosserial over USB| NH
+      NH ---|wheel topics| BC
+      NH ---|imu/data_raw| IP
+      LOOP --> DS
+      DS --> BC
+      LOOP --> IP
+      IP --> BNO
+      BC -->|I2C| FW
+      BNO -->|I2C| IMU
+    ```
+
+    </div>
+
+    `BaseController` holds most of the wheel control: the encoders, the two PIDs, the motor controllers and the rosserial topics. `driveStep()` and `CommandTimeout` decide when it drives. The IMU's parts are separate: the driver reaches the sensor only through `I2cBus`, so the unit tests replace the bus with a fake one.
+
+=== "Planned"
+
+    <div class="wide-diagram" markdown>
+
+    ```mermaid
+    graph TB
+      subgraph PI [Robot's computer]
+        HWI[Hardware interface:<br/>joints bound to channels]
+      end
+      subgraph TEENSY [Teensy firmware]
+        W[Board wiring:<br/>one file per board]
+        CORE[Portable core:<br/>states, wheel control, PID,<br/>command timeout, IMU sampler,<br/>typed settings]
+        PORTS[Device interfaces:<br/>link, motor output, encoder,<br/>I2C bus, clock]
+        ADAPT[Teensy adapters:<br/>serial protocol, motor drivers,<br/>encoders, Wire, millis]
+      end
+      HWI ---|serial protocol with<br/>channel records| ADAPT
+      W --> CORE
+      W --> ADAPT
+      CORE --> PORTS
+      ADAPT -.->|implement| PORTS
+    ```
+
+    </div>
+
+    The core sees the hardware only through the device interfaces, which the Teensy adapters implement. So the unit tests on the PC replace the adapters with stand-ins. The board wiring creates the adapters and hands them to the core. [diffbot#148](https://github.com/ros-mobile-robots/diffbot/issues/148) plans this in steps, with [diffbot#165](https://github.com/ros-mobile-robots/diffbot/issues/165) for the IMU sampler and [diffbot#166](https://github.com/ros-mobile-robots/diffbot/issues/166) for the settings.
 
 With these libraries, we look at the `main.cpp` file. Inside it exists only a
 few global variables to keep the code organized and make it possible to test the
@@ -206,17 +269,19 @@ individual components that get included. The main code is explained next:
     for the motors.
 
 5. Last, the command timeout, and the IMU, which shares the motor driver's I2C
-   bus, [lines 26–41]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L26-L41):
+   bus, [lines 26–45]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L26-L45):
 
     ```cpp title="main.cpp: the command timeout and the IMU" linenums="26"
-    --8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:26:41"
+    --8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:26:45"
     ```
 
     `command_timeout` gets `COMMAND_TIMEOUT_MS`, see
     [The command timeout](#the-command-timeout). `ArduinoClock` gives the IMU
     publisher the Teensy's clock, which the unit tests replace with a fake one.
     `wire_bus`, `imu` and `imu_publisher` read the BNO055 and publish
-    `imu/data_raw`, explained on [IMU (BNO055)](../imu/driver-bno055.md).
+    `imu/data_raw`, explained on [IMU (BNO055)](../imu/driver-bno055.md). The
+    [anonymous namespace](https://en.cppreference.com/cpp/language/namespace#Unnamed_namespaces)
+    makes these objects private to `main.cpp`.
 
 After defining the global instances, the firmware’s `setup()` function is
 discussed next. The low-level BaseController class communicates with the
@@ -226,10 +291,10 @@ These are set up in the `Basecontroller::setup()` method, which is called in the
 `BaseController::init()` method is here to read parameters stored on the ROS
 parameter server, such as the wheel radius and distance between the wheels.
 Beside initializing `BaseController`, the communication frequency of the motor
-driver is configured, [lines 44–58]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L44-L58):
+driver is configured, [lines 48–60]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L48-L60):
 
-```cpp title="main.cpp: setup()" linenums="44" hl_lines="5 7"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:44:58"
+```cpp title="main.cpp: setup()" linenums="48" hl_lines="4 5"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:48:60"
 ```
 
 With the IMU enabled, `imu_publisher.advertise()` registers the `imu/data_raw`
@@ -248,12 +313,12 @@ and write to actuators, which happens at specific rates, defined in the
 functionalities occurred is kept in the `BaseController` class inside its
 `LastUpdateTime` struct, which `lastUpdateTime()` returns. `loop()` reads the
 Teensy's clock once per pass and hands the command timeout and the control step
-to `driveStep()`, [lines 61–87]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L61-L87):
+to `driveStep()`, [lines 63–87]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L63-L87):
 
 <a id="the-loop-excerpt"></a>
 
-```cpp title="main.cpp: loop()" linenums="61" hl_lines="4 8 13"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:61:87"
+```cpp title="main.cpp: loop()" linenums="63" hl_lines="4 8 12"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:63:87"
 ```
 
 `driveStep()`, in [`drive_step.h`]({{ low_level_src_url }}/diffbot_firmware/lib/drive_step/drive_step.h), checks the command
@@ -284,7 +349,7 @@ Before the control step, `driveStep()` checks the command timeout, explained in
 [The command timeout](#the-command-timeout) below.
 
 After `driveStep()`, `imu_publisher.update()` reads the BNO055 and publishes
-`imu/data_raw` at 50 Hz, when `IMU_ENABLED` is 1
+`imu/data_raw` at 50 Hz, unless `enabled` is false in `IMU_PUBLISHER_CONFIG`
 ([IMU (BNO055)](../imu/driver-bno055.md)). The debug block prints the encoder
 readings when debugging is on. Finally, all the callbacks waiting in the ROS
 callback queue are processed with a call to `nh.spinOnce()`.
@@ -295,7 +360,7 @@ When the robot's computer stops sending wheel commands, for example because the
 bringup stopped or the USB connection broke, the firmware stops the motors. The
 hardware interface on the robot's computer sends a command 10 times a second,
 also while the robot stands. `COMMAND_TIMEOUT_MS` is 1000 ms in
-[`diffbot_base_config.h`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L32-L35),
+[`diffbot_base_config.h`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L36-L39),
 so the firmware stops after about ten missed commands.
 
 `CommandTimeout` decides when the commands are too old, [lines 27–49]({{ low_level_src_url }}/diffbot_firmware/lib/command_timeout/command_timeout.h#L27-L49):
@@ -375,7 +440,7 @@ The [`loop()` excerpt](#the-loop-excerpt) above reads the counter once per pass,
 - **The control step** runs when at least `control_period_ms` milliseconds have
   passed since the last one. `loop()` passes `1000.0 / control_`. With
   `UPDATE_RATE_CONTROL` set to 20 (Hz) in
-  [`diffbot_base_config.h`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L25-L25),
+  [`diffbot_base_config.h`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L30-L30),
   that's 50 ms. The step records its time in `control`. So the firmware runs
   at most 20 steps per second. Work that blocks the loop, for example a slow
   serial transfer, makes a step late.
