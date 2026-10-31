@@ -4654,6 +4654,10 @@ between the links.</p>
       .md-typeset pre > code { padding-right: 3em; }
       /* Highlighted lines still reach the right edge, through that padding */
       .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
+      /* Wide diagrams keep a readable size on a phone and scroll sideways, instead of shrinking
+         to the screen's width, for example the firmware's parts on Low-Level Base Controller */
+      .md-typeset .wide-diagram { overflow-x: auto; }
+      @media screen and (max-width: 44.9375em) { .md-typeset .wide-diagram svg { min-width: 30rem; } }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
