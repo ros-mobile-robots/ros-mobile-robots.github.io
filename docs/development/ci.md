@@ -103,7 +103,7 @@ The runner reads every line that the script prints, and runs the workflow comman
 
 #### Simulation test
 
-[`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, `test_imu.py` checks the simulated IMU and `test_odom_tf.py` that only the drive controller publishes `odom → base_footprint`.
+[`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, [`test_imu.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_imu.py) checks the simulated IMU and [`test_odom_tf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_odom_tf.py) that only the drive controller publishes `odom → base_footprint`.
 
 #### Geometry test
 
@@ -111,7 +111,7 @@ The runner reads every line that the script prints, and runs the workflow comman
 
 #### EKF tests
 
-The [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU has three. In `diffbot_control`, the IMU gate's checks and the EKF on a stepped simulated clock. In `diffbot_gazebo`, both robots in Gazebo with a wrong wheel separation, and the `ekf` switch in the launch files.
+The [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU is checked without the robot. In `diffbot_control`, [`test_imu_gate.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_imu_gate.py) checks the IMU gate, and [`ekf_synthetic.test`]({{ diffbot_repo_url }}/diffbot_control/test/ekf_synthetic.test) runs the EKF on a stepped simulated clock. In `diffbot_gazebo`, both robots drive in Gazebo with a wrong wheel separation, and [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py) checks the `ekf` switch in the launch files.
 
 #### Firmware unit tests
 
@@ -153,7 +153,7 @@ The workflows use the latest major versions of the GitHub actions, which run on 
     .docker/firmware/run.sh pio test -e native
     ```
 
-    PlatformIO builds each test folder in `diffbot_firmware/test` for the PC and runs it. It lists every test with `PASS` or `FAIL`, and a summary at the end.
+    PlatformIO builds each test folder in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test) for the PC and runs it. It lists every test with `PASS` or `FAIL`, and a summary at the end.
 
 ## This documentation site
 

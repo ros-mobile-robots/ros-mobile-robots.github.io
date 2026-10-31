@@ -25,7 +25,7 @@ The topics are in the `/diffbot` namespace, for example `/diffbot/imu/data_raw`.
 
 - The **firmware** reads the BNO055 on the Teensy and publishes `/diffbot/imu/data_raw` at 50 Hz ([IMU (BNO055)](driver-bno055.md)). In the simulation, Gazebo's IMU sensor and a small adapter publish the same topic ([Simulation](../../diffbot_gazebo.md#inertial-measurement-unit-imu)).
 - The **IMU gate**, [`imu_gate.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_gate.py), passes on only the samples the EKF can use, on `/diffbot/imu/data_validated`. [The gate](#the-imu-gate) below explains why.
-- The **drive controller**, `mobile_base_controller` ([diff_drive_controller](http://wiki.ros.org/diff_drive_controller)), publishes the wheel odometry as before. With the EKF on, it no longer publishes the transform `odom → base_footprint`: two nodes publishing the same transform would make the robot's pose jump between their two estimates.
+- The **drive controller**, `mobile_base_controller` ([diff_drive_controller](http://wiki.ros.org/diff_drive_controller)), publishes the wheel odometry. With the EKF on, it doesn't publish the transform `odom → base_footprint`: two nodes publishing the same transform would make the robot's pose jump between their two estimates.
 - The **EKF**, `/diffbot/ekf_localization`, fuses the two and publishes the filtered odometry and the transform.
 
 [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) in `diffbot_control` starts the gate and the EKF, for the robot and the simulation alike.

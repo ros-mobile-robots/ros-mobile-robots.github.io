@@ -10,7 +10,7 @@ An inertial measurement unit (IMU) measures how the robot turns and accelerates:
 The robot uses one value from it: the **yaw rate**, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over rosserial.
 
 !!! info "Checked on Remo"
-    The firmware and the wiring below passed the [bench checks](#bench-checks) on Remo, with the wheels off the ground and the firmware built for the Teensy 3.2 ([diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169)). Still open: the Teensy 4.0 build on a robot, DiffBot, where the board sits on each robot, which the URDF's `imu_link` has to match, and the EKF with the real IMU.
+    The firmware passed the [bench checks](#bench-checks) on Remo, with the wheels off the ground and the firmware built for the Teensy 3.2. The Teensy 4.0 build and DiffBot still need a bench check. The IMU's mounting must be checked against each robot's URDF. The EKF still needs a test with the real IMU.
 
 ## Wiring to the Teensy
 
@@ -53,7 +53,7 @@ The settings are in [`diffbot_base_config.h`]({{ diffbot_repo_url }}/diffbot_fir
 | `angular_velocity_variance` | 4.0e-4 | (rad/s)², on the covariance's diagonal |
 | `linear_acceleration_variance` | 1.0e-2 | (m/s²)², on the covariance's diagonal |
 
-A typed value lets the compiler check the types, and a `static_assert` in the configuration header checks the values when the firmware builds, for example that the read budget is shorter than the period. The unit tests pass settings of their own. The comment in the configuration header explains the covariances' starting values with the datasheet's noise and offsets.
+The compiler checks the field types. A build-time check (`static_assert`) rejects invalid values, such as a read budget as long as the sampling period. The unit tests pass settings of their own. The comment in the configuration header explains the covariances' starting values with the datasheet's noise and offsets.
 
 ## How the firmware reads it
 
@@ -73,20 +73,20 @@ With the bringup running on the robot and its wheels off the ground:
 1. **Rate and stamps:** `rostopic hz /diffbot/imu/data_raw` shows about 50 Hz, and the stamps in `rostopic echo /diffbot/imu/data_raw` are the current ROS time.
 2. **Axes and signs:** at rest, the acceleration's upward axis reads about +9.8 m/s². Turning the robot counterclockwise by hand, seen from above, gives a positive angular velocity about the upward axis ([REP 103](https://www.ros.org/reps/rep-0103.html)). Both decide how `imu_link` sits in the URDF.
 3. **Noise and bias:** a stationary recording of a few minutes (`rosbag record /diffbot/imu/data_raw`) gives the gyroscope's bias and variance at 50 Hz, to replace the covariances' starting values.
-4. **Faults:** unplugging the IMU stops the topic and logs a warning, and the wheels keep following commands. Plugged back in, it's found at the next try, at most `retry_ms` (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The firmware's command timeout keeps working: after 1 s without a wheel command, it stops the motors and resets the wheels' PIDs ([Low-Level Base Controller](../diffbot_base/low-level.md)).
+4. **Faults:** unplugging the IMU stops the topic and logs a warning, and the wheels keep following commands. Plugged back in, it's found at the next try, at most `retry_ms` (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The firmware's command timeout keeps working: after 1 s without a wheel command, it stops driving the motors and resets the wheels' PIDs ([`COMMAND_TIMEOUT_MS`](https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/config/diffbot_base_config.h#L35-L39), [`eStop()`](https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L564-L575)).
 5. **Timing:** the control loop keeps its rate with the IMU running, for example `rostopic hz /diffbot/measured_joint_states`.
 
-On Remo, on 2026-10-31, with the firmware built for the Teensy 3.2 and the ROS commands run in the [robot container](../../processing_units/robot-container/usage.md):
+Remo was checked on 2026-10-31 with firmware `1a3b547` built for the Teensy 3.2, and the ROS commands ran in the [robot container](../../processing_units/robot-container/usage.md). The BNO055 used SDA 18 and SCL 19, with VIN supplied by the Raspberry Pi's 3.3 V ([evidence](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204), checklist [diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169)). The bias is the average reading at rest. The standard deviation is the spread of the readings around that average.
 
 | Check | Result |
 |:--|:--|
 | Rate and stamps | 50.0 Hz. 180 s at rest: 8,986 messages, gaps between 14 and 27 ms. Stamps in current ROS time, also after rosserial reconnected |
-| Axes and signs | At rest, z reads about +9.7 m/s². Turning left, `angular_velocity.z` is positive. So `imu_link` matches the sensor's axes as mounted |
-| Noise and bias at rest | Gyroscope: bias below 0.0001 rad/s, variance 2 to 6 · 10⁻⁷ (rad/s)², below one step of its resolution (1/900 rad/s). Accelerometer: variance 4 to 8 · 10⁻⁴ (m/s²)² |
+| Axes and signs | At rest in this recording, z reads about +9.7 m/s². Turning left, `angular_velocity.z` is positive. The mounting still needs to be checked against `imu_link` |
+| Noise and bias at rest | Gyroscope: bias below 0.0001 rad/s, variance 2 to 6 · 10⁻⁷ (rad/s)². The standard deviation is 0.0005 to 0.0008 rad/s, below the output step of 1/900 rad/s. Accelerometer: variance 4 to 8 · 10⁻⁴ (m/s²)² |
 | Faults | Unplugged while the wheels turned at 9 rad/s: a warning after ten failed reads (0.2 s), and the wheels kept their speed. Plugged back in: found again within 10 s. With SDA and SCL swapped, it stayed "not found", without blocking the firmware |
 | Timing | `measured_joint_states` at 20.0 Hz with the IMU running |
 
-The covariances stay at their starting values for now: driving adds vibration and drift, which a recording at rest doesn't show. [diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169) has the full checklist and the log excerpts.
+The covariances stay at their starting values for now: driving adds vibration and drift, which a recording at rest doesn't show. The [evidence](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204) has the numbers and log excerpts, [diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169) the full checklist.
 
 ??? info "Trying the breakout on the Raspberry Pi"
     To check a breakout on its own, it can also be connected to the Raspberry Pi's I2C pins ([pinout](https://pinout.xyz/pinout/i2c)): VIN to 3.3 V, GND to GND, SDA to SDA, SCL to SCL. Adafruit's guide reads it with Python and its CircuitPython library: first [prepare the Pi for it](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi) (I2C on, the Blinka library), then [slow down the Pi's I2C clock](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching), which the BNO055 needs because it stretches the clock, and then run the [BNO055 example](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython).
