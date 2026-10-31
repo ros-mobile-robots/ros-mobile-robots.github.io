@@ -11,7 +11,7 @@
         <link rel="prev" href="../dev-container/">
       
       
-        <link rel="next" href="../../theory/architecture/docker/">
+        <link rel="next" href="../firmware-container/">
       
       
         
@@ -733,6 +733,8 @@
       
         
       
+        
+      
     
     
     
@@ -934,6 +936,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -4108,6 +4138,8 @@
       
         
       
+        
+      
     
     
     
@@ -4177,6 +4209,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4629,13 +4689,13 @@
         
         
           
-          <a href="../../theory/architecture/docker/" class="md-footer__link md-footer__link--next" aria-label="Next: Docker Basics">
+          <a href="../firmware-container/" class="md-footer__link md-footer__link--next" aria-label="Next: Firmware Container">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Docker Basics
+                Firmware Container
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -4690,6 +4750,16 @@
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

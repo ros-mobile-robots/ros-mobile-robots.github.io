@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -814,6 +816,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -4109,6 +4139,8 @@
       
         
       
+        
+      
     
     
     
@@ -4178,6 +4210,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4425,9 +4485,9 @@
 <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
 <p>The robot uses one value from it: the <strong>yaw rate</strong>, the angular velocity about the upward axis. The <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> on the robot's computer fuses it with the wheel odometry, which estimates turns less well. The BNO055 sits on the Teensy's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, and the Teensy's firmware publishes its measurements over rosserial.</p>
-<div class="admonition warning">
-<p class="admonition-title">Not tested on the robot yet</p>
-<p>The firmware, its unit tests and the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> run without hardware. The wiring below and the <a href="#bench-checks">bench checks</a> on the robot are still open, and so is where the board sits on the robot, which its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>'s <code>imu_link</code> has to match.</p>
+<div class="admonition info">
+<p class="admonition-title">Checked on Remo</p>
+<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo, with the wheels off the ground and the firmware built for the Teensy 3.2. The Teensy 4.0 build and DiffBot still need a bench check. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting must be checked against each robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
 </div>
 <h2 id="wiring-to-the-teensy">Wiring to the Teensy</h2>
 <p>The BNO055 shares the Teensy's first <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, <code>Wire</code>, with the motor driver (<a href="../../../components/">Adafruit Motor FeatherWing</a>). On the Teensy 4.0 and 3.2, <code>Wire</code> uses pin 18 for SDA and pin 19 for SCL (<a href="https://www.pjrc.com/teensy/td_libs_Wire.html">PJRC: Wire library</a>):</p>
@@ -4500,30 +4560,109 @@
 </tr>
 <tr>
 <td style="text-align: left;">covariances</td>
-<td style="text-align: left;">diagonal starting values, not measured yet: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)²</td>
+<td style="text-align: left;">diagonal starting values: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)². At rest, the <a href="#bench-checks">bench checks</a> measured much less, but driving adds vibration and drift</td>
 </tr>
 </tbody>
 </table>
 <p>The chip's own orientation estimate isn't read: the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> uses only the angular velocity. The topic's name is <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145's for accelerometer and gyroscope data without an orientation.</p>
-<p>The settings are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/config/diffbot_base_config.h"><code>diffbot_base_config.h</code></a>: <code>IMU_ENABLED</code> (0 for a robot without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>), <code>IMU_BNO055_ADDRESS</code>, the rate, the frame, the covariances, and the retry and time limits below. The comment there explains the covariances' starting values with the datasheet's noise and offsets.</p>
+<p>The settings are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/config/diffbot_base_config.h"><code>diffbot_base_config.h</code></a>: <code>IMU_BNO055_ADDRESS</code> and <code>IMU_PUBLISHER_CONFIG</code>. The second is one value of the type <code>ImuPublisherConfig</code> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/imu/imu_config.h"><code>imu_config.h</code></a>, with these fields:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Robot's value</th>
+<th style="text-align: left;">What it's for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>enabled</code></td>
+<td style="text-align: left;"><code>true</code></td>
+<td style="text-align: left;"><code>false</code> for a robot without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: no topic, no <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> traffic</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>period_ms</code></td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">The sampling period, 50 Hz</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>retry_ms</code></td>
+<td style="text-align: left;">10000</td>
+<td style="text-align: left;">Look for a missing or failed <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> again after 10 s</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>read_budget_us</code></td>
+<td style="text-align: left;">10000</td>
+<td style="text-align: left;">Drop a sample whose read took longer than 10 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>frame_id</code></td>
+<td style="text-align: left;"><code>"imu_link"</code></td>
+<td style="text-align: left;"><code>header.frame_id</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>angular_velocity_variance</code></td>
+<td style="text-align: left;">4.0e-4</td>
+<td style="text-align: left;">(rad/s)², on the covariance's diagonal</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>linear_acceleration_variance</code></td>
+<td style="text-align: left;">1.0e-2</td>
+<td style="text-align: left;">(m/s²)², on the covariance's diagonal</td>
+</tr>
+</tbody>
+</table>
+<p>The compiler checks the field types. A build-time check (<code>static_assert</code>) rejects invalid values, such as a read budget as long as the sampling period. The unit tests pass settings of their own. The comment in the configuration header explains the covariances' starting values with the datasheet's noise and offsets.</p>
 <h2 id="how-the-firmware-reads-it">How the firmware reads it</h2>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/imu/README.md"><code>lib/imu</code></a> has a small driver of its own for the BNO055, instead of Adafruit's library, so that every <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> transfer is checked and the start-up's waits don't hold up the firmware's loop:</p>
 <ul>
-<li><strong>The start-up doesn't block the motor control.</strong> A reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's <a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf">datasheet</a>). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does at most a few transfers. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>'s standard clock of 100 kHz. Whether the control loop keeps its rate when the bus has a fault is one of the <a href="#bench-checks">bench checks</a>.</li>
-<li><strong>A sample is published only if it's good:</strong> the read succeeded and took at most <code>IMU_READ_BUDGET_US</code> (10 ms: a later result is dropped, but the budget can't cut a transfer short), the chip still is in <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode with the right units and its fusion runs. A stalled or unplugged <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again. A missing <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is looked for every <code>IMU_RETRY_PERIOD</code> seconds (10 s). The robot drives without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, too.</li>
+<li><strong>The start-up doesn't block the motor control.</strong> A reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's <a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf">datasheet</a>). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does at most a few transfers. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>'s standard clock of 100 kHz. On Remo, the control loop kept its 20 Hz while the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> was unplugged (<a href="#bench-checks">bench checks</a>).</li>
+<li><strong>A sample is published only if it's good:</strong> the read succeeded and took at most <code>read_budget_us</code> (10 ms: a later result is dropped, but the budget can't cut a transfer short), the chip still is in <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode with the right units and its fusion runs. A stalled or unplugged <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again. A missing <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is looked for again every <code>retry_ms</code> (10 s). The robot drives without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, too.</li>
 <li><strong>Stamps are ROS time,</strong> which rosserial takes from the robot's computer: the Teensy's clock is synchronized with it every few seconds. Until the first synchronization after a connection, the firmware publishes nothing, because a stamp would carry the Teensy's uptime instead of ROS time.</li>
 <li><strong>The 50 Hz rate counts on the Teensy's own clock</strong> (<code>millis()</code>), so it doesn't change when ROS time jumps, for example when the Teensy connects to a computer whose clock is earlier.</li>
 </ul>
-<p><strong>Unit tests on the PC:</strong> <code>pio test -e native</code> in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> runs the driver, the bus code, the time-sync check and the publisher with a fake sensor, <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, serial port and clock, and with rosserial's own message parser. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs them in the firmware workflow (<a href="../../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>). They check the logic, not the hardware.</p>
+<p><strong>Unit tests on the PC:</strong> <code>.docker/firmware/run.sh pio test -e native</code>, from the root folder of the diffbot repository, runs the tests in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test"><code>diffbot_firmware/test</code></a> in the firmware container (<a href="../../../development/ci/#running-the-checks-locally">Running the checks locally</a>). They run the driver, the bus code, the time-sync check and the publisher with a fake sensor, <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, serial port and clock, and with rosserial's own message parser. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs them in the firmware workflow (<a href="../../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>). They check the logic, not the hardware.</p>
 <h2 id="bench-checks">Bench checks</h2>
 <p>With the bringup running on the robot and its wheels off the ground:</p>
 <ol>
 <li><strong>Rate and stamps:</strong> <code>rostopic hz /diffbot/imu/data_raw</code> shows about 50 Hz, and the stamps in <code>rostopic echo /diffbot/imu/data_raw</code> are the current ROS time.</li>
 <li><strong>Axes and signs:</strong> at rest, the acceleration's upward axis reads about +9.8 m/s². Turning the robot counterclockwise by hand, seen from above, gives a positive angular velocity about the upward axis (<a href="https://www.ros.org/reps/rep-0103.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>). Both decide how <code>imu_link</code> sits in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>.</li>
 <li><strong>Noise and bias:</strong> a stationary recording of a few minutes (<code>rosbag record /diffbot/imu/data_raw</code>) gives the gyroscope's bias and variance at 50 Hz, to replace the covariances' starting values.</li>
-<li><strong>Faults:</strong> unplugging the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic within a sample and logs a warning, and the wheels keep following commands. Plugged back in, it's found at the next try, at most <code>IMU_RETRY_PERIOD</code> (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The command timeout keeps working: after 5 s without a wheel command, it sets the target speeds to zero, which doesn't guarantee yet that the motors stop (<a href="https://github.com/ros-mobile-robots/diffbot/issues/146">diffbot#146</a>).</li>
+<li><strong>Faults:</strong> unplugging the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic and logs a warning, and the wheels keep following commands. Plugged back in, it's found at the next try, at most <code>retry_ms</code> (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The firmware's command timeout keeps working: after 1 s without a wheel command, it stops driving the motors and resets the wheels' PIDs (<a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/config/diffbot_base_config.h#L35-L39"><code>COMMAND_TIMEOUT_MS</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L564-L575"><code>eStop()</code></a>).</li>
 <li><strong>Timing:</strong> the control loop keeps its rate with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running, for example <code>rostopic hz /diffbot/measured_joint_states</code>.</li>
 </ol>
+<p>Remo was checked on 2026-10-31 with firmware <code>1a3b547</code> built for the Teensy 3.2, and the ROS commands ran in the <a href="../../../processing_units/robot-container/usage/">robot container</a>. The BNO055 used SDA 18 and SCL 19, with VIN supplied by the Raspberry Pi's 3.3 V (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a>, checklist <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a>). The bias is the average reading at rest. The standard deviation is the spread of the readings around that average.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Check</th>
+<th style="text-align: left;">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Rate and stamps</td>
+<td style="text-align: left;">50.0 Hz. 180 s at rest: 8,986 messages, gaps between 14 and 27 ms. Stamps in current ROS time, also after rosserial reconnected</td>
+</tr>
+<tr>
+<td style="text-align: left;">Axes and signs</td>
+<td style="text-align: left;">At rest in this recording, z reads about +9.7 m/s². Turning left, <code>angular_velocity.z</code> is positive. The mounting still needs to be checked against <code>imu_link</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Noise and bias at rest</td>
+<td style="text-align: left;">Gyroscope: bias below 0.0001 rad/s, variance 2 to 6 · 10⁻⁷ (rad/s)². The standard deviation is 0.0005 to 0.0008 rad/s, below the output step of 1/900 rad/s. Accelerometer: variance 4 to 8 · 10⁻⁴ (m/s²)²</td>
+</tr>
+<tr>
+<td style="text-align: left;">Faults</td>
+<td style="text-align: left;">Unplugged while the wheels turned at 9 rad/s: a warning after ten failed reads (0.2 s), and the wheels kept their speed. Plugged back in: found again within 10 s. With SDA and SCL swapped, it stayed "not found", without blocking the firmware</td>
+</tr>
+<tr>
+<td style="text-align: left;">Timing</td>
+<td style="text-align: left;"><code>measured_joint_states</code> at 20.0 Hz with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running</td>
+</tr>
+</tbody>
+</table>
+<p>The covariances stay at their starting values for now: driving adds vibration and drift, which a recording at rest doesn't show. The <a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a> has the numbers and log excerpts, <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a> the full checklist.</p>
 <details class="info">
 <summary>Trying the breakout on the Raspberry Pi</summary>
 <p>To check a breakout on its own, it can also be connected to the Raspberry Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins (<a href="https://pinout.xyz/pinout/i2c">pinout</a>): VIN to 3.3 V, GND to GND, SDA to SDA, SCL to SCL. Adafruit's guide reads it with Python and its CircuitPython library: first <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi">prepare the Pi for it</a> (<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> on, the Blinka library), then <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching">slow down the Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock</a>, which the BNO055 needs because it stretches the clock, and then run the <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">BNO055 example</a>.</p>
@@ -4700,6 +4839,16 @@
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

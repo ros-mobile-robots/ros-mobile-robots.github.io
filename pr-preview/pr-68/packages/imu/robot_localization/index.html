@@ -745,6 +745,8 @@
       
         
       
+        
+      
     
     
     
@@ -833,6 +835,34 @@
     
   
     How the Dev Container Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/firmware-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Container
   
 
     
@@ -4139,6 +4169,8 @@
       
         
       
+        
+      
     
     
     
@@ -4208,6 +4240,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/geometry-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry Test
   
 
     
@@ -4456,7 +4516,7 @@
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s gyroscope measures the turn directly: its <strong>yaw rate</strong>, the angular velocity about the upward axis, doesn't depend on the wheels. With <code>ekf:=true</code>, an <strong>extended Kalman filter (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</strong> from the <a href="http://docs.ros.org/en/noetic/api/robot_localization/html/index.html"><code>robot_localization</code></a> package combines both: it takes the forward speed from the wheels and the turn mostly from the gyroscope, because the gyroscope's variance is far smaller. The filter publishes the result as <code>/diffbot/odometry/filtered</code> and as the transform <code>odom → base_footprint</code>, which navigation and RViz use.</p>
 <div class="admonition warning">
 <p class="admonition-title">Not tested on the robot yet</p>
-<p>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> runs in the simulation and in the tests below. On the robot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting, its axes and its noise still have to be checked (<a href="../driver-bno055/#bench-checks">bench checks</a>), and the variances and time limits below are starting values, not measurements.</p>
+<p>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> runs in the simulation and in the tests below. On Remo, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s rate, axes and noise passed the <a href="../driver-bno055/#bench-checks">bench checks</a>, but the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> itself hasn't run on a robot yet, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting on each robot is still open. The variances and time limits below are starting values, not measurements.</p>
 </div>
 <h2 id="how-it-fits-together">How it fits together</h2>
 <div class="mermaid">graph TB
@@ -4472,7 +4532,7 @@
 <ul>
 <li>The <strong>firmware</strong> reads the BNO055 on the Teensy and publishes <code>/diffbot/imu/data_raw</code> at 50 Hz (<a href="../driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>). In the simulation, Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor and a small adapter publish the same topic (<a href="../../../diffbot_gazebo/#inertial-measurement-unit-imu">Simulation</a>).</li>
 <li>The <strong><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> gate</strong>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_gate.py"><code>imu_gate.py</code></a>, passes on only the samples the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> can use, on <code>/diffbot/imu/data_validated</code>. <a href="#the-imu-gate">The gate</a> below explains why.</li>
-<li>The <strong>drive controller</strong>, <code>mobile_base_controller</code> (<a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>), publishes the wheel odometry as before. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, it no longer publishes the transform <code>odom → base_footprint</code>: two nodes publishing the same transform would make the robot's pose jump between their two estimates.</li>
+<li>The <strong>drive controller</strong>, <code>mobile_base_controller</code> (<a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>), publishes the wheel odometry. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, it doesn't publish the transform <code>odom → base_footprint</code>: two nodes publishing the same transform would make the robot's pose jump between their two estimates.</li>
 <li>The <strong><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></strong>, <code>/diffbot/ekf_localization</code>, fuses the two and publishes the filtered odometry and the transform.</li>
 </ul>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/ekf.launch"><code>ekf.launch</code></a> in <code>diffbot_control</code> starts the gate and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, for the robot and the simulation alike.</p>
@@ -4556,7 +4616,7 @@
 <h2 id="limits">Limits</h2>
 <ul>
 <li><strong>A clock that goes back:</strong> in the simulation, the filter starts over (<code>reset_on_time_jump</code>). robot_localization does that only with simulated time. On the robot, after the computer's clock goes back, the filter ignores each input until its stamps are newer than its last ones again.</li>
-<li><strong>The variances and time limits</strong> are starting values. The <a href="../driver-bno055/#bench-checks">bench checks</a> give measured ones.</li>
+<li><strong>The variances and time limits</strong> are starting values. The <a href="../driver-bno055/#bench-checks">bench checks</a> measured the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s noise at rest. Measurements while driving still have to show the values that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> should use.</li>
 <li><strong>The pose drifts</strong> over time, as any odometry: the gyroscope helps with the heading, but nothing corrects the position. A map-based localization such as amcl corrects it in the <code>map</code> frame.</li>
 </ul>
 <!-- Mechanical parts and tools -->
@@ -4731,6 +4791,16 @@
       .consent-embed p { margin: 0; max-width: 32rem; }
       /* Getting Started: small robot photos that show the whole robot */
       .md-typeset .robot-cards img { display: block; width: 100%; height: 7rem; object-fit: contain; }
+      /* Small tables that stay readable on a phone, with larger text, narrow cells and identifiers
+         that don't break, for example on Geometry Test */
+      .md-typeset .readable-table table { font-size: .8rem; }
+      .md-typeset .readable-table table th, .md-typeset .readable-table table td { padding: .6em .35em; min-width: 0; }
+      .md-typeset .readable-table table code { font-size: .875em; white-space: nowrap; }
+      /* Room for the copy button at the end of a code line, so that a long line scrolled to its end
+         isn't under the button, for example a command on a phone */
+      .md-typeset pre > code { padding-right: 3em; }
+      /* Highlighted lines still reach the right edge, through that padding */
+      .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
