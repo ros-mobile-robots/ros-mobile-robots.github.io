@@ -138,7 +138,7 @@ introduced next:
 
 ### The firmware's parts
 
-The diagrams show the firmware's parts and how they connect, first as they are, then as diffbot#148 plans them. An arrow points from a part to the part it uses. A line without an arrow connects parts that exchange messages.
+The diagrams show the firmware's parts and how they connect, first as they are, then as diffbot#148 plans them. In them, a solid arrow points from a part to the part it uses. A dashed arrow points from an adapter to the interface it implements. A line without an arrow is a message connection, and the messages can go either way or both ways.
 
 === "Today"
 
@@ -146,7 +146,11 @@ The diagrams show the firmware's parts and how they connect, first as they are, 
 
     ```mermaid
     graph TB
-      HW[Robot's computer:<br/>diffbot_base hardware interface]
+      subgraph PI [Robot's computer]
+        HW[diffbot_base<br/>hardware interface]
+        ROS[Other ROS nodes]
+        SN[rosserial_python's<br/>serial_node.py]
+      end
       subgraph TEENSY [Teensy firmware]
         NH[SyncedNodeHandleT:<br/>rosserial's node handle]
         LOOP[loop]
@@ -157,7 +161,9 @@ The diagrams show the firmware's parts and how they connect, first as they are, 
       end
       FW[Motor driver<br/>FeatherWing]
       IMU[BNO055 sensor]
-      HW ---|rosserial over USB| NH
+      HW ---|wheel topics| SN
+      ROS ---|imu/data_raw| SN
+      SN ---|USB| NH
       NH ---|wheel topics| BC
       NH ---|imu/data_raw| IP
       LOOP --> DS
@@ -179,15 +185,15 @@ The diagrams show the firmware's parts and how they connect, first as they are, 
     ```mermaid
     graph TB
       subgraph PI [Robot's computer]
-        HWI[Hardware interface:<br/>joints bound to channels]
+        HWI[Hardware interface:<br/>joints bound<br/>to channels]
       end
       subgraph TEENSY [Teensy firmware]
-        W[Board wiring:<br/>one file per board]
-        CORE[Portable core:<br/>states, wheel control, PID,<br/>command timeout, IMU sampler,<br/>typed settings]
-        PORTS[Device interfaces:<br/>link, motor output, encoder,<br/>I2C bus, clock]
-        ADAPT[Teensy adapters:<br/>serial protocol, motor drivers,<br/>encoders, Wire, millis]
+        W[Board wiring:<br/>one file<br/>per board]
+        CORE[Portable core:<br/>states, wheel control,<br/>PID, command timeout,<br/>IMU sampler,<br/>typed settings]
+        PORTS[Device interfaces:<br/>link, motor output,<br/>encoder, I2C bus,<br/>clock]
+        ADAPT[Teensy adapters:<br/>serial protocol,<br/>motor drivers,<br/>encoders, Wire,<br/>millis]
       end
-      HWI ---|serial protocol with<br/>channel records| ADAPT
+      HWI ----|USB| ADAPT
       W --> CORE
       W --> ADAPT
       CORE --> PORTS
@@ -196,7 +202,7 @@ The diagrams show the firmware's parts and how they connect, first as they are, 
 
     </div>
 
-    The core sees the hardware only through the device interfaces, which the Teensy adapters implement. So the unit tests on the PC replace the adapters with stand-ins. The board wiring creates the adapters and hands them to the core. [diffbot#148](https://github.com/ros-mobile-robots/diffbot/issues/148) plans this in steps, with [diffbot#165](https://github.com/ros-mobile-robots/diffbot/issues/165) for the IMU sampler and [diffbot#166](https://github.com/ros-mobile-robots/diffbot/issues/166) for the settings.
+    Over USB, a versioned serial protocol replaces rosserial. Messages carry one record per channel. Each record includes the channel ID. The hardware interface maps each joint name to a channel ID. The core sees the hardware only through the device interfaces, which the Teensy adapters implement. So the unit tests on the PC replace the adapters with stand-ins. The board wiring creates the adapters and hands them to the core. [diffbot#148](https://github.com/ros-mobile-robots/diffbot/issues/148) plans this in steps, with [diffbot#165](https://github.com/ros-mobile-robots/diffbot/issues/165) for the IMU sampler and [diffbot#166](https://github.com/ros-mobile-robots/diffbot/issues/166) for the settings.
 
 With these libraries, we look at the `main.cpp` file. Inside it exists only a
 few global variables to keep the code organized and make it possible to test the

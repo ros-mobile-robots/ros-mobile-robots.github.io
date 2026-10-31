@@ -18,8 +18,9 @@
         <script src="{{ 'js/mermaid-8.8.0/mermaid.min.js' | url }}"></script>
         <script>
           // Mermaid lays a diagram out from its size on the page. A diagram in a hidden tab has no
-          // size yet, so each diagram is drawn when it first becomes visible: when the page has
-          // loaded, or when its tab opens.
+          // size yet, so the page draws the diagrams outside hidden tabs once it has loaded, and
+          // those in a tab when the tab opens. A closed admonition doesn't hide a diagram from
+          // this check, and it is drawn with the page.
           mermaid.initialize({ startOnLoad: false, securityLevel: "loose" });
           function drawVisibleDiagrams() {
             var visible = [].filter.call(document.querySelectorAll(".mermaid:not([data-processed])"),
