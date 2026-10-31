@@ -13,6 +13,11 @@ controller in [DiffBot Base](index.md), the low-level firmware is implemented fi
 
 ## Implementing the low-level base controller for Remo
 
+!!! info "Firmware excerpts"
+    The firmware excerpts on this page, the code blocks with a file name and
+    line numbers, show the firmware at the diffbot commit that this page pins.
+    The link before each excerpt opens the same lines on GitHub.
+
 The low-level base controller is implemented on the Teensy microcontroller using
 [PlatformIO](https://platformio.org/). The programming language in PlatformIO is
 the same as Arduino (based on Wiring) and it is available as a plugin for the
@@ -23,12 +28,10 @@ folder of the diffbot repository. Opening this folder in Visual Studio Code will
 PlatformIO workspace because it contains the `platformio.ini` file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
-libraries are listed:
+libraries are listed, here for Remo's Teensy 4.0, [lines 27–34]({{ low_level_src_url }}/diffbot_firmware/platformio.ini#L27-L34):
 
-```console
-lib_deps = frankjoshua/Rosserial Arduino Library@^0.9.1
-           adafruit/Adafruit Motor Shield V2 Library@^1.0.11
-           Wire
+```ini title="platformio.ini: Remo's Teensy 4.0" linenums="27"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/platformio.ini:27:34"
 ```
 
 As you can see, the firmware depends on `rosserial`, the `Adafruit Motor Shield
@@ -43,11 +46,10 @@ following code snippets are part of the low-level base controller’s `main.cpp`
 file and show the used libraries, found in
 `diffbot_firmware`, in the `lib` and `src` folders. `src`
 contains `main.cpp` consisting of the `setup()` and `loop()` functions, common
-to every Arduino sketch and starts off by including the following headers:
+to every Arduino sketch and starts off by including the following headers, [lines 1–3]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L1-L3):
 
-```cpp
-#include <ros.h>
-#include "diffbot_base_config.h"
+```cpp title="main.cpp: the ROS header and Remo's configuration" linenums="1"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:1:3"
 ```
 
 Besides the ros header file, it includes definitions specific to Remo, which are
@@ -67,12 +69,11 @@ values such as the following:
   encoder values and writes motor commands at a specific rate.
 
 After including Remo-specific definitions, next follows the custom libraries in
-the `lib` folder:
+the `lib` folder, [lines 4–5]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L4-L5):
 
-    ```cpp
-    #include "base_controller.h"
-    #include "adafruit_feather_wing/adafruit_feather_wing.h"
-    ```
+```cpp title="main.cpp: the libraries from lib" linenums="4"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:4:5"
+```
 
 These include directives and the libraries that get included with them are
 introduced next:
@@ -103,23 +104,18 @@ introduced next:
   consist of. The encoder library also provides a method `jointState()` to
   directly obtain the joint state, which is returned by this method in the
   `JointState` struct, that consists of the measured angular position (rad) and
-  angular velocity (rad/s) of the wheel joints:
+  angular velocity (rad/s) of the wheel joints, [lines 14–39]({{ low_level_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39):
 
-    ```cpp
-    diffbot::JointState diffbot::Encoder::jointState() {
-        long encoder_ticks = encoder.read();
-        ros::Time current_time = nh_.now();
-        ros::Duration dt = current_time - prev_update_time_;
-        double dts = dt.toSec();
-        double delta_ticks = encoder_ticks - prev_encoder_ticks_;
-        double delta_angle = ticksToAngle(delta_ticks);
-        joint_state_.angular_position_ += delta_angle;
-        joint_state_.angular_velocity_ = delta_angle / dts;
-        prev_update_time_ = current_time;
-        prev_encoder_ticks_ = encoder_ticks;
-        return joint_state_;
-    }
+    <a id="the-encoder-excerpt"></a>
+
+    ```cpp title="encoder_diffbot.cpp: angle and speed" linenums="14" hl_lines="8 11"
+    --8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp:14:39"
     ```
+
+    The time between two calls comes from the Teensy's own clock,
+    [`micros()`](https://docs.arduino.cc/language-reference/en/functions/time/micros/),
+    in microseconds since the board started, for the reason explained in the
+    [`loop()` section](#timing-with-the-teensys-clock) below.
 
 - `pid`: Defines a PID controller to compute PWM signals based on the velocity
   error between measured and commanded angular wheel joint velocities. For more
@@ -131,9 +127,10 @@ few global variables to keep the code organized and make it possible to test the
 individual components that get included. The main code is explained next:
 
 1. First, we define the global ROS node handle, which is referenced in other
-   classes, such as BaseController, where it is needed to publish, subscribe, or
-   get the current time, using `ros::NodeHandle::now()`, to keep track of the
-   update rates:
+   classes, such as BaseController, where it is needed to publish and
+   subscribe. Its `ros::NodeHandle::now()` provides ROS time for time stamps.
+   The time between updates comes from the Teensy's own clock, as the
+   [`loop()` section](#timing-with-the-teensys-clock) below explains:
 
     ```cpp
     ros::NodeHandle nh;
@@ -216,17 +213,14 @@ After the `setup()` function follows the `loop()` function, to read from sensors
 and write to actuators, which happens at specific rates, defined in the
 `diffbot_base_config.h` header. The bookkeeping of when these read/write
 functionalities occurred is kept in the `BaseController` class inside its
-`lastUpdateRates` struct. Reading from the encoders and writing motor commands
-happens in the same code block as the control rate:
+`LastUpdateTime` struct, which `lastUpdateTime()` returns. Reading from the
+encoders and writing motor commands happens in the same code block as the
+control rate, followed by the command timeout, [lines 34–52]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L34-L52):
 
-```cpp
-void loop() {
-ros::Duration command_dt = nh.now() - base_controller.lastUpdateTime().control;
-if (command_dt.toSec() >= ros::Duration(1.0 / base_controller.publishRate().control_, 0).toSec()) {
-  base_controller.read();
-  base_controller.write();
-  base_controller.lastUpdateTime().control = nh.now();
-}
+<a id="the-loop-excerpt"></a>
+
+```cpp title="main.cpp: the control step and the command timeout" linenums="34" hl_lines="2 6 15"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:34:52"
 ```
 
 The following steps in this code block happen continuously at the control rate:
@@ -239,17 +233,109 @@ The following steps in this code block happen continuously at the control rate:
    receives the commanded wheel joint velocities (topic `wheel_cmd_velocities`,
    type `diffbot_msgs::WheelsCmdStamped`) inside the
    `BaseController::commandCallback(const diffbot_msgs::WheelsCmdStamped&)`
-   callback method. In `BaseController::read()`, the PID is called to compute
+   callback method. In `BaseController::write()`, the PID is called to compute
    the motor PWM signals from the velocity error and the motor speeds are set
    with the two motor controllers.
 3. To keep calling this method at the desired control rate, the
    `lastUpdateTime().control` variable is updated with the current time.
+
+On each pass, the firmware also checks how long it has been since a wheel
+command arrived. When that reaches 5 seconds
+(`E_STOP_COMMAND_RECEIVED_DURATION`), `BaseController::eStop()` sets both
+target wheel velocities to zero. `commandCallback()` records the arrival time
+using `millis()`. The control step comes before the timeout check, so the zero
+targets are used on a later control step. This doesn't directly switch off
+the motors or reset the PIDs: stored PID error can keep the motor output
+nonzero. A reliable stop when commands stop arriving is tracked in
+[diffbot#146](https://github.com/ros-mobile-robots/diffbot/issues/146).
 
 After the control loop update block, if an IMU is used, its data could be read
 at the imu rate and published for a node that fuses the data with the encoder
 odometry to obtain more precise odometry. Finally, in the main `loop()`, all the
 callbacks waiting in the ROS callback queue are processed with a call to
 `nh.spinOnce()`.
+
+### Timing with the Teensy's clock
+
+The firmware measures three kinds of elapsed time: whether 50 ms have passed
+since the last control step, whether 5 s have passed since the last wheel
+command, and how long the encoders took since their last reading. It takes all
+three from the Teensy's own counters.
+[`millis()`](https://docs.arduino.cc/language-reference/en/functions/time/millis/)
+counts the milliseconds since the Teensy started, for the control step and the
+command's age.
+[`micros()`](https://docs.arduino.cc/language-reference/en/functions/time/micros/)
+counts microseconds, for the encoders' speed. A correction of the Raspberry Pi's
+clock doesn't change these counters.
+
+#### The time stamps
+
+`BaseController` keeps one `millis()` reading for each event in
+`LastUpdateTime`, [lines 175–196]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L175-L196):
+
+```cpp title="base_controller.h: the time stamps" linenums="175"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:175:196"
+```
+
+`command_received` is the time of the last wheel command. `control`, `imu` and
+`debug` are the times of the last control step, scheduled IMU update and debug
+message.
+When the `BaseController` is created, all four get the same reading
+([line 400]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L400-L400)).
+
+The command callback updates `command_received` each time a wheel command
+arrives on `wheel_cmd_velocities`, [lines 471–483]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L471-L483):
+
+```cpp title="base_controller.h: a wheel command arrives" linenums="471" hl_lines="12"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:471:483"
+```
+
+#### The control step and the command timeout
+
+The [`loop()` excerpt](#the-loop-excerpt) above reads the counter once per pass, as `now_ms`, and
+compares it with these time stamps:
+
+- **The control step** runs when at least `1000.0 / control_` milliseconds have
+  passed since the last one. With `UPDATE_RATE_CONTROL` set to 20 (Hz) in
+  [`diffbot_base_config.h`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L25-L29),
+  that's 50 ms. The step records its time in `control`. So the firmware runs
+  at most 20 steps per second. Work that blocks the loop, for example a slow
+  serial transfer, makes a step late.
+- **The command timeout** compares the age of the last wheel command with
+  `E_STOP_COMMAND_RECEIVED_DURATION`, 5 s, converted to milliseconds.
+
+#### The encoders' speed
+
+Each control step reads both encoders. `Encoder::jointState()`, in the
+[encoder excerpt](#the-encoder-excerpt) above, divides the angle that the wheel
+turned by the time since its last reading, from `micros()`. `dts` is that time
+in seconds, and `angular_velocity_` is the wheel's speed in
+radians per second, although a comment in the code mentions RPM.
+
+#### When the counters wrap
+
+`millis()` and `micros()` return 32-bit unsigned integers. After 2³² counts they
+return to zero: 2³² ms (4,294,967,296 ms) is about 49.7 days, and 2³² µs about
+71.6 minutes. Arduino's reference pages for `millis()` and `micros()` round these
+to about 50 days and 70 minutes. The differences are computed with
+`uint32_t`, so `now_ms - control` still gives the right number of milliseconds
+across that return to zero, as long as the two readings are less than one
+counter cycle apart and come from the same run of the firmware.
+
+??? warning "Pitfalls when measuring time on a microcontroller"
+    - **Don't measure intervals with ROS time.** On the Teensy, `nh.now()`
+      returns ROS time, which rosserial synchronizes with the robot's computer.
+      When that computer's clock is corrected, ROS time can jump. A jump backward
+      makes a control step or the command timeout wait too long. A jump forward
+      makes a recent command look too old. Clock corrections on the robot's
+      computer don't change the Teensy's counters.
+    - **Check the unit and type of every time value.** Storing 0.05 s in an
+      integer field for whole seconds truncates it to 0, and a check against 0
+      passes on every pass of the loop. Keep intervals in milliseconds or
+      microseconds.
+    - **The step rate is part of the controller.** The PID controller adds up
+      the error once per step. At another rate, the same gains make the wheels
+      respond differently. Tune the gains at the rate that the firmware runs.
 
 This describes the low-level base controller. For more details and the complete
 library code, please refer to the [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware)
