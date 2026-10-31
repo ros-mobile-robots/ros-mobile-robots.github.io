@@ -5,7 +5,7 @@ DiffBot and Remo estimate how far they drove and turned from their wheels: the d
 The IMU's gyroscope measures the turn directly: its **yaw rate**, the angular velocity about the upward axis, doesn't depend on the wheels. With `ekf:=true`, an **extended Kalman filter (EKF)** from the [`robot_localization`](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html) package combines both: it takes the forward speed from the wheels and the turn mostly from the gyroscope, because the gyroscope's variance is far smaller. The filter publishes the result as `/diffbot/odometry/filtered` and as the transform `odom → base_footprint`, which navigation and RViz use.
 
 !!! warning "Not tested on the robot yet"
-    The EKF runs in the simulation and in the tests below. On the robot, the IMU's mounting, its axes and its noise still have to be checked ([bench checks](driver-bno055.md#bench-checks)), and the variances and time limits below are starting values, not measurements.
+    The EKF runs in the simulation and in the tests below. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet, and the IMU's mounting on each robot is still open. The variances and time limits below are starting values, not measurements.
 
 ## How it fits together
 
@@ -85,5 +85,5 @@ What these tests don't show: how the real gyroscope behaves (its noise and bias,
 ## Limits
 
 - **A clock that goes back:** in the simulation, the filter starts over (`reset_on_time_jump`). robot_localization does that only with simulated time. On the robot, after the computer's clock goes back, the filter ignores each input until its stamps are newer than its last ones again.
-- **The variances and time limits** are starting values. The [bench checks](driver-bno055.md#bench-checks) give measured ones.
+- **The variances and time limits** are starting values. The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest. Measurements while driving still have to show the values that the EKF should use.
 - **The pose drifts** over time, as any odometry: the gyroscope helps with the heading, but nothing corrects the position. A map-based localization such as amcl corrects it in the `map` frame.
