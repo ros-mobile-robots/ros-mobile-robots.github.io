@@ -7,7 +7,7 @@ An inertial measurement unit (IMU) measures how the robot turns and accelerates:
   <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
 
-The robot uses one value from it: the **yaw rate**, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over rosserial.
+The robot uses one value from it: the **yaw rate**, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over rosserial.
 
 !!! info "Checked on Remo"
     The firmware passed the [bench checks](#bench-checks) on Remo, with the wheels off the ground and the firmware built for the Teensy 3.2. The Teensy 4.0 build and DiffBot still need a bench check. The IMU's mounting must be checked against each robot's URDF. The EKF still needs a test with the real IMU.
