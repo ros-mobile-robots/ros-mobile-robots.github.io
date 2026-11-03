@@ -2832,6 +2832,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The command timeout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-wheel-command-arrives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A wheel command arrives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-a-command-is-too-old" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When a command is too old
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The unit tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2858,10 +2897,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-control-step-and-the-command-timeout" class="md-nav__link">
+  <a href="#the-command-timeout-and-the-control-step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The control step and the command timeout
+        The command timeout and the control step
       
     </span>
   </a>
@@ -4466,6 +4505,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The command timeout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-wheel-command-arrives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A wheel command arrives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-a-command-is-too-old" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When a command is too old
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The unit tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4492,10 +4570,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-control-step-and-the-command-timeout" class="md-nav__link">
+  <a href="#the-command-timeout-and-the-control-step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The control step and the command timeout
+        The command timeout and the control step
       
     </span>
   </a>
@@ -4659,7 +4737,7 @@ folder of the diffbot repository. Opening this folder in Visual Studio Code will
 PlatformIO workspace because it contains the <code>platformio.ini</code> file. This file
 defines the required dependencies and makes it straightforward to flash the
 firmware to the Teensy board after compilation. Inside this file, the used
-libraries are listed, here for Remo's Teensy 4.0, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/platformio.ini#L30-L37">lines 30–37</a>:</p>
+libraries are listed, here for Remo's Teensy 4.0, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/platformio.ini#L30-L37">lines 30–37</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">platformio.ini: Remo's Teensy 4.0</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
@@ -4680,25 +4758,40 @@ libraries are listed, here for Remo's Teensy 4.0, <a href="https://github.com/ro
 V2</code> library, and <code>Wire</code>, an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> library. PlatformIO allows using custom
 libraries defined in the local <code>./lib</code> folder, which are developed in this
 section.</p>
-<p>The firmware is used to read from encoders and ultrasonic and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensors, and
+<p>The firmware is used to read from the wheel encoders and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, and
 receive wheel velocity commands from the high-level
 <code>hardware_interface::RobotHW</code> class, discussed in the next section. The
 following code snippets are part of the low-level base controller’s <code>main.cpp</code>
 file and show the used libraries, found in
 <code>diffbot_firmware</code>, in the <code>lib</code> and <code>src</code> folders. <code>src</code>
 contains <code>main.cpp</code> consisting of the <code>setup()</code> and <code>loop()</code> functions, common
-to every Arduino sketch and starts off by including the following headers, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L1-L4">lines 1–4</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: ROS, Wire and Remo's configuration</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+to every Arduino sketch and starts off by including the following headers, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L1-L9">lines 1–9</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: Arduino, ROS, Wire and Remo's configuration</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ros.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wire.h&gt;</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
+
+<span class="c1">// Arduino's entry headers: millis(), micros(), TwoWire and Wire are declared in board-specific</span>
+<span class="c1">// headers behind them (core_pins.h, WireKinetis.h or WireIMXRT.h)</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Arduino.h&gt;</span><span class="w"> </span><span class="c1">// IWYU pragma: keep</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ros.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wire.h&gt;</span><span class="w"> </span><span class="c1">// IWYU pragma: keep</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"diffbot_base_config.h"</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Besides the ROS header file and <a href="https://www.pjrc.com/teensy/td_libs_Wire.html"><code>Wire</code></a>, the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>
-library for the motor driver and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, it includes definitions specific to Remo, which are
-defined in the <code>diffbot_base_config.h</code> header. It contains constant parameter
+<p><code>stdint.h</code> declares integer types of a fixed size, such as <code>uint32_t</code>, and
+<code>Arduino.h</code> declares Arduino's functions, such as <code>millis()</code>. The
+<code>IWYU pragma: keep</code> comments tell
+<a href="https://include-what-you-use.org/">include checkers</a> to retain these public
+Arduino and Wire headers. Besides the ROS header file and
+<a href="https://www.pjrc.com/teensy/td_libs_Wire.html"><code>Wire</code></a>, the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> library for
+the motor driver and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, <code>main.cpp</code> includes definitions specific to Remo,
+which are defined in the <code>diffbot_base_config.h</code> header. It contains constant parameter
 values such as the following:</p>
 <ul>
 <li>Encoder pins: Defines to which pins on the Teensy microcontroller the Hall
@@ -4719,21 +4812,21 @@ values such as the following:</p>
   without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, explained on <a href="../../imu/driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>.</li>
 </ul>
 <p>After including Remo-specific definitions, next follows the custom libraries in
-the <code>lib</code> folder, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L5-L12">lines 5–12</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the libraries from lib</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
+the <code>lib</code> folder, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L10-L17">lines 10–17</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the libraries from lib</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">10</span>
 <span class="normal">11</span>
-<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base_controller.h"</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">"command_timeout.h"</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">"drive_step.h"</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">"base_controller.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"adafruit_feather_wing/adafruit_feather_wing.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"bno055.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"imu_publisher.h"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"ros_wheel_command_subscriber.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"synced_node_handle.h"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"wheel_control.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"wire_bus.h"</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>These include directives and the libraries that get included with them are
@@ -4766,7 +4859,7 @@ introduced next:</p>
   consist of. The encoder library also provides a method <code>jointState()</code> to
   directly obtain the joint state, which is returned by this method in the
   <code>JointState</code> struct, that consists of the measured angular position (rad) and
-  angular velocity (rad/s) of the wheel joints, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39">lines 14–39</a>:</p>
+  angular velocity (rad/s) of the wheel joints, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39">lines 14–39</a>:</p>
 <p><a id="the-encoder-excerpt"></a></p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">encoder_diffbot.cpp: angle and speed</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
 <span class="normal">15</span>
@@ -4830,14 +4923,19 @@ in microseconds since the board started, for the reason explained in the
   error between measured and commanded angular wheel joint velocities. For more
   infos about PIDs and the tuning sections refer to <a href="../pid/"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Controllers</a></p>
 </li>
-<li><code>command_timeout</code>: Decides when the wheel commands from the robot's computer
-  are too old, explained in <a href="#the-command-timeout">The command timeout</a>.</li>
-<li><code>drive_step</code>: Holds <code>loop()</code>'s command timeout and control step in one
-  function, <code>driveStep()</code>, so that unit tests can check their order with a fake
-  controller.</li>
-<li><code>imu</code>: The BNO055's driver (<code>bno055.h</code>) and publisher (<code>imu_publisher.h</code>),
-  with the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus (<code>wire_bus.h</code>) and the node handle's clock synchronization
-  (<code>synced_node_handle.h</code>), explained on <a href="../../imu/driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>.</li>
+<li><code>command_timeout</code>: <code>CommandTimeout</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/command_timeout/command_timeout.h"><code>command_timeout.h</code></a>, decides when
+  the last wheel command from the robot's computer is too old, explained in
+  <a href="#the-command-timeout">The command timeout</a>.</li>
+<li><code>wheel_control</code>: <code>WheelControl</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/wheel_control.h"><code>wheel_control.h</code></a>, drives the wheels
+  only while the wheel commands are new. It keeps a <code>CommandTimeout</code> for that.
+  <code>RosWheelCommandSubscriber</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/ros_wheel_command_subscriber.h"><code>ros_wheel_command_subscriber.h</code></a>,
+  receives the wheel commands and passes each valid one on to <code>WheelControl</code>,
+  as a <code>WheelCommand</code>, which holds the two wheels' target speeds
+  (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/wheel_command.h"><code>wheel_command.h</code></a>).</li>
+<li><code>imu</code>: The BNO055's driver (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/imu/bno055.h"><code>bno055.h</code></a>) and publisher
+  (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/imu/imu_publisher.h"><code>imu_publisher.h</code></a>), with the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/imu/wire_bus.h"><code>wire_bus.h</code></a>)
+  and the node handle's clock synchronization (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/imu/synced_node_handle.h"><code>synced_node_handle.h</code></a>),
+  explained on <a href="../../imu/driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>.</li>
 </ul>
 <h3 id="the-firmwares-parts">The firmware's parts</h3>
 <p>The diagrams show the firmware's parts and how they connect, first as they are, then as diffbot#148 plans them. In them, a solid arrow points from a part to the part it uses. A dashed arrow points from an adapter to the interface it implements. A line without an arrow is a message connection, and the messages can go either way or both ways.</p>
@@ -4853,9 +4951,10 @@ in microseconds since the board started, for the reason explained in the
   end
   subgraph TEENSY [Teensy firmware]
     NH[SyncedNodeHandleT:&lt;br/&gt;rosserial's node handle]
-    LOOP[loop]
-    DS[driveStep and&lt;br/&gt;CommandTimeout]
+    SUB[RosWheelCommandSubscriber]
+    WC[WheelControl,&lt;br/&gt;with a private&lt;br/&gt;CommandTimeout]
     BC[BaseController:&lt;br/&gt;encoders, PIDs,&lt;br/&gt;motor controllers]
+    LOOP[loop]
     IP[ImuPublisher]
     BNO[Bno055 driver&lt;br/&gt;on an I2cBus]
   end
@@ -4864,16 +4963,18 @@ in microseconds since the board started, for the reason explained in the
   HW ---|wheel topics| SN
   ROS ---|imu/data_raw| SN
   SN ---|USB| NH
-  NH ---|wheel topics| BC
-  NH ---|imu/data_raw| IP
-  LOOP --&gt; DS
-  DS --&gt; BC
+  NH ---|wheel states, reset&lt;br/&gt;and PID gains| BC
+  NH ---|wheel commands| SUB
+  SUB --&gt;|acceptCommand| WC
+  WC --&gt; BC
+  LOOP --&gt;|step| WC
   LOOP --&gt; IP
+  NH ---|imu/data_raw| IP
   IP --&gt; BNO
   BC --&gt;|I2C| FW
   BNO --&gt;|I2C| IMU</div>
 </div>
-<p><code>BaseController</code> holds most of the wheel control: the encoders, the two PIDs, the motor controllers and the rosserial topics. <code>driveStep()</code> and <code>CommandTimeout</code> decide when it drives. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s parts are separate: the driver reaches the sensor only through <code>I2cBus</code>, so the unit tests replace the bus with a fake one.</p>
+<p>The wheel commands from the robot's computer arrive at <code>RosWheelCommandSubscriber</code>, which passes each valid one on to <code>WheelControl</code>. <code>WheelControl</code> decides when <code>BaseController</code> drives the motors. For that, it keeps a <code>CommandTimeout</code>, which no other part can reach. <code>loop()</code> calls <code>WheelControl</code>'s step on every pass. <code>BaseController</code> holds the encoders, the two PIDs and the motor controllers. It also keeps the other rosserial topics: the wheel states for the robot's computer, the encoders' reset and the PIDs' gains. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s parts are separate: the driver reaches the sensor only through <code>I2cBus</code>, so the unit tests replace the bus with a fake one.</p>
 </div>
 <div class="tabbed-block">
 <div class="wide-diagram" markdown="">
@@ -4894,6 +4995,7 @@ in microseconds since the board started, for the reason explained in the
   ADAPT -.-&gt;|implement| PORTS</div>
 </div>
 <p>Over USB, a versioned serial protocol replaces rosserial. Messages carry one record per channel. Each record includes the channel ID. The hardware interface maps each joint name to a channel ID. The core sees the hardware only through the device interfaces, which the Teensy adapters implement. So the unit tests on the PC replace the adapters with stand-ins. The board wiring creates the adapters and hands them to the core. <a href="https://github.com/ros-mobile-robots/diffbot/issues/148">diffbot#148</a> plans this in steps, with <a href="https://github.com/ros-mobile-robots/diffbot/issues/165">diffbot#165</a> for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sampler and <a href="https://github.com/ros-mobile-robots/diffbot/issues/166">diffbot#166</a> for the settings.</p>
+<p><code>WheelControl</code> and <code>CommandTimeout</code> are parts of such a core already. They are plain C++ without Arduino or rosserial, and their unit tests run on the PC. <code>RosWheelCommandSubscriber</code> is an adapter: it connects rosserial to <code>WheelControl</code>. The planned serial protocol replaces this adapter. Most of the firmware still has to move: <code>BaseController</code> holds the encoders, the PIDs, the motor controllers and the other rosserial topics, and it calls Arduino functions such as <code>millis()</code> directly.</p>
 </div>
 </div>
 </div>
@@ -4907,14 +5009,14 @@ individual components that get included. The main code is explained next:</p>
    subscribe. Its <code>ros::NodeHandle::now()</code> provides ROS time for time stamps.
    The time between updates comes from the Teensy's own clock, as the
    <a href="#timing-with-the-teensys-clock"><code>loop()</code> section</a> below explains,
-   <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L15-L17">lines 15–17</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the node handle</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// The node handle also tells when its clock is synchronized with the host (synced_node_handle.h)</span>
+   <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L20-L22">lines 20–22</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the node handle</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// The node handle also tells when its clock is synchronized with the host (synced_node_handle.h)</span>
 <span class="k">typedef</span><span class="w"> </span><span class="n">diffbot</span><span class="o">::</span><span class="n">SyncedNodeHandleT</span><span class="o">&lt;</span><span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span><span class="o">&gt;</span><span class="w"> </span><span class="n">NodeHandle</span><span class="p">;</span>
 <span class="n">NodeHandle</span><span class="w"> </span><span class="n">nh</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>SyncedNodeHandleT</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/imu/synced_node_handle.h"><code>synced_node_handle.h</code></a>,
+<p><code>SyncedNodeHandleT</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/imu/synced_node_handle.h"><code>synced_node_handle.h</code></a>,
 is rosserial's node handle with one addition: it tells when its clock is
 synchronized with the robot's computer. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publisher waits for that
 before it stamps its messages.</p>
@@ -4922,16 +5024,16 @@ before it stamps its messages.</p>
 <li>
 <p>For convenience and to keep the code organized, we declare that we want to
    use the <code>diffbot</code> namespace, where the libraries of the base controller are
-   declared, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L19-L19">line 19</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the namespace</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">diffbot</span><span class="p">;</span>
+   declared, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L24-L24">line 24</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the namespace</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">diffbot</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
 </li>
 <li>
 <p>Next, we define two concrete motor controllers of type
    <code>AdafruitMotorController</code> found in the <code>motor_controllers</code> library,
-   <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L21-L22">lines 21–22</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the motor controllers</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
-<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">AdafruitMotorController</span><span class="w"> </span><span class="n">motor_controller_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdafruitMotorController</span><span class="p">(</span><span class="n">MOTOR_RIGHT</span><span class="p">);</span>
+   <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L26-L27">lines 26–27</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the motor controllers</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
+<span class="normal">27</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">AdafruitMotorController</span><span class="w"> </span><span class="n">motor_controller_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdafruitMotorController</span><span class="p">(</span><span class="n">MOTOR_RIGHT</span><span class="p">);</span>
 <span class="n">AdafruitMotorController</span><span class="w"> </span><span class="n">motor_controller_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdafruitMotorController</span><span class="p">(</span><span class="n">MOTOR_LEFT</span><span class="p">);</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>This class inherits from the abstract base class <code>MotorControllerIntf</code>,
@@ -4947,8 +5049,8 @@ specified speed. For Remo, the range is between –255 and 255, specified by the
 <li>
 <p>The next class that is defined globally inside main is <code>BaseController</code>,
    which incorporates most of the main logic of this low-level base controller,
-   <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L24-L24">line 24</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the base controller</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">BaseController</span><span class="o">&lt;</span><span class="n">AdafruitMotorController</span><span class="p">,</span><span class="w"> </span><span class="n">Adafruit_MotorShield</span><span class="o">&gt;</span><span class="w"> </span><span class="n">base_controller</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">motor_controller_left</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">motor_controller_right</span><span class="p">);</span>
+   <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L29-L29">line 29</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the base controller</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">BaseController</span><span class="o">&lt;</span><span class="n">AdafruitMotorController</span><span class="p">,</span><span class="w"> </span><span class="n">Adafruit_MotorShield</span><span class="o">&gt;</span><span class="w"> </span><span class="n">base_controller</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">motor_controller_left</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">motor_controller_right</span><span class="p">);</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>As you can see, it is a template class that accepts different kinds of motor
 controllers (<code>TMotorController</code>, which equals <code>AdafruitMotorController</code> in the
@@ -4966,14 +5068,10 @@ controllers to compute the velocity error and output an appropriate <abbr title=
 for the motors.</p>
 </li>
 <li>
-<p>Last, the command timeout, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, which shares the motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>
-   bus, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L26-L45">lines 26–45</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the command timeout and the IMU</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
+<p>Next come the objects of the wheel control, in an
+   <a href="https://en.cppreference.com/cpp/language/namespace#Unnamed_namespaces">anonymous namespace</a>,
+   which makes them private to <code>main.cpp</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L31-L63">lines 31–63</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the wheel control</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span>
 <span class="normal">32</span>
 <span class="normal">33</span>
 <span class="normal">34</span>
@@ -4987,46 +5085,10 @@ for the motors.</p>
 <span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
-<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// The command timeout and the IMU, private to this file</span>
-<span class="k">namespace</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="c1">// Stops the motors when the wheel commands from the robot's computer stop arriving (loop())</span>
-<span class="w">    </span><span class="n">CommandTimeout</span><span class="w"> </span><span class="nf">command_timeout</span><span class="p">(</span><span class="n">COMMAND_TIMEOUT_MS</span><span class="p">);</span>
-
-<span class="w">    </span><span class="c1">// The Arduino clock for the IMU publisher, which the unit tests replace with a fake one</span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ArduinoClock</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">millis</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">::</span><span class="n">millis</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
-<span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">micros</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">::</span><span class="n">micros</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">};</span>
-
-<span class="w">    </span><span class="c1">// The IMU, on the same I2C bus as the motor driver. It publishes imu/data_raw, which rosserial</span>
-<span class="w">    </span><span class="c1">// puts in its node's namespace (/diffbot/imu/data_raw). The robot drives without an IMU too.</span>
-<span class="w">    </span><span class="c1">// IMU_PUBLISHER_CONFIG in diffbot_base_config.h turns it off for a robot without one.</span>
-<span class="w">    </span><span class="n">WireBusT</span><span class="o">&lt;</span><span class="n">TwoWire</span><span class="o">&gt;</span><span class="w"> </span><span class="n">wire_bus</span><span class="p">(</span><span class="n">Wire</span><span class="p">);</span>
-<span class="w">    </span><span class="n">Bno055</span><span class="w"> </span><span class="nf">imu</span><span class="p">(</span><span class="n">wire_bus</span><span class="p">,</span><span class="w"> </span><span class="n">IMU_BNO055_ADDRESS</span><span class="p">);</span>
-<span class="w">    </span><span class="n">ImuPublisher</span><span class="o">&lt;</span><span class="n">NodeHandle</span><span class="p">,</span><span class="w"> </span><span class="n">ArduinoClock</span><span class="o">&gt;</span><span class="w"> </span><span class="n">imu_publisher</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span><span class="w"> </span><span class="n">imu</span><span class="p">,</span><span class="w"> </span><span class="n">IMU_PUBLISHER_CONFIG</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p><code>command_timeout</code> gets <code>COMMAND_TIMEOUT_MS</code>, see
-<a href="#the-command-timeout">The command timeout</a>. <code>ArduinoClock</code> gives the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>
-publisher the Teensy's clock, which the unit tests replace with a fake one.
-<code>wire_bus</code>, <code>imu</code> and <code>imu_publisher</code> read the BNO055 and publish
-<code>imu/data_raw</code>, explained on <a href="../../imu/driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>. The
-<a href="https://en.cppreference.com/cpp/language/namespace#Unnamed_namespaces">anonymous namespace</a>
-makes these objects private to <code>main.cpp</code>.</p>
-</li>
-</ol>
-<p>After defining the global instances, the firmware’s <code>setup()</code> function is
-discussed next. The low-level BaseController class communicates with the
-high-level interface <code>DiffBotHWInterface</code> using ROS publishers and subscribers.
-These are set up in the <code>Basecontroller::setup()</code> method, which is called in the
-<code>setup()</code> function of <code>main.cpp</code>. In addition to that, the
-<code>BaseController::init()</code> method is here to read parameters stored on the ROS
-parameter server, such as the wheel radius and distance between the wheels.
-Beside initializing <code>BaseController</code>, the communication frequency of the motor
-driver is configured, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L48-L60">lines 48–60</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: setup()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
 <span class="normal">51</span>
@@ -5038,46 +5100,89 @@ driver is configured, <a href="https://github.com/ros-mobile-robots/diffbot/blob
 <span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
-<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// The wheel control, the IMU and the debug output, private to this file</span>
+<span class="k">namespace</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Advertise before base_controller.setup() connects: rosserial announces the topics then</span>
-<span class="hll"><span class="w">    </span><span class="n">imu_publisher</span><span class="p">.</span><span class="n">advertise</span><span class="p">();</span>
-</span><span class="hll"><span class="w">    </span><span class="n">Wire</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
-</span><span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">setup</span><span class="p">();</span>
-<span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">init</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// The Arduino clock for the IMU publisher and the wheel commands' arrival times, which the</span>
+<span class="w">    </span><span class="c1">// unit tests replace with a fake one</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ArduinoClock</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">millis</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">::</span><span class="n">millis</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">micros</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">::</span><span class="n">micros</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">};</span>
 
-<span class="w">    </span><span class="n">nh</span><span class="p">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s">"Initialize DiffBot Motor Controllers"</span><span class="p">);</span>
-<span class="w">    </span><span class="n">motor_controller_left</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
-<span class="w">    </span><span class="n">motor_controller_right</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
-<span class="w">    </span><span class="n">nh</span><span class="p">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s">"Setup finished"</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="c1">// Logs the command timeout, after WheelControl has stopped the motors</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">RosTimeoutLogger</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">NodeHandle</span><span class="o">&amp;</span><span class="w"> </span><span class="n">nh</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">operator</span><span class="p">()()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">nh</span><span class="p">.</span><span class="n">logwarn</span><span class="p">(</span><span class="s">"Wheel command timeout: motors stopped"</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// The wheel control's timing. The control period is in whole milliseconds: 50 ms at 20 Hz</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="n">WheelControlConfig</span><span class="w"> </span><span class="n">WHEEL_CONTROL_CONFIG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">COMMAND_TIMEOUT_MS</span><span class="p">,</span><span class="w">                                  </span><span class="c1">// command_timeout_ms</span>
+<span class="w">        </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">1000.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">UPDATE_RATE_CONTROL</span><span class="p">),</span><span class="w"> </span><span class="c1">// control_period_ms</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">WHEEL_CONTROL_CONFIG</span><span class="p">.</span><span class="n">valid</span><span class="p">(),</span>
+<span class="w">                  </span><span class="s">"WHEEL_CONTROL_CONFIG: check COMMAND_TIMEOUT_MS and UPDATE_RATE_CONTROL"</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Drives the wheels only while the wheel commands from the robot's computer are new: the</span>
+<span class="w">    </span><span class="c1">// subscriber passes each valid command on to the wheel control, loop() calls its step</span>
+<span class="hll"><span class="w">    </span><span class="n">ArduinoClock</span><span class="w"> </span><span class="n">wheel_clock</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="n">WheelControl</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">base_controller</span><span class="p">),</span><span class="w"> </span><span class="n">RosTimeoutLogger</span><span class="o">&gt;</span><span class="w"> </span><span class="n">wheel_control</span><span class="p">(</span>
+</span><span class="w">        </span><span class="n">base_controller</span><span class="p">,</span><span class="w"> </span><span class="n">WHEEL_CONTROL_CONFIG</span><span class="p">,</span><span class="w"> </span><span class="n">RosTimeoutLogger</span><span class="p">{</span><span class="n">nh</span><span class="p">});</span>
+<span class="hll"><span class="w">    </span><span class="n">RosWheelCommandSubscriber</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">wheel_control</span><span class="p">),</span><span class="w"> </span><span class="n">ArduinoClock</span><span class="o">&gt;</span><span class="w"> </span><span class="n">wheel_commands</span><span class="p">(</span>
+</span><span class="w">        </span><span class="n">wheel_control</span><span class="p">,</span><span class="w"> </span><span class="n">wheel_clock</span><span class="p">);</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>With the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> enabled, <code>imu_publisher.advertise()</code> registers the <code>imu/data_raw</code>
-publisher before <code>base_controller.setup()</code> connects, so that rosserial announces
-it during the connection. <code>Wire.begin()</code> starts the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus for the motor driver
-and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
-<p>The <code>begin(uint16_t freq)</code> method of the motor controllers has to be called
-explicitly in the main <code>setup()</code> function because <code>MotorControllerIntf</code> doesn't
-provide a <code>begin()</code> or <code>setup()</code> method in its interface. This is a design
-choice that, when added, would make the <code>MotorControllerIntf</code> less generic.</p>
-<p>After the <code>setup()</code> function follows the <code>loop()</code> function, to read from sensors
-and write to actuators, which happens at specific rates, defined in the
-<code>diffbot_base_config.h</code> header. The bookkeeping of when these read/write
-functionalities occurred is kept in the <code>BaseController</code> class inside its
-<code>LastUpdateTime</code> struct, which <code>lastUpdateTime()</code> returns. <code>loop()</code> reads the
-Teensy's clock once per pass and hands the command timeout and the control step
-to <code>driveStep()</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/src/main.cpp#L63-L87">lines 63–87</a>:</p>
-<p><a id="the-loop-excerpt"></a></p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: loop()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
+<ul>
+<li><code>ArduinoClock</code> gives the Teensy's clock, <code>millis()</code> and <code>micros()</code>, to the
+  parts that need it. The unit tests replace it with a fake clock.</li>
+<li><code>RosTimeoutLogger</code> sends the timeout warning to the robot's computer with
+  <code>nh.logwarn()</code>. After stopping the motors, <code>WheelControl</code> calls this
+  logger.</li>
+<li><code>WHEEL_CONTROL_CONFIG</code> holds the wheel control's two times: the command
+  timeout, <code>COMMAND_TIMEOUT_MS</code>, and the control period, 50 ms at an
+  <code>UPDATE_RATE_CONTROL</code> of 20 Hz. <code>static_assert</code> checks, when the firmware
+  is compiled, that both times are longer than zero.</li>
+<li><code>wheel_control</code>, a <code>WheelControl</code>, drives the wheels only while the wheel
+  commands are new. It gets the base controller, the times and the logger.</li>
+<li><code>wheel_commands</code>, a <code>RosWheelCommandSubscriber</code>, receives the wheel
+  commands and passes each valid one on to <code>wheel_control</code>, with its arrival
+  time from <code>wheel_clock</code>.</li>
+</ul>
+<p><code>decltype(base_controller)</code> stands for the base controller's type, so that
+the long template type doesn't have to be written again. C++ creates these
+global objects in the order in which they appear in the file. So each object
+gets references only to objects that already exist: <code>wheel_control</code> to
+<code>base_controller</code>, and <code>wheel_commands</code> to <code>wheel_control</code>.
+<a href="#the-command-timeout">The command timeout</a> explains how they work together.</p>
+</li>
+<li>
+<p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, which shares the motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L65-L70">lines 65–70</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the IMU</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
 <span class="normal">68</span>
 <span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// The IMU, on the same I2C bus as the motor driver. It publishes imu/data_raw, which rosserial</span>
+<span class="c1">// puts in its node's namespace (/diffbot/imu/data_raw). The robot drives without an IMU too.</span>
+<span class="c1">// IMU_PUBLISHER_CONFIG in diffbot_base_config.h turns it off for a robot without one.</span>
+<span class="n">WireBusT</span><span class="o">&lt;</span><span class="n">TwoWire</span><span class="o">&gt;</span><span class="w"> </span><span class="n">wire_bus</span><span class="p">(</span><span class="n">Wire</span><span class="p">);</span>
+<span class="n">Bno055</span><span class="w"> </span><span class="nf">imu</span><span class="p">(</span><span class="n">wire_bus</span><span class="p">,</span><span class="w"> </span><span class="n">IMU_BNO055_ADDRESS</span><span class="p">);</span>
+<span class="n">ImuPublisher</span><span class="o">&lt;</span><span class="n">NodeHandle</span><span class="p">,</span><span class="w"> </span><span class="n">ArduinoClock</span><span class="o">&gt;</span><span class="w"> </span><span class="n">imu_publisher</span><span class="p">(</span><span class="n">nh</span><span class="p">,</span><span class="w"> </span><span class="n">imu</span><span class="p">,</span><span class="w"> </span><span class="n">IMU_PUBLISHER_CONFIG</span><span class="p">);</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>wire_bus</code>, <code>imu</code> and <code>imu_publisher</code> read the BNO055 and publish
+<code>imu/data_raw</code>, explained on <a href="../../imu/driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>
+publisher takes its time from <code>ArduinoClock</code> too.</p>
+</li>
+<li>
+<p>Last, <code>publishDebugIfDue()</code>, which logs the encoder readings, the motor
+   commands and the PIDs' state when debugging is on, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L72-L85">lines 72–85</a>:</p>
+<p><a id="the-debug-excerpt"></a></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: publishDebugIfDue()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">72</span>
 <span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
@@ -5090,111 +5195,312 @@ to <code>driveStep()</code>, <a href="https://github.com/ros-mobile-robots/diffb
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Logs the encoder readings and the PID state at UPDATE_RATE_DEBUG, while the parameter</span>
+<span class="c1">// /diffbot/debug/base_controller is true</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">publishDebugIfDue</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Use the Teensy's elapsed time for scheduling (see BaseController::LastUpdateTime).</span>
-<span class="hll"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
-</span>
-<span class="w">    </span><span class="c1">// Without a wheel command for COMMAND_TIMEOUT_MS, stop the motors and reset the PIDs, then log</span>
-<span class="w">    </span><span class="c1">// once. The control step drives the motors again after the next command (lib/drive_step).</span>
-<span class="hll"><span class="w">    </span><span class="n">driveStep</span><span class="p">(</span><span class="n">base_controller</span><span class="p">,</span><span class="w"> </span><span class="n">command_timeout</span><span class="p">,</span><span class="w"> </span><span class="n">now_ms</span><span class="p">,</span>
-</span><span class="w">              </span><span class="mf">1000.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">publishRate</span><span class="p">().</span><span class="n">control_</span><span class="p">,</span>
-<span class="w">              </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">nh</span><span class="p">.</span><span class="n">logwarn</span><span class="p">(</span><span class="s">"Wheel command timeout: motors stopped"</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
-
-<span class="hll"><span class="w">    </span><span class="n">imu_publisher</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
-</span>
-<span class="w">    </span><span class="c1">// This block displays the encoder readings. change DEBUG to 0 if you don't want to display</span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">base_controller</span><span class="p">.</span><span class="n">debug</span><span class="p">())</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_controller</span><span class="p">.</span><span class="n">debug</span><span class="p">())</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">debug</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">publishRate</span><span class="p">().</span><span class="n">period</span><span class="p">().</span><span class="n">debug_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.0</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">debug</span>
+<span class="w">            </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">publishRate</span><span class="p">().</span><span class="n">period</span><span class="p">().</span><span class="n">debug_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.0</span><span class="p">)</span>
 <span class="w">        </span><span class="p">{</span>
 <span class="w">            </span><span class="n">base_controller</span><span class="p">.</span><span class="n">printDebug</span><span class="p">();</span>
 <span class="w">            </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">debug</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now_ms</span><span class="p">;</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="c1">// Call all the callbacks waiting to be called</span>
-<span class="w">    </span><span class="n">nh</span><span class="p">.</span><span class="n">spinOnce</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>driveStep()</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/drive_step/drive_step.h"><code>drive_step.h</code></a>, checks the command
-timeout first, then runs the control step, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/drive_step/drive_step.h#L17-L37">lines 17–37</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">drive_step.h: the command timeout, then the control step</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TBaseController</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TLogTimeout</span><span class="o">&gt;</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">driveStep</span><span class="p">(</span><span class="n">TBaseController</span><span class="o">&amp;</span><span class="w"> </span><span class="n">base_controller</span><span class="p">,</span><span class="w"> </span><span class="n">CommandTimeout</span><span class="o">&amp;</span><span class="w"> </span><span class="n">command_timeout</span><span class="p">,</span>
-<span class="w">               </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">control_period_ms</span><span class="p">,</span><span class="w"> </span><span class="n">TLogTimeout</span><span class="w"> </span><span class="n">log_timeout</span><span class="p">)</span>
+<p>Debugging is on when the ROS parameter <code>/diffbot/debug/base_controller</code> is
+true. <code>BaseController::init()</code> reads it at the start. Then the function logs
+every 200 ms, at an <code>UPDATE_RATE_DEBUG</code> of 5 Hz, as
+<a href="#the-time-stamps">The time stamps</a> explains.</p>
+</li>
+</ol>
+<p>After defining the global instances, the firmware’s <code>setup()</code> function is
+discussed next. The low-level BaseController class communicates with the
+high-level interface <code>DiffBotHWInterface</code> using ROS publishers and subscribers.
+These are set up in the <code>BaseController::setup()</code> method, which is called in the
+<code>setup()</code> function of <code>main.cpp</code>. In addition to that, the
+<code>BaseController::init()</code> method is here to read parameters stored on the ROS
+parameter server, such as the encoder resolution and the wheel radius.
+Besides initializing <code>BaseController</code>, <code>setup()</code> sets the motor driver's <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr>
+frequency, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L89-L103">lines 89–103</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: setup()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span>
 <span class="p">{</span>
-<span class="hll"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">command_timeout</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">now_ms</span><span class="p">,</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">command_received</span><span class="p">,</span>
-</span><span class="w">                               </span><span class="n">base_controller</span><span class="p">.</span><span class="n">commandCount</span><span class="p">()))</span>
+<span class="w">    </span><span class="c1">// Subscribe and advertise before base_controller.setup() connects: rosserial announces the</span>
+<span class="w">    </span><span class="c1">// topics then. Wheel commands that arrive during the setup reach the wheel control already</span>
+<span class="hll"><span class="w">    </span><span class="n">wheel_commands</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">nh</span><span class="p">);</span>
+</span><span class="hll"><span class="w">    </span><span class="n">imu_publisher</span><span class="p">.</span><span class="n">advertise</span><span class="p">();</span>
+</span><span class="hll"><span class="w">    </span><span class="n">Wire</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+</span><span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">setup</span><span class="p">();</span>
+<span class="w">    </span><span class="n">base_controller</span><span class="p">.</span><span class="n">init</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">nh</span><span class="p">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s">"Initialize DiffBot Motor Controllers"</span><span class="p">);</span>
+<span class="w">    </span><span class="n">motor_controller_left</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+<span class="w">    </span><span class="n">motor_controller_right</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+<span class="w">    </span><span class="n">nh</span><span class="p">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s">"Setup finished"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>wheel_commands.subscribe(nh)</code> registers the wheel command subscriber. With the
+<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> enabled, <code>imu_publisher.advertise()</code> registers the <code>imu/data_raw</code> publisher.
+Both come before <code>base_controller.setup()</code> connects, so that rosserial announces
+them during the connection. <code>Wire.begin()</code> starts the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus for the motor
+driver and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
+<p>The subscriber comes first for the command timeout, too. <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/base_controller/base_controller.h#L377-L403"><code>BaseController::setup()</code></a>
+and <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/base_controller/base_controller.h#L405-L433"><code>init()</code></a> already receive messages while they wait for the
+connection and read the parameters. Wheel commands that arrive then reach
+<code>wheel_control</code> already, and the first <code>loop()</code> handles them like any other
+command, as explained in <a href="#the-command-timeout">The command timeout</a>.</p>
+<p>The <code>begin(uint16_t freq)</code> method of the motor controllers has to be called
+explicitly in the main <code>setup()</code> function because <code>MotorControllerIntf</code> doesn't
+provide a <code>begin()</code> or <code>setup()</code> method in its interface. This is a design
+choice that, when added, would make the <code>MotorControllerIntf</code> less generic.</p>
+<p>After the <code>setup()</code> function follows the <code>loop()</code> function, to read from sensors
+and write to actuators, which happens at specific rates, defined in the
+<code>diffbot_base_config.h</code> header. <code>loop()</code> reads the Teensy's clock once per
+pass, as <code>now_ms</code>, and hands the time to the parts that run on a schedule,
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L106-L121">lines 106–121</a>:</p>
+<p><a id="the-loop-excerpt"></a></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: loop()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Use the Teensy's elapsed time for scheduling (see BaseController::LastUpdateTime).</span>
+<span class="hll"><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+</span>
+<span class="w">    </span><span class="c1">// Stops the motors when the wheel commands stop arriving, and runs the control step</span>
+<span class="hll"><span class="w">    </span><span class="n">wheel_control</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">imu_publisher</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">publishDebugIfDue</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Call all the callbacks waiting to be called. Last, after the wheel control's step: a wheel</span>
+<span class="w">    </span><span class="c1">// command that arrived after now_ms was read would look about 49.7 days old to the step</span>
+<span class="hll"><span class="w">    </span><span class="n">nh</span><span class="p">.</span><span class="n">spinOnce</span><span class="p">();</span>
+</span><span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>wheel_control.step()</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/wheel_control.h"><code>wheel_control.h</code></a>, first checks the
+command timeout in the private <code>enforceTimeout()</code>, then runs the control step
+when it's due, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/wheel_control.h#L79-L102">lines 79–102</a>:</p>
+<p><a id="the-step-excerpt"></a></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">wheel_control.h: step() and enforceTimeout()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">    </span><span class="c1">/// Call in every loop(), with millis()</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">)</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="hll"><span class="w">        </span><span class="n">base_controller</span><span class="p">.</span><span class="n">eStop</span><span class="p">();</span>
-</span><span class="w">        </span><span class="n">log_timeout</span><span class="p">();</span>
+<span class="hll"><span class="w">        </span><span class="n">enforceTimeout</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
+</span><span class="hll"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_control_ms_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">control_period_ms_</span><span class="p">)</span>
+</span><span class="w">            </span><span class="k">return</span><span class="p">;</span>
+<span class="w">        </span><span class="n">controller_</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
+<span class="hll"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">timeout_</span><span class="p">.</span><span class="n">timedOut</span><span class="p">())</span>
+</span><span class="w">            </span><span class="n">controller_</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
+<span class="w">        </span><span class="n">last_control_ms_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now_ms</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">control</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">control_period_ms</span><span class="p">)</span>
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">/// Stops the motors, then logs, on the step when the last command becomes too old</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">enforceTimeout</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">)</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="n">base_controller</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
-<span class="hll"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">command_timeout</span><span class="p">.</span><span class="n">timedOut</span><span class="p">())</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">was_timed_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeout_</span><span class="p">.</span><span class="n">timedOut</span><span class="p">();</span>
+<span class="w">        </span><span class="n">timeout_</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
+<span class="hll"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">was_timed_out</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">timeout_</span><span class="p">.</span><span class="n">timedOut</span><span class="p">())</span>
 </span><span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="n">base_controller</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
+<span class="w">            </span><span class="n">controller_</span><span class="p">.</span><span class="n">eStop</span><span class="p">();</span>
+<span class="w">            </span><span class="n">log_timeout_</span><span class="p">();</span>
 <span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="n">base_controller</span><span class="p">.</span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now_ms</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The following steps of the control step happen continuously at the control rate:</p>
 <ol>
 <li>Encoder sensor values are read through the <code>BaseController::read()</code> method
    and the data is published inside this method for the high-level
    <code>DiffbotHWInterface</code> class, on the <code>measured_joint_states</code> topic of message
-   type <code>sensor_msgs::JointState</code>.</li>
-<li>The <code>BaseController</code> class subscribes to <code>DiffBotHWInterface</code> from which it
-   receives the commanded wheel joint velocities (topic <code>wheel_cmd_velocities</code>,
-   type <code>diffbot_msgs::WheelsCmdStamped</code>) inside the
-   <code>BaseController::commandCallback(const diffbot_msgs::WheelsCmdStamped&amp;)</code>
-   callback method. In <code>BaseController::write()</code>, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is called to compute
-   the motor <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals from the velocity error and the motor speeds are set
-   with the two motor controllers. <code>driveStep()</code> calls <code>write()</code> only while the
-   wheel commands are new.</li>
-<li>To keep calling this method at the desired control rate, the
-   <code>lastUpdateTime().control</code> variable is updated with the current time.</li>
+   type <code>sensor_msgs::JointState</code>. <code>step()</code> calls <code>read()</code> also while the
+   wheel commands are too old, so the robot's computer keeps getting the wheel
+   states.</li>
+<li>In <code>BaseController::write()</code>, the PIDs compute the motor <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> signals from the
+   velocity error, the difference between the target and the measured wheel
+   speed, and the motor speeds are set with the two motor controllers. The
+   targets come from the last wheel command, as
+   <a href="#a-wheel-command-arrives">A wheel command arrives</a> explains. <code>step()</code> calls
+   <code>write()</code> only while the last command is new, that is, while <code>timedOut()</code>
+   is false.</li>
+<li>To keep calling these methods at the desired control rate, <code>step()</code> stores
+   the current time in <code>last_control_ms_</code>.</li>
 </ol>
-<p>Before the control step, <code>driveStep()</code> checks the command timeout, explained in
-<a href="#the-command-timeout">The command timeout</a> below.</p>
-<p>After <code>driveStep()</code>, <code>imu_publisher.update()</code> reads the BNO055 and publishes
-<code>imu/data_raw</code> at 50 Hz, unless <code>enabled</code> is false in <code>IMU_PUBLISHER_CONFIG</code>
-(<a href="../../imu/driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>). The debug block prints the encoder
-readings when debugging is on. Finally, all the callbacks waiting in the ROS
-callback queue are processed with a call to <code>nh.spinOnce()</code>.</p>
+<p>Before the control step, on every pass, <code>enforceTimeout()</code> checks the command
+timeout, also when no control step is due. <a href="#the-command-timeout">The command timeout</a>
+below explains it.</p>
+<p>After the wheel control's step comes the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, unless <code>enabled</code> is false in
+<code>IMU_PUBLISHER_CONFIG</code> (<a href="../../imu/driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>). With the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>
+enabled, <code>imu_publisher.update()</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/imu/imu_publisher.h#L100-L112">lines 100–112</a>) plans a sample
+every 20 ms, 50 times per second. The publisher reads a sample and publishes it
+on <code>imu/data_raw</code> only while the BNO055 is ready and the clock is synchronized
+with the robot's computer. A failed read isn't published, and neither is a
+sample whose read took longer than its time budget, 10 ms.
+<a href="#the-debug-excerpt"><code>publishDebugIfDue()</code></a> logs when
+debugging is on. Finally, <code>nh.spinOnce()</code> reads the serial data that has
+arrived and calls the matching subscriber's callback when it decodes a valid
+message for a subscribed topic, for example the wheel commands' callback.
+<code>nh.spinOnce()</code> comes last, after the wheel control's step, for a reason that
+<a href="#when-the-counters-wrap">When the counters wrap</a> explains.</p>
 <h3 id="the-command-timeout">The command timeout</h3>
 <p>When the robot's computer stops sending wheel commands, for example because the
 bringup stopped or the USB connection broke, the firmware stops the motors. The
-hardware interface on the robot's computer sends a command 10 times a second,
-also while the robot stands. <code>COMMAND_TIMEOUT_MS</code> is 1000 ms in
-<a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/config/diffbot_base_config.h#L36-L39"><code>diffbot_base_config.h</code></a>,
-so the firmware stops after about ten missed commands.</p>
-<p><code>CommandTimeout</code> decides when the commands are too old, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/command_timeout/command_timeout.h#L27-L49">lines 27–49</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">command_timeout.h: update() and timedOut()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
+hardware interface on the robot's computer publishes the wheel commands in
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_base/src/diffbot_hw_interface.cpp#L163-L186"><code>DiffBotHWInterface::write()</code></a>, once per pass of
+its control loop. That loop aims at 10 passes per second
+(<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_base/src/diffbot_base.cpp#L27-L27"><code>ros::Rate rate(10.0)</code></a>), and it sends commands also
+while the robot stands, with zero speeds. <code>COMMAND_TIMEOUT_MS</code> is 1000 ms in
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/config/diffbot_base_config.h#L36-L39"><code>diffbot_base_config.h</code></a>, so the firmware stops after
+about ten missed commands.</p>
+<h4 id="a-wheel-command-arrives">A wheel command arrives</h4>
+<p><code>RosWheelCommandSubscriber</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/ros_wheel_command_subscriber.h"><code>ros_wheel_command_subscriber.h</code></a>,
+subscribes to <code>wheel_cmd_velocities</code>. For each message, rosserial calls its
+<code>commandCallback()</code> from <code>nh.spinOnce()</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/ros_wheel_command_subscriber.h#L61-L70">lines 61–70</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ros_wheel_command_subscriber.h: a wheel command arrives</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">commandCallback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">diffbot_msgs</span><span class="o">::</span><span class="n">WheelsCmdStamped</span><span class="o">&amp;</span><span class="w"> </span><span class="n">message</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">velocities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">.</span><span class="n">wheels_cmd</span><span class="p">.</span><span class="n">angular_velocities</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">velocities</span><span class="p">.</span><span class="n">joint_length</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">velocities</span><span class="p">.</span><span class="n">joint</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">)</span>
+</span><span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">WheelCommand</span><span class="w"> </span><span class="n">command</span><span class="p">{</span><span class="n">velocities</span><span class="p">.</span><span class="n">joint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">velocities</span><span class="p">.</span><span class="n">joint</span><span class="p">[</span><span class="mi">1</span><span class="p">]};</span>
+<span class="hll"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">isfinite</span><span class="p">(</span><span class="n">command</span><span class="p">.</span><span class="n">left_rad_s</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">isfinite</span><span class="p">(</span><span class="n">command</span><span class="p">.</span><span class="n">right_rad_s</span><span class="p">))</span>
+</span><span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="n">receiver_</span><span class="p">.</span><span class="n">acceptCommand</span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="n">clock_</span><span class="p">.</span><span class="n">millis</span><span class="p">());</span>
+</span><span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ul>
+<li><strong>Only a valid message counts.</strong> It has exactly two values, the left and the
+  right wheel's target speed in rad/s, and both are finite numbers, not infinity
+  or NaN ("not a number"). The callback drops any other message. A dropped
+  message changes neither the targets nor the command timeout, so broken
+  messages can't keep the motors driving.</li>
+<li><strong>The arrival time comes from the Teensy's clock,</strong> <code>millis()</code> when the callback
+  runs, not from the time stamp in the message's header. The timeout measures
+  how long ago a command arrived on the Teensy. The header's stamp is ROS time
+  from the robot's computer, which jumps when that computer's clock is corrected,
+  as <a href="#timing-with-the-teensys-clock">Timing with the Teensy's clock</a> explains.</li>
+<li><strong>Every valid command counts, also one with zero speeds.</strong> While the bringup
+  runs, a robot that stands still keeps getting commands and doesn't time out.
+  So the timeout doesn't tell how old the last velocity command on <code>cmd_vel</code> is.
+  When <code>cmd_vel</code> stops,
+  <a href="http://wiki.ros.org/diff_drive_controller"><code>diff_drive_controller</code></a> requests
+  zero velocity after its <code>cmd_vel_timeout</code>, <a href="https://github.com/ros-controls/ros_controllers/blob/c2348e85abf35cf33cf654a84d61db206abe9a73/diff_drive_controller/src/diff_drive_controller.cpp#L149-L159">0.5 s by default</a>.
+  The controller's <a href="https://github.com/ros-controls/ros_controllers/blob/c2348e85abf35cf33cf654a84d61db206abe9a73/diff_drive_controller/src/diff_drive_controller.cpp#L461-L499"><code>update()</code></a> then applies the
+  acceleration limits, which <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_control/config/diffbot_control.yaml#L43-L54"><code>diffbot_control.yaml</code></a>
+  turns on. The acceleration limits can make the wheel commands take several passes of
+  the hardware interface's loop to reach zero. The hardware interface keeps
+  sending wheel commands throughout.</li>
+</ul>
+<p>The callback passes a valid command on to <code>WheelControl::acceptCommand()</code>,
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/wheel_control.h#L71-L77">lines 71–77</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">wheel_control.h: acceptCommand()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">/// Stores a complete, checked command that arrived at received_ms. It doesn't drive the</span>
+<span class="c1">/// motors: the next control step does</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">acceptCommand</span><span class="p">(</span><span class="n">WheelCommand</span><span class="w"> </span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">received_ms</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">controller_</span><span class="p">.</span><span class="n">setWheelTargets</span><span class="p">(</span><span class="n">command</span><span class="p">);</span>
+<span class="w">    </span><span class="n">timeout_</span><span class="p">.</span><span class="n">commandArrived</span><span class="p">(</span><span class="n">received_ms</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>acceptCommand()</code> hands the two target speeds to the base controller and tells
+its <code>CommandTimeout</code> that a command arrived. It doesn't drive the motors: the
+next control step does. Wheel commands reach <code>BaseController</code> only through
+<code>setWheelTargets()</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/base_controller/base_controller.h#L255-L265">lines 255–265</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: setWheelTargets()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * @brief Sets both wheels' target angular velocities, which the next \ref write uses.</span>
+<span class="cm"> *</span>
+<span class="cm"> * It doesn't drive the motors itself. WheelControl calls it with each valid wheel command</span>
+<span class="cm"> * from the robot's computer (RosWheelCommandSubscriber).</span>
+<span class="cm"> */</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">setWheelTargets</span><span class="p">(</span><span class="n">WheelCommand</span><span class="w"> </span><span class="n">command</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">wheel_cmd_velocity_left_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">left_rad_s</span><span class="p">;</span>
+<span class="w">    </span><span class="n">wheel_cmd_velocity_right_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">right_rad_s</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>setWheelTargets()</code> stores the two speeds for the next <code>write()</code> and does nothing
+else: no <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> computation, no motor output and no time keeping.</p>
+<h4 id="when-a-command-is-too-old">When a command is too old</h4>
+<p><code>CommandTimeout</code> decides when the last command is too old, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/command_timeout/command_timeout.h#L24-L52">lines 24–52</a>:</p>
+<p><a id="the-command-timeout-excerpt"></a></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">command_timeout.h: CommandTimeout</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
@@ -5216,53 +5522,86 @@ so the firmware stops after about ten missed commands.</p>
 <span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">/// Returns true once, on the pass when the last command becomes too old. The unsigned</span>
-<span class="c1">/// difference stays right when millis() returns to zero.</span>
-<span class="kt">bool</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">last_command_ms</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">command_count</span><span class="p">)</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CommandTimeout</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">timed_out_</span><span class="p">)</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="hll"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">command_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">count_at_timeout_</span><span class="p">)</span>
-</span><span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="n">timed_out_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w">  </span><span class="c1">// a new command arrived</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="hll"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_command_ms</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">timeout_ms_</span><span class="p">)</span>
-</span><span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="n">timed_out_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="w">        </span><span class="n">count_at_timeout_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command_count</span><span class="p">;</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">CommandTimeout</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">timeout_ms_</span><span class="p">(</span><span class="n">timeout_ms</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="c1">/// True from the timeout until the next command arrives, and before the first command</span>
-<span class="kt">bool</span><span class="w"> </span><span class="nf">timedOut</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">timed_out_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">/// A command arrived at received_ms: not timed out until the next update() at least</span>
+<span class="w">    </span><span class="c1">/// timeout_ms later</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">commandArrived</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">received_ms</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">last_command_ms_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">received_ms</span><span class="p">;</span>
+<span class="hll"><span class="w">        </span><span class="n">timed_out_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+</span><span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">/// Times out when the last command is timeout_ms old. The unsigned difference stays right</span>
+<span class="w">    </span><span class="c1">/// when millis() returns to zero</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">update</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">timed_out_</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_command_ms_</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">timeout_ms_</span><span class="p">)</span>
+<span class="hll"><span class="w">            </span><span class="n">timed_out_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+</span><span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">/// True before the first command, and from a timeout until the next command arrives</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">timedOut</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">timed_out_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms_</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">last_command_ms_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">timed_out_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+</span><span class="p">};</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>update()</code> returns true once,</strong> on the pass when the last command becomes too
-  old. So the motors are stopped and the timeout is logged once, not on every
-  pass.</li>
-<li><strong>Only a new command ends the timeout.</strong> The command callback counts the
-  commands in <code>command_count_</code>, and <code>CommandTimeout</code> notices a new one by the
-  changed count, not by its time, because an old time can look new again once
-  <code>millis()</code> has gone around (<a href="#when-the-counters-wrap">When the counters wrap</a>).</li>
-<li><strong>It starts timed out,</strong> so the motors aren't driven before the first command.</li>
+<li><strong>Each command starts the timeout again.</strong> <code>acceptCommand()</code> calls
+  <code>commandArrived()</code> for every valid command. <code>commandArrived()</code> stores the
+  arrival time and ends a timeout. So only a new command ends a timeout, not a
+  comparison of times. After about 49.7 days, <code>millis()</code> returns to zero, and an
+  old arrival time could look new again
+  (<a href="#when-the-counters-wrap">When the counters wrap</a>).</li>
+<li><strong><code>update()</code> times out once the last command is <code>timeout_ms_</code> old,</strong> 1000 ms on
+  the robot. From then on, <code>CommandTimeout</code> stays timed out until the next
+  command arrives. <code>update()</code> doesn't stop anything itself. It only changes what
+  <code>timedOut()</code> answers.</li>
+<li><strong>It starts timed out</strong> (<code>timed_out_</code> is <code>true</code>), so the motors aren't driven
+  before the first command arrives.</li>
 </ul>
-<p>When <code>update()</code> returns true, <code>driveStep()</code> calls <code>eStop()</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L564-L575">lines 564–575</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: eStop()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">564</span>
-<span class="normal">565</span>
-<span class="normal">566</span>
-<span class="normal">567</span>
-<span class="normal">568</span>
-<span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
-<span class="normal">575</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorController</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorDriver</span><span class="o">&gt;</span>
+<p><code>WheelControl</code> acts on the moment when that answer changes. On every pass,
+<code>step()</code> first calls <code>enforceTimeout()</code>, in the <a href="#the-step-excerpt">step excerpt</a>
+above. <code>enforceTimeout()</code> notes what <code>timedOut()</code> answers, calls <code>update()</code> and
+asks again. Only on the pass when the answer changes from false to true,
+<code>enforceTimeout()</code> stops the motors with <code>eStop()</code> and then logs the timeout.
+So the motors are
+stopped and the timeout is logged once per timeout, not on every pass. The
+private <code>enforceTimeout()</code> keeps the timeout's stop and log together, in that
+order.</p>
+<ul>
+<li><strong>Before the first command,</strong> <code>timedOut()</code> is true before and after <code>update()</code>.
+  So nothing is stopped and no warning is logged. <code>step()</code> only reads the wheel
+  states.</li>
+<li><strong>A command that arrived during the setup may already be too old at the first
+  <code>loop()</code>.</strong> The setup takes more than a second, because <code>base_controller.init()</code>
+  ends with a one-second pause (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/base_controller/base_controller.h#L432-L432">line 432</a>). When the first step finds
+  that command 1000 ms old, it stops the motors and logs the timeout, although
+  they haven't been driven yet. So the timeout warning can show up once right
+  after the start. The next command drives the motors as usual.</li>
+</ul>
+<p><code>eStop()</code> is the base controller's stop, <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/base_controller/base_controller.h#L512-L523">lines 512–523</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: eStop()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorController</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorDriver</span><span class="o">&gt;</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">diffbot</span><span class="o">::</span><span class="n">BaseController</span><span class="o">&lt;</span><span class="n">TMotorController</span><span class="p">,</span><span class="w"> </span><span class="n">TMotorDriver</span><span class="o">&gt;::</span><span class="n">eStop</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="n">wheel_cmd_velocity_left_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -5277,56 +5616,102 @@ so the firmware stops after about ten missed commands.</p>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>eStop()</code> sets both target wheel velocities to zero, resets both PIDs, so that no
 stored error drives the motors later, and sets both motors to zero. On the
-Adafruit FeatherWing, zero releases a motor (<a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36">setSpeed()</a>), so the
+Adafruit FeatherWing, zero releases a motor (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36">setSpeed()</a>), so the
 wheels coast without braking.
 Only then the firmware logs the timeout, because sending the log message can
 wait for the USB connection. The control step keeps reading and publishing the
-wheel states, but doesn't drive the motors until the next command arrives.</p>
-<p>So the timeout is when the firmware stops driving, not a stopping distance.
-Unit tests on the PC check the timeout, the order in <code>driveStep()</code> and the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>'s
-reset, in the <a href="../../../development/firmware-container/">firmware container</a>:
+wheel states, but doesn't drive the motors until the next command arrives. With
+the next valid command, the timeout starts again, and the next control step
+drives the motors, with PIDs that start from zero.</p>
+<p>So 1000 ms is when the firmware stops driving, not an exact time or a stopping
+distance. <code>loop()</code> runs its parts one after the other, and each part has to
+return before the next one runs. A part that blocks, for example a log message
+that waits for the USB connection, delays the next check. The firmware stops the
+motors on the first pass that finds the command too old. After that, the wheels
+coast until friction stops them.</p>
+<h4 id="the-unit-tests">The unit tests</h4>
+<p>Unit tests on the PC check the timeout, the wheel control, the subscriber and the
+<abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>'s reset (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/test/test_pid/test_pid.cpp"><code>test_pid.cpp</code></a>), in the
+<a href="../../../development/firmware-container/">firmware container</a>:
 <code>.docker/firmware/run.sh pio test -e native</code>.</p>
+<ul>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/test/test_command_timeout/test_command_timeout.cpp"><code>test_command_timeout</code></a> checks <code>CommandTimeout</code>
+  alone, for example that a timeout stays until the next command, also after
+  <code>millis()</code> has returned to zero.</li>
+<li>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/test/test_wheel_control/test_wheel_control.cpp"><code>test_wheel_control</code></a> checks <code>WheelControl</code> with fakes.
+  <code>WheelControl</code>'s class comment (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/wheel_control.h#L39-L51">lines 39–51</a>) names its ports. The
+  inbound ports are the functions that other parts call: <code>acceptCommand()</code> and
+  <code>step()</code>. The outbound ports are the functions that <code>WheelControl</code> needs from
+  other parts: the controller's <code>setWheelTargets()</code>, <code>read()</code>, <code>write()</code> and
+  <code>eStop()</code>, and the timeout log. The tests call the inbound ports and replace
+  the outbound ones with fakes.</p>
+<p>The fake controller, <code>FakeBaseController</code> in
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/test/fakes/fake_base_controller.h#L15-L72"><code>fake_base_controller.h</code></a>, supplies the four functions,
+with no encoders, PIDs or motors behind them. Each call adds its name to a
+text, the trace, for example <code>eStop log read</code>. The fake timeout log,
+<code>FakeTimeoutLog</code>, adds <code>log</code> to the same trace and records the motor output
+at that moment. So a test can check the order of the calls, that no <code>write()</code>
+comes while the command is too old, and that the motors were already at zero
+when the warning was logged. This works because <code>WheelControl</code> is a template:
+the fake only needs functions with the names and arguments that
+<code>WheelControl</code> uses, and doesn't derive from <code>BaseController</code>. The tests check
+how <code>WheelControl</code> uses the controller, not the real <code>eStop()</code>, whose body is
+shown above.
+- <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/test/test_ros_wheel_command_subscriber/test_ros_wheel_command_subscriber.cpp"><code>test_ros_wheel_command_subscriber</code></a> sends messages
+  through rosserial's real parser, with a fake serial port. It checks, for
+  example, that the subscriber passes the two values on with the Teensy's time,
+  not with the header's stamp, and that a dropped message doesn't refresh the
+  timeout.</p>
+</li>
+</ul>
+<p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> driver's tests use the same idea one level lower: a fake <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus,
+<code>FakeBno055Bus</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/test/fakes/fake_bno055.h"><code>fake_bno055.h</code></a>, stands in for the BNO055.</p>
 <h3 id="timing-with-the-teensys-clock">Timing with the Teensy's clock</h3>
-<p>The firmware measures three kinds of elapsed time: whether 50 ms have passed
-since the last control step, whether 1 s has passed since the last wheel
-command, and how long the encoders took since their last reading. It takes all
+<p>The firmware measures three kinds of elapsed time for the wheels: whether 50 ms
+have passed since the last control step, whether 1 s has passed since the last
+wheel command, and how long the encoders took since their last reading. It takes all
 three from the Teensy's own counters.
 <a href="https://docs.arduino.cc/language-reference/en/functions/time/millis/"><code>millis()</code></a>
 counts the milliseconds since the Teensy started, for the control step and the
-command's age.
+command's age, and also for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples and the debug output.
 <a href="https://docs.arduino.cc/language-reference/en/functions/time/micros/"><code>micros()</code></a>
 counts microseconds, for the encoders' speed. A correction of the Raspberry Pi's
 clock doesn't change these counters.</p>
 <h4 id="the-time-stamps">The time stamps</h4>
-<p><code>BaseController</code> keeps one <code>millis()</code> reading for each event in
-<code>LastUpdateTime</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L175-L196">lines 175–196</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: the time stamps</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">LastUpdateTime</span>
+<p>Each part keeps the <code>millis()</code> readings that it needs:</p>
+<ul>
+<li><code>CommandTimeout</code> keeps the arrival time of the last valid wheel command,
+  <code>last_command_ms_</code>, in the <a href="#the-command-timeout-excerpt"><code>CommandTimeout</code> excerpt</a>
+  above.</li>
+<li><code>WheelControl</code> keeps the time of the last control step, <code>last_control_ms_</code>, in
+  the <a href="#the-step-excerpt">step excerpt</a> above. <code>last_control_ms_</code> starts at zero,
+  so the first control step is due 50 ms after the Teensy started
+  (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/wheel_control/wheel_control.h#L108-L109">lines 108–109</a>). The setup takes longer, so the first pass of
+  <code>loop()</code> already runs a control step. Wheel commands don't move this schedule.</li>
+<li><code>ImuPublisher</code> keeps the time of its last sampling slot in <code>sampled_ms_</code>
+  (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/imu/imu_publisher.h#L161-L171"><code>takeSamplingSlot()</code></a>). This time moves on
+  also when no sample is read or published.</li>
+<li><code>BaseController</code> keeps the time of the last debug output in <code>LastUpdateTime</code>,
+  <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/base_controller/base_controller.h#L161-L176">lines 161–176</a>:</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: the time stamps</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">LastUpdateTime</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Time (ms, millis()) when the last angular wheel command velocity was received.</span>
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">command_received</span><span class="p">;</span>
-<span class="w">    </span><span class="c1">// Time (ms) when the last control update happened.</span>
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">control</span><span class="p">;</span>
 <span class="w">    </span><span class="c1">// Time (ms) when the last imu update took place.</span>
 <span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">imu</span><span class="p">;</span>
 <span class="w">    </span><span class="c1">// Time (ms) when the last debug message was logged.</span>
@@ -5338,58 +5723,28 @@ clock doesn't change these counters.</p>
 <span class="cm">     * @param start_ms Start time of the program, from millis()</span>
 <span class="cm">     */</span>
 <span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">LastUpdateTime</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">start_ms</span><span class="p">)</span>
-<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">command_received</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span>
-<span class="w">        </span><span class="p">,</span><span class="w"> </span><span class="n">control</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span>
-<span class="w">        </span><span class="p">,</span><span class="w"> </span><span class="n">imu</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">imu</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span>
 <span class="w">        </span><span class="p">,</span><span class="w"> </span><span class="n">debug</span><span class="p">(</span><span class="n">start_ms</span><span class="p">)</span><span class="w"> </span><span class="p">{};</span>
 <span class="p">}</span><span class="w"> </span><span class="n">last_update_time_</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>command_received</code>, <code>control</code> and <code>debug</code> are the times of the last wheel
-command, control step and debug message. The <code>imu</code> field gets its start value
-but isn't used: the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publisher keeps its own sampling time.
-When the <code>BaseController</code> is created, all four get the same reading
-(<a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L402-L402">line 402</a>).</p>
-<p>The command callback updates <code>command_received</code> and counts the command in
-<code>command_count_</code>, each time a wheel command arrives on <code>wheel_cmd_velocities</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L473-L485">lines 473–485</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: a wheel command arrives</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span>
-<span class="normal">477</span>
-<span class="normal">478</span>
-<span class="normal">479</span>
-<span class="normal">480</span>
-<span class="normal">481</span>
-<span class="normal">482</span>
-<span class="normal">483</span>
-<span class="normal">484</span>
-<span class="normal">485</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorController</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TMotorDriver</span><span class="o">&gt;</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">diffbot</span><span class="o">::</span><span class="n">BaseController</span><span class="o">&lt;</span><span class="n">TMotorController</span><span class="p">,</span><span class="w"> </span><span class="n">TMotorDriver</span><span class="o">&gt;::</span><span class="n">commandCallback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">diffbot_msgs</span><span class="o">::</span><span class="n">WheelsCmdStamped</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cmd_msg</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="c1">// Callback function every time the angular wheel commands for each wheel joint are received from 'wheel_cmd_velocities' topic</span>
-<span class="w">    </span><span class="c1">// This callback function receives diffbot_msgs::WheelsCmdStamped message object</span>
-<span class="w">    </span><span class="c1">// where diffbot_msgs::AngularVelocities for both joints are stored</span>
-<span class="w">    </span><span class="n">wheel_cmd_velocity_left_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmd_msg</span><span class="p">.</span><span class="n">wheels_cmd</span><span class="p">.</span><span class="n">angular_velocities</span><span class="p">.</span><span class="n">joint</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-<span class="w">    </span><span class="n">wheel_cmd_velocity_right_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmd_msg</span><span class="p">.</span><span class="n">wheels_cmd</span><span class="p">.</span><span class="n">angular_velocities</span><span class="p">.</span><span class="n">joint</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-
-<span class="w">    </span><span class="c1">// For the command timeout in loop(): without new commands, it stops the motors (eStop())</span>
-<span class="hll"><span class="w">    </span><span class="n">lastUpdateTime</span><span class="p">().</span><span class="n">command_received</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
-</span><span class="hll"><span class="w">    </span><span class="o">++</span><span class="n">command_count_</span><span class="p">;</span>
-</span><span class="p">}</span>
-</code></pre></div></td></tr></tbody></table></div>
-<h4 id="the-control-step-and-the-command-timeout">The control step and the command timeout</h4>
-<p>The <a href="#the-loop-excerpt"><code>loop()</code> excerpt</a> above reads the counter once per pass, as <code>now_ms</code>, and
-<code>driveStep()</code> compares it with these time stamps:</p>
+<p><a href="#the-debug-excerpt"><code>publishDebugIfDue()</code></a> compares <code>now_ms</code> with <code>debug</code>. When
+debugging is on, it logs once 200 ms have passed, at an <code>UPDATE_RATE_DEBUG</code> of 5 Hz. The <code>imu</code> field gets its
+start value but isn't used. When the <code>BaseController</code> is created, both fields get
+the same reading (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/base_controller/base_controller.h#L365-L365">line 365</a>).</p>
+<h4 id="the-command-timeout-and-the-control-step">The command timeout and the control step</h4>
+<p>The <a href="#the-loop-excerpt"><code>loop()</code> excerpt</a> above reads the counter once per pass, as
+<code>now_ms</code>, and <code>wheel_control.step(now_ms)</code> compares it with these times:</p>
 <ul>
-<li><strong>The control step</strong> runs when at least <code>control_period_ms</code> milliseconds have
-  passed since the last one. <code>loop()</code> passes <code>1000.0 / control_</code>. With
-  <code>UPDATE_RATE_CONTROL</code> set to 20 (Hz) in
-  <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/config/diffbot_base_config.h#L30-L30"><code>diffbot_base_config.h</code></a>,
-  that's 50 ms. The step records its time in <code>control</code>. So the firmware runs
-  at most 20 steps per second. Work that blocks the loop, for example a slow
-  serial transfer, makes a step late.</li>
-<li><strong>The command timeout:</strong> <code>CommandTimeout::update()</code> compares the age of the
-  last wheel command with <code>COMMAND_TIMEOUT_MS</code>, 1000 ms.</li>
+<li><strong>The command timeout</strong> comes first, on every pass. <code>CommandTimeout::update()</code>
+  compares the age of the last wheel command with <code>COMMAND_TIMEOUT_MS</code>, 1000 ms.</li>
+<li><strong>The control step</strong> runs when at least <code>control_period_ms_</code> milliseconds have
+  passed since the last one. <code>WHEEL_CONTROL_CONFIG</code> in <code>main.cpp</code> sets the period
+  to <code>1000.0 / UPDATE_RATE_CONTROL</code>, in whole milliseconds (<a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/src/main.cpp#L49-L55">lines 49–55</a>).
+  With <code>UPDATE_RATE_CONTROL</code> set to 20 (Hz) in
+  <a href="https://github.com/ros-mobile-robots/diffbot/blob/d57ae3539ca84e770256c62e4f886fb89805b8c1/diffbot_firmware/lib/config/diffbot_base_config.h#L30-L30"><code>diffbot_base_config.h</code></a>, that's 50 ms. The step
+  records its time in <code>last_control_ms_</code>. So the firmware runs at most 20 steps
+  per second. Work that blocks the loop, for example a slow serial transfer,
+  makes a step late. A late step doesn't make up for the steps that it missed.</li>
 </ul>
 <h4 id="the-encoders-speed">The encoders' speed</h4>
 <p>Each control step reads both encoders. <code>Encoder::jointState()</code>, in the
@@ -5402,10 +5757,20 @@ radians per second, although a comment in the code mentions RPM.</p>
 return to zero: 2³² ms (4,294,967,296 ms) is about 49.7 days, and 2³² µs about
 71.6 minutes. Arduino's reference pages for <code>millis()</code> and <code>micros()</code> round these
 to about 50 days and 70 minutes. The differences are computed with
-<code>uint32_t</code>, so <code>now_ms - control</code> still gives the right number of milliseconds
+<code>uint32_t</code>, so <code>now_ms - last_control_ms_</code> still gives the right number of milliseconds
 across that return to zero, as long as the two readings are less than one
-counter cycle apart and come from the same run of the firmware. That's also why
-a new command, not its time, ends the command timeout.</p>
+counter cycle apart and come from the same run of the firmware.</p>
+<p>That's also why only a new command ends the command timeout. Once timed out,
+<code>CommandTimeout</code> doesn't compare the times again. So an old arrival time can't
+look new after the counter has gone around.</p>
+<p>The same subtraction is why <code>nh.spinOnce()</code> comes last in <code>loop()</code>. <code>loop()</code>
+reads <code>now_ms</code> at the start of the pass, and the wheel commands' callback reads
+<code>millis()</code> again when a command arrives. If the callbacks ran between reading
+<code>now_ms</code> and the step, a command could arrive later than <code>now_ms</code>. Then
+<code>now_ms - last_command_ms_</code> wouldn't be negative, but almost a whole counter
+cycle, about 49.7 days, and the step would take the new command as too old.
+With <code>nh.spinOnce()</code> last, the next pass reads a new <code>now_ms</code> after the
+command arrived.</p>
 <details class="warning">
 <summary>Pitfalls when measuring time on a microcontroller</summary>
 <ul>
