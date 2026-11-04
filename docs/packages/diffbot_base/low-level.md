@@ -177,7 +177,7 @@ The diagrams show the firmware's parts and how they connect, first as they are, 
       SN ---|USB| NH
       NH ---|wheel states, reset<br/>and PID gains| BC
       NH ---|wheel commands| SUB
-      SUB -->|acceptCommand| WC
+      SUB -->|receiveCommand| WC
       WC --> BC
       LOOP -->|step| WC
       LOOP --> IP
@@ -476,14 +476,14 @@ subscribes to `wheel_cmd_velocities`. For each message, rosserial calls its
   the hardware interface's loop to reach zero. The hardware interface keeps
   sending wheel commands throughout.
 
-The callback passes a valid command on to `WheelControl::acceptCommand()`,
+The callback passes a valid command on to `WheelControl::receiveCommand()`,
 [lines 71–77]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L71-L77):
 
-```cpp title="wheel_control.h: acceptCommand()" linenums="71"
+```cpp title="wheel_control.h: receiveCommand()" linenums="71"
 --8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:71:77"
 ```
 
-`acceptCommand()` hands the two target speeds to the base controller and tells
+`receiveCommand()` hands the two target speeds to the base controller and tells
 its `CommandTimeout` that a command arrived. It doesn't drive the motors: the
 next control step does. Wheel commands reach `BaseController` only through
 `setWheelTargets()`, [lines 255–265]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L255-L265):
@@ -505,7 +505,7 @@ else: no PID computation, no motor output and no time keeping.
 --8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/command_timeout/command_timeout.h:24:52"
 ```
 
-- **Each command starts the timeout again.** `acceptCommand()` calls
+- **Each command starts the timeout again.** `receiveCommand()` calls
   `commandArrived()` for every valid command. `commandArrived()` stores the
   arrival time and ends a timeout. So only a new command ends a timeout, not a
   comparison of times. After about 49.7 days, `millis()` returns to zero, and an
@@ -573,7 +573,7 @@ PID's reset ([`test_pid.cpp`]({{ low_level_src_url }}/diffbot_firmware/test/test
   `millis()` has returned to zero.
 - [`test_wheel_control`]({{ low_level_src_url }}/diffbot_firmware/test/test_wheel_control/test_wheel_control.cpp) checks `WheelControl` with fakes.
   `WheelControl`'s class comment ([lines 39–51]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L39-L51)) names its ports. The
-  inbound ports are the functions that other parts call: `acceptCommand()` and
+  inbound ports are the functions that other parts call: `receiveCommand()` and
   `step()`. The outbound ports are the functions that `WheelControl` needs from
   other parts: the controller's `setWheelTargets()`, `read()`, `write()` and
   `eStop()`, and the timeout log. The tests call the inbound ports and replace
@@ -677,6 +677,12 @@ counter cycle apart and come from the same run of the firmware.
 That's also why only a new command ends the command timeout. Once timed out,
 `CommandTimeout` doesn't compare the times again. So an old arrival time can't
 look new after the counter has gone around.
+
+For example, a command arrives at `millis()` 100 and times out at 1100. About
+49.7 days later, the clock reads 100 again. That reading alone doesn't make the
+old command new. A new command that arrives at that moment does start a new
+timeout, because the wheel commands' callback reports every arrival to
+`CommandTimeout`.
 
 The same subtraction is why `nh.spinOnce()` comes last in `loop()`. `loop()`
 reads `now_ms` at the start of the pass, and the wheel commands' callback reads
