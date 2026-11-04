@@ -24,7 +24,7 @@ The BNO055 shares the Teensy's first I2C bus, `Wire`, with the motor driver ([Ad
 | SCL | 19 (SCL) | |
 | ADR | not connected | I2C address 0x28. Connected to 3.3 V: 0x29, then set `IMU_BNO055_ADDRESS` |
 
-The other pins (RST, INT, PS0, PS1) stay unconnected. Adafruit's [pinouts page](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts) describes all of them. The motor driver's address is 0x60, so the two don't collide.
+The other pins (3Vo, RST, INT, PS0, PS1) stay unconnected. 3Vo is the breakout's 3.3 V output. Adafruit's [pinouts page](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts) describes all of them. The motor driver's address is 0x60, so the two don't collide.
 
 ## What the firmware publishes
 
@@ -57,7 +57,7 @@ The compiler checks the field types. A build-time check (`static_assert`) reject
 
 ## How the firmware reads it
 
-[`lib/imu`]({{ diffbot_repo_url }}/diffbot_firmware/lib/imu/README.md) has a small driver of its own for the BNO055, instead of Adafruit's library, so that every I2C transfer is checked and the start-up's waits don't hold up the firmware's loop:
+[`lib/imu`]({{ diffbot_repo_url }}/diffbot_firmware/lib/imu/README.md) has a small driver of its own for the BNO055, instead of [Adafruit's library](https://github.com/adafruit/Adafruit_BNO055), so that every I2C transfer is checked and the start-up's waits don't hold up the firmware's loop:
 
 - **The start-up doesn't block the motor control.** A reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's [datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf)). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, IMU mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does it. Most steps take one or two transfers. The step that writes the settings and reads them back takes 14, about 4 ms, once per start-up. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at I2C's standard clock of 100 kHz. The waits for the chip to finish resetting and start its fusion have deadlines. If either wait reaches its deadline, the driver fails the start-up on the next loop pass. The firmware tries again after `retry_ms`. On Remo, the control loop kept its 20 Hz while the IMU was unplugged ([bench checks](#bench-checks)).
 - **A sample is published only if it's good:** the read succeeded and took at most `read_budget_us` (10 ms: a later result is dropped, but the budget can't cut a transfer short), the chip still is in IMU mode with the right units and its fusion runs. A stalled or unplugged IMU stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again. A missing IMU is looked for again every `retry_ms` (10 s). The robot drives without an IMU, too.
@@ -155,5 +155,9 @@ Gravity, the length of the mean acceleration: 9.792 m/s^2
 
 Both boards give the same picture, as expected: the Teensy only reads the sensor's registers. The gyroscope's bias stays below 0.0001 rad/s, less than a tenth of one output step. Its variance, 2 to 7 · 10⁻⁷ (rad/s)², is about a thousand times smaller than the firmware's starting value of 4 · 10⁻⁴ (rad/s)². The starting values stay until a check while driving shows how much the vibration adds. That check has to tell real motion apart from measurement noise: the readings of a robot that turns or speeds up change because it moves.
 
+To try the breakout separately with an Arduino, see [Adafruit's Arduino guide](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code) for wiring, library installation and example programs.
+
 ??? info "Trying the breakout on the Raspberry Pi"
     To check a breakout on its own, it can also be connected to the Raspberry Pi's I2C pins ([pinout](https://pinout.xyz/pinout/i2c)): VIN to 3.3 V, GND to GND, SDA to SDA, SCL to SCL. Adafruit's guide reads it with Python and its CircuitPython library: first [prepare the Pi for it](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi) (I2C on, the Blinka library), then [slow down the Pi's I2C clock](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching), which the BNO055 needs because it stretches the clock, and then run the [BNO055 example](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython).
+
+    [ros-imu-bno055](https://github.com/dheera/ros-imu-bno055) is a C++ driver for ROS 1 and ROS 2 that reads the BNO055 over I2C. The project's README says the driver should work on a Raspberry Pi 5, or on an older Pi using software I2C. The author has not tested the slower-clock workaround with this driver. DiffBot and Remo read the IMU on the Teensy. ros-imu-bno055 has not been tested with either robot.
