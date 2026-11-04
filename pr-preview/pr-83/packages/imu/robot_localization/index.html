@@ -3078,6 +3078,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#more-about-robot_localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        More about robot_localization
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4435,6 +4446,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#more-about-robot_localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        More about robot_localization
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4514,6 +4536,7 @@
 <h1 id="localization-wheel-odometry-and-imu-ekf">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</h1>
 <p>DiffBot and Remo estimate how far they drove and turned from their wheels: the drive controller turns the wheel encoders' angles into <strong>odometry</strong>, a pose and a velocity in the <code>odom</code> frame. The wheels' estimate of turning is the weaker part. A wheel that slips, or a wheel separation that is a little off in the configuration, makes the estimated turn too small or too large, and the error in the heading grows into an error in the position the further the robot drives.</p>
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s gyroscope measures the turn directly: its <strong>yaw rate</strong>, the angular velocity about the upward axis, doesn't depend on the wheels. With <code>ekf:=true</code>, an <strong>extended Kalman filter (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</strong> from the <a href="http://docs.ros.org/en/noetic/api/robot_localization/html/index.html"><code>robot_localization</code></a> package combines both: it takes the forward speed from the wheels and the turn mostly from the gyroscope, because the gyroscope's variance is far smaller. The filter publishes the result as <code>/diffbot/odometry/filtered</code> and as the transform <code>odom → base_footprint</code>, which navigation and RViz use.</p>
+<p>robot_localization can fuse any number of sensors, for example GPS, several IMUs and several odometry sources. The DiffBot and Remo configuration combines one <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> with the wheel odometry.</p>
 <div class="admonition warning">
 <p class="admonition-title">Not tested on the robot yet</p>
 <p>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> runs in the simulation and in the tests below. On Remo, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s rate, axes and noise passed the <a href="../driver-bno055/#bench-checks">bench checks</a>, but the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> itself hasn't run on a robot yet, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting on each robot is still open. The variances and time limits below are starting values, not measurements.</p>
@@ -4618,6 +4641,12 @@
 <li><strong>A clock that goes back:</strong> in the simulation, the filter starts over (<code>reset_on_time_jump</code>). robot_localization does that only with simulated time. On the robot, after the computer's clock goes back, the filter ignores each input until its stamps are newer than its last ones again.</li>
 <li><strong>The variances and time limits</strong> are starting values. The <a href="../driver-bno055/#bench-checks">bench checks</a> measured the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s noise at rest. Measurements while driving still have to show the values that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> should use.</li>
 <li><strong>The pose drifts</strong> over time, as any odometry: the gyroscope helps with the heading, but nothing corrects the position. A map-based localization such as amcl corrects it in the <code>map</code> frame.</li>
+</ul>
+<h2 id="more-about-robot_localization">More about robot_localization</h2>
+<ul>
+<li><a href="http://wiki.ros.org/robot_localization">robot_localization on the ROS Wiki</a>: the package's summary page, with links to its API, FAQ and changelog.</li>
+<li><a href="http://docs.ros.org/en/noetic/api/robot_localization/html/index.html">robot_localization's documentation for Noetic</a>: the state estimation nodes and their parameters, how to prepare the sensor data, how to configure the filters and how to add GPS.</li>
+<li><a href="https://github.com/cra-ros-pkg/robot_localization">cra-ros-pkg/robot_localization</a> on GitHub: the source code and the issues. The Noetic version is on the <a href="https://github.com/cra-ros-pkg/robot_localization/tree/noetic-devel"><code>noetic-devel</code></a> branch.</li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
