@@ -392,12 +392,12 @@ pass, as `now_ms`, and hands the time to the parts that run on a schedule,
 
 `wheel_control.step()`, in [`wheel_control.h`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h), first checks the
 command timeout in the private `stopWhenCommandExpires()`, then runs the
-control step when it's due, [lines 81–105]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L81-L105):
+control step when it's due, [lines 94–118]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L94-L118):
 
 <a id="the-step-excerpt"></a>
 
-```cpp title="wheel_control.h: step() and stopWhenCommandExpires()" linenums="81" hl_lines="4 5 8 20"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:81:105"
+```cpp title="wheel_control.h: step() and stopWhenCommandExpires()" linenums="94" hl_lines="4 5 8 20"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:94:118"
 ```
 
 The following steps of the control step happen continuously at the control rate:
@@ -481,10 +481,10 @@ subscribes to `wheel_cmd_velocities`. For each message, rosserial calls its
   sending wheel commands throughout.
 
 The callback passes a valid command on to `WheelControl::receiveCommand()`,
-[lines 72–79]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L72-L79):
+[lines 85–92]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L85-L92):
 
-```cpp title="wheel_control.h: receiveCommand()" linenums="72"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:72:79"
+```cpp title="wheel_control.h: receiveCommand()" linenums="85"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:85:92"
 ```
 
 `receiveCommand()` hands the two target speeds to the base controller and tells
@@ -583,12 +583,14 @@ PID's reset ([`test_pid.cpp`]({{ low_level_src_url }}/diffbot_firmware/test/test
   alone, for example that a timeout stays until the next command, also after
   `millis()` has returned to zero.
 - [`test_wheel_control`]({{ low_level_src_url }}/diffbot_firmware/test/test_wheel_control/test_wheel_control.cpp) checks `WheelControl` with fakes.
-  `WheelControl`'s class comment ([lines 40–52]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L40-L52)) names its ports. The
-  inbound ports are the functions that other parts call: `receiveCommand()` and
-  `step()`. The outbound ports are the functions that `WheelControl` needs from
-  other parts: the controller's `setWheelTargets()`, `read()`, `write()` and
-  `eStop()`, and the timeout log. The tests call the inbound ports and replace
-  the outbound ones with fakes.
+  `WheelControl`'s class comment ([lines 40–65]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L40-L65)) describes its ports, the
+  functions and behavior through which the class interacts with other code.
+  The primary ports are `receiveCommand()` and `step()`, called by other code
+  to use `WheelControl`. The secondary ports are the functions `WheelControl`
+  calls: the controller's `setWheelTargets()`, `read()`, `write()` and `eStop()`,
+  and the timeout logger's call operator. The tests call the primary ports and
+  supply `FakeBaseController` and `FakeTimeoutLog` as implementations of the
+  secondary ports. The port contracts stay the same.
 
     The fake controller, `FakeBaseController` in
     [`fake_base_controller.h`]({{ low_level_src_url }}/diffbot_firmware/test/fakes/fake_base_controller.h#L16-L74), supplies the four functions,
@@ -596,8 +598,8 @@ PID's reset ([`test_pid.cpp`]({{ low_level_src_url }}/diffbot_firmware/test/test
     text, the trace, for example `eStop log read`. The fake timeout log,
     `FakeTimeoutLog`, adds `log` to the same trace and records the motor output
     at that moment. So a test can check the order of the calls, that no `write()`
-    comes while the command is too old, and that the motors were already at zero
-    when the warning was logged. This works because `WheelControl` is a template:
+    comes while the command is too old, and that the fake controller's motor
+    output was already zero when the warning was logged. This works because `WheelControl` is a template:
     the fake only needs functions with the names and arguments that
     `WheelControl` uses, and doesn't derive from `BaseController`. The tests check
     how `WheelControl` uses the controller, not the real `eStop()`, whose body is
@@ -634,7 +636,7 @@ Each part keeps the `millis()` readings that it needs:
 - `WheelControl` keeps the time of the last control step, `last_control_ms_`, in
   the [step excerpt](#the-step-excerpt) above. `last_control_ms_` starts at zero,
   so the first control step is due 50 ms after the Teensy started
-  ([lines 111–112]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L111-L112)). The setup takes longer, so the first pass of
+  ([lines 124–125]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L124-L125)). The setup takes longer, so the first pass of
   `loop()` already runs a control step. Wheel commands don't move this schedule.
 - `ImuPublisher` keeps the time of its last sampling slot in `sampled_ms_`
   ([`takeSamplingSlot()`]({{ low_level_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L161-L171)). This time moves on
