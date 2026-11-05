@@ -2836,10 +2836,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#one-pattern-or-two" class="md-nav__link">
+  <a href="#comparison-with-ros_control" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One pattern or two
+        Comparison with ros_control
       
     </span>
   </a>
@@ -4542,10 +4542,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#one-pattern-or-two" class="md-nav__link">
+  <a href="#comparison-with-ros_control" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One pattern or two
+        Comparison with ros_control
       
     </span>
   </a>
@@ -5140,7 +5140,7 @@ in microseconds since the board started, for the reason explained in the
 </div>
 <p><code>loop()</code> calls the node handle's <code>spinOnce()</code> last on each pass, and rosserial also calls it during the setup, so the subscriber's callback runs inside these calls. <code>WheelControl</code> names neither <code>RosWheelCommandSubscriber</code> nor <code>BaseController</code>. Its class comment (<a href="https://github.com/ros-mobile-robots/diffbot/blob/2b573339bb61b2795bb1ac8218936cd1a7f2248e/diffbot_firmware/lib/wheel_control/wheel_control.h#L27-L51">lines 27–51</a>) only says what the ports have to do. <code>main.cpp</code> creates the objects and connects them. That's why the unit tests can supply <code>FakeBaseController</code> and <code>FakeTimeoutLog</code> for the secondary ports, and call <code>receiveCommand()</code> and <code>step()</code> themselves. <code>BaseController</code> still contains control logic as well as hardware access, which <a href="https://github.com/ros-mobile-robots/diffbot/issues/148">diffbot#148</a> separates.</p>
 <p>The ports <code>Controller</code> and <code>LogTimeout</code> are hard to see in the code, because no class has these names. Each is a template parameter of <code>WheelControl</code>. The compiler checks that the type used has the functions and argument types that <code>WheelControl</code> calls, but not that the functions behave as the port requires. <code>I2cBus</code>, a port of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> driver, is an abstract class instead, and diffbot#148 decides per port which form to use. Many adapters start with the technology they connect, such as <code>RosWheelCommandSubscriber</code> and <code>AdafruitMotorController</code>. That's a tendency, not a rule that identifies every adapter.</p>
-<h3 id="one-pattern-or-two">One pattern or two</h3>
+<h3 id="comparison-with-ros_control">Comparison with ros_control</h3>
 <p>For the wheel-command path, two separate application boundaries are useful: control on the robot's computer and control on the Teensy. The two communicate through rosserial. This is a choice of viewpoint, not a rule that each processor has exactly one hexagon: Cockburn's article describes choosing an application boundary and substituting adapters.</p>
 <p>On the robot's computer, ros_control separates controllers from hardware through registered joint interfaces. That is a useful comparison with ports and adapters, although ros_control doesn't use these words. The controller and its manager still depend on ROS, so this isn't the same degree of isolation as the firmware's portable <code>WheelControl</code>.</p>
 <div class="wide-diagram">
