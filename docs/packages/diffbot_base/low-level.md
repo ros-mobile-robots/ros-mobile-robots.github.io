@@ -136,7 +136,7 @@ introduced next:
   [The command timeout](#the-command-timeout).
 - `wheel_control`: `WheelControl`, in [`wheel_control.h`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h), drives the wheels
   only while the wheel commands are new. It keeps a `CommandTimeout` for that.
-  `RosWheelCommandSubscriber`, in [`ros_wheel_command_subscriber.h`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/ros_wheel_command_subscriber.h),
+  `RosWheelCommandSubscriber`, in [`ros_wheel_command_subscriber.h`]({{ low_level_src_url }}/diffbot_firmware/lib/ros_wheel_commands/ros_wheel_command_subscriber.h),
   receives the wheel commands and passes each valid one on to `WheelControl`,
   as a `WheelCommand`, which holds the two wheels' target speeds
   ([`wheel_command.h`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_command.h)).
@@ -217,11 +217,129 @@ The diagrams show the firmware's parts and how they connect, first as they are, 
 
     Over USB, a versioned serial protocol replaces rosserial. Messages carry one record per channel. Each record includes the channel ID. The hardware interface maps each joint name to a channel ID. The core sees the hardware only through the device interfaces, which the Teensy adapters implement. So the unit tests on the PC replace the adapters with stand-ins. The board wiring creates the adapters and hands them to the core. [diffbot#148](https://github.com/ros-mobile-robots/diffbot/issues/148) plans this in steps, with [diffbot#165](https://github.com/ros-mobile-robots/diffbot/issues/165) for the IMU sampler and [diffbot#166](https://github.com/ros-mobile-robots/diffbot/issues/166) for the settings.
 
-    `WheelControl` and `CommandTimeout` are parts of such a core already. They are plain C++ without Arduino or rosserial, and their unit tests run on the PC. `RosWheelCommandSubscriber` is an adapter: it connects rosserial to `WheelControl`. The planned serial protocol replaces this adapter. Most of the firmware still has to move: `BaseController` holds the encoders, the PIDs, the motor controllers and the other rosserial topics, and it calls Arduino functions such as `millis()` directly.
+    `WheelControl` and `CommandTimeout` are parts of such a core already. They are plain C++ without Arduino or rosserial, and their unit tests run on the PC. `RosWheelCommandSubscriber` is a primary adapter: it connects rosserial to `WheelControl`. The planned serial protocol replaces this adapter. Most of the firmware still has to move: `BaseController` holds the encoders, the PIDs, the motor controllers and the other rosserial topics, and it calls Arduino functions such as `millis()` directly.
 
-With these libraries, we look at the `main.cpp` file. Inside it exists only a
-few global variables to keep the code organized and make it possible to test the
-individual components that get included. The main code is explained next:
+### Ports and adapters
+
+These parts follow a pattern from Alistair Cockburn, [ports and adapters](https://alistair.cockburn.us/hexagonal-architecture/), also called hexagonal architecture. It separates the logic from the libraries and the hardware, so that a unit test can run the logic on a PC.
+
+- The **core** contains the logic that we want to test independently. The firmware's portable core includes no Arduino, rosserial or vendor library headers.
+- A **port** defines an interaction across the core's boundary: the functions, their arguments and their required behavior. A port can be ordinary public functions, such as `WheelControl`'s `receiveCommand()` and `step()`. A secondary port can also be an abstract class, such as `I2cBus`, or requirements on a template argument, such as `Controller`.
+- An **adapter** connects a port to a particular environment, such as ROS, Arduino, a motor driver or a test harness.
+
+There are two kinds of ports. They differ in who calls whom:
+
+| | Primary port | Secondary port |
+|:--|:--|:--|
+| Who calls the functions | an adapter | the core |
+| Who implements the functions | the core | an adapter |
+| Other names | driving, inbound | driven, outbound |
+
+So the core and the adapters both implement ports, but different ones. The core implements the primary ports and calls the secondary ones. An adapter calls a primary port or implements a secondary one.
+
+The diagram follows a wheel command from top to bottom. Solid arrows show function calls or labelled message transfers. Dashed arrows lead from a port to the code that implements it. The arrows don't show C++ include dependencies. On a narrow screen, the diagrams on this page scroll sideways.
+
+<div class="wide-diagram" markdown>
+
+{% raw %}
+```mermaid
+graph TB
+  SN[rosserial_python's serial_node.py<br/>on the robot's computer]
+  RT[Arduino's main function]
+  NH[Node handle:<br/>spinOnce parses and dispatches]
+  subgraph PA [Primary adapters]
+    SUB[RosWheelCommandSubscriber]
+    LOOP[loop in main.cpp]
+  end
+  subgraph HEX [Core with its ports]
+    RC{{"Primary port<br/>receiveCommand()"}}
+    ST{{"Primary port<br/>step()"}}
+    WC[WheelControl,<br/>with a private<br/>CommandTimeout]
+    CT{{Secondary port<br/>Controller}}
+    LG{{Secondary port<br/>LogTimeout}}
+  end
+  subgraph SA [Secondary adapters]
+    BC[BaseController]
+    RTL[RosTimeoutLogger<br/>in main.cpp]
+  end
+  HW[Motor driver<br/>and encoders]
+  OUT[rosserial's log<br/>to the robot's computer]
+  SN -->|USB serial message| NH
+  NH -->|subscriber callback| SUB
+  RT --> LOOP
+  SUB --> RC
+  LOOP --> ST
+  RC -.-> WC
+  ST -.-> WC
+  WC --> CT
+  WC --> LG
+  CT -.-> BC
+  LG -.-> RTL
+  BC --> HW
+  RTL --> OUT
+```
+{% endraw %}
+
+</div>
+
+`loop()` calls the node handle's `spinOnce()` last on each pass, and rosserial also calls it during the setup, so the subscriber's callback runs inside these calls. `WheelControl` names neither `RosWheelCommandSubscriber` nor `BaseController`. Its class comment ([lines 27–51]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L27-L51)) only says what the ports have to do. `main.cpp` creates the objects and connects them. That's why the unit tests can supply `FakeBaseController` and `FakeTimeoutLog` for the secondary ports, and call `receiveCommand()` and `step()` themselves. `BaseController` still contains control logic as well as hardware access, which [diffbot#148](https://github.com/ros-mobile-robots/diffbot/issues/148) separates.
+
+The ports `Controller` and `LogTimeout` are hard to see in the code, because no class has these names. Each is a template parameter of `WheelControl`. The compiler checks that the type used has the functions and argument types that `WheelControl` calls, but not that the functions behave as the port requires. `I2cBus`, a port of the IMU driver, is an abstract class instead, and diffbot#148 decides per port which form to use. Many adapters start with the technology they connect, such as `RosWheelCommandSubscriber` and `AdafruitMotorController`. That's a tendency, not a rule that identifies every adapter.
+
+### One pattern or two
+
+For the wheel-command path, two separate application boundaries are useful: control on the robot's computer and control on the Teensy. The two communicate through rosserial. This is a choice of viewpoint, not a rule that each processor has exactly one hexagon: Cockburn's article describes choosing an application boundary and substituting adapters.
+
+On the robot's computer, ros_control separates controllers from hardware through registered joint interfaces. That is a useful comparison with ports and adapters, although ros_control doesn't use these words. The controller and its manager still depend on ROS, so this isn't the same degree of isolation as the firmware's portable `WheelControl`.
+
+<div class="wide-diagram" markdown>
+
+{% raw %}
+```mermaid
+graph TB
+  CMD[Navigation or teleop]
+  subgraph PC [Control on the robot's computer]
+    DDC[diff_drive_controller,<br/>updated by controller_manager]
+    JH{{Wheel joint handles from<br/>VelocityJointInterface}}
+    HWI[DiffBotHWInterface:<br/>adapter for the robot]
+    SIM[DefaultRobotHWSim:<br/>adapter for Gazebo]
+  end
+  BRIDGE[rosserial_python's<br/>serial_node.py]
+  subgraph MCU [Control on the Teensy]
+    SUB[RosWheelCommandSubscriber]
+    RC{{"Primary port<br/>receiveCommand()"}}
+    WC[WheelControl]
+    CT{{Secondary port<br/>Controller}}
+    BC[BaseController]
+  end
+  CMD -->|ROS cmd_vel| DDC
+  DDC -->|getPosition and setCommand| JH
+  JH -.->|registered by| HWI
+  JH -.->|registered by| SIM
+  HWI -->|ROS wheel_cmd_velocities| BRIDGE
+  BRIDGE -->|USB serial message,<br/>dispatched by spinOnce| SUB
+  SUB --> RC
+  RC -.-> WC
+  WC --> CT
+  CT -.-> BC
+```
+{% endraw %}
+
+</div>
+
+`DiffBotHWInterface` and `DefaultRobotHWSim` register the wheel joint interfaces that [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/c2348e85abf35cf33cf654a84d61db206abe9a73/diff_drive_controller/src/diff_drive_controller.cpp) uses. `DiffBotHWInterface` derives from `RobotHW`. [`DefaultRobotHWSim`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_ros_control/include/gazebo_ros_control/default_robot_hw_sim.h) derives from [`RobotHWSim`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_ros_control/include/gazebo_ros_control/robot_hw_sim.h), which also derives from `RobotHW`. `RobotHW` lets the controller manager find those interfaces.
+
+An outer loop transfers the states and commands. On the robot, [`diffbot_base.cpp`]({{ low_level_src_url }}/diffbot_base/src/diffbot_base.cpp) calls `read()`, updates the controller manager, and calls `write()`. In Gazebo, the [plugin](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp) calls `readSim()`, updates the manager, and calls `writeSim()`. The controller uses the registered handles in either environment. The simulation path ends in Gazebo and doesn't send commands to the Teensy.
+
+The diagram shows the wheel-command path. Feedback travels separately: `BaseController` publishes `measured_joint_states`, and `DiffBotHWInterface` receives those messages for the controller's next update.
+
+### Connecting the firmware in main.cpp
+
+`main.cpp` constructs the controllers, the command subscriber and the IMU
+publisher. `setup()` initializes their connections, and `loop()` runs the
+scheduled work. The file has only a few global objects, which keeps the code
+organized and makes it possible to test the individual components. The main
+code is explained next:
 
 1. First, we define the global ROS node handle, which is referenced in other
    classes, such as BaseController, where it is needed to publish and
@@ -351,10 +469,10 @@ These are set up in the `BaseController::setup()` method, which is called in the
 `BaseController::init()` method is here to read parameters stored on the ROS
 parameter server, such as the encoder resolution and the wheel radius.
 Besides initializing `BaseController`, `setup()` sets the motor driver's PWM
-frequency, [lines 93–112]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L93-L112):
+frequency, [lines 93–117]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L93-L117):
 
-```cpp title="main.cpp: setup()" linenums="93" hl_lines="10 11 12"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:93:112"
+```cpp title="main.cpp: setup()" linenums="93" hl_lines="15 16 17"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:93:117"
 ```
 
 `wheel_commands.subscribe(nh)` registers the wheel command subscriber. With the
@@ -367,8 +485,8 @@ the connection ready and `base_controller.setup()` can finish. The computer
 forwards wheel commands only for a subscriber in that answer. `Wire.begin()`
 starts the I2C bus for the motor driver and the IMU.
 
-The subscriber comes first for the command timeout, too. [`BaseController::setup()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L377-L403)
-and [`init()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L405-L431) already receive messages while they wait for the
+The subscriber comes first for the command timeout, too. [`BaseController::setup()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L344-L370)
+and [`init()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L372-L398) already receive messages while they wait for the
 connection and read the parameters. Wheel commands that arrive then reach
 `wheel_control` already, and the first `loop()` handles them like any other
 command, as explained in [The command timeout](#the-command-timeout).
@@ -382,22 +500,22 @@ After the `setup()` function follows the `loop()` function, to read from sensors
 and write to actuators, which happens at specific rates, defined in the
 `diffbot_base_config.h` header. `loop()` reads the Teensy's clock once per
 pass, as `now_ms`, and hands the time to the parts that run on a schedule,
-[lines 115–130]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L115-L130):
+[lines 120–136]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L120-L136):
 
 <a id="the-loop-excerpt"></a>
 
-```cpp title="main.cpp: loop()" linenums="115" hl_lines="4 7 15"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:115:130"
+```cpp title="main.cpp: loop()" linenums="120" hl_lines="4 7 16"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/src/main.cpp:120:136"
 ```
 
 `wheel_control.step()`, in [`wheel_control.h`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h), first checks the
 command timeout in the private `stopWhenCommandExpires()`, then runs the
-control step when it's due, [lines 94–118]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L94-L118):
+control step when it's due, [lines 85–109]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L85-L109):
 
 <a id="the-step-excerpt"></a>
 
-```cpp title="wheel_control.h: step() and stopWhenCommandExpires()" linenums="94" hl_lines="4 5 8 20"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:94:118"
+```cpp title="wheel_control.h: step() and stopWhenCommandExpires()" linenums="85" hl_lines="4 5 8 20"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:85:109"
 ```
 
 The following steps of the control step happen continuously at the control rate:
@@ -450,12 +568,12 @@ about ten missed commands.
 
 #### A wheel command arrives
 
-`RosWheelCommandSubscriber`, in [`ros_wheel_command_subscriber.h`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/ros_wheel_command_subscriber.h),
+`RosWheelCommandSubscriber`, in [`ros_wheel_command_subscriber.h`]({{ low_level_src_url }}/diffbot_firmware/lib/ros_wheel_commands/ros_wheel_command_subscriber.h),
 subscribes to `wheel_cmd_velocities`. For each message, rosserial calls its
-`commandCallback()` from `nh.spinOnce()`, [lines 64–73]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/ros_wheel_command_subscriber.h#L64-L73):
+`commandCallback()` from `nh.spinOnce()`, [lines 76–85]({{ low_level_src_url }}/diffbot_firmware/lib/ros_wheel_commands/ros_wheel_command_subscriber.h#L76-L85):
 
-```cpp title="ros_wheel_command_subscriber.h: a wheel command arrives" linenums="64" hl_lines="4 7 9"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/ros_wheel_command_subscriber.h:64:73"
+```cpp title="ros_wheel_command_subscriber.h: a wheel command arrives" linenums="76" hl_lines="4 7 9"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/ros_wheel_commands/ros_wheel_command_subscriber.h:76:85"
 ```
 
 - **Only a valid message counts.** It has exactly two values, the left and the
@@ -481,20 +599,20 @@ subscribes to `wheel_cmd_velocities`. For each message, rosserial calls its
   sending wheel commands throughout.
 
 The callback passes a valid command on to `WheelControl::receiveCommand()`,
-[lines 85–92]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L85-L92):
+[lines 76–83]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L76-L83):
 
-```cpp title="wheel_control.h: receiveCommand()" linenums="85"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:85:92"
+```cpp title="wheel_control.h: receiveCommand()" linenums="76"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:76:83"
 ```
 
 `receiveCommand()` hands the two target speeds to the base controller and tells
 its `CommandTimeout` that a command arrived. `receiveCommand()` doesn't drive
 the motors. The next scheduled control step drives only if the command is
 still less than 1000 ms old when `step()` checks the timeout. Wheel commands
-reach `BaseController` only through `setWheelTargets()`, [lines 255–265]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L255-L265):
+reach `BaseController` only through `setWheelTargets()`, [lines 225–232]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L225-L232):
 
-```cpp title="base_controller.h: setWheelTargets()" linenums="255"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:255:265"
+```cpp title="base_controller.h: setWheelTargets()" linenums="225"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:225:232"
 ```
 
 `setWheelTargets()` stores the two speeds for the next `write()` and does nothing
@@ -548,10 +666,10 @@ together, in that order.
   when `step()` checks the timeout. With commands arriving regularly and a prompt setup, no timeout
   warning is expected at the start.
 
-`eStop()` is the base controller's stop, [lines 510–521]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L510-L521):
+`eStop()` is the base controller's stop, [lines 475–486]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L475-L486):
 
-```cpp title="base_controller.h: eStop()" linenums="510"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:510:521"
+```cpp title="base_controller.h: eStop()" linenums="475"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:475:486"
 ```
 
 `eStop()` sets both target wheel velocities to zero, resets both PIDs, so that no
@@ -583,7 +701,7 @@ PID's reset ([`test_pid.cpp`]({{ low_level_src_url }}/diffbot_firmware/test/test
   alone, for example that a timeout stays until the next command, also after
   `millis()` has returned to zero.
 - [`test_wheel_control`]({{ low_level_src_url }}/diffbot_firmware/test/test_wheel_control/test_wheel_control.cpp) checks `WheelControl` with fakes.
-  `WheelControl`'s class comment ([lines 40–65]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L40-L65)) describes its ports, the
+  `WheelControl`'s class comment ([lines 27–51]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L27-L51)) describes its ports, the
   functions and behavior through which the class interacts with other code.
   The primary ports are `receiveCommand()` and `step()`, called by other code
   to use `WheelControl`. The secondary ports are the functions `WheelControl`
@@ -636,22 +754,22 @@ Each part keeps the `millis()` readings that it needs:
 - `WheelControl` keeps the time of the last control step, `last_control_ms_`, in
   the [step excerpt](#the-step-excerpt) above. `last_control_ms_` starts at zero,
   so the first control step is due 50 ms after the Teensy started
-  ([lines 124–125]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L124-L125)). The setup takes longer, so the first pass of
+  ([lines 115–116]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L115-L116)). The setup takes longer, so the first pass of
   `loop()` already runs a control step. Wheel commands don't move this schedule.
 - `ImuPublisher` keeps the time of its last sampling slot in `sampled_ms_`
   ([`takeSamplingSlot()`]({{ low_level_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L161-L171)). This time moves on
   also when no sample is read or published.
 - `BaseController` keeps the time of the last debug output in `LastUpdateTime`,
-  [lines 161–176]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L161-L176):
+  [lines 143–158]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L143-L158):
 
-```cpp title="base_controller.h: the time stamps" linenums="161"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:161:176"
+```cpp title="base_controller.h: the time stamps" linenums="143"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:143:158"
 ```
 
 [`publishDebugIfDue()`](#the-debug-excerpt) compares `now_ms` with `debug`. When
 debugging is on, it logs once 200 ms have passed, at an `UPDATE_RATE_DEBUG` of 5 Hz. The `imu` field gets its
 start value but isn't used. When the `BaseController` is created, both fields get
-the same reading ([line 365]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L365-L365)).
+the same reading ([line 332]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L332-L332)).
 
 #### The command timeout and the control step
 
