@@ -485,8 +485,8 @@ the connection ready and `base_controller.setup()` can finish. The computer
 forwards wheel commands only for a subscriber in that answer. `Wire.begin()`
 starts the I2C bus for the motor driver and the IMU.
 
-The subscriber comes first for the command timeout, too. [`BaseController::setup()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L344-L370)
-and [`init()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L372-L398) already receive messages while they wait for the
+The subscriber comes first for the command timeout, too. [`BaseController::setup()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L360-L386)
+and [`init()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L388-L414) already receive messages while they wait for the
 connection and read the parameters. Wheel commands that arrive then reach
 `wheel_control` already, and the first `loop()` handles them like any other
 command, as explained in [The command timeout](#the-command-timeout).
@@ -609,10 +609,10 @@ The callback passes a valid command on to `WheelControl::receiveCommand()`,
 its `CommandTimeout` that a command arrived. `receiveCommand()` doesn't drive
 the motors. The next scheduled control step drives only if the command is
 still less than 1000 ms old when `step()` checks the timeout. Wheel commands
-reach `BaseController` only through `setWheelTargets()`, [lines 225–232]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L225-L232):
+reach `BaseController` only through `setWheelTargets()`, [lines 241–248]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L241-L248):
 
-```cpp title="base_controller.h: setWheelTargets()" linenums="225"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:225:232"
+```cpp title="base_controller.h: setWheelTargets()" linenums="241"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:241:248"
 ```
 
 `setWheelTargets()` stores the two speeds for the next `write()` and does nothing
@@ -666,10 +666,10 @@ together, in that order.
   when `step()` checks the timeout. With commands arriving regularly and a prompt setup, no timeout
   warning is expected at the start.
 
-`eStop()` is the base controller's stop, [lines 475–486]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L475-L486):
+`eStop()` is the base controller's stop, [lines 491–502]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L491-L502):
 
-```cpp title="base_controller.h: eStop()" linenums="475"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:475:486"
+```cpp title="base_controller.h: eStop()" linenums="491"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:491:502"
 ```
 
 `eStop()` sets both target wheel velocities to zero, resets both PIDs, so that no
@@ -760,16 +760,16 @@ Each part keeps the `millis()` readings that it needs:
   ([`takeSamplingSlot()`]({{ low_level_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L161-L171)). This time moves on
   also when no sample is read or published.
 - `BaseController` keeps the time of the last debug output in `LastUpdateTime`,
-  [lines 143–158]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L143-L158):
+  [lines 158–173]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L158-L173):
 
-```cpp title="base_controller.h: the time stamps" linenums="143"
---8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:143:158"
+```cpp title="base_controller.h: the time stamps" linenums="158"
+--8<-- "{{ low_level_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:158:173"
 ```
 
 [`publishDebugIfDue()`](#the-debug-excerpt) compares `now_ms` with `debug`. When
 debugging is on, it logs once 200 ms have passed, at an `UPDATE_RATE_DEBUG` of 5 Hz. The `imu` field gets its
 start value but isn't used. When the `BaseController` is created, both fields get
-the same reading ([line 332]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L332-L332)).
+the same reading ([line 348]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L348-L348)).
 
 #### The command timeout and the control step
 
