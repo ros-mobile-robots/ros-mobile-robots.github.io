@@ -27,6 +27,8 @@ rostest diffbot_gazebo sim_drive_diffbot.test
 
 With `--text`, rostest prints the nodes' output in the terminal instead of log files, but it doesn't collect the test results then: it can report success although a check failed. Use `--text` to watch a run, and the command without it to check the result.
 
+To see the drive instead of its numbers, CI records a video of DiffBot driving the test's commands when you ask for one ([Simulation video](ci.md#simulation-video)).
+
 ## Read the results
 
 rostest ends with a summary. A passing run of `sim_drive_diffbot.test`:
