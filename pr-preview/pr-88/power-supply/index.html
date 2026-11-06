@@ -4649,8 +4649,11 @@ In series, the voltages of the cells add up:</p>
 The voltage of an alkaline cell slopes down during the whole discharge.
 A NiMH cell stays near 1.2 V for most of its discharge and drops only at the end (see the curves in both documents).
 So Remo's top speed stays nearly the same until its cells are nearly empty, while DiffBot's top speed falls as its batteries run down.</p>
-<p>The robots don't measure their battery voltage, and nothing switches the motors off when it gets low.
-So watch the speed. When a robot gets noticeably slower, replace DiffBot's batteries or recharge Remo's cells.</p>
+<p>Neither robot has a battery-protection cutoff.
+The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
+Remo's firmware, for example, stops the motors only when no wheel commands arrive (<a href="https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8/diffbot_base/scripts/base_controller/src/main.cpp#L44-L51"><code>main.cpp</code></a>).
+So watch the speed. When a robot gets noticeably slower, replace DiffBot's batteries or recharge Remo's cells.
+The slowdown is a hint, not a measurement of the charge that's left.</p>
 <h2 id="diffbot-four-aa-batteries-and-the-grove-i2c-motor-driver">DiffBot: four AA batteries and the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver</h2>
 <p>DiffBot's four AA batteries sit in the holder of the robot kit, under the chassis.
 The holder's cable goes to the power terminal of the <a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver V1.3</a>.</p>
