@@ -89,12 +89,23 @@ parts:
       - label: Anker 10K Amazon.de
         ref: amazon_anker_powerbank_pc10k_ger
   battery-holder-aa:
-    name: Battery pack (for four or eight batteries)
+    name: Battery holder for six AA cells
+  nimh-aa-2000mah:
+    name: NiMH AA cell, 1.2 V, 2000 mAh (Amazon Basics)
     offers:
+      - label: Amazon.com (8-pack)
+        ref: amazon_nimh_aa_2000mah_8x_us
+      - label: Amazon.de (8-pack)
+        ref: amazon_nimh_aa_2000mah_8x_ger
+  nitecore-ums4:
+    name: NiMH charger (Nitecore UMS4)
+    offers:
+      - label: Nitecore
+        url: https://www.nitecore.com/product/ums4
       - label: Amazon.com
-        ref: amazon_battery_holder_8x_aa_us
+        ref: amazon_nitecore_ums4_us
       - label: Amazon.de
-        ref: amazon_battery_holder_8x_aa_ger
+        ref: amazon_nitecore_ums4_ger
   usb-c-cable:
     name: USB C to USB C cable
     offers:
@@ -170,7 +181,13 @@ configurations:
         note: 'The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm'
       - part: battery-holder-aa
         quantity: 1
-        legacy_price: "$5.59"
+        note: For the motors, see [Power Supply](/power-supply.md)
+      - part: nimh-aa-2000mah
+        quantity: 6
+        note: One 8-pack covers the six cells, see [Power Supply](/power-supply.md)
+      - part: nitecore-ums4
+        quantity: 1
+        note: Charges four NiMH cells at a time
       - part: usb-c-cable
         quantity: 1
         legacy_price: "$6.99"
