@@ -165,6 +165,8 @@ catkin build
 
 How the image, the container, VS Code, the network and the display access work in detail: [How the Dev Container Works](dev-container-internals.md).
 
+To save a video of DiffBot driving the simulation test's commands, see [Simulation video](ci.md#simulation-video).
+
 ## Updating
 
 ### A new ROS or system dependency
