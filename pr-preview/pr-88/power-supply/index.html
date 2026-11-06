@@ -4584,9 +4584,9 @@
 <h2 id="raspberry-pi">Raspberry Pi</h2>
 <p>The Raspberry Pi 4 B gets 5 V through its USB-C port.
 Raspberry Pi recommends a supply that delivers 3.0 A.
-The bare board typically draws 600 mA, and USB devices such as the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> add to that (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply">Raspberry Pi documentation</a>).
+The bare board typically draws 600 mA when active, and USB devices such as the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> add to that (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply">Raspberry Pi documentation</a>).
 On both robots, a power bank with a USB-C cable supplies these 5 V. The <a href="../components/">Components</a> page lists the power banks.</p>
-<p>If the supply voltage drops below 4.63 V, the Raspberry Pi writes a low-voltage warning to its kernel log, which <code>dmesg</code> shows.
+<p>If the supply voltage drops below 4.63 V (±5 %), the Raspberry Pi writes a low-voltage warning to its kernel log, which <code>dmesg</code> shows.
 If you see such warnings, use a power bank that delivers more current, or a better cable.</p>
 <h2 id="from-the-battery-to-the-motors">From the battery to the motors</h2>
 <p>The motor driver sits between the battery and the motors.
@@ -4635,20 +4635,22 @@ In series, the voltages of the cells add up:</p>
 </tr>
 <tr>
 <td>Pack, nearly empty</td>
-<td style="text-align: right;">4.4 V (1.1 V per cell)</td>
-<td style="text-align: right;">6.0 V (1.0 V per cell)</td>
+<td style="text-align: right;">about 4.4 V (1.1 V per cell)</td>
+<td style="text-align: right;">about 6.0 V (1.0 V per cell)</td>
 </tr>
 </tbody>
 </table>
 <p>The values come from Energizer's data:</p>
 <ul>
-<li>The <a href="https://data.energizer.com/pdfs/alkaline_appman.pdf">Alkaline Handbook</a> gives about 1.6 V for a fresh alkaline cell without load and about 1.5 V under load. A cell that measures 1.1 V under load has about 20 % of its service left.</li>
-<li>The <a href="https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf">NH15-1500 datasheet</a> gives 1.2 V nominal for a NiMH AA cell. Its discharge curves start at 1.4 V and end at 1.0 V.</li>
+<li>The <a href="https://data.energizer.com/pdfs/alkaline_appman.pdf">Alkaline Handbook</a> gives about 1.6 V for a fresh alkaline cell without load. Its battery test loads a cell with about 10 Ω for one to two seconds. A fresh cell then shows about 1.5 V, and a cell that shows 1.1 V has about 20 % of its service left. The table's 4.4 V uses this test value. A running motor draws more current and pulls the voltage lower, so take it as a guide, not a limit.</li>
+<li>The <a href="https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf">NH15-1500 datasheet</a> gives 1.2 V nominal for a NiMH AA cell. Its discharge curves start at 1.4 V. It rates the capacity for a discharge down to 1.0 V per cell, which the table uses as nearly empty. The curves go on below that, so a cell can be discharged further.</li>
 </ul>
 <p>The two kinds of cells also discharge differently.
 The voltage of an alkaline cell slopes down during the whole discharge.
 A NiMH cell stays near 1.2 V for most of its discharge and drops only at the end (see the curves in both documents).
-So Remo's top speed stays nearly the same until its cells are empty, while DiffBot's top speed falls as its batteries run down.</p>
+So Remo's top speed stays nearly the same until its cells are nearly empty, while DiffBot's top speed falls as its batteries run down.</p>
+<p>The robots don't measure their battery voltage, and nothing switches the motors off when it gets low.
+So watch the speed. When a robot gets noticeably slower, replace DiffBot's batteries or recharge Remo's cells.</p>
 <h2 id="diffbot-four-aa-batteries-and-the-grove-i2c-motor-driver">DiffBot: four AA batteries and the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver</h2>
 <p>DiffBot's four AA batteries sit in the holder of the robot kit, under the chassis.
 The holder's cable goes to the power terminal of the <a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver V1.3</a>.</p>
@@ -4666,14 +4668,14 @@ Use alkaline AA batteries in DiffBot's holder.</p>
 <p>Remo's six NiMH AA cells sit in the battery holder under the top plate (<a href="../hardware_setup/assembly/#step-10-battery-pack">assembly step 10</a>).
 The holder's cable goes to the 2-pin power terminal of the <a href="https://www.adafruit.com/product/2927">Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor + Stepper FeatherWing</a>.</p>
 <ul>
-<li><strong>Input range:</strong> Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its <a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">guide</a> asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged to 6.0 V empty.</li>
+<li><strong>Input range:</strong> Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its <a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">guide</a> asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged down to 6.0 V at the end of the rated discharge.</li>
 <li><strong>Voltage drop:</strong> The TB6612 switches with MOSFETs. Its <a href="https://toshiba.semicon-storage.com/info/docget.jsp?did=10660">datasheet</a> gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. So the motors get almost the full battery voltage.</li>
-<li><strong>What the motors get:</strong> About 8 V with fully charged cells, falling to about 6 V when they're empty. This stays below the motors' 9 V maximum.</li>
+<li><strong>What the motors get:</strong> About 8 V with fully charged cells, falling to about 6 V when they're nearly empty. This stays below the motors' 9 V maximum.</li>
 </ul>
 <p>Six is also the largest number of NiMH cells that Remo can use.
 Seven fully charged cells give about 9.8 V, more than the motors' 9 V.
-Six alkaline cells don't fit either: fresh, they give about 9.6 V without load and about 9 V under load.
-With the small drop of the TB6612, the motors would get about 9 V or more at full speed.</p>
+Six alkaline cells don't fit either: fresh, they give about 9.6 V without load.
+With the small drop of the TB6612, the motors can get more than 9 V at full speed, especially at a light load.</p>
 <h2 id="why-nimh-cells">Why NiMH cells</h2>
 <ul>
 <li><strong>Voltage:</strong> Six NiMH cells keep the FeatherWing in its range and the motors below 9 V, as shown above.</li>
@@ -4684,10 +4686,10 @@ With the small drop of the TB6612, the motors would get about 9 V or more at ful
 <p>Remo uses Amazon Basics NiMH AA cells with 2000 mAh and 1.2 V, sold as an 8-pack (<a href="https://www.amazon.com/dp/B00CWNMV4G?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/B00CWNMV4G?tag=fjp-21">Amazon.de</a>, affiliate links).
 Six of them go into the robot, and two are spare.</p>
 <h2 id="charging-the-cells">Charging the cells</h2>
-<p>NiMH and lithium-ion cells need different charging methods.
-A charger for lithium-ion cells charges them to a fixed voltage.
-A NiMH charger stops when the cell is full, which it detects, for example, by a small drop of the cell voltage at the end of the charge (<a href="https://en.wikipedia.org/wiki/Nickel%E2%80%93metal_hydride_battery#Charge">Nickel–metal hydride battery</a> on Wikipedia).
-So charge the cells only in a smart charger made for NiMH cells, which also keeps them from being overcharged.
+<p>NiMH and lithium-ion cells need different charging methods, so the charger has to know which kind of cell it charges.
+The Nitecore UMS4 below, for example, lists different charging voltages for the two kinds.
+It detects the kind of each cell and picks the charging mode by itself: constant current, constant voltage, or −dV/dt, which ends a charge when the cell voltage starts to fall (<a href="https://www.nitecore.com/product/ums4">Nitecore's specifications</a>).
+So charge the cells only in a charger made for NiMH cells.
 Energizer warns against chargers that aren't designed for the battery type, and against recharging non-rechargeable batteries, which can rupture or leak (<a href="https://data.energizer.com/pdfs/alkaline_appman.pdf">Alkaline Handbook</a>, section Testing / Care / Warnings).</p>
 <p>Remo's cells are charged with the <a href="https://www.nitecore.com/product/ums4">Nitecore UMS4</a> (<a href="https://www.amazon.com/dp/B07L8LW9NG?tag=fjp033-20">Amazon.com</a>, <a href="https://www.amazon.de/dp/B07L8LW9NG?tag=fjp-21">Amazon.de</a>, affiliate links).
 It has four slots, detects NiMH and lithium-ion cells by itself, and stops charging when they're full.
