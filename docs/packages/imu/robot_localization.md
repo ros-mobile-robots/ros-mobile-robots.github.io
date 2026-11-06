@@ -7,7 +7,7 @@ The IMU's gyroscope measures the turn directly: its **yaw rate**, the angular ve
 robot_localization can fuse any number of sensors, for example GPS, several IMUs and several odometry sources. The DiffBot and Remo configuration combines one IMU with the wheel odometry.
 
 !!! warning "Not tested on the robot yet"
-    The EKF runs in the simulation and in the tests below. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet. Remo's model includes the IMU's checked position and orientation ([bench checks](driver-bno055.md#bench-checks)). DiffBot's IMU isn't mounted yet. The variances and time limits below are starting values, not measurements.
+    The EKF runs in the simulation and in the tests below. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet. Remo's model includes the IMU's checked position and orientation ([bench checks](driver-bno055.md#bench-checks)). DiffBot uses the same BNO055, but its mounting and the firmware still need checking on DiffBot. The variances and time limits below are starting values, not measurements.
 
 ## How it fits together
 

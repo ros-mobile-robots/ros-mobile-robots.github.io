@@ -1,6 +1,13 @@
 # IMU: Bosch BNO055
 
-An inertial measurement unit (IMU) measures how the robot turns and accelerates: its gyroscope measures the **angular velocity** about three axes, its accelerometer the **specific force**, the acceleration minus gravity, which at rest reads about +9.8 m/s² upwards. DiffBot and Remo use the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout](https://www.adafruit.com/product/2472) with Bosch's [BNO055](https://www.bosch-sensortec.com/en/products/smart-sensor-systems/bno055): an accelerometer, a gyroscope and a magnetometer in one package, with a processor that fuses them.
+An inertial measurement unit (IMU) measures how the robot turns and accelerates: its gyroscope measures the **angular velocity** about three axes, its accelerometer the **specific force**, the acceleration minus gravity, which at rest reads about +9.8 m/s² upwards. DiffBot and Remo use the [Adafruit 9-DOF Absolute Orientation IMU Fusion Breakout](https://www.adafruit.com/product/2472) with Bosch's [BNO055](https://www.bosch-sensortec.com/en/products/smart-sensor-systems/bno055): an accelerometer, a gyroscope and a magnetometer in one package, with a processor that fuses them. Both robots use the same board, which is moved from one robot to the other.
+
+??? info "Why the accelerometer reads +9.8 m/s² upward at rest"
+    The accelerometer contains a tiny suspended mass. When the robot rests on the floor, the floor supports the robot, and the sensor's suspension supports that mass against gravity. It's like the upward force you feel from the floor on your feet.
+
+    The reading is the **specific force**, also called **proper acceleration**: the acceleration relative to free fall. With z pointing upward, gravity is −9.81 m/s². So the resting sensor reads 0 − (−9.81) = +9.81 m/s², although the robot's velocity doesn't change. In ideal free fall, the sensor and its mass fall together, and the reading is zero.
+
+    [Analog Devices](https://www.analog.com/en/resources/technical-articles/accelerometer-and-gyroscopes-sensors-operation-sensing-and-applications.html) explains the mass on its springs and how its movement is measured. [REP 145](https://github.com/ros-infrastructure/rep/blob/master/rep-0145.rst#data-sources), the ROS convention for IMU data, specifies +g on an upward axis at rest.
 
 <figure markdown>
   ![Adafruit Bosch BNO055 IMU]({{ asset_dir }}/components/bno055.jpg)
@@ -10,7 +17,7 @@ An inertial measurement unit (IMU) measures how the robot turns and accelerates:
 The robot uses one value from it: the **yaw rate**, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over rosserial.
 
 !!! info "Checked on Remo"
-    The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. From remo_description 2.2.0 onward, Remo's model includes that orientation and the separately checked position on the breadboard. DiffBot still needs a bench check and an IMU mounting check. The EKF still needs a test with the real IMU.
+    The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. From remo_description 2.2.0 onward, Remo's model includes that orientation and the separately checked position on the breadboard. On DiffBot, the IMU's mounting still needs to be measured, and the firmware checked on DiffBot itself. The EKF still needs a test with the real IMU.
 
 ## Wiring to the Teensy
 
