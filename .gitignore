@@ -1,3 +1,5 @@
 venv
 .cache/
 __pycache__/
+# The output of mkdocs build. The workflows build it themselves and publish it to gh-pages
+/site/
