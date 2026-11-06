@@ -114,9 +114,10 @@ Fix the caster with four screws.
 
 While the chassis is still upside down, connect the cable of the empty battery pack to the 2-pin power terminal of the motor driver: black to − and red to +, as marked on the board.
 Then turn the chassis right side up again and slide the battery pack into the compartment under the top plate.
-Leave the batteries out until all the wiring is done.
+Leave the cells out until all the wiring is done.
+The holder takes six NiMH AA cells. [Power Supply](../power-supply.md) explains why six, and how to charge them.
 
-**Parts:** battery pack (for four or eight batteries)
+**Parts:** battery holder for six AA cells
 
 ### Step 11: Camera mount
 
