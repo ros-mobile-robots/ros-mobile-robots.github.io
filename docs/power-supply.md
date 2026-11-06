@@ -62,8 +62,11 @@ The voltage of an alkaline cell slopes down during the whole discharge.
 A NiMH cell stays near 1.2 V for most of its discharge and drops only at the end (see the curves in both documents).
 So Remo's top speed stays nearly the same until its cells are nearly empty, while DiffBot's top speed falls as its batteries run down.
 
-The robots don't measure their battery voltage, and nothing switches the motors off when it gets low.
+Neither robot has a battery-protection cutoff.
+The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
+Remo's firmware, for example, stops the motors only when no wheel commands arrive ([`main.cpp`]({{ diffbot_src_url }}/diffbot_base/scripts/base_controller/src/main.cpp#L44-L51)).
 So watch the speed. When a robot gets noticeably slower, replace DiffBot's batteries or recharge Remo's cells.
+The slowdown is a hint, not a measurement of the charge that's left.
 
 ## DiffBot: four AA batteries and the Grove I2C Motor Driver
 
