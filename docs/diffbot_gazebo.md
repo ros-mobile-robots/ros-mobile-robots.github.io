@@ -274,7 +274,7 @@ After publishing an IMU message, the original plugin calls `ros::spinOnce()` fro
 
 If the physics thread runs one of those callbacks, the callback can wait for the controller manager's next `update()` to take the change. But `update()` needs the same physics thread, which is waiting inside the callback. The thread is waiting for work that only it can do. This is a deadlock, and the simulation's clock stops ([#185](https://github.com/ros-mobile-robots/diffbot/issues/185)).
 
-The copy publishes the IMU message without calling `ros::spinOnce()`. The ROS spinner threads handle the queued callbacks, leaving the physics thread free to run `update()`.
+The copy publishes the IMU message without calling `ros::spinOnce()`. The ROS spinner threads handle the queued callbacks, leaving the physics thread free to run `update()`. [Why the copy doesn't spin](development/simulated-imu.md#why-the-copy-doesnt-spin) shows the threads and the code step by step.
 
 DiffBot's model names the copy's library. Remo's model (remo_description 2.5.0 and newer) takes the library as the xacro argument `imu_plugin`, which `diffbot_view.launch` sets.
 
@@ -283,6 +283,8 @@ The xacro arguments `imu_xyz` and `imu_rpy` set `imu_joint`'s origin on `chassis
 The plugin also estimates an orientation, which the robot's firmware doesn't provide. [`imu_raw_adapter.py`]({{ diffbot_repo_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py), started by `diffbot_view.launch`, removes it and publishes the rest unchanged, with its stamp, as `/diffbot/imu/data_raw`: the same topic and contents as the [firmware](packages/imu/driver-bno055.md#what-the-firmware-publishes), so the EKF gets the same input in the simulation and on the robot.
 
 The [simulation test](development/simulation-test.md) checks the simulated IMU in `test_imu.py`: its rate, its frame, the orientation marked as missing, gravity on the upward axis at rest, and a positive yaw rate in a left turn.
+
+[Simulated IMU](development/simulated-imu.md) goes through the code of this section: the model, the adapter, the plugin and the test.
 
 ## Troubleshooting
 
