@@ -117,10 +117,6 @@
          <lastmod>2026-11-07</lastmod>
     </url>
     <url>
-         <loc>https://ros-mobile-robots.com/pr-preview/pr-89/development/simulated-imu/</loc>
-         <lastmod>2026-11-07</lastmod>
-    </url>
-    <url>
          <loc>https://ros-mobile-robots.com/pr-preview/pr-89/development/simulation-test/</loc>
          <lastmod>2026-11-07</lastmod>
     </url>
@@ -198,6 +194,10 @@
     </url>
     <url>
          <loc>https://ros-mobile-robots.com/pr-preview/pr-89/packages/imu/robot_localization/</loc>
+         <lastmod>2026-11-07</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/pr-preview/pr-89/packages/imu/simulation/</loc>
          <lastmod>2026-11-07</lastmod>
     </url>
     <url>

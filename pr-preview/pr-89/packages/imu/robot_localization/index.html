@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -1938,6 +1938,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../driver-bno055/" class="md-nav__link">
         
@@ -1946,7 +2004,7 @@
   <span class="md-ellipsis">
     
   
-    IMU (BNO055)
+    BNO055
   
 
     
@@ -1955,6 +2013,42 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4182,8 +4276,6 @@
       
         
       
-        
-      
     
     
     
@@ -4309,34 +4401,6 @@
     
   
     Simulation Test
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../development/simulated-imu/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Simulated IMU
   
 
     
@@ -4583,7 +4647,7 @@
   EKF --&gt;|TF| TF[odom to base_footprint]</div>
 <p>The topics are in the <code>/diffbot</code> namespace, for example <code>/diffbot/imu/data_raw</code>.</p>
 <ul>
-<li>The <strong>firmware</strong> reads the BNO055 on the Teensy and publishes <code>/diffbot/imu/data_raw</code> at 50 Hz (<a href="../driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>). In the simulation, Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor and a small adapter publish the same topic (<a href="../../../diffbot_gazebo/#inertial-measurement-unit-imu">Simulation</a>).</li>
+<li>The <strong>firmware</strong> reads the BNO055 on the Teensy and publishes <code>/diffbot/imu/data_raw</code> at 50 Hz (<a href="../driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (BNO055)</a>). In the simulation, Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor and a small adapter publish the same topic (<a href="../simulation/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>).</li>
 <li>The <strong><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> gate</strong>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_gate.py"><code>imu_gate.py</code></a>, passes on only the samples the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> can use, on <code>/diffbot/imu/data_validated</code>. <a href="#the-imu-gate">The gate</a> below explains why.</li>
 <li>The <strong>drive controller</strong>, <code>mobile_base_controller</code> (<a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>), publishes the wheel odometry. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, it doesn't publish the transform <code>odom → base_footprint</code>: two nodes publishing the same transform would make the robot's pose jump between their two estimates.</li>
 <li>The <strong><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></strong>, <code>/diffbot/ekf_localization</code>, fuses the two and publishes the filtered odometry and the transform.</li>
@@ -4840,7 +4904,7 @@
     
     
     
-      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>

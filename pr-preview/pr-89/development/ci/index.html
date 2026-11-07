@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -1919,6 +1919,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../packages/imu/driver-bno055/" class="md-nav__link">
         
@@ -1927,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    IMU (BNO055)
+    BNO055
   
 
     
@@ -1936,6 +1994,42 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../packages/imu/simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4030,8 +4124,6 @@
       
         
       
-        
-      
     
     
     
@@ -4434,34 +4526,6 @@
     
   
     Simulation Test
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../simulated-imu/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Simulated IMU
   
 
     
@@ -5043,7 +5107,7 @@
 <h3 id="tests">Tests</h3>
 <p><code>diffbot_gazebo</code> and <code>diffbot_control</code> register catkin tests: the simulation test, the geometry test and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> tests below. The firmware has unit tests on the PC, and the robot image has a smoke test of its own. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for <code>diffbot_base</code> without the robot (<a href="https://github.com/ros-mobile-robots/diffbot/issues/114">diffbot#114</a>) and for the firmware's wheel control on the PC (<a href="https://github.com/ros-mobile-robots/diffbot/issues/158">diffbot#158</a>) are planned.</p>
 <h4 id="simulation-test">Simulation test</h4>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. <a href="../simulation-test/">Simulation Test</a> explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_imu.py"><code>test_imu.py</code></a> checks the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a> that only the drive controller publishes <code>odom → base_footprint</code>.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo"><code>diffbot_gazebo</code></a> drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. <a href="../simulation-test/">Simulation Test</a> explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_imu.py"><code>test_imu.py</code></a> checks the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<a href="../../packages/imu/simulation/#how-its-tested">the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> test on <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>) and <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a> that only the drive controller publishes <code>odom → base_footprint</code>.</p>
 <h4 id="geometry-test">Geometry test</h4>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a> checks that each robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and its controller configuration agree on the wheel radius and the wheel separation, as the simulation's and the real robot's launch files load them. It also checks the wheel joints that the controller drives by name. It runs without Gazebo, for both robots, and catches differences that the simulation test would miss. <a href="../geometry-test/">Geometry Test</a> explains what it compares, how it works and how to run it.</p>
 <h4 id="ekf-tests"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> tests</h4>
@@ -5274,7 +5338,7 @@
     
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>

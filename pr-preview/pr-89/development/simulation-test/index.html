@@ -11,14 +11,14 @@
         <link rel="prev" href="../geometry-test/">
       
       
-        <link rel="next" href="../simulated-imu/">
+        <link rel="next" href="../../insiders/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -1919,6 +1919,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../packages/imu/driver-bno055/" class="md-nav__link">
         
@@ -1927,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    IMU (BNO055)
+    BNO055
   
 
     
@@ -1936,6 +1994,42 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../packages/imu/simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4030,8 +4124,6 @@
       
         
       
-        
-      
     
     
     
@@ -4497,34 +4589,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../simulated-imu/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Simulated IMU
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -4979,7 +5043,7 @@ SUMMARY
 </code></pre></div></td></tr></tbody></table></div>
 <p>That test file runs two test nodes: <code>drive_diffbot</code>, which has the two test methods <code>test_forward</code> and <code>test_turn</code>, and <code>publish_diffbot</code>, which has one test. A failed check shows <code>[FAILURE]</code> instead of <code>[passed]</code>, with the check's message, which names the measured value, the expected one and the tolerance, followed by both measured motions. The result is then <code>FAIL</code>. An error means that a test couldn't get to its checks, for example because no odometry arrived.</p>
 <p><code>catkin_test_results build</code> counts the tests in all result files. For this test at the pinned commit, it reports 10: for each robot, rostest's own result file lists the two test nodes, and the nodes' files list their two drive tests and the one publish test.</p>
-<p>This example comes from the commit that this page pins. The pull requests for the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> (<a href="https://github.com/ros-mobile-robots/diffbot/pull/153">diffbot#153</a> and <a href="https://github.com/ros-mobile-robots/diffbot/pull/154">diffbot#154</a>) add test nodes to the same test file, such as <code>imu_diffbot</code>, which checks the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<a href="../simulated-imu/#4-the-test">Simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr></a>). With them, the summary lists more tests, and the count is higher.</p>
+<p>This example comes from the commit that this page pins. The pull requests for the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> (<a href="https://github.com/ros-mobile-robots/diffbot/pull/153">diffbot#153</a> and <a href="https://github.com/ros-mobile-robots/diffbot/pull/154">diffbot#154</a>) add test nodes to the same test file, such as <code>imu_diffbot</code>, which checks the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<a href="../../packages/imu/simulation/#how-its-tested">the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> test on <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>). With them, the summary lists more tests, and the count is higher.</p>
 <p><strong>The measured motions:</strong> <code>measure_motion()</code> logs both measurements of each drive, and rostest copies the node's log into its result file <code>rosunit-drive_diffbot.xml</code>. The file is in <code>~/.ros/test_results/diffbot_gazebo/</code> when you run rostest yourself, and in <code>build/diffbot_gazebo/test_results/diffbot_gazebo/</code> when catkin runs the tests:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">grep -o '\(odometry\|true pose\): [^&lt;&amp;]*' ~/.ros/test_results/diffbot_gazebo/rosunit-drive_diffbot.xml</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -6073,13 +6137,13 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
         
         
           
-          <a href="../simulated-imu/" class="md-footer__link md-footer__link--next" aria-label="Next: Simulated IMU">
+          <a href="../../insiders/" class="md-footer__link md-footer__link--next" aria-label="Next: Insiders">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Simulated IMU
+                Insiders
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -6124,7 +6188,7 @@ s_\text{true} &amp;= r_\text{model}\,\Delta\phi = v\,t\,\frac{r_\text{model}}{r_
     
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>

@@ -11,18 +11,18 @@
         <link rel="prev" href="../../../laser-range-scanner/">
       
       
-        <link rel="next" href="../../raspicam_node/">
+        <link rel="next" href="../simulation/">
       
       
         
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
-        <title>IMU (BNO055) - DiffBot Differential Drive Mobile Robot</title>
+        <title>BNO055 - DiffBot Differential Drive Mobile Robot</title>
       
     
     
@@ -251,7 +251,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              IMU (BNO055)
+              BNO055
             
           </span>
         </div>
@@ -1940,6 +1940,66 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2" checked="">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -1955,7 +2015,7 @@
   <span class="md-ellipsis">
     
   
-    IMU (BNO055)
+    BNO055
   
 
     
@@ -1973,7 +2033,7 @@
   <span class="md-ellipsis">
     
   
-    IMU (BNO055)
+    BNO055
   
 
     
@@ -2045,6 +2105,42 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -4141,8 +4237,6 @@
       
         
       
-        
-      
     
     
     
@@ -4268,34 +4362,6 @@
     
   
     Simulation Test
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../development/simulated-imu/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Simulated IMU
   
 
     
@@ -4486,6 +4552,24 @@
   
 
       
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    IMU
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
     </ol>
   </nav>
 
@@ -4521,9 +4605,10 @@
 <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
 <p>The robot uses one value from it: the <strong>yaw rate</strong>, the angular velocity about the upward axis. The <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, and the Teensy's firmware publishes its measurements over rosserial.</p>
+<p><a href="../robot_localization/">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a> explains the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. In the Gazebo simulation, a simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes the same message as the firmware (<a href="../simulation/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>).</p>
 <div class="admonition info">
 <p class="admonition-title">Checked on Remo</p>
-<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. From remo_description 2.2.0 onward, Remo's model includes that orientation and the separately checked position on the breadboard. On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
+<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard (<a href="../simulation/#remos-mounting">Remo's mounting</a>). On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
 </div>
 <h2 id="wiring-to-the-teensy">Wiring to the Teensy</h2>
 <p>The BNO055 shares the Teensy's first <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, <code>Wire</code>, with the motor driver (<a href="../../../components/">Adafruit Motor FeatherWing</a>). On the Teensy 4.0 and 3.2, <code>Wire</code> uses pin 18 for SDA and pin 19 for SCL (<a href="https://www.pjrc.com/teensy/td_libs_Wire.html">PJRC: Wire library</a>):</p>
@@ -4817,13 +4902,13 @@
         
         
           
-          <a href="../../raspicam_node/" class="md-footer__link md-footer__link--next" aria-label="Next: Raspberry Pi Camera">
+          <a href="../simulation/" class="md-footer__link md-footer__link--next" aria-label="Next: Simulation">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Raspberry Pi Camera
+                Simulation
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -4868,7 +4953,7 @@
     
     
     
-      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>
