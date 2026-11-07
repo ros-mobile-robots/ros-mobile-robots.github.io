@@ -116,14 +116,14 @@ The copy runs no callbacks in the physics thread. It needs no spinning of its ow
 
 #### Why not just wait?
 
-The deadlock comes from the physics thread running a callback that waits for the physics thread. Other ideas don't remove that dependency:
+The deadlock comes from the physics thread running a callback that waits for the physics thread. The first three ideas below wait differently and don't remove that dependency. The fourth removes it in another place:
 
 - **A delay, or starting Gazebo paused.** A delay at the start might change which thread takes the spawner's request, but it doesn't remove the unsafe path. Starting Gazebo paused doesn't help either, because starting the controllers needs `update()`, and later requests to the controller manager can take the same path.
 - **A condition variable.** The callback already waits. Waiting on a condition variable instead of polling would still block the physics thread, which is the only thread that can run `update()`.
 - **A timeout.** `switch_controller` has an escape: with a positive timeout, its callback returns a failure about a second after the timeout ([`controller_manager.cpp`, lines 612–636](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L636)). The spawner passes 0, which turns that escape off. `load_controller` has no timeout at all. And a failed switch wouldn't start the controllers anyway.
 - **A separate queue for the controller manager**, served by a thread of its own, would also keep the callbacks out of the physics thread. It changes how `gazebo_ros_control` sets up the controller manager, though, which passes it an ordinary node handle on the global queue ([`gazebo_ros_control_plugin.cpp`, lines 149–150](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L149-L150)).
 
-The IMU plugin only publishes, so it has no callbacks of its own to run. Leaving out `ros::spinOnce()` is the smallest change that keeps the physics thread out of the queue. The installed plugin can't be changed in place, so the robots load a copy.
+The IMU plugin only publishes, so it has no callbacks of its own to run. Leaving out `ros::spinOnce()` is the smallest change that keeps the physics thread out of the queue. The packaged plugin has no option to turn off this call. The robots load their own library, so the fix doesn't require replacing gazebo_plugins' installed library.
 
 ### The copy's other changes
 
