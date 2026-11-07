@@ -103,7 +103,7 @@ The runner reads every line that the script prints, and runs the workflow comman
 
 #### Simulation test
 
-[`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, [`test_imu.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_imu.py) checks the simulated IMU and [`test_odom_tf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_odom_tf.py) that only the drive controller publishes `odom → base_footprint`.
+[`diffbot_gazebo`]({{ diffbot_repo_url }}/diffbot_gazebo) drives DiffBot and Remo in Gazebo and checks where they went, with the robot's odometry and its true pose. Both workflows run it on every pull request. [Simulation Test](simulation-test.md) explains what it checks, how Gazebo and ros_control work together in it, and how to run it and add checks. In the same simulation files, [`test_imu.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_imu.py) checks the simulated IMU ([the IMU test on IMU: Simulation](../packages/imu/simulation.md#how-its-tested)) and [`test_odom_tf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_odom_tf.py) that only the drive controller publishes `odom → base_footprint`.
 
 #### Geometry test
 

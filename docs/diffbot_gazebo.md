@@ -266,25 +266,7 @@ See the source of the [`gazebo_ros_range`](https://github.com/ros-simulation/gaz
 
 #### Inertial Measurement Unit (IMU)
 
-Both robots' models have an IMU, so that the [EKF](packages/imu/robot_localization.md) runs in the simulation as on the robot. The xacro macro `imu_sensor` in `common_sensors.xacro` ([DiffBot's]({{ diffbot_repo_url }}/diffbot_description/urdf/include/common_sensors.xacro), and Remo's in remo_description) adds the link `imu_link` on `chassis_link`, with a small box for the board, and Gazebo's IMU sensor with the plugin `libdiffbot_gazebo_ros_imu_sensor.so`. The plugin measures the link's angular velocity and acceleration in Gazebo at 50 Hz, adds Gaussian noise with a standard deviation of 0.005 (rad/s and m/s²) to every value, and publishes `/diffbot/imu/gazebo`.
-
-The plugin comes from the package [`diffbot_gazebo_plugins`]({{ diffbot_repo_url }}/diffbot_gazebo_plugins). It's a copy of the IMU plugin `libgazebo_ros_imu_sensor.so` from [gazebo_plugins](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp), with the same parameters and the same message. The copy leaves out the call to `ros::spinOnce()`.
-
-After publishing an IMU message, the original plugin calls `ros::spinOnce()` from Gazebo's physics thread, which advances the simulation. This call runs the waiting callbacks from ROS's global queue in the calling thread. A callback is a function that handles an incoming message or service request. This queue includes the controller manager's callbacks for loading and starting controllers.
-
-If the physics thread runs one of those callbacks, the callback can wait for the controller manager's next `update()` to take the change. But `update()` needs the same physics thread, which is waiting inside the callback. The thread is waiting for work that only it can do. This is a deadlock, and the simulation's clock stops ([#185](https://github.com/ros-mobile-robots/diffbot/issues/185)).
-
-The copy publishes the IMU message without calling `ros::spinOnce()`. The ROS spinner threads handle the queued callbacks, leaving the physics thread free to run `update()`. [Why the copy doesn't spin](development/simulated-imu.md#why-the-copy-doesnt-spin) shows the threads and the code step by step.
-
-DiffBot's model names the copy's library. Remo's model (remo_description 2.5.0 and newer) takes the library as the xacro argument `imu_plugin`, which `diffbot_view.launch` sets.
-
-The xacro arguments `imu_xyz` and `imu_rpy` set `imu_joint`'s origin on `chassis_link`, for example `xacro diffbot.urdf.xacro imu_xyz:="0 0 0.01"`. Remo's defaults describe the mounting on the robot's Raspberry Pi deck. From [remo_description 2.2.0](https://github.com/ros-mobile-robots/remo_description/tree/2.2.0) onward, `imu_link` lies about 7.6 cm behind the wheel axle and 2.34 cm left of the robot's center line, with the board's header pins seated in the breadboard. The frame is rotated by −90° about `chassis_link`'s z axis, matching the orientation established by the [tilt test](packages/imu/driver-bno055.md#bench-checks). DiffBot uses the same BNO055 as Remo. Its mounting on DiffBot hasn't been measured, so DiffBot's model uses a placeholder position.
-
-The plugin also estimates an orientation, which the robot's firmware doesn't provide. [`imu_raw_adapter.py`]({{ diffbot_repo_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py), started by `diffbot_view.launch`, removes it and publishes the rest unchanged, with its stamp, as `/diffbot/imu/data_raw`: the same topic and contents as the [firmware](packages/imu/driver-bno055.md#what-the-firmware-publishes), so the EKF gets the same input in the simulation and on the robot.
-
-The [simulation test](development/simulation-test.md) checks the simulated IMU in `test_imu.py`: its rate, its frame, the orientation marked as missing, gravity on the upward axis at rest, and a positive yaw rate in a left turn.
-
-[Simulated IMU](development/simulated-imu.md) goes through the code of this section: the model, the adapter, the plugin and the test.
+Both robots' models have a simulated IMU. It publishes `/diffbot/imu/data_raw` at 50 Hz, with the same message as the [BNO055 firmware on the real robot](packages/imu/driver-bno055.md#what-the-firmware-publishes), so the [EKF](packages/imu/robot_localization.md) gets the same input in the simulation as on the robot. [IMU: Simulation](packages/imu/simulation.md) shows where the IMU sits on each robot, how the robots' own Gazebo plugin measures it, and how it's tested.
 
 ## Troubleshooting
 

@@ -83,7 +83,7 @@ extra:
   # that code changes, and check the excerpts' line ranges and highlighted lines against the new commit
   low_level_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3541965496d50ce629e00054e8d3acd12e4beed5
   low_level_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5
-  # The diffbot commit that the code excerpts on Simulated IMU show (diffbot #153). Move both to
+  # The diffbot commit that the code excerpts on IMU: Simulation show (diffbot #153). Move both to
   # #153's squash merge commit before this page's pull request merges, and check the excerpts'
   # line ranges and highlighted lines against it
   imu_sim_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/5f8771850c038b1d5620df263c7bc691ddb449da
@@ -220,7 +220,9 @@ nav:
       - Actuator Notes (draft): theory/actuation.md
     - Sensors:
       - LiDAR: laser-range-scanner.md
-      - IMU (BNO055): packages/imu/driver-bno055.md
+      - IMU:
+        - BNO055: packages/imu/driver-bno055.md
+        - Simulation: packages/imu/simulation.md
       - Cameras:
         - Raspberry Pi Camera: packages/raspicam_node.md
         - OAK: oak.md
@@ -297,7 +299,6 @@ nav:
     - Testing and CI: development/ci.md
     - Geometry Test: development/geometry-test.md
     - Simulation Test: development/simulation-test.md
-    - Simulated IMU: development/simulated-imu.md
   - Insiders: insiders/index.md
 
 # Fail the strict build on links that MkDocs can check: missing pages, missing #anchors,
