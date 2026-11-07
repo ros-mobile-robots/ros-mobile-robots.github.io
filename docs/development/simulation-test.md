@@ -29,7 +29,7 @@ With `--text`, rostest prints the nodes' output in the terminal instead of log f
 
 ## Read the results
 
-rostest ends with a summary. A passing run of `sim_drive_diffbot.test`:
+rostest ends with a summary. A passing run of `sim_drive_diffbot.test`, with the test file at the commit that this page pins ([step 1][s1]):
 
 ```text
 [diffbot_gazebo.rosunit-drive_diffbot/test_forward][passed]
@@ -43,9 +43,11 @@ SUMMARY
  * FAILURES: 0
 ```
 
-The test file runs two test nodes ([step 1][s1]): `drive_diffbot`, which has the two test methods `test_forward` and `test_turn`, and `publish_diffbot`, which has one test. A failed check shows `[FAILURE]` instead of `[passed]`, with the check's message, which names the measured value, the expected one and the tolerance, followed by both measured motions; the result is then `FAIL`. An error means that a test couldn't get to its checks, for example because no odometry arrived.
+That test file runs two test nodes: `drive_diffbot`, which has the two test methods `test_forward` and `test_turn`, and `publish_diffbot`, which has one test. A failed check shows `[FAILURE]` instead of `[passed]`, with the check's message, which names the measured value, the expected one and the tolerance, followed by both measured motions. The result is then `FAIL`. An error means that a test couldn't get to its checks, for example because no odometry arrived.
 
-`catkin_test_results build` counts the tests in all result files. For this test, it reports 10: for each robot, rostest's own result file lists the two test nodes, and the nodes' files list their two drive tests and the one publish test.
+`catkin_test_results build` counts the tests in all result files. For this test at the pinned commit, it reports 10: for each robot, rostest's own result file lists the two test nodes, and the nodes' files list their two drive tests and the one publish test.
+
+The current test files run more test nodes, such as `imu_diffbot`, which checks the simulated IMU ([Simulated IMU](simulated-imu.md#4-the-test)). Their summaries list those tests too, so their counts are higher than the ones above.
 
 **The measured motions:** `measure_motion()` logs both measurements of each drive, and rostest copies the node's log into its result file `rosunit-drive_diffbot.xml`. The file is in `~/.ros/test_results/diffbot_gazebo/` when you run rostest yourself, and in `build/diffbot_gazebo/test_results/diffbot_gazebo/` when catkin runs the tests:
 
