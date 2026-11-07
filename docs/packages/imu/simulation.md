@@ -73,7 +73,7 @@ Remo's model describes the BNO055 board on the breadboard on the Raspberry Pi de
 - **Position:** −4.01 cm, +2.34 cm and +1.3 cm from `chassis_link`, which is 3.6 cm behind the wheel axle ([`remo.urdf.xacro`, lines 71–74](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L71-L74)). So the chip's center lies 7.6 cm behind the wheel axle, 2.34 cm left of the robot's center line, and 8 cm above the floor. The board's header pins sit in the breadboard.
 - **Rotation:** −π/2 rad, −90°, about z. The board lies flat. Its z axis points up, its y axis forward and its x axis to the robot's right. A tilt test on Remo showed these axes ([bench checks](driver-bno055.md#bench-checks)). The comment above these lines in `remo.urdf.xacro` says how each value was found.
 
-Because both z axes point up, a left turn reads as a positive yaw rate $\omega_z$, for the IMU as for the robot. Driving forward shows on the IMU's y axis, not on its x axis.
+Because both z axes point up, a left turn reads as a positive yaw rate $\omega_z$, for the IMU as for the robot. Forward acceleration appears on the IMU's positive y axis, not on its x axis. At a steady forward speed on level ground, that axis reads about zero.
 
 ### DiffBot's mounting
 
