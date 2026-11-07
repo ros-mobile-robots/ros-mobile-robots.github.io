@@ -2,8 +2,8 @@
 
 In the simulation, DiffBot and Remo publish the same IMU topic as the real robot's firmware: `/diffbot/imu/data_raw`, at 50 Hz, with the angular velocity and the acceleration but without an orientation. So the [EKF](../packages/imu/robot_localization.md) gets the same input in Gazebo as on the robot. [Simulation](../diffbot_gazebo.md#inertial-measurement-unit-imu) gives the overview. This page goes through the code behind the simulated IMU, in four parts:
 
-1. [The model](#1-the-model): where the IMU sits on the robot, and the Gazebo sensor that measures there.
-2. [The adapter](#2-the-adapter): a small node that turns the simulated message into the firmware's.
+1. [The model](#1-the-model): how `imu_link` defines the IMU's position and orientation on the robot, and how Gazebo simulates angular velocity and acceleration measurements at that position.
+2. [The adapter](#2-the-adapter): a small node that removes the orientation from Gazebo's message, so it matches the message that the real robot's firmware publishes.
 3. [The plugin](#3-the-plugin): the Gazebo plugin that publishes the sensor's values, and why the robots use a copy of gazebo_plugins' plugin.
 4. [The test](#4-the-test): what `test_imu.py` checks, and what it can't show.
 
@@ -15,9 +15,14 @@ graph TB
   ADAPTER -->|imu/data_raw| TEST[test_imu.py]
 ```
 
-The topics are in the `/diffbot` namespace, for both robots. The IMU gate and the EKF run only with `ekf:=true` ([Running it](../packages/imu/robot_localization.md#running-it)).
+The topics are in the `/diffbot` namespace, for both robots. The IMU gate is a node, `imu_gate.py`, that checks each IMU sample before passing it to the EKF. It rejects samples that are too old, repeated or invalid ([The IMU gate](../packages/imu/robot_localization.md#the-imu-gate)). The gate and the EKF run only with `ekf:=true` ([Running it](../packages/imu/robot_localization.md#running-it)).
 
-The code blocks show the files at the diffbot commit that this page pins, with their comments, and the line numbers are the files'. The link above each block opens the same lines on GitHub. The real IMU is described on other pages: the BNO055's [firmware](../packages/imu/driver-bno055.md#what-the-firmware-publishes) and its [bench checks](../packages/imu/driver-bno055.md#bench-checks) on IMU (BNO055), and Remo's measured mounting on [Simulation](../diffbot_gazebo.md#inertial-measurement-unit-imu).
+!!! info "Reading the code"
+
+    - The excerpts show one fixed revision of diffbot's source, with their comments. Their line numbers match the original files.
+    - The link above each excerpt opens that revision and those lines on GitHub.
+
+For the real IMU, see [what the firmware publishes](../packages/imu/driver-bno055.md#what-the-firmware-publishes), the [bench checks](../packages/imu/driver-bno055.md#bench-checks), and [Remo's measured mounting](../diffbot_gazebo.md#inertial-measurement-unit-imu).
 
 ## 1. The model
 
@@ -108,6 +113,17 @@ The controller spawner from [`diffbot_control.launch`]({{ imu_sim_src_url }}/dif
 4. The simulation step never ends. The simulation's clock stops for good, and the spawner's call never returns.
 
 The copy runs no callbacks in the physics thread. It needs no spinning of its own, because it only publishes. The spinner threads run every callback, including the controller manager's services, and the physics thread keeps calling `update()`. With the original, the stall depends on timing, so it hits only some starts of the simulation. [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) has the diagnosis, the stalled simulations' backtraces, and how many starts stalled with the original and with the copy.
+
+#### Why not just wait?
+
+The deadlock comes from the physics thread running a callback that waits for the physics thread. Other ideas don't remove that dependency:
+
+- **A delay, or starting Gazebo paused.** A delay at the start might change which thread takes the spawner's request, but it doesn't remove the unsafe path. Starting Gazebo paused doesn't help either, because starting the controllers needs `update()`, and later requests to the controller manager can take the same path.
+- **A condition variable.** The callback already waits. Waiting on a condition variable instead of polling would still block the physics thread, which is the only thread that can run `update()`.
+- **A timeout.** `switch_controller` has an escape: with a positive timeout, its callback returns a failure about a second after the timeout ([`controller_manager.cpp`, lines 612–636](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L636)). The spawner passes 0, which turns that escape off. `load_controller` has no timeout at all. And a failed switch wouldn't start the controllers anyway.
+- **A separate queue for the controller manager**, served by a thread of its own, would also keep the callbacks out of the physics thread. It changes how `gazebo_ros_control` sets up the controller manager, though, which passes it an ordinary node handle on the global queue ([`gazebo_ros_control_plugin.cpp`, lines 149–150](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L149-L150)).
+
+The IMU plugin only publishes, so it has no callbacks of its own to run. Leaving out `ros::spinOnce()` is the smallest change that keeps the physics thread out of the queue. The installed plugin can't be changed in place, so the robots load a copy.
 
 ### The copy's other changes
 
