@@ -1,13 +1,13 @@
 # Localization: Wheel Odometry and IMU (EKF)
 
-DiffBot and Remo estimate how far they drove and turned from their wheels: the drive controller turns the wheel encoders' angles into **odometry**, a pose and a velocity in the `odom` frame. The wheels' estimate of turning is the weaker part. A wheel that slips, or a wheel separation that is a little off in the configuration, makes the estimated turn too small or too large, and the error in the heading grows into an error in the position the further the robot drives.
+DiffBot and Remo estimate how far they drove and turned from their wheels: the drive controller turns the wheel encoders' angles into **odometry**, a pose and a velocity in the `odom` frame. [REP 105's `odom` frame](https://www.ros.org/reps/rep-0105.html#odom) is ROS's convention for such a frame: the robot's pose in it changes smoothly, without jumps, but drifts over time. The wheels' estimate of turning is the weaker part. A wheel that slips, or a wheel separation that is a little off in the configuration, makes the estimated turn too small or too large, and the error in the heading grows into an error in the position the further the robot drives.
 
 The IMU's gyroscope measures the turn directly: its **yaw rate**, the angular velocity about the upward axis, doesn't depend on the wheels. With `ekf:=true`, an **extended Kalman filter (EKF)** from the [`robot_localization`](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html) package combines both: it takes the forward speed from the wheels and the turn mostly from the gyroscope, because the gyroscope's variance is far smaller. The filter publishes the result as `/diffbot/odometry/filtered` and as the transform `odom → base_footprint`, which navigation and RViz use.
 
 robot_localization can fuse any number of sensors, for example GPS, several IMUs and several odometry sources. The DiffBot and Remo configuration combines one IMU with the wheel odometry.
 
 !!! warning "Not tested on the robot yet"
-    The EKF runs in the simulation and in the tests below. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet. Remo's model includes the IMU's checked position and orientation ([bench checks](driver-bno055.md#bench-checks)). DiffBot uses the same BNO055, but its mounting and the firmware still need checking on DiffBot. The variances and time limits below are starting values, not measurements.
+    The EKF runs in the simulation and in the tests below. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet. Remo's model includes the IMU's checked position and orientation ([bench checks](driver-bno055.md#bench-checks)). DiffBot uses the same BNO055, but its mounting and the firmware still need checking on DiffBot. The variances and the IMU gate's time limits below are initial values, not measurements.
 
 ## How it fits together
 
@@ -25,10 +25,10 @@ graph TB
 
 The topics are in the `/diffbot` namespace, for example `/diffbot/imu/data_raw`.
 
-- The **firmware** reads the BNO055 on the Teensy and publishes `/diffbot/imu/data_raw` at 50 Hz ([IMU (BNO055)](driver-bno055.md)). In the simulation, Gazebo's IMU sensor and a small adapter publish the same topic ([IMU: Simulation](simulation.md)).
-- The **IMU gate**, [`imu_gate.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_gate.py), passes on only the samples the EKF can use, on `/diffbot/imu/data_validated`. [The gate](#the-imu-gate) below explains why.
+- The **firmware** reads the BNO055 on the Teensy and publishes `/diffbot/imu/data_raw` at 50 Hz, as [IMU: Bosch BNO055](driver-bno055.md) explains. In the simulation, Gazebo's IMU sensor and a small adapter publish the same topic, as [IMU: Simulation](simulation.md) explains.
+- The **IMU gate**, [`imu_gate.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_gate.py), subscribes to `/diffbot/imu/data_raw`. It passes on only the samples that the EKF can use, unchanged, on `/diffbot/imu/data_validated`. [Why the EKF needs the IMU gate](#the-imu-gate) lists its checks.
 - The **drive controller**, `mobile_base_controller` ([diff_drive_controller](http://wiki.ros.org/diff_drive_controller)), publishes the wheel odometry. With the EKF on, it doesn't publish the transform `odom → base_footprint`: two nodes publishing the same transform would make the robot's pose jump between their two estimates.
-- The **EKF**, `/diffbot/ekf_localization`, fuses the two and publishes the filtered odometry and the transform.
+- The **EKF**, `/diffbot/ekf_localization`, subscribes to `/diffbot/imu/data_validated` and to the wheel odometry. It fuses the two and publishes the filtered odometry and the transform.
 
 [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) in `diffbot_control` starts the gate and the EKF, for the robot and the simulation alike.
 
@@ -60,23 +60,28 @@ The sideways speed is 0 for a differential drive robot, which can't move sideway
 
 Other settings: `two_d_mode` keeps z, roll and pitch at 0 for a robot on a flat floor. `world_frame` is `odom`, so the estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes `map → odom` itself. `frequency` is 50 Hz, the rate of both inputs.
 
-## The IMU gate
+## The IMU gate { #the-imu-gate }
 
-The EKF only checks that the stamps of one topic don't go back. A sample that arrives late, or one with the same stamp as the one before, it fuses as if it were current: it corrects its present estimate with it. A sample that sat in a buffer would then count as the robot's yaw rate now. The gate in front of the EKF passes a sample on, unchanged and with its stamp, only if
+robot_localization's EKF has a per-input timestamp-order check, but that check doesn't enforce freshness or reject equal timestamps. In robot_localization 2.7.7, the version in the dev container, the IMU's angular velocity passes this check when its stamp isn't earlier than the last stamp on the same input ([`ros_filter.cpp`, lines 2197–2221](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2221)). When a measurement's stamp isn't later than the last measurement that the filter processed, the filter corrects its current estimate with it, without predicting first ([`filter_base.cpp`, lines 205–234](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L205-L234)). [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) off, so the filter doesn't go back to the time of a late measurement. So the filter fuses a sample that arrives late, or one with the same stamp as the one before, as if it were current. A sample that sat in a buffer would count as the robot's yaw rate now.
 
-- the ROS clock runs (in the simulation, Gazebo's `/clock`),
-- its frame is `imu_link`, which the EKF needs to turn the measured rate into the robot's frame with TF,
-- its values are finite, and its angular velocity has finite, positive variances,
-- it is at most `max_age` old (0.1 s, five samples at 50 Hz) and at most `max_future` ahead of the ROS clock (0.02 s, one sample),
-- and it is later than the last sample the gate passed on.
+Two other settings of the EKF sound similar but don't cover this. [`sensor_timeout`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_timeout) makes the filter predict without a correction when its inputs stop. [`imu0_angular_velocity_rejection_threshold`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_threshold) rejects a measurement that lies too far from the estimate, as a Mahalanobis distance, and `ekf.yaml` doesn't set it. Neither checks a sample's age, its frame or a repeated stamp.
 
-It never gives an old sample a new stamp. When the ROS clock goes back, as when Gazebo's world is reset, the order check starts over from the new time. The two time limits are starting values: the delay of the robot's USB link and rosserial isn't measured yet.
+The IMU gate, [`imu_gate.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_gate.py), subscribes to `/diffbot/imu/data_raw`. It republishes a sample on `/diffbot/imu/data_validated`, unchanged and with its stamp, only if all of these hold:
+
+- The ROS time is nonzero. With simulation time, it stays zero until the first message on Gazebo's `/clock` arrives.
+- The sample's frame is `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
+- Its angular velocity and its linear acceleration are finite, all three components of each.
+- Its angular velocity covariance has finite values, and its diagonal, the three variances, is positive.
+- Its stamp is at most `max_age` before the ROS time and at most `max_future` after it. `max_age` is 0.1 s, five samples at 50 Hz. `max_future` is 0.02 s, one sample.
+- Its stamp is later than the stamp of the last sample that the gate passed on.
+
+The gate doesn't check the orientation, the acceleration's covariance, or whether a covariance matrix is positive definite. It never gives an old sample a new stamp. When the ROS time goes back, as when Gazebo's world is reset, the order check starts over from the new time. `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured.
 
 The gate's counts are on `/diagnostics`, apart from the EKF's own: how many samples it passed on, how many it dropped and why, and an error when nothing passed in the last second, or since the clock last went back. `rosrun rqt_robot_monitor rqt_robot_monitor` shows them.
 
 ## How it's tested
 
-Three tests in CI check the EKF without the robot ([Testing and CI](../../development/ci.md#tests)):
+Three tests check the EKF without the robot, in [CI with the repository's other tests](../../development/ci.md#tests):
 
 - **On a stepped clock:** [`ekf_synthetic.test`]({{ diffbot_repo_url }}/diffbot_control/test/ekf_synthetic.test) starts `ekf.launch` with DiffBot's URDF for the IMU's frame. The test publishes the simulated clock itself and advances it 20 ms at a time: it publishes a step's inputs, waits until the gate's output has arrived and a little longer, moves the clock on, and waits for the filter's output, each wait with a time limit. These bounded waits reduce how much the results depend on the computer's speed, although they can't prove that the filter received each input before the clock moved. The wheels report 0.4 rad/s, as with a wheel separation that is too large, and the IMU 0.5 rad/s: the estimate is 0.499 rad/s. Then IMU samples that are 0.5 s old, from the future, repeated or out of order, all reporting 2.0 rad/s: the gate drops them, and the estimate stays with the valid samples, or goes to the wheels' 0.4 rad/s when only old samples come. After the clock goes back, the filter starts over. The gate's counts on `/diagnostics` have to match the samples the test sent.
 - **In Gazebo:** [`sim_ekf_diffbot.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test) and [`sim_ekf_remo.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_remo.test) give the drive controller a wheel separation 25 % larger than the robot's. The controller then turns the robot 25 % more than commanded, while its odometry reports the commanded turn. In a 3 s left turn, DiffBot turned 1.847 rad, its odometry said 1.478 rad and the EKF 1.848 rad. Remo turned 1.876 rad, its odometry said 1.501 rad and the EKF 1.875 rad. The test also checks that only the EKF publishes `odom → base_footprint`.
@@ -87,7 +92,7 @@ What these tests don't show: how the real gyroscope behaves (its noise and bias,
 ## Limits
 
 - **A clock that goes back:** in the simulation, the filter starts over (`reset_on_time_jump`). robot_localization does that only with simulated time. On the robot, after the computer's clock goes back, the filter ignores each input until its stamps are newer than its last ones again.
-- **The variances and time limits** are starting values. The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest. Measurements while driving still have to show the values that the EKF should use.
+- **The variances and the IMU gate's time limits** are initial values. The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest. Measurements while driving still have to show the values that the EKF should use.
 - **The pose drifts** over time, as any odometry: the gyroscope helps with the heading, but nothing corrects the position. A map-based localization such as amcl corrects it in the `map` frame.
 
 ## More about robot_localization
