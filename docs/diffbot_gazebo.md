@@ -276,7 +276,7 @@ If the physics thread runs one of those callbacks, the callback can wait for the
 
 The copy publishes the IMU message without calling `ros::spinOnce()`. The ROS spinner threads handle the queued callbacks, leaving the physics thread free to run `update()`.
 
-A reset of the simulation, for example `rosservice call /gazebo/reset_simulation`, sets the simulation's clock back to zero ([Gazebo's simulation control services](https://classic.gazebosim.org/tutorials?tut=ros_comm#Services:Simulationcontrol)). The plugin limits its rate by comparing the sensor's time with the time of its last update. After a reset, the sensor's time is earlier than that. The copy then starts the comparison from the new time and publishes again one sample period later. The original plugin keeps the old time and publishes nothing until the clock has passed it.
+A reset of the simulation, for example `rosservice call /gazebo/reset_simulation`, sets the simulation's clock back to zero ([Gazebo's simulation control services](https://classic.gazebosim.org/tutorials?tut=ros_comm#Services:Simulationcontrol)). The plugin limits its rate by comparing the sensor's time with the time of its last update. After a reset, the sensor's time is earlier than that. The copy then starts the comparison from the new time and publishes again one sample period later. The original plugin keeps the old time and publishes nothing until the clock has passed that time.
 
 DiffBot's model names the copy's library. Remo's model (remo_description 2.5.0 and newer) takes the library as the xacro argument `imu_plugin`, which [`diffbot_view.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot_view.launch) sets.
 
