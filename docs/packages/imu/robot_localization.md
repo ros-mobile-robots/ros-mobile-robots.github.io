@@ -79,7 +79,7 @@ The IMU sample validator, [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_co
 
 The validator doesn't check the orientation, the acceleration's covariance, or whether a covariance matrix is positive definite, so it doesn't validate every field of a `sensor_msgs/Imu` message. It never gives an old sample a new stamp. When the ROS time goes back, as when Gazebo's world is reset, the order check starts over from the new time. `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured.
 
-The validator's counts are on `/diagnostics`, apart from the EKF's own: how many samples it forwarded, how many it dropped and why, and an error when nothing passed in the last second, or since the clock last went back. `rosrun rqt_robot_monitor rqt_robot_monitor` shows them.
+The validator's counts are on `/diagnostics`, apart from the EKF's own: how many samples it forwarded, how many it dropped and why, and an error when no sample was forwarded in the last second, or since the ROS time last went back. `rosrun rqt_robot_monitor rqt_robot_monitor` shows them.
 
 ## How it's tested
 
