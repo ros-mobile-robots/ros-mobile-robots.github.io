@@ -111,7 +111,7 @@ The runner reads every line that the script prints, and runs the workflow comman
 
 #### EKF tests
 
-The [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU is checked without the robot. In `diffbot_control`, [`test_imu_gate.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_imu_gate.py) checks the IMU gate, and [`ekf_synthetic.test`]({{ diffbot_repo_url }}/diffbot_control/test/ekf_synthetic.test) runs the EKF on a stepped simulated clock. In `diffbot_gazebo`, both robots drive in Gazebo with a wrong wheel separation, and [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py) checks the `ekf` switch in the launch files.
+The [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the wheel odometry with the IMU is checked without the robot. In `diffbot_control`, [`test_imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_imu_validator.py) checks the IMU sample validator, and [`ekf_synthetic.test`]({{ diffbot_repo_url }}/diffbot_control/test/ekf_synthetic.test) runs the EKF on a stepped simulated clock. In `diffbot_gazebo`, both robots drive in Gazebo with a wrong wheel separation, and [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py) checks the `ekf` switch in the launch files.
 
 #### Firmware unit tests
 
