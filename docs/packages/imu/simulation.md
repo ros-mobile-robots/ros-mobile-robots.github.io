@@ -36,7 +36,7 @@ graph TB
   PLUGIN -->|imu/gazebo| ADAPTER[imu_raw_adapter.py]
   ADAPTER -->|imu/data_raw| VALIDATOR[IMU sample validator: imu_validator.py]
   VALIDATOR -->|imu/data_validated| EKF[EKF]
-  ADAPTER -->|imu/data_raw| TEST[test_imu.py]
+  ADAPTER -->|imu/data_raw| TEST["test_imu.py and test_imu_reset.py"]
 ```
 
 The topics are in the `/diffbot` namespace, for both robots. The parts of the diagram:
@@ -45,7 +45,7 @@ The topics are in the `/diffbot` namespace, for both robots. The parts of the di
 - **The robots' own IMU plugin**, a Gazebo plugin from the diffbot repository, adds noise and publishes the values on `/diffbot/imu/gazebo`. [The Gazebo sensor and the plugin](#the-gazebo-sensor-and-the-plugin) shows how the model loads it.
 - **The adapter**, `imu_raw_adapter.py`, subscribes to `/diffbot/imu/gazebo`, removes the orientation and publishes the rest on `/diffbot/imu/data_raw`. [The adapter's code](#the-adapter) shows how.
 - **The IMU sample validator**, [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py), subscribes to `/diffbot/imu/data_raw` and forwards the samples it accepts, unchanged, on `/diffbot/imu/data_validated`, which the EKF subscribes to. It drops a sample while the ROS time is still zero, when its frame isn't `imu_link`, when a value or a variance isn't usable, or when its stamp is too old, too far ahead or not newer than the last one. [The IMU sample validator on the Localization page](robot_localization.md#the-imu-sample-validator) lists the checks. The validator and the EKF run only with `ekf:=true`, as [running the EKF](robot_localization.md#running-it) shows.
-- **The test**, `test_imu.py`, subscribes to `/diffbot/imu/data_raw` and checks the messages in CI, as [the IMU test](#how-its-tested) explains.
+- **The tests**, `test_imu.py` and `test_imu_reset.py`, subscribe to `/diffbot/imu/data_raw` and check the messages in CI, as [how it's tested](#how-its-tested) explains.
 
 ## Position and axes
 
@@ -155,7 +155,7 @@ The macro `imu_sensor` adds the sensor in a block that only Gazebo reads. DiffBo
 - **`type="imu"`** is Gazebo's IMU sensor. `update_rate` makes it measure 50 times per second.
 - **The plugin** turns the sensor's values into ROS messages. `filename` names its library, `libdiffbot_gazebo_ros_imu_sensor.so`.
 
-`libdiffbot_gazebo_ros_imu_sensor.so` isn't a standard ROS plugin. It's the diffbot repository's own copy of the IMU plugin `libgazebo_ros_imu_sensor.so` from [gazebo_plugins 2.9.3](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp), the version that the dev container installs. The package [`diffbot_gazebo_plugins`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins) builds it from [`gazebo_ros_imu_sensor.cpp`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp). The copy takes the same parameters, computes the same values and publishes the same message, a `sensor_msgs/Imu`. It leaves out one function call, and [why the plugin doesn't spin](#why-the-plugin-doesnt-spin) explains which one and why. The plugin's parameters:
+`libdiffbot_gazebo_ros_imu_sensor.so` isn't a standard ROS plugin. It's the diffbot repository's own copy of the IMU plugin `libgazebo_ros_imu_sensor.so` from [gazebo_plugins 2.9.3](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp), the version that the dev container installs. The package [`diffbot_gazebo_plugins`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins) builds it from [`gazebo_ros_imu_sensor.cpp`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp). The copy takes the same parameters, computes the same values and publishes the same message, a `sensor_msgs/Imu`. Two differences matter while the simulation runs. The copy leaves out one function call, and [why the plugin doesn't spin](#why-the-plugin-doesnt-spin) explains which one and why. It also publishes again right after a reset of the simulation, as [when the plugin publishes](#when-the-plugin-publishes) explains. The plugin's parameters:
 
 - `robotNamespace` and `topicName`, `/diffbot` and `imu/gazebo`, give the topic `/diffbot/imu/gazebo`.
 - `frameName`, `imu_link`, becomes the message's `header.frame_id`.
@@ -179,12 +179,27 @@ $$
 
 $\mathbf a$ is the acceleration of the point where the sensor sits, and $\mathbf g$ is gravity, both in `imu_link`'s axes. At rest, $\mathbf a = \mathbf 0$. With `imu_link`'s z axis up, gravity is $\mathbf g = (0, 0, -9.8)$ m/s², so the sensor reads $\mathbf f = (0, 0, +9.8)$ m/s². A real accelerometer reads the same: the box at the top of [IMU: Bosch BNO055](driver-bno055.md) explains why it reads about +9.81 m/s² upward at rest. Gazebo's gravity is 9.8 m/s² in the robots' worlds, SDF's default ([SDF's `<gravity>`](http://sdformat.org/spec?ver=1.6&elem=world#world_gravity)).
 
+### When the plugin publishes
+
+`Load()` connects the plugin's `UpdateChild()` to Gazebo's world update event ([`gazebo_ros_imu_sensor.cpp`, lines 131–132]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L131-L132)). So Gazebo's [physics thread](#threads-callbacks-and-the-callback-queue) calls `UpdateChild()` at the start of every simulation step. The first lines of `UpdateChild()` decide whether a call publishes a message, [`gazebo_ros_imu_sensor.cpp`, lines 137–147]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L147):
+
+```cpp title="gazebo_ros_imu_sensor.cpp: the start of UpdateChild()" linenums="137" hl_lines="5 6"
+--8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:137:147"
+```
+
+- **Two times.** `current_time` is the simulation time of the sensor's last measurement. `last_time` is the value that `current_time` had in the last call that got past the rate limit ([line 191]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L191)).
+- **The rate limit** is the second `if`. `update_rate` is the parameter `updateRateHZ`, 50. A call returns right away while less than one period, 1/50 s = 20 ms, has passed since `last_time`. So `UpdateChild()` goes on at most 50 times per second of simulation time.
+- **A subscriber.** A call that gets past the rate limit fills and publishes a message only while the topic has a subscriber. In the simulation, the adapter always subscribes.
+- **A clock that went back** is the first `if`, the highlighted lines. A reset of the simulation sets Gazebo's clock back to zero. `/gazebo/reset_simulation` is the ROS service for it ([Gazebo's simulation control services](https://classic.gazebosim.org/tutorials?tut=ros_comm#Services:Simulationcontrol)), for example `rosservice call /gazebo/reset_simulation`. After a reset, the sensor's time starts from zero again, and `last_time` still holds a time from before the reset. The difference `current_time - last_time` is negative, so the rate limit would stop every call until the clock has passed its value from before the reset. The longer the simulation ran before the reset, the longer the IMU would stay silent. The plugin therefore sets `last_time` to the sensor's time when the sensor's time is the earlier one. The rate limit then counts from the new time, and the first message after a reset follows one period later.
+
+gazebo_plugins' original has only the rate limit ([the original's lines 97–100](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L97-L100)). Another plugin in gazebo_plugins, `gazebo_ros_p3d`, treats a clock that went back as the copy does ([`gazebo_ros_p3d.cpp`, lines 240–244](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_p3d.cpp#L240-L244)). The IMU sample validator and the EKF start over when the clock goes back, as [the IMU sample validator](robot_localization.md#the-imu-sample-validator) and [the EKF's limits](robot_localization.md#limits) on the Localization page explain. So they need the IMU's samples right after a reset.
+
 ### Noise and covariance
 
-`Load()` connects the plugin's `UpdateChild()` to Gazebo's world update event ([`gazebo_ros_imu_sensor.cpp`, lines 121–122]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L121-L122)). So Gazebo's [physics thread](#threads-callbacks-and-the-callback-queue) calls `UpdateChild()` at the start of every simulation step. `UpdateChild()` goes on at most 50 times per second of simulation time and returns right away otherwise. It fills and publishes a message only while the topic has a subscriber ([lines 127–134]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L127-L134)). In the simulation, the adapter always subscribes. [`gazebo_ros_imu_sensor.cpp`, lines 147–165]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L147-L165):
+A call that publishes fills the message with the sensor's values and adds noise, [`gazebo_ros_imu_sensor.cpp`, lines 160–178]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L160-L178):
 
-```cpp title="gazebo_ros_imu_sensor.cpp: noise and covariance" linenums="147"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:147:165"
+```cpp title="gazebo_ros_imu_sensor.cpp: noise and covariance" linenums="160"
+--8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:160:178"
 ```
 
 The plugin adds noise to each component of both vectors:
@@ -193,7 +208,7 @@ $$
 \tilde{\boldsymbol\omega} = \boldsymbol\omega + \mathbf n_\omega, \qquad \tilde{\mathbf f} = \mathbf f + \mathbf n_f
 $$
 
-$\tilde{\boldsymbol\omega}$ and $\tilde{\mathbf f}$ are what the message carries. Each component $n$ of $\mathbf n_\omega$ and $\mathbf n_f$ is a new random number in every message, from a normal distribution with mean 0 and standard deviation $\sigma$, the parameter `gaussianNoise` (`GuassianKernel()`, [lines 181–193]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L181-L193)):
+$\tilde{\boldsymbol\omega}$ and $\tilde{\mathbf f}$ are what the message carries. Each component $n$ of $\mathbf n_\omega$ and $\mathbf n_f$ is a new random number in every message, from a normal distribution with mean 0 and standard deviation $\sigma$, the parameter `gaussianNoise` (`GuassianKernel()`, [lines 194–206]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L194-L206)):
 
 $$
 n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
@@ -213,10 +228,10 @@ The message stores each matrix as nine numbers, row by row. So the diagonal is e
 
 ### The header and the stamp
 
-[`gazebo_ros_imu_sensor.cpp`, lines 167–175]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L167-L175), the end of `UpdateChild()`:
+[`gazebo_ros_imu_sensor.cpp`, lines 180–188]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L180-L188), the end of `UpdateChild()`:
 
-```cpp title="gazebo_ros_imu_sensor.cpp: the end of UpdateChild()" linenums="167" hl_lines="7 8 9"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:167:175"
+```cpp title="gazebo_ros_imu_sensor.cpp: the end of UpdateChild()" linenums="180" hl_lines="7 8 9"
+--8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:180:188"
 ```
 
 The stamp is the sensor's last update time, in simulation time. After `publish()`, gazebo_plugins' original calls `ros::spinOnce()` ([the original's lines 137–151](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L151), with `ros::spinOnce()` in line 150). The copy leaves this call out, as its comment says. [Why the plugin doesn't spin](#why-the-plugin-doesnt-spin) explains the reason.
@@ -301,8 +316,9 @@ The IMU plugin only publishes, so it has no callbacks of its own to run. Leaving
 
 ### The copy's other changes
 
-The [change notice]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L17-L33) at the top of the file lists every change. Apart from the missing `ros::spinOnce()`, they don't change what the plugin does:
+The [change notice]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L17-L42) at the top of the file lists every change. Two of them change what the plugin does while the simulation runs: the missing `ros::spinOnce()`, and the rate limit that counts from the new time after a reset of the simulation, as [when the plugin publishes](#when-the-plugin-publishes) explains. The others don't change what the plugin publishes:
 
+- The destructor uses the plugin's node handle only when `Load()` has created it. `Load()` returns before that when the sensor isn't an IMU sensor, when `frameName` is missing or when ROS isn't initialized. The original then calls the node handle's `shutdown()` through a pointer that was never set.
 - The class is in the namespace `diffbot_gazebo_plugins`. So a Gazebo process that loads both libraries can't mix up this class with gazebo_plugins' class of the same name ([the header's notice]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/include/diffbot_gazebo_plugins/gazebo_ros_imu_sensor.h#L17-L25)).
 - The optional profiler calls are left out. This package doesn't enable them.
 - The lines are at most 99 characters long, and the file includes the header of every name it uses.
@@ -311,9 +327,14 @@ The source is under the Apache License 2.0, as the original is. The copy keeps t
 
 ## How it's tested
 
-[`test_imu.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py) checks `/diffbot/imu/data_raw` as the EKF and the firmware expect it. Both simulation test files run it as a test node of its own, `imu_diffbot` and `imu_remo` ([`sim_drive_diffbot.test`, lines 27–29]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L27-L29)). So rostest starts Gazebo and the robot again for this test node, as for the other test nodes in [the test file on Simulation Test](../../development/simulation-test.md#1-the-test-file). Simulation Test also shows how to [run the tests](../../development/simulation-test.md#run-it) and [read their results](../../development/simulation-test.md#read-the-results).
+Two tests check the simulated IMU in Gazebo:
 
-The test has two test methods, one at rest and one in a left turn. unittest runs a test class's methods in [alphabetical order](https://docs.python.org/3/library/unittest.html#unittest.TestLoader.sortTestMethodsUsing), so the left turn runs first.
+- [`test_imu.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py) checks `/diffbot/imu/data_raw` as the EKF and the firmware expect it.
+- [`test_imu_reset.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py) checks that the IMU publishes again right after a reset of the simulation. [The reset test](#the-reset-test) explains it.
+
+Both simulation test files run each of the two as a test node of its own: `imu_diffbot` and `imu_reset_diffbot` for DiffBot, `imu_remo` and `imu_reset_remo` for Remo ([`sim_drive_diffbot.test`, lines 28–34]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L28-L34)). So rostest starts Gazebo and the robot again for each of these test nodes, as for the other test nodes in [the test file on Simulation Test](../../development/simulation-test.md#1-the-test-file). Simulation Test also shows how to [run the tests](../../development/simulation-test.md#run-it) and [read their results](../../development/simulation-test.md#read-the-results).
+
+`test_imu.py` has two test methods, one at rest and one in a left turn. unittest runs a test class's methods in [alphabetical order](https://docs.python.org/3/library/unittest.html#unittest.TestLoader.sortTestMethodsUsing), so the left turn runs first.
 
 ??? example "The constants, `test_imu.py` lines 22–48"
 
@@ -414,15 +435,47 @@ At rest, the upward axis reads gravity, $f_z = +9.8$ m/s² in Gazebo, as [what t
 - The first loop gives the robot `SPEED_UP`, 1 s, to reach the turn rate. Then the test empties the list, keeps turning for `MEASURE`, 2 s, and keeps the messages of that time. After the loop, the test stops the robot with `Twist()`.
 - The check averages the yaw rates, $\bar\omega_z$, and needs $|\bar\omega_z - 0.5 \text{ rad/s}| \le 0.15 \text{ rad/s}$. A left turn, counterclockwise seen from above, is positive about the upward z axis ([REP 103](https://www.ros.org/reps/rep-0103.html)). So the check fails when the IMU's frame is upside down, or when the IMU doesn't measure the turn.
 
+### The reset test
+
+`test_imu_reset.py` runs the plugin through a reset of the simulation. Without the first `if` in [`UpdateChild()`](#when-the-plugin-publishes), the IMU would stay silent after a reset for as long as the simulation ran before it. The test's constants, [`test_imu_reset.py`, lines 32–46]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L32-L46):
+
+```python title="test_imu_reset.py: the constants" linenums="32" hl_lines="5 6"
+--8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu_reset.py:32:46"
+```
+
+`RUN_BEFORE_RESET` and `RECOVERY`, the highlighted lines, are seconds of simulation time. The test compares them with the samples' stamps. The three timeouts and `POLL_INTERVAL` are seconds of wall time.
+
+`setUp()` subscribes to `/diffbot/imu/data_raw` with a callback that notes each sample's stamp in the list `self.stamps`. Then it waits for Gazebo's reset service ([lines 51–60]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L51-L60)). The test method, [`test_imu_reset.py`, lines 89–96]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L89-L96):
+
+```python title="test_imu_reset.py: run, reset, wait for fresh samples" linenums="89" hl_lines="7"
+--8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu_reset.py:89:96"
+```
+
+1. **Run.** The test waits until the latest stamp has reached `RUN_BEFORE_RESET`, 3 s. So the IMU has published for 3 s of simulation time, and `last_time` in the plugin is about 3 s.
+2. **Reset.** The test notes how many samples have arrived, and calls `/gazebo/reset_simulation`, the highlighted line. Gazebo's clock starts from zero again.
+3. **Wait for fresh samples.** The test waits until `FRESH_SAMPLE_COUNT`, 10, fresh samples have arrived, at most `RECOVERY_TIMEOUT`, 30 s of wall time. It fails when they don't arrive in that time. The failure message names the stamps of the first samples after the reset ([lines 104–111]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L104-L111)).
+
+Which samples count as fresh, [`test_imu_reset.py`, lines 66–73]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L66-L73):
+
+```python title="test_imu_reset.py: fresh_stamps()" linenums="66"
+--8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu_reset.py:66:73"
+```
+
+A fresh sample arrived after the test called the reset, and its stamp is earlier than `RECOVERY`, 1 s. Such a stamp can only come from the new simulation time: before the reset, the stamps had reached 3 s. With the reset handled, the first samples after the reset are stamped 0.02 s, 0.04 s and 0.06 s, and ten of them arrive within 0.2 s of simulation time. A plugin that keeps the old time publishes its next sample only after the clock has passed 3 s again. Then no sample is stamped earlier than 1 s, and the test fails.
+
 ### Wall time and simulation time
 
-The startup waits and the measurements use different clocks:
+The startup waits and the measurements of `test_imu.py` use different clocks:
 
-- **The startup waits** in `setUp()` use wall time: `rospy.wait_for_message()` measures its `timeout` with the computer's clock ([rospy's source](https://github.com/ros/ros_comm/blob/1.17.4/clients/rospy/src/rospy/client.py#L413-L420)), and the loop uses `time.monotonic()`. These waits have to end even when the simulation's clock doesn't run, for example when Gazebo hasn't started yet. Each of the three waits has its own limit of `STARTUP_TIMEOUT`, 60 s. When no IMU message or no odometry comes in time, `rospy.wait_for_message()` raises an exception, and the test reports an error. When the drive controller doesn't connect in time, `assertLess()` fails, and the test reports a failure. Independently of these limits, rostest stops the whole test node after its `time-limit` of 120 s ([`sim_drive_diffbot.test`, line 29]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L29)).
+- **The startup waits** in `setUp()` use wall time: `rospy.wait_for_message()` measures its `timeout` with the computer's clock ([rospy's source](https://github.com/ros/ros_comm/blob/1.17.4/clients/rospy/src/rospy/client.py#L413-L420)), and the loop uses `time.monotonic()`. These waits have to end even when the simulation's clock doesn't run, for example when Gazebo hasn't started yet. Each of the three waits has its own limit of `STARTUP_TIMEOUT`, 60 s. When no IMU message or no odometry comes in time, `rospy.wait_for_message()` raises an exception, and the test reports an error. When the drive controller doesn't connect in time, `assertLess()` fails, and the test reports a failure. Independently of these limits, rostest stops the whole test node after its `time-limit` of 120 s ([`sim_drive_diffbot.test`, line 30]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L30)).
 - **The measurements** use simulation time: `rospy.sleep()`, `rospy.Time.now()` and `rospy.Rate` follow Gazebo's clock, because [the launch file on Simulation Test](../../development/simulation-test.md#2-the-launch-file) sets `use_sim_time`. So `MEASURE` always covers 2 s of simulated motion, about 100 IMU messages at 50 Hz, however fast the computer runs the simulation.
 
-### What the test can't show
+`test_imu_reset.py` waits only in wall time, with `time.monotonic()` and `time.sleep()`. `rospy.sleep()` raises an exception when the simulation's clock goes back while it waits ([rospy's `sleep()`, lines 161–163](https://github.com/ros/ros_comm/blob/1.17.4/clients/rospy/src/rospy/timer.py#L161-L163)), and the test resets that clock on purpose. Its two limits in simulation time come from the samples' stamps, not from a clock that the test reads. Its three timeouts only limit how long a failing run takes, and rostest stops the test node after its `time-limit` of 180 s ([`sim_drive_diffbot.test`, line 34]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L34)).
 
-The test checks the simulated IMU in one start of the simulation. A pass doesn't show that the [deadlock of the original plugin](#two-ways-to-run-the-callback) can't happen. With the original plugin, the stall needs a spawner request in the queue at the moment that the plugin spins, and most starts pass without it. A stalled start ends with an error in `setUp()`, because no odometry comes. A longer `STARTUP_TIMEOUT` wouldn't help, because a stopped clock doesn't start again. The counts of many starts with and without the copy are in [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185).
+### What the tests can't show
 
-The test checks only the upward axis, so it doesn't see a wrong rotation about that axis, such as a missing −90° in Remo's `imu_rpy`. It also says nothing about the real BNO055. The real sensor's noise, bias and mounting are checked on the robot, in the [bench checks](driver-bno055.md#bench-checks).
+`test_imu.py` checks the simulated IMU in one start of the simulation. A pass doesn't show that the [deadlock of the original plugin](#two-ways-to-run-the-callback) can't happen. With the original plugin, the stall needs a spawner request in the queue at the moment that the plugin spins, and most starts pass without it. A stalled start ends with an error in `setUp()`, because no odometry comes. A longer `STARTUP_TIMEOUT` wouldn't help, because a stopped clock doesn't start again. The counts of many starts with and without the copy are in [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185).
+
+`test_imu.py` checks only the upward axis, so it doesn't see a wrong rotation about that axis, such as a missing −90° in Remo's `imu_rpy`. It also says nothing about the real BNO055. The real sensor's noise, bias and mounting are checked on the robot, in the [bench checks](driver-bno055.md#bench-checks).
+
+`test_imu_reset.py` checks the IMU's topic after one reset, 3 s after the start. It doesn't check the simulation's other publishers. The drive controller's odometry comes back only when the clock has passed its value from before the reset, as [the EKF's limits](robot_localization.md#limits) explain. The joint states come back at the same time.
