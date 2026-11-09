@@ -2,7 +2,7 @@
 
 DiffBot and Remo estimate how far they drove and turned from their wheels: the drive controller turns the wheel encoders' angles into **odometry**, a pose and a velocity in the `odom` frame. [REP 105's `odom` frame](https://www.ros.org/reps/rep-0105.html#odom) is ROS's convention for such a frame: the robot's pose in it changes smoothly, without jumps, but drifts over time. The wheels' estimate of turning is the weaker part. A wheel that slips, or a wheel separation that is a little off in the configuration, makes the estimated turn too small or too large, and the error in the heading grows into an error in the position the further the robot drives.
 
-The IMU's gyroscope measures the turn directly: its **yaw rate**, the angular velocity about the upward axis, doesn't depend on the wheels. With `ekf:=true`, an **extended Kalman filter (EKF)** from the [`robot_localization`](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html) package combines both: it takes the forward speed from the wheels and the turn mostly from the gyroscope, because the gyroscope's variance is far smaller. The filter publishes the result as `/diffbot/odometry/filtered` and as the transform `odom → base_footprint`, which navigation and RViz use.
+The IMU's gyroscope measures the turn directly: its **yaw rate**, the angular velocity about the upward axis, doesn't depend on the wheels. With `ekf:=true`, an **extended Kalman filter (EKF)** from the [`robot_localization`](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html) package combines both: it takes the forward speed from the wheels and the turn mostly from the gyroscope, because the gyroscope's variance is far smaller. A variance says how far a value's errors spread. The smaller it is, the more the filter trusts the value. The filter publishes the result as `/diffbot/odometry/filtered` and as the transform `odom → base_footprint`, which navigation and RViz use.
 
 robot_localization can fuse any number of sensors, for example GPS, several IMUs and several odometry sources. The DiffBot and Remo configuration combines one IMU with the wheel odometry.
 
@@ -34,11 +34,11 @@ The topics are in the `/diffbot` namespace, for example `/diffbot/imu/data_raw`.
 
 ## Running it
 
-The `ekf` argument switches it on. It's off by default. Pass it to the launch file you start:
+The `ekf` argument switches the EKF on. The EKF is off by default. Pass `ekf:=true` to the launch file you start:
 
 | Where | Command |
 |:--|:--|
-| On the robot | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or `bringup_with_laser.launch`) |
+| On the robot | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or [`bringup_with_laser.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup_with_laser.launch)) |
 | In the simulation | `roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true` |
 | Simulation with navigation | `roslaunch diffbot_navigation diffbot.launch model:=remo ekf:=true` |
 | Navigation on the development PC, for a robot that runs with the EKF | `roslaunch diffbot_navigation diffbot_hw.launch model:=remo ekf:=true` |
