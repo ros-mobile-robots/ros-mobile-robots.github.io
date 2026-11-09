@@ -2129,6 +2129,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#the-link-and-the-joint-in-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The link and the joint in the model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remos-mounting" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4711,6 +4722,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#the-link-and-the-joint-in-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The link and the joint in the model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remos-mounting" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5080,44 +5102,173 @@
 <p>In the Gazebo simulation, DiffBot and Remo have an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> too. It publishes the same topic and the same message as the <a href="../driver-bno055/#what-the-firmware-publishes">BNO055 firmware on the real robot</a>. So the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> that fuses the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate with the wheel odometry gets the same input in the simulation as on the robot.</p>
 <p><a href="../robot_localization/">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a> explains the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and how to switch it on.</p>
 <h2 id="what-the-simulated-imu-publishes">What the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes</h2>
-<p>Both robots publish <code>/diffbot/imu/data_raw</code>, 50 times per second, the firmware's rate. Each message is a <a href="https://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html"><code>sensor_msgs/Imu</code></a>, ROS's standard message for <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> data:</p>
+<p>Both robots publish <code>/diffbot/imu/data_raw</code>, 50 times per second, the firmware's rate. Each message is a <a href="https://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html"><code>sensor_msgs/Imu</code></a>, ROS's standard message for <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> data. The message's definition, <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg"><code>Imu.msg</code> in ROS's common_msgs</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Imu.msg: the sensor_msgs/Imu message</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code># This is a message to hold data from an IMU (Inertial Measurement Unit)
+#
+# Accelerations should be in m/s^2 (not in g's), and rotational velocity should be in rad/sec
+#
+# If the covariance of the measurement is known, it should be filled in (if all you know is the 
+# variance of each measurement, e.g. from the datasheet, just put those along the diagonal)
+# A covariance matrix of all zeros will be interpreted as "covariance unknown", and to use the
+# data a covariance will have to be assumed or gotten from some other source
+#
+# If you have no estimate for one of the data elements (e.g. your IMU doesn't produce an orientation 
+# estimate), please set element 0 of the associated covariance matrix to -1
+# If you are interpreting this message, please check for a value of -1 in the first element of each 
+# covariance matrix, and disregard the associated estimate.
+
+<span class="hll">Header header
+</span>
+<span class="hll">geometry_msgs/Quaternion orientation
+</span><span class="hll">float64[9] orientation_covariance # Row major about x, y, z axes
+</span>
+<span class="hll">geometry_msgs/Vector3 angular_velocity
+</span><span class="hll">float64[9] angular_velocity_covariance # Row major about x, y, z axes
+</span>
+<span class="hll">geometry_msgs/Vector3 linear_acceleration
+</span><span class="hll">float64[9] linear_acceleration_covariance # Row major x, y z 
+</span></code></pre></div></td></tr></tbody></table></div>
+<p>The comments at the top are the message's contract for every publisher:</p>
 <ul>
-<li><code>header.stamp</code>: the simulation time at which Gazebo's sensor measured.</li>
-<li><code>header.frame_id</code>: <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame on the robot.</li>
-<li><code>angular_velocity</code>: how fast the robot turns about the three axes of <code>imu_link</code>, in rad/s, with noise.</li>
-<li><code>linear_acceleration</code>: the specific force, the acceleration minus gravity, along the same axes, in m/s², with noise. At rest, the upward axis reads gravity.</li>
-<li><code>angular_velocity_covariance</code> and <code>linear_acceleration_covariance</code>: the noise's variance.</li>
-<li><code>orientation</code> and <code>orientation_covariance</code>: four zeros, and −1 as the covariance's first element, which marks the orientation unavailable.</li>
+<li>Angular velocities are in rad/s, accelerations in m/s².</li>
+<li>Each vector has a 3 × 3 covariance matrix, stored as nine numbers, row by row. A publisher that knows only the variances puts them on the diagonal.</li>
+<li>A covariance of all zeros means that the covariance is unknown, not that the value has no uncertainty. A node that reads the message then has to assume a covariance.</li>
+<li>−1 as a covariance's first element means that the publisher has no estimate for that field. A node that reads the message should check this element and disregard the field.</li>
 </ul>
-<p>The message has no orientation, like the firmware's message. The firmware reads only the BNO055's angular velocity and acceleration, because the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses only the yaw rate (<a href="../driver-bno055/#what-the-firmware-publishes">what the firmware publishes</a>).</p>
+<p>The fields in order, and what the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> puts into them:</p>
+<ul>
+<li><strong><code>header</code>:</strong> <code>header.stamp</code> is the time of the measurement, here the simulation time at which Gazebo's sensor measured. <code>header.frame_id</code> names the frame whose axes the values use, here <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame.</li>
+<li><strong><code>orientation</code> and <code>orientation_covariance</code>:</strong> an estimate of the sensor's orientation, as a quaternion, and its covariance. Like the firmware, the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> has no orientation estimate: <code>orientation_covariance[0]</code> is −1, which marks the orientation unavailable. The quaternion's four numbers are 0. That isn't a valid orientation, and the −1 tells a reader not to use it.</li>
+<li><strong><code>angular_velocity</code>:</strong> the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> about the three axes of <code>imu_link</code>, in rad/s. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes <span class="arithmatex">\(\tilde{\boldsymbol\omega}\)</span>, the angular velocity with noise.</li>
+<li><strong><code>angular_velocity_covariance</code>:</strong> <span class="arithmatex">\(\Sigma_\omega\)</span>, in (rad/s)². In the simulation, it's a diagonal matrix, <span class="arithmatex">\(\Sigma_\omega = \sigma^2 I_3\)</span>. The noise's standard deviation is <span class="arithmatex">\(\sigma = 0.005\)</span> rad/s, and its variance <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span> (rad/s)².</li>
+<li><strong><code>linear_acceleration</code>:</strong> despite its name, what an accelerometer measures: the specific force <span class="arithmatex">\(\mathbf f = \mathbf a - \mathbf g\)</span>, the acceleration minus gravity, along the same axes, in m/s². At rest, the upward axis reads +9.8 m/s² in Gazebo. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes <span class="arithmatex">\(\tilde{\mathbf f}\)</span>, the specific force with noise.</li>
+<li><strong><code>linear_acceleration_covariance</code>:</strong> <span class="arithmatex">\(\Sigma_f = \sigma^2 I_3\)</span>, in (m/s²)², with <span class="arithmatex">\(\sigma = 0.005\)</span> m/s².</li>
+</ul>
+<p><a href="#what-the-sensor-measures">What the sensor measures</a> and <a href="#noise-and-covariance">how the plugin adds noise</a> derive these values from the code. The firmware's message has no orientation either. The firmware reads only the BNO055's angular velocity and acceleration, because the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses only the yaw rate, as <a href="../driver-bno055/#what-the-firmware-publishes">what the firmware publishes</a> explains.</p>
 <div class="mermaid">graph TB
   SENSOR["Gazebo's IMU sensor at imu_link"] --&gt; PLUGIN["the robots' own IMU plugin"]
   PLUGIN --&gt;|imu/gazebo| ADAPTER[imu_raw_adapter.py]
-  ADAPTER --&gt;|imu/data_raw| GATE[IMU gate: imu_gate.py]
-  GATE --&gt;|imu/data_validated| EKF[EKF]
+  ADAPTER --&gt;|imu/data_raw| VALIDATOR[IMU sample validator: imu_validator.py]
+  VALIDATOR --&gt;|imu/data_validated| EKF[EKF]
   ADAPTER --&gt;|imu/data_raw| TEST[test_imu.py]</div>
 <p>The topics are in the <code>/diffbot</code> namespace, for both robots. The parts of the diagram:</p>
 <ul>
-<li><strong>Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</strong> measures the angular velocity and the specific force at <code>imu_link</code> (<a href="#position-and-axes">position and axes</a>).</li>
-<li><strong>The robots' own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin</strong>, a Gazebo plugin from the diffbot repository, adds noise and publishes the values on <code>/diffbot/imu/gazebo</code> (<a href="#the-gazebo-sensor-and-the-plugin">the plugin</a>).</li>
-<li><strong>The adapter</strong>, <code>imu_raw_adapter.py</code>, removes the orientation and publishes the rest as <code>/diffbot/imu/data_raw</code> (<a href="#the-adapter">the adapter</a>).</li>
-<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> gate</strong> is a node, <code>imu_gate.py</code>, between this topic and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. It passes each sample on unchanged, or drops it when it's too old, repeated or invalid (<a href="../robot_localization/#the-imu-gate"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> gate</a>). The gate and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run only with <code>ekf:=true</code> (<a href="../robot_localization/#running-it">running the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a>).</li>
-<li><strong>The test</strong>, <code>test_imu.py</code>, checks the topic in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> (<a href="#how-its-tested"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> test</a>).</li>
+<li><strong>Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</strong> measures the angular velocity and the specific force at <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame. <a href="#position-and-axes">The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s position and axes</a> shows where this frame sits on each robot.</li>
+<li><strong>The robots' own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin</strong>, a Gazebo plugin from the diffbot repository, adds noise and publishes the values on <code>/diffbot/imu/gazebo</code>. <a href="#the-gazebo-sensor-and-the-plugin">The Gazebo sensor and the plugin</a> shows how the model loads it.</li>
+<li><strong>The adapter</strong>, <code>imu_raw_adapter.py</code>, subscribes to <code>/diffbot/imu/gazebo</code>, removes the orientation and publishes the rest on <code>/diffbot/imu/data_raw</code>. <a href="#the-adapter">The adapter's code</a> shows how.</li>
+<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</strong>, <code>imu_validator.py</code>, subscribes to <code>/diffbot/imu/data_raw</code> and forwards the samples it accepts, unchanged, on <code>/diffbot/imu/data_validated</code>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> subscribes to. It drops a sample while the ROS time is still zero, when its frame isn't <code>imu_link</code>, when a value or a variance isn't usable, or when its stamp is too old, too far ahead or not newer than the last one. <a href="../robot_localization/#the-imu-sample-validator">The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator on the Localization page</a> lists the checks. The validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run only with <code>ekf:=true</code>, as <a href="../robot_localization/#running-it">running the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> shows.</li>
+<li><strong>The test</strong>, <code>test_imu.py</code>, subscribes to <code>/diffbot/imu/data_raw</code> and checks the messages in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>, as <a href="#how-its-tested">the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> test</a> explains.</li>
 </ul>
 <h2 id="position-and-axes">Position and axes</h2>
-<p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame is the link <code>imu_link</code>. A fixed joint, <code>imu_joint</code>, places it on <code>chassis_link</code>, the frame at the center of the robot's base plate. The joint's origin says where the sensor sits and how it's turned:</p>
+<p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame is the link <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L208-L234"><code>imu_link</code></a>. A fixed joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L236-L240"><code>imu_joint</code></a>, places it on <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207"><code>chassis_link</code></a>, the frame at the center of the robot's base plate. The joint's origin says where the sensor sits and how it's turned:</p>
 <ul>
 <li><code>xyz</code> is the position in m, along <code>chassis_link</code>'s x (forward), y (left) and z (up) axes.</li>
 <li><code>rpy</code> is the rotation in rad: roll about x, pitch about y and yaw about z.</li>
 </ul>
-<p>Both robots' models take the two as the xacro arguments <code>imu_xyz</code> and <code>imu_rpy</code>. Every value in the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s message is along <code>imu_link</code>'s axes. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> turns them into the robot's axes with this joint's transform, which <code>robot_state_publisher</code> publishes from the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>.</p>
+<p>Every value in the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s message is along <code>imu_link</code>'s axes. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> turns them into the robot's axes with this joint's transform, which <code>robot_state_publisher</code> publishes from the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>.</p>
 <div class="admonition info">
 <p class="admonition-title">Reading the code</p>
 <ul>
-<li>The excerpts show fixed revisions, with their comments: diffbot's source at one commit, and Remo's model at remo_description 2.5.0. Their line numbers match the original files.</li>
+<li>The excerpts show fixed revisions, with their comments: diffbot's source at one commit, Remo's model at remo_description 2.5.0, and ROS's message definition at one commit of common_msgs. Their line numbers match the original files.</li>
 <li>The link above each excerpt opens that revision and those lines on GitHub.</li>
 </ul>
 </div>
+<h3 id="the-link-and-the-joint-in-the-model">The link and the joint in the model</h3>
+<p>The robots' models are written in <a href="http://wiki.ros.org/xacro">xacro</a>, XML with macros. Xacro expands a model into the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> that ROS and Gazebo read. Both models declare <code>imu_link</code> and <code>imu_joint</code> in a macro called <code>imu_sensor</code>. A macro is a template: each call expands it into <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> elements. DiffBot's macro declares the link in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L208-L234"><code>common_sensors.xacro</code>, lines 208–234</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro (xacro, expands into URDF): imu_link</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;link</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_link"</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;xacro:if</span><span class="w"> </span><span class="na">value=</span><span class="s">"${imu['mesh'] != ''}"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;visual&gt;</span>
+<span class="w">      </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;geometry&gt;</span>
+<span class="w">        </span><span class="nt">&lt;mesh</span><span class="w"> </span><span class="na">filename=</span><span class="s">"package://${package_name}/meshes/sensors/${imu['mesh']}"</span><span class="w"> </span><span class="na">scale=</span><span class="s">"${imu['scale']}"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/geometry&gt;</span>
+<span class="w">      </span><span class="nt">&lt;material</span><span class="w"> </span><span class="na">name=</span><span class="s">"dark_grey"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/visual&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/xacro:if&gt;</span>
+<span class="w">  </span><span class="nt">&lt;xacro:if</span><span class="w"> </span><span class="na">value=</span><span class="s">"${imu['mesh'] == ''}"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;visual&gt;</span>
+<span class="w">      </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;geometry&gt;</span>
+<span class="w">        </span><span class="nt">&lt;box</span><span class="w"> </span><span class="na">size=</span><span class="s">"${imu['size']['x']} ${imu['size']['y']} ${imu['size']['z']}"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/geometry&gt;</span>
+<span class="w">      </span><span class="nt">&lt;material</span><span class="w"> </span><span class="na">name=</span><span class="s">"red"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/visual&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/xacro:if&gt;</span>
+<span class="w">  </span><span class="nt">&lt;collision&gt;</span>
+<span class="w">    </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;geometry&gt;</span>
+<span class="w">      </span><span class="nt">&lt;box</span><span class="w"> </span><span class="na">size=</span><span class="s">"${imu['size']['x']} ${imu['size']['y']} ${imu['size']['z']}"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/geometry&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/collision&gt;</span>
+<span class="w">  </span><span class="nt">&lt;xacro:box_inertia</span><span class="w"> </span><span class="na">m=</span><span class="s">"${imu['mass']}"</span><span class="w"> </span><span class="na">x=</span><span class="s">"${imu['size']['x']}"</span><span class="w"> </span><span class="na">y=</span><span class="s">"${imu['size']['y']}"</span><span class="w"> </span><span class="na">z=</span><span class="s">"${imu['size']['z']}"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/link&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>imu</code> is the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s entry in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/config/diffbot/sensors.yaml#L16-L26"><code>sensors.yaml</code></a>, which the call passes to the macro (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L206">line 206</a>). DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and <code>box_inertia</code> gives the link the board's mass, 3 g.</p>
+<p>The joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L236-L240"><code>common_sensors.xacro</code>, lines 236–240</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro (xacro, expands into URDF): imu_joint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;joint</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_joint"</span><span class="w"> </span><span class="na">type=</span><span class="s">"fixed"</span><span class="nt">&gt;</span>
+<span class="hll"><span class="w">  </span><span class="nt">&lt;parent</span><span class="w"> </span><span class="na">link=</span><span class="s">"${parent_link}"</span><span class="nt">/&gt;</span>
+</span><span class="w">  </span><span class="nt">&lt;child</span><span class="w"> </span><span class="na">link=</span><span class="s">"imu_link"</span><span class="nt">/&gt;</span>
+<span class="hll"><span class="w">  </span><span class="nt">&lt;xacro:insert_block</span><span class="w"> </span><span class="na">name=</span><span class="s">"origin"</span><span class="nt">/&gt;</span>
+</span><span class="nt">&lt;/joint&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ul>
+<li>The joint is <code>fixed</code>, so <code>imu_link</code> moves with its parent link, as the board moves with the robot.</li>
+<li><code>${parent_link}</code> and the <code>&lt;origin&gt;</code> come from the macro's call. The macro's parameter <code>*origin</code> takes the <code>&lt;origin&gt;</code> element written between the call's tags, and <code>xacro:insert_block</code> puts it here. So these lines don't say where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits. Each robot's call does, in the sections on Remo's and DiffBot's mounting.</li>
+</ul>
+<p>Remo's macro in remo_description declares the same link and joint, with a mesh of the BNO055 board (<a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L216-L250">remo_description's <code>common_sensors.xacro</code>, lines 216–250</a>).</p>
 <h3 id="remos-mounting">Remo's mounting</h3>
 <div class="grid">
 <figure>
@@ -5131,37 +5282,64 @@
 <figcaption>Remo from above. The IMU's x axis points to the right, its y axis forward, and its z axis up, toward you.</figcaption>
 </figure>
 </div>
-<p>Remo's model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's model at remo_description 2.5.0 (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>). <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27"><code>remo.urdf.xacro</code>, lines 26–27</a>:</p>
+<p>Remo's model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's model at remo_description 2.5.0 (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_dev.repos"><code>diffbot_dev.repos</code></a>). The call of the macro puts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> on <code>chassis_link</code>, <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216"><code>remo.urdf.xacro</code>, lines 211–216</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">remo.urdf.xacro: the call of imu_sensor</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">&lt;!-- IMU: a BNO055 on the breadboard next to the Teensy, which reads it --&gt;</span>
+<span class="hll"><span class="nt">&lt;xacro:imu_sensor</span><span class="w"> </span><span class="na">parent_link=</span><span class="s">"chassis_link"</span>
+</span><span class="w">                  </span><span class="na">sensor_prop=</span><span class="s">"${sensor_props}"</span>
+<span class="w">                  </span><span class="na">plugin_filename=</span><span class="s">"$(arg imu_plugin)"</span><span class="nt">&gt;</span>
+<span class="hll"><span class="w">  </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"$(arg imu_xyz)"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"$(arg imu_rpy)"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span class="nt">&lt;/xacro:imu_sensor&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>imu_xyz</code> and <code>imu_rpy</code> are xacro arguments, declared at the top of the file with their defaults, <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27"><code>remo.urdf.xacro</code>, lines 26–27</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">remo.urdf.xacro: the IMU's mounting</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_xyz"</span><span class="w"> </span><span class="na">default=</span><span class="s">"-0.0401 0.0234 0.013"</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_rpy"</span><span class="w"> </span><span class="na">default=</span><span class="s">"0 0 -1.5707963"</span><span class="w"> </span><span class="nt">/&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>Xacro turns the call into this joint in Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. The lines are xacro's output for <code>remo.urdf.xacro</code> at 2.5.0, with its default arguments, not a file in a repository:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Remo's URDF, expanded by xacro: imu_joint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;joint</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_joint"</span><span class="w"> </span><span class="na">type=</span><span class="s">"fixed"</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;parent</span><span class="w"> </span><span class="na">link=</span><span class="s">"chassis_link"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;child</span><span class="w"> </span><span class="na">link=</span><span class="s">"imu_link"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 -1.5707963"</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"-0.0401 0.0234 0.013"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/joint&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
 <ul>
 <li><strong>Position:</strong> −4.01 cm, +2.34 cm and +1.3 cm from <code>chassis_link</code>, which is 3.6 cm behind the wheel axle (<a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L71-L74"><code>remo.urdf.xacro</code>, lines 71–74</a>). So the chip's center lies 7.6 cm behind the wheel axle, 2.34 cm left of the robot's center line, and 8 cm above the floor. The board's header pins sit in the breadboard.</li>
-<li><strong>Rotation:</strong> −π/2 rad, −90°, about z. The board lies flat. Its z axis points up, its y axis forward and its x axis to the robot's right. A tilt test on Remo showed these axes (<a href="../driver-bno055/#bench-checks">bench checks</a>). The comment above these lines in <code>remo.urdf.xacro</code> says how each value was found.</li>
+<li><strong>Rotation:</strong> <span class="arithmatex">\(-\pi/2\)</span> rad, −90°, about z. The board lies flat. Its z axis points up, its y axis forward and its x axis to the robot's right. A tilt test on Remo showed these axes, as the <a href="../driver-bno055/#bench-checks">bench checks</a> describe. The comment above the arguments in <code>remo.urdf.xacro</code> says how each value was found.</li>
 </ul>
 <p>Because both z axes point up, a left turn reads as a positive yaw rate <span class="arithmatex">\(\omega_z\)</span>, for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> as for the robot. Forward acceleration appears on the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s positive y axis, not on its x axis. At a steady forward speed on level ground, that axis reads about zero.</p>
 <h3 id="diffbots-mounting">DiffBot's mounting</h3>
-<p>DiffBot uses the same BNO055 board as Remo, moved from one robot to the other. Its mounting on DiffBot isn't measured yet. So DiffBot's model uses placeholders: 1 cm above <code>chassis_link</code>'s origin, with the board's axes along the robot's (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10"><code>diffbot.urdf.xacro</code>, lines 4–10</a>). The call of the macro <code>imu_sensor</code> passes them to the joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82"><code>diffbot.urdf.xacro</code>, lines 80–82</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot.urdf.xacro: the IMU</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
+<p>DiffBot uses the same BNO055 board as Remo, moved from one robot to the other. Its mounting on DiffBot isn't measured yet. So DiffBot's model uses placeholders: 1 cm above <code>chassis_link</code>'s origin, with the board's axes along the robot's. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10"><code>diffbot.urdf.xacro</code>, lines 4–10</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot.urdf.xacro: the IMU's mounting</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">&lt;!-- Where the IMU (imu_link) sits on chassis_link. DiffBot uses the same BNO055 board as Remo,</span>
+<span class="cm">     moved between the robots, but its mounting on DiffBot isn't measured yet. So these defaults</span>
+<span class="cm">     are placeholders: on the plate, with the board's axes along the robot's (x forward, z up).</span>
+<span class="cm">     The measured mounting goes here. To try another one, override them, for example</span>
+<span class="cm">     imu_xyz:='0 0 0.02' imu_rpy:='0 0 0'. --&gt;</span>
+<span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_xyz"</span><span class="w"> </span><span class="na">default=</span><span class="s">"0 0 0.01"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_rpy"</span><span class="w"> </span><span class="na">default=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The call of the macro passes them to the joint, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82"><code>diffbot.urdf.xacro</code>, lines 80–82</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot.urdf.xacro: the call of imu_sensor</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
 <span class="normal">81</span>
 <span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;xacro:imu_sensor</span><span class="w"> </span><span class="na">parent_link=</span><span class="s">"chassis_link"</span><span class="w"> </span><span class="na">sensor_prop=</span><span class="s">"${sensor_prop}"</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"$(arg imu_xyz)"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"$(arg imu_rpy)"</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/xacro:imu_sensor&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The <code>&lt;origin&gt;</code> element between the tags goes into the joint. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L236-L240"><code>common_sensors.xacro</code>, lines 236–240</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro: imu_joint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;joint</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_joint"</span><span class="w"> </span><span class="na">type=</span><span class="s">"fixed"</span><span class="nt">&gt;</span>
-<span class="w">  </span><span class="nt">&lt;parent</span><span class="w"> </span><span class="na">link=</span><span class="s">"${parent_link}"</span><span class="nt">/&gt;</span>
-<span class="w">  </span><span class="nt">&lt;child</span><span class="w"> </span><span class="na">link=</span><span class="s">"imu_link"</span><span class="nt">/&gt;</span>
-<span class="hll"><span class="w">  </span><span class="nt">&lt;xacro:insert_block</span><span class="w"> </span><span class="na">name=</span><span class="s">"origin"</span><span class="nt">/&gt;</span>
-</span><span class="nt">&lt;/joint&gt;</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>A xacro macro is a template: each call expands it into <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> elements. The macro's parameter <code>*origin</code> takes the <code>&lt;origin&gt;</code> element from the call, and <code>xacro:insert_block</code> puts it into the joint. The joint is <code>fixed</code>, so <code>imu_link</code> moves with <code>chassis_link</code>, as the board moves with the robot. The macro also gives <code>imu_link</code> a red box of the board's size, 27 × 20 × 4 mm, and its mass, 3 g (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/config/diffbot/sensors.yaml#L16-L26"><code>sensors.yaml</code></a>).</p>
-<p>To try another mounting, override the arguments when you expand the model, for example <code>xacro diffbot.urdf.xacro imu_xyz:='0 0 0.02'</code>.</p>
+<p>In DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, xacro's output for <code>diffbot.urdf.xacro</code> at the pinned commit, the joint's origin is <code>&lt;origin rpy="0 0 0" xyz="0 0 0.01"/&gt;</code>, on <code>chassis_link</code>. To try another mounting, override the arguments when you expand the model, for example <code>xacro diffbot.urdf.xacro imu_xyz:='0 0 0.02'</code>.</p>
 <h2 id="how-the-plugin-and-the-adapter-make-the-message">How the plugin and the adapter make the message</h2>
 <h3 id="the-gazebo-sensor-and-the-plugin">The Gazebo sensor and the plugin</h3>
 <p>The macro <code>imu_sensor</code> adds the sensor in a block that only Gazebo reads. DiffBot's macro is in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L191-L258"><code>common_sensors.xacro</code></a>, Remo's in <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L211-L268">remo_description's file of the same name</a>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_description/urdf/include/common_sensors.xacro#L242-L257"><code>common_sensors.xacro</code>, lines 242–257</a>:</p>
@@ -5198,16 +5376,16 @@
 <span class="nt">&lt;/gazebo&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>&lt;gazebo reference="imu_link"&gt;</code></strong> holds what only Gazebo reads. <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> tools ignore it. When Gazebo converts the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, it places the sensor at <code>imu_link</code>'s position and rotation. Gazebo merges links that are joined by fixed joints into one link, so the converted model has no <code>imu_link</code>. The sensor keeps its pose in the link that remains: <code>base_footprint</code> for DiffBot, as <code>gz sdf -p</code> shows (<a href="../../../diffbot_gazebo/#troubleshooting">converting the model on the Simulation page</a>). For ROS, <code>imu_link</code> stays the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame.</li>
+<li><strong><code>&lt;gazebo reference="imu_link"&gt;</code></strong> holds what only Gazebo reads. <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> tools ignore it. When Gazebo converts the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, it places the sensor at <code>imu_link</code>'s position and rotation. Gazebo merges links that are joined by fixed joints into one link, so the converted model has no <code>imu_link</code>. The sensor keeps its pose in the link that remains: <code>base_footprint</code> for DiffBot, as <code>gz sdf -p</code> shows when you <a href="../../../diffbot_gazebo/#troubleshooting">convert the model as on the Simulation page</a>. For ROS, <code>imu_link</code> stays the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame.</li>
 <li><strong><code>type="imu"</code></strong> is Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor. <code>update_rate</code> makes it measure 50 times per second.</li>
 <li><strong>The plugin</strong> turns the sensor's values into ROS messages. <code>filename</code> names its library, <code>libdiffbot_gazebo_ros_imu_sensor.so</code>.</li>
 </ul>
-<p><code>libdiffbot_gazebo_ros_imu_sensor.so</code> isn't a standard ROS plugin. It's the diffbot repository's own copy of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin <code>libgazebo_ros_imu_sensor.so</code> from <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp">gazebo_plugins 2.9.3</a>, the version that the dev container installs. The package <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins"><code>diffbot_gazebo_plugins</code></a> builds it from <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp"><code>gazebo_ros_imu_sensor.cpp</code></a>. The copy takes the same parameters, computes the same values and publishes the same message, a <code>sensor_msgs/Imu</code>. It leaves out one function call (<a href="#why-the-plugin-doesnt-spin">why the plugin doesn't spin</a>). The plugin's parameters:</p>
+<p><code>libdiffbot_gazebo_ros_imu_sensor.so</code> isn't a standard ROS plugin. It's the diffbot repository's own copy of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin <code>libgazebo_ros_imu_sensor.so</code> from <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp">gazebo_plugins 2.9.3</a>, the version that the dev container installs. The package <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins"><code>diffbot_gazebo_plugins</code></a> builds it from <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp"><code>gazebo_ros_imu_sensor.cpp</code></a>. The copy takes the same parameters, computes the same values and publishes the same message, a <code>sensor_msgs/Imu</code>. It leaves out one function call, and <a href="#why-the-plugin-doesnt-spin">why the plugin doesn't spin</a> explains which one and why. The plugin's parameters:</p>
 <ul>
 <li><code>robotNamespace</code> and <code>topicName</code>, <code>/diffbot</code> and <code>imu/gazebo</code>, give the topic <code>/diffbot/imu/gazebo</code>.</li>
 <li><code>frameName</code>, <code>imu_link</code>, becomes the message's <code>header.frame_id</code>.</li>
 <li><code>updateRateHZ</code>, 50, is the plugin's own limit: at most 50 messages per second.</li>
-<li><code>gaussianNoise</code>, 0.005, is the standard deviation σ of the noise (<a href="#noise-and-covariance">noise and covariance</a>).</li>
+<li><code>gaussianNoise</code>, 0.005, is the standard deviation <span class="arithmatex">\(\sigma\)</span> of the <a href="#noise-and-covariance">noise that the plugin adds</a>.</li>
 <li><code>xyzOffset</code> is read, but not used.</li>
 <li><code>rpyOffset</code> and <code>initialOrientationAsReference</code> change only the orientation, which the adapter removes.</li>
 </ul>
@@ -5223,7 +5401,7 @@
 \]</div>
 <p><span class="arithmatex">\(\mathbf a\)</span> is the acceleration of the point where the sensor sits, and <span class="arithmatex">\(\mathbf g\)</span> is gravity, both in <code>imu_link</code>'s axes. At rest, <span class="arithmatex">\(\mathbf a = \mathbf 0\)</span>. With <code>imu_link</code>'s z axis up, gravity is <span class="arithmatex">\(\mathbf g = (0, 0, -9.8)\)</span> m/s², so the sensor reads <span class="arithmatex">\(\mathbf f = (0, 0, +9.8)\)</span> m/s². A real accelerometer reads the same: the box at the top of <a href="../driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Bosch BNO055</a> explains why it reads about +9.81 m/s² upward at rest. Gazebo's gravity is 9.8 m/s² in the robots' worlds, <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>'s default (<a href="http://sdformat.org/spec?ver=1.6&amp;elem=world#world_gravity"><abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>'s <code>&lt;gravity&gt;</code></a>).</p>
 <h3 id="noise-and-covariance">Noise and covariance</h3>
-<p><code>Load()</code> connects the plugin's <code>UpdateChild()</code> to Gazebo's world update event (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L121-L122"><code>gazebo_ros_imu_sensor.cpp</code>, lines 121–122</a>). So Gazebo's physics thread calls <code>UpdateChild()</code> at the start of every simulation step (<a href="#threads-callbacks-and-the-callback-queue">physics thread</a>). <code>UpdateChild()</code> goes on at most 50 times per second of simulation time and returns right away otherwise. It fills and publishes a message only while the topic has a subscriber (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L127-L134">lines 127–134</a>). In the simulation, the adapter always subscribes. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L147-L165"><code>gazebo_ros_imu_sensor.cpp</code>, lines 147–165</a>:</p>
+<p><code>Load()</code> connects the plugin's <code>UpdateChild()</code> to Gazebo's world update event (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L121-L122"><code>gazebo_ros_imu_sensor.cpp</code>, lines 121–122</a>). So Gazebo's <a href="#threads-callbacks-and-the-callback-queue">physics thread</a> calls <code>UpdateChild()</code> at the start of every simulation step. <code>UpdateChild()</code> goes on at most 50 times per second of simulation time and returns right away otherwise. It fills and publishes a message only while the topic has a subscriber (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L127-L134">lines 127–134</a>). In the simulation, the adapter always subscribes. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L147-L165"><code>gazebo_ros_imu_sensor.cpp</code>, lines 147–165</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: noise and covariance</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
@@ -5358,10 +5536,10 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 </span>        <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong>How a field is marked unavailable.</strong> A <code>sensor_msgs/Imu</code> message always has an orientation field. To say that a field holds no data, the <a href="https://github.com/ros/common_msgs/blob/noetic-devel/sensor_msgs/msg/Imu.msg">message definition</a> and <a href="https://www.ros.org/reps/rep-0145.html#topics"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145</a>, the ROS convention for <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> drivers, set the first element of the field's covariance to −1. A node that reads the message should check that element and ignore the field. <code>ORIENTATION_UNAVAILABLE</code> is such a covariance: −1, then eight zeros, the 3 × 3 matrix row by row.</li>
+<li><strong>How a field is marked unavailable.</strong> A <code>sensor_msgs/Imu</code> message always has an orientation field. To say that a field holds no data, the <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L10-L13">message definition's comments</a> and <a href="https://www.ros.org/reps/rep-0145.html#topics"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145</a>, the ROS convention for <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> drivers, set the first element of the field's covariance to −1. A node that reads the message should check that element and ignore the field. <code>ORIENTATION_UNAVAILABLE</code> is such a covariance: −1, then eight zeros, the 3 × 3 matrix row by row.</li>
 <li><strong>A convention, not a rule to drop the orientation.</strong> <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145 doesn't ask an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> driver to leave out the orientation. A driver whose sensor estimates an orientation can publish it on <code>imu/data</code>. The firmware's topic, <code>imu/data_raw</code>, is <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145's name for the accelerometer's and the gyroscope's data alone.</li>
 <li><strong>The callback</strong> sets the quaternion's four values to 0 and the orientation covariance to a copy of the constant. <code>list()</code> makes the copy, so that the messages don't share the constant's list. Then the callback publishes the same message object.</li>
-<li><strong>What stays:</strong> the header with its stamp and frame, the angular velocity, the specific force and their covariances. The adapter doesn't stamp the message again. The <a href="../robot_localization/#the-imu-gate"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> gate</a> checks how old each sample is, and a new stamp would hide a delay.</li>
+<li><strong>What stays:</strong> the header with its stamp and frame, the angular velocity, the specific force and their covariances. The adapter doesn't stamp the message again. The <a href="../robot_localization/#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> checks how old each sample is, and a new stamp would hide a delay.</li>
 </ul>
 <h2 id="why-the-plugin-doesnt-spin">Why the plugin doesn't spin</h2>
 <p>gazebo_plugins' original <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin calls <code>ros::spinOnce()</code> right after it publishes. In the simulation, this one call can stop Gazebo's clock for good while the controllers start (<a href="https://github.com/ros-mobile-robots/diffbot/issues/185">diffbot#185</a>). This section explains why, with the threads in the Gazebo server and the controller manager's services.</p>
@@ -5370,7 +5548,7 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 <p><strong>Gazebo's physics thread</strong> steps the simulation. Each step moves the simulation forward by 1 ms of simulation time, the world's <code>max_step_size</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/worlds/diffbot_empty.world#L15"><code>diffbot_empty.world</code>, line 15</a>). At the start of every step, the physics thread calls the plugins' update functions, among them:</p>
 <ul>
 <li>the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin's <code>UpdateChild()</code>,</li>
-<li><code>gazebo_ros_control</code>'s <code>Update()</code>, which calls the controller manager's <code>update()</code>, <code>ControllerManager::update()</code> (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L251"><code>gazebo_ros_control_plugin.cpp</code>, line 251</a>). <code>update()</code> runs the controllers, such as the drive controller (<a href="../../../development/simulation-test/#what-runs-in-the-simulation">what runs in the simulation</a>).</li>
+<li><code>gazebo_ros_control</code>'s <code>Update()</code>, which calls the controller manager's <code>update()</code>, <code>ControllerManager::update()</code> (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L251"><code>gazebo_ros_control_plugin.cpp</code>, line 251</a>). <code>update()</code> runs the controllers, such as the drive controller, as <a href="../../../development/simulation-test/#what-runs-in-the-simulation">what runs in the simulation</a> shows.</li>
 </ul>
 <p>Only the physics thread calls <code>update()</code>. The simulation's clock moves on only when the physics thread finishes a step.</p>
 <p><strong>A callback</strong> is a function that ROS runs for an incoming message or service request. The controller manager has one for each of its services, for example <code>switch_controller</code>, which starts and stops controllers. ROS doesn't run a callback the moment its request arrives. It adds the call to a <strong>callback queue</strong>, a waiting list. The queue itself runs nothing, and it isn't a thread. A thread has to take each call out of the queue and run it. ROS calls this <strong>spinning</strong>.</p>
@@ -5536,11 +5714,11 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 </ul>
 <p>The source is under the Apache License 2.0, as the original is. The copy keeps the original's notices, and the package installs the license's text (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/package.xml"><code>package.xml</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/CMakeLists.txt"><code>CMakeLists.txt</code></a>). Gazebo looks for the library's file name on <code>GAZEBO_PLUGIN_PATH</code> and then on <code>LD_LIBRARY_PATH</code>. The workspace's <code>setup.bash</code> puts the workspace's library folder on <code>LD_LIBRARY_PATH</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo_plugins/CMakeLists.txt#L23-L25">the comment in <code>CMakeLists.txt</code></a>).</p>
 <h2 id="how-its-tested">How it's tested</h2>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/test_imu.py"><code>test_imu.py</code></a> checks <code>/diffbot/imu/data_raw</code> as the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the firmware expect it. Both simulation test files run it as a test node of its own, <code>imu_diffbot</code> and <code>imu_remo</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/sim_drive_diffbot.test#L27-L29"><code>sim_drive_diffbot.test</code>, lines 27–29</a>). So rostest starts Gazebo and the robot again for this test node, as for the other test nodes (<a href="../../../development/simulation-test/#1-the-test-file">the test file on Simulation Test</a>). Simulation Test also shows how to <a href="../../../development/simulation-test/#run-it">run the tests</a> and <a href="../../../development/simulation-test/#read-the-results">read their results</a>.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/test_imu.py"><code>test_imu.py</code></a> checks <code>/diffbot/imu/data_raw</code> as the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the firmware expect it. Both simulation test files run it as a test node of its own, <code>imu_diffbot</code> and <code>imu_remo</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/sim_drive_diffbot.test#L27-L29"><code>sim_drive_diffbot.test</code>, lines 27–29</a>). So rostest starts Gazebo and the robot again for this test node, as for the other test nodes in <a href="../../../development/simulation-test/#1-the-test-file">the test file on Simulation Test</a>. Simulation Test also shows how to <a href="../../../development/simulation-test/#run-it">run the tests</a> and <a href="../../../development/simulation-test/#read-the-results">read their results</a>.</p>
 <p>The test has two test methods, one at rest and one in a left turn. unittest runs a test class's methods in <a href="https://docs.python.org/3/library/unittest.html#unittest.TestLoader.sortTestMethodsUsing">alphabetical order</a>, so the left turn runs first.</p>
 <details class="example">
 <summary>The constants, <code>test_imu.py</code> lines 22–48</summary>
-<p>The comments say what each number is. <code>STARTUP_TIMEOUT</code> and <code>POLL_INTERVAL</code> are seconds of wall time, the computer's clock. <code>SETTLE</code>, <code>SPEED_UP</code> and <code>MEASURE</code> are seconds of simulation time, Gazebo's clock (<a href="#wall-time-and-simulation-time">wall time and simulation time</a>).</p>
+<p>The comments say what each number is. <code>STARTUP_TIMEOUT</code> and <code>POLL_INTERVAL</code> are seconds of wall time, the computer's clock. <code>SETTLE</code>, <code>SPEED_UP</code> and <code>MEASURE</code> are seconds of simulation time, Gazebo's clock. <a href="#wall-time-and-simulation-time">Wall time and simulation time</a> explains the difference.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span>
@@ -5629,7 +5807,7 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 <li><strong>The subscriber.</strong> <code>rospy.Subscriber(TOPIC, Imu, self.messages.append, queue_size=QUEUE_SIZE)</code> subscribes to <code>/diffbot/imu/data_raw</code>. Its arguments are the topic, the message class, and the callback that rospy calls for each message. The callback is the list's <code>append</code> method, so each message is added to <code>self.messages</code>. rospy runs the callback in one of its background threads, so the list fills while the test method sleeps. The test keeps no variable for the subscriber: rospy keeps the subscription until the node shuts down.</li>
 <li><strong>The publisher.</strong> <code>rospy.Publisher(COMMAND, Twist, queue_size=COMMAND_QUEUE_SIZE)</code> creates a publisher for <code>geometry_msgs/Twist</code> velocity commands on the drive controller's topic. <code>self.command</code> keeps it, and the test methods send each command with <code>self.command.publish(...)</code>.</li>
 <li><strong>The first <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message.</strong> <code>rospy.wait_for_message()</code> waits for it. It comes early: Gazebo's sensor and the adapter publish soon after the robot is in the simulation.</li>
-<li><strong>An <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message doesn't mean that the robot can drive.</strong> The controller spawner starts the drive controller, <code>mobile_base_controller</code>, later (<a href="../../../development/simulation-test/#2-the-launch-file">the launch file on Simulation Test</a>). So <code>setUp()</code> waits for the controller's first odometry message, which shows that the controller runs.</li>
+<li><strong>An <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message doesn't mean that the robot can drive.</strong> The controller spawner starts the drive controller, <code>mobile_base_controller</code>, later, as <a href="../../../development/simulation-test/#2-the-launch-file">the launch file on Simulation Test</a> shows. So <code>setUp()</code> waits for the controller's first odometry message, which shows that the controller runs.</li>
 <li><strong>A running controller can still miss the first commands.</strong> ROS connects a publisher and a subscriber only after both exist, and a message published before the connection is lost. <code>get_num_connections()</code> counts the subscribers connected to the test's publisher. The loop waits until the drive controller has connected, at most <code>STARTUP_TIMEOUT</code>, 60 s.</li>
 </ul>
 <h3 id="the-test-at-rest">The test at rest</h3>
@@ -5671,7 +5849,7 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 <span class="k">for</span> <span class="n">earlier</span><span class="p">,</span> <span class="n">later</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">stamps</span><span class="p">,</span> <span class="n">stamps</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">later</span><span class="p">,</span> <span class="n">earlier</span><span class="p">,</span> <span class="s1">'each stamp should be later than the one before'</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Each stamp must be later than the one before. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> gate drops a sample that isn't later than the last one it passed on.</p>
+<p>Each stamp must be later than the one before. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator drops a sample that isn't later than the last one it forwarded.</p>
 <p><strong>The frame and the orientation.</strong> For each message, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/test_imu.py#L84-L87"><code>test_imu.py</code>, lines 84–87</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the frame and the orientation</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">84</span>
 <span class="normal">85</span>
@@ -5683,7 +5861,7 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
 <li>The frame must be <code>imu_link</code>. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> looks up this frame to turn the yaw rate into the robot's axes.</li>
-<li><code>orientation_covariance[0]</code> must be −1: the orientation is marked unavailable, as in the firmware's message (<a href="#the-adapter">the adapter</a>).</li>
+<li><code>orientation_covariance[0]</code> must be −1: the orientation is marked unavailable, as in the firmware's message. <a href="#the-adapter">The adapter</a> sets it.</li>
 </ul>
 <p><strong>The values and the yaw rate's variance.</strong> In the same loop, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/test_imu.py#L88-L93"><code>test_imu.py</code>, lines 88–93</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the values and the variance</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">88</span>
@@ -5699,8 +5877,8 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
                 <span class="s2">"the yaw rate's variance should be positive, is </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variance</span><span class="p">))</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><code>angular_velocity.z</code> and <code>linear_acceleration.z</code> must be finite: not NaN, not infinite. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> gate drops samples with values that aren't finite.</li>
-<li><code>angular_velocity_covariance[8]</code> must be positive and finite. Element 8 is the z-z element, the yaw rate's variance, <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span> (rad/s)² in the simulation (<a href="#noise-and-covariance">noise and covariance</a>). The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> weighs the yaw rate with it, and the gate drops samples without a positive, finite variance.</li>
+<li><code>angular_velocity.z</code> and <code>linear_acceleration.z</code> must be finite: not NaN, not infinite. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator drops samples with values that aren't finite.</li>
+<li><code>angular_velocity_covariance[8]</code> must be positive and finite. Element 8 is the z-z element of <span class="arithmatex">\(\Sigma_\omega\)</span>, the yaw rate's variance, <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span> (rad/s)² in the simulation, as <a href="#noise-and-covariance">noise and covariance</a> derives. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> weighs the yaw rate with it, and the validator drops samples without a positive, finite variance.</li>
 </ul>
 <p><strong>Gravity.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/test_imu.py#L94-L97"><code>test_imu.py</code>, lines 94–97</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: gravity</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">94</span>
@@ -5715,7 +5893,7 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 <div class="arithmatex">\[
 |\bar f_z - 9.81 \text{ m/s}^2| \le 0.5 \text{ m/s}^2
 \]</div>
-<p>At rest, the upward axis reads gravity, +9.8 m/s² in Gazebo (<a href="#what-the-sensor-measures">what the sensor measures</a>). An <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> frame upside down reads about −9.8 m/s², and a plugin that leaves gravity out reads about 0.</p>
+<p>At rest, the upward axis reads gravity, <span class="arithmatex">\(f_z = +9.8\)</span> m/s² in Gazebo, as <a href="#what-the-sensor-measures">what the sensor measures</a> derives. An <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> frame upside down reads about −9.8 m/s², and a plugin that leaves gravity out reads about 0.</p>
 <h3 id="the-left-turn">The left turn</h3>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/test_imu.py#L99-L117"><code>test_imu.py</code>, lines 99–117</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the left turn</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
@@ -5765,7 +5943,7 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 <p>The startup waits and the measurements use different clocks:</p>
 <ul>
 <li><strong>The startup waits</strong> in <code>setUp()</code> use wall time: <code>rospy.wait_for_message()</code> measures its <code>timeout</code> with the computer's clock (<a href="https://github.com/ros/ros_comm/blob/1.17.4/clients/rospy/src/rospy/client.py#L413-L420">rospy's source</a>), and the loop uses <code>time.monotonic()</code>. These waits have to end even when the simulation's clock doesn't run, for example when Gazebo hasn't started yet. Each of the three waits has its own limit of <code>STARTUP_TIMEOUT</code>, 60 s. When no <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message or no odometry comes in time, <code>rospy.wait_for_message()</code> raises an exception, and the test reports an error. When the drive controller doesn't connect in time, <code>assertLess()</code> fails, and the test reports a failure. Independently of these limits, rostest stops the whole test node after its <code>time-limit</code> of 120 s (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da/diffbot_gazebo/test/sim_drive_diffbot.test#L29"><code>sim_drive_diffbot.test</code>, line 29</a>).</li>
-<li><strong>The measurements</strong> use simulation time: <code>rospy.sleep()</code>, <code>rospy.Time.now()</code> and <code>rospy.Rate</code> follow Gazebo's clock, because the launch file sets <code>use_sim_time</code> (<a href="../../../development/simulation-test/#2-the-launch-file">simulation time on Simulation Test</a>). So <code>MEASURE</code> always covers 2 s of simulated motion, about 100 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> messages at 50 Hz, however fast the computer runs the simulation.</li>
+<li><strong>The measurements</strong> use simulation time: <code>rospy.sleep()</code>, <code>rospy.Time.now()</code> and <code>rospy.Rate</code> follow Gazebo's clock, because <a href="../../../development/simulation-test/#2-the-launch-file">the launch file on Simulation Test</a> sets <code>use_sim_time</code>. So <code>MEASURE</code> always covers 2 s of simulated motion, about 100 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> messages at 50 Hz, however fast the computer runs the simulation.</li>
 </ul>
 <h3 id="what-the-test-cant-show">What the test can't show</h3>
 <p>The test checks the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> in one start of the simulation. A pass doesn't show that the <a href="#two-ways-to-run-the-callback">deadlock of the original plugin</a> can't happen. With the original plugin, the stall needs a spawner request in the queue at the moment that the plugin spins, and most starts pass without it. A stalled start ends with an error in <code>setUp()</code>, because no odometry comes. A longer <code>STARTUP_TIMEOUT</code> wouldn't help, because a stopped clock doesn't start again. The counts of many starts with and without the copy are in <a href="https://github.com/ros-mobile-robots/diffbot/issues/185">diffbot#185</a>.</p>
