@@ -60,8 +60,6 @@ The sideways speed is 0 for a differential drive robot, which can't move sideway
 
 Other settings: `two_d_mode` keeps z, roll and pitch at 0 for a robot on a flat floor. `world_frame` is `odom`, so the estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes `map → odom` itself. `frequency` is 50 Hz, the rate of both inputs.
 
-<a id="the-imu-gate"></a>
-
 ## The IMU sample validator
 
 robot_localization's EKF has a per-input timestamp-order check, but that check doesn't enforce freshness or reject equal timestamps. In robot_localization 2.7.7, the version in the dev container, the IMU's angular velocity passes this check when its stamp isn't earlier than the last stamp on the same input ([`ros_filter.cpp`, lines 2197–2221](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2221)). When a measurement's stamp isn't later than the last measurement that the filter processed, the filter corrects its current estimate with it, without predicting first ([`filter_base.cpp`, lines 205–234](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L205-L234)). [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) off, so the filter doesn't go back to the time of a late measurement. So the filter fuses a sample that arrives late, or one with the same stamp as the one before, as if it were current. A sample that sat in a buffer would count as the robot's yaw rate now.
