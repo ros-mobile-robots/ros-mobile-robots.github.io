@@ -58,7 +58,7 @@ To see what the filter does, compare the two odometries while the robot turns, f
 
 The sideways speed is 0 for a differential drive robot, which can't move sideways. Fusing it keeps the estimate from drifting sideways. How much the filter trusts each value comes from the variances in the messages: the controller's `twist_covariance_diagonal` in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) gives the wheels' yaw rate 0.03 (rad/s)², the firmware gives the gyroscope 4 · 10⁻⁴ (rad/s)². With these, the filter's yaw rate lies close to the gyroscope's.
 
-Other settings: `two_d_mode` keeps z, roll and pitch at 0 for a robot on a flat floor. `world_frame` is `odom`, so the estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes `map → odom` itself. `frequency` is 50 Hz, the rate of both inputs.
+Other settings: `two_d_mode` keeps z, roll and pitch at 0 for a robot on a flat floor. `world_frame` is `odom`, so the estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes `map → odom` itself. `frequency` is 50 Hz, the IMU's rate. In the simulation, the wheel odometry arrives at 50 Hz too, the drive controller's `publish_rate` in `diffbot_control.yaml`. On the robot, the wheel odometry arrives at most 10 times per second. The controller publishes at most one odometry message each time it runs ([`diff_drive_controller.cpp`, lines 430–432](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432)), and the base node's control loop in [`diffbot_base.cpp`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) runs the controller at 10 Hz.
 
 ## The IMU sample validator
 
@@ -87,7 +87,7 @@ Three tests check the EKF without the robot, in [CI with the repository's other 
 - **In Gazebo:** [`sim_ekf_diffbot.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test) and [`sim_ekf_remo.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_remo.test) give the drive controller a wheel separation 25 % larger than the robot's. The controller then turns the robot 25 % more than commanded, while its odometry reports the commanded turn. In a 3 s left turn, DiffBot turned 1.847 rad, its odometry said 1.478 rad and the EKF 1.848 rad. Remo turned 1.876 rad, its odometry said 1.501 rad and the EKF 1.875 rad. The test also checks that only the EKF publishes `odom → base_footprint`.
 - **The switch:** [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py) reads the launch files with roslaunch's loader, without starting them, and checks both positions of `ekf`: which nodes start, `enable_odom_tf`, and which odometry the planners read.
 
-What these tests don't show: how the real gyroscope behaves (its noise and bias, how it's mounted), the delays on the robot, and whether the filter helps on the floor. The [floor odometry test](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure that on Remo.
+What these tests don't show: how the real gyroscope behaves (its noise and bias, how it's mounted), the delays on the robot, the filter with the robot's slower wheel odometry (in these tests, both inputs arrive at 50 Hz), and whether the filter helps on the floor. The [floor odometry test](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure that on Remo.
 
 ## Limits
 
