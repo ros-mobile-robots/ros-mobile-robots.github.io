@@ -88,6 +88,9 @@ extra:
   # line ranges and highlighted lines against it
   imu_sim_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/5f8771850c038b1d5620df263c7bc691ddb449da
   imu_sim_src_url: https://github.com/ros-mobile-robots/diffbot/blob/5f8771850c038b1d5620df263c7bc691ddb449da
+  # The ros/common_msgs commit (noetic-devel) whose sensor_msgs/Imu definition IMU: Simulation shows
+  common_msgs_src_raw: https://raw.githubusercontent.com/ros/common_msgs/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb
+  common_msgs_src_url: https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
