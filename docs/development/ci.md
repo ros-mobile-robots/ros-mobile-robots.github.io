@@ -99,7 +99,7 @@ The runner reads every line that the script prints, and runs the workflow comman
 
 ### Tests
 
-`diffbot_gazebo` and `diffbot_control` register catkin tests: the simulation test, the geometry test and the EKF tests below. The firmware has unit tests on the PC, and the robot image has a smoke test of its own. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` without the robot ([diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114)) and for the firmware's wheel control on the PC ([diffbot#158](https://github.com/ros-mobile-robots/diffbot/issues/158)) are planned.
+`diffbot_gazebo` and `diffbot_control` register catkin tests: the simulation test, the geometry test and the EKF tests below. The firmware has unit tests on the PC, and the robot image has a smoke test of its own. So for most changes the checks prove that everything builds, and a pull request describes how it was tested, for example in the simulation or on the robot. Tests for `diffbot_base` without the robot are planned ([diffbot#114](https://github.com/ros-mobile-robots/diffbot/issues/114)). So are tests for the rest of the firmware's wheel control, which first moves into code that builds on the PC ([diffbot#158](https://github.com/ros-mobile-robots/diffbot/issues/158)).
 
 #### Simulation test
 
@@ -115,7 +115,7 @@ The [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the w
 
 #### Firmware unit tests
 
-The Teensy firmware's IMU code and its command timeout run on the PC, with fake hardware and a fake ROS connection ([IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)). PlatformIO's `native` environment builds them for the PC, in the firmware's container like the boards. The Firmware workflow runs them in a job of their own, `unit tests (native)`. On your PC, see [Running the checks locally](#running-the-checks-locally).
+Parts of the Teensy firmware run on the PC, with fake hardware and a fake ROS connection: the IMU code ([IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)), the PID controller, the subscriber for the wheel commands, and the wheel control's command timeout. Each has its test folder in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test). PlatformIO's `native` environment builds them for the PC, in the firmware's container like the boards. The Firmware workflow runs them in a job of their own, `unit tests (native)`. On your PC, see [Running the checks locally](#running-the-checks-locally).
 
 #### Robot container smoke test
 
