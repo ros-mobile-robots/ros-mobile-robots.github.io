@@ -1,0 +1,3 @@
+# For scripts/urdf-explorer/build.py, which expands the robots' xacro files
+xacro==2.1.1
+PyYAML==6.0.3

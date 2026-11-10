@@ -26,7 +26,14 @@ The `meshes` folder keeps the `meshes` that are included in the `urdf` file, and
 ### Robot Model
 
 To model the two wheeled differential drive robot we follow [REP-120](https://www.ros.org/reps/rep-0120.html#base-link).
-It states to use a `base_link` and a `base_footprint`. The resulting description files can be found in the [`diffbot_description`]({{ diffbot_repo_url }}/diffbot_control) package.
+It states to use a `base_link` and a `base_footprint`. The resulting description files can be found in the [`diffbot_description`]({{ diffbot_repo_url }}/diffbot_description) package.
+
+A URDF describes a robot as **links**, its rigid parts, which **joints** connect. Each link can have three separate descriptions ([URDF link specification](https://wiki.ros.org/urdf/XML/link)): a visual shape, a collision shape, and its inertial values, which are its mass, its center of mass and its inertia. Each link also has a frame, the coordinate system in which its shapes and the joints to its child links are given. [Wheel Dynamics in Simulation](theory/modeling-control/wheel-dynamics-simulation.md#representing-a-wheel) explains why the three descriptions of a wheel differ.
+
+**Explore the robot models.** The figure shows these descriptions for every link of DiffBot and Remo, in four steps. Open the 3D view, then choose a step or a link.
+{: #explore-the-robot-models }
+
+--8<-- "includes/urdf-explorer.html"
 
 
 ### Required Tools

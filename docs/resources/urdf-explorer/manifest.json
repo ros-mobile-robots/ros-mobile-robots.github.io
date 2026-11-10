@@ -1,0 +1,136 @@
+{
+ "robots": {
+  "diffbot": {
+   "urdf": "diffbot.urdf",
+   "sha256": "3e0fdc32a182326c3d7536787d0ae4e20b7a6a62cd4c2d9b8171530cf2cf3322",
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/diffbot",
+    "commit": "f5f282eed7b6a2b146d40c7d5fd641b8a339a77d",
+    "file": "diffbot_description/urdf/diffbot.urdf.xacro"
+   },
+   "visuals": {
+    "package://diffbot_description/meshes/components/wheel.stl": "tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb",
+    "package://diffbot_description/meshes/diffbot/caster_base.stl": "swivel_caster_30mm/swivel_caster_30mm_base.glb",
+    "package://diffbot_description/meshes/diffbot/caster_wheel.stl": "swivel_caster_30mm/swivel_caster_30mm_wheel.glb",
+    "package://diffbot_description/meshes/diffbot/caster_wheel_support.stl": "swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb",
+    "package://diffbot_description/meshes/diffbot/chassis.stl": null,
+    "package://diffbot_description/meshes/diffbot/motor.stl": null,
+    "package://diffbot_description/meshes/sensors/rplidar-a2.stl": "rplidar_a2/rplidar_a2.glb"
+   }
+  },
+  "remo": {
+   "urdf": "remo.urdf",
+   "sha256": "da487958f4130342f615f728f8bcce3a78a727cc73bfafd3dce9d699afa43c02",
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/remo_description",
+    "commit": "0f25d6d2e33ad587e476adfa8139b8cabef38413",
+    "file": "urdf/remo.urdf.xacro"
+   },
+   "visuals": {
+    "package://remo_description/meshes/components/adafruit_dc_stepper_featherwing.stl": null,
+    "package://remo_description/meshes/components/battery_pack.stl": null,
+    "package://remo_description/meshes/components/bno055.stl": null,
+    "package://remo_description/meshes/components/breadboard_400_point.stl": "breadboard_400_point/breadboard_400_point.glb",
+    "package://remo_description/meshes/components/power_bank.stl": null,
+    "package://remo_description/meshes/components/raspberry_pi_4B.stl": "raspberry_pi_4b/raspberry_pi_4b.glb",
+    "package://remo_description/meshes/components/slamtec_rplidar_usb_to_serial.stl": null,
+    "package://remo_description/meshes/components/teensy_4-0.stl": "teensy_4_0/teensy_4_0.glb",
+    "package://remo_description/meshes/components/wheel.stl": "tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb",
+    "package://remo_description/meshes/remo/DG01D-E_motor_w_encoder.stl": null,
+    "package://remo_description/meshes/remo/camera_mount/Raspberry_pi_CAM_holder.stl": null,
+    "package://remo_description/meshes/remo/camera_mount/camera_mount.stl": null,
+    "package://remo_description/meshes/remo/caster/caster_base_65mm.stl": null,
+    "package://remo_description/meshes/remo/caster/caster_shroud_65mm.stl": null,
+    "package://remo_description/meshes/remo/chassis.stl": null,
+    "package://remo_description/meshes/remo/deck/raspberry_pi_deck.stl": null,
+    "package://remo_description/meshes/remo/lidar_platform/platfom_rplidar_a2.stl": null,
+    "package://remo_description/meshes/remo/lidar_platform/slamtec_holder.stl": null,
+    "package://remo_description/meshes/sensors/raspi_cam_v2_IMX219.stl": "raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb",
+    "package://remo_description/meshes/sensors/rplidar-a2.stl": "rplidar_a2/rplidar_a2.glb"
+   }
+  }
+ },
+ "meshes": {
+  "breadboard_400_point.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/breadboard_400_point/breadboard_400_point.glb"
+   },
+   "bytes": 289564,
+   "sha256": "5588e7d2f95bccc4ff8c2753074cfd1aeb3b47f74dee075a6ea0436bb2b38dc2"
+  },
+  "raspberry_pi_4b.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/raspberry_pi_4b/raspberry_pi_4b.glb"
+   },
+   "bytes": 594284,
+   "sha256": "cecfcf20effa6a9156deff828f35306267c39d0722eeb7e01f7ab8b1098e6a4f"
+  },
+  "raspberry_pi_camera_v2.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb"
+   },
+   "bytes": 116304,
+   "sha256": "f6f7d17571b1d0342d305c066e43adaed48c1b4fa0c19f2456f35bbb92dd5842"
+  },
+  "rplidar_a2.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/rplidar_a2/rplidar_a2.glb"
+   },
+   "bytes": 331748,
+   "sha256": "cda28b4d3b17d8b00ab9522254e35d1aaf4c1eaf533d5d8bad021afba77b1bfb"
+  },
+  "swivel_caster_30mm_base.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/swivel_caster_30mm/swivel_caster_30mm_base.glb"
+   },
+   "bytes": 231716,
+   "sha256": "8358a9f5010d97cfc2d72403acaddc88a3f6f03dafa4511a044c7abde3203e15"
+  },
+  "swivel_caster_30mm_wheel.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/swivel_caster_30mm/swivel_caster_30mm_wheel.glb"
+   },
+   "bytes": 120816,
+   "sha256": "8e88c1de83d40fcbeb522d5bc56b24da61d6b21b9d8d86138ea6440cd1ec1435"
+  },
+  "swivel_caster_30mm_wheel_support.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb"
+   },
+   "bytes": 153376,
+   "sha256": "51555bf7aa6320930d404dbcd4f884fdc11eda276c594843606bf0ae17aacdf1"
+  },
+  "teensy_4_0.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "4f3af14f4a31d658fe2d92c76a4aa6cf0558781f",
+    "file": "meshes/teensy_4_0/teensy_4_0.glb"
+   },
+   "bytes": 899724,
+   "sha256": "6a5d03b299b1020aae40f7773d2c8c452ed6cbd6993c0947bc69c800712dc25d"
+  },
+  "tt_motor_wheel_65mm.glb": {
+   "source": {
+    "repository": "https://github.com/ros-mobile-robots/robot_component_models",
+    "commit": "e2f092faa801dd0f3dda547800e7253b57d43d68",
+    "file": "meshes/tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb"
+   },
+   "bytes": 1459716,
+   "sha256": "c70dd0375636ee96aa216699848e2fc259a8878a2aff554019cfb9cd66104bd2"
+  }
+ }
+}
