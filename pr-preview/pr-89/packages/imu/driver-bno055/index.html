@@ -2117,9 +2117,40 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../simulation/" class="md-nav__link">
+    
+    
+      
         
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2_2">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../simulation/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -2133,7 +2164,143 @@
   
   
 
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_6_2_2" id="__nav_3_6_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/position-and-axes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Position and Axes
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/measurement-to-message/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From Measurement to Message
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Robots' Own IMU Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4608,7 +4775,7 @@
 <p><a href="../robot_localization/">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a> explains the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. In the Gazebo simulation, a simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes the same message as the firmware (<a href="../simulation/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>).</p>
 <div class="admonition info">
 <p class="admonition-title">Checked on Remo</p>
-<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard (<a href="../simulation/#remos-mounting">Remo's mounting</a>). On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
+<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard (<a href="../simulation/position-and-axes/#the-mounting-on-each-robot">Remo's mounting</a>). On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
 </div>
 <h2 id="wiring-to-the-teensy">Wiring to the Teensy</h2>
 <p>The BNO055 shares the Teensy's first <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, <code>Wire</code>, with the motor driver (<a href="../../../components/">Adafruit Motor FeatherWing</a>). On the Teensy 4.0 and 3.2, <code>Wire</code> uses pin 18 for SDA and pin 19 for SCL (<a href="https://www.pjrc.com/teensy/td_libs_Wire.html">PJRC: Wire library</a>):</p>
@@ -4902,13 +5069,13 @@
         
         
           
-          <a href="../simulation/" class="md-footer__link md-footer__link--next" aria-label="Next: Simulation">
+          <a href="../simulation/" class="md-footer__link md-footer__link--next" aria-label="Next: IMU: Simulation">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Simulation
+                IMU: Simulation
               </div>
             </div>
             <div class="md-footer__button md-icon">

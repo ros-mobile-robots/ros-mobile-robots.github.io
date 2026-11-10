@@ -2005,9 +2005,40 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../packages/imu/simulation/" class="md-nav__link">
+    
+    
+      
         
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2_2">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../packages/imu/simulation/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -2021,7 +2052,143 @@
   
   
 
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_6_2_2" id="__nav_3_6_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packages/imu/simulation/position-and-axes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Position and Axes
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packages/imu/simulation/measurement-to-message/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From Measurement to Message
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packages/imu/simulation/plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Robots' Own IMU Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packages/imu/simulation/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -5237,7 +5404,7 @@ for using ROS with the Gazebo simulator.</p>
 <h4 id="ultrasonic-ranger">Ultrasonic Ranger</h4>
 <p>See the source of the <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/kinetic-devel/gazebo_plugins/src/gazebo_ros_range.cpp"><code>gazebo_ros_range</code></a> plugin.</p>
 <h4 id="inertial-measurement-unit-imu">Inertial Measurement Unit (<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>)</h4>
-<p>Both robots' models have a simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>. It publishes <code>/diffbot/imu/data_raw</code> at 50 Hz, with the same message as the <a href="../packages/imu/driver-bno055/#what-the-firmware-publishes">BNO055 firmware on the real robot</a>, so the <a href="../packages/imu/robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> gets the same input in the simulation as on the robot. <a href="../packages/imu/simulation/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a> shows where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits on each robot, how the robots' own Gazebo plugin measures it, and how it's tested.</p>
+<p>Both robots' models have a simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>. It publishes <code>/diffbot/imu/data_raw</code> at 50 Hz, with the same message as the <a href="../packages/imu/driver-bno055/#what-the-firmware-publishes">BNO055 firmware on the real robot</a>, so the <a href="../packages/imu/robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> gets the same input in the simulation as on the robot. <a href="../packages/imu/simulation/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a> shows what the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes. Its sub pages show <a href="../packages/imu/simulation/position-and-axes/">where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits on each robot</a>, <a href="../packages/imu/simulation/measurement-to-message/">how a sample becomes a message</a>, <a href="../packages/imu/simulation/plugin/">why the robots have their own Gazebo plugin</a> and <a href="../packages/imu/simulation/tests/">how the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is tested</a>.</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <p>A quick way to verify if the conversion from <a href="http://wiki.ros.org/xacro">xacro</a> to <a href="http://wiki.ros.org/urdf">urdf</a> to <a href="http://sdformat.org/">sdf</a> is working is the following (<a href="http://gazebosim.org/tutorials/?tut=ros_urdf#VerifyingtheGazeboModelWorks">source: Tutorial <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a>):
 First convert the xacro model to a urdf model with the <code>xacro</code> command:</p>
