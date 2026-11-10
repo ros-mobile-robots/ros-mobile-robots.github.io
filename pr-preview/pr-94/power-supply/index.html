@@ -4726,21 +4726,23 @@ Use alkaline AA batteries in DiffBot's holder.</p>
 <p>Remo's six NiMH AA cells sit in the battery holder under the top plate (<a href="../hardware_setup/assembly/#step-10-battery-pack">assembly step 10</a>).
 The holder's cable goes to the 2-pin power terminal of the <a href="https://www.adafruit.com/product/2927">Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor + Stepper FeatherWing</a>.</p>
 <figure class="pf-figure">
-<svg class="pf-fig" viewBox="0 0 360 400" role="img" aria-labelledby="pf-remo-title"><title id="pf-remo-title">Remo's power flow: the power bank supplies the Raspberry Pi, the Teensy and its sensors, and the six NiMH cells supply the motors</title><defs><marker id="pf-remo-bank-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-bank" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="pf-remo-battery-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-battery" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<svg class="pf-fig" viewBox="0 0 360 400" role="img" aria-labelledby="pf-remo-title"><title id="pf-remo-title">Remo's power flow: the power bank supplies the Raspberry Pi, the LiDAR, the Teensy and its sensors, and the six NiMH cells supply the motors</title><defs><marker id="pf-remo-bank-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-bank" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="pf-remo-battery-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-battery" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
 <rect class="source bank" x="10" y="6" width="140" height="38" rx="5"></rect>
 <text class="name" x="80.0" y="29.0" text-anchor="middle">USB power bank</text>
 <path class="line bank" d="M60,44 V65" marker-end="url(#pf-remo-bank-head)"></path>
 <text class="volt-bank" x="69" y="61" text-anchor="start">5 V, USB-C</text>
 <rect class="part" x="10" y="70" width="140" height="60" rx="5"></rect>
 <text class="name" x="80.0" y="104.0" text-anchor="middle">Raspberry Pi 4 B</text>
-<path class="line data" d="M150,84 H186"></path>
-<rect class="part" x="186" y="64" width="132" height="34" rx="5"></rect>
-<text class="name" x="252.0" y="78.5" text-anchor="middle">RPLidar A2M8</text>
-<text class="note" x="252.0" y="91.5" text-anchor="middle">USB adapter</text>
-<path class="line data" d="M150,118 H186"></path>
-<rect class="part" x="186" y="106" width="132" height="34" rx="5"></rect>
-<text class="name" x="252.0" y="120.5" text-anchor="middle">Raspberry Pi Camera</text>
-<text class="note" x="252.0" y="133.5" text-anchor="middle">camera cable</text>
+<path class="line bank" d="M150,79 H191" marker-end="url(#pf-remo-bank-head)"></path>
+<path class="line data" d="M150,86 H196"></path>
+<text class="volt-bank" x="173.0" y="73" text-anchor="middle">5 V</text>
+<rect class="part" x="196" y="64" width="122" height="34" rx="5"></rect>
+<text class="name" x="257.0" y="78.5" text-anchor="middle">RPLidar A2M8</text>
+<text class="note" x="257.0" y="91.5" text-anchor="middle">USB adapter</text>
+<path class="line data" d="M150,118 H196"></path>
+<rect class="part" x="196" y="106" width="122" height="34" rx="5"></rect>
+<text class="name" x="257.0" y="120.5" text-anchor="middle">Raspberry Pi Camera</text>
+<text class="note" x="257.0" y="133.5" text-anchor="middle">camera cable</text>
 <rect class="source battery" x="220" y="6" width="130" height="38" rx="5"></rect>
 <text class="name" x="285.0" y="29.0" text-anchor="middle">Six NiMH AA cells</text>
 <path class="line battery" d="M338,44 V181" marker-end="url(#pf-remo-battery-head)"></path>
@@ -4790,16 +4792,15 @@ The holder's cable goes to the 2-pin power terminal of the <a href="https://www.
 </figure>
 
 <ul>
-<li><strong>From the power bank:</strong> the Raspberry Pi gets 5 V at its USB-C port. The Teensy gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The Teensy's 3.3 V pin supplies the encoders, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the logic of the motor driver (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169">bench check</a>, section 8).</li>
+<li><strong>From the power bank:</strong> the Raspberry Pi gets 5 V at its USB-C port. The Teensy gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>'s USB adapter is on another USB port of the Raspberry Pi and gets the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>'s supply from it. The adapter has no supply of its own. The Teensy's 3.3 V pin supplies the encoders, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the logic of the motor driver (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169">bench check</a>, section 8).</li>
 <li><strong>From the motor battery:</strong> the motors only. The motor driver switches the battery voltage to them.</li>
 <li><strong>The motor driver</strong> is the only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection (<a href="https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB">schematic</a>), so both supplies share one ground.</li>
 <li><strong>Without the Teensy, the motors stop.</strong> The motor driver's logic loses its 3.3 V together with the Teensy. In the bench check, pulling the Teensy's USB cable while driving stopped the wheels at once.</li>
-<li>
-<p><strong>The <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> and the camera</strong> are drawn with a dashed line, their data connection to the Raspberry Pi. Their supply isn't drawn, because it isn't checked on Remo yet.</p>
-</li>
-<li>
-<p><strong>Input range:</strong> Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its <a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">guide</a> asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged down to 6.0 V at the end of the rated discharge.</p>
-</li>
+<li><strong>The camera</strong> is drawn with a dashed line, its data connection to the Raspberry Pi. Its supply isn't drawn, because it isn't checked on Remo yet.</li>
+</ul>
+<p>The battery and the motor driver fit together like this:</p>
+<ul>
+<li><strong>Input range:</strong> Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its <a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">guide</a> asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged down to 6.0 V at the end of the rated discharge.</li>
 <li><strong>Voltage drop:</strong> The TB6612 switches with MOSFETs. Its <a href="https://toshiba.semicon-storage.com/info/docget.jsp?did=10660">datasheet</a> gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. So the motors get almost the full battery voltage.</li>
 <li><strong>What the motors get:</strong> About 8 V with fully charged cells, falling to about 6 V when they're nearly empty. This stays below the motors' 9 V maximum.</li>
 </ul>
