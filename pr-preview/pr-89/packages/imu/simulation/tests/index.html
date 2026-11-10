@@ -4846,7 +4846,7 @@
 
 <h1 id="imu-simulation-tests"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Simulation: Tests</h1>
 <p>What <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> checks on the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, and how the tests do it. This page belongs to <a href="../"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>.</p>
-<p>Two test files check the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> in Gazebo, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py"><code>test_imu.py</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py"><code>test_imu_reset.py</code></a>, with three tests:</p>
+<p>Two test files check the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> in Gazebo, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py"><code>test_imu.py</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py"><code>test_imu_reset.py</code></a>, with three tests:</p>
 <table>
 <thead>
 <tr>
@@ -4875,7 +4875,7 @@
 </table>
 <p><a href="#what-the-tests-dont-show">What the tests don't show</a> lists what a pass doesn't prove.</p>
 <h2 id="how-the-tests-run">How the tests run</h2>
-<p>Both simulation test files, <code>sim_drive_diffbot.test</code> and <code>sim_drive_remo.test</code>, run each of the two Python files as a test node of its own: <code>imu_diffbot</code> and <code>imu_reset_diffbot</code> for DiffBot, <code>imu_remo</code> and <code>imu_reset_remo</code> for Remo. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/sim_drive_diffbot.test#L28-L34"><code>sim_drive_diffbot.test</code>, lines 28–34</a>:</p>
+<p>Both simulation test files, <code>sim_drive_diffbot.test</code> and <code>sim_drive_remo.test</code>, run each of the two Python files as a test node of its own: <code>imu_diffbot</code> and <code>imu_reset_diffbot</code> for DiffBot, <code>imu_remo</code> and <code>imu_reset_remo</code> for Remo. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/sim_drive_diffbot.test#L28-L34"><code>sim_drive_diffbot.test</code>, lines 28–34</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_drive_diffbot.test: the two IMU test nodes</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
@@ -4951,7 +4951,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </details>
 <h2 id="waiting-until-the-robot-can-drive">Waiting until the robot can drive</h2>
-<p>Both tests of <code>test_imu.py</code> send velocity commands to the robot. A command that the robot doesn't receive would make the test measure a robot at rest. So before each test, <code>setUp()</code> waits until the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes and the drive controller listens. unittest calls <code>setUp()</code> before each test method. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L53-L65"><code>test_imu.py</code>, lines 53–65</a>:</p>
+<p>Both tests of <code>test_imu.py</code> send velocity commands to the robot. A command that the robot doesn't receive would make the test measure a robot at rest. So before each test, <code>setUp()</code> waits until the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes and the drive controller listens. unittest calls <code>setUp()</code> before each test method. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L53-L65"><code>test_imu.py</code>, lines 53–65</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: setUp()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">53</span>
 <span class="normal">54</span>
 <span class="normal">55</span>
@@ -4979,7 +4979,7 @@
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">POLL_INTERVAL</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>List[Imu]</code>.</strong> <code>Imu</code> is the Python class of the message type <code>sensor_msgs/Imu</code>, imported from <code>sensor_msgs.msg</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L20">line 20</a>. Each <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message arrives as an <code>Imu</code> object. <code>List[Imu]</code> is a type hint from Python's <a href="https://docs.python.org/3/library/typing.html"><code>typing</code></a> module: it says that <code>self.messages</code> is a list of <code>Imu</code> messages. Python doesn't check it when the test runs. It tells readers and tools such as mypy what the list holds.</li>
+<li><strong><code>List[Imu]</code>.</strong> <code>Imu</code> is the Python class of the message type <code>sensor_msgs/Imu</code>, imported from <code>sensor_msgs.msg</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L20">line 20</a>. Each <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message arrives as an <code>Imu</code> object. <code>List[Imu]</code> is a type hint from Python's <a href="https://docs.python.org/3/library/typing.html"><code>typing</code></a> module: it says that <code>self.messages</code> is a list of <code>Imu</code> messages. Python doesn't check it when the test runs. It tells readers and tools such as mypy what the list holds.</li>
 <li><strong>The subscriber.</strong> <code>rospy.Subscriber(TOPIC, Imu, self.messages.append, queue_size=QUEUE_SIZE)</code> subscribes to <code>/diffbot/imu/data_raw</code>. Its arguments are the topic, the message class, and the callback that rospy calls for each message. The callback is the list's <code>append</code> method, so each message is added to <code>self.messages</code>. rospy runs the callback in one of its background threads, so the list fills while the test method waits. The test keeps no variable for the subscriber: rospy keeps the subscription until the node shuts down.</li>
 <li><strong>The publisher.</strong> <code>rospy.Publisher(COMMAND, Twist, queue_size=COMMAND_QUEUE_SIZE)</code> creates a publisher for <code>geometry_msgs/Twist</code> velocity commands on the drive controller's topic. <code>self.command_publisher</code> keeps it for the test methods.</li>
 <li><strong>The first <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message.</strong> <code>rospy.wait_for_message()</code> waits for it. It comes early: Gazebo's sensor and the adapter publish soon after the robot is in the simulation.</li>
@@ -4988,7 +4988,7 @@
 </ul>
 <h2 id="the-test-at-rest">The test at rest</h2>
 <p><code>test_imu_publishes_the_firmware_message_at_rest</code> checks that the message on <code>/diffbot/imu/data_raw</code> is what its readers need. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> runs at 50 Hz, the firmware's rate. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator forwards only samples with the frame <code>imu_link</code>, rising stamps, finite values and a positive variance. And the firmware's message has no orientation. The robot stands still during this test, because then the reading on the upward axis is known: gravity alone.</p>
-<p>The test uses two helpers, which the left turn uses too. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L67-L82"><code>test_imu.py</code>, lines 67–82</a>:</p>
+<p>The test uses two helpers, which the left turn uses too. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L67-L82"><code>test_imu.py</code>, lines 67–82</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: send_command() and collect_messages()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
 <span class="normal">68</span>
 <span class="normal">69</span>
@@ -5025,7 +5025,7 @@
 <li><strong><code>send_command()</code></strong> publishes a velocity command for <code>seconds</code> of simulation time, 20 times per second (<code>COMMAND_RATE</code>). One command isn't enough: the drive controller stops the robot when no command arrives for 0.5 s.</li>
 <li><strong><code>collect_messages()</code></strong> returns the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s messages of the next <code>seconds</code>. It empties the list, sends the command for that time while the subscriber fills the list, and returns a copy of the list.</li>
 </ul>
-<p>The test starts like this, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L84-L87"><code>test_imu.py</code>, lines 84–87</a>:</p>
+<p>The test starts like this, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L84-L87"><code>test_imu.py</code>, lines 84–87</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: stand still, then collect</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
@@ -5035,7 +5035,7 @@
     <span class="n">messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect_messages</span><span class="p">(</span><span class="n">stand_still</span><span class="p">,</span> <span class="n">MEASURE</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>Twist()</code> is a command with all velocities 0. The test sends it for <code>SETTLE</code>, 1 s, because the robot may still be braking after the left turn. Then the test collects <span class="arithmatex">\(T\)</span> = <code>MEASURE</code> = 2 s of messages. The checks follow, each with its lines.</p>
-<p><strong>The rate.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L88-L91"><code>test_imu.py</code>, lines 88–91</a>:</p>
+<p><strong>The rate.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L88-L91"><code>test_imu.py</code>, lines 88–91</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the rate</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
@@ -5045,7 +5045,7 @@
                        <span class="n">TOPIC</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">RATE</span><span class="p">))</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>With <span class="arithmatex">\(N\)</span> messages in <span class="arithmatex">\(T\)</span> = 2 s, the check is <span class="arithmatex">\(N / T &gt; 0.9 \cdot 50 \text{ Hz} = 45 \text{ Hz}\)</span>. The firmware publishes at 50 Hz, and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> runs at that rate.</p>
-<p><strong>The stamps.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L92-L94"><code>test_imu.py</code>, lines 92–94</a>:</p>
+<p><strong>The stamps.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L92-L94"><code>test_imu.py</code>, lines 92–94</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the stamps</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">92</span>
 <span class="normal">93</span>
 <span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">stamps</span> <span class="o">=</span> <span class="p">[</span><span class="n">message</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">stamp</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">]</span>
@@ -5053,7 +5053,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">later</span><span class="p">,</span> <span class="n">earlier</span><span class="p">,</span> <span class="s1">'each stamp should be later than the one before'</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Each stamp must be later than the one before. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator drops a sample that isn't later than the last one it forwarded.</p>
-<p><strong>The frame and the orientation.</strong> For each message, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L95-L98"><code>test_imu.py</code>, lines 95–98</a>:</p>
+<p><strong>The frame and the orientation.</strong> For each message, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L95-L98"><code>test_imu.py</code>, lines 95–98</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the frame and the orientation</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">95</span>
 <span class="normal">96</span>
 <span class="normal">97</span>
@@ -5066,7 +5066,7 @@
 <li>The frame must be <code>imu_link</code>. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> looks up this frame to convert the yaw rate into the robot's axes.</li>
 <li><code>orientation_covariance[0]</code> must be −1: the orientation is marked unavailable, as in the firmware's message. <a href="../measurement-to-message/#the-adapter">The adapter</a> sets it.</li>
 </ul>
-<p><strong>The values and the yaw rate's variance.</strong> In the same loop, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L99-L104"><code>test_imu.py</code>, lines 99–104</a>:</p>
+<p><strong>The values and the yaw rate's variance.</strong> In the same loop, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L99-L104"><code>test_imu.py</code>, lines 99–104</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the values and the variance</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
@@ -5083,7 +5083,7 @@
 <li><code>angular_velocity.z</code> and <code>linear_acceleration.z</code> must be finite: not NaN, not infinite. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator drops samples with values that aren't finite.</li>
 <li><code>angular_velocity_covariance[8]</code> must be positive and finite. Element 8 is the yaw rate's variance, <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span> (rad/s)² in the simulation, as <a href="../#how-the-message-stores-a-covariance">how the message stores a covariance</a> and <a href="../measurement-to-message/#noise-and-covariance">noise and covariance</a> show. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> weighs the yaw rate with it, and the validator drops samples without a positive, finite variance.</li>
 </ul>
-<p><strong>Gravity.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L105-L109"><code>test_imu.py</code>, lines 105–109</a>:</p>
+<p><strong>Gravity.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L105-L109"><code>test_imu.py</code>, lines 105–109</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: gravity</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span>
@@ -5100,7 +5100,7 @@
 \]</div>
 <p>At rest, the upward axis reads gravity, <span class="arithmatex">\(f_z = +9.8\)</span> m/s² in Gazebo, as <a href="../#the-linear-acceleration">the linear acceleration</a> explains. An <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> frame that is upside down reads about −9.8 m/s², and a plugin that leaves gravity out reads about 0.</p>
 <h2 id="the-left-turn">The left turn</h2>
-<p><code>test_imu_measures_a_positive_yaw_rate_in_a_left_turn</code> checks the yaw rate, the one value that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses, while the robot turns. At rest, the yaw rate is 0 however the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is mounted. Only a turn shows that the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> measures the turn, and with the right sign. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L111-L121"><code>test_imu.py</code>, lines 111–121</a>:</p>
+<p><code>test_imu_measures_a_positive_yaw_rate_in_a_left_turn</code> checks the yaw rate, the one value that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses, while the robot turns. At rest, the yaw rate is 0 however the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is mounted. Only a turn shows that the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> measures the turn, and with the right sign. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L111-L121"><code>test_imu.py</code>, lines 111–121</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu.py: the left turn</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -5130,7 +5130,7 @@
 </ul>
 <h2 id="the-reset-test">The reset test</h2>
 <p><code>test_imu_reset.py</code> checks that the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes again right after a reset of the simulation. A reset sets Gazebo's clock back to zero. A plugin that doesn't notice this stays silent for as long as the simulation ran before the reset, and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> gets no yaw rate in that time. <a href="../plugin/#publishing-again-after-a-reset">Publishing again after a reset</a> explains how the robots' plugin handles a clock that went back.</p>
-<p>The test's constants, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L32-L46"><code>test_imu_reset.py</code>, lines 32–46</a>:</p>
+<p>The test's constants, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L32-L46"><code>test_imu_reset.py</code>, lines 32–46</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_reset.py: the constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
 <span class="normal">33</span>
 <span class="normal">34</span>
@@ -5162,7 +5162,7 @@
 <span class="n">POLL_INTERVAL</span> <span class="o">=</span> <span class="mf">0.02</span>  <span class="c1"># s of wall time between two looks at the received samples</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>RUN_BEFORE_RESET</code> and <code>RECOVERY</code>, the highlighted lines, are seconds of simulation time. The test compares them with the samples' stamps. The three timeouts and <code>POLL_INTERVAL</code> are seconds of wall time.</p>
-<p><code>setUp()</code> subscribes to <code>/diffbot/imu/data_raw</code> with a callback that notes each sample's stamp in the list <code>self.stamps</code>. Then <code>setUp()</code> waits for Gazebo's reset service, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L51-L60">lines 51–60</a>. The test method, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L89-L96"><code>test_imu_reset.py</code>, lines 89–96</a>:</p>
+<p><code>setUp()</code> subscribes to <code>/diffbot/imu/data_raw</code> with a callback that notes each sample's stamp in the list <code>self.stamps</code>. Then <code>setUp()</code> waits for Gazebo's reset service, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L51-L60">lines 51–60</a>. The test method, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L89-L96"><code>test_imu_reset.py</code>, lines 89–96</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_reset.py: run, reset, wait for fresh samples</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">89</span>
 <span class="normal">90</span>
 <span class="normal">91</span>
@@ -5182,9 +5182,9 @@
 <ol>
 <li><strong>Run.</strong> The test waits until the latest stamp has reached <code>RUN_BEFORE_RESET</code>, 3 s. So the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> has published for 3 s of simulation time, and <code>last_time</code> in the plugin is about 3 s.</li>
 <li><strong>Reset.</strong> The test notes how many samples have arrived, and calls <code>/gazebo/reset_simulation</code>, the highlighted line. Gazebo's clock starts from zero again.</li>
-<li><strong>Wait for fresh samples.</strong> The test waits until <code>FRESH_SAMPLE_COUNT</code>, 10, fresh samples have arrived, at most <code>RECOVERY_TIMEOUT</code>, 30 s of wall time. The test fails when the samples don't arrive in that time. The failure message, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L104-L111">lines 104–111</a>, names the stamps of the first samples after the reset.</li>
+<li><strong>Wait for fresh samples.</strong> The test waits until <code>FRESH_SAMPLE_COUNT</code>, 10, fresh samples have arrived, at most <code>RECOVERY_TIMEOUT</code>, 30 s of wall time. The test fails when the samples don't arrive in that time. The failure message, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L104-L111">lines 104–111</a>, names the stamps of the first samples after the reset.</li>
 </ol>
-<p>Which samples count as fresh, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L66-L73"><code>test_imu_reset.py</code>, lines 66–73</a>:</p>
+<p>Which samples count as fresh, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L66-L73"><code>test_imu_reset.py</code>, lines 66–73</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_reset.py: fresh_stamps()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">66</span>
 <span class="normal">67</span>
 <span class="normal">68</span>
@@ -5208,8 +5208,8 @@
 <li><strong>Wall time</strong> is the computer's clock, the time that a clock on the wall shows.</li>
 <li><strong>Simulation time</strong> is Gazebo's clock. It starts at 0 when the simulation starts and moves on by 1 ms with every simulation step. It stands still while Gazebo starts, and for good when the simulation stalls.</li>
 </ul>
-<p><strong>Where the two differ.</strong> The two clocks don't run at the same speed. Their ratio is Gazebo's real time factor: 1 when a second of simulation takes a second of wall time, and less than 1 when the computer is too slow for that, as Gazebo's tutorial on <a href="https://classic.gazebosim.org/tutorials?tut=physics_params&amp;cat=physics">physics parameters</a> explains. The test's world asks for real time, with 1000 steps of 1 ms per second in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/worlds/diffbot_empty.world#L14-L16">lines 14–16 of <code>diffbot_empty.world</code></a>. A busy computer, such as a <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runner, reaches less. So 2 s of simulation time can take 2 s of wall time, or 5 s.</p>
-<p><strong>Which clock a ROS node reads.</strong> A ROS node reads the computer's clock, unless the parameter <code>use_sim_time</code> is set. Then <code>rospy.Time.now()</code>, <code>rospy.sleep()</code> and <code>rospy.Rate</code> follow Gazebo's clock, which Gazebo publishes on the topic <code>/clock</code>. The ROS wiki's page on the <a href="http://wiki.ros.org/Clock">clock</a> describes this. The simulation's launch file sets <code>use_sim_time</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/launch/diffbot_view.launch#L14-L30">lines 14 and 30 of <code>diffbot_view.launch</code></a>. Python's own <code>time.monotonic()</code> and <code>time.sleep()</code> always count wall time.</p>
+<p><strong>Where the two differ.</strong> The two clocks don't run at the same speed. Their ratio is Gazebo's real time factor: 1 when a second of simulation takes a second of wall time, and less than 1 when the computer is too slow for that, as Gazebo's tutorial on <a href="https://classic.gazebosim.org/tutorials?tut=physics_params&amp;cat=physics">physics parameters</a> explains. The test's world asks for real time, with 1000 steps of 1 ms per second in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/worlds/diffbot_empty.world#L14-L16">lines 14–16 of <code>diffbot_empty.world</code></a>. A busy computer, such as a <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runner, reaches less. So 2 s of simulation time can take 2 s of wall time, or 5 s.</p>
+<p><strong>Which clock a ROS node reads.</strong> A ROS node reads the computer's clock, unless the parameter <code>use_sim_time</code> is set. Then <code>rospy.Time.now()</code>, <code>rospy.sleep()</code> and <code>rospy.Rate</code> follow Gazebo's clock, which Gazebo publishes on the topic <code>/clock</code>. The ROS wiki's page on the <a href="http://wiki.ros.org/Clock">clock</a> describes this. The simulation's launch file sets <code>use_sim_time</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/launch/diffbot_view.launch#L14-L30">lines 14 and 30 of <code>diffbot_view.launch</code></a>. Python's own <code>time.monotonic()</code> and <code>time.sleep()</code> always count wall time.</p>
 <p>Not every rospy function follows <code>use_sim_time</code>. <code>rospy.wait_for_message()</code> counts its <code>timeout</code> on the computer's clock, with <code>time.time()</code>. rospy's lines, <a href="https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/clients/rospy/src/rospy/client.py#L413-L420"><code>client.py</code> in ros_comm 1.17.4, lines 413–420</a>, under the BSD license:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">client.py (rospy 1.17.4): the timeout of wait_for_message()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">413</span>
 <span class="normal">414</span>
@@ -5241,43 +5241,43 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><code>test_imu.py</code>: the first <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message and the first odometry message, each at most <code>STARTUP_TIMEOUT</code>, 60 s</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L57-L60">57 and 60</a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L57-L60">57 and 60</a></td>
 <td style="text-align: left;">Wall time</td>
 <td style="text-align: left;">While Gazebo starts, the simulation's clock stands still. A limit in simulation time would never run out</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>test_imu.py</code>: the drive controller's connection, at most <code>STARTUP_TIMEOUT</code>, 60 s</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L61-L65">61–65</a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L61-L65">61–65</a></td>
 <td style="text-align: left;">Wall time, with <code>time.monotonic()</code> and <code>time.sleep()</code></td>
 <td style="text-align: left;">The same reason</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>test_imu.py</code>: <code>send_command()</code> for <code>SETTLE</code>, <code>SPEED_UP</code> and <code>MEASURE</code>, 1 s, 1 s and 2 s</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu.py#L67-L73">67–73</a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu.py#L67-L73">67–73</a></td>
 <td style="text-align: left;">Simulation time, with <code>rospy.Time.now()</code> and <code>rospy.Rate</code></td>
 <td style="text-align: left;">The robot's motion and the number of <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> messages depend on simulated seconds. <code>MEASURE</code> always covers 2 s of motion and about 100 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> messages, however fast the computer runs the simulation</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>test_imu_reset.py</code>: Gazebo's reset service, at most <code>STARTUP_TIMEOUT</code>, 60 s</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L55">55</a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L55">55</a></td>
 <td style="text-align: left;">Wall time</td>
 <td style="text-align: left;">While Gazebo starts, the simulation's clock stands still</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>test_imu_reset.py</code>: <code>wait_for()</code> with <code>RUN_TIMEOUT</code>, 60 s, and <code>RECOVERY_TIMEOUT</code>, 30 s</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L79-L87">79–87</a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L79-L87">79–87</a></td>
 <td style="text-align: left;">Wall time, with <code>time.monotonic()</code> and <code>time.sleep()</code></td>
 <td style="text-align: left;">The test sets the simulation's clock back on purpose. <code>rospy.sleep()</code> raises an exception when the clock goes back while it waits, in <a href="https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/clients/rospy/src/rospy/timer.py#L161-L163">lines 161–163 of rospy's <code>timer.py</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>test_imu_reset.py</code>: <code>RUN_BEFORE_RESET</code>, 3 s, and <code>RECOVERY</code>, 1 s</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/test_imu_reset.py#L64-L73">64 and 73</a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/test_imu_reset.py#L64-L73">64 and 73</a></td>
 <td style="text-align: left;">Simulation time, read from the samples' stamps</td>
 <td style="text-align: left;">They say how long the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> ran before the reset and how early it came back, in the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s own time. The test reads no clock for them</td>
 </tr>
 <tr>
 <td style="text-align: left;">Both: rostest's <code>time-limit</code>, 120 s for <code>test_imu.py</code> and 180 s for <code>test_imu_reset.py</code></td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6/diffbot_gazebo/test/sim_drive_diffbot.test#L30-L34">30 and 34 of <code>sim_drive_diffbot.test</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/test/sim_drive_diffbot.test#L30-L34">30 and 34 of <code>sim_drive_diffbot.test</code></a></td>
 <td style="text-align: left;">Wall time</td>
 <td style="text-align: left;">It stops a test node that hangs</td>
 </tr>
