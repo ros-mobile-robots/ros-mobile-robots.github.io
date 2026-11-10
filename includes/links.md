@@ -25,6 +25,12 @@
 [amazon_battery_holder_8x_aa_ger]: https://amzn.to/42vNJJY
 [amazon_battery_holder_8x_aa_us]: https://www.amazon.com/dp/B07KVHMQRH?tag=fjp033-20
 
+[amazon_nimh_aa_2000mah_8x_ger]: https://www.amazon.de/dp/B00CWNMV4G?tag=fjp-21
+[amazon_nimh_aa_2000mah_8x_us]: https://www.amazon.com/dp/B00CWNMV4G?tag=fjp033-20
+
+[amazon_nitecore_ums4_ger]: https://www.amazon.de/dp/B07L8LW9NG?tag=fjp-21
+[amazon_nitecore_ums4_us]: https://www.amazon.com/dp/B07L8LW9NG?tag=fjp033-20
+
 [amazon_usb_c_cable_50cm_ger]: https://amzn.to/4ohAW6h
 [amazon_usb_c_cable_50cm_us]: https://www.amazon.com/dp/B08L7NCLZN?tag=fjp033-20
 
