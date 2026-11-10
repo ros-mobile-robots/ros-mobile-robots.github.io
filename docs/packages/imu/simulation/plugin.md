@@ -17,7 +17,7 @@ The copy takes the same parameters, computes the same values and publishes the s
 
 ### The short answer
 
-gazebo_plugins' original IMU plugin calls `ros::spinOnce()` right after it publishes a message. This call makes Gazebo's physics thread, the thread that moves the simulation forward, run whatever ROS service request waits at that moment. A request of the controller spawner then waits for the controller manager's next update, and only the physics thread runs that update. So the physics thread waits for itself, and the simulation's clock stops for good. The robots' copy leaves the call out, because a plugin that only publishes has nothing to spin for.
+gazebo_plugins' original IMU plugin calls `ros::spinOnce()` right after it publishes a message. This call makes Gazebo's physics thread, the thread that moves the simulation forward, run the service requests that wait in the node's global callback queue at that moment. The controller spawner's requests wait there. Such a request then waits for the controller manager's next update, and only the physics thread runs that update. So the physics thread waits for itself, and the simulation's clock stops for good. The robots' copy leaves the call out, because a plugin that only publishes has nothing to spin for.
 
 [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) has the diagnosis, with the backtraces of the stalled simulations. The rest of this section explains the terms and then follows one request, step by step.
 
@@ -38,14 +38,16 @@ Only the physics thread calls these two functions. And the simulation's clock mo
 
 *Example:* the controller manager offers the service `switch_controller`, which starts and stops controllers. The service's callback is the function that does this work. When another node calls the service, the callback runs, and the caller gets its answer when the callback returns.
 
-**The callback queue.** ROS doesn't run a callback at the moment its request arrives. ROS puts the call into the **callback queue**, a waiting list. The queue itself runs nothing, and it isn't a thread. A thread has to take each call out of the queue and run it. ROS calls this **spinning**. The thread that spins is the thread that runs the callback.
+**The callback queue.** ROS doesn't run a callback at the moment its request arrives. ROS puts the call into a **callback queue**, a waiting list. The queue itself runs nothing, and it isn't a thread. A thread has to take each call out of the queue and run it. ROS calls this **spinning**. The thread that spins is the thread that runs the callback.
 
-*Example:* the whole Gazebo server is one ROS node, `/gazebo`, and its plugins share the node's one queue, the global callback queue. Two things spin this queue in the Gazebo server:
+*Example:* the Gazebo server is one ROS node, `/gazebo`. A node has a global callback queue. A service's calls wait there, unless the service was given a queue of its own. The controller manager's services use the global queue. `gazebo_ros_control` creates the controller manager with an ordinary node handle of the `/gazebo` node, in [lines 150 and 193–194 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L150-L194). A node handle is the object through which a ROS program offers its topics and services. The controller manager offers its services with this node handle, in [lines 45–61 of `controller_manager.cpp`](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L45-L61).
 
-- **The ROS spinner threads** do nothing else. Each takes a waiting call out of the queue and runs it. Gazebo's ROS interface, the plugin `gazebo_ros_api_plugin`, starts one such thread per CPU core with a `ros::AsyncSpinner`, in [line 148 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L148). The `gzserver` script of gazebo_ros loads this plugin into the server, in [its lines 21–24](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/scripts/gzserver#L21-L24).
-- **`ros::spinOnce()`** spins once, in the thread that calls it. It runs the callbacks that wait in the queue at that moment, and returns when they have returned. The ROS wiki describes `ros::spinOnce()` under [single-threaded spinning](http://wiki.ros.org/roscpp/Overview/Callbacks%20and%20Spinning#Single-threaded_Spinning), and [lines 585–588 of roscpp's `init.cpp`](https://github.com/ros/ros_comm/blob/1.17.4/clients/roscpp/src/libros/init.cpp#L585-L588) are its code.
+Two things can run the calls that wait in the global queue:
 
-The controller manager's callbacks wait in this global queue too. `gazebo_ros_control` creates the controller manager with an ordinary node handle of the `/gazebo` node, in [lines 150 and 193–194 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L150-L194). A node handle is the object through which a ROS program offers its topics and services. The controller manager offers its services with this node handle, in [lines 45–61 of `controller_manager.cpp`](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L45-L61).
+- **The ROS spinner threads** do nothing else. Each takes a waiting call out of the global queue and runs it. Gazebo's ROS interface, the plugin `gazebo_ros_api_plugin`, starts one such thread per CPU core with a `ros::AsyncSpinner`, in [line 148 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L148). The `gzserver` script of gazebo_ros loads this plugin into the server, in [its lines 21–24](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/scripts/gzserver#L21-L24).
+- **`ros::spinOnce()`** spins the global queue once, in the thread that calls it. It runs the callbacks that wait in the global queue at that moment, and returns when they have returned. The ROS wiki describes `ros::spinOnce()` under [single-threaded spinning](http://wiki.ros.org/roscpp/Overview/Callbacks%20and%20Spinning#Single-threaded_Spinning), and [lines 585–588 of roscpp's `init.cpp`](https://github.com/ros/ros_comm/blob/1.17.4/clients/roscpp/src/libros/init.cpp#L585-L588) are its code.
+
+Not every service of the Gazebo server uses the global queue. Gazebo's ROS interface gives its own services, such as `/gazebo/reset_simulation`, a separate queue, in [lines 545–552 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L545-L552). A thread of its own runs that queue, in [lines 257–263](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L257-L263). Neither the spinner threads nor `ros::spinOnce()` run it, and the rest of this explanation doesn't need it.
 
 **One fact: the controller manager's services wait for `update()`.** The controller spawner is a separate ROS node, which [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L23-L25) starts. The spawner loads and starts the controllers with two of the controller manager's services, `load_controller` and `switch_controller`. Their callbacks don't change the running controllers themselves, because `update()` may be using the controllers at that moment. The callbacks note the change and wait until `update()` has taken it, in [lines 352–359](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L352-L359) and [lines 612–630 of `controller_manager.cpp`](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L630). `switch_controller` can give up after a time limit. The spawner asks for none: it passes 0, in [line 212 of its source](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/scripts/spawner#L212).
 
@@ -55,7 +57,7 @@ The original plugin's `UpdateChild()` calls `ros::spinOnce()` after it publishes
 
 --8<-- "includes/imu-sim-threads-original.html"
 
-1. The controller spawner calls `switch_controller`. The request arrives in the Gazebo server and waits in the callback queue.
+1. The controller spawner calls `switch_controller`. The request arrives in the Gazebo server and waits in the global callback queue.
 2. Before a spinner thread takes the request, the physics thread starts a step and calls `UpdateChild()`. The plugin publishes its message and calls `ros::spinOnce()`.
 3. `ros::spinOnce()` finds the request in the queue and runs the service's callback, in the physics thread.
 4. The callback notes which controllers to start, and waits until `update()` has taken the change.
@@ -69,13 +71,13 @@ The copy's `UpdateChild()` ends after it publishes, as [the header and the stamp
 
 --8<-- "includes/imu-sim-threads-copy.html"
 
-1. The request waits in the callback queue, as before.
+1. The request waits in the global callback queue, as before.
 2. The physics thread calls `UpdateChild()`. The copy publishes its message and returns.
 3. A ROS spinner thread takes the request and runs the callback. The callback notes the change and waits, in the spinner thread.
 4. The physics thread goes on. It calls `update()`, in this step or the next, and `update()` takes the change.
 5. The callback returns, and the spawner gets its answer. The controllers run.
 
-The copy needs no spinning of its own, because it only publishes: it has no callbacks. The spinner threads run every callback of the Gazebo server, the controller manager's too.
+The copy needs no spinning of its own, because it only publishes: it has no callbacks. The spinner threads run the calls that wait in the global queue, the controller manager's among them.
 
 ### Why not just wait?
 

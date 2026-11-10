@@ -117,6 +117,8 @@ RULES = (
     ('.imu-fig .floor', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.5'),
     ('.imu-fig .joint', f'fill:none;stroke:{FG};stroke-width:1.6;stroke-dasharray:5 3'),
     ('.imu-fig .guide', f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:2 3'),
+    ('.imu-fig .lens', f'fill:none;stroke:{FG_LIGHT};stroke-width:1'),
+    ('.imu-fig .inset', f'fill:{BG};stroke:{FG_LIGHT};stroke-width:1'),
     ('.imu-fig .dot', f'fill:{FG}'),
     ('.imu-fig .x', 'stroke:var(--imu-x);fill:var(--imu-x)'),
     ('.imu-fig .y', 'stroke:var(--imu-y);fill:var(--imu-y)'),
@@ -232,7 +234,7 @@ class Figure:
 
     def polygon(self, points: Sequence[Point], css_class: str) -> None:
         """Add a closed shape through the points."""
-        corners = ' '.join(f'{x:.1f},{y:.1f}' for x, y in points)
+        corners = ' '.join(f'{x:.2f},{y:.2f}' for x, y in points)
         self.elements.append(f'<polygon class="{css_class}" points="{corners}"/>')
 
     def rectangle(self, first: Point, second: Point, css_class: str, radius: float = 0) -> None:
@@ -249,7 +251,7 @@ class Figure:
 
     def polyline(self, points: Sequence[Point], css_class: str) -> None:
         """Add an open line through the points."""
-        path = ' '.join(f'{x:.1f},{y:.1f}' for x, y in points)
+        path = ' '.join(f'{x:.2f},{y:.2f}' for x, y in points)
         self.elements.append(f'<polyline class="{css_class}" points="{path}"/>')
 
     def head(self, tip: Point, direction: Point, css_class: str, size: float = 8.0) -> None:
@@ -600,12 +602,17 @@ def angular_velocity() -> Figure:
     return figure
 
 
-# The specific force drawings are FORCE_WIDTH wide. Their arrows aren't to scale: gravity's
-# 9.8 m/s² is GRAVITY_LENGTH long, and an acceleration is ACCELERATION_LENGTH long
+# The specific force drawings are FORCE_WIDTH wide. They draw g and f to one scale, FORCE_SCALE,
+# and in their true directions. A forward acceleration of 0.5 m/s² is 2 units long at that scale,
+# so a circle shows the tip of f TIP_MAGNIFICATION times larger
 FORCE_WIDTH = 216
 FORCE_HEIGHT = 310
 GRAVITY_LENGTH = 46.0
-ACCELERATION_LENGTH = 26.0
+FORCE_SCALE = GRAVITY_LENGTH / GRAVITY  # SVG units per m/s²
+TIP_MAGNIFICATION = 10
+# The turn's drawing shows only the direction of a. At FORCE_SCALE, its arrow would be 0.1 units
+# long
+TURN_ACCELERATION_LENGTH = 26.0
 
 
 def draw_vector(figure: Figure, start: Point, offset: Point, css_class: str) -> Point:
@@ -630,6 +637,11 @@ def specific_force(acceleration: Vector) -> Vector:
     return add(acceleration, (0.0, 0.0, 1.0), GRAVITY)
 
 
+def tilt_from_vertical(reading: Vector) -> float:
+    """Return the angle between a reading and the upward direction, in degrees."""
+    return math.degrees(math.atan2(math.hypot(reading[0], reading[1]), reading[2]))
+
+
 def message_values(reading: Vector) -> str:
     """Return a reading as the message's x, y and z on Remo, along imu_link's axes."""
     return '(' + ', '.join(signed(dot(reading, axis)) for axis in IMU_AXES) + ')'
@@ -649,11 +661,41 @@ def reading_lines(figure: Figure, first: str, second: str, reading: Vector) -> N
     figure.text((center, 301), message_values(reading), 'reading', 'middle')
 
 
+def draw_magnified_tip(figure: Figure, tip: Point, acceleration: float) -> None:
+    """Add a circle that shows the tip of f TIP_MAGNIFICATION times larger.
+
+    At the tip, f = a - g reads as a sum: straight up from the sensor by gravity's amount, then
+    forward by the acceleration. The circle shows the end of that upward line, dotted, the arrow
+    of a from there to the tip of f, and the end of f's arrow in its true direction.
+    """
+    center, radius = (160.0, 100.0), 32.0
+    toward = (center[0] - tip[0], center[1] - tip[1])
+    reach = math.hypot(*toward)
+    figure.circle(tip, 7, 'lens')
+    figure.polyline([(tip[0] + 7 * toward[0] / reach, tip[1] + 7 * toward[1] / reach),
+                     (center[0] - radius * toward[0] / reach,
+                      center[1] - radius * toward[1] / reach)], 'lens')
+    figure.circle(center, radius, 'inset')
+    figure.text((center[0], center[1] - radius - 6), f'{TIP_MAGNIFICATION}\u00d7 larger', 'note',
+                'middle')
+    forward = acceleration * FORCE_SCALE * TIP_MAGNIFICATION
+    reading_tip = (center[0] + forward / 2, center[1] - 4)
+    above_sensor = (reading_tip[0] - forward, reading_tip[1])
+    shown_height = 30.0
+    figure.polyline([(above_sensor[0], above_sensor[1] + shown_height), above_sensor], 'guide')
+    figure.arrow((reading_tip[0] - shown_height * acceleration / GRAVITY,
+                  reading_tip[1] + shown_height), reading_tip, 'reading', 9)
+    figure.arrow(above_sensor, reading_tip, 'acceleration', 7)
+    figure.text((center[0], reading_tip[1] - 8), f'a = {number(acceleration)}', 'acceleration',
+                'middle')
+    figure.text((reading_tip[0] + 6, reading_tip[1] + 17), 'f', 'reading')
+
+
 def specific_force_side(name: str, title: str, description: str,
                         acceleration: float) -> Figure:
     """Return a drawing of the specific force for a robot on the floor, seen from its right side.
 
-    acceleration is the robot's forward acceleration in m/s².
+    acceleration is the robot's forward acceleration in m/s². g and f are drawn to FORCE_SCALE.
     """
     figure = Figure(name, FORCE_WIDTH, FORCE_HEIGHT, title, description)
     view = view_from_the_side(900, (118, 152))
@@ -664,20 +706,17 @@ def specific_force_side(name: str, title: str, description: str,
     draw_remo_from_the_side(figure, view)
     figure.elements.append('</g>')
     sensor = view.project(IMU_POSITION)
-    forward = ACCELERATION_LENGTH if acceleration else 0.0
-    if acceleration:
-        figure.polyline([(sensor[0] + forward, sensor[1]),
-                         (sensor[0] + forward, sensor[1] - GRAVITY_LENGTH),
-                         (sensor[0], sensor[1] - GRAVITY_LENGTH)], 'guide')
-    draw_vector(figure, sensor, (0, GRAVITY_LENGTH), 'gravity')
+    reading = specific_force((acceleration, 0.0, 0.0))
+    draw_vector(figure, sensor, (0, GRAVITY * FORCE_SCALE), 'gravity')
     figure.text((sensor[0] - 8, sensor[1] + GRAVITY_LENGTH / 2 + 8), f'g = {GRAVITY}',
                 'gravity halo', 'end')
-    tip = draw_vector(figure, sensor, (forward, -GRAVITY_LENGTH), 'reading')
-    figure.text((tip[0], tip[1] - 7), 'f', 'reading halo', 'middle')
+    tip = draw_vector(figure, sensor, (reading[0] * FORCE_SCALE, -reading[2] * FORCE_SCALE),
+                      'reading')
+    figure.text((tip[0], tip[1] - 9), 'f', 'reading halo', 'middle')
     if acceleration:
-        draw_vector(figure, sensor, (forward, 0), 'acceleration')
-    figure.text((sensor[0] + forward + 7, sensor[1] - 5), f'a = {number(acceleration)}',
-                'acceleration halo')
+        draw_magnified_tip(figure, tip, acceleration)
+    else:
+        figure.text((sensor[0] + 7, sensor[1] - 5), 'a = 0', 'acceleration halo')
     figure.circle(sensor, 3, 'dot')
     return figure
 
@@ -699,8 +738,10 @@ def specific_force_speeding_up() -> Figure:
         'imu-force-speeding-up', 'Speeding up forward',
         'Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g '
         'points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The '
-        'sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up. On Remo, the message’s x, y '
-        'and z are 0, +0.5 and +9.8.', FORWARD_ACCELERATION)
+        'sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up, so f leans forward by 3 '
+        'degrees. A circle shows the tip of f ten times larger: f ends 0.5 m/s² in front of '
+        'the point straight above the sensor. On Remo, the message’s x, y and z are 0, +0.5 '
+        'and +9.8.', FORWARD_ACCELERATION)
     figure.arrow((132, 46), (178, 46), 'motion thin', 7)
     figure.text((155, 39), 'speeds up', 'note', 'middle')
     reading_lines(figure, f'forward {signed(FORWARD_ACCELERATION)},', f'up +{GRAVITY} m/s²',
@@ -732,9 +773,10 @@ def specific_force_in_a_turn() -> Figure:
                     'Remo turns left on the spot, seen from above. The IMU moves on a circle '
                     'around the midpoint of the wheel axle, 8 cm away. Its acceleration a '
                     'points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to '
-                    'gravity. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² '
-                    'up, out of the drawing. On Remo, the message’s x, y and z are +0.01, +0.02 '
-                    'and +9.8.')
+                    'gravity. Its arrow shows only its direction. The sensor reads this '
+                    '0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing, so f '
+                    'leans toward the center by 0.1 degrees. On Remo, the message’s x, y and z '
+                    'are +0.01, +0.02 and +9.8.')
     view = view_from_above(900, (FORCE_WIDTH / 2, 142))
     figure.text((6, 18), 'Turning left, from above', 'title')
     figure.elements.append('<g class="context">')
@@ -748,8 +790,9 @@ def specific_force_in_a_turn() -> Figure:
     figure.text((center[0], center[1] - 20), f'{TURN_RATE} rad/s', 'note', 'middle')
     toward = (center[0] - sensor[0], center[1] - sensor[1])
     reach = math.hypot(*toward)
-    tip = draw_vector(figure, sensor, (ACCELERATION_LENGTH * toward[0] / reach,
-                                       ACCELERATION_LENGTH * toward[1] / reach), 'acceleration')
+    tip = draw_vector(figure, sensor, (TURN_ACCELERATION_LENGTH * toward[0] / reach,
+                                       TURN_ACCELERATION_LENGTH * toward[1] / reach),
+                      'acceleration')
     figure.text((tip[0] + 7, tip[1] + 8), f'a = {centripetal:.2f}', 'acceleration halo')
     figure.circle(sensor, 5.5, 'ring reading')
     figure.circle(sensor, 2.0, 'head reading')
@@ -796,12 +839,20 @@ def write_angular_velocity() -> None:
 
 def write_specific_force() -> None:
     """Write the include with the specific force in three situations."""
+    forward_tilt = tilt_from_vertical(specific_force((FORWARD_ACCELERATION, 0.0, 0.0)))
+    turn_tilt = tilt_from_vertical(specific_force(turn_acceleration()))
     caption = ('`linear_acceleration` is the specific force **f** = **a** − **g**: the '
-               'acceleration **a** of the sensor minus gravity **g**, in m/s². The arrows show '
-               'directions. Their lengths aren’t to scale. The last line of each drawing gives '
-               'the message’s x, y and z on Remo, where `imu_link`’s y axis points forward. In '
-               'the turn, the dotted circle is the sensor’s path, **f** points up, at you, and '
-               'the 0.02 m/s² toward the center is tiny next to gravity’s 9.8 m/s².')
+               'acceleration **a** of the sensor minus gravity **g**, in m/s². **g** and '
+               '**f** are drawn to one scale and in their true directions. While the robot '
+               f'speeds up with {number(FORWARD_ACCELERATION)} m/s², **f** leans forward by only '
+               f'{forward_tilt:.0f}°. So the circle shows the tip of **f** '
+               f'{TIP_MAGNIFICATION} times larger: **f** ends {number(FORWARD_ACCELERATION)} m/s² '
+               'in front of the dotted line, which points straight up from the sensor. The last '
+               'line of each drawing gives the message’s x, y and z on Remo, where `imu_link`’s '
+               'y axis points forward. In the turn, the dotted circle is the sensor’s path. '
+               f'**f** points up, at you, and leans toward the center by {turn_tilt:.1f}°. The '
+               'arrow of **a** shows only its direction: its 0.02 m/s² is tiny next to '
+               'gravity’s 9.8 m/s², and at the scale of **g** it would be too short to see.')
     drawings = [specific_force_at_rest(), specific_force_speeding_up(),
                 specific_force_in_a_turn()]
     with open('includes/imu-sim-specific-force.html', 'w') as include:

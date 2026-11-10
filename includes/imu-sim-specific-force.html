@@ -19,6 +19,8 @@
 .imu-fig .floor{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
 .imu-fig .joint{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:5 3}
 .imu-fig .guide{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.imu-fig .lens{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .inset{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
 .imu-fig .dot{fill:var(--md-default-fg-color)}
 .imu-fig .x{stroke:var(--imu-x);fill:var(--imu-x)}
 .imu-fig .y{stroke:var(--imu-y);fill:var(--imu-y)}
@@ -41,7 +43,7 @@
 <div class="imu-panels">
 <svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-rest-title imu-force-rest-description"><title id="imu-force-rest-title">At rest</title><desc id="imu-force-rest-description">Remo stands still on the floor, seen from its right side. At the IMU, gravity g points down with 9.8 m/s². The acceleration a is zero. The sensor reads f = a − g, which points up with 9.8 m/s². On Remo, the message’s x, y and z are 0, 0 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">At rest</text>
-<polyline class="floor" points="10.0,211.9 206.0,211.9"/>
+<polyline class="floor" points="10.00,211.94 206.00,211.94"/>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
 <g class="context">
 <circle class="wheel" cx="72.1" cy="201.1" r="10.8"/>
@@ -52,12 +54,12 @@
 <circle class="wheel" cx="150.4" cy="182.2" r="29.7"/>
 <circle class="body" cx="150.4" cy="182.2" r="8.9"/>
 </g>
-<polyline class="shaft gravity" points="81.9,140.3 81.9,179.1"/>
-<polygon class="head gravity" points="81.9,186.3 78.1,177.3 85.7,177.3"/>
+<polyline class="shaft gravity" points="81.91,140.30 81.91,179.10"/>
+<polygon class="head gravity" points="81.91,186.30 78.13,177.30 85.69,177.30"/>
 <text class="gravity halo" x="73.9" y="171.3" text-anchor="end">g = 9.8</text>
-<polyline class="shaft reading" points="81.9,140.3 81.9,101.5"/>
-<polygon class="head reading" points="81.9,94.3 85.7,103.3 78.1,103.3"/>
-<text class="reading halo" x="81.9" y="87.3" text-anchor="middle">f</text>
+<polyline class="shaft reading" points="81.91,140.30 81.91,101.50"/>
+<polygon class="head reading" points="81.91,94.30 85.69,103.30 78.13,103.30"/>
+<text class="reading halo" x="81.9" y="85.3" text-anchor="middle">f</text>
 <text class="acceleration halo" x="88.9" y="135.3" text-anchor="start">a = 0</text>
 <circle class="dot" cx="81.9" cy="140.3" r="3.0"/>
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
@@ -66,9 +68,9 @@
 <text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
 <text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, 0, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up. On Remo, the message’s x, y and z are 0, +0.5 and +9.8.</desc>
+<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up, so f leans forward by 3 degrees. A circle shows the tip of f ten times larger: f ends 0.5 m/s² in front of the point straight above the sensor. On Remo, the message’s x, y and z are 0, +0.5 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Speeding up forward</text>
-<polyline class="floor" points="10.0,211.9 206.0,211.9"/>
+<polyline class="floor" points="10.00,211.94 206.00,211.94"/>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
 <g class="context">
 <circle class="wheel" cx="72.1" cy="201.1" r="10.8"/>
@@ -79,19 +81,26 @@
 <circle class="wheel" cx="150.4" cy="182.2" r="29.7"/>
 <circle class="body" cx="150.4" cy="182.2" r="8.9"/>
 </g>
-<polyline class="guide" points="107.9,140.3 107.9,94.3 81.9,94.3"/>
-<polyline class="shaft gravity" points="81.9,140.3 81.9,179.1"/>
-<polygon class="head gravity" points="81.9,186.3 78.1,177.3 85.7,177.3"/>
+<polyline class="shaft gravity" points="81.91,140.30 81.91,179.10"/>
+<polygon class="head gravity" points="81.91,186.30 78.13,177.30 85.69,177.30"/>
 <text class="gravity halo" x="73.9" y="171.3" text-anchor="end">g = 9.8</text>
-<polyline class="shaft reading" points="81.9,140.3 104.4,100.6"/>
-<polygon class="head reading" points="107.9,94.3 106.8,104.0 100.2,100.3"/>
-<text class="reading halo" x="107.9" y="87.3" text-anchor="middle">f</text>
-<polyline class="shaft acceleration" points="81.9,140.3 100.7,140.3"/>
-<polygon class="head acceleration" points="107.9,140.3 98.9,144.1 98.9,136.5"/>
-<text class="acceleration halo" x="114.9" y="135.3" text-anchor="start">a = 0.5</text>
+<polyline class="shaft reading" points="81.91,140.30 83.89,101.49"/>
+<polygon class="head reading" points="84.26,94.30 87.57,103.48 80.02,103.10"/>
+<text class="reading halo" x="84.3" y="85.3" text-anchor="middle">f</text>
+<circle class="lens" cx="84.3" cy="94.3" r="7.0"/>
+<polyline class="lens" points="91.24,94.83 128.09,97.60"/>
+<circle class="inset" cx="160.0" cy="100.0" r="32.0"/>
+<text class="note" x="160.0" y="62.0" text-anchor="middle">10× larger</text>
+<polyline class="guide" points="148.27,126.00 148.27,96.00"/>
+<polyline class="shaft reading" points="170.20,126.00 171.37,103.19"/>
+<polygon class="head reading" points="171.73,96.00 175.05,105.18 167.50,104.80"/>
+<polyline class="shaft acceleration" points="148.27,96.00 166.13,96.00"/>
+<polygon class="head acceleration" points="171.73,96.00 164.73,98.94 164.73,93.06"/>
+<text class="acceleration" x="160.0" y="88.0" text-anchor="middle">a = 0.5</text>
+<text class="reading" x="177.7" y="113.0" text-anchor="start">f</text>
 <circle class="dot" cx="81.9" cy="140.3" r="3.0"/>
-<polyline class="shaft motion thin" points="132.0,46.0 172.4,46.0"/>
-<polygon class="head motion thin" points="178.0,46.0 171.0,48.9 171.0,43.1"/>
+<polyline class="shaft motion thin" points="132.00,46.00 172.40,46.00"/>
+<polygon class="head motion thin" points="178.00,46.00 171.00,48.94 171.00,43.06"/>
 <text class="note" x="155.0" y="39.0" text-anchor="middle">speeds up</text>
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
 <text class="reading" x="108.0" y="249.0" text-anchor="middle">forward +0.5,</text>
@@ -99,7 +108,7 @@
 <text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
 <text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, +0.5, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to gravity. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing. On Remo, the message’s x, y and z are +0.01, +0.02 and +9.8.</desc>
+<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to gravity. Its arrow shows only its direction. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing, so f leans toward the center by 0.1 degrees. On Remo, the message’s x, y and z are +0.01, +0.02 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Turning left, from above</text>
 <g class="context">
 <rect class="wheel" x="32.0" y="79.9" width="22.5" height="59.4" rx="4"/>
@@ -108,13 +117,13 @@
 <rect class="part" x="72.0" y="153.2" width="72.0" height="49.5" rx="2"/>
 <rect class="board" x="74.8" y="169.1" width="24.3" height="18.0" rx="1.5"/>
 </g>
-<polyline class="guide" points="179.7,109.6 179.3,102.1 178.1,94.7 176.1,87.5 173.5,80.5 170.1,73.8 166.0,67.5 161.2,61.7 155.9,56.4 150.1,51.6 143.8,47.5 137.1,44.1 130.1,41.5 122.9,39.5 115.5,38.3 108.0,37.9 100.5,38.3 93.1,39.5 85.9,41.5 78.9,44.1 72.2,47.5 65.9,51.6 60.1,56.4 54.8,61.7 50.0,67.5 45.9,73.8 42.5,80.5 39.9,87.5 37.9,94.7 36.7,102.1 36.3,109.6 36.7,117.1 37.9,124.5 39.9,131.7 42.5,138.7 45.9,145.4 50.0,151.7 54.8,157.5 60.1,162.8 65.9,167.6 72.2,171.7 78.9,175.1 85.9,177.7 93.1,179.7 100.5,180.9 108.0,181.3 115.5,180.9 122.9,179.7 130.1,177.7 137.1,175.1 143.8,171.7 150.1,167.6 155.9,162.8 161.2,157.5 166.0,151.7 170.1,145.4 173.5,138.7 176.1,131.7 178.1,124.5 179.3,117.1 179.7,109.6"/>
-<polyline class="shaft motion thin" points="114.5,120.9 115.6,120.1 116.7,119.3 117.7,118.3 118.5,117.2 119.3,116.1 119.9,114.9 120.4,113.6 120.7,112.3 120.9,111.0 121.0,109.6 120.9,108.2 120.7,106.9 120.4,105.6 119.9,104.3 119.3,103.1 118.5,102.0 117.7,100.9 116.7,99.9 115.6,99.1 114.5,98.3 113.3,97.7 112.0,97.2 110.7,96.9 109.4,96.7 108.0,96.6 106.6,96.7 105.3,96.9 104.0,97.2 102.7,97.7 101.5,98.3 100.4,99.1 99.3,99.9 98.3,100.9 97.5,102.0 96.7,103.1 96.1,104.3 95.6,105.6 95.3,106.9 95.1,108.2 95.0,109.6 95.1,111.0 95.3,112.3 95.6,113.6 96.1,114.9 96.7,116.1 97.5,117.2"/>
-<polygon class="head motion thin" points="98.3,118.3 91.8,114.4 96.6,110.9"/>
+<polyline class="guide" points="179.65,109.60 179.26,102.11 178.09,94.70 176.15,87.46 173.46,80.46 170.05,73.77 165.97,67.48 161.25,61.65 155.95,56.35 150.12,51.63 143.83,47.55 137.14,44.14 130.14,41.45 122.90,39.51 115.49,38.34 108.00,37.95 100.51,38.34 93.10,39.51 85.86,41.45 78.86,44.14 72.17,47.55 65.88,51.63 60.05,56.35 54.75,61.65 50.03,67.48 45.95,73.77 42.54,80.46 39.85,87.46 37.91,94.70 36.74,102.11 36.35,109.60 36.74,117.09 37.91,124.50 39.85,131.74 42.54,138.74 45.95,145.43 50.03,151.72 54.75,157.55 60.05,162.85 65.88,167.57 72.17,171.65 78.86,175.06 85.86,177.75 93.10,179.69 100.51,180.86 108.00,181.25 115.49,180.86 122.90,179.69 130.14,177.75 137.14,175.06 143.83,171.65 150.12,167.57 155.95,162.85 161.25,157.55 165.97,151.72 170.05,145.43 173.46,138.74 176.15,131.74 178.09,124.50 179.26,117.09 179.65,109.60"/>
+<polyline class="shaft motion thin" points="114.50,120.86 115.64,120.12 116.70,119.26 117.66,118.30 118.52,117.24 119.26,116.10 119.88,114.89 120.36,113.62 120.72,112.30 120.93,110.96 121.00,109.60 120.93,108.24 120.72,106.90 120.36,105.58 119.88,104.31 119.26,103.10 118.52,101.96 117.66,100.90 116.70,99.94 115.64,99.08 114.50,98.34 113.29,97.72 112.02,97.24 110.70,96.88 109.36,96.67 108.00,96.60 106.64,96.67 105.30,96.88 103.98,97.24 102.71,97.72 101.50,98.34 100.36,99.08 99.30,99.94 98.34,100.90 97.48,101.96 96.74,103.10 96.12,104.31 95.64,105.58 95.28,106.90 95.07,108.24 95.00,109.60 95.07,110.96 95.28,112.30 95.64,113.62 96.12,114.89 96.74,116.10 97.48,117.24"/>
+<polygon class="head motion thin" points="98.34,118.30 91.85,114.36 96.60,110.91"/>
 <circle class="dot" cx="108.0" cy="109.6" r="2.5"/>
 <text class="note" x="108.0" y="89.6" text-anchor="middle">0.5 rad/s</text>
-<polyline class="shaft acceleration" points="86.9,178.1 92.5,160.1"/>
-<polygon class="head acceleration" points="94.6,153.2 95.5,163.0 88.3,160.7"/>
+<polyline class="shaft acceleration" points="86.94,178.09 92.47,160.12"/>
+<polygon class="head acceleration" points="94.58,153.24 95.55,162.95 88.32,160.73"/>
 <text class="acceleration halo" x="101.6" y="161.2" text-anchor="start">a = 0.02</text>
 <circle class="ring reading" cx="86.9" cy="178.1" r="5.5"/>
 <circle class="head reading" cx="86.9" cy="178.1" r="2.0"/>
@@ -126,5 +135,5 @@
 <text class="reading" x="108.0" y="301.0" text-anchor="middle">(+0.01, +0.02, +9.8)</text>
 </svg>
 </div>
-<figcaption markdown="span">`linear_acceleration` is the specific force **f** = **a** − **g**: the acceleration **a** of the sensor minus gravity **g**, in m/s². The arrows show directions. Their lengths aren’t to scale. The last line of each drawing gives the message’s x, y and z on Remo, where `imu_link`’s y axis points forward. In the turn, the dotted circle is the sensor’s path, **f** points up, at you, and the 0.02 m/s² toward the center is tiny next to gravity’s 9.8 m/s².</figcaption>
+<figcaption markdown="span">`linear_acceleration` is the specific force **f** = **a** − **g**: the acceleration **a** of the sensor minus gravity **g**, in m/s². **g** and **f** are drawn to one scale and in their true directions. While the robot speeds up with 0.5 m/s², **f** leans forward by only 3°. So the circle shows the tip of **f** 10 times larger: **f** ends 0.5 m/s² in front of the dotted line, which points straight up from the sensor. The last line of each drawing gives the message’s x, y and z on Remo, where `imu_link`’s y axis points forward. In the turn, the dotted circle is the sensor’s path. **f** points up, at you, and leans toward the center by 0.1°. The arrow of **a** shows only its direction: its 0.02 m/s² is tiny next to gravity’s 9.8 m/s², and at the scale of **g** it would be too short to see.</figcaption>
 </figure>

@@ -154,7 +154,7 @@ def draw_request(figure: Figure) -> None:
                                          ('another ROS node', 'note')])
     queue_x, _, queue_width, _ = QUEUE_BOX
     figure.rectangle(queue_x, y, queue_width, height, 'queue')
-    figure.lines(queue_x + queue_width / 2, y + 16, [('callback queue', ''),
+    figure.lines(queue_x + queue_width / 2, y + 16, [('global callback queue', ''),
                                                      ('a waiting list', 'note')])
     figure.arrow(f'M{x + width},{y + height / 2} H{queue_x - 1}', 'request')
     figure.step((x + width + queue_x) / 2, y + height / 2 - 12, 1)
@@ -175,13 +175,13 @@ def with_the_original() -> Figure:
     """Return the drawing of the request with gazebo_plugins' original plugin: a deadlock."""
     figure = Figure('th-original', 352, 'The request with the original IMU plugin',
                     'Step 1: the controller spawner, another ROS node, sends a switch_controller '
-                    'request, which waits in the callback queue. Step 2: the physics thread '
-                    'calls the IMU plugin’s UpdateChild(), which publishes the IMU message '
-                    'and calls ros::spinOnce(). Step 3: ros::spinOnce() takes the request from '
-                    'the queue and runs the callback in the physics thread. Step 4: the callback '
-                    'notes the change and waits for update(). Step 5: update() never runs, '
-                    'because its thread is waiting. This is a deadlock: the clock stops. The ROS '
-                    'spinner thread finds the queue empty.')
+                    'request, which waits in the global callback queue. Step 2: the physics '
+                    'thread calls the IMU plugin’s UpdateChild(), which publishes the IMU '
+                    'message and calls ros::spinOnce(). Step 3: ros::spinOnce() takes the '
+                    'request from the queue and runs the callback in the physics thread. Step 4: '
+                    'the callback notes the change and waits for update(). Step 5: update() '
+                    'never runs, because its thread is waiting. This is a deadlock: the clock '
+                    'stops. The ROS spinner thread finds the queue empty.')
     draw_request(figure)
     draw_lanes(figure)
     left, right = PHYSICS_LANE
@@ -216,7 +216,7 @@ def with_the_copy() -> Figure:
     """Return the drawing of the request with the robots' copy of the plugin: no deadlock."""
     figure = Figure('th-copy', 322, 'The request with the robots’ copy of the IMU plugin',
                     'Step 1: the controller spawner sends a switch_controller request, which '
-                    'waits in the callback queue. Step 2: the physics thread calls the IMU '
+                    'waits in the global callback queue. Step 2: the physics thread calls the IMU '
                     'plugin’s UpdateChild(), which publishes the IMU message and returns. '
                     'Step 3: a ROS spinner thread takes the request and runs the callback, which '
                     'notes the change and waits for update(). Step 4: the physics thread goes '

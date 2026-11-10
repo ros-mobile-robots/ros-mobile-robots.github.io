@@ -25,7 +25,7 @@ Both robots publish `/diffbot/imu/data_raw`, 50 times per second, the firmware's
 The comments at the top are the message's contract for every publisher:
 
 - Angular velocities are in rad/s, accelerations in m/s².
-- Each of the three vectors comes with a covariance, which says how uncertain the vector's values are. A publisher that knows only the variances puts them on the diagonal.
+- Each of the three measurements, the orientation, the angular velocity and the linear acceleration, comes with a covariance, which says how uncertain the measurement is. A publisher that knows only the variances puts them on the diagonal.
 - A covariance of all zeros means that the covariance is unknown, not that the value has no uncertainty.
 - −1 as a covariance's first element means that the publisher has no estimate for that field.
 
@@ -87,7 +87,7 @@ So every reading is the acceleration minus gravity, on all three axes. A real ac
 Four cases. The figure shows the first three:
 
 - **At rest**, $\mathbf a$ is zero. With `imu_link`'s z axis up, gravity is $\mathbf g = (0, 0, -9.8)$ m/s², so the sensor reads $\mathbf f = (0, 0, +9.8)$ m/s². The floor holds the robot up, and the sensor reads that as 9.8 m/s² upward, although the robot doesn't move. At a steady speed on a level floor, $\mathbf a$ is zero too, and the reading is the same.
-- **Speeding up forward** with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is `imu_link`'s y axis, so the message's three numbers are (0, +0.5, +9.8). The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the `max_acceleration` in [lines 47–48 of its configuration]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L47-L48).
+- **Speeding up forward** with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is `imu_link`'s y axis, so the message's three numbers are (0, +0.5, +9.8). The reading leans forward by only 3° from straight up, so the figure shows its tip in a circle, ten times larger. The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the `max_acceleration` in [lines 47–48 of its configuration]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L47-L48).
 - **In a turn**, the sensor moves on a circle, and its acceleration points to the circle's center. Its size is the turn rate squared times the distance to the center. Remo's IMU sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives $0.5^2 \cdot 0.08 = 0.02$ m/s², which is tiny next to the 9.8 m/s².
 - **In free fall**, nothing holds the sensor up. $\mathbf a$ equals $\mathbf g$, and the sensor reads 0 on all three axes.
 
@@ -95,7 +95,7 @@ Which of the message's axes is forward depends on how the IMU is mounted. [Posit
 
 ### How the message stores a covariance
 
-Each of the message's three vectors has a covariance matrix. A covariance matrix says how uncertain the vector's values are. For a vector with the components x, y and z, it has three rows and three columns:
+Each of the message's three measurements has a covariance matrix: the orientation, the angular velocity and the linear acceleration. A covariance matrix says how uncertain a measurement is. Take the angular velocity, with its three components about the x, y and z axes. Its covariance matrix has three rows and three columns:
 
 $$
 \Sigma =
@@ -106,8 +106,10 @@ $$
 \end{pmatrix}
 $$
 
-- **On the diagonal** are the variances. $\sigma_x^2$ is the variance of the x value: the square of its standard deviation $\sigma_x$, which says how far the value typically lies from the true one.
-- **Off the diagonal** are the covariances. $\sigma_{xy}$ says whether the errors of the x value and of the y value go up and down together. It's 0 when the two errors have nothing to do with each other. $\sigma_{xy}$ and $\sigma_{yx}$ are always equal.
+- **On the diagonal** are the variances. $\sigma_x^2$ is the variance of the angular velocity about x: the square of its standard deviation $\sigma_x$, which says how far the value typically lies from the true one.
+- **Off the diagonal** are the covariances. $\sigma_{xy}$ says whether the errors of the values about x and about y go up and down together. It's 0 when the two errors have nothing to do with each other. $\sigma_{xy}$ and $\sigma_{yx}$ are always equal.
+
+The linear acceleration's matrix is built the same way, for its three components along the x, y and z axes. The orientation's matrix has three rows and three columns too, although a quaternion has four numbers. Its rows and columns stand for the rotation's errors about the x, y and z axes, not for three of the quaternion's four numbers. `Imu.msg` says so in the comment of its line 18: "about x, y, z axes".
 
 Wikipedia's article on the [covariance matrix](https://en.wikipedia.org/wiki/Covariance_matrix) gives the definition.
 
@@ -145,7 +147,7 @@ What the simulated IMU's message holds:
 - **`angular_velocity_covariance`** is $[\,\sigma^2, 0, 0, 0, \sigma^2, 0, 0, 0, \sigma^2\,]$ with $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)²: the same variance for each axis.
 - **`linear_acceleration_covariance`** has the same nine numbers, in (m/s²)².
 
-No field of this message is all zeros. [Noise and covariance](measurement-to-message.md#noise-and-covariance) shows the plugin's lines that write the variances and explains why the other elements are 0. [The adapter](measurement-to-message.md#the-adapter) shows the lines that write the −1.
+None of the three covariance arrays is all zeros, so none says that a covariance is unknown. [Noise and covariance](measurement-to-message.md#noise-and-covariance) shows the plugin's lines that write the variances and explains why the other elements are 0. [The adapter](measurement-to-message.md#the-adapter) shows the lines that write the −1.
 
 ## From the sensor to the EKF
 
