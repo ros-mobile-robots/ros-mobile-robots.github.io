@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -2327,10 +2327,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-nimh-cells" class="md-nav__link">
+  <a href="#why-remo-uses-nimh-cells" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why NiMH cells
+        Why Remo uses NiMH cells
       
     </span>
   </a>
@@ -4428,10 +4428,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-nimh-cells" class="md-nav__link">
+  <a href="#why-remo-uses-nimh-cells" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why NiMH cells
+        Why Remo uses NiMH cells
       
     </span>
   </a>
@@ -4651,7 +4651,7 @@ A NiMH cell stays near 1.2 V for most of its discharge and drops only at the end
 So Remo's top speed stays nearly the same until its cells are nearly empty, while DiffBot's top speed falls as its batteries run down.</p>
 <p>Neither robot has a battery-protection cutoff.
 The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
-Remo's firmware, for example, stops the motors only when no wheel commands arrive (<a href="https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8/diffbot_base/scripts/base_controller/src/main.cpp#L44-L51"><code>main.cpp</code></a>).
+Remo's firmware, for example, stops the motors only when no wheel commands arrive (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L98-L109"><code>wheel_control.h</code></a>).
 So watch the speed. When a robot gets noticeably slower, replace DiffBot's batteries or recharge Remo's cells.
 The slowdown is a hint, not a measurement of the charge that's left.</p>
 <h2 id="diffbot-four-aa-batteries-and-the-grove-i2c-motor-driver">DiffBot: four AA batteries and the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver</h2>
@@ -4679,7 +4679,7 @@ The holder's cable goes to the 2-pin power terminal of the <a href="https://www.
 Seven fully charged cells give about 9.8 V, more than the motors' 9 V.
 Six alkaline cells don't fit either: fresh, they give about 9.6 V without load.
 With the small drop of the TB6612, the motors can get more than 9 V at full speed, especially at a light load.</p>
-<h2 id="why-nimh-cells">Why NiMH cells</h2>
+<h2 id="why-remo-uses-nimh-cells">Why Remo uses NiMH cells</h2>
 <ul>
 <li><strong>Voltage:</strong> Six NiMH cells keep the FeatherWing in its range and the motors below 9 V, as shown above.</li>
 <li><strong>Steady speed:</strong> Their voltage stays near 1.2 V for most of the discharge.</li>
@@ -4869,7 +4869,7 @@ Nitecore's product page describes a USB-C port. The first units from 2018 have a
     
     
     
-      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>
