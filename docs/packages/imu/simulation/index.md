@@ -67,15 +67,20 @@ The figure shows Remo. `imu_link`'s x axis points to Remo's right and its y axis
 
 $$
 \mathbf f = \mathbf a - \mathbf g
-\qquad\text{or}\qquad
+$$
+
+- $\mathbf a$ is the acceleration of the point where the sensor sits.
+- $\mathbf g$ is gravity. It points down, with 9.8 m/s² in the simulation.
+
+All three are vectors along `imu_link`'s axes, in m/s². Written out for the three axes:
+
+$$
 \begin{pmatrix} f_x \\ f_y \\ f_z \end{pmatrix} =
 \begin{pmatrix} a_x \\ a_y \\ a_z \end{pmatrix} -
 \begin{pmatrix} g_x \\ g_y \\ g_z \end{pmatrix}
 $$
 
-- $\mathbf a$ is the acceleration of the point where the sensor sits.
-- $\mathbf g$ is gravity. It points down, with 9.8 m/s² in the simulation.
-- All three are vectors along `imu_link`'s axes, in m/s². $f_x$ is the message's `linear_acceleration.x`, $f_y$ its `linear_acceleration.y` and $f_z$ its `linear_acceleration.z`.
+$f_x$ is the message's `linear_acceleration.x`, $f_y$ its `linear_acceleration.y` and $f_z$ its `linear_acceleration.z`.
 
 So every reading is the acceleration minus gravity, on all three axes. A real accelerometer doesn't compute this difference. The difference is what the sensor feels. An accelerometer can't feel gravity itself, because gravity pulls on the sensor's housing and on the small mass inside it in the same way. What the sensor feels is the force that holds it up against gravity. The box at the top of [IMU: Bosch BNO055](../driver-bno055.md) explains the mass and its suspension. Gazebo's sensor computes the difference, so that it reads as a real one, in the lines that [what the sensor measures](measurement-to-message.md#what-the-sensor-measures) shows.
 
@@ -109,11 +114,11 @@ Wikipedia's article on the [covariance matrix](https://en.wikipedia.org/wiki/Cov
 A ROS message has no type for a matrix. `Imu.msg` declares each covariance as `float64[9]`, an array of nine numbers, with the comment "Row major", in the definition's lines 18, 21 and 24. Row major means row by row: the matrix's first row, then its second, then its third.
 
 $$
-\big[\;
-\underbrace{\sigma_x^2,\ \sigma_{xy},\ \sigma_{xz}}_{\text{row 1}},\;\;
-\underbrace{\sigma_{yx},\ \sigma_y^2,\ \sigma_{yz}}_{\text{row 2}},\;\;
-\underbrace{\sigma_{zx},\ \sigma_{zy},\ \sigma_z^2}_{\text{row 3}}
-\;\big]
+[\,
+\underbrace{\sigma_x^2, \sigma_{xy}, \sigma_{xz}}_{\text{row 1}},
+\underbrace{\sigma_{yx}, \sigma_y^2, \sigma_{yz}}_{\text{row 2}},
+\underbrace{\sigma_{zx}, \sigma_{zy}, \sigma_z^2}_{\text{row 3}}
+\,]
 $$
 
 The array's elements are counted from 0, as in C++ and Python. Each element's index, at the element's place in the matrix:
@@ -128,23 +133,17 @@ $$
 
 So the variances are at the indices 0, 4 and 8. `angular_velocity_covariance[8]`, for example, is the angular velocity's $\sigma_z^2$, the variance of the yaw rate.
 
-The message definition gives two arrays a special meaning, in its lines 7–8 and 10–13. The table shows them below the array of a publisher that knows only the variances:
+The message definition gives two arrays a special meaning, in its lines 7–8 and 10–13. Here they stand below the array of a publisher that knows only the variances:
 
-| Index | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | A node that reads the message |
-|:--|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:--|
-| The variances are known | $\sigma_x^2$ | 0 | 0 | 0 | $\sigma_y^2$ | 0 | 0 | 0 | $\sigma_z^2$ | uses the values with these variances |
-| The covariance is unknown | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | can use the values, but has to assume a covariance |
-| The field is unavailable | −1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | ignores the field |
-
-The −1 goes into element 0. The message definition names only this element. The simulated IMU sets the other eight to 0.
+- **The variances are known:** $[\,\sigma_x^2, 0, 0, 0, \sigma_y^2, 0, 0, 0, \sigma_z^2\,]$. A node that reads the message uses the values with these variances.
+- **The covariance is unknown:** $[\,0, 0, 0, 0, 0, 0, 0, 0, 0\,]$, all zeros. A node that reads the message can use the values, but has to assume a covariance.
+- **The field is unavailable:** $[\,-1, 0, 0, 0, 0, 0, 0, 0, 0\,]$. A node that reads the message ignores the field. The −1 goes into element 0, the only element that the message definition names for it. The simulated IMU sets the other eight to 0.
 
 What the simulated IMU's message holds:
 
-| Field | Its nine numbers | Meaning |
-|:--|:--|:--|
-| `orientation_covariance` | −1, 0, 0, 0, 0, 0, 0, 0, 0 | The orientation is unavailable |
-| `angular_velocity_covariance` | $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$ | The variance of each axis, in (rad/s)² |
-| `linear_acceleration_covariance` | $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$ | The variance of each axis, in (m/s²)² |
+- **`orientation_covariance`** is $[\,-1, 0, 0, 0, 0, 0, 0, 0, 0\,]$: the orientation is unavailable.
+- **`angular_velocity_covariance`** is $[\,\sigma^2, 0, 0, 0, \sigma^2, 0, 0, 0, \sigma^2\,]$ with $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)²: the same variance for each axis.
+- **`linear_acceleration_covariance`** has the same nine numbers, in (m/s²)².
 
 No field of this message is all zeros. [Noise and covariance](measurement-to-message.md#noise-and-covariance) shows the plugin's lines that write the variances and explains why the other elements are 0. [The adapter](measurement-to-message.md#the-adapter) shows the lines that write the −1.
 

@@ -89,19 +89,10 @@ Each robot's model file sets where its call puts the IMU. Choose your robot:
 
 === "Remo"
 
-    <div class="grid" markdown>
+    ![Remo seen from the rear left, with the lidar platform hidden. A ring marks the blue BNO055 board on the breadboard, beside the Teensy and behind the Raspberry Pi](../images/remo-imu-overview.webp){ width="340" }
+    ![Remo from above, front up. The IMU's center lies 7.6 cm behind the wheel axle and 2.34 cm left of the center line. Its x axis points to the robot's right, its y axis forward](../images/remo-imu-top.webp){ width="340" }
 
-    <figure markdown>
-      ![Remo seen from the rear left, with the lidar platform hidden. A ring marks the blue BNO055 board on the breadboard, beside the Teensy and behind the Raspberry Pi](../images/remo-imu-overview.webp)
-      <figcaption>Remo, with the lidar platform hidden. The IMU board sits on the breadboard, at the rear.</figcaption>
-    </figure>
-
-    <figure markdown>
-      ![Remo from above, front up. The IMU's center lies 7.6 cm behind the wheel axle and 2.34 cm left of the center line. Its x axis points to the robot's right, its y axis forward](../images/remo-imu-top.webp)
-      <figcaption>Remo from above. The IMU's x axis points to the right, its y axis forward, and its z axis up, toward you.</figcaption>
-    </figure>
-
-    </div>
+    The first picture shows Remo with the lidar platform hidden. The IMU board sits on the breadboard, at the rear. The second picture shows Remo from above. The IMU's x axis points to the right, its y axis forward, and its z axis up, toward you.
 
     Remo's model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's model at remo_description 2.5.0, the version that [`diffbot_dev.repos`]({{ imu_sim_src_url }}/diffbot_dev.repos) names. The call of the macro puts the IMU on `chassis_link`. [`remo.urdf.xacro`, lines 211–216](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216):
 
