@@ -96,11 +96,13 @@ The holder's cable goes to the 2-pin power terminal of the [Adafruit DC Motor + 
 
 --8<-- "includes/power-supply-flow-remo.html"
 
-- **From the power bank:** the Raspberry Pi gets 5 V at its USB-C port. The Teensy gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The Teensy's 3.3 V pin supplies the encoders, the IMU and the logic of the motor driver ([bench check](https://github.com/ros-mobile-robots/diffbot/issues/169), section 8).
+- **From the power bank:** the Raspberry Pi gets 5 V at its USB-C port. The Teensy gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The LiDAR's USB adapter is on another USB port of the Raspberry Pi and gets the LiDAR's supply from it. The adapter has no supply of its own. The Teensy's 3.3 V pin supplies the encoders, the IMU and the logic of the motor driver ([bench check](https://github.com/ros-mobile-robots/diffbot/issues/169), section 8).
 - **From the motor battery:** the motors only. The motor driver switches the battery voltage to them.
 - **The motor driver** is the only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over I2C. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection ([schematic](https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB)), so both supplies share one ground.
 - **Without the Teensy, the motors stop.** The motor driver's logic loses its 3.3 V together with the Teensy. In the bench check, pulling the Teensy's USB cable while driving stopped the wheels at once.
-- **The LiDAR and the camera** are drawn with a dashed line, their data connection to the Raspberry Pi. Their supply isn't drawn, because it isn't checked on Remo yet.
+- **The camera** is drawn with a dashed line, its data connection to the Raspberry Pi. Its supply isn't drawn, because it isn't checked on Remo yet.
+
+The battery and the motor driver fit together like this:
 
 - **Input range:** Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its [guide](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts) asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged down to 6.0 V at the end of the rated discharge.
 - **Voltage drop:** The TB6612 switches with MOSFETs. Its [datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=10660) gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. So the motors get almost the full battery voltage.

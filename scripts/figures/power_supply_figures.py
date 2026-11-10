@@ -8,8 +8,8 @@ Both are inline SVG that follows the site's light and dark colors:
 
 A thick line is a supply, in the color of its source, with its voltage next to it. A dashed line is
 a data connection. A figure draws a supply only where it is checked on the robot or in the board's
-schematic. On Remo, the LiDAR and the camera have only their documented data connection. DiffBot's
-figure leaves out every part whose supply isn't checked.
+schematic. On Remo, the camera has only its documented data connection. DiffBot's figure leaves out
+every part whose supply isn't checked.
 
 Run from the repository root after changing a figure:
 
@@ -144,11 +144,18 @@ def draw_power_bank_and_pi(figure: Figure) -> None:
 
 
 def draw_lidar_and_camera(figure: Figure) -> None:
-    """Add the LiDAR and the camera on the Raspberry Pi, with a data line only."""
-    figure.line(f'M{LEFT_X + LEFT_WIDTH},84 H186', 'data')
-    figure.box(186, 64, 132, 34, [('RPLidar A2M8', 'name'), ('USB adapter', 'note')])
-    figure.line(f'M{LEFT_X + LEFT_WIDTH},118 H186', 'data')
-    figure.box(186, 106, 132, 34, [('Raspberry Pi Camera', 'name'), ('camera cable', 'note')])
+    """Add the LiDAR and the camera on the Raspberry Pi.
+
+    The LiDAR's USB adapter gets the supply and the data over one cable. The camera has a data
+    line only.
+    """
+    left_edge, box_x = LEFT_X + LEFT_WIDTH, 196
+    figure.supply(f'M{left_edge},79 H{box_x - HEAD_TIP}', 'bank')
+    figure.line(f'M{left_edge},{79 + PAIR_GAP} H{box_x}', 'data')
+    figure.text((left_edge + box_x) / 2, 73, '5 V', 'volt-bank', 'middle')
+    figure.box(box_x, 64, 122, 34, [('RPLidar A2M8', 'name'), ('USB adapter', 'note')])
+    figure.line(f'M{left_edge},118 H{box_x}', 'data')
+    figure.box(box_x, 106, 122, 34, [('Raspberry Pi Camera', 'name'), ('camera cable', 'note')])
 
 
 def draw_battery_and_motors(figure: Figure, battery: Sequence[Line], voltage: str,
@@ -171,7 +178,8 @@ def draw_battery_and_motors(figure: Figure, battery: Sequence[Line], voltage: st
 def remo() -> Figure:
     """Return Remo's figure: every part's supply is checked."""
     figure = Figure('pf-remo', 400, "Remo's power flow: the power bank supplies the Raspberry Pi, "
-                    'the Teensy and its sensors, and the six NiMH cells supply the motors')
+                    'the LiDAR, the Teensy and its sensors, and the six NiMH cells supply the '
+                    'motors')
     draw_power_bank_and_pi(figure)
     draw_lidar_and_camera(figure)
     draw_battery_and_motors(figure, [('Six NiMH AA cells', 'name')], '7.2 V nominal', [
