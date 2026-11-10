@@ -129,17 +129,27 @@ various nuisances of the physical robot, including differences in motors,
 wheels, and the asymmetry of the robot. It's simple and easily interpretable,
 too.
 
-The two PIDs work to ensure that the wheels spin at the desired speed, but not
-that the robot drives the desired way though. There are other factors such as
-slightly different wheel raddi $R$ which lead to different rotational velocities
-$\dot{\phi}_{l/r}$ (translational velocity $v_{l/r} = \dot{\phi}_{l/r} \cdot R$) and therefore different traveled distances for each wheel (left and right) $d_{l/r}$:
+The two PIDs make each wheel turn at its target angular velocity $\dot{\phi}_{l/r}$.
+They don't make sure that the robot drives the commanded path.
+One reason is that the two wheel radii $R_{l/r}$ differ slightly.
+A wheel with the radius $R_{l/r}$ that turns with $\dot{\phi}_{l/r}$ rolls over the ground with the speed $v_{l/r} = R_{l/r} \cdot \dot{\phi}_{l/r}$.
+In the time $\Delta t$, it travels the distance $d_{l/r}$:
 
 $$
-\begin{aligned}
-d_{l/r} &= v_{l/r} \cdot \Delta t \\
-d_{l/r} &= \frac{\dot{\phi}_{l/r}}{R} \cdot \Delta t
-\end{aligned}
+d_{l/r} = v_{l/r} \cdot \Delta t = R_{l/r} \cdot \dot{\phi}_{l/r} \cdot \Delta t
 $$
+
+For example, Remo's nominal wheel radius is 0.033 m ([`geometry.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/remo/geometry.yaml)).
+A wheel with this radius that turns with 2 rad/s for 3 s travels
+
+$$
+d = 0.033\,\text{m} \cdot 2\,\tfrac{\text{rad}}{\text{s}} \cdot 3\,\text{s} = 0.198\,\text{m}
+$$
+
+An angle in radians is the ratio of two lengths, so the result is in metres.
+Remo's two wheels measure 65.5 mm and 66.5 mm in diameter, as the comment in the same file says.
+With radii of 0.03275 m and 0.03325 m, the same 2 rad/s for 3 s give 0.1965 m and 0.1995 m.
+One wheel travels 3 mm further, although both wheels turn equally fast.
 
 These mechanical variations "can't be seen" by the encoders alone. For example
 assume you want the robot to go straight, you would set the two desired
