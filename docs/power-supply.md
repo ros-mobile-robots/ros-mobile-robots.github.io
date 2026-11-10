@@ -95,7 +95,7 @@ Seven fully charged cells give about 9.8 V, more than the motors' 9 V.
 Six alkaline cells don't fit either: fresh, they give about 9.6 V without load.
 With the small drop of the TB6612, the motors can get more than 9 V at full speed, especially at a light load.
 
-## Why NiMH cells
+## Why Remo uses NiMH cells
 
 - **Voltage:** Six NiMH cells keep the FeatherWing in its range and the motors below 9 V, as shown above.
 - **Steady speed:** Their voltage stays near 1.2 V for most of the discharge.
