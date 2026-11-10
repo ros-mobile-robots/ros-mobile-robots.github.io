@@ -1,0 +1,39 @@
+<style>
+.md-typeset figure.cs-figure{margin:1em auto;width:100%;max-width:480px}
+.cs-fig{width:100%;height:auto;--cs-example:#1e63c4;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .cs-fig{--cs-example:#82b1ff}
+.cs-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.cs-fig .block{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.cs-fig .arrow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.cs-fig .arrow-head{fill:var(--md-default-fg-color--light)}
+.cs-fig .number-disc{fill:var(--md-default-fg-color)}
+.cs-fig .number{fill:var(--md-default-bg-color);font-size:9.5px;font-weight:700}
+.cs-fig .name{font-size:11px}
+.cs-fig .sign{font-size:13px;font-weight:700}
+.cs-fig .example{fill:var(--cs-example);font-size:9.5px}
+.cs-fig .legend{fill:var(--cs-example)}
+</style>
+<figure class="cs-figure">
+<svg class="cs-fig" viewBox="0 0 360 294" role="img" aria-labelledby="cs-system-title"><title id="cs-system-title">A system: actuators give inputs to the process, and sensors turn its outputs into observations</title><defs><marker id="cs-system-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="block" x="30" y="6" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="23.5" text-anchor="middle">Actuators</text>
+<text class="example" x="105.0" y="36.5" text-anchor="middle">motor driver and motor</text>
+<path class="arrow" d="M105,46 V96" marker-end="url(#cs-system-head)"/>
+<text x="113" y="66" text-anchor="start">inputs</text>
+<text class="example" x="113" y="78" text-anchor="start">torque on the wheel</text>
+<rect class="block" x="30" y="97" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="114.5" text-anchor="middle">Process and environment</text>
+<text class="example" x="105.0" y="127.5" text-anchor="middle">wheel, robot and ground</text>
+<path class="arrow" d="M105,137 V187" marker-end="url(#cs-system-head)"/>
+<text x="113" y="157" text-anchor="start">outputs</text>
+<text class="example" x="113" y="169" text-anchor="start">wheel speed</text>
+<rect class="block" x="30" y="188" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="205.5" text-anchor="middle">Sensors</text>
+<text class="example" x="105.0" y="218.5" text-anchor="middle">wheel encoder</text>
+<path class="arrow" d="M105,228 V268" marker-end="url(#cs-system-head)"/>
+<text x="113" y="248" text-anchor="start">observations</text>
+<text class="example" x="113" y="260" text-anchor="start">measured wheel speed</text>
+<text class="legend" x="180.0" y="286" text-anchor="middle">Blue: an example, the speed of one of the robot's wheels</text>
+</svg>
+<figcaption>A system from its actuators to its sensors. Read the figure from top to bottom.</figcaption>
+</figure>

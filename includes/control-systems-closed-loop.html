@@ -1,0 +1,51 @@
+<figure class="cs-figure">
+<svg class="cs-fig" viewBox="0 0 360 384" role="img" aria-labelledby="cs-loop-title"><title id="cs-loop-title">A closed control loop: reference, comparison, controller, actuators, process, sensors, and the observations fed back to the comparison</title><defs><marker id="cs-loop-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="arrow" d="M105,6 V60" marker-end="url(#cs-loop-head)"/>
+<circle class="number-disc" cx="120" cy="18.5" r="7"/>
+<text class="number" x="120" y="21.7" text-anchor="middle">1</text>
+<text x="131" y="22" text-anchor="start">reference</text>
+<text class="example" x="131" y="34" text-anchor="start">target wheel speed</text>
+<circle class="block" cx="105" cy="74" r="13"/>
+<text class="sign" x="92" y="62" text-anchor="end">+</text>
+<text class="sign" x="122" y="89" text-anchor="start">−</text>
+<path class="arrow" d="M105,87 V127" marker-end="url(#cs-loop-head)"/>
+<circle class="number-disc" cx="120" cy="100.5" r="7"/>
+<text class="number" x="120" y="103.7" text-anchor="middle">2</text>
+<text x="131" y="104" text-anchor="start">error</text>
+<text class="example" x="131" y="116" text-anchor="start">target minus measured</text>
+<rect class="block" x="30" y="128" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="145.5" text-anchor="middle">Controller</text>
+<text class="example" x="105.0" y="158.5" text-anchor="middle">PID controller in the firmware</text>
+<path class="arrow" d="M105,168 V218" marker-end="url(#cs-loop-head)"/>
+<circle class="number-disc" cx="120" cy="184.5" r="7"/>
+<text class="number" x="120" y="187.7" text-anchor="middle">3</text>
+<text x="131" y="188" text-anchor="start">commands</text>
+<text class="example" x="131" y="200" text-anchor="start">motor command</text>
+<rect class="block" x="30" y="219" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="236.5" text-anchor="middle">Actuators</text>
+<text class="example" x="105.0" y="249.5" text-anchor="middle">motor driver and motor</text>
+<path class="arrow" d="M105,259 V309" marker-end="url(#cs-loop-head)"/>
+<circle class="number-disc" cx="120" cy="275.5" r="7"/>
+<text class="number" x="120" y="278.7" text-anchor="middle">4</text>
+<text x="131" y="279" text-anchor="start">inputs</text>
+<text class="example" x="131" y="291" text-anchor="start">torque on the wheel</text>
+<rect class="block" x="30" y="310" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="327.5" text-anchor="middle">Process and environment</text>
+<text class="example" x="105.0" y="340.5" text-anchor="middle">wheel, robot and ground</text>
+<path class="arrow" d="M180,330 H265 V260" marker-end="url(#cs-loop-head)"/>
+<circle class="number-disc" cx="280" cy="286.5" r="7"/>
+<text class="number" x="280" y="289.7" text-anchor="middle">5</text>
+<text x="291" y="290" text-anchor="start">outputs</text>
+<text class="example" x="291" y="302" text-anchor="start">wheel speed</text>
+<rect class="block" x="200" y="219" width="130" height="40" rx="5"/>
+<text class="name" x="265.0" y="236.5" text-anchor="middle">Sensors</text>
+<text class="example" x="265.0" y="249.5" text-anchor="middle">wheel encoder</text>
+<path class="arrow" d="M265,219 V74 H119" marker-end="url(#cs-loop-head)"/>
+<circle class="number-disc" cx="136" cy="52.5" r="7"/>
+<text class="number" x="136" y="55.7" text-anchor="middle">6</text>
+<text x="147" y="56" text-anchor="start">observations</text>
+<text class="example" x="147" y="68" text-anchor="start">measured wheel speed</text>
+<text class="legend" x="180.0" y="374" text-anchor="middle">Blue: an example, the speed of one of the robot's wheels</text>
+</svg>
+<figcaption>A closed loop. Start at the reference (1) and follow the numbers around the loop, back to the comparison in the circle.</figcaption>
+</figure>
