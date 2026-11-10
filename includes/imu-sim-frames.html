@@ -1,0 +1,117 @@
+<style>
+.md-typeset figure.imu-figure{margin:1em auto;width:100%;max-width:none}
+.imu-figure .imu-panels{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8rem 1.6rem}
+.imu-figure .imu-fig{flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)}
+.md-typeset .imu-figure figcaption{max-width:36rem}
+.imu-fig{width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;--imu-z:#1565c0;--imu-board:#9db9e6;--imu-gravity:#546e7a;--imu-acceleration:#e65100;--imu-reading:#7b1fa2;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .imu-fig{--imu-x:#ff7b72;--imu-y:#6fcf73;--imu-z:#6cb2ff;--imu-board:#3d5a8c;--imu-gravity:#a7b6be;--imu-acceleration:#ffa94d;--imu-reading:#d79bea}
+.imu-fig text{fill:var(--md-default-fg-color);font-size:12px}
+.imu-fig .title{font-size:13px;font-weight:700}
+.imu-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
+.imu-fig .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.imu-fig .strong{font-weight:700}
+.imu-fig .sub{font-size:9px}
+.imu-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3.5px;stroke-linejoin:round}
+.imu-fig .body{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.imu-fig .wheel{fill:var(--md-default-fg-color--lighter);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .part{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.imu-fig .board{fill:var(--imu-board);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .floor{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.imu-fig .joint{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:5 3}
+.imu-fig .guide{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.imu-fig .dot{fill:var(--md-default-fg-color)}
+.imu-fig .x{stroke:var(--imu-x);fill:var(--imu-x)}
+.imu-fig .y{stroke:var(--imu-y);fill:var(--imu-y)}
+.imu-fig .z{stroke:var(--imu-z);fill:var(--imu-z)}
+.imu-fig .gravity{stroke:var(--imu-gravity);fill:var(--imu-gravity)}
+.imu-fig .acceleration{stroke:var(--imu-acceleration);fill:var(--imu-acceleration)}
+.imu-fig .reading{stroke:var(--imu-reading);fill:var(--imu-reading)}
+.imu-fig .motion{stroke:var(--md-default-fg-color--light);fill:var(--md-default-fg-color--light)}
+.imu-fig .context{opacity:.62}
+.imu-fig .shaft{fill:none;stroke-width:2.4;stroke-linecap:round}
+.imu-fig .turn{stroke-width:2}
+.imu-fig .thin{stroke-width:1.5}
+.imu-fig .dashed{stroke-dasharray:4 3}
+.imu-fig .head{stroke:none}
+.imu-fig .ring{fill:var(--md-default-bg-color);stroke-width:1.8}
+.imu-fig text.x,.imu-fig text.y,.imu-fig text.z,.imu-fig text.gravity,.imu-fig text.acceleration,.imu-fig text.reading{stroke:none;font-weight:700}
+.imu-fig text.halo{stroke:var(--md-default-bg-color)}
+</style>
+<figure class="imu-figure" style="--imu-basis:300px;--imu-max:400px">
+<div class="imu-panels">
+<svg class="imu-fig" viewBox="0 0 340 306" role="img" aria-labelledby="imu-frames-above-title imu-frames-above-description"><title id="imu-frames-above-title">chassis_link, imu_joint and imu_link on Remo, from above</title><desc id="imu-frames-above-description">Remo from above, with its front at the top. chassis_link is at the center of the base plate, with its x axis forward and its y axis to the left. imu_link is at the IMU board on the breadboard, 4.01 cm behind and 2.34 cm left of chassis_link. Its x axis points to the right and its y axis forward. The z axes of both point up, out of the drawing. A dashed line, imu_joint, connects the two origins.</desc>
+<text class="title" x="10.0" y="18.0" text-anchor="start">From above</text>
+<text class="note" x="170.0" y="38.0" text-anchor="middle">front</text>
+<rect class="wheel" x="43.3" y="48.5" width="37.5" height="99.0" rx="4"/>
+<rect class="wheel" x="259.2" y="48.5" width="37.5" height="99.0" rx="4"/>
+<rect class="body" x="102.5" y="47.0" width="135.0" height="210.0" rx="5"/>
+<rect class="part" x="110.0" y="170.8" width="120.0" height="82.5" rx="2"/>
+<rect class="board" x="114.7" y="197.1" width="40.5" height="30.0" rx="1.5"/>
+<polyline class="joint" points="170.0,152.0 134.9,212.2"/>
+<polyline class="shaft x" points="170.0,152.0 170.0,116.4"/>
+<polygon class="head x" points="170.0,110.0 173.4,118.0 166.6,118.0"/>
+<text class="x halo" x="170.0" y="105.0" text-anchor="middle">x</text>
+<polyline class="shaft y" points="170.0,152.0 134.4,152.0"/>
+<polygon class="head y" points="128.0,152.0 136.0,148.6 136.0,155.4"/>
+<text class="y halo" x="128.0" y="144.0" text-anchor="middle">y</text>
+<circle class="ring z" cx="170.0" cy="152.0" r="5.5"/>
+<circle class="head z" cx="170.0" cy="152.0" r="2.0"/>
+<text class="z halo" x="181.0" y="145.0" text-anchor="middle">z</text>
+<polyline class="shaft x" points="134.9,212.2 170.5,212.2"/>
+<polygon class="head x" points="176.9,212.2 168.9,215.5 168.9,208.8"/>
+<text class="x halo" x="185.9" y="216.2" text-anchor="middle">x</text>
+<polyline class="shaft y" points="134.9,212.2 134.9,176.6"/>
+<polygon class="head y" points="134.9,170.2 138.3,178.2 131.5,178.2"/>
+<text class="y halo" x="123.9" y="182.2" text-anchor="middle">y</text>
+<circle class="ring z" cx="134.9" cy="212.2" r="5.5"/>
+<circle class="head z" cx="134.9" cy="212.2" r="2.0"/>
+<text class="z halo" x="134.9" y="240.2" text-anchor="middle">z</text>
+<text class="mono halo" x="184.0" y="164.0" text-anchor="start">chassis_link</text>
+<text class="mono halo" x="98.0" y="216.0" text-anchor="end">imu_link</text>
+<text class="mono halo" x="162.0" y="191.0" text-anchor="start">imu_joint</text>
+<text class="note" x="170.0" y="279.0" text-anchor="middle">imu_joint puts imu_link 4.01 cm back, 2.34 cm left</text>
+<text class="note" x="170.0" y="295.0" text-anchor="middle">and 1.3 cm up, and turns it by −90° about z</text>
+</svg>
+<svg class="imu-fig" viewBox="0 0 340 262" role="img" aria-labelledby="imu-frames-side-title imu-frames-side-description"><title id="imu-frames-side-title">chassis_link, imu_joint and imu_link on Remo, from the right side</title><desc id="imu-frames-side-description">Remo from its right side, with its front on the right. chassis_link is on top of the base plate, with its x axis forward and its z axis up. imu_link is 1.3 cm higher, on the breadboard. Its y axis points forward and its z axis up. chassis_link’s y axis points into the drawing, and imu_link’s x axis out of it.</desc>
+<text class="title" x="10.0" y="18.0" text-anchor="start">From the right side</text>
+<text class="note" x="318.0" y="114.0" text-anchor="end">front</text>
+<polyline class="floor" points="24.0,227.9 330.0,227.9"/>
+<text class="note" x="30.0" y="244.0" text-anchor="start">floor</text>
+<circle class="wheel" cx="113.5" cy="209.9" r="18.0"/>
+<rect class="body" x="85.0" y="128.0" width="210.0" height="45.0" rx="2"/>
+<rect class="body" x="85.0" y="125.0" width="210.0" height="3.0" rx="0"/>
+<rect class="part" x="88.8" y="110.0" width="82.5" height="15.0" rx="1.5"/>
+<rect class="board" x="114.9" y="105.5" width="30.0" height="6.0" rx="1"/>
+<circle class="wheel" cx="244.0" cy="178.4" r="49.5"/>
+<circle class="body" cx="244.0" cy="178.4" r="14.9"/>
+<polyline class="guide" points="66.0,128.0 85.0,128.0"/>
+<polyline class="guide" points="66.0,108.5 129.8,108.5"/>
+<polyline class="floor" points="70.0,128.0 70.0,108.5"/>
+<text class="note" x="62.0" y="122.2" text-anchor="end">1.3 cm</text>
+<polyline class="joint" points="190.0,128.0 129.8,108.5"/>
+<polyline class="shaft x" points="190.0,128.0 225.6,128.0"/>
+<polygon class="head x" points="232.0,128.0 224.0,131.4 224.0,124.6"/>
+<text class="x halo" x="237.0" y="121.0" text-anchor="middle">x</text>
+<polyline class="shaft z" points="190.0,128.0 190.0,92.4"/>
+<polygon class="head z" points="190.0,86.0 193.4,94.0 186.6,94.0"/>
+<text class="z halo" x="190.0" y="81.0" text-anchor="middle">z</text>
+<circle class="ring y" cx="190.0" cy="128.0" r="5.5"/>
+<polyline class="shaft thin y" points="186.8,124.8 193.2,131.2"/>
+<polyline class="shaft thin y" points="186.8,131.2 193.2,124.8"/>
+<text class="y halo" x="202.0" y="144.0" text-anchor="middle">y</text>
+<polyline class="shaft y" points="129.8,108.5 165.4,108.5"/>
+<polygon class="head y" points="171.8,108.5 163.8,111.9 163.8,105.1"/>
+<text class="y halo" x="171.8" y="100.5" text-anchor="middle">y</text>
+<polyline class="shaft z" points="129.8,108.5 129.8,72.9"/>
+<polygon class="head z" points="129.8,66.5 133.2,74.5 126.5,74.5"/>
+<text class="z halo" x="129.8" y="61.5" text-anchor="middle">z</text>
+<circle class="ring x" cx="129.8" cy="108.5" r="5.5"/>
+<circle class="head x" cx="129.8" cy="108.5" r="2.0"/>
+<text class="x halo" x="118.8" y="123.5" text-anchor="middle">x</text>
+<text class="mono halo" x="198.0" y="102.0" text-anchor="start">chassis_link</text>
+<text class="mono halo" x="121.0" y="88.0" text-anchor="end">imu_link</text>
+<text class="mono halo" x="146.0" y="150.0" text-anchor="middle">imu_joint</text>
+</svg>
+</div>
+<figcaption>Remo’s frames, to scale. <code>chassis_link</code> is at the center of the base plate’s top. <code>imu_joint</code>, the dashed line, puts <code>imu_link</code> on it. Red is x, green is y and blue is z. A ring with a dot is an axis that points at you, a ring with a cross one that points away.</figcaption>
+</figure>
