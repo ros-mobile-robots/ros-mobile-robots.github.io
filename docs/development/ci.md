@@ -70,7 +70,10 @@ CI's runners have no screen and no graphics card, but Gazebo's camera needs a di
 
 Starting the display, the drive and the encoding have time limits, and in CI the step "Record the video" stops after 20 minutes. A failed step stops the recorder with an error, and the recorder stops every process that it started.
 
-The dev container's job `noetic` is a required check. A label condition on that job would skip it for every other label, and GitHub counts a skipped required job as passed ([jobs with conditions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)). So the recording is a job in a workflow of its own, [`sim_video.yml`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml). It runs on `pull_request` with read access and no secrets, so it can also run for pull requests from forks, once a maintainer approves the run where GitHub asks for that.
+The recording is a job in a workflow of its own, [`sim_video.yml`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml). The workflow runs on `pull_request` with read access and no secrets, so it can also run for pull requests from forks, once a maintainer approves the run where GitHub asks for that.
+
+??? info "Why the recording is a workflow of its own"
+    The dev container's job `noetic` is a required check. A label condition on that job would skip it for every other label, and GitHub counts a skipped required job as passed ([jobs with conditions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)). So the recording has a workflow of its own.
 
 ### PR description
 
