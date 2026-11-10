@@ -4650,7 +4650,7 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/diffbot/.docker/robot</span>
 <span class="go">docker compose up -d --no-build</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>up</code> creates and starts the containers described in <code>compose.yaml</code>: the bringup, and the lidar if <code>COMPOSE_PROFILES=lidar</code> is set. <code>-d</code> runs them in the background and gives you the prompt back. The first start downloads the image that <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> published, <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot"><code>ghcr.io/ros-mobile-robots/diffbot-robot</code></a>, with the packages already compiled. Compressed, it's about 0.7 GB for amd64. Later starts use the downloaded image. <code>--no-build</code> makes a failed download an error. Without it, Compose would build the image on the Raspberry Pi instead, which takes long.</p>
+<p><code>up</code> creates and starts the containers described in <code>compose.yaml</code>: the bringup, and the lidar if <code>COMPOSE_PROFILES=lidar</code> is set. <code>-d</code> runs them in the background and gives you the prompt back. The first start downloads the image that <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> published, <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot"><code>ghcr.io/ros-mobile-robots/diffbot-robot</code></a>, with the packages already compiled. Compressed, it's about 0.7 GB. That size is measured for the amd64 image, the one for PCs. The arm64 image, which the Raspberry Pi downloads, isn't measured yet. Later starts use the downloaded image. <code>--no-build</code> makes a failed download an error. Without it, Compose would build the image on the Raspberry Pi instead, which takes long.</p>
 <h2 id="check">Check</h2>
 <p>On the Raspberry Pi, list the containers:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose ps -a</span>
@@ -4720,7 +4720,7 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>measured_joint_states</code> comes from the Teensy: messages at a steady rate mean that rosserial talks with the firmware and the encoders are read. <code>odom</code> is the controller's odometry. <code>scan</code> comes from the lidar, if it runs.</p>
 <h2 id="drive">Drive</h2>
-<p>From your PC, first with the wheels off the ground, then slowly on the floor:</p>
+<p>On your PC, in the <a href="../../../development/dev-container/">dev container</a>, first with the wheels off the ground, then slowly on the floor:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/diffbot/mobile_base_controller/cmd_vel</span>
 </code></pre></div></td></tr></tbody></table></div>
 <h2 id="stop">Stop</h2>
