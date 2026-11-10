@@ -153,18 +153,19 @@ Gravity, the length of the mean acceleration: 9.792 m/s^2
 
 **Results on Remo:** two recordings of 180 s, with a Teensy 3.2 on 2026-10-31 ([evidence](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)) and with Remo's own Teensy 4.0 on 2026-11-03 ([results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)).
 
-| | Teensy 3.2 | Teensy 4.0 |
-|:--|:--|:--|
-| Messages and rate | 8,986 at 50.00 Hz | 8,990 at 50.00 Hz |
-| Gaps between the stamps | 14.2 to 27.4 ms, none over 30 ms | 13.3 to 25.8 ms, none over 30 ms |
-| Gyroscope bias x, y, z (rad/s) | +0.00001, +0.00000, +0.00003 | −0.00003, −0.00001, +0.00005 |
-| Gyroscope std dev x, y, z (rad/s) | 0.00047, 0.00078, 0.00075 | 0.00057, 0.00081, 0.00073 |
-| Gyroscope distinct values x, y, z | 7, 8, 9 | 10, 11, 9 |
-| Acceleration std dev x, y, z (m/s²) | 0.020, 0.024, 0.028 | 0.013, 0.026, 0.036 |
-| Acceleration distinct values x, y, z | 11, 14, 17 | 11, 19, 21 |
-| Gravity | 9.742 m/s² | 9.792 m/s² |
-
 Both boards give the same picture, as expected: the Teensy only reads the sensor's registers. The gyroscope's bias stays below 0.0001 rad/s, less than a tenth of one output step. Its variance, 2 to 7 · 10⁻⁷ (rad/s)², is about a thousand times smaller than the firmware's starting value of 4 · 10⁻⁴ (rad/s)². The starting values stay until a check while driving shows how much the vibration adds. That check has to tell real motion apart from measurement noise: the readings of a robot that turns or speeds up change because it moves.
+
+??? info "The numbers of both recordings"
+    | | Teensy 3.2 | Teensy 4.0 |
+    |:--|:--|:--|
+    | Messages and rate | 8,986 at 50.00 Hz | 8,990 at 50.00 Hz |
+    | Gaps between the stamps | 14.2 to 27.4 ms, none over 30 ms | 13.3 to 25.8 ms, none over 30 ms |
+    | Gyroscope bias x, y, z (rad/s) | +0.00001, +0.00000, +0.00003 | −0.00003, −0.00001, +0.00005 |
+    | Gyroscope std dev x, y, z (rad/s) | 0.00047, 0.00078, 0.00075 | 0.00057, 0.00081, 0.00073 |
+    | Gyroscope distinct values x, y, z | 7, 8, 9 | 10, 11, 9 |
+    | Acceleration std dev x, y, z (m/s²) | 0.020, 0.024, 0.028 | 0.013, 0.026, 0.036 |
+    | Acceleration distinct values x, y, z | 11, 14, 17 | 11, 19, 21 |
+    | Gravity | 9.742 m/s² | 9.792 m/s² |
 
 To try the breakout separately with an Arduino, see [Adafruit's Arduino guide](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code) for wiring, library installation and example programs.
 
