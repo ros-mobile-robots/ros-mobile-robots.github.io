@@ -4710,6 +4710,7 @@
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose exec -w /home/ros/.ros bringup /entrypoint.sh rosbag record -O imu_still.bag --duration=180 /diffbot/imu/data_raw</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>rosbag record</code> saves the messages of the topic <code>/diffbot/imu/data_raw</code> in the file <code>imu_still.bag</code> (<code>-O</code>) and stops by itself after 180 s. <code>-w /home/ros/.ros</code> runs the command in this folder of the container, which is <code>~/robot-data</code> on the Raspberry Pi by default. Without it, the file would stay inside the container and be gone after <code>docker compose down</code>. The rest of the line is explained under "Running a command in a container" on <a href="../../../processing_units/robot-container/usage/">Start, Check and Stop</a>.</p>
+<p>With a native ROS installation (<a href="../../../processing_units/ros-setup/">ROS Setup</a>) instead of the robot container, run the same <code>rosbag record</code> command without the part from <code>docker compose exec</code> to <code>/entrypoint.sh</code>. The file is then saved in the folder where the command runs. The same holds for the tool in step 2.</p>
 <p><strong>2. Run the tool</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_bringup/scripts/imu_noise_at_rest.py"><code>imu_noise_at_rest.py</code></a> on the recording:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose exec -w /home/ros/.ros bringup /entrypoint.sh rosrun diffbot_bringup imu_noise_at_rest.py imu_still.bag</span>
 </code></pre></div></td></tr></tbody></table></div>
@@ -4790,6 +4791,9 @@ Gravity, the length of the mean acceleration: 9.792 m/s^2
 </tbody>
 </table>
 <p><strong>Results on Remo:</strong> two recordings of 180 s, with a Teensy 3.2 on 2026-10-31 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a>) and with Remo's own Teensy 4.0 on 2026-11-03 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">results</a>).</p>
+<p>Both boards give the same picture, as expected: the Teensy only reads the sensor's registers. The gyroscope's bias stays below 0.0001 rad/s, less than a tenth of one output step. Its variance, 2 to 7 · 10⁻⁷ (rad/s)², is about a thousand times smaller than the firmware's starting value of 4 · 10⁻⁴ (rad/s)². The starting values stay until a check while driving shows how much the vibration adds. That check has to tell real motion apart from measurement noise: the readings of a robot that turns or speeds up change because it moves.</p>
+<details class="info">
+<summary>The numbers of both recordings</summary>
 <table>
 <thead>
 <tr>
@@ -4841,7 +4845,7 @@ Gravity, the length of the mean acceleration: 9.792 m/s^2
 </tr>
 </tbody>
 </table>
-<p>Both boards give the same picture, as expected: the Teensy only reads the sensor's registers. The gyroscope's bias stays below 0.0001 rad/s, less than a tenth of one output step. Its variance, 2 to 7 · 10⁻⁷ (rad/s)², is about a thousand times smaller than the firmware's starting value of 4 · 10⁻⁴ (rad/s)². The starting values stay until a check while driving shows how much the vibration adds. That check has to tell real motion apart from measurement noise: the readings of a robot that turns or speeds up change because it moves.</p>
+</details>
 <p>To try the breakout separately with an Arduino, see <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code">Adafruit's Arduino guide</a> for wiring, library installation and example programs.</p>
 <details class="info">
 <summary>Trying the breakout on the Raspberry Pi</summary>
