@@ -37,7 +37,7 @@
 .imu-fig text.x,.imu-fig text.y,.imu-fig text.z,.imu-fig text.gravity,.imu-fig text.acceleration,.imu-fig text.reading{stroke:none;font-weight:700}
 .imu-fig text.halo{stroke:var(--md-default-bg-color)}
 </style>
-<figure class="imu-figure" style="--imu-basis:300px;--imu-max:480px">
+<figure class="imu-figure" markdown="block" style="--imu-basis:300px;--imu-max:480px">
 <div class="imu-panels">
 <svg class="imu-fig" viewBox="0 0 360 330" role="img" aria-labelledby="imu-angular-velocity-title imu-angular-velocity-description"><title id="imu-angular-velocity-title">The angular velocity about imu_link’s three axes</title><desc id="imu-angular-velocity-description">Remo from behind and above. At the IMU board, imu_link’s three axes: x in red to the robot’s right, y in green forward and z in blue up. A curved arrow turns about each axis in the direction that counts as positive: counterclockwise when the axis points at the viewer. The arrow about z is the yaw rate, which is positive in a left turn. The EKF fuses this value.</desc>
 <g class="context">
@@ -82,10 +82,10 @@
 <text x="78.0" y="28.0" text-anchor="start">yaw rate: positive in a left turn.</text>
 <text x="78.0" y="44.0" text-anchor="start">The EKF fuses this value.</text>
 <text class="y halo" x="186.0" y="150.0" text-anchor="start">ω<tspan class="sub" dy="3">y</tspan></text>
-<text class="x halo" x="204.0" y="171.0" text-anchor="start">ω<tspan class="sub" dy="3">x</tspan></text>
+<text class="x halo" x="199.0" y="246.0" text-anchor="start">ω<tspan class="sub" dy="3">x</tspan></text>
 <text class="note" x="180.0" y="306.0" text-anchor="middle">Each curved arrow shows the direction that counts</text>
 <text class="note" x="180.0" y="321.0" text-anchor="middle">as positive for the angular velocity about its axis</text>
 </svg>
 </div>
-<figcaption><code>angular_velocity</code> on Remo: one number per axis of <code>imu_link</code>, in rad/s. Red is x, green is y and blue is z. Point your right thumb along an axis: your fingers curl in the positive direction.</figcaption>
+<figcaption markdown="span">`angular_velocity` on Remo: one number per axis of `imu_link`, in rad/s. Red is x, green is y and blue is z. Point your right thumb along an axis: your fingers curl in the positive direction. On Remo, `imu_link`’s y axis points forward and its x axis to the robot’s right, because the board is mounted turned by −90° about z, as the [figure of Remo’s frames](position-and-axes.md) shows.</figcaption>
 </figure>

@@ -37,9 +37,9 @@
 .imu-fig text.x,.imu-fig text.y,.imu-fig text.z,.imu-fig text.gravity,.imu-fig text.acceleration,.imu-fig text.reading{stroke:none;font-weight:700}
 .imu-fig text.halo{stroke:var(--md-default-bg-color)}
 </style>
-<figure class="imu-figure" style="--imu-basis:200px;--imu-max:290px">
+<figure class="imu-figure" markdown="block" style="--imu-basis:200px;--imu-max:290px">
 <div class="imu-panels">
-<svg class="imu-fig" viewBox="0 0 216 272" role="img" aria-labelledby="imu-force-rest-title imu-force-rest-description"><title id="imu-force-rest-title">At rest</title><desc id="imu-force-rest-description">Remo stands still on the floor, seen from its right side. At the IMU, gravity g points down with 9.8 m/s². The acceleration a is zero. The sensor reads f = a − g, which points up with 9.8 m/s².</desc>
+<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-rest-title imu-force-rest-description"><title id="imu-force-rest-title">At rest</title><desc id="imu-force-rest-description">Remo stands still on the floor, seen from its right side. At the IMU, gravity g points down with 9.8 m/s². The acceleration a is zero. The sensor reads f = a − g, which points up with 9.8 m/s². On Remo, the message’s x, y and z are 0, 0 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">At rest</text>
 <polyline class="floor" points="10.0,211.9 206.0,211.9"/>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
@@ -63,8 +63,10 @@
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
 <text class="reading" x="108.0" y="249.0" text-anchor="middle">forward 0,</text>
 <text class="reading" x="108.0" y="265.0" text-anchor="middle">up +9.8 m/s²</text>
+<text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
+<text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, 0, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 272" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 1 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 1 m/s². The sensor reads f = a − g: 1 m/s² forward and 9.8 m/s² up.</desc>
+<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up. On Remo, the message’s x, y and z are 0, +0.5 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Speeding up forward</text>
 <polyline class="floor" points="10.0,211.9 206.0,211.9"/>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
@@ -86,16 +88,18 @@
 <text class="reading halo" x="107.9" y="87.3" text-anchor="middle">f</text>
 <polyline class="shaft acceleration" points="81.9,140.3 100.7,140.3"/>
 <polygon class="head acceleration" points="107.9,140.3 98.9,144.1 98.9,136.5"/>
-<text class="acceleration halo" x="114.9" y="135.3" text-anchor="start">a = 1</text>
+<text class="acceleration halo" x="114.9" y="135.3" text-anchor="start">a = 0.5</text>
 <circle class="dot" cx="81.9" cy="140.3" r="3.0"/>
 <polyline class="shaft motion thin" points="132.0,46.0 172.4,46.0"/>
 <polygon class="head motion thin" points="178.0,46.0 171.0,48.9 171.0,43.1"/>
 <text class="note" x="155.0" y="39.0" text-anchor="middle">speeds up</text>
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
-<text class="reading" x="108.0" y="249.0" text-anchor="middle">forward +1,</text>
+<text class="reading" x="108.0" y="249.0" text-anchor="middle">forward +0.5,</text>
 <text class="reading" x="108.0" y="265.0" text-anchor="middle">up +9.8 m/s²</text>
+<text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
+<text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, +0.5, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 272" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s². The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing.</desc>
+<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to gravity. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing. On Remo, the message’s x, y and z are +0.01, +0.02 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Turning left, from above</text>
 <g class="context">
 <rect class="wheel" x="32.0" y="79.9" width="22.5" height="59.4" rx="4"/>
@@ -118,7 +122,9 @@
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
 <text class="reading" x="108.0" y="249.0" text-anchor="middle">toward the center 0.02,</text>
 <text class="reading" x="108.0" y="265.0" text-anchor="middle">up +9.8 m/s²</text>
+<text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
+<text class="reading" x="108.0" y="301.0" text-anchor="middle">(+0.01, +0.02, +9.8)</text>
 </svg>
 </div>
-<figcaption><code>linear_acceleration</code> is the specific force <strong>f</strong> = <strong>a</strong> − <strong>g</strong>: the acceleration <strong>a</strong> of the sensor minus gravity <strong>g</strong>, in m/s². The arrows show directions. Their lengths aren’t to scale. In the turn, the dotted circle is the sensor’s path, and <strong>f</strong> points up, at you.</figcaption>
+<figcaption markdown="span">`linear_acceleration` is the specific force **f** = **a** − **g**: the acceleration **a** of the sensor minus gravity **g**, in m/s². The arrows show directions. Their lengths aren’t to scale. The last line of each drawing gives the message’s x, y and z on Remo, where `imu_link`’s y axis points forward. In the turn, the dotted circle is the sensor’s path, **f** points up, at you, and the 0.02 m/s² toward the center is tiny next to gravity’s 9.8 m/s².</figcaption>
 </figure>

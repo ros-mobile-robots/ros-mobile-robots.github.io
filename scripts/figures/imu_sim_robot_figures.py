@@ -13,6 +13,8 @@ Remo is a schematic, drawn to scale from the numbers of its public model, remo_d
 (urdf/remo.urdf.xacro and config/remo/*.yaml). The axes have ROS's colors: x red, y green and
 z blue. The pages' text repeats the numbers, so change them together.
 
+Each caption is Markdown, so a link in it is relative to the page that includes the figure.
+
 Run from the repository root after changing a figure:
 
     python3 scripts/figures/imu_sim_robot_figures.py
@@ -78,7 +80,8 @@ AXIS_NAMES = ('x', 'y', 'z')
 
 # The examples of the specific force figure
 GRAVITY = 9.8  # m/s², Gazebo's gravity in the robots' worlds
-FORWARD_ACCELERATION = 1.0  # m/s²
+# Below the drive controller's limit of 0.6 m/s² (diffbot_control.yaml, max_acceleration)
+FORWARD_ACCELERATION = 0.5  # m/s²
 TURN_RATE = 0.5  # rad/s, the left turn of test_imu.py
 
 FG = 'var(--md-default-fg-color)'
@@ -500,6 +503,7 @@ def frames_from_above() -> Figure:
     figure.text((184, 164), 'chassis_link', 'mono halo')
     figure.text((98, 216), 'imu_link', 'mono halo', 'end')
     figure.text((162, 191), 'imu_joint', 'mono halo')
+    figure.text((226, 248), 'breadboard', 'note', 'end')
     figure.text((170, 279), 'imu_joint puts imu_link 4.01 cm back, 2.34 cm left', 'note',
                 'middle')
     figure.text((170, 295), 'and 1.3 cm up, and turns it by −90° about z', 'note',
@@ -507,21 +511,9 @@ def frames_from_above() -> Figure:
     return figure
 
 
-def draw_height_difference(figure: Figure, view: View, left: float) -> None:
-    """Add how far imu_link lies above chassis_link, as a dimension at the left of the drawing."""
-    low = view.project((0.0, 0.0, 0.0))[1]
-    sensor = view.project(IMU_POSITION)
-    rear = view.project((PLATE.x_min, 0.0, 0.0))[0]
-    figure.polyline([(left - 4, low), (rear, low)], 'guide')
-    figure.polyline([(left - 4, sensor[1]), (sensor[0], sensor[1])], 'guide')
-    figure.polyline([(left, low), (left, sensor[1])], 'floor')
-    figure.text((left - 8, (low + sensor[1]) / 2 + 4), f'{IMU_POSITION[2] * 100:.1f} cm', 'note',
-                'end')
-
-
 def frames_from_the_side() -> Figure:
     """Return the drawing of the three frames from the robot's right side."""
-    figure = Figure('imu-frames-side', 340, 262, 'chassis_link, imu_joint and imu_link on Remo, '
+    figure = Figure('imu-frames-side', 340, 270, 'chassis_link, imu_joint and imu_link on Remo, '
                     'from the right side',
                     'Remo from its right side, with its front on the right. chassis_link is on '
                     'top of the base plate, with its x axis forward and its z axis up. imu_link '
@@ -532,15 +524,17 @@ def frames_from_the_side() -> Figure:
     figure.text((10, 18), 'From the right side', 'title')
     figure.text((318, 114), 'front', 'note', 'end')
     draw_floor(figure, view, 24, 330)
-    figure.text((30, 244), 'floor', 'note')
+    figure.text((30, 240), 'floor', 'note')
     draw_remo_from_the_side(figure, view)
-    draw_height_difference(figure, view, 70)
+    figure.text((84, 121), 'breadboard', 'note', 'end')
     draw_joint(figure, view)
     draw_frame(figure, view, (0.0, 0.0, 0.0), CHASSIS_AXES, 42, {'x': (5, -7), 'y': (12, 16)})
     draw_frame(figure, view, IMU_POSITION, IMU_AXES, 42, {'y': (0, -8), 'x': (-11, 15)})
     figure.text((198, 102), 'chassis_link', 'mono halo')
     figure.text((121, 88), 'imu_link', 'mono halo', 'end')
     figure.text((146, 150), 'imu_joint', 'mono halo', 'middle')
+    figure.text((170, 262), 'imu_link lies 1.3 cm above chassis_link, on the breadboard', 'note',
+                'middle')
     return figure
 
 
@@ -599,7 +593,7 @@ def angular_velocity() -> Figure:
     figure.text((78, 28), 'yaw rate: positive in a left turn.')
     figure.text((78, 44), 'The EKF fuses this value.')
     figure.text((186, 150), subscript('ω', 'y'), 'y halo', markup=True)
-    figure.text((204, 171), subscript('ω', 'x'), 'x halo', markup=True)
+    figure.text((199, 246), subscript('ω', 'x'), 'x halo', markup=True)
     figure.text((180, 306), 'Each curved arrow shows the direction that counts', 'note', 'middle')
     figure.text((180, 321), 'as positive for the angular velocity about its axis', 'note',
                 'middle')
@@ -609,7 +603,7 @@ def angular_velocity() -> Figure:
 # The specific force drawings are FORCE_WIDTH wide. Their arrows aren't to scale: gravity's
 # 9.8 m/s² is GRAVITY_LENGTH long, and an acceleration is ACCELERATION_LENGTH long
 FORCE_WIDTH = 216
-FORCE_HEIGHT = 272
+FORCE_HEIGHT = 310
 GRAVITY_LENGTH = 46.0
 ACCELERATION_LENGTH = 26.0
 
@@ -621,11 +615,38 @@ def draw_vector(figure: Figure, start: Point, offset: Point, css_class: str) -> 
     return end
 
 
-def reading_lines(figure: Figure, first: str, second: str) -> None:
-    """Add what the sensor reads, as two lines at the bottom of a specific force drawing."""
-    figure.text((FORCE_WIDTH / 2, 232), 'The sensor reads', 'note', 'middle')
-    figure.text((FORCE_WIDTH / 2, 249), first, 'reading', 'middle')
-    figure.text((FORCE_WIDTH / 2, 265), second, 'reading', 'middle')
+def number(value: float) -> str:
+    """Return a value in m/s² with at most two decimals, without a sign."""
+    return f'{value:.2f}'.rstrip('0').rstrip('.')
+
+
+def signed(value: float) -> str:
+    """Return a value in m/s² with at most two decimals and its sign. Zero has none."""
+    return '0' if abs(value) < 0.005 else f'{value:+.2f}'.rstrip('0').rstrip('.')
+
+
+def specific_force(acceleration: Vector) -> Vector:
+    """Return what the sensor reads for an acceleration: the acceleration minus gravity."""
+    return add(acceleration, (0.0, 0.0, 1.0), GRAVITY)
+
+
+def message_values(reading: Vector) -> str:
+    """Return a reading as the message's x, y and z on Remo, along imu_link's axes."""
+    return '(' + ', '.join(signed(dot(reading, axis)) for axis in IMU_AXES) + ')'
+
+
+def reading_lines(figure: Figure, first: str, second: str, reading: Vector) -> None:
+    """Add what the sensor reads at the bottom of a specific force drawing.
+
+    first and second say it in the robot's directions. reading, in chassis_link's axes, becomes
+    the message's three numbers on Remo.
+    """
+    center = FORCE_WIDTH / 2
+    figure.text((center, 232), 'The sensor reads', 'note', 'middle')
+    figure.text((center, 249), first, 'reading', 'middle')
+    figure.text((center, 265), second, 'reading', 'middle')
+    figure.text((center, 284), 'On Remo, the message’s x, y, z', 'note', 'middle')
+    figure.text((center, 301), message_values(reading), 'reading', 'middle')
 
 
 def specific_force_side(name: str, title: str, description: str,
@@ -655,7 +676,7 @@ def specific_force_side(name: str, title: str, description: str,
     figure.text((tip[0], tip[1] - 7), 'f', 'reading halo', 'middle')
     if acceleration:
         draw_vector(figure, sensor, (forward, 0), 'acceleration')
-    figure.text((sensor[0] + forward + 7, sensor[1] - 5), f'a = {acceleration:.0f}',
+    figure.text((sensor[0] + forward + 7, sensor[1] - 5), f'a = {number(acceleration)}',
                 'acceleration halo')
     figure.circle(sensor, 3, 'dot')
     return figure
@@ -667,8 +688,8 @@ def specific_force_at_rest() -> Figure:
         'imu-force-rest', 'At rest',
         'Remo stands still on the floor, seen from its right side. At the IMU, gravity g points '
         'down with 9.8 m/s². The acceleration a is zero. The sensor reads f = a − g, which '
-        'points up with 9.8 m/s².', 0.0)
-    reading_lines(figure, 'forward 0,', f'up +{GRAVITY} m/s²')
+        'points up with 9.8 m/s². On Remo, the message’s x, y and z are 0, 0 and +9.8.', 0.0)
+    reading_lines(figure, 'forward 0,', f'up +{GRAVITY} m/s²', specific_force((0.0, 0.0, 0.0)))
     return figure
 
 
@@ -676,12 +697,14 @@ def specific_force_speeding_up() -> Figure:
     """Return the drawing of the specific force while the robot speeds up forward."""
     figure = specific_force_side(
         'imu-force-speeding-up', 'Speeding up forward',
-        'Remo speeds up forward with 1 m/s², seen from its right side. At the IMU, gravity g '
-        'points down with 9.8 m/s², and the acceleration a points forward with 1 m/s². The '
-        'sensor reads f = a − g: 1 m/s² forward and 9.8 m/s² up.', FORWARD_ACCELERATION)
+        'Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g '
+        'points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The '
+        'sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up. On Remo, the message’s x, y '
+        'and z are 0, +0.5 and +9.8.', FORWARD_ACCELERATION)
     figure.arrow((132, 46), (178, 46), 'motion thin', 7)
     figure.text((155, 39), 'speeds up', 'note', 'middle')
-    reading_lines(figure, f'forward +{FORWARD_ACCELERATION:.0f},', f'up +{GRAVITY} m/s²')
+    reading_lines(figure, f'forward {signed(FORWARD_ACCELERATION)},', f'up +{GRAVITY} m/s²',
+                  specific_force((FORWARD_ACCELERATION, 0.0, 0.0)))
     return figure
 
 
@@ -697,14 +720,21 @@ def circle_points(center: Point, radius: float, first_angle: int, last_angle: in
             for angle in range(first_angle, last_angle + 1, 6)]
 
 
+def turn_acceleration() -> Vector:
+    """Return the IMU's acceleration in a turn on the spot: toward the wheel axle's midpoint."""
+    return (TURN_RATE ** 2 * (AXLE_X - IMU_POSITION[0]), TURN_RATE ** 2 * -IMU_POSITION[1], 0.0)
+
+
 def specific_force_in_a_turn() -> Figure:
     """Return the drawing of the specific force while the robot turns left on the spot."""
     centripetal = TURN_RATE ** 2 * turn_radius()
     figure = Figure('imu-force-turn', FORCE_WIDTH, FORCE_HEIGHT, 'Turning left, from above',
                     'Remo turns left on the spot, seen from above. The IMU moves on a circle '
                     'around the midpoint of the wheel axle, 8 cm away. Its acceleration a '
-                    'points to that midpoint. At 0.5 rad/s, a is 0.02 m/s². The sensor reads '
-                    'this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing.')
+                    'points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to '
+                    'gravity. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² '
+                    'up, out of the drawing. On Remo, the message’s x, y and z are +0.01, +0.02 '
+                    'and +9.8.')
     view = view_from_above(900, (FORCE_WIDTH / 2, 142))
     figure.text((6, 18), 'Turning left, from above', 'title')
     figure.elements.append('<g class="context">')
@@ -724,7 +754,8 @@ def specific_force_in_a_turn() -> Figure:
     figure.circle(sensor, 5.5, 'ring reading')
     figure.circle(sensor, 2.0, 'head reading')
     figure.text((sensor[0] - 10, sensor[1] + 4), 'f', 'reading halo', 'end')
-    reading_lines(figure, f'toward the center {centripetal:.2f},', f'up +{GRAVITY} m/s²')
+    reading_lines(figure, f'toward the center {centripetal:.2f},', f'up +{GRAVITY} m/s²',
+                  specific_force(turn_acceleration()))
     return figure
 
 
@@ -732,21 +763,21 @@ def figure_html(drawings: Sequence[Figure], caption: str, basis: int, widest: in
     """Return a figure element with the drawings side by side and one caption.
 
     The drawings wrap below each other on a narrow screen. basis and widest are the width in
-    px from which a drawing wraps and its largest width.
+    px from which a drawing wraps and its largest width. caption is Markdown.
     """
     panels = '\n'.join(drawing.svg() for drawing in drawings)
-    return (f'{style_element(RULES)}\n<figure class="imu-figure" '
+    return (f'{style_element(RULES)}\n<figure class="imu-figure" markdown="block" '
             f'style="--imu-basis:{basis}px;--imu-max:{widest}px">\n'
             f'<div class="imu-panels">\n{panels}\n</div>\n'
-            f'<figcaption>{caption}</figcaption>\n</figure>\n')
+            f'<figcaption markdown="span">{caption}</figcaption>\n</figure>\n')
 
 
 def write_frames() -> None:
     """Write the include with the frames on Remo."""
-    caption = ('Remo’s frames, to scale. <code>chassis_link</code> is at the center of the '
-               'base plate’s top. <code>imu_joint</code>, the dashed line, puts '
-               '<code>imu_link</code> on it. Red is x, green is y and blue is z. A ring with a '
-               'dot is an axis that points at you, a ring with a cross one that points away.')
+    caption = ('Remo’s frames, to scale. `chassis_link` is at the center of the base plate’s '
+               'top. `imu_joint`, the dashed line, puts `imu_link` on it, at the IMU’s board '
+               '(blue) on the breadboard. Red is x, green is y and blue is z. A ring with a dot '
+               'is an axis that points at you, a ring with a cross one that points away.')
     with open('includes/imu-sim-frames.html', 'w') as include:
         include.write(figure_html([frames_from_above(), frames_from_the_side()], caption, 300,
                                   400))
@@ -754,21 +785,23 @@ def write_frames() -> None:
 
 def write_angular_velocity() -> None:
     """Write the include with the angular velocity about imu_link's axes."""
-    caption = ('<code>angular_velocity</code> on Remo: one number per axis of '
-               '<code>imu_link</code>, in rad/s. Red is x, green is y and blue is z. Point your '
-               'right thumb along an axis: your fingers curl in the positive direction.')
+    caption = ('`angular_velocity` on Remo: one number per axis of `imu_link`, in rad/s. Red is '
+               'x, green is y and blue is z. Point your right thumb along an axis: your fingers '
+               'curl in the positive direction. On Remo, `imu_link`’s y axis points forward and '
+               'its x axis to the robot’s right, because the board is mounted turned by −90° '
+               'about z, as the [figure of Remo’s frames](position-and-axes.md) shows.')
     with open('includes/imu-sim-angular-velocity.html', 'w') as include:
         include.write(figure_html([angular_velocity()], caption, 300, 480))
 
 
 def write_specific_force() -> None:
     """Write the include with the specific force in three situations."""
-    caption = ('<code>linear_acceleration</code> is the specific force '
-               '<strong>f</strong> = <strong>a</strong> − <strong>g</strong>: the '
-               'acceleration <strong>a</strong> of the sensor minus gravity '
-               '<strong>g</strong>, in m/s². The arrows show directions. Their lengths aren’t '
-               'to scale. In the turn, the dotted circle is the sensor’s path, and '
-               '<strong>f</strong> points up, at you.')
+    caption = ('`linear_acceleration` is the specific force **f** = **a** − **g**: the '
+               'acceleration **a** of the sensor minus gravity **g**, in m/s². The arrows show '
+               'directions. Their lengths aren’t to scale. The last line of each drawing gives '
+               'the message’s x, y and z on Remo, where `imu_link`’s y axis points forward. In '
+               'the turn, the dotted circle is the sensor’s path, **f** points up, at you, and '
+               'the 0.02 m/s² toward the center is tiny next to gravity’s 9.8 m/s².')
     drawings = [specific_force_at_rest(), specific_force_speeding_up(),
                 specific_force_in_a_turn()]
     with open('includes/imu-sim-specific-force.html', 'w') as include:

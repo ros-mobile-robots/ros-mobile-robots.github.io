@@ -37,7 +37,7 @@
 .imu-fig text.x,.imu-fig text.y,.imu-fig text.z,.imu-fig text.gravity,.imu-fig text.acceleration,.imu-fig text.reading{stroke:none;font-weight:700}
 .imu-fig text.halo{stroke:var(--md-default-bg-color)}
 </style>
-<figure class="imu-figure" style="--imu-basis:300px;--imu-max:400px">
+<figure class="imu-figure" markdown="block" style="--imu-basis:300px;--imu-max:400px">
 <div class="imu-panels">
 <svg class="imu-fig" viewBox="0 0 340 306" role="img" aria-labelledby="imu-frames-above-title imu-frames-above-description"><title id="imu-frames-above-title">chassis_link, imu_joint and imu_link on Remo, from above</title><desc id="imu-frames-above-description">Remo from above, with its front at the top. chassis_link is at the center of the base plate, with its x axis forward and its y axis to the left. imu_link is at the IMU board on the breadboard, 4.01 cm behind and 2.34 cm left of chassis_link. Its x axis points to the right and its y axis forward. The z axes of both point up, out of the drawing. A dashed line, imu_joint, connects the two origins.</desc>
 <text class="title" x="10.0" y="18.0" text-anchor="start">From above</text>
@@ -69,14 +69,15 @@
 <text class="mono halo" x="184.0" y="164.0" text-anchor="start">chassis_link</text>
 <text class="mono halo" x="98.0" y="216.0" text-anchor="end">imu_link</text>
 <text class="mono halo" x="162.0" y="191.0" text-anchor="start">imu_joint</text>
+<text class="note" x="226.0" y="248.0" text-anchor="end">breadboard</text>
 <text class="note" x="170.0" y="279.0" text-anchor="middle">imu_joint puts imu_link 4.01 cm back, 2.34 cm left</text>
 <text class="note" x="170.0" y="295.0" text-anchor="middle">and 1.3 cm up, and turns it by −90° about z</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 340 262" role="img" aria-labelledby="imu-frames-side-title imu-frames-side-description"><title id="imu-frames-side-title">chassis_link, imu_joint and imu_link on Remo, from the right side</title><desc id="imu-frames-side-description">Remo from its right side, with its front on the right. chassis_link is on top of the base plate, with its x axis forward and its z axis up. imu_link is 1.3 cm higher, on the breadboard. Its y axis points forward and its z axis up. chassis_link’s y axis points into the drawing, and imu_link’s x axis out of it.</desc>
+<svg class="imu-fig" viewBox="0 0 340 270" role="img" aria-labelledby="imu-frames-side-title imu-frames-side-description"><title id="imu-frames-side-title">chassis_link, imu_joint and imu_link on Remo, from the right side</title><desc id="imu-frames-side-description">Remo from its right side, with its front on the right. chassis_link is on top of the base plate, with its x axis forward and its z axis up. imu_link is 1.3 cm higher, on the breadboard. Its y axis points forward and its z axis up. chassis_link’s y axis points into the drawing, and imu_link’s x axis out of it.</desc>
 <text class="title" x="10.0" y="18.0" text-anchor="start">From the right side</text>
 <text class="note" x="318.0" y="114.0" text-anchor="end">front</text>
 <polyline class="floor" points="24.0,227.9 330.0,227.9"/>
-<text class="note" x="30.0" y="244.0" text-anchor="start">floor</text>
+<text class="note" x="30.0" y="240.0" text-anchor="start">floor</text>
 <circle class="wheel" cx="113.5" cy="209.9" r="18.0"/>
 <rect class="body" x="85.0" y="128.0" width="210.0" height="45.0" rx="2"/>
 <rect class="body" x="85.0" y="125.0" width="210.0" height="3.0" rx="0"/>
@@ -84,10 +85,7 @@
 <rect class="board" x="114.9" y="105.5" width="30.0" height="6.0" rx="1"/>
 <circle class="wheel" cx="244.0" cy="178.4" r="49.5"/>
 <circle class="body" cx="244.0" cy="178.4" r="14.9"/>
-<polyline class="guide" points="66.0,128.0 85.0,128.0"/>
-<polyline class="guide" points="66.0,108.5 129.8,108.5"/>
-<polyline class="floor" points="70.0,128.0 70.0,108.5"/>
-<text class="note" x="62.0" y="122.2" text-anchor="end">1.3 cm</text>
+<text class="note" x="84.0" y="121.0" text-anchor="end">breadboard</text>
 <polyline class="joint" points="190.0,128.0 129.8,108.5"/>
 <polyline class="shaft x" points="190.0,128.0 225.6,128.0"/>
 <polygon class="head x" points="232.0,128.0 224.0,131.4 224.0,124.6"/>
@@ -111,7 +109,8 @@
 <text class="mono halo" x="198.0" y="102.0" text-anchor="start">chassis_link</text>
 <text class="mono halo" x="121.0" y="88.0" text-anchor="end">imu_link</text>
 <text class="mono halo" x="146.0" y="150.0" text-anchor="middle">imu_joint</text>
+<text class="note" x="170.0" y="262.0" text-anchor="middle">imu_link lies 1.3 cm above chassis_link, on the breadboard</text>
 </svg>
 </div>
-<figcaption>Remo’s frames, to scale. <code>chassis_link</code> is at the center of the base plate’s top. <code>imu_joint</code>, the dashed line, puts <code>imu_link</code> on it. Red is x, green is y and blue is z. A ring with a dot is an axis that points at you, a ring with a cross one that points away.</figcaption>
+<figcaption markdown="span">Remo’s frames, to scale. `chassis_link` is at the center of the base plate’s top. `imu_joint`, the dashed line, puts `imu_link` on it, at the IMU’s board (blue) on the breadboard. Red is x, green is y and blue is z. A ring with a dot is an axis that points at you, a ring with a cross one that points away.</figcaption>
 </figure>
