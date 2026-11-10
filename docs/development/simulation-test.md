@@ -47,7 +47,7 @@ That test file runs two test nodes: `drive_diffbot`, which has the two test meth
 
 `catkin_test_results build` counts the tests in all result files. For this test at the pinned commit, it reports 10: for each robot, rostest's own result file lists the two test nodes, and the nodes' files list their two drive tests and the one publish test.
 
-This example comes from the commit that this page pins. The pull requests for the simulated IMU and the EKF ([diffbot#153](https://github.com/ros-mobile-robots/diffbot/pull/153) and [diffbot#154](https://github.com/ros-mobile-robots/diffbot/pull/154)) add test nodes to the same test file, such as `imu_diffbot`, which checks the simulated IMU ([the IMU test on IMU: Simulation](../packages/imu/simulation.md#how-its-tested)). With them, the summary lists more tests, and the count is higher.
+This example comes from the commit that this page pins. The pull requests for the simulated IMU and the EKF ([diffbot#153](https://github.com/ros-mobile-robots/diffbot/pull/153) and [diffbot#154](https://github.com/ros-mobile-robots/diffbot/pull/154)) add test nodes to the same test file, such as `imu_diffbot`, which checks the simulated IMU ([the IMU tests](../packages/imu/simulation/tests.md)). With them, the summary lists more tests, and the count is higher.
 
 **The measured motions:** `measure_motion()` logs both measurements of each drive, and rostest copies the node's log into its result file `rosunit-drive_diffbot.xml`. The file is in `~/.ros/test_results/diffbot_gazebo/` when you run rostest yourself, and in `build/diffbot_gazebo/test_results/diffbot_gazebo/` when catkin runs the tests:
 

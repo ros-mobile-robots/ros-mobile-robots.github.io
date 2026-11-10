@@ -266,7 +266,7 @@ See the source of the [`gazebo_ros_range`](https://github.com/ros-simulation/gaz
 
 #### Inertial Measurement Unit (IMU)
 
-Both robots' models have a simulated IMU. It publishes `/diffbot/imu/data_raw` at 50 Hz, with the same message as the [BNO055 firmware on the real robot](packages/imu/driver-bno055.md#what-the-firmware-publishes), so the [EKF](packages/imu/robot_localization.md) gets the same input in the simulation as on the robot. [IMU: Simulation](packages/imu/simulation.md) shows where the IMU sits on each robot, how the robots' own Gazebo plugin measures it, and how it's tested.
+Both robots' models have a simulated IMU. It publishes `/diffbot/imu/data_raw` at 50 Hz, with the same message as the [BNO055 firmware on the real robot](packages/imu/driver-bno055.md#what-the-firmware-publishes), so the [EKF](packages/imu/robot_localization.md) gets the same input in the simulation as on the robot. [IMU: Simulation](packages/imu/simulation/index.md) shows what the IMU publishes. Its sub pages show [where the IMU sits on each robot](packages/imu/simulation/position-and-axes.md), [how a sample becomes a message](packages/imu/simulation/measurement-to-message.md), [why the robots have their own Gazebo plugin](packages/imu/simulation/plugin.md) and [how the IMU is tested](packages/imu/simulation/tests.md).
 
 ## Troubleshooting
 

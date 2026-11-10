@@ -1,8 +1,18 @@
 # IMU: Simulation
 
-In the Gazebo simulation, DiffBot and Remo have an IMU too. It publishes the same topic and the same message as the [BNO055 firmware on the real robot](driver-bno055.md#what-the-firmware-publishes). So the EKF that fuses the IMU's yaw rate, its angular velocity about the upward axis, with the wheel odometry gets the same input in the simulation as on the robot.
+In the Gazebo simulation, DiffBot and Remo have an IMU too. It publishes the same topic and the same message as the [BNO055 firmware on the real robot](../driver-bno055.md#what-the-firmware-publishes). So the EKF that fuses the IMU's yaw rate, its angular velocity about the upward axis, with the wheel odometry gets the same input in the simulation as on the robot. [Localization: Wheel Odometry and IMU (EKF)](../robot_localization.md) explains the EKF and how to switch it on.
 
-[Localization: Wheel Odometry and IMU (EKF)](robot_localization.md) explains the EKF and how to switch it on.
+This page shows [what the simulated IMU publishes](#what-the-simulated-imu-publishes) and [which parts make the message](#from-the-sensor-to-the-ekf). Four more pages go into the details:
+
+- **[Position and Axes](position-and-axes.md)** shows where the IMU sits on each robot and which way its axes point, with the lines of the robot's model that put it there. Read it to tell which axis of the message is the robot's forward direction, or to change the mounting.
+- **[From Measurement to Message](measurement-to-message.md)** follows one sample from Gazebo's sensor to the published message: what the sensor measures, when the plugin publishes, the noise, the covariances, the stamp and the adapter. Read it to find where a value of the message is set.
+- **[The Robots' Own IMU Plugin](plugin.md)** explains why the robots don't use the IMU plugin that comes with ROS, and what their copy does differently. It's background for the interested reader. You don't need it to use the simulated IMU.
+- **[Tests](tests.md)** shows what CI checks on the simulated IMU and how the two tests work. Read it before you change the IMU's model, the plugin or the adapter.
+
+!!! info "Reading the code"
+
+    - The excerpts on these pages show fixed revisions, with their comments: diffbot's source at one commit, Remo's model at remo_description 2.5.0, and ROS's and Gazebo's sources at one commit each. Their line numbers match the original files.
+    - The link above each excerpt opens that revision and those lines on GitHub.
 
 ## What the simulated IMU publishes
 
@@ -15,20 +25,132 @@ Both robots publish `/diffbot/imu/data_raw`, 50 times per second, the firmware's
 The comments at the top are the message's contract for every publisher:
 
 - Angular velocities are in rad/s, accelerations in m/s².
-- Each vector has a 3 × 3 covariance matrix, stored as nine numbers, row by row. A publisher that knows only the variances puts them on the diagonal.
-- A covariance of all zeros means that the covariance is unknown, not that the value has no uncertainty. A node that reads the message then has to assume a covariance.
-- −1 as a covariance's first element means that the publisher has no estimate for that field. A node that reads the message should check this element and disregard the field.
+- Each of the three vectors comes with a covariance, which says how uncertain the vector's values are. A publisher that knows only the variances puts them on the diagonal.
+- A covariance of all zeros means that the covariance is unknown, not that the value has no uncertainty.
+- −1 as a covariance's first element means that the publisher has no estimate for that field.
+
+[How the message stores a covariance](#how-the-message-stores-a-covariance) shows a covariance's nine numbers and these two special cases.
 
 The fields in order, and what the simulated IMU puts into them:
 
 - **`header`:** `header.stamp` is the time of the measurement, here the simulation time at which Gazebo's sensor measured. `header.frame_id` names the frame whose axes the values use, here `imu_link`, the IMU's frame.
-- **`orientation` and `orientation_covariance`:** an estimate of the sensor's orientation, as a quaternion, four numbers that describe a rotation, and its covariance. Like the firmware, the simulated IMU has no orientation estimate: `orientation_covariance[0]` is −1, which marks the orientation unavailable. The quaternion's four numbers are 0. That isn't a valid orientation, and the −1 tells a reader not to use it.
-- **`angular_velocity`:** the angular velocity $\boldsymbol\omega$ about the three axes of `imu_link`, in rad/s. The simulated IMU publishes $\tilde{\boldsymbol\omega}$, the angular velocity with noise.
-- **`angular_velocity_covariance`:** $\Sigma_\omega$, in (rad/s)². In the simulation, it's a diagonal matrix, $\Sigma_\omega = \sigma^2 I_3$, where $I_3$ is the 3 × 3 identity matrix. The noise's standard deviation is $\sigma = 0.005$ rad/s, and its variance $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)².
-- **`linear_acceleration`:** despite its name, what an accelerometer measures: the specific force $\mathbf f = \mathbf a - \mathbf g$, the acceleration minus gravity, along the same axes, in m/s². At rest, the upward axis reads +9.8 m/s² in Gazebo. The simulated IMU publishes $\tilde{\mathbf f}$, the specific force with noise.
-- **`linear_acceleration_covariance`:** $\Sigma_f = \sigma^2 I_3$, in (m/s²)², with $\sigma = 0.005$ m/s².
+- **`orientation` and `orientation_covariance`:** the sensor's orientation and its covariance. The orientation is a **quaternion**: four numbers, x, y, z and w, that together describe a rotation in space. The ROS wiki's [quaternion basics](http://wiki.ros.org/tf2/Tutorials/Quaternions) explain them. Like the firmware, the simulated IMU has no orientation estimate. So the field is marked unavailable: `orientation_covariance[0]` is −1, and the quaternion's four numbers are 0. Four zeros don't describe a rotation, because a quaternion that does has the length 1. The −1 tells a node that reads the message not to use them.
+- **`angular_velocity`:** $\boldsymbol\omega$, how fast the sensor turns about each of `imu_link`'s three axes, in rad/s. [The angular velocity](#the-angular-velocity) shows the three rotations. The simulated IMU publishes $\tilde{\boldsymbol\omega}$, the angular velocity with noise.
+- **`angular_velocity_covariance`:** $\Sigma_\omega$, in (rad/s)². The noise's standard deviation is $\sigma = 0.005$ rad/s on each axis, so each variance is $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)².
+- **`linear_acceleration`:** despite its name, what an accelerometer measures: the specific force $\mathbf f$, the acceleration minus gravity, along the same axes, in m/s². [The linear acceleration](#the-linear-acceleration) explains it. The simulated IMU publishes $\tilde{\mathbf f}$, the specific force with noise.
+- **`linear_acceleration_covariance`:** $\Sigma_f$, in (m/s²)², with $\sigma = 0.005$ m/s² on each axis.
 
-[What the sensor measures](#what-the-sensor-measures) and [how the plugin adds noise](#noise-and-covariance) derive these values from the code. The firmware's message has no orientation either. The firmware reads only the BNO055's angular velocity and acceleration, because the EKF fuses only the yaw rate, as [what the firmware publishes](driver-bno055.md#what-the-firmware-publishes) explains.
+[From the sensor to the EKF](#from-the-sensor-to-the-ekf) says which part sets each of these values, with links to the setting or the lines of code.
+
+### The angular velocity
+
+--8<-- "includes/imu-sim-angular-velocity.html"
+
+`angular_velocity` has one number for each axis of `imu_link`:
+
+$$
+\boldsymbol\omega = \begin{pmatrix} \omega_x \\ \omega_y \\ \omega_z \end{pmatrix}
+$$
+
+- **Each number** is how fast the sensor turns about that axis, in rad/s. $\omega_x$ is the message's `angular_velocity.x`, $\omega_y$ its `angular_velocity.y` and $\omega_z$ its `angular_velocity.z`.
+- **The sign** follows the right-hand rule, as [REP 103](https://www.ros.org/reps/rep-0103.html#chirality), ROS's convention for coordinate frames, asks. Point your right thumb along the axis. Your fingers then curl in the positive direction.
+- **The yaw rate** is $\omega_z$. `imu_link`'s z axis points up on both robots. So when the robot turns left, counterclockwise seen from above, $\omega_z$ is positive. The yaw rate is the one value of the message that the EKF fuses.
+- **On a level floor**, the robot turns only about the upward axis. $\omega_x$ and $\omega_y$ then stay near 0.
+
+The figure shows Remo. `imu_link`'s x axis points to Remo's right and its y axis forward, because the board is mounted turned by −90° about z. [Position and Axes](position-and-axes.md) shows the mounting on both robots.
+
+### The linear acceleration
+
+--8<-- "includes/imu-sim-specific-force.html"
+
+`linear_acceleration` isn't the robot's acceleration alone. It's what an accelerometer measures, the **specific force**:
+
+$$
+\mathbf f = \mathbf a - \mathbf g
+\qquad\text{or}\qquad
+\begin{pmatrix} f_x \\ f_y \\ f_z \end{pmatrix} =
+\begin{pmatrix} a_x \\ a_y \\ a_z \end{pmatrix} -
+\begin{pmatrix} g_x \\ g_y \\ g_z \end{pmatrix}
+$$
+
+- $\mathbf a$ is the acceleration of the point where the sensor sits.
+- $\mathbf g$ is gravity. It points down, with 9.8 m/s² in the simulation.
+- All three are vectors along `imu_link`'s axes, in m/s². $f_x$ is the message's `linear_acceleration.x`, $f_y$ its `linear_acceleration.y` and $f_z$ its `linear_acceleration.z`.
+
+So every reading is the acceleration minus gravity, on all three axes. A real accelerometer doesn't compute this difference. The difference is what the sensor feels. An accelerometer can't feel gravity itself, because gravity pulls on the sensor's housing and on the small mass inside it in the same way. What the sensor feels is the force that holds it up against gravity. The box at the top of [IMU: Bosch BNO055](../driver-bno055.md) explains the mass and its suspension. Gazebo's sensor computes the difference, so that it reads as a real one, in the lines that [what the sensor measures](measurement-to-message.md#what-the-sensor-measures) shows.
+
+Four cases. The figure shows the first three:
+
+- **At rest**, $\mathbf a$ is zero. With `imu_link`'s z axis up, gravity is $\mathbf g = (0, 0, -9.8)$ m/s², so the sensor reads $\mathbf f = (0, 0, +9.8)$ m/s². The floor holds the robot up, and the sensor reads that as 9.8 m/s² upward, although the robot doesn't move. At a steady speed on a level floor, $\mathbf a$ is zero too, and the reading is the same.
+- **Speeding up forward** with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is `imu_link`'s y axis, so the message's three numbers are (0, +0.5, +9.8). The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the `max_acceleration` in [lines 47–48 of its configuration]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L47-L48).
+- **In a turn**, the sensor moves on a circle, and its acceleration points to the circle's center. Its size is the turn rate squared times the distance to the center. Remo's IMU sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives $0.5^2 \cdot 0.08 = 0.02$ m/s², which is tiny next to the 9.8 m/s².
+- **In free fall**, nothing holds the sensor up. $\mathbf a$ equals $\mathbf g$, and the sensor reads 0 on all three axes.
+
+Which of the message's axes is forward depends on how the IMU is mounted. [Position and Axes](position-and-axes.md#the-mounting-on-each-robot) shows it for both robots.
+
+### How the message stores a covariance
+
+Each of the message's three vectors has a covariance matrix. A covariance matrix says how uncertain the vector's values are. For a vector with the components x, y and z, it has three rows and three columns:
+
+$$
+\Sigma =
+\begin{pmatrix}
+\sigma_x^2 & \sigma_{xy} & \sigma_{xz} \\
+\sigma_{yx} & \sigma_y^2 & \sigma_{yz} \\
+\sigma_{zx} & \sigma_{zy} & \sigma_z^2
+\end{pmatrix}
+$$
+
+- **On the diagonal** are the variances. $\sigma_x^2$ is the variance of the x value: the square of its standard deviation $\sigma_x$, which says how far the value typically lies from the true one.
+- **Off the diagonal** are the covariances. $\sigma_{xy}$ says whether the errors of the x value and of the y value go up and down together. It's 0 when the two errors have nothing to do with each other. $\sigma_{xy}$ and $\sigma_{yx}$ are always equal.
+
+Wikipedia's article on the [covariance matrix](https://en.wikipedia.org/wiki/Covariance_matrix) gives the definition.
+
+A ROS message has no type for a matrix. `Imu.msg` declares each covariance as `float64[9]`, an array of nine numbers, with the comment "Row major", in the definition's lines 18, 21 and 24. Row major means row by row: the matrix's first row, then its second, then its third.
+
+$$
+\big[\;
+\underbrace{\sigma_x^2,\ \sigma_{xy},\ \sigma_{xz}}_{\text{row 1}},\;\;
+\underbrace{\sigma_{yx},\ \sigma_y^2,\ \sigma_{yz}}_{\text{row 2}},\;\;
+\underbrace{\sigma_{zx},\ \sigma_{zy},\ \sigma_z^2}_{\text{row 3}}
+\;\big]
+$$
+
+The array's elements are counted from 0, as in C++ and Python. Each element's index, at the element's place in the matrix:
+
+$$
+\begin{pmatrix}
+\mathbf 0 & 1 & 2 \\
+3 & \mathbf 4 & 5 \\
+6 & 7 & \mathbf 8
+\end{pmatrix}
+$$
+
+So the variances are at the indices 0, 4 and 8. `angular_velocity_covariance[8]`, for example, is the angular velocity's $\sigma_z^2$, the variance of the yaw rate.
+
+The message definition gives two arrays a special meaning, in its lines 7–8 and 10–13. The table shows them below the array of a publisher that knows only the variances:
+
+| Index | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | A node that reads the message |
+|:--|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:--|
+| The variances are known | $\sigma_x^2$ | 0 | 0 | 0 | $\sigma_y^2$ | 0 | 0 | 0 | $\sigma_z^2$ | uses the values with these variances |
+| The covariance is unknown | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | can use the values, but has to assume a covariance |
+| The field is unavailable | −1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | ignores the field |
+
+The −1 goes into element 0. The message definition names only this element. The simulated IMU sets the other eight to 0.
+
+What the simulated IMU's message holds:
+
+| Field | Its nine numbers | Meaning |
+|:--|:--|:--|
+| `orientation_covariance` | −1, 0, 0, 0, 0, 0, 0, 0, 0 | The orientation is unavailable |
+| `angular_velocity_covariance` | $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$ | The variance of each axis, in (rad/s)² |
+| `linear_acceleration_covariance` | $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$, 0, 0, 0, $2.5 \cdot 10^{-5}$ | The variance of each axis, in (m/s²)² |
+
+No field of this message is all zeros. [Noise and covariance](measurement-to-message.md#noise-and-covariance) shows the plugin's lines that write the variances and explains why the other elements are 0. [The adapter](measurement-to-message.md#the-adapter) shows the lines that write the −1.
+
+## From the sensor to the EKF
+
+Three parts make the message, one after the other. Two more read it:
 
 ```mermaid
 graph TB
@@ -39,443 +161,10 @@ graph TB
   ADAPTER -->|imu/data_raw| TEST["test_imu.py and test_imu_reset.py"]
 ```
 
-The topics are in the `/diffbot` namespace, for both robots. The parts of the diagram:
-
-- **Gazebo's IMU sensor** measures the angular velocity and the specific force at `imu_link`, the IMU's frame. [The IMU's position and axes](#position-and-axes) shows where this frame sits on each robot.
-- **The robots' own IMU plugin**, a Gazebo plugin from the diffbot repository, adds noise and publishes the values on `/diffbot/imu/gazebo`. [The Gazebo sensor and the plugin](#the-gazebo-sensor-and-the-plugin) shows how the model loads it.
-- **The adapter**, `imu_raw_adapter.py`, subscribes to `/diffbot/imu/gazebo`, removes the orientation and publishes the rest on `/diffbot/imu/data_raw`. [The adapter's code](#the-adapter) shows how.
-- **The IMU sample validator**, [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py), subscribes to `/diffbot/imu/data_raw` and forwards the samples it accepts, unchanged, on `/diffbot/imu/data_validated`, which the EKF subscribes to. It drops a sample while the ROS time is still zero, when its frame isn't `imu_link`, when a value or a variance isn't usable, or when its stamp is too old, too far ahead or not newer than the last one. [The IMU sample validator on the Localization page](robot_localization.md#the-imu-sample-validator) lists the checks. The validator and the EKF run only with `ekf:=true`, as [running the EKF](robot_localization.md#running-it) shows.
-- **The tests**, `test_imu.py` and `test_imu_reset.py`, subscribe to `/diffbot/imu/data_raw` and check the messages in CI, as [how it's tested](#how-its-tested) explains.
-
-## Position and axes
-
-The IMU's frame is the link [`imu_link`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L208-L234). A fixed joint, [`imu_joint`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L236-L240), places it on [`chassis_link`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207), the frame at the center of the robot's base plate. The joint's origin says where the sensor sits and how it's turned:
-
-- `xyz` is the position in m, along `chassis_link`'s x (forward), y (left) and z (up) axes.
-- `rpy` is the rotation in rad: roll about x, pitch about y and yaw about z.
-
-Every value in the IMU's message is along `imu_link`'s axes. The EKF turns them into the robot's axes with this joint's transform, which `robot_state_publisher` publishes from the URDF.
-
-!!! info "Reading the code"
-
-    - The excerpts show fixed revisions, with their comments: diffbot's source at one commit, Remo's model at remo_description 2.5.0, and ROS's message definition at one commit of common_msgs. Their line numbers match the original files.
-    - The link above each excerpt opens that revision and those lines on GitHub.
-
-### The link and the joint in the model
-
-The robots' models are written in [xacro](http://wiki.ros.org/xacro), XML with macros. Xacro expands a model into the URDF that ROS and Gazebo read. Both models declare `imu_link` and `imu_joint` in a macro called `imu_sensor`. A macro is a template: each call expands it into URDF elements. DiffBot's macro declares the link in [`common_sensors.xacro`, lines 208–234]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L208-L234):
-
-```xml title="common_sensors.xacro (xacro, expands into URDF): imu_link" linenums="208"
---8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/include/common_sensors.xacro:208:234"
-```
-
-`imu` is the IMU's entry in [`sensors.yaml`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml#L16-L26). The model's call passes the file's content to the macro as `sensor_prop` ([`diffbot.urdf.xacro`, line 80]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80)), and the macro takes the entry `imu` from `sensor_prop` ([line 206]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L206)). DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and `box_inertia` gives the link the board's mass, 3 g.
-
-The joint, [`common_sensors.xacro`, lines 236–240]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L236-L240):
-
-```xml title="common_sensors.xacro (xacro, expands into URDF): imu_joint" linenums="236" hl_lines="2 4"
---8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/include/common_sensors.xacro:236:240"
-```
-
-- The joint is `fixed`, so `imu_link` moves with its parent link, as the board moves with the robot.
-- `${parent_link}` and the `<origin>` come from the macro's call. The macro's parameter `*origin` takes the `<origin>` element written between the call's tags, and `xacro:insert_block` puts it here. So these lines don't say where the IMU sits. Each robot's call does, in the sections on Remo's and DiffBot's mounting.
-
-Remo's macro in remo_description declares the same link and joint, with a mesh of the BNO055 board ([remo_description's `common_sensors.xacro`, lines 216–250](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L216-L250)).
-
-### Remo's mounting
-
-<div class="grid" markdown>
-
-<figure markdown>
-  ![Remo seen from the rear left, with the lidar platform hidden. A ring marks the blue BNO055 board on the breadboard, beside the Teensy and behind the Raspberry Pi](images/remo-imu-overview.webp)
-  <figcaption>Remo, with the lidar platform hidden. The IMU board sits on the breadboard, at the rear.</figcaption>
-</figure>
-
-<figure markdown>
-  ![Remo from above, front up. The IMU's center lies 7.6 cm behind the wheel axle and 2.34 cm left of the center line. Its x axis points to the robot's right, its y axis forward](images/remo-imu-top.webp)
-  <figcaption>Remo from above. The IMU's x axis points to the right, its y axis forward, and its z axis up, toward you.</figcaption>
-</figure>
-
-</div>
-
-Remo's model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's model at remo_description 2.5.0 ([`diffbot_dev.repos`]({{ imu_sim_src_url }}/diffbot_dev.repos)). The call of the macro puts the IMU on `chassis_link`, [`remo.urdf.xacro`, lines 211–216](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216):
-
-```xml title="remo.urdf.xacro: the call of imu_sensor" linenums="211" hl_lines="2 5"
---8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:211:216"
-```
-
-`imu_xyz` and `imu_rpy` are xacro arguments, declared at the top of the file with their defaults, [`remo.urdf.xacro`, lines 26–27](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27):
-
-```xml title="remo.urdf.xacro: the IMU's mounting" linenums="26"
---8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:26:27"
-```
-
-Xacro turns the call into this joint in Remo's URDF. The lines are xacro's output for `remo.urdf.xacro` at 2.5.0, with its default arguments, not a file in a repository:
-
-```xml title="Remo's URDF, expanded by xacro: imu_joint"
-<joint name="imu_joint" type="fixed">
-  <parent link="chassis_link"/>
-  <child link="imu_link"/>
-  <origin rpy="0 0 -1.5707963" xyz="-0.0401 0.0234 0.013"/>
-</joint>
-```
-
-- **Position:** −4.01 cm, +2.34 cm and +1.3 cm from `chassis_link`, which is 3.6 cm behind the wheel axle ([`remo.urdf.xacro`, lines 71–74](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L71-L74)). So the chip's center lies 7.6 cm behind the wheel axle, 2.34 cm left of the robot's center line, and 8 cm above the floor. The board's header pins sit in the breadboard.
-- **Rotation:** $-\pi/2$ rad, −90°, about z. The board lies flat. Its z axis points up, its y axis forward and its x axis to the robot's right. A tilt test on Remo showed these axes, as the [bench checks](driver-bno055.md#bench-checks) describe. The comment above the arguments in `remo.urdf.xacro` says how each value was found.
-
-Because both z axes point up, a left turn reads as a positive yaw rate $\omega_z$, for the IMU as for the robot. Forward acceleration appears on the IMU's positive y axis, not on its x axis. At a steady forward speed on level ground, that axis reads about zero.
-
-### DiffBot's mounting
-
-DiffBot uses the same BNO055 board as Remo, moved from one robot to the other. Its mounting on DiffBot isn't measured yet. So DiffBot's model uses placeholders: 1 cm above `chassis_link`'s origin, with the board's axes along the robot's. [`diffbot.urdf.xacro`, lines 4–10]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10):
-
-```xml title="diffbot.urdf.xacro: the IMU's mounting" linenums="4"
---8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:4:10"
-```
-
-The call of the macro passes them to the joint, [`diffbot.urdf.xacro`, lines 80–82]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82):
-
-```xml title="diffbot.urdf.xacro: the call of imu_sensor" linenums="80"
---8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:80:82"
-```
-
-In DiffBot's URDF, xacro's output for `diffbot.urdf.xacro` at the pinned commit, the joint's origin is `<origin rpy="0 0 0" xyz="0 0 0.01"/>`, on `chassis_link`. To try another mounting, override the arguments when you expand the model, for example `xacro diffbot.urdf.xacro imu_xyz:='0 0 0.02'`.
-
-## How the plugin and the adapter make the message
-
-### The Gazebo sensor and the plugin
-
-The macro `imu_sensor` adds the sensor in a block that only Gazebo reads. DiffBot's macro is in [`common_sensors.xacro`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L191-L258), Remo's in [remo_description's file of the same name](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L211-L268). [`common_sensors.xacro`, lines 242–257]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L242-L257):
-
-```xml title="common_sensors.xacro: the Gazebo sensor and its plugin" linenums="242" hl_lines="2 5"
---8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/include/common_sensors.xacro:242:257"
-```
-
-- **`<gazebo reference="imu_link">`** holds what only Gazebo reads. URDF tools ignore it. When Gazebo converts the URDF, it places the sensor at `imu_link`'s position and rotation. Gazebo merges links that are joined by fixed joints into one link, so the converted model has no `imu_link`. The sensor keeps its pose in the link that remains: `base_footprint` for DiffBot, as `gz sdf -p` shows when you [convert the model as on the Simulation page](../../diffbot_gazebo.md#troubleshooting). For ROS, `imu_link` stays the IMU's frame.
-- **`type="imu"`** is Gazebo's IMU sensor. `update_rate` makes it measure 50 times per second.
-- **The plugin** turns the sensor's values into ROS messages. `filename` names its library, `libdiffbot_gazebo_ros_imu_sensor.so`.
-
-`libdiffbot_gazebo_ros_imu_sensor.so` isn't a standard ROS plugin. It's the diffbot repository's own copy of the IMU plugin `libgazebo_ros_imu_sensor.so` from [gazebo_plugins 2.9.3](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp), the version that the dev container installs. The package [`diffbot_gazebo_plugins`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins) builds it from [`gazebo_ros_imu_sensor.cpp`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp). The copy takes the same parameters, computes the same values and publishes the same message, a `sensor_msgs/Imu`. Two differences matter while the simulation runs. The copy leaves out one function call, and [why the plugin doesn't spin](#why-the-plugin-doesnt-spin) explains which one and why. The copy also publishes again right after a reset of the simulation, as [when the plugin publishes](#when-the-plugin-publishes) explains. The plugin's parameters:
-
-- `robotNamespace` and `topicName`, `/diffbot` and `imu/gazebo`, give the topic `/diffbot/imu/gazebo`.
-- `frameName`, `imu_link`, becomes the message's `header.frame_id`.
-- `updateRateHZ`, 50, is the plugin's own limit: at most 50 messages per second.
-- `gaussianNoise`, 0.005, is the standard deviation $\sigma$ of the [noise that the plugin adds](#noise-and-covariance).
-- `xyzOffset` is read, but not used.
-- `rpyOffset` and `initialOrientationAsReference` change only the orientation, which the adapter removes.
-
-Where the sensor sits and how it's turned comes from the joint's origin, not from the offsets.
-
-### What the sensor measures
-
-Gazebo's IMU sensor measures two vectors in `imu_link`'s axes ([`ImuSensor.cc`, lines 344–376](https://github.com/gazebosim/gazebo-classic/blob/gazebo11_11.15.1/gazebo/sensors/ImuSensor.cc#L344-L376), Gazebo 11.15):
-
-- $\boldsymbol\omega$, the angular velocity of the robot's body, which the sensor sits on, in rad/s.
-- $\mathbf f$, the **specific force**, in m/s²:
-
-$$
-\mathbf f = \mathbf a - \mathbf g
-$$
-
-$\mathbf a$ is the acceleration of the point where the sensor sits, and $\mathbf g$ is gravity, both in `imu_link`'s axes. At rest, $\mathbf a = \mathbf 0$. With `imu_link`'s z axis up, gravity is $\mathbf g = (0, 0, -9.8)$ m/s², so the sensor reads $\mathbf f = (0, 0, +9.8)$ m/s². A real accelerometer reads the same: the box at the top of [IMU: Bosch BNO055](driver-bno055.md) explains why it reads about +9.81 m/s² upward at rest. Gazebo's gravity is 9.8 m/s² in the robots' worlds, SDF's default ([SDF's `<gravity>`](http://sdformat.org/spec?ver=1.6&elem=world#world_gravity)).
-
-### When the plugin publishes
-
-`Load()` connects the plugin's `UpdateChild()` to Gazebo's world update event ([`gazebo_ros_imu_sensor.cpp`, lines 131–132]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L131-L132)). So Gazebo's [physics thread](#threads-callbacks-and-the-callback-queue) calls `UpdateChild()` at the start of every simulation step. The first lines of `UpdateChild()` decide whether a call publishes a message, [`gazebo_ros_imu_sensor.cpp`, lines 137–147]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L147):
-
-```cpp title="gazebo_ros_imu_sensor.cpp: the start of UpdateChild()" linenums="137" hl_lines="5 6"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:137:147"
-```
-
-- **Two times.** `current_time` is the simulation time of the sensor's last measurement. `last_time` is the value that `current_time` had in the last call that got past the rate limit ([line 191]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L191)).
-- **The rate limit** is the second `if`. `update_rate` is the parameter `updateRateHZ`, 50. A call returns right away while less than one period, 1/50 s = 20 ms, has passed since `last_time`. So `UpdateChild()` goes on at most 50 times per second of simulation time.
-- **A subscriber.** A call that gets past the rate limit fills and publishes a message only while the topic has a subscriber. In the simulation, the adapter always subscribes.
-- **A clock that went back** is the first `if`, the highlighted lines. A reset of the simulation sets Gazebo's clock back to zero. `/gazebo/reset_simulation` is the ROS service for such a reset ([Gazebo's simulation control services](https://classic.gazebosim.org/tutorials?tut=ros_comm#Services:Simulationcontrol)), for example `rosservice call /gazebo/reset_simulation`. After a reset, the sensor's time starts from zero again, and `last_time` still holds a time from before the reset. The difference `current_time - last_time` is negative, so the rate limit would stop every call until the clock has passed its value from before the reset. The longer the simulation ran before the reset, the longer the IMU would stay silent. The plugin therefore sets `last_time` to the sensor's time when the sensor's time is the earlier one. The rate limit then counts from the new time, and the first message after a reset follows one period later.
-
-gazebo_plugins' original has only the rate limit ([the original's lines 97–100](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L97-L100)). Another plugin in gazebo_plugins, `gazebo_ros_p3d`, treats a clock that went back as the copy does ([`gazebo_ros_p3d.cpp`, lines 240–244](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_p3d.cpp#L240-L244)). The IMU sample validator and the EKF start over when the clock goes back, as [the IMU sample validator](robot_localization.md#the-imu-sample-validator) and [the EKF's limits](robot_localization.md#limits) on the Localization page explain. So both need the IMU's samples right after a reset.
-
-### Noise and covariance
-
-A call that publishes fills the message with the sensor's values and adds noise, [`gazebo_ros_imu_sensor.cpp`, lines 160–178]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L160-L178):
-
-```cpp title="gazebo_ros_imu_sensor.cpp: noise and covariance" linenums="160"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:160:178"
-```
-
-The plugin adds noise to each component of both vectors:
-
-$$
-\tilde{\boldsymbol\omega} = \boldsymbol\omega + \mathbf n_\omega, \qquad \tilde{\mathbf f} = \mathbf f + \mathbf n_f
-$$
-
-$\tilde{\boldsymbol\omega}$ and $\tilde{\mathbf f}$ are what the message carries. Each component $n$ of $\mathbf n_\omega$ and $\mathbf n_f$ is a new random number in every message, from a normal distribution with mean 0 and standard deviation $\sigma$, the parameter `gaussianNoise` (`GuassianKernel()`, [lines 194–206]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L194-L206)):
-
-$$
-n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
-$$
-
-$\sigma$ is 0.005 rad/s for the angular velocity and 0.005 m/s² for the specific force. It's a simulation setting, not the BNO055's measured noise. Gazebo's sensor adds no noise of its own, because the model gives it none.
-
-The plugin writes the variance $\sigma^2 = 2.5 \cdot 10^{-5}$ on the diagonal of each covariance matrix, in (rad/s)² and (m/s²)². The other elements stay 0: the noise on one axis doesn't depend on the others. For the angular velocity:
-
-$$
-\Sigma_\omega = \begin{pmatrix} \sigma^2 & 0 & 0 \\ 0 & \sigma^2 & 0 \\ 0 & 0 & \sigma^2 \end{pmatrix} = \sigma^2 I_3
-$$
-
-$I_3$ is the 3 × 3 identity matrix. The specific force's covariance $\Sigma_f$ is the same, in (m/s²)².
-
-The message stores each matrix as nine numbers, row by row. So the diagonal is elements 0, 4 and 8, and element 8 is the yaw rate's variance, which the EKF uses. The plugin also writes Gazebo's orientation of the sensor, with noise. The adapter removes it.
-
-### The header and the stamp
-
-[`gazebo_ros_imu_sensor.cpp`, lines 180–188]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L180-L188), the end of `UpdateChild()`:
-
-```cpp title="gazebo_ros_imu_sensor.cpp: the end of UpdateChild()" linenums="180" hl_lines="7 8 9"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:180:188"
-```
-
-The stamp is the sensor's last update time, in simulation time. After `publish()`, gazebo_plugins' original calls `ros::spinOnce()` ([the original's lines 137–151](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L151), with `ros::spinOnce()` in line 150). The copy leaves this call out, as its comment says. [Why the plugin doesn't spin](#why-the-plugin-doesnt-spin) explains the reason.
-
-### The plugin's library in Remo's model
-
-DiffBot's macro names the plugin's library itself ([`common_sensors.xacro`, line 246]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L246)). Remo's model takes the library's name as the xacro argument `imu_plugin` instead. The argument's default is gazebo_plugins' own library ([`remo.urdf.xacro`, lines 29–36](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L29-L36)), and the model passes it to its macro ([`remo.urdf.xacro`, lines 211–216](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216)). The diffbot repository's simulation sets the argument when it expands the model. [`diffbot_view.launch`, lines 6–11]({{ imu_sim_src_url }}/diffbot_gazebo/launch/diffbot_view.launch#L6-L11):
-
-```xml title="diffbot_view.launch: the command that expands the model" linenums="6" hl_lines="6"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/launch/diffbot_view.launch:6:11"
-```
-
-`urdf_file` is the xacro command for the selected robot's model. It passes `imu_plugin:=libdiffbot_gazebo_ros_imu_sensor.so` to both models. Remo's model uses the value as the plugin's `filename`. DiffBot's model doesn't declare `imu_plugin`, and xacro ignores the argument. So both robots load the same plugin in this simulation, and Remo's model still works on its own, with its default library.
-
-### The adapter
-
-The plugin's message has an orientation, and the firmware's message has none. [`imu_raw_adapter.py`]({{ imu_sim_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) makes the simulated message match the firmware's. `diffbot_view.launch` starts it in the `diffbot` namespace ([line 39]({{ imu_sim_src_url }}/diffbot_gazebo/launch/diffbot_view.launch#L39)), so its relative topic names become `/diffbot/imu/gazebo` and `/diffbot/imu/data_raw`. [`imu_raw_adapter.py`, lines 16–36]({{ imu_sim_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py#L16-L36):
-
-```python title="imu_raw_adapter.py" linenums="16" hl_lines="4 5 16 17 18 19 20"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/scripts/imu_raw_adapter.py:16:36"
-```
-
-- **How a field is marked unavailable.** A `sensor_msgs/Imu` message always has an orientation field. To say that a field holds no data, the [message definition's comments]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L10-L13) and [REP 145](https://www.ros.org/reps/rep-0145.html#topics), the ROS convention for IMU drivers, set the first element of the field's covariance to −1. A node that reads the message should check that element and ignore the field. `ORIENTATION_UNAVAILABLE` is such a covariance: −1, then eight zeros, the 3 × 3 matrix row by row.
-- **A convention, not a rule to drop the orientation.** REP 145 doesn't ask an IMU driver to leave out the orientation. A driver whose sensor estimates an orientation can publish it on `imu/data`. The firmware's topic, `imu/data_raw`, is REP 145's name for the accelerometer's and the gyroscope's data alone.
-- **The callback** sets the quaternion's four values to 0 and the orientation covariance to a copy of the constant. `list()` makes the copy, so that the messages don't share the constant's list. Then the callback publishes the same message object.
-- **What stays:** the header with its stamp and frame, the angular velocity, the specific force and their covariances. The adapter doesn't stamp the message again. The [IMU sample validator](robot_localization.md#the-imu-sample-validator) checks how old each sample is, and a new stamp would hide a delay.
-
-## Why the plugin doesn't spin
-
-gazebo_plugins' original IMU plugin calls `ros::spinOnce()` right after it publishes. In the simulation, this one call can stop Gazebo's clock for good while the controllers start ([diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185)). This section explains why, with the threads in the Gazebo server and the controller manager's services.
-
-### Threads, callbacks and the callback queue
-
-The Gazebo server, `gzserver`, is one program that does several things at the same time, in **threads**. A thread works through its functions one after the other. The threads of one program run in parallel and share its data. Two kinds of threads matter here.
-
-**Gazebo's physics thread** steps the simulation. Each step moves the simulation forward by 1 ms of simulation time, the world's `max_step_size` ([`diffbot_empty.world`, line 15]({{ imu_sim_src_url }}/diffbot_gazebo/worlds/diffbot_empty.world#L15)). At the start of every step, the physics thread calls the plugins' update functions, among them:
-
-- the IMU plugin's `UpdateChild()`,
-- `gazebo_ros_control`'s `Update()`, which calls the controller manager's `update()`, `ControllerManager::update()` ([`gazebo_ros_control_plugin.cpp`, line 251](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L251)). `update()` runs the controllers, such as the drive controller, as [what runs in the simulation](../../development/simulation-test.md#what-runs-in-the-simulation) shows.
-
-Only the physics thread calls `update()`. The simulation's clock moves on only when the physics thread finishes a step.
-
-**A callback** is a function that ROS runs for an incoming message or service request. The controller manager has one for each of its services, for example `switch_controller`, which starts and stops controllers. ROS doesn't run a callback the moment its request arrives. It adds the call to a **callback queue**, a waiting list. The queue itself runs nothing, and it isn't a thread. A thread has to take each call out of the queue and run it. ROS calls this **spinning**.
-
-The whole Gazebo server is one ROS node, `/gazebo`. Its plugins share the node's **global callback queue**, unless a plugin sets up a queue of its own. `gazebo_ros_control` creates the controller manager with an ordinary node handle, the object through which a ROS program offers its topics and services ([`gazebo_ros_control_plugin.cpp`, lines 150 and 193–194](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L150-L194)). The controller manager offers its services with it ([`controller_manager.cpp`, lines 45–61](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L45-L61)). So the callbacks of its services wait in the global queue.
-
-**The ROS spinner threads** spin the global queue: each takes a waiting call out and runs it. Gazebo's ROS interface, the plugin `gazebo_ros_api_plugin`, starts them with a `ros::AsyncSpinner`, one thread per CPU core ([`gazebo_ros_api_plugin.cpp`, line 148](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L148)). gazebo_ros's `gzserver` script loads this plugin into the server ([`gzserver`, lines 21–24](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/scripts/gzserver#L21-L24)).
-
-**[`ros::spinOnce()`](http://wiki.ros.org/roscpp/Overview/Callbacks%20and%20Spinning#Single-threaded_Spinning)** spins too, once and in the thread that calls it. It runs the callbacks that wait in the global queue at that moment ([`init.cpp`, lines 585–588](https://github.com/ros/ros_comm/blob/1.17.4/clients/roscpp/src/libros/init.cpp#L585-L588)). In the original plugin's `UpdateChild()`, the caller is the physics thread.
-
-### How the spawner starts the controllers
-
-The controller spawner is a separate ROS node, which [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L23-L25) starts. It loads and starts the controllers with two of the controller manager's services, `load_controller` and `switch_controller`. Their callbacks don't change the running controllers themselves, because `update()` may be using them at that moment. They hand the change to `update()` and wait until `update()` has taken it ([`controller_manager.cpp`, lines 352–359](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L352-L359) and [lines 612–630](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L630)). `switch_controller` takes a timeout, but the spawner passes 0, which means no limit ([`spawner`, line 212](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/scripts/spawner#L212)).
-
-### Two ways to run the callback
-
-The figure follows one `switch_controller` request in two cases, with the physics thread and one of the spinner threads:
-
---8<-- "includes/imu-sim-threads.html"
-
-**Case 1, a spinner thread runs the callback.** The spinner thread waits in the callback. The physics thread goes on with the next steps and calls `update()`, which takes the change. Then the callback returns, and the spawner gets its answer.
-
-**Case 2, the original plugin runs the callback.** One of the spawner's requests waits in the queue just when `UpdateChild()` calls `ros::spinOnce()`, before a spinner thread has taken it:
-
-1. The physics thread runs the service's callback, inside `UpdateChild()`.
-2. The callback hands its change to `update()` and waits.
-3. `update()` runs only in the physics thread, and the physics thread is busy waiting in the callback. It waits for itself. This is a **deadlock**.
-4. The simulation step never ends. The simulation's clock stops for good, and the spawner's call never returns.
-
-The copy runs no callbacks in the physics thread. It needs no spinning of its own, because it only publishes. The spinner threads run every callback, including the controller manager's, and the physics thread keeps calling `update()`. With the original, the stall depends on timing, so it hits only some starts of the simulation. [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) has the diagnosis, the stalled simulations' backtraces, and how many starts stalled with the original and with the copy.
-
-### Why not just wait?
-
-The deadlock comes from the physics thread running a callback that waits for the physics thread. The first three ideas below wait differently and don't remove that dependency. The fourth removes it in another place:
-
-- **A delay, or starting Gazebo paused.** A delay at the start might change which thread takes the spawner's request, but it doesn't remove the unsafe path. Starting Gazebo paused doesn't help either. The controllers start only when `ControllerManager::update()` takes the change, and the physics thread calls `update()` only while the simulation runs. So the request waits for the simulation to run, and then the same path is open. Later requests to the controller manager can take it too.
-- **A condition variable** lets a thread sleep until another thread signals it. The callback already waits. Waiting on a condition variable instead of polling would still block the physics thread, which is the only thread that can run `update()`.
-- **A timeout.** `switch_controller` has an escape: with a positive timeout, its callback returns a failure about a second after the timeout ([`controller_manager.cpp`, lines 612–636](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L636)). The spawner passes 0, which turns that escape off. `load_controller` has no timeout at all. And a failed switch wouldn't start the controllers anyway.
-- **A separate queue for the controller manager**, served by a thread of its own, would also keep the callbacks out of the physics thread. That needs a change in `gazebo_ros_control`, though. `gazebo_ros_control` passes the controller manager an ordinary node handle on the global queue ([`gazebo_ros_control_plugin.cpp`, lines 149–150](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L149-L150)).
-
-The IMU plugin only publishes, so it has no callbacks of its own to run. Leaving out `ros::spinOnce()` is the smallest change that keeps the physics thread out of the queue. The packaged plugin has no option to turn off this call. The robots load their own library, so the fix doesn't require replacing gazebo_plugins' installed library.
-
-### The copy's other changes
-
-The [change notice]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L17-L42) at the top of the file lists every change. Two of them change what the plugin does while the simulation runs: the missing `ros::spinOnce()`, and the rate limit that counts from the new time after a reset of the simulation, as [when the plugin publishes](#when-the-plugin-publishes) explains. The others don't change what the plugin publishes:
-
-- The destructor uses the plugin's node handle only when `Load()` has created it. `Load()` returns before that when the sensor isn't an IMU sensor, when `frameName` is missing or when ROS isn't initialized. The original then calls the node handle's `shutdown()` through a pointer that was never set.
-- The class is in the namespace `diffbot_gazebo_plugins`. So a Gazebo process that loads both libraries can't mix up this class with gazebo_plugins' class of the same name ([the header's notice]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/include/diffbot_gazebo_plugins/gazebo_ros_imu_sensor.h#L17-L25)).
-- The optional profiler calls are left out. This package doesn't enable them.
-- The lines are at most 99 characters long, and the file includes the header of every name it uses.
-
-The source is under the Apache License 2.0, as the original is. The copy keeps the original's notices, and the package installs the license's text ([`package.xml`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/package.xml), [`CMakeLists.txt`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/CMakeLists.txt)). Gazebo looks for the library's file name on `GAZEBO_PLUGIN_PATH` and then on `LD_LIBRARY_PATH`. The workspace's `setup.bash` puts the workspace's library folder on `LD_LIBRARY_PATH` ([the comment in `CMakeLists.txt`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/CMakeLists.txt#L23-L25)).
-
-## How it's tested
-
-Two tests check the simulated IMU in Gazebo:
-
-- [`test_imu.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py) checks `/diffbot/imu/data_raw` as the EKF and the firmware expect it.
-- [`test_imu_reset.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py) checks that the IMU publishes again right after a reset of the simulation. [The reset test](#the-reset-test) explains it.
-
-Both simulation test files run each of the two as a test node of its own: `imu_diffbot` and `imu_reset_diffbot` for DiffBot, `imu_remo` and `imu_reset_remo` for Remo ([`sim_drive_diffbot.test`, lines 28–34]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L28-L34)). So rostest starts Gazebo and the robot again for each of these test nodes, as for the other test nodes in [the test file on Simulation Test](../../development/simulation-test.md#1-the-test-file). Simulation Test also shows how to [run the tests](../../development/simulation-test.md#run-it) and [read their results](../../development/simulation-test.md#read-the-results).
-
-`test_imu.py` has two test methods, one at rest and one in a left turn. unittest runs a test class's methods in [alphabetical order](https://docs.python.org/3/library/unittest.html#unittest.TestLoader.sortTestMethodsUsing), so the left turn runs first.
-
-??? example "The constants, `test_imu.py` lines 22–48"
-
-    The comments say what each number is. `STARTUP_TIMEOUT` and `POLL_INTERVAL` are seconds of wall time, the computer's clock. `SETTLE`, `SPEED_UP` and `MEASURE` are seconds of simulation time, Gazebo's clock. [Wall time and simulation time](#wall-time-and-simulation-time) explains the difference.
-
-    ```python title="test_imu.py: the constants" linenums="22"
-    --8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:22:48"
-    ```
-
-### Waiting until the robot can drive
-
-unittest calls `setUp()` before each test method. [`test_imu.py`, lines 53–65]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L53-L65):
-
-```python title="test_imu.py: setUp()" linenums="53"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:53:65"
-```
-
-- **`List[Imu]`.** `Imu` is the Python class of the message type `sensor_msgs/Imu`, imported from `sensor_msgs.msg` ([line 20]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L20)). Each IMU message arrives as an `Imu` object. `List[Imu]` is a type hint from Python's [`typing`](https://docs.python.org/3/library/typing.html) module: it says that `self.messages` is a list of `Imu` messages. Python doesn't check it when the test runs. It tells readers and tools such as mypy what the list holds.
-- **The subscriber.** `rospy.Subscriber(TOPIC, Imu, self.messages.append, queue_size=QUEUE_SIZE)` subscribes to `/diffbot/imu/data_raw`. Its arguments are the topic, the message class, and the callback that rospy calls for each message. The callback is the list's `append` method, so each message is added to `self.messages`. rospy runs the callback in one of its background threads, so the list fills while the test method sleeps. The test keeps no variable for the subscriber: rospy keeps the subscription until the node shuts down.
-- **The publisher.** `rospy.Publisher(COMMAND, Twist, queue_size=COMMAND_QUEUE_SIZE)` creates a publisher for `geometry_msgs/Twist` velocity commands on the drive controller's topic. `self.command` keeps it, and the test methods send each command with `self.command.publish(...)`.
-- **The first IMU message.** `rospy.wait_for_message()` waits for it. It comes early: Gazebo's sensor and the adapter publish soon after the robot is in the simulation.
-- **An IMU message doesn't mean that the robot can drive.** The controller spawner starts the drive controller, `mobile_base_controller`, later, as [the launch file on Simulation Test](../../development/simulation-test.md#2-the-launch-file) shows. So `setUp()` waits for the controller's first odometry message, which shows that the controller runs.
-- **A running controller can still miss the first commands.** ROS connects a publisher and a subscriber only after both exist, and a message published before the connection is lost. `get_num_connections()` counts the subscribers connected to the test's publisher. The loop waits until the drive controller has connected, at most `STARTUP_TIMEOUT`, 60 s.
-
-### The test at rest
-
-`collect()` returns the messages of the next few seconds. [`test_imu.py`, lines 67–71]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L67-L71):
-
-```python title="test_imu.py: collect()" linenums="67"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:67:71"
-```
-
-It empties the list, sleeps for `seconds` of simulation time while the subscriber fills the list, and returns a copy of it. The test at rest starts like this, [`test_imu.py`, lines 73–76]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L73-L76):
-
-```python title="test_imu.py: stand still, then collect" linenums="73"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:73:76"
-```
-
-`Twist()` is a command with all velocities 0. The test waits `SETTLE`, 1 s, because the robot may still be braking after the left turn. Then it collects $T$ = `MEASURE` = 2 s of messages. The checks follow, each with its lines.
-
-**The rate.** [`test_imu.py`, lines 77–80]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L77-L80):
-
-```python title="test_imu.py: the rate" linenums="77"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:77:80"
-```
-
-With $N$ messages in $T$ = 2 s, the check is $N / T > 0.9 \cdot 50 \text{ Hz} = 45 \text{ Hz}$. The firmware publishes at 50 Hz, and the EKF runs at that rate.
-
-**The stamps.** [`test_imu.py`, lines 81–83]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L81-L83):
-
-```python title="test_imu.py: the stamps" linenums="81"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:81:83"
-```
-
-Each stamp must be later than the one before. The IMU sample validator drops a sample that isn't later than the last one it forwarded.
-
-**The frame and the orientation.** For each message, [`test_imu.py`, lines 84–87]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L84-L87):
-
-```python title="test_imu.py: the frame and the orientation" linenums="84"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:84:87"
-```
-
-- The frame must be `imu_link`. The EKF looks up this frame to turn the yaw rate into the robot's axes.
-- `orientation_covariance[0]` must be −1: the orientation is marked unavailable, as in the firmware's message. [The adapter](#the-adapter) sets it.
-
-**The values and the yaw rate's variance.** In the same loop, [`test_imu.py`, lines 88–93]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L88-L93):
-
-```python title="test_imu.py: the values and the variance" linenums="88"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:88:93"
-```
-
-- `angular_velocity.z` and `linear_acceleration.z` must be finite: not NaN, not infinite. The IMU sample validator drops samples with values that aren't finite.
-- `angular_velocity_covariance[8]` must be positive and finite. Element 8 is the z-z element of $\Sigma_\omega$, the yaw rate's variance, $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)² in the simulation, as [noise and covariance](#noise-and-covariance) derives. The EKF weighs the yaw rate with it, and the validator drops samples without a positive, finite variance.
-
-**Gravity.** [`test_imu.py`, lines 94–97]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L94-L97):
-
-```python title="test_imu.py: gravity" linenums="94"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:94:97"
-```
-
-The check averages the upward axis's $N$ readings, $\bar f_z = \frac{1}{N} \sum_{i=1}^{N} f_{z,i}$, and needs
-
-$$
-|\bar f_z - 9.81 \text{ m/s}^2| \le 0.5 \text{ m/s}^2
-$$
-
-At rest, the upward axis reads gravity, $f_z = +9.8$ m/s² in Gazebo, as [what the sensor measures](#what-the-sensor-measures) derives. An IMU frame upside down reads about −9.8 m/s², and a plugin that leaves gravity out reads about 0.
-
-### The left turn
-
-[`test_imu.py`, lines 99–117]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L99-L117):
-
-```python title="test_imu.py: the left turn" linenums="99"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:99:117"
-```
-
-- The test commands a turn on the spot at `TURN_RATE`, 0.5 rad/s, and repeats the command 20 times per second with `rospy.Rate`. The drive controller stops the robot when no command arrives for 0.5 s.
-- The first loop gives the robot `SPEED_UP`, 1 s, to reach the turn rate. Then the test empties the list, keeps turning for `MEASURE`, 2 s, and keeps the messages of that time. After the loop, the test stops the robot with `Twist()`.
-- The check averages the yaw rates, $\bar\omega_z$, and needs $|\bar\omega_z - 0.5 \text{ rad/s}| \le 0.15 \text{ rad/s}$. A left turn, counterclockwise seen from above, is positive about the upward z axis ([REP 103](https://www.ros.org/reps/rep-0103.html)). So the check fails when the IMU's frame is upside down, or when the IMU doesn't measure the turn.
-
-### The reset test
-
-`test_imu_reset.py` runs the plugin through a reset of the simulation. Without the first `if` in [`UpdateChild()`](#when-the-plugin-publishes), the IMU would stay silent after a reset for as long as the simulation ran before the reset. The test's constants, [`test_imu_reset.py`, lines 32–46]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L32-L46):
-
-```python title="test_imu_reset.py: the constants" linenums="32" hl_lines="5 6"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu_reset.py:32:46"
-```
-
-`RUN_BEFORE_RESET` and `RECOVERY`, the highlighted lines, are seconds of simulation time. The test compares them with the samples' stamps. The three timeouts and `POLL_INTERVAL` are seconds of wall time.
-
-`setUp()` subscribes to `/diffbot/imu/data_raw` with a callback that notes each sample's stamp in the list `self.stamps`. Then `setUp()` waits for Gazebo's reset service ([lines 51–60]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L51-L60)). The test method, [`test_imu_reset.py`, lines 89–96]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L89-L96):
-
-```python title="test_imu_reset.py: run, reset, wait for fresh samples" linenums="89" hl_lines="7"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu_reset.py:89:96"
-```
-
-1. **Run.** The test waits until the latest stamp has reached `RUN_BEFORE_RESET`, 3 s. So the IMU has published for 3 s of simulation time, and `last_time` in the plugin is about 3 s.
-2. **Reset.** The test notes how many samples have arrived, and calls `/gazebo/reset_simulation`, the highlighted line. Gazebo's clock starts from zero again.
-3. **Wait for fresh samples.** The test waits until `FRESH_SAMPLE_COUNT`, 10, fresh samples have arrived, at most `RECOVERY_TIMEOUT`, 30 s of wall time. The test fails when the samples don't arrive in that time. The failure message names the stamps of the first samples after the reset ([lines 104–111]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L104-L111)).
-
-Which samples count as fresh, [`test_imu_reset.py`, lines 66–73]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L66-L73):
-
-```python title="test_imu_reset.py: fresh_stamps()" linenums="66"
---8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu_reset.py:66:73"
-```
-
-A fresh sample arrived after the test called the reset, and its stamp is earlier than `RECOVERY`, 1 s. Such a stamp can only come from the new simulation time: before the reset, the stamps had reached 3 s. With the reset handled, the first samples after the reset are stamped 0.02 s, 0.04 s and 0.06 s, and ten of them arrive within 0.2 s of simulation time. A plugin that keeps the old time publishes its next sample only after the clock has passed 3 s again. Then no sample is stamped earlier than 1 s, and the test fails.
-
-### Wall time and simulation time
-
-The startup waits and the measurements of `test_imu.py` use different clocks:
-
-- **The startup waits** in `setUp()` use wall time: `rospy.wait_for_message()` measures its `timeout` with the computer's clock ([rospy's source](https://github.com/ros/ros_comm/blob/1.17.4/clients/rospy/src/rospy/client.py#L413-L420)), and the loop uses `time.monotonic()`. These waits have to end even when the simulation's clock doesn't run, for example when Gazebo hasn't started yet. Each of the three waits has its own limit of `STARTUP_TIMEOUT`, 60 s. When no IMU message or no odometry comes in time, `rospy.wait_for_message()` raises an exception, and the test reports an error. When the drive controller doesn't connect in time, `assertLess()` fails, and the test reports a failure. Independently of these limits, rostest stops the whole test node after its `time-limit` of 120 s ([`sim_drive_diffbot.test`, line 30]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L30)).
-- **The measurements** use simulation time: `rospy.sleep()`, `rospy.Time.now()` and `rospy.Rate` follow Gazebo's clock, because [the launch file on Simulation Test](../../development/simulation-test.md#2-the-launch-file) sets `use_sim_time`. So `MEASURE` always covers 2 s of simulated motion, about 100 IMU messages at 50 Hz, however fast the computer runs the simulation.
-
-`test_imu_reset.py` waits only in wall time, with `time.monotonic()` and `time.sleep()`. `rospy.sleep()` raises an exception when the simulation's clock goes back while `rospy.sleep()` waits ([rospy's `sleep()`, lines 161–163](https://github.com/ros/ros_comm/blob/1.17.4/clients/rospy/src/rospy/timer.py#L161-L163)), and the test resets that clock on purpose. The test's two limits in simulation time come from the samples' stamps, not from a clock that the test reads. The test's three timeouts only limit how long a failing run takes, and rostest stops the test node after its `time-limit` of 180 s ([`sim_drive_diffbot.test`, line 34]({{ imu_sim_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L34)).
-
-### What the tests can't show
-
-`test_imu.py` checks the simulated IMU in one start of the simulation. A pass doesn't show that the [deadlock of the original plugin](#two-ways-to-run-the-callback) can't happen. With the original plugin, the stall needs a spawner request in the queue at the moment that the plugin spins, and most starts pass without it. A stalled start ends with an error in `setUp()`, because no odometry comes. A longer `STARTUP_TIMEOUT` wouldn't help, because a stopped clock doesn't start again. The counts of many starts with and without the copy are in [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185).
-
-`test_imu.py` checks only the upward axis, so it doesn't see a wrong rotation about that axis, such as a missing −90° in Remo's `imu_rpy`. It also says nothing about the real BNO055. The real sensor's noise, bias and mounting are checked on the robot, in the [bench checks](driver-bno055.md#bench-checks).
-
-`test_imu_reset.py` checks the IMU's topic after one reset, 3 s after the start. The test doesn't check the simulation's other publishers. The drive controller's odometry comes back only when the clock has passed its value from before the reset, as [the EKF's limits](robot_localization.md#limits) explain. The joint states come back at the same time.
+The topics are in the `/diffbot` namespace, for both robots. The parts of the diagram, and what each adds to the message:
+
+1. **Gazebo's IMU sensor** measures the angular velocity $\boldsymbol\omega$ and the specific force $\mathbf f$ at `imu_link`, the IMU's frame, 50 times per second. Gazebo computes both from the simulated robot's motion. [What the sensor measures](measurement-to-message.md#what-the-sensor-measures) shows the lines of Gazebo's code, and [Position and Axes](position-and-axes.md) shows where `imu_link` sits on each robot.
+2. **The robots' own IMU plugin** turns each measurement into a `sensor_msgs/Imu` message and publishes it on `/diffbot/imu/gazebo`. The plugin adds the noise to both vectors, writes the variance $\sigma^2$ into their covariances and sets the stamp and the frame. The noise's $\sigma$ of 0.005 is the plugin's parameter `gaussianNoise` in the robot's model. [Noise and covariance](measurement-to-message.md#noise-and-covariance) shows where the model sets it and which lines of the plugin use it. The plugin is a copy of the IMU plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. [The Robots' Own IMU Plugin](plugin.md) explains why.
+3. **The adapter**, `imu_raw_adapter.py`, subscribes to `/diffbot/imu/gazebo`. The plugin's message has an orientation, and the firmware's message has none. The firmware reads only the BNO055's angular velocity and acceleration, because the EKF fuses only the yaw rate, as [what the firmware publishes](../driver-bno055.md#what-the-firmware-publishes) explains. So the adapter marks the orientation unavailable and publishes the rest unchanged on `/diffbot/imu/data_raw`. [The adapter](measurement-to-message.md#the-adapter) shows its code.
+4. **The [IMU sample validator](../robot_localization.md#the-imu-sample-validator)** subscribes to `/diffbot/imu/data_raw` and forwards the samples that pass its checks, unchanged, on `/diffbot/imu/data_validated`, which the EKF subscribes to. The validator drops a sample while the ROS time is still zero, when the sample's frame isn't `imu_link`, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is [`imu_validator.py` in `diffbot_control`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py). The validator and the EKF run only with `ekf:=true`, as [running the EKF](../robot_localization.md#running-it) shows.
+5. **The tests**, `test_imu.py` and `test_imu_reset.py`, subscribe to `/diffbot/imu/data_raw` and check the messages in CI, as [Tests](tests.md) explains.

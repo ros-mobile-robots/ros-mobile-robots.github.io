@@ -16,10 +16,10 @@ An inertial measurement unit (IMU) measures how the robot turns and accelerates:
 
 The robot uses one value from it: the **yaw rate**, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over rosserial.
 
-[Localization: Wheel Odometry and IMU (EKF)](robot_localization.md) explains the EKF. In the Gazebo simulation, a simulated IMU publishes the same message as the firmware ([IMU: Simulation](simulation.md)).
+[Localization: Wheel Odometry and IMU (EKF)](robot_localization.md) explains the EKF. In the Gazebo simulation, a simulated IMU publishes the same message as the firmware ([IMU: Simulation](simulation/index.md)).
 
 !!! info "Checked on Remo"
-    The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard ([Remo's mounting](simulation.md#remos-mounting)). On DiffBot, the IMU's mounting still needs to be measured, and the firmware checked on DiffBot itself. The EKF still needs a test with the real IMU.
+    The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard ([Remo's mounting](simulation/position-and-axes.md#the-mounting-on-each-robot)). On DiffBot, the IMU's mounting still needs to be measured, and the firmware checked on DiffBot itself. The EKF still needs a test with the real IMU.
 
 ## Wiring to the Teensy
 
