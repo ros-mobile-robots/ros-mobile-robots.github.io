@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -4876,12 +4876,18 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>So a broken Dockerfile, a missing dependency or a failing build shows up in the PR, not on a developer's machine weeks later.</p>
 <h3 id="simulation-video">Simulation video</h3>
-<p>The <a href="../simulation-test/">simulation test</a> checks numbers: the odometry and the true pose after each drive. To see the drive itself, ask <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> for a video:</p>
+<p>The <a href="../simulation-test/">simulation test</a> checks numbers: the odometry and the true pose after each drive. To see the drive itself, ask <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> for a video, or record one on your computer:</p>
 <ul>
 <li><strong>On a pull request:</strong> add the label <code>sim-video</code> (<a href="https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels#applying-a-label">applying a label</a> needs triage or write access to the repository, so ask a maintainer if you don't have it). Each time the label is added, the workflow records one video of the pull request merged with its base branch. For another one, remove the label and add it again.</li>
 <li><strong>On a branch:</strong> in the repository's <a href="https://github.com/ros-mobile-robots/diffbot/actions/workflows/sim_video.yml">Actions tab</a>, choose "Run workflow" and the branch (<a href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow">manually running a workflow</a> needs write access).</li>
+<li>
+<p><strong>On your computer:</strong> run the recorder in the <a href="../dev-container/">dev container</a>, with the workspace built. The output folder must be new or empty:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>rosrun<span class="w"> </span>diffbot_gazebo<span class="w"> </span>record_drive_video.sh<span class="w"> </span>~/sim-video
+</code></pre></div></td></tr></tbody></table></div>
+<p>The recorder supports DiffBot only. Remo needs simple visuals for software rendering (<a href="https://github.com/ros-mobile-robots/remo_description/issues/7">remo_description#7</a>).</p>
+</li>
 </ul>
-<p>The run's summary links the <a href="https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts">artifact</a>, a zip file that GitHub keeps for 14 days. After a successful recording, it holds:</p>
+<p>In <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>, the run's summary links the <a href="https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts">artifact</a>, a zip file that GitHub keeps for 14 days. After a successful recording, the artifact holds the same files as the output folder on your computer:</p>
 <table>
 <thead>
 <tr>
@@ -4916,11 +4922,11 @@
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/216946122c201579cae1cfbe267c9f1ed39e6c89/diffbot_gazebo/scripts/encode_drive_video.py"><code>encode_drive_video.py</code></a> cuts the frames to the drive, encodes them with <a href="https://ffmpeg.org/">ffmpeg</a>, checks the video with ffprobe and writes the JSON file.</li>
 </ol>
 <p>Starting the display, the drive and the encoding have time limits, and in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> the step "Record the video" stops after 20 minutes. A failed step stops the recorder with an error, and the recorder stops every process that it started.</p>
-<p>The dev container's job <code>noetic</code> is a required check. A label condition on that job would skip it for every other label, and GitHub counts a skipped required job as passed (<a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions">jobs with conditions</a>). So the recording is a job in a workflow of its own, <a href="https://github.com/ros-mobile-robots/diffbot/blob/216946122c201579cae1cfbe267c9f1ed39e6c89/.github/workflows/sim_video.yml"><code>sim_video.yml</code></a>. It runs on <code>pull_request</code> with read access and no secrets, so it can also run for pull requests from forks, once a maintainer approves the run where GitHub asks for that.</p>
-<p>To record a video on your computer, run the recorder in the <a href="../dev-container/">dev container</a>, with the workspace built. The output folder must be new or empty:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>rosrun<span class="w"> </span>diffbot_gazebo<span class="w"> </span>record_drive_video.sh<span class="w"> </span>~/sim-video
-</code></pre></div></td></tr></tbody></table></div>
-<p>The recorder supports DiffBot only. Remo needs simple visuals for software rendering (<a href="https://github.com/ros-mobile-robots/remo_description/issues/7">remo_description#7</a>).</p>
+<p>The recording is a job in a workflow of its own, <a href="https://github.com/ros-mobile-robots/diffbot/blob/216946122c201579cae1cfbe267c9f1ed39e6c89/.github/workflows/sim_video.yml"><code>sim_video.yml</code></a>. The workflow runs on <code>pull_request</code> with read access and no secrets, so it can also run for pull requests from forks, once a maintainer approves the run where GitHub asks for that.</p>
+<details class="info">
+<summary>Why the recording is a workflow of its own</summary>
+<p>The dev container's job <code>noetic</code> is a required check. A label condition on that job would skip it for every other label, and GitHub counts a skipped required job as passed (<a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions">jobs with conditions</a>). So the recording has a workflow of its own.</p>
+</details>
 <h3 id="pr-description">PR description</h3>
 <p>diffbot's <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/pull_request_template.md">pull request template</a> has a placeholder under <code>## Documentation</code> for the docs pull request or the page on this site that explains the change. A template only fills in the text when a pull request is opened, so <a href="https://github.com/ros-mobile-robots/diffbot/blob/22e3f0e15052910c90f7f18decc0833a84271ab6/.github/workflows/pr_description.yml"><code>pr_description.yml</code></a> checks that the section was filled in.</p>
 <h4 id="what-it-accepts">What it accepts</h4>
@@ -5299,7 +5305,7 @@
     
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>
