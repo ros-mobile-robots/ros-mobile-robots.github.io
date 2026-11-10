@@ -30,6 +30,100 @@ motors into account.
 
     See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated. 
 
+## The feedback loop of one wheel
+
+A feedback loop measures the value that it controls and corrects the difference to the value that is wanted.
+Here, the controlled value is a wheel's angular velocity, in rad/s.
+Each wheel has its own loop. Both loops run in the firmware on the Teensy, 20 times per second (`UPDATE_RATE_CONTROL` in [`diffbot_base_config.h`]({{ diffbot_repo_url }}/diffbot_firmware/lib/config/diffbot_base_config.h)).
+In each of these control steps, [`WheelControl::step()`]({{ diffbot_repo_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h) calls two functions of [`BaseController`]({{ diffbot_repo_url }}/diffbot_firmware/lib/base_controller/base_controller.h):
+
+1. `read()` measures both wheel speeds with the encoders.
+2. `write()` computes a new motor command for each wheel with its PID and sends the command to the motor driver. After one second without a wheel command from the Raspberry Pi (`COMMAND_TIMEOUT_MS`), the firmware stops the motors and skips `write()` until the next command arrives.
+
+The figure shows the loop of Remo's left wheel. The right wheel's loop is the same, with its own PID, motor and encoder.
+
+--8<-- "includes/pid-feedback-loop.html"
+
+Each signal has a unit and, where the firmware stores it, a name in the code:
+
+| | Signal | Unit | In the firmware |
+| --: | --- | --- | --- |
+| 1 | Target wheel speed | rad/s | `wheel_cmd_velocity_left_` |
+| 2 | Error | rad/s | `error` in `PID::compute()` |
+| 3 | Motor command | a number from −255 to 255 | `motor_cmd_left_` |
+| 4 | PWM voltage to the motor | percent of the time that the voltage is on | set by `setSpeed()` |
+| 5 | Rotation of the motor and the wheel | rad | |
+| 6 | Encoder ticks | ticks | `encoder_left_.read()` |
+| 7 | Measured wheel speed | rad/s | `joint_state_left_.angular_velocity_` |
+
+The blue values in the figure are one control step of Remo's left wheel.
+In that run, Remo was commanded to drive at 0.2 m/s with its wheels off the ground ([bench record](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6661807745)).
+The firmware logged the target, the measured speed, the PID's three terms and the motor command of this step.
+The PWM's on-time (4) and the ticks (6) are calculated from the logged values.
+
+A control step measures first and commands second.
+`read()` measures the wheel's speed over the time since the previous step.
+`write()` then sets the motor command that acts until the next step.
+So the measured 5.56 rad/s (7) is the result of the previous motor command, and the 96 (3) is the new one.
+Follow the values around the loop:
+
+1. **Target wheel speed.** On the Raspberry Pi, `diff_drive_controller` converts the commanded robot velocity into a target angular velocity for each wheel. With Remo's wheel radius of 0.033 m, 0.2 m/s is 0.2 / 0.033 = 6.06 rad/s. The hardware interface publishes both targets on the topic `wheel_cmd_velocities`. The firmware stores the left one in `wheel_cmd_velocity_left_`.
+
+2. **Error.** [`PID::compute()`]({{ diffbot_repo_url }}/diffbot_firmware/lib/pid/pid.cpp) starts with the comparison. The error is the target minus the measured speed: 6.06 − 5.56 = 0.50 rad/s. The error is positive, so the wheel is too slow.
+
+3. **Motor command.** The PID turns the error into the motor command $u$, a number from −255 to 255. The sign is the direction, and 255 is the largest amount that the motor driver takes. The PID adds three terms:
+
+    $$
+    u = K_P \cdot e + K_I \cdot \sum e + K_D \cdot (e - e_\text{previous})
+    $$
+
+    $e$ is the error, $\sum e$ is the sum of the errors of the control steps so far, and $e - e_\text{previous}$ is the change of the error since the previous step. The gains are $K_P = 0.6$, $K_I = 0.3$ and $K_D = 0.5$ (`K_P`, `K_I` and `K_D` in `diffbot_base_config.h`). In the example, the sum is 322.20 rad/s, and the error is the same as in the previous step:
+
+    $$
+    u = 0.6 \cdot 0.50 + 0.3 \cdot 322.20 + 0.5 \cdot 0.00 = 96.96
+    $$
+
+    The firmware keeps the whole number 96 as the motor command.
+
+4. **PWM voltage to the motor.** [`AdafruitMotorController::setSpeed()`]({{ diffbot_repo_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp) sends the direction and the amount 96 to the motor driver, the Adafruit DC Motor + Stepper FeatherWing. The driver switches the motor's supply voltage on and off many times per second, which is called pulse-width modulation (PWM). For the amount 96, the voltage is on for 96 × 16 of the 4096 steps of each PWM period, or 37.5 % of the time ([`Adafruit_DCMotor::setSpeed()`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256)). The longer the voltage is on, the faster the motor turns.
+
+5. **Rotation.** The motor turns the wheel through its gearbox.
+
+6. **Encoder ticks.** The encoder in the motor has two Hall sensors. The Teensy counts the edges of their two signals as ticks, 542 for one turn of the wheel (`encoder_resolution` in [`base.yaml`]({{ diffbot_repo_url }}/diffbot_base/config/base.yaml)). The debug output doesn't show the ticks of a single step. With 50 ms between two steps, the measured speed corresponds to 24 ticks.
+
+7. **Measured wheel speed.** [`Encoder::jointState()`]({{ diffbot_repo_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp) converts the ticks to an angle and divides the angle by the time since the previous step, which it measures. With 24 ticks in 50 ms: 24 · 2π / 542 = 0.278 rad, and 0.278 rad / 0.05 s = 5.56 rad/s. This value goes back to the comparison. `read()` also publishes it to the Raspberry Pi on the topic `measured_joint_states`.
+
+??? example "The firmware's debug output of this control step"
+    While the parameter `/diffbot/debug/base_controller` is true, the firmware logs the values of its latest control step five times per second:
+
+    - `wheel_cmd_velocity_left_` is the target wheel speed (1), and `measured_ang_vel_left` is the measured wheel speed (7).
+    - `motor_cmd_left_` is the motor command (3).
+    - The three values after `(p, i, d)` are the error (2), the sum of the errors and the change of the error.
+    - `ticks_left_` is the encoder's running count since its last reset, not the ticks of one control step (6).
+
+    ```console
+    Read:
+    ticks_left_: 1389
+    ticks_right_: 1442
+    measured_ang_vel_left: 5.56
+    measured_ang_vel_right: 5.56
+    wheel_cmd_velocity_left_: 6.06
+    wheel_cmd_velocity_right_: 6.06
+    Write:
+    motor_cmd_left_: 96
+    motor_cmd_right_: 93
+    pid_left_errors (p, i, d): 0.50 322.20 0.00
+    pid_right_error (p, i, d): 0.50 309.91 0.23
+    ```
+
+The example shows two properties of this PID that matter for tuning:
+
+- **The sum of the errors holds the motor command.** It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.
+- **The gains belong to the control rate.** The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the 50 ms between two steps. With another `UPDATE_RATE_CONTROL`, the same $K_I$ and $K_D$ have another effect.
+
+## Driving straight
+
+`diff_drive_controller` doesn't take the wheels' actual velocity into account.
 For this reason a PID controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:
 
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
