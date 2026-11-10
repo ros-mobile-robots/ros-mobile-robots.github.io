@@ -83,11 +83,11 @@ extra:
   # that code changes, and check the excerpts' line ranges and highlighted lines against the new commit
   low_level_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3541965496d50ce629e00054e8d3acd12e4beed5
   low_level_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5
-  # The diffbot commit that the code excerpts on the IMU Simulation pages show (diffbot #153). Move
-  # both to #153's squash merge commit before these pages' pull request merges, and check the
-  # excerpts' line ranges and highlighted lines against it
-  imu_sim_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/5bad6d5b83280105e536173d0b93432ae310eda6
-  imu_sim_src_url: https://github.com/ros-mobile-robots/diffbot/blob/5bad6d5b83280105e536173d0b93432ae310eda6
+  # The diffbot commit that the code excerpts on the IMU Simulation pages show: the merge commit of
+  # diffbot #153. Update both when that code changes, and check the excerpts' line ranges and
+  # highlighted lines against the new commit
+  imu_sim_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/cd41eadbbec48859d82baf991f587e86fa387814
+  imu_sim_src_url: https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814
   # The ros/common_msgs commit (noetic-devel) whose sensor_msgs/Imu definition IMU: Simulation shows
   common_msgs_src_raw: https://raw.githubusercontent.com/ros/common_msgs/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb
   common_msgs_src_url: https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb
