@@ -58,7 +58,9 @@ For a pull request, the result is the workflow's check, passed or failed, and th
 --8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:120:132"
 ```
 
-Only this job may write packages, and it runs nothing from the images. Its script, [`publish_image.sh`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh), checks that each archive holds the right architecture and commit, copies both images to the registry, and combines them under one name. It writes the version and `noetic` only after the registry has answered whether they exist, so it can't replace a version that it couldn't see. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version `noetic-<commit>` is published once and never replaced, and `noetic` only moves to a later commit.
+The job's script, [`publish_image.sh`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh), copies both images to the registry and combines them under one name. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version `noetic-<commit>` is published once and never replaced, and `noetic` only moves to a later commit.
+
+The publication is protected in several ways. Only this job may write packages, and it runs nothing from the images. Before the script copies the images, it checks that each archive holds the right architecture and commit. Before the script writes the version or `noetic`, it asks the registry whether that name exists. If the registry doesn't give a clear yes or no, the script stops. So the script never replaces a version by accident.
 
 Without a Teensy, rosserial can't open its port and the hardware interface gets no wheel feedback, so the test can't show that the robot drives. That needs the real robot: teleop and lidar scans on a Raspberry Pi in Remo, the open test in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109).
 
