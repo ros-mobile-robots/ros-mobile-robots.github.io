@@ -66,7 +66,7 @@ So Remo's top speed stays nearly the same until its cells are nearly empty, whil
 
 Neither robot has a battery-protection cutoff.
 The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
-Remo's firmware, for example, stops the motors only when no wheel commands arrive ([`main.cpp`]({{ diffbot_src_url }}/diffbot_base/scripts/base_controller/src/main.cpp#L44-L51)).
+Remo's firmware, for example, stops the motors only when no wheel commands arrive ([`wheel_control.h`](https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L98-L109)).
 So watch the speed. When a robot gets noticeably slower, replace DiffBot's batteries or recharge Remo's cells.
 The slowdown is a hint, not a measurement of the charge that's left.
 
@@ -113,7 +113,7 @@ Seven fully charged cells give about 9.8 V, more than the motors' 9 V.
 Six alkaline cells don't fit either: fresh, they give about 9.6 V without load.
 With the small drop of the TB6612, the motors can get more than 9 V at full speed, especially at a light load.
 
-## Why NiMH cells
+## Why Remo uses NiMH cells
 
 - **Voltage:** Six NiMH cells keep the FeatherWing in its range and the motors below 9 V, as shown above.
 - **Steady speed:** Their voltage stays near 1.2 V for most of the discharge.
