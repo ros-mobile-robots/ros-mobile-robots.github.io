@@ -806,7 +806,9 @@ def figure_html(drawings: Sequence[Figure], caption: str, basis: int, widest: in
     """Return a figure element with the drawings side by side and one caption.
 
     The drawings wrap below each other on a narrow screen. basis and widest are the width in
-    px from which a drawing wraps and its largest width. caption is Markdown.
+    px from which a drawing wraps and its largest width. caption is Markdown. The drawings
+    stand in a div without the markdown attribute, so that Markdown leaves the SVG's text as it
+    is and the glossary doesn't wrap a term such as IMU in an abbr element.
     """
     panels = '\n'.join(drawing.svg() for drawing in drawings)
     return (f'{style_element(RULES)}\n<figure class="imu-figure" markdown="block" '

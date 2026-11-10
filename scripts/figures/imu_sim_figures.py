@@ -254,9 +254,15 @@ def with_the_copy() -> Figure:
 
 
 def figure_html(drawing: Figure, caption: str) -> str:
-    """Return a figure element with a drawing and its caption. caption is Markdown."""
+    """Return a figure element with a drawing and its caption. caption is Markdown.
+
+    The drawing stands in a div without the markdown attribute, so that Markdown leaves the
+    SVG's text as it is. Otherwise the glossary would wrap a term such as IMU in an abbr element,
+    which a browser doesn't draw inside SVG text.
+    """
     return (f'{style_element(RULES)}\n<figure class="th-figure" markdown="block">\n'
-            f'{drawing.svg()}\n<figcaption markdown="span">{caption}</figcaption>\n</figure>\n')
+            f'<div class="th-panel">\n{drawing.svg()}\n</div>\n'
+            f'<figcaption markdown="span">{caption}</figcaption>\n</figure>\n')
 
 
 def main() -> None:

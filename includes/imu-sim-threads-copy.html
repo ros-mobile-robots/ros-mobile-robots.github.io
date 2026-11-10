@@ -23,6 +23,7 @@
 .th-fig .step{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
 </style>
 <figure class="th-figure" markdown="block">
+<div class="th-panel">
 <svg class="th-fig" viewBox="0 0 360 322" role="img" aria-labelledby="th-copy-title th-copy-description"><title id="th-copy-title">The request with the robots’ copy of the IMU plugin</title><desc id="th-copy-description">Step 1: the controller spawner sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and returns. Step 3: a ROS spinner thread takes the request and runs the callback, which notes the change and waits for update(). Step 4: the physics thread goes on and calls update(), which takes the change. Step 5: the callback returns, and the spawner gets its answer.</desc><defs><marker id="th-copy-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="th-copy-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="box" x="18" y="8" width="152" height="38" rx="4"/>
 <text x="94.0" y="24" text-anchor="middle">controller spawner</text>
@@ -71,5 +72,6 @@
 <text class="note" x="277.0" y="294" text-anchor="middle">returns: the spawner</text>
 <text class="note" x="277.0" y="308" text-anchor="middle">gets its answer</text>
 </svg>
+</div>
 <figcaption markdown="span">With the robots’ copy of the plugin. A ROS spinner thread runs the callback and waits. The physics thread goes on and calls `update()`.</figcaption>
 </figure>
