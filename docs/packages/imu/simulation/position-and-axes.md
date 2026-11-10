@@ -12,7 +12,7 @@ The figure shows Remo. DiffBot has the same three parts, with other values. Thei
     - `xyz` is the position in m, along `chassis_link`'s x, y and z axes.
     - `rpy` is the rotation in rad: roll about x, pitch about y and yaw about z.
 
-The EKF needs the yaw rate along the robot's axes, not along the IMU's. It converts the IMU's values with this joint's transform. [`robot_state_publisher`](http://wiki.ros.org/robot_state_publisher) publishes the transform: this ROS node reads the robot's model and publishes the position of every link to tf, ROS's system for transforms between frames. In the simulation, [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L28-L30) starts it.
+The EKF needs the yaw rate along the robot's axes, not along the IMU's. The EKF converts the IMU's values with this joint's transform. [`robot_state_publisher`](http://wiki.ros.org/robot_state_publisher) publishes the transform: this ROS node reads the robot's model and publishes the position of every link to tf, ROS's system for transforms between frames. In the simulation, [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L28-L30) starts `robot_state_publisher`.
 
 ## The link and the joint in the model
 

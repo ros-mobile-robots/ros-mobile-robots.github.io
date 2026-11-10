@@ -105,7 +105,7 @@ RULES = (
     ('.imu-fig .title', 'font-size:13px;font-weight:700'),
     ('.imu-fig .mono', 'font-family:var(--md-code-font-family,"Roboto Mono"),monospace;'
                        'font-size:11.5px'),
-    ('.imu-fig .note', f'font-size:11px;fill:{FG_LIGHT}'),
+    ('.imu-fig .note', f'font-size:11.5px;fill:{FG_LIGHT}'),
     ('.imu-fig .strong', 'font-weight:700'),
     ('.imu-fig .sub', 'font-size:9px'),
     ('.imu-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:3.5px;'

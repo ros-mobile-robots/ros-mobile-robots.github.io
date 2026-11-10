@@ -16,8 +16,8 @@ Each robot's model declares the sensor in its macro `imu_sensor`, after the link
 --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/include/common_sensors.xacro:242:257"
 ```
 
-- **`<gazebo reference="imu_link">`** holds what only Gazebo reads. URDF tools ignore it. `reference` attaches the sensor to `imu_link`, so the sensor measures at `imu_link`'s position and along its axes.
-- **`type="imu"`** is Gazebo's IMU sensor. `update_rate` makes it measure 50 times per second.
+- **`<gazebo reference="imu_link">`** holds what only Gazebo reads. URDF tools ignore this block. `reference` attaches the sensor to `imu_link`, so the sensor measures at `imu_link`'s position and along its axes.
+- **`type="imu"`** is Gazebo's IMU sensor. `update_rate` makes the sensor measure 50 times per second.
 - **The plugin** turns the sensor's values into ROS messages. `filename` names its library, `libdiffbot_gazebo_ros_imu_sensor.so`, the robots' own copy of the IMU plugin that comes with ROS. [The Robots' Own IMU Plugin](plugin.md) explains why the robots have a copy, and how [Remo's model gets the library's name](plugin.md#the-plugins-library-in-remos-model).
 
 The lines inside `<plugin>` are the plugin's parameters:
@@ -35,7 +35,7 @@ Where the sensor sits and how it's turned comes from the joint's origin, not fro
 
     Gazebo converts the URDF into its own format, SDF, before it simulates the robot. The converted model has no `imu_link`. Gazebo merges links that are joined by fixed joints into one link, and `imu_link` hangs on a fixed joint.
 
-    The sensor is still there, at the same place. It belongs to the link that remains, `base_footprint` for DiffBot, and its pose in that link is `imu_link`'s position and rotation. `gz sdf -p` prints the converted model when you [convert the model as on the Simulation page](../../../diffbot_gazebo.md#troubleshooting).
+    The sensor is still there, at the same place. The sensor belongs to the link that remains, `base_footprint` for DiffBot, and the sensor's pose in that link is `imu_link`'s position and rotation. `gz sdf -p` prints the converted model when you [convert the model as on the Simulation page](../../../diffbot_gazebo.md#troubleshooting).
 
     For ROS nothing changes. `imu_link` stays the IMU's frame, in the message's header and in the transforms.
 

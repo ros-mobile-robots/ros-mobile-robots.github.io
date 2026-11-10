@@ -82,7 +82,7 @@ $$
 
 $f_x$ is the message's `linear_acceleration.x`, $f_y$ its `linear_acceleration.y` and $f_z$ its `linear_acceleration.z`.
 
-So every reading is the acceleration minus gravity, on all three axes. A real accelerometer doesn't compute this difference. The difference is what the sensor feels. An accelerometer can't feel gravity itself, because gravity pulls on the sensor's housing and on the small mass inside it in the same way. What the sensor feels is the force that holds it up against gravity. The box at the top of [IMU: Bosch BNO055](../driver-bno055.md) explains the mass and its suspension. Gazebo's sensor computes the difference, so that it reads as a real one, in the lines that [what the sensor measures](measurement-to-message.md#what-the-sensor-measures) shows.
+So every reading is the acceleration minus gravity, on all three axes. A real accelerometer doesn't compute this difference. The difference is what the sensor feels. An accelerometer can't feel gravity itself, because gravity pulls on the sensor's housing and on the small mass inside it in the same way. What the sensor feels is the force that holds it up against gravity. The box at the top of [IMU: Bosch BNO055](../driver-bno055.md) explains the mass and its suspension. Gazebo's sensor computes the difference, so that the simulated sensor reads as a real one, in the lines that [what the sensor measures](measurement-to-message.md#what-the-sensor-measures) shows.
 
 Four cases. The figure shows the first three:
 
@@ -91,7 +91,7 @@ Four cases. The figure shows the first three:
 - **In a turn**, the sensor moves on a circle, and its acceleration points to the circle's center. Its size is the turn rate squared times the distance to the center. Remo's IMU sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives $0.5^2 \cdot 0.08 = 0.02$ m/s², which is tiny next to the 9.8 m/s².
 - **In free fall**, nothing holds the sensor up. $\mathbf a$ equals $\mathbf g$, and the sensor reads 0 on all three axes.
 
-Which of the message's axes is forward depends on how the IMU is mounted. [Position and Axes](position-and-axes.md#the-mounting-on-each-robot) shows it for both robots.
+Which of the message's axes is forward depends on how the IMU is mounted. [Position and Axes](position-and-axes.md#the-mounting-on-each-robot) shows the mounting on both robots.
 
 ### How the message stores a covariance
 
@@ -137,7 +137,7 @@ The message definition gives two arrays a special meaning, in its lines 7–8 an
 
 - **The variances are known:** $[\,\sigma_x^2, 0, 0, 0, \sigma_y^2, 0, 0, 0, \sigma_z^2\,]$. A node that reads the message uses the values with these variances.
 - **The covariance is unknown:** $[\,0, 0, 0, 0, 0, 0, 0, 0, 0\,]$, all zeros. A node that reads the message can use the values, but has to assume a covariance.
-- **The field is unavailable:** $[\,-1, 0, 0, 0, 0, 0, 0, 0, 0\,]$. A node that reads the message ignores the field. The −1 goes into element 0, the only element that the message definition names for it. The simulated IMU sets the other eight to 0.
+- **The field is unavailable:** $[\,-1, 0, 0, 0, 0, 0, 0, 0, 0\,]$. A node that reads the message ignores the field. The −1 goes into element 0. The message definition names no other element. The simulated IMU sets the other eight to 0.
 
 What the simulated IMU's message holds:
 
@@ -163,7 +163,7 @@ graph TB
 The topics are in the `/diffbot` namespace, for both robots. The parts of the diagram, and what each adds to the message:
 
 1. **Gazebo's IMU sensor** measures the angular velocity $\boldsymbol\omega$ and the specific force $\mathbf f$ at `imu_link`, the IMU's frame, 50 times per second. Gazebo computes both from the simulated robot's motion. [What the sensor measures](measurement-to-message.md#what-the-sensor-measures) shows the lines of Gazebo's code, and [Position and Axes](position-and-axes.md) shows where `imu_link` sits on each robot.
-2. **The robots' own IMU plugin** turns each measurement into a `sensor_msgs/Imu` message and publishes it on `/diffbot/imu/gazebo`. The plugin adds the noise to both vectors, writes the variance $\sigma^2$ into their covariances and sets the stamp and the frame. The noise's $\sigma$ of 0.005 is the plugin's parameter `gaussianNoise` in the robot's model. [Noise and covariance](measurement-to-message.md#noise-and-covariance) shows where the model sets it and which lines of the plugin use it. The plugin is a copy of the IMU plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. [The Robots' Own IMU Plugin](plugin.md) explains why.
+2. **The robots' own IMU plugin** turns each measurement into a `sensor_msgs/Imu` message and publishes it on `/diffbot/imu/gazebo`. The plugin adds the noise to both vectors, writes the variance $\sigma^2$ into their covariances and sets the stamp and the frame. The noise's $\sigma$ of 0.005 is the plugin's parameter `gaussianNoise` in the robot's model. [Noise and covariance](measurement-to-message.md#noise-and-covariance) shows where the model sets this parameter and which lines of the plugin use it. The plugin is a copy of the IMU plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. [The Robots' Own IMU Plugin](plugin.md) explains why.
 3. **The adapter**, `imu_raw_adapter.py`, subscribes to `/diffbot/imu/gazebo`. The plugin's message has an orientation, and the firmware's message has none. The firmware reads only the BNO055's angular velocity and acceleration, because the EKF fuses only the yaw rate, as [what the firmware publishes](../driver-bno055.md#what-the-firmware-publishes) explains. So the adapter marks the orientation unavailable and publishes the rest unchanged on `/diffbot/imu/data_raw`. [The adapter](measurement-to-message.md#the-adapter) shows its code.
 4. **The [IMU sample validator](../robot_localization.md#the-imu-sample-validator)** subscribes to `/diffbot/imu/data_raw` and forwards the samples that pass its checks, unchanged, on `/diffbot/imu/data_validated`, which the EKF subscribes to. The validator drops a sample while the ROS time is still zero, when the sample's frame isn't `imu_link`, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is [`imu_validator.py` in `diffbot_control`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py). The validator and the EKF run only with `ekf:=true`, as [running the EKF](../robot_localization.md#running-it) shows.
 5. **The tests**, `test_imu.py` and `test_imu_reset.py`, subscribe to `/diffbot/imu/data_raw` and check the messages in CI, as [Tests](tests.md) explains.

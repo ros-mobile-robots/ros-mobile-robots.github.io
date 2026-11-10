@@ -49,7 +49,7 @@ Both tests of `test_imu.py` send velocity commands to the robot. A command that 
 
 ## The test at rest
 
-`test_imu_publishes_the_firmware_message_at_rest` checks that the message on `/diffbot/imu/data_raw` is what its readers need. The EKF is set up for 50 Hz and for the frame `imu_link`. The IMU sample validator forwards only samples with rising stamps, finite values and a positive variance. And the firmware's message has no orientation. The robot stands still during this test, because then the reading on the upward axis is known: gravity alone.
+`test_imu_publishes_the_firmware_message_at_rest` checks that the message on `/diffbot/imu/data_raw` is what its readers need. The EKF runs at 50 Hz, the firmware's rate. The IMU sample validator forwards only samples with the frame `imu_link`, rising stamps, finite values and a positive variance. And the firmware's message has no orientation. The robot stands still during this test, because then the reading on the upward axis is known: gravity alone.
 
 The test uses two helpers, which the left turn uses too. [`test_imu.py`, lines 67–82]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L67-L82):
 
@@ -130,7 +130,7 @@ At rest, the upward axis reads gravity, $f_z = +9.8$ m/s² in Gazebo, as [the li
 
 ## The reset test
 
-`test_imu_reset.py` checks that the IMU publishes again right after a reset of the simulation. A reset sets Gazebo's clock back to zero. A plugin that doesn't notice this stays silent for as long as the simulation ran before the reset, and the EKF gets no yaw rate in that time. [Publishing again after a reset](plugin.md#publishing-again-after-a-reset) explains how the robots' plugin handles it.
+`test_imu_reset.py` checks that the IMU publishes again right after a reset of the simulation. A reset sets Gazebo's clock back to zero. A plugin that doesn't notice this stays silent for as long as the simulation ran before the reset, and the EKF gets no yaw rate in that time. [Publishing again after a reset](plugin.md#publishing-again-after-a-reset) explains how the robots' plugin handles a clock that went back.
 
 The test's constants, [`test_imu_reset.py`, lines 32–46]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L32-L46):
 
@@ -197,7 +197,7 @@ Each item says what isn't tested, why not, and what a pass therefore doesn't pro
 
 - **That the simulation can't stall while the controllers start.** The stall of gazebo_plugins' original plugin depends on timing: it needs a request of the controller spawner in the callback queue at the moment that the plugin spins, as [what goes wrong with the original plugin](plugin.md#what-goes-wrong-with-the-original-plugin) explains. Most starts pass, with the original too, and each test node starts the simulation once. So a pass of `test_imu.py` doesn't show that the deadlock is gone. The counts of many starts, with the original and with the copy, are in [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185). If a start did stall, `setUp()` would end with an error, because no odometry comes. A longer `STARTUP_TIMEOUT` wouldn't help, because a stopped clock doesn't start again.
 - **Which way the IMU's x and y axes point.** `test_imu.py` checks only the upward axis: the yaw rate and the reading of gravity. A rotation of the IMU about that axis changes neither. So a pass doesn't show that the model's `imu_rpy` is right. Without the −90° of Remo's mounting, the test would still pass.
-- **The forward and the sideways acceleration.** No test drives the robot forward and compares the reading with the robot's acceleration. The EKF doesn't fuse the acceleration, so nothing in the simulation depends on it yet. A pass says nothing about `linear_acceleration.x` and `linear_acceleration.y`.
+- **The forward and the sideways acceleration.** No test drives the robot forward and compares the reading with the robot's acceleration. The EKF doesn't fuse the acceleration, so nothing in the simulation depends on the acceleration yet. A pass says nothing about `linear_acceleration.x` and `linear_acceleration.y`.
 - **The real BNO055.** The simulated noise is a setting, 0.005, and the simulated IMU has no bias and no delay. So a pass says nothing about the real sensor's noise, bias and mounting. The [bench checks](../driver-bno055.md#bench-checks) measure those on the robot.
 - **The rest of the simulation after a reset.** `test_imu_reset.py` checks the IMU's topic after one reset, 3 s after the start. A pass doesn't show that the other publishers come back at once. The drive controller's odometry and the joint states don't, as [the EKF's limits](../robot_localization.md#limits) on the Localization page explain.
 - **The EKF.** These tests read `/diffbot/imu/data_raw`, the validator's input. Whether the validator forwards the samples and the EKF uses them is the subject of the [EKF's tests](../robot_localization.md#how-its-tested) on the Localization page.
