@@ -83,7 +83,7 @@ rostopic hz /diffbot/scan
 
 ## Drive
 
-From your PC, first with the wheels off the ground, then slowly on the floor:
+On your PC, in the [dev container](../../development/dev-container.md), first with the wheels off the ground, then slowly on the floor:
 
 ```console
 rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/diffbot/mobile_base_controller/cmd_vel
