@@ -123,7 +123,7 @@ The example shows two properties of this PID that matter for tuning:
 
 ## Driving straight
 
-`diff_drive_controller` doesn't take the wheels' actual velocity into account.
+`diff_drive_controller` doesn't use the measured wheel speeds to correct its wheel-speed commands.
 For this reason a PID controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:
 
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
