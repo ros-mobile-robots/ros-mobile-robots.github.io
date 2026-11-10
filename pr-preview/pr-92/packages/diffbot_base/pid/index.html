@@ -4761,7 +4761,7 @@ u = 0.6 \cdot 0.50 + 0.3 \cdot 322.20 + 0.5 \cdot 0.00 = 96.96
 <li><strong>The gains belong to the control rate.</strong> The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the 50 ms between two steps. With another <code>UPDATE_RATE_CONTROL</code>, the same <span class="arithmatex">\(K_I\)</span> and <span class="arithmatex">\(K_D\)</span> have another effect.</li>
 </ul>
 <h2 id="driving-straight">Driving straight</h2>
-<p><code>diff_drive_controller</code> doesn't take the wheels' actual velocity into account.
+<p><code>diff_drive_controller</code> doesn't use the measured wheel speeds to correct its wheel-speed commands.
 For this reason a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
