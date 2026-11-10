@@ -13,7 +13,7 @@ cd ~/diffbot/.docker/robot
 docker compose up -d --no-build
 ```
 
-`up` creates and starts the containers described in `compose.yaml`: the bringup, and the lidar if `COMPOSE_PROFILES=lidar` is set. `-d` runs them in the background and gives you the prompt back. The first start downloads the image that CI published, [`ghcr.io/ros-mobile-robots/diffbot-robot`](https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot), with the packages already compiled. Compressed, it's about 0.7 GB for amd64. Later starts use the downloaded image. `--no-build` makes a failed download an error. Without it, Compose would build the image on the Raspberry Pi instead, which takes long.
+`up` creates and starts the containers described in `compose.yaml`: the bringup, and the lidar if `COMPOSE_PROFILES=lidar` is set. `-d` runs them in the background and gives you the prompt back. The first start downloads the image that CI published, [`ghcr.io/ros-mobile-robots/diffbot-robot`](https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot), with the packages already compiled. Compressed, it's about 0.7 GB. That size is measured for the amd64 image, the one for PCs. The arm64 image, which the Raspberry Pi downloads, isn't measured yet. Later starts use the downloaded image. `--no-build` makes a failed download an error. Without it, Compose would build the image on the Raspberry Pi instead, which takes long.
 
 ## Check
 
