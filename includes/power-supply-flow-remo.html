@@ -1,0 +1,63 @@
+<figure class="pf-figure">
+<svg class="pf-fig" viewBox="0 0 360 400" role="img" aria-labelledby="pf-remo-title"><title id="pf-remo-title">Remo's power flow: the power bank supplies the Raspberry Pi, the Teensy and its sensors, and the six NiMH cells supply the motors</title><defs><marker id="pf-remo-bank-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-bank" d="M0,0 L10,5 L0,10 z"/></marker><marker id="pf-remo-battery-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-battery" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="source bank" x="10" y="6" width="140" height="38" rx="5"/>
+<text class="name" x="80.0" y="29.0" text-anchor="middle">USB power bank</text>
+<path class="line bank" d="M60,44 V65" marker-end="url(#pf-remo-bank-head)"/>
+<text class="volt-bank" x="69" y="61" text-anchor="start">5 V, USB-C</text>
+<rect class="part" x="10" y="70" width="140" height="60" rx="5"/>
+<text class="name" x="80.0" y="104.0" text-anchor="middle">Raspberry Pi 4 B</text>
+<path class="line data" d="M150,84 H186"/>
+<rect class="part" x="186" y="64" width="132" height="34" rx="5"/>
+<text class="name" x="252.0" y="78.5" text-anchor="middle">RPLidar A2M8</text>
+<text class="note" x="252.0" y="91.5" text-anchor="middle">USB adapter</text>
+<path class="line data" d="M150,118 H186"/>
+<rect class="part" x="186" y="106" width="132" height="34" rx="5"/>
+<text class="name" x="252.0" y="120.5" text-anchor="middle">Raspberry Pi Camera</text>
+<text class="note" x="252.0" y="133.5" text-anchor="middle">camera cable</text>
+<rect class="source battery" x="220" y="6" width="130" height="38" rx="5"/>
+<text class="name" x="285.0" y="29.0" text-anchor="middle">Six NiMH AA cells</text>
+<path class="line battery" d="M338,44 V181" marker-end="url(#pf-remo-battery-head)"/>
+<text class="volt-battery" x="330" y="166" text-anchor="end">7.2 V nominal</text>
+<rect class="part" x="220" y="186" width="130" height="54" rx="5"/>
+<text class="name" x="285.0" y="204.0" text-anchor="middle">Motor driver</text>
+<text class="note" x="285.0" y="217.0" text-anchor="middle">Adafruit FeatherWing</text>
+<text class="note" x="285.0" y="230.0" text-anchor="middle">joins battery − and GND</text>
+<path class="line battery" d="M285,240 V285" marker-end="url(#pf-remo-battery-head)"/>
+<text class="volt-battery" x="277" y="263" text-anchor="end">switched on and off</text>
+<text class="volt-battery" x="277" y="275" text-anchor="end">by the driver (PWM)</text>
+<rect class="part" x="220" y="290" width="130" height="38" rx="5"/>
+<text class="name" x="285.0" y="313.0" text-anchor="middle">Two DG01D-E motors</text>
+<path class="line bank" d="M60,130 V181" marker-end="url(#pf-remo-bank-head)"/>
+<path class="line data" d="M67,130 V186"/>
+<text class="volt-bank" x="76" y="162" text-anchor="start">5 V and data, USB</text>
+<rect class="part" x="10" y="186" width="140" height="54" rx="5"/>
+<text class="name" x="80.0" y="217.0" text-anchor="middle">Teensy 4.0</text>
+<path class="line bank" d="M150,199 H215" marker-end="url(#pf-remo-bank-head)"/>
+<text class="volt-bank" x="185.0" y="194" text-anchor="middle">3.3 V</text>
+<path class="line data" d="M150,214 H220"/>
+<text class="note" x="185.0" y="210" text-anchor="middle">I2C</text>
+<path class="line ground" d="M150,229 H220"/>
+<text class="note" x="185.0" y="225" text-anchor="middle">GND</text>
+<path class="line bank" d="M28,240 V285" marker-end="url(#pf-remo-bank-head)"/>
+<path class="line data" d="M35,240 V290"/>
+<text class="volt-bank" x="41" y="269" text-anchor="start">3.3 V</text>
+<rect class="part" x="10" y="290" width="66" height="38" rx="5"/>
+<text class="name" x="43.0" y="306.5" text-anchor="middle">Encoders</text>
+<text class="note" x="43.0" y="319.5" text-anchor="middle">both wheels</text>
+<path class="line bank" d="M102,240 V285" marker-end="url(#pf-remo-bank-head)"/>
+<path class="line data" d="M109,240 V290"/>
+<text class="volt-bank" x="115" y="269" text-anchor="start">3.3 V</text>
+<rect class="part" x="84" y="290" width="66" height="38" rx="5"/>
+<text class="name" x="117.0" y="306.5" text-anchor="middle">IMU</text>
+<text class="note" x="117.0" y="319.5" text-anchor="middle">BNO055</text>
+<path class="line bank" d="M10,348.5 H36"/>
+<text x="44" y="352" text-anchor="start">supply from the power bank</text>
+<path class="line battery" d="M10,362.5 H36"/>
+<text x="44" y="366" text-anchor="start">supply from the motor battery</text>
+<path class="line data" d="M10,376.5 H36"/>
+<text x="44" y="380" text-anchor="start">data connection</text>
+<path class="line ground" d="M10,390.5 H36"/>
+<text x="44" y="394" text-anchor="start">ground wire (GND)</text>
+</svg>
+<figcaption>Remo's two supplies. Follow each color from its source at the top. The motor driver is the only part on both supplies.</figcaption>
+</figure>
