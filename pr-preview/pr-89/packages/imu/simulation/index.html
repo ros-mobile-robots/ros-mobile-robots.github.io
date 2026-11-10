@@ -4792,7 +4792,7 @@
 <p>The comments at the top are the message's contract for every publisher:</p>
 <ul>
 <li>Angular velocities are in rad/s, accelerations in m/s².</li>
-<li>Each of the three vectors comes with a covariance, which says how uncertain the vector's values are. A publisher that knows only the variances puts them on the diagonal.</li>
+<li>Each of the three measurements, the orientation, the angular velocity and the linear acceleration, comes with a covariance, which says how uncertain the measurement is. A publisher that knows only the variances puts them on the diagonal.</li>
 <li>A covariance of all zeros means that the covariance is unknown, not that the value has no uncertainty.</li>
 <li>−1 as a covariance's first element means that the publisher has no estimate for that field.</li>
 </ul>
@@ -4829,6 +4829,8 @@
 .imu-fig .floor{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
 .imu-fig .joint{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:5 3}
 .imu-fig .guide{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.imu-fig .lens{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .inset{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
 .imu-fig .dot{fill:var(--md-default-fg-color)}
 .imu-fig .x{stroke:var(--imu-x);fill:var(--imu-x)}
 .imu-fig .y{stroke:var(--imu-y);fill:var(--imu-y)}
@@ -4851,42 +4853,42 @@
 <div class="imu-panels">
 <svg class="imu-fig" viewBox="0 0 360 330" role="img" aria-labelledby="imu-angular-velocity-title imu-angular-velocity-description"><title id="imu-angular-velocity-title">The angular velocity about imu_link’s three axes</title><desc id="imu-angular-velocity-description">Remo from behind and above. At the IMU board, imu_link’s three axes: x in red to the robot’s right, y in green forward and z in blue up. A curved arrow turns about each axis in the direction that counts as positive: counterclockwise when the axis points at the viewer. The arrow about z is the yaw rate, which is positive in a left turn. The EKF fuses this value.</desc>
 <g class="context">
-<polygon class="wheel" points="72.8,170.3 73.1,163.9 74.1,157.0 75.7,149.9 77.8,142.8 80.5,135.8 83.5,129.3 86.9,123.3 90.5,118.1 94.3,113.9 98.0,110.7 101.6,108.7 105.0,107.9 108.1,108.4 136.2,117.7 138.8,119.4 141.0,122.3 142.6,126.3 143.5,131.3 143.9,137.0 143.5,143.5 142.6,150.3 141.0,157.5 138.8,164.6 136.2,171.6 133.1,178.1 129.7,184.1 126.1,189.3 122.4,193.5 118.7,196.7 115.1,198.7 111.7,199.4 108.6,199.0 80.5,189.6 77.8,187.9 75.7,185.1 74.1,181.1 73.1,176.1"></polygon>
-<polygon class="wheel" points="143.9,137.0 143.5,131.3 142.6,126.3 141.0,122.3 138.8,119.4 136.2,117.7 133.1,117.3 129.7,118.0 126.1,120.0 122.4,123.2 118.7,127.4 115.1,132.6 111.7,138.6 108.6,145.1 106.0,152.1 103.8,159.2 102.3,166.4 101.3,173.2 101.0,179.7 101.3,185.4 102.3,190.4 103.8,194.4 106.0,197.3 108.6,199.0 111.7,199.4 115.1,198.7 118.7,196.7 122.4,193.5 126.1,189.3 129.7,184.1 133.1,178.1 136.2,171.6 138.8,164.6 141.0,157.5 142.6,150.3 143.5,143.5"></polygon>
-<polygon class="body" points="128.8,152.0 128.8,150.2 128.5,148.7 128.0,147.5 127.3,146.7 126.5,146.2 125.6,146.0 124.6,146.3 123.5,146.9 122.4,147.8 121.3,149.1 120.2,150.6 119.2,152.4 118.3,154.4 117.5,156.5 116.8,158.6 116.4,160.8 116.1,162.8 116.0,164.7 116.1,166.5 116.4,168.0 116.8,169.2 117.5,170.0 118.3,170.5 119.2,170.7 120.2,170.4 121.3,169.8 122.4,168.9 123.5,167.6 124.6,166.1 125.6,164.3 126.5,162.3 127.3,160.2 128.0,158.1 128.5,155.9 128.8,153.9"></polygon>
+<polygon class="wheel" points="72.82,170.34 73.14,163.91 74.11,157.04 75.69,149.91 77.84,142.77 80.48,135.81 83.54,129.25 86.93,123.30 90.54,118.12 94.27,113.89 97.99,110.72 101.60,108.72 104.99,107.94 108.05,108.41 136.20,117.73 138.84,119.44 140.99,122.32 142.57,126.31 143.54,131.26 143.86,137.04 143.54,143.47 142.57,150.34 140.99,157.47 138.84,164.61 136.20,171.57 133.14,178.13 129.75,184.08 126.14,189.26 122.41,193.49 118.69,196.66 115.08,198.66 111.69,199.44 108.63,198.97 80.48,189.65 77.84,187.94 75.69,185.06 74.11,181.07 73.14,176.12"></polygon>
+<polygon class="wheel" points="143.86,137.04 143.54,131.26 142.57,126.31 140.99,122.32 138.84,119.44 136.20,117.73 133.14,117.26 129.75,118.04 126.14,120.04 122.41,123.21 118.69,127.44 115.08,132.62 111.69,138.57 108.63,145.13 105.98,152.09 103.84,159.23 102.26,166.36 101.29,173.23 100.96,179.66 101.29,185.44 102.26,190.39 103.84,194.38 105.98,197.26 108.63,198.97 111.69,199.44 115.08,198.66 118.69,196.66 122.41,193.49 126.14,189.26 129.75,184.08 133.14,178.13 136.20,171.57 138.84,164.61 140.99,157.47 142.57,150.34 143.54,143.47"></polygon>
+<polygon class="body" points="128.85,151.96 128.75,150.22 128.46,148.74 127.99,147.54 127.34,146.68 126.55,146.17 125.63,146.02 124.61,146.26 123.53,146.86 122.41,147.81 121.30,149.08 120.21,150.63 119.20,152.42 118.28,154.38 117.48,156.47 116.84,158.62 116.37,160.75 116.08,162.82 115.98,164.74 116.08,166.48 116.37,167.96 116.84,169.16 117.48,170.02 118.28,170.54 119.20,170.68 120.21,170.44 121.30,169.84 122.41,168.89 123.53,167.62 124.61,166.07 125.63,164.28 126.55,162.32 127.34,160.23 127.99,158.09 128.46,155.95 128.75,153.89"></polygon>
 <circle class="wheel" cx="132.9" cy="259.1" r="15.6"></circle>
-<polygon class="body" points="165.5,260.1 75.5,230.2 75.5,198.3 165.5,228.1"></polygon>
-<polygon class="body" points="165.5,260.1 256.5,169.7 256.5,137.7 165.5,228.1"></polygon>
-<polygon class="body" points="165.5,228.1 256.5,137.7 166.5,107.9 75.5,198.3"></polygon>
-<polygon class="body" points="171.2,230.0 69.8,196.4 69.8,194.3 171.2,227.8"></polygon>
-<polygon class="body" points="171.2,230.0 262.2,139.6 262.2,137.4 171.2,227.8"></polygon>
-<polygon class="body" points="171.2,227.8 262.2,137.4 160.8,103.9 69.8,194.3"></polygon>
-<polygon class="part" points="167.2,224.4 77.1,194.5 77.1,183.9 167.2,213.7"></polygon>
-<polygon class="part" points="167.2,224.4 202.9,188.9 202.9,178.2 167.2,213.7"></polygon>
-<polygon class="part" points="167.2,213.7 202.9,178.2 112.8,148.4 77.1,183.9"></polygon>
-<polygon class="board" points="122.3,184.9 91.9,174.9 91.9,170.6 122.3,180.7"></polygon>
-<polygon class="board" points="122.3,184.9 135.3,172.0 135.3,167.8 122.3,180.7"></polygon>
-<polygon class="board" points="122.3,180.7 135.3,167.8 104.9,157.7 91.9,170.6"></polygon>
-<polygon class="wheel" points="234.9,224.0 235.3,217.6 236.2,210.7 237.8,203.6 240.0,196.5 242.6,189.5 245.7,182.9 249.1,177.0 252.7,171.8 256.4,167.6 260.1,164.4 263.7,162.4 267.1,161.6 270.2,162.1 298.3,171.4 301.0,173.1 303.1,176.0 304.7,180.0 305.7,184.9 306.0,190.7 305.7,197.2 304.7,204.0 303.1,211.2 301.0,218.3 298.3,225.3 295.3,231.8 291.9,237.8 288.3,242.9 284.5,247.2 280.8,250.3 277.2,252.3 273.8,253.1 270.7,252.7 242.6,243.3 240.0,241.6 237.8,238.7 236.2,234.8 235.3,229.8"></polygon>
-<polygon class="wheel" points="306.0,190.7 305.7,184.9 304.7,180.0 303.1,176.0 301.0,173.1 298.3,171.4 295.3,170.9 291.9,171.7 288.3,173.7 284.5,176.9 280.8,181.1 277.2,186.3 273.8,192.3 270.7,198.8 268.1,205.8 266.0,212.9 264.4,220.0 263.4,226.9 263.1,233.3 263.4,239.1 264.4,244.1 266.0,248.1 268.1,251.0 270.7,252.7 273.8,253.1 277.2,252.3 280.8,250.3 284.5,247.2 288.3,242.9 291.9,237.8 295.3,231.8 298.3,225.3 301.0,218.3 303.1,211.2 304.7,204.0 305.7,197.2"></polygon>
-<polygon class="body" points="291.0,205.6 290.9,203.9 290.6,202.4 290.1,201.2 289.5,200.4 288.7,199.9 287.8,199.7 286.7,199.9 285.7,200.5 284.5,201.5 283.4,202.8 282.3,204.3 281.3,206.1 280.4,208.1 279.6,210.2 279.0,212.3 278.5,214.4 278.2,216.5 278.1,218.4 278.2,220.2 278.5,221.7 279.0,222.8 279.6,223.7 280.4,224.2 281.3,224.4 282.3,224.1 283.4,223.5 284.5,222.6 285.7,221.3 286.7,219.8 287.8,218.0 288.7,216.0 289.5,213.9 290.1,211.8 290.6,209.6 290.9,207.6"></polygon>
+<polygon class="body" points="165.53,260.06 75.47,230.24 75.47,198.29 165.53,228.12"></polygon>
+<polygon class="body" points="165.53,260.06 256.53,169.66 256.53,137.71 165.53,228.12"></polygon>
+<polygon class="body" points="165.53,228.12 256.53,137.71 166.47,107.88 75.47,198.29"></polygon>
+<polygon class="body" points="171.16,229.98 69.84,196.43 69.84,194.30 171.16,227.85"></polygon>
+<polygon class="body" points="171.16,229.98 262.16,139.57 262.16,137.44 171.16,227.85"></polygon>
+<polygon class="body" points="171.16,227.85 262.16,137.44 160.84,103.89 69.84,194.30"></polygon>
+<polygon class="part" points="167.16,224.37 77.09,194.55 77.09,183.90 167.16,213.72"></polygon>
+<polygon class="part" points="167.16,224.37 202.91,188.86 202.91,178.21 167.16,213.72"></polygon>
+<polygon class="part" points="167.16,213.72 202.91,178.21 112.84,148.38 77.09,183.90"></polygon>
+<polygon class="board" points="122.29,184.95 91.89,174.88 91.89,170.62 122.29,180.69"></polygon>
+<polygon class="board" points="122.29,184.95 135.29,172.03 135.29,167.77 122.29,180.69"></polygon>
+<polygon class="board" points="122.29,180.69 135.29,167.77 104.89,157.71 91.89,170.62"></polygon>
+<polygon class="wheel" points="234.94,224.03 235.26,217.60 236.23,210.72 237.81,203.60 239.96,196.45 242.60,189.49 245.66,182.94 249.05,176.98 252.66,171.81 256.39,167.57 260.11,164.41 263.72,162.41 267.11,161.63 270.17,162.10 298.32,171.42 300.96,173.12 303.11,176.01 304.69,179.99 305.66,184.95 305.98,190.73 305.66,197.15 304.69,204.03 303.11,211.15 300.96,218.30 298.32,225.26 295.26,231.82 291.87,237.77 288.26,242.94 284.53,247.18 280.81,250.35 277.20,252.35 273.81,253.13 270.75,252.65 242.60,243.33 239.96,241.63 237.81,238.74 236.23,234.76 235.26,229.80"></polygon>
+<polygon class="wheel" points="305.98,190.73 305.66,184.95 304.69,179.99 303.11,176.01 300.96,173.12 298.32,171.42 295.26,170.95 291.87,171.73 288.26,173.73 284.53,176.90 280.81,181.13 277.20,186.30 273.81,192.26 270.75,198.81 268.10,205.77 265.96,212.92 264.38,220.04 263.41,226.92 263.08,233.35 263.41,239.13 264.38,244.08 265.96,248.06 268.10,250.95 270.75,252.65 273.81,253.13 277.20,252.35 280.81,250.35 284.53,247.18 288.26,242.94 291.87,237.77 295.26,231.82 298.32,225.26 300.96,218.30 303.11,211.15 304.69,204.03 305.66,197.15"></polygon>
+<polygon class="body" points="290.97,205.64 290.87,203.91 290.58,202.42 290.11,201.23 289.46,200.36 288.67,199.85 287.75,199.71 286.73,199.94 285.65,200.54 284.53,201.49 283.42,202.76 282.33,204.32 281.32,206.10 280.40,208.07 279.60,210.16 278.96,212.30 278.49,214.44 278.20,216.50 278.10,218.43 278.20,220.16 278.49,221.65 278.96,222.84 279.60,223.71 280.40,224.22 281.32,224.36 282.33,224.13 283.42,223.53 284.53,222.58 285.65,221.31 286.73,219.76 287.75,217.97 288.67,216.00 289.46,213.92 290.11,211.77 290.58,209.64 290.87,207.57"></polygon>
 </g>
 <text class="note" x="272.6" y="129.2" text-anchor="middle">front</text>
-<polyline class="shaft x" points="113.6,171.3 208.9,202.9"></polyline>
-<polygon class="head x" points="215.8,205.2 206.0,205.9 208.4,198.8"></polygon>
+<polyline class="shaft x" points="113.59,171.33 208.95,202.90"></polyline>
+<polygon class="head x" points="215.78,205.17 206.05,205.93 208.43,198.75"></polygon>
 <text class="x halo" x="225.3" y="212.3" text-anchor="middle">x</text>
-<polyline class="shaft turn x" points="192.1,197.8 193.3,193.9 194.2,189.9 194.7,186.2 194.9,182.6 194.7,179.4 194.2,176.7 193.3,174.5 192.1,172.9 190.7,172.0 189.0,171.7 187.1,172.2 185.1,173.3 183.1,175.0 181.0,177.3 179.0,180.2 177.2,183.5 175.5,187.1 174.0,190.9 172.9,194.8 172.0,198.7 171.5,202.5 171.3,206.1 171.5,209.2 172.0,212.0 172.9,214.2 174.0,215.7 175.5,216.7 177.2,216.9"></polyline>
-<polygon class="head turn x" points="179.0,216.5 171.2,220.3 170.9,213.5"></polygon>
-<polyline class="shaft y" points="113.6,171.3 167.5,117.8"></polyline>
-<polygon class="head y" points="172.6,112.7 168.9,121.7 163.5,116.4"></polygon>
+<polyline class="shaft turn x" points="192.12,197.78 193.30,193.85 194.17,189.93 194.70,186.15 194.88,182.62 194.70,179.44 194.17,176.71 193.30,174.52 192.12,172.93 190.67,171.99 188.98,171.74 187.12,172.16 185.13,173.26 183.08,175.01 181.03,177.34 179.04,180.18 177.18,183.46 175.50,187.06 174.04,190.89 172.86,194.83 171.99,198.74 171.46,202.53 171.28,206.06 171.46,209.24 171.99,211.97 172.86,214.16 174.04,215.75 175.50,216.68 177.18,216.94"></polyline>
+<polygon class="head turn x" points="179.04,216.51 171.21,220.25 170.89,213.54"></polygon>
+<polyline class="shaft y" points="113.59,171.33 167.48,117.79"></polyline>
+<polygon class="head y" points="172.59,112.71 168.87,121.74 163.54,116.37"></polygon>
 <text class="y halo" x="179.7" y="109.7" text-anchor="middle">y</text>
-<polyline class="shaft turn y" points="163.9,151.6 160.7,152.0 157.3,151.7 153.7,150.8 150.2,149.3 146.7,147.3 143.5,144.8 140.6,141.9 138.1,138.7 136.0,135.3 134.5,131.7 133.6,128.2 133.3,124.7 133.6,121.4 134.5,118.5 136.0,115.9 138.1,113.9 140.6,112.3 143.5,111.3 146.7,111.0 150.2,111.3 153.7,112.1 157.3,113.6 160.7,115.6 163.9,118.1 166.8,121.0 169.4,124.2 171.4,127.7 172.9,131.2"></polyline>
-<polygon class="head turn y" points="173.8,134.8 168.1,128.3 174.4,126.1"></polygon>
-<polyline class="shaft z" points="113.6,171.3 113.6,81.9"></polyline>
-<polygon class="head z" points="113.6,74.7 117.4,83.7 109.8,83.7"></polygon>
+<polyline class="shaft turn y" points="163.93,151.60 160.70,151.95 157.26,151.68 153.71,150.80 150.16,149.33 146.72,147.32 143.49,144.83 140.57,141.93 138.05,138.71 136.01,135.27 134.50,131.72 133.58,128.16 133.27,124.70 133.58,121.45 134.50,118.50 136.01,115.94 138.05,113.86 140.57,112.31 143.49,111.34 146.72,110.99 150.16,111.26 153.71,112.14 157.26,113.61 160.70,115.62 163.93,118.11 166.85,121.01 169.37,124.23 171.41,127.66 172.92,131.22"></polyline>
+<polygon class="head turn y" points="173.84,134.78 168.07,128.29 174.43,126.12"></polygon>
+<polyline class="shaft z" points="113.59,171.33 113.59,81.87"></polyline>
+<polygon class="head z" points="113.59,74.67 117.37,83.67 109.81,83.67"></polygon>
 <text class="z halo" x="113.6" y="68.7" text-anchor="middle">z</text>
-<polyline class="shaft turn z" points="135.8,110.2 136.8,107.9 137.2,105.6 136.8,103.2 135.8,101.0 134.0,98.8 131.7,96.9 128.8,95.2 125.4,93.9 121.7,92.9 117.7,92.3 113.6,92.1 109.5,92.3 105.5,92.9 101.8,93.9 98.4,95.2 95.5,96.9 93.2,98.8 91.4,101.0 90.3,103.2 90.0,105.6 90.3,107.9 91.4,110.2 93.2,112.4 95.5,114.3 98.4,116.0 101.8,117.3 105.5,118.3 109.5,118.9"></polyline>
-<polygon class="head turn z" points="113.6,119.1 105.3,121.7 106.0,115.0"></polygon>
+<polyline class="shaft turn z" points="135.77,110.23 136.83,107.95 137.19,105.60 136.83,103.25 135.77,100.97 134.03,98.83 131.67,96.90 128.76,95.23 125.39,93.88 121.66,92.88 117.69,92.27 113.59,92.06 109.49,92.27 105.52,92.88 101.79,93.88 98.42,95.23 95.51,96.90 93.15,98.83 91.41,100.97 90.35,103.25 89.99,105.60 90.35,107.95 91.41,110.23 93.15,112.37 95.51,114.30 98.42,115.97 101.79,117.32 105.52,118.32 109.49,118.93"></polyline>
+<polygon class="head turn z" points="113.59,119.13 105.29,121.67 105.97,114.99"></polygon>
 <circle class="dot" cx="113.6" cy="171.3" r="3.0"></circle>
 <text class="z" x="70.0" y="28.0" text-anchor="end">ω<tspan class="sub" dy="3">z</tspan></text>
 <text x="78.0" y="28.0" text-anchor="start">yaw rate: positive in a left turn.</text>
@@ -4932,6 +4934,8 @@
 .imu-fig .floor{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
 .imu-fig .joint{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:5 3}
 .imu-fig .guide{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.imu-fig .lens{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .inset{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
 .imu-fig .dot{fill:var(--md-default-fg-color)}
 .imu-fig .x{stroke:var(--imu-x);fill:var(--imu-x)}
 .imu-fig .y{stroke:var(--imu-y);fill:var(--imu-y)}
@@ -4954,7 +4958,7 @@
 <div class="imu-panels">
 <svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-rest-title imu-force-rest-description"><title id="imu-force-rest-title">At rest</title><desc id="imu-force-rest-description">Remo stands still on the floor, seen from its right side. At the IMU, gravity g points down with 9.8 m/s². The acceleration a is zero. The sensor reads f = a − g, which points up with 9.8 m/s². On Remo, the message’s x, y and z are 0, 0 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">At rest</text>
-<polyline class="floor" points="10.0,211.9 206.0,211.9"></polyline>
+<polyline class="floor" points="10.00,211.94 206.00,211.94"></polyline>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
 <g class="context">
 <circle class="wheel" cx="72.1" cy="201.1" r="10.8"></circle>
@@ -4965,12 +4969,12 @@
 <circle class="wheel" cx="150.4" cy="182.2" r="29.7"></circle>
 <circle class="body" cx="150.4" cy="182.2" r="8.9"></circle>
 </g>
-<polyline class="shaft gravity" points="81.9,140.3 81.9,179.1"></polyline>
-<polygon class="head gravity" points="81.9,186.3 78.1,177.3 85.7,177.3"></polygon>
+<polyline class="shaft gravity" points="81.91,140.30 81.91,179.10"></polyline>
+<polygon class="head gravity" points="81.91,186.30 78.13,177.30 85.69,177.30"></polygon>
 <text class="gravity halo" x="73.9" y="171.3" text-anchor="end">g = 9.8</text>
-<polyline class="shaft reading" points="81.9,140.3 81.9,101.5"></polyline>
-<polygon class="head reading" points="81.9,94.3 85.7,103.3 78.1,103.3"></polygon>
-<text class="reading halo" x="81.9" y="87.3" text-anchor="middle">f</text>
+<polyline class="shaft reading" points="81.91,140.30 81.91,101.50"></polyline>
+<polygon class="head reading" points="81.91,94.30 85.69,103.30 78.13,103.30"></polygon>
+<text class="reading halo" x="81.9" y="85.3" text-anchor="middle">f</text>
 <text class="acceleration halo" x="88.9" y="135.3" text-anchor="start">a = 0</text>
 <circle class="dot" cx="81.9" cy="140.3" r="3.0"></circle>
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
@@ -4979,9 +4983,9 @@
 <text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
 <text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, 0, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up. On Remo, the message’s x, y and z are 0, +0.5 and +9.8.</desc>
+<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up, so f leans forward by 3 degrees. A circle shows the tip of f ten times larger: f ends 0.5 m/s² in front of the point straight above the sensor. On Remo, the message’s x, y and z are 0, +0.5 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Speeding up forward</text>
-<polyline class="floor" points="10.0,211.9 206.0,211.9"></polyline>
+<polyline class="floor" points="10.00,211.94 206.00,211.94"></polyline>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
 <g class="context">
 <circle class="wheel" cx="72.1" cy="201.1" r="10.8"></circle>
@@ -4992,19 +4996,26 @@
 <circle class="wheel" cx="150.4" cy="182.2" r="29.7"></circle>
 <circle class="body" cx="150.4" cy="182.2" r="8.9"></circle>
 </g>
-<polyline class="guide" points="107.9,140.3 107.9,94.3 81.9,94.3"></polyline>
-<polyline class="shaft gravity" points="81.9,140.3 81.9,179.1"></polyline>
-<polygon class="head gravity" points="81.9,186.3 78.1,177.3 85.7,177.3"></polygon>
+<polyline class="shaft gravity" points="81.91,140.30 81.91,179.10"></polyline>
+<polygon class="head gravity" points="81.91,186.30 78.13,177.30 85.69,177.30"></polygon>
 <text class="gravity halo" x="73.9" y="171.3" text-anchor="end">g = 9.8</text>
-<polyline class="shaft reading" points="81.9,140.3 104.4,100.6"></polyline>
-<polygon class="head reading" points="107.9,94.3 106.8,104.0 100.2,100.3"></polygon>
-<text class="reading halo" x="107.9" y="87.3" text-anchor="middle">f</text>
-<polyline class="shaft acceleration" points="81.9,140.3 100.7,140.3"></polyline>
-<polygon class="head acceleration" points="107.9,140.3 98.9,144.1 98.9,136.5"></polygon>
-<text class="acceleration halo" x="114.9" y="135.3" text-anchor="start">a = 0.5</text>
+<polyline class="shaft reading" points="81.91,140.30 83.89,101.49"></polyline>
+<polygon class="head reading" points="84.26,94.30 87.57,103.48 80.02,103.10"></polygon>
+<text class="reading halo" x="84.3" y="85.3" text-anchor="middle">f</text>
+<circle class="lens" cx="84.3" cy="94.3" r="7.0"></circle>
+<polyline class="lens" points="91.24,94.83 128.09,97.60"></polyline>
+<circle class="inset" cx="160.0" cy="100.0" r="32.0"></circle>
+<text class="note" x="160.0" y="62.0" text-anchor="middle">10× larger</text>
+<polyline class="guide" points="148.27,126.00 148.27,96.00"></polyline>
+<polyline class="shaft reading" points="170.20,126.00 171.37,103.19"></polyline>
+<polygon class="head reading" points="171.73,96.00 175.05,105.18 167.50,104.80"></polygon>
+<polyline class="shaft acceleration" points="148.27,96.00 166.13,96.00"></polyline>
+<polygon class="head acceleration" points="171.73,96.00 164.73,98.94 164.73,93.06"></polygon>
+<text class="acceleration" x="160.0" y="88.0" text-anchor="middle">a = 0.5</text>
+<text class="reading" x="177.7" y="113.0" text-anchor="start">f</text>
 <circle class="dot" cx="81.9" cy="140.3" r="3.0"></circle>
-<polyline class="shaft motion thin" points="132.0,46.0 172.4,46.0"></polyline>
-<polygon class="head motion thin" points="178.0,46.0 171.0,48.9 171.0,43.1"></polygon>
+<polyline class="shaft motion thin" points="132.00,46.00 172.40,46.00"></polyline>
+<polygon class="head motion thin" points="178.00,46.00 171.00,48.94 171.00,43.06"></polygon>
 <text class="note" x="155.0" y="39.0" text-anchor="middle">speeds up</text>
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
 <text class="reading" x="108.0" y="249.0" text-anchor="middle">forward +0.5,</text>
@@ -5012,7 +5023,7 @@
 <text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
 <text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, +0.5, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to gravity. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing. On Remo, the message’s x, y and z are +0.01, +0.02 and +9.8.</desc>
+<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to gravity. Its arrow shows only its direction. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing, so f leans toward the center by 0.1 degrees. On Remo, the message’s x, y and z are +0.01, +0.02 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Turning left, from above</text>
 <g class="context">
 <rect class="wheel" x="32.0" y="79.9" width="22.5" height="59.4" rx="4"></rect>
@@ -5021,13 +5032,13 @@
 <rect class="part" x="72.0" y="153.2" width="72.0" height="49.5" rx="2"></rect>
 <rect class="board" x="74.8" y="169.1" width="24.3" height="18.0" rx="1.5"></rect>
 </g>
-<polyline class="guide" points="179.7,109.6 179.3,102.1 178.1,94.7 176.1,87.5 173.5,80.5 170.1,73.8 166.0,67.5 161.2,61.7 155.9,56.4 150.1,51.6 143.8,47.5 137.1,44.1 130.1,41.5 122.9,39.5 115.5,38.3 108.0,37.9 100.5,38.3 93.1,39.5 85.9,41.5 78.9,44.1 72.2,47.5 65.9,51.6 60.1,56.4 54.8,61.7 50.0,67.5 45.9,73.8 42.5,80.5 39.9,87.5 37.9,94.7 36.7,102.1 36.3,109.6 36.7,117.1 37.9,124.5 39.9,131.7 42.5,138.7 45.9,145.4 50.0,151.7 54.8,157.5 60.1,162.8 65.9,167.6 72.2,171.7 78.9,175.1 85.9,177.7 93.1,179.7 100.5,180.9 108.0,181.3 115.5,180.9 122.9,179.7 130.1,177.7 137.1,175.1 143.8,171.7 150.1,167.6 155.9,162.8 161.2,157.5 166.0,151.7 170.1,145.4 173.5,138.7 176.1,131.7 178.1,124.5 179.3,117.1 179.7,109.6"></polyline>
-<polyline class="shaft motion thin" points="114.5,120.9 115.6,120.1 116.7,119.3 117.7,118.3 118.5,117.2 119.3,116.1 119.9,114.9 120.4,113.6 120.7,112.3 120.9,111.0 121.0,109.6 120.9,108.2 120.7,106.9 120.4,105.6 119.9,104.3 119.3,103.1 118.5,102.0 117.7,100.9 116.7,99.9 115.6,99.1 114.5,98.3 113.3,97.7 112.0,97.2 110.7,96.9 109.4,96.7 108.0,96.6 106.6,96.7 105.3,96.9 104.0,97.2 102.7,97.7 101.5,98.3 100.4,99.1 99.3,99.9 98.3,100.9 97.5,102.0 96.7,103.1 96.1,104.3 95.6,105.6 95.3,106.9 95.1,108.2 95.0,109.6 95.1,111.0 95.3,112.3 95.6,113.6 96.1,114.9 96.7,116.1 97.5,117.2"></polyline>
-<polygon class="head motion thin" points="98.3,118.3 91.8,114.4 96.6,110.9"></polygon>
+<polyline class="guide" points="179.65,109.60 179.26,102.11 178.09,94.70 176.15,87.46 173.46,80.46 170.05,73.77 165.97,67.48 161.25,61.65 155.95,56.35 150.12,51.63 143.83,47.55 137.14,44.14 130.14,41.45 122.90,39.51 115.49,38.34 108.00,37.95 100.51,38.34 93.10,39.51 85.86,41.45 78.86,44.14 72.17,47.55 65.88,51.63 60.05,56.35 54.75,61.65 50.03,67.48 45.95,73.77 42.54,80.46 39.85,87.46 37.91,94.70 36.74,102.11 36.35,109.60 36.74,117.09 37.91,124.50 39.85,131.74 42.54,138.74 45.95,145.43 50.03,151.72 54.75,157.55 60.05,162.85 65.88,167.57 72.17,171.65 78.86,175.06 85.86,177.75 93.10,179.69 100.51,180.86 108.00,181.25 115.49,180.86 122.90,179.69 130.14,177.75 137.14,175.06 143.83,171.65 150.12,167.57 155.95,162.85 161.25,157.55 165.97,151.72 170.05,145.43 173.46,138.74 176.15,131.74 178.09,124.50 179.26,117.09 179.65,109.60"></polyline>
+<polyline class="shaft motion thin" points="114.50,120.86 115.64,120.12 116.70,119.26 117.66,118.30 118.52,117.24 119.26,116.10 119.88,114.89 120.36,113.62 120.72,112.30 120.93,110.96 121.00,109.60 120.93,108.24 120.72,106.90 120.36,105.58 119.88,104.31 119.26,103.10 118.52,101.96 117.66,100.90 116.70,99.94 115.64,99.08 114.50,98.34 113.29,97.72 112.02,97.24 110.70,96.88 109.36,96.67 108.00,96.60 106.64,96.67 105.30,96.88 103.98,97.24 102.71,97.72 101.50,98.34 100.36,99.08 99.30,99.94 98.34,100.90 97.48,101.96 96.74,103.10 96.12,104.31 95.64,105.58 95.28,106.90 95.07,108.24 95.00,109.60 95.07,110.96 95.28,112.30 95.64,113.62 96.12,114.89 96.74,116.10 97.48,117.24"></polyline>
+<polygon class="head motion thin" points="98.34,118.30 91.85,114.36 96.60,110.91"></polygon>
 <circle class="dot" cx="108.0" cy="109.6" r="2.5"></circle>
 <text class="note" x="108.0" y="89.6" text-anchor="middle">0.5 rad/s</text>
-<polyline class="shaft acceleration" points="86.9,178.1 92.5,160.1"></polyline>
-<polygon class="head acceleration" points="94.6,153.2 95.5,163.0 88.3,160.7"></polygon>
+<polyline class="shaft acceleration" points="86.94,178.09 92.47,160.12"></polyline>
+<polygon class="head acceleration" points="94.58,153.24 95.55,162.95 88.32,160.73"></polygon>
 <text class="acceleration halo" x="101.6" y="161.2" text-anchor="start">a = 0.02</text>
 <circle class="ring reading" cx="86.9" cy="178.1" r="5.5"></circle>
 <circle class="head reading" cx="86.9" cy="178.1" r="2.0"></circle>
@@ -5039,7 +5050,7 @@
 <text class="reading" x="108.0" y="301.0" text-anchor="middle">(+0.01, +0.02, +9.8)</text>
 </svg>
 </div>
-<figcaption><code>linear_acceleration</code> is the specific force <strong>f</strong> = <strong>a</strong> − <strong>g</strong>: the acceleration <strong>a</strong> of the sensor minus gravity <strong>g</strong>, in m/s². The arrows show directions. Their lengths aren’t to scale. The last line of each drawing gives the message’s x, y and z on Remo, where <code>imu_link</code>’s y axis points forward. In the turn, the dotted circle is the sensor’s path, <strong>f</strong> points up, at you, and the 0.02 m/s² toward the center is tiny next to gravity’s 9.8 m/s².</figcaption>
+<figcaption><code>linear_acceleration</code> is the specific force <strong>f</strong> = <strong>a</strong> − <strong>g</strong>: the acceleration <strong>a</strong> of the sensor minus gravity <strong>g</strong>, in m/s². <strong>g</strong> and <strong>f</strong> are drawn to one scale and in their true directions. While the robot speeds up with 0.5 m/s², <strong>f</strong> leans forward by only 3°. So the circle shows the tip of <strong>f</strong> 10 times larger: <strong>f</strong> ends 0.5 m/s² in front of the dotted line, which points straight up from the sensor. The last line of each drawing gives the message’s x, y and z on Remo, where <code>imu_link</code>’s y axis points forward. In the turn, the dotted circle is the sensor’s path. <strong>f</strong> points up, at you, and leans toward the center by 0.1°. The arrow of <strong>a</strong> shows only its direction: its 0.02 m/s² is tiny next to gravity’s 9.8 m/s², and at the scale of <strong>g</strong> it would be too short to see.</figcaption>
 </figure>
 <p><code>linear_acceleration</code> isn't the robot's acceleration alone. It's what an accelerometer measures, the <strong>specific force</strong>:</p>
 <div class="arithmatex">\[
@@ -5060,13 +5071,13 @@
 <p>Four cases. The figure shows the first three:</p>
 <ul>
 <li><strong>At rest</strong>, <span class="arithmatex">\(\mathbf a\)</span> is zero. With <code>imu_link</code>'s z axis up, gravity is <span class="arithmatex">\(\mathbf g = (0, 0, -9.8)\)</span> m/s², so the sensor reads <span class="arithmatex">\(\mathbf f = (0, 0, +9.8)\)</span> m/s². The floor holds the robot up, and the sensor reads that as 9.8 m/s² upward, although the robot doesn't move. At a steady speed on a level floor, <span class="arithmatex">\(\mathbf a\)</span> is zero too, and the reading is the same.</li>
-<li><strong>Speeding up forward</strong> with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is <code>imu_link</code>'s y axis, so the message's three numbers are (0, +0.5, +9.8). The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the <code>max_acceleration</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/config/diffbot_control.yaml#L47-L48">lines 47–48 of its configuration</a>.</li>
+<li><strong>Speeding up forward</strong> with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is <code>imu_link</code>'s y axis, so the message's three numbers are (0, +0.5, +9.8). The reading leans forward by only 3° from straight up, so the figure shows its tip in a circle, ten times larger. The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the <code>max_acceleration</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/config/diffbot_control.yaml#L47-L48">lines 47–48 of its configuration</a>.</li>
 <li><strong>In a turn</strong>, the sensor moves on a circle, and its acceleration points to the circle's center. Its size is the turn rate squared times the distance to the center. Remo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives <span class="arithmatex">\(0.5^2 \cdot 0.08 = 0.02\)</span> m/s², which is tiny next to the 9.8 m/s².</li>
 <li><strong>In free fall</strong>, nothing holds the sensor up. <span class="arithmatex">\(\mathbf a\)</span> equals <span class="arithmatex">\(\mathbf g\)</span>, and the sensor reads 0 on all three axes.</li>
 </ul>
 <p>Which of the message's axes is forward depends on how the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is mounted. <a href="position-and-axes/#the-mounting-on-each-robot">Position and Axes</a> shows the mounting on both robots.</p>
 <h3 id="how-the-message-stores-a-covariance">How the message stores a covariance</h3>
-<p>Each of the message's three vectors has a covariance matrix. A covariance matrix says how uncertain the vector's values are. For a vector with the components x, y and z, it has three rows and three columns:</p>
+<p>Each of the message's three measurements has a covariance matrix: the orientation, the angular velocity and the linear acceleration. A covariance matrix says how uncertain a measurement is. Take the angular velocity, with its three components about the x, y and z axes. Its covariance matrix has three rows and three columns:</p>
 <div class="arithmatex">\[
 \Sigma =
 \begin{pmatrix}
@@ -5076,9 +5087,10 @@
 \end{pmatrix}
 \]</div>
 <ul>
-<li><strong>On the diagonal</strong> are the variances. <span class="arithmatex">\(\sigma_x^2\)</span> is the variance of the x value: the square of its standard deviation <span class="arithmatex">\(\sigma_x\)</span>, which says how far the value typically lies from the true one.</li>
-<li><strong>Off the diagonal</strong> are the covariances. <span class="arithmatex">\(\sigma_{xy}\)</span> says whether the errors of the x value and of the y value go up and down together. It's 0 when the two errors have nothing to do with each other. <span class="arithmatex">\(\sigma_{xy}\)</span> and <span class="arithmatex">\(\sigma_{yx}\)</span> are always equal.</li>
+<li><strong>On the diagonal</strong> are the variances. <span class="arithmatex">\(\sigma_x^2\)</span> is the variance of the angular velocity about x: the square of its standard deviation <span class="arithmatex">\(\sigma_x\)</span>, which says how far the value typically lies from the true one.</li>
+<li><strong>Off the diagonal</strong> are the covariances. <span class="arithmatex">\(\sigma_{xy}\)</span> says whether the errors of the values about x and about y go up and down together. It's 0 when the two errors have nothing to do with each other. <span class="arithmatex">\(\sigma_{xy}\)</span> and <span class="arithmatex">\(\sigma_{yx}\)</span> are always equal.</li>
 </ul>
+<p>The linear acceleration's matrix is built the same way, for its three components along the x, y and z axes. The orientation's matrix has three rows and three columns too, although a quaternion has four numbers. Its rows and columns stand for the rotation's errors about the x, y and z axes, not for three of the quaternion's four numbers. <code>Imu.msg</code> says so in the comment of its line 18: "about x, y, z axes".</p>
 <p>Wikipedia's article on the <a href="https://en.wikipedia.org/wiki/Covariance_matrix">covariance matrix</a> gives the definition.</p>
 <p>A ROS message has no type for a matrix. <code>Imu.msg</code> declares each covariance as <code>float64[9]</code>, an array of nine numbers, with the comment "Row major", in the definition's lines 18, 21 and 24. Row major means row by row: the matrix's first row, then its second, then its third.</p>
 <div class="arithmatex">\[
@@ -5109,7 +5121,7 @@
 <li><strong><code>angular_velocity_covariance</code></strong> is <span class="arithmatex">\([\,\sigma^2, 0, 0, 0, \sigma^2, 0, 0, 0, \sigma^2\,]\)</span> with <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span> (rad/s)²: the same variance for each axis.</li>
 <li><strong><code>linear_acceleration_covariance</code></strong> has the same nine numbers, in (m/s²)².</li>
 </ul>
-<p>No field of this message is all zeros. <a href="measurement-to-message/#noise-and-covariance">Noise and covariance</a> shows the plugin's lines that write the variances and explains why the other elements are 0. <a href="measurement-to-message/#the-adapter">The adapter</a> shows the lines that write the −1.</p>
+<p>None of the three covariance arrays is all zeros, so none says that a covariance is unknown. <a href="measurement-to-message/#noise-and-covariance">Noise and covariance</a> shows the plugin's lines that write the variances and explains why the other elements are 0. <a href="measurement-to-message/#the-adapter">The adapter</a> shows the lines that write the −1.</p>
 <h2 id="from-the-sensor-to-the-ekf">From the sensor to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></h2>
 <p>Three parts make the message, one after the other. Two more read it:</p>
 <div class="mermaid">graph TB
