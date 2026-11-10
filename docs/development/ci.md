@@ -34,12 +34,19 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 ### Simulation video
 
-The [simulation test](simulation-test.md) checks numbers: the odometry and the true pose after each drive. To see the drive itself, ask CI for a video:
+The [simulation test](simulation-test.md) checks numbers: the odometry and the true pose after each drive. To see the drive itself, ask CI for a video, or record one on your computer:
 
 - **On a pull request:** add the label `sim-video` ([applying a label](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels#applying-a-label) needs triage or write access to the repository, so ask a maintainer if you don't have it). Each time the label is added, the workflow records one video of the pull request merged with its base branch. For another one, remove the label and add it again.
 - **On a branch:** in the repository's [Actions tab](https://github.com/ros-mobile-robots/diffbot/actions/workflows/sim_video.yml), choose "Run workflow" and the branch ([manually running a workflow](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow) needs write access).
+- **On your computer:** run the recorder in the [dev container](dev-container.md), with the workspace built. The output folder must be new or empty:
 
-The run's summary links the [artifact](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts), a zip file that GitHub keeps for 14 days. After a successful recording, it holds:
+    ```bash
+    rosrun diffbot_gazebo record_drive_video.sh ~/sim-video
+    ```
+
+    The recorder supports DiffBot only. Remo needs simple visuals for software rendering ([remo_description#7](https://github.com/ros-mobile-robots/remo_description/issues/7)).
+
+In CI, the run's summary links the [artifact](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts), a zip file that GitHub keeps for 14 days. After a successful recording, the artifact holds the same files as the output folder on your computer:
 
 | File | Content |
 |:-----|:--------|
@@ -64,14 +71,6 @@ CI's runners have no screen and no graphics card, but Gazebo's camera needs a di
 Starting the display, the drive and the encoding have time limits, and in CI the step "Record the video" stops after 20 minutes. A failed step stops the recorder with an error, and the recorder stops every process that it started.
 
 The dev container's job `noetic` is a required check. A label condition on that job would skip it for every other label, and GitHub counts a skipped required job as passed ([jobs with conditions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)). So the recording is a job in a workflow of its own, [`sim_video.yml`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml). It runs on `pull_request` with read access and no secrets, so it can also run for pull requests from forks, once a maintainer approves the run where GitHub asks for that.
-
-To record a video on your computer, run the recorder in the [dev container](dev-container.md), with the workspace built. The output folder must be new or empty:
-
-```bash
-rosrun diffbot_gazebo record_drive_video.sh ~/sim-video
-```
-
-The recorder supports DiffBot only. Remo needs simple visuals for software rendering ([remo_description#7](https://github.com/ros-mobile-robots/remo_description/issues/7)).
 
 ### PR description
 
