@@ -109,6 +109,8 @@ docker compose exec -w /home/ros/.ros bringup /entrypoint.sh rosbag record -O im
 
 `rosbag record` saves the messages of the topic `/diffbot/imu/data_raw` in the file `imu_still.bag` (`-O`) and stops by itself after 180 s. `-w /home/ros/.ros` runs the command in this folder of the container, which is `~/robot-data` on the Raspberry Pi by default. Without it, the file would stay inside the container and be gone after `docker compose down`. The rest of the line is explained under "Running a command in a container" on [Start, Check and Stop](../../processing_units/robot-container/usage.md).
 
+With a native ROS installation ([ROS Setup](../../processing_units/ros-setup.md)) instead of the robot container, run the same `rosbag record` command without the part from `docker compose exec` to `/entrypoint.sh`. The file is then saved in the folder where the command runs. The same holds for the tool in step 2.
+
 **2. Run the tool** [`imu_noise_at_rest.py`]({{ diffbot_repo_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) on the recording:
 
 ```console
