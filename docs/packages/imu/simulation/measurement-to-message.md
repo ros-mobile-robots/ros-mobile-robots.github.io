@@ -39,7 +39,7 @@ graph TB
 
 ## The IMU sensor in the robot's URDF model
 
-Each robot's URDF model declares the simulated IMU sensor in a xacro macro named `imu_sensor`. [Position and Axes](position-and-axes.md#the-link-and-the-joint-in-the-model) explains what a macro and its call are. The diagram shows the macro's call, what the macro adds to the robot's URDF model, and who reads each part. Read the diagram from top to bottom. The two boxes with a bold first line hold what the macro adds. The labels on the arrows are the names that the URDF uses for these connections:
+Each robot's URDF model declares the simulated IMU sensor in a xacro macro named `imu_sensor`. [Position and Axes](position-and-axes.md#the-link-and-the-joint-in-the-robots-urdf-model) explains what a macro and its call are. The diagram shows the macro's call, what the macro adds to the robot's URDF model, and who reads each part. Read the diagram from top to bottom. The two boxes with a bold first line hold what the macro adds. The labels on the arrows are the names that the URDF uses for these connections:
 
 ```mermaid
 graph TB
@@ -81,7 +81,7 @@ The next excerpt shows the macro's Gazebo block, which declares the IMU sensor a
 
 - **`<gazebo reference="imu_link">`:** this block holds what only Gazebo reads. `reference` attaches the IMU sensor to `imu_link`, so the IMU sensor measures at `imu_link`'s position and along its axes.
 - **`type="imu"`:** this is Gazebo's IMU sensor. `update_rate` makes the IMU sensor measure 50 times per second.
-- **`<plugin>`:** the plugin turns the IMU sensor's values into ROS messages. `filename` names its library, `libdiffbot_gazebo_ros_imu_sensor.so`, the robots' own copy of the IMU plugin that comes with ROS. [The Robots' Own IMU Plugin](plugin.md) explains why the robots have a copy, and how [Remo's URDF model gets the library's name](plugin.md#the-plugins-library-in-remos-model).
+- **`<plugin>`:** the plugin turns the IMU sensor's values into ROS messages. `filename` names its library, `libdiffbot_gazebo_ros_imu_sensor.so`, the robots' own copy of the IMU plugin that comes with ROS. [The Robots' Own IMU Plugin](plugin.md) explains why the robots have a copy, and how [Remo's URDF model gets the library's name](plugin.md#the-plugins-library-in-remos-urdf-model).
 
 The lines inside `<plugin>` are the plugin's parameters:
 
