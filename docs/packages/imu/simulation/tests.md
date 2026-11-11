@@ -51,6 +51,10 @@ Both tests of `test_imu.py` send velocity commands to the robot. A command that 
 
 `test_imu_publishes_the_firmware_message_at_rest` checks that the message on `/diffbot/imu/data_raw` is what its readers need. The EKF runs at 50 Hz, the firmware's rate. The IMU sample validator forwards only samples with the frame `imu_link`, rising stamps, finite values and a positive variance. And the firmware's message has no orientation. The robot stands still during this test, because then the reading on the upward axis is known: gravity alone.
 
+The figure shows what happens during the test, from left to right over simulation time: the command that the test sends, the robot, the reading that the test checks, and the IMU's messages that the test keeps.
+
+--8<-- "includes/imu-sim-test-at-rest.html"
+
 The test uses two helpers, which the left turn uses too. [`test_imu.py`, lines 67–82]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L67-L82):
 
 ```python title="test_imu.py: send_command() and collect_messages()" linenums="67"
@@ -118,7 +122,13 @@ At rest, the upward axis reads gravity, $f_z = +9.8$ m/s² in Gazebo, as [the li
 
 ## The left turn
 
-`test_imu_measures_a_positive_yaw_rate_in_a_left_turn` checks the yaw rate, the one value that the EKF fuses, while the robot turns. At rest, the yaw rate is 0 however the IMU is mounted. Only a turn shows that the IMU measures the turn, and with the right sign. [`test_imu.py`, lines 111–121]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L111-L121):
+`test_imu_measures_a_positive_yaw_rate_in_a_left_turn` checks the yaw rate, the one value that the EKF fuses, while the robot turns. At rest, the yaw rate is 0 however the IMU is mounted. Only a turn shows that the IMU measures the turn, and with the right sign.
+
+The figure shows what happens during the test: the turn command, the robot's headings that follow from the command at the start, after `SPEED_UP` and after `MEASURE`, the yaw rate $\omega_z$ that the test checks, and the IMU's messages that the test keeps.
+
+--8<-- "includes/imu-sim-test-left-turn.html"
+
+The excerpt shows the whole test method, from [`test_imu.py`, lines 111–121]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L111-L121):
 
 ```python title="test_imu.py: the left turn" linenums="111"
 --8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu.py:111:121"
@@ -131,6 +141,10 @@ At rest, the upward axis reads gravity, $f_z = +9.8$ m/s² in Gazebo, as [the li
 ## The reset test
 
 `test_imu_reset.py` checks that the IMU publishes again right after a reset of the simulation. A reset sets Gazebo's clock back to zero. A plugin that doesn't notice this stays silent for as long as the simulation ran before the reset, and the EKF gets no yaw rate in that time. [Publishing again after a reset](plugin.md#publishing-again-after-a-reset) explains how the robots' plugin handles a clock that went back.
+
+The figure shows the stamps of the IMU's samples during the test, with the robots' IMU plugin and with a plugin that keeps the time from before the reset. The figure is an idealized example: the reset comes at exactly 3 s, and the IMU publishes exactly 50 samples per second. The robot stands still in this test. What changes is the simulation's clock.
+
+--8<-- "includes/imu-sim-test-reset.html"
 
 The test's constants, [`test_imu_reset.py`, lines 32–46]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py#L32-L46):
 

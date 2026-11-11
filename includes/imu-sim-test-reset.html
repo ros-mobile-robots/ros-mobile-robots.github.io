@@ -1,0 +1,100 @@
+<style>
+.md-typeset figure.tl-figure{margin:1em auto;width:100%;max-width:none}
+.tl-figure .tl-panels{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8rem 1.6rem}
+.tl-figure .tl-fig{flex:1 1 var(--tl-basis,300px);max-width:var(--tl-max,480px)}
+.md-typeset .tl-figure figcaption{max-width:36rem}
+.tl-fig{width:100%;height:auto;--tl-command:#2a78d6;--tl-imu:#eb6834;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .tl-fig{--tl-command:#3987e5;--tl-imu:#d95926}
+.tl-fig text{fill:var(--md-default-fg-color);font-size:12px}
+.tl-fig .row-title{font-weight:700}
+.tl-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
+.tl-fig .note{font-size:11.5px;fill:var(--md-default-fg-color--light)}
+.tl-fig .sub{font-size:9px}
+.tl-fig .strong{font-weight:700}
+.tl-fig .grid{fill:none;stroke:var(--md-default-fg-color--lightest);stroke-width:1}
+.tl-fig .axis{fill:none;stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.tl-fig .span{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.tl-fig .command-wash{fill:var(--tl-command);fill-opacity:.16;stroke:none}
+.tl-fig .command-line{fill:none;stroke:var(--tl-command);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.tl-fig .command-dot{fill:var(--tl-command);stroke:var(--md-default-bg-color);stroke-width:2}
+.tl-fig .imu-wash{fill:var(--tl-imu);fill-opacity:.16;stroke:none}
+.tl-fig .imu-bar{fill:var(--tl-imu);stroke:none}
+.tl-fig .imu-line{fill:none;stroke:var(--tl-imu);stroke-width:3;stroke-linecap:round}
+.tl-fig .imu-dot{fill:var(--tl-imu);stroke:var(--md-default-bg-color);stroke-width:2}
+.tl-fig .clock-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.tl-fig .reference-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.tl-fig .fresh{fill:var(--md-default-fg-color--lightest);stroke:none}
+.tl-fig .body{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.tl-fig .wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.tl-fig .heading{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-linecap:round}
+.tl-fig .heading-head{fill:var(--md-default-fg-color);stroke:none}
+.tl-fig .start-heading{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.tl-fig .turned{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.tl-fig .turned-head{fill:var(--md-default-fg-color--light);stroke:none}
+</style>
+<figure class="tl-figure" markdown="block" style="--tl-basis:280px;--tl-max:400px">
+<div class="tl-panels">
+<svg class="tl-fig" viewBox="0 0 300 262" role="img" aria-labelledby="tl-reset-copy-title tl-reset-copy-description"><title id="tl-reset-copy-title">The reset test with the robots’ IMU plugin</title><desc id="tl-reset-copy-description">The stamps of the IMU’s samples rise with Gazebo’s clock to 3 s. Then the test resets the simulation, and the clock starts from 0 again. The first sample after the reset is stamped about 0.02 s. Samples after the reset with a stamp below 1 s count as fresh. The test passes with 10 of them, which takes about 0.2 s.</desc>
+<text class="row-title" x="8" y="14" text-anchor="start">With the robots’ IMU plugin</text>
+<text class="note" x="8" y="32" text-anchor="start">Stamp of the IMU’s samples, in s of simulation time</text>
+<rect class="fresh" x="151.3" y="153.9" width="140.7" height="36.099999999999994" rx="0"/>
+<path class="grid" d="M34.0,190.0 H292.0"/>
+<text class="note" x="28.0" y="194.0" text-anchor="end">0</text>
+<path class="grid" d="M34.0,153.9 H292.0"/>
+<text class="note" x="28.0" y="157.9" text-anchor="end">1</text>
+<path class="grid" d="M34.0,81.7 H292.0"/>
+<text class="note" x="28.0" y="85.7" text-anchor="end">3</text>
+<path class="axis" d="M34.0,190.0 H292.0"/>
+<path class="span" d="M151.3,190.0 V52.0"/>
+<text class="note" x="145.3" y="57.0" text-anchor="end">the test resets</text>
+<text class="note" x="145.3" y="71.0" text-anchor="end">the simulation</text>
+<text class="note" x="34.0" y="204.0" text-anchor="middle">0</text>
+<text class="note" x="151.3" y="204.0" text-anchor="middle">3</text>
+<text class="note" x="268.5" y="204.0" text-anchor="middle">6</text>
+<text class="note" x="163.0" y="218.0" text-anchor="middle">seconds that the simulation has run</text>
+<path class="clock-line" d="M34.0,234.0 H50.0"/>
+<text class="note" x="56.0" y="238.0" text-anchor="start">Gazebo’s clock</text>
+<path class="imu-line" d="M152.0,234.0 H168.0"/>
+<text class="note" x="174.0" y="238.0" text-anchor="start">the IMU’s samples</text>
+<path class="clock-line" d="M34.0,190.0 L151.3,81.7 V190.0 L151.3,190.0 L292.0,60.0"/>
+<path class="imu-line" d="M34.8,189.3 L151.3,81.7"/>
+<path class="imu-line" d="M152.1,189.3 L292.0,60.0"/>
+<circle class="imu-dot" cx="152.1" cy="189.3" r="4.5"/>
+<text class="note" x="286.0" y="168.9" text-anchor="end">fresh samples</text>
+<text class="note" x="286.0" y="182.9" text-anchor="end">from about 0.02 s</text>
+<text class="strong" x="8" y="254" text-anchor="start">10 fresh samples: the test passes</text>
+</svg>
+<svg class="tl-fig" viewBox="0 0 300 262" role="img" aria-labelledby="tl-reset-old-time-title tl-reset-old-time-description"><title id="tl-reset-old-time-title">The reset test with a plugin that keeps the old time</title><desc id="tl-reset-old-time-description">The stamps of the IMU’s samples rise with Gazebo’s clock to 3 s. Then the test resets the simulation, and the clock starts from 0 again. The plugin stays silent until the clock has passed 3 s again. No sample after the reset has a stamp below 1 s, so none counts as fresh, and the test fails.</desc>
+<text class="row-title" x="8" y="14" text-anchor="start">With a plugin that keeps the old time</text>
+<text class="note" x="8" y="32" text-anchor="start">Stamp of the IMU’s samples, in s of simulation time</text>
+<rect class="fresh" x="151.3" y="153.9" width="140.7" height="36.099999999999994" rx="0"/>
+<path class="grid" d="M34.0,190.0 H292.0"/>
+<text class="note" x="28.0" y="194.0" text-anchor="end">0</text>
+<path class="grid" d="M34.0,153.9 H292.0"/>
+<text class="note" x="28.0" y="157.9" text-anchor="end">1</text>
+<path class="grid" d="M34.0,81.7 H292.0"/>
+<text class="note" x="28.0" y="85.7" text-anchor="end">3</text>
+<path class="axis" d="M34.0,190.0 H292.0"/>
+<path class="span" d="M151.3,190.0 V52.0"/>
+<text class="note" x="145.3" y="57.0" text-anchor="end">the test resets</text>
+<text class="note" x="145.3" y="71.0" text-anchor="end">the simulation</text>
+<text class="note" x="34.0" y="204.0" text-anchor="middle">0</text>
+<text class="note" x="151.3" y="204.0" text-anchor="middle">3</text>
+<text class="note" x="268.5" y="204.0" text-anchor="middle">6</text>
+<text class="note" x="163.0" y="218.0" text-anchor="middle">seconds that the simulation has run</text>
+<path class="clock-line" d="M34.0,234.0 H50.0"/>
+<text class="note" x="56.0" y="238.0" text-anchor="start">Gazebo’s clock</text>
+<path class="imu-line" d="M152.0,234.0 H168.0"/>
+<text class="note" x="174.0" y="238.0" text-anchor="start">the IMU’s samples</text>
+<path class="clock-line" d="M34.0,190.0 L151.3,81.7 V190.0 L151.3,190.0 L292.0,60.0"/>
+<path class="imu-line" d="M34.8,189.3 L151.3,81.7"/>
+<path class="imu-line" d="M269.3,80.9 L292.0,60.0"/>
+<circle class="imu-dot" cx="269.3" cy="80.9" r="4.5"/>
+<text class="note" x="261.3" y="72.9" text-anchor="end">next: about 3.02 s</text>
+<text class="note" x="286.0" y="175.9" text-anchor="end">no fresh sample</text>
+<text class="note" x="204.3" y="110.6" text-anchor="end">silent</text>
+<text class="strong" x="8" y="254" text-anchor="start">no fresh sample: the test fails</text>
+</svg>
+</div>
+<figcaption markdown="span">The reset test, as an idealized example: the reset comes at exactly 3 s, and the IMU publishes exactly 50 samples per second. The robot stands still, and the test sends no command. Each panel shows the stamps of the IMU’s samples while the simulation runs. The horizontal axis doesn’t start over at the reset. A sample counts as fresh in the gray area: after the reset, with a stamp below `RECOVERY`, 1 s. The test passes with 10 fresh samples.</figcaption>
+</figure>

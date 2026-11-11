@@ -1,0 +1,79 @@
+<style>
+.md-typeset figure.tl-figure{margin:1em auto;width:100%;max-width:none}
+.tl-figure .tl-panels{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8rem 1.6rem}
+.tl-figure .tl-fig{flex:1 1 var(--tl-basis,300px);max-width:var(--tl-max,480px)}
+.md-typeset .tl-figure figcaption{max-width:36rem}
+.tl-fig{width:100%;height:auto;--tl-command:#2a78d6;--tl-imu:#eb6834;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .tl-fig{--tl-command:#3987e5;--tl-imu:#d95926}
+.tl-fig text{fill:var(--md-default-fg-color);font-size:12px}
+.tl-fig .row-title{font-weight:700}
+.tl-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
+.tl-fig .note{font-size:11.5px;fill:var(--md-default-fg-color--light)}
+.tl-fig .sub{font-size:9px}
+.tl-fig .strong{font-weight:700}
+.tl-fig .grid{fill:none;stroke:var(--md-default-fg-color--lightest);stroke-width:1}
+.tl-fig .axis{fill:none;stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.tl-fig .span{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.tl-fig .command-wash{fill:var(--tl-command);fill-opacity:.16;stroke:none}
+.tl-fig .command-line{fill:none;stroke:var(--tl-command);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.tl-fig .command-dot{fill:var(--tl-command);stroke:var(--md-default-bg-color);stroke-width:2}
+.tl-fig .imu-wash{fill:var(--tl-imu);fill-opacity:.16;stroke:none}
+.tl-fig .imu-bar{fill:var(--tl-imu);stroke:none}
+.tl-fig .imu-line{fill:none;stroke:var(--tl-imu);stroke-width:3;stroke-linecap:round}
+.tl-fig .imu-dot{fill:var(--tl-imu);stroke:var(--md-default-bg-color);stroke-width:2}
+.tl-fig .clock-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.tl-fig .reference-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.tl-fig .fresh{fill:var(--md-default-fg-color--lightest);stroke:none}
+.tl-fig .body{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.tl-fig .wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.tl-fig .heading{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-linecap:round}
+.tl-fig .heading-head{fill:var(--md-default-fg-color);stroke:none}
+.tl-fig .start-heading{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.tl-fig .turned{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.tl-fig .turned-head{fill:var(--md-default-fg-color--light);stroke:none}
+</style>
+<figure class="tl-figure" markdown="block" style="--tl-basis:300px;--tl-max:480px">
+<div class="tl-panels">
+<svg class="tl-fig" viewBox="0 0 360 380" role="img" aria-labelledby="tl-at-rest-title tl-at-rest-description"><title id="tl-at-rest-title">The test at rest over simulation time</title><desc id="tl-at-rest-description">The test sends the stop command 20 times per second, for SETTLE, 1 s, and then for MEASURE, 2 s. The robot stands still. The test keeps the IMU’s messages of MEASURE, about 100, and needs more than 90. The mean reading on the upward axis must lie between 9.31 and 10.31 m/s². Gravity in the simulation is 9.8 m/s².</desc>
+<text class="row-title" x="8" y="14" text-anchor="start">The test sends this command, 20 times per second</text>
+<rect class="command-wash" x="40.0" y="22" width="280.0" height="20" rx="4"/>
+<text x="180.0" y="36" text-anchor="middle">stand still: all velocities 0</text>
+<path class="grid" d="M40.0,46 V58 M40.0,192 V256 M40.0,318 V332 M40.0,342 V346"/>
+<path class="span" d="M43.0,50 V58 M43.0,54 H130.3 M130.3,50 V58"/>
+<text class="mono" x="86.65" y="70" text-anchor="middle">SETTLE, 1 s</text>
+<path class="grid" d="M133.3,46 V58 M133.3,192 V256 M133.3,318 V332 M133.3,342 V346"/>
+<path class="span" d="M136.3,50 V58 M136.3,54 H317.0 M317.0,50 V58"/>
+<text class="mono" x="226.65" y="70" text-anchor="middle">MEASURE, 2 s</text>
+<path class="grid" d="M320.0,46 V58 M320.0,192 V256 M320.0,318 V332 M320.0,342 V346"/>
+<text class="row-title" x="8" y="90" text-anchor="start">The robot, seen from above</text>
+<g transform="translate(226.7,126)"><g transform="rotate(-0.0)"><rect class="wheel" x="-5" y="-15" width="13" height="4" rx="1.5"/><rect class="wheel" x="-5" y="11" width="13" height="4" rx="1.5"/><rect class="body" x="-14" y="-11" width="28" height="22" rx="4"/><path class="heading" d="M0,0 H17"/><path class="heading-head" d="M23,0 L15,-4 L15,4 z"/></g></g>
+<text class="note" x="226.7" y="164" text-anchor="middle">stands still</text>
+<text class="note" x="86.7" y="123" text-anchor="middle">may still brake</text>
+<text class="note" x="86.7" y="137" text-anchor="middle">after the left turn</text>
+<text class="row-title" x="8" y="186" text-anchor="start">Reading on the upward axis, f<tspan class="sub" dy="3">z</tspan><tspan dy="-3">​</tspan>, in m/s²</text>
+<path class="grid" d="M40.0,256.0 H348.0"/>
+<text class="note" x="34.0" y="260.0" text-anchor="end">9</text>
+<path class="grid" d="M40.0,218.5 H348.0"/>
+<text class="note" x="34.0" y="222.5" text-anchor="end">10</text>
+<rect class="imu-wash" x="133.3" y="206.9" width="186.7" height="37.5" rx="0"/>
+<text class="note" x="129.3" y="248.4" text-anchor="end">9.31</text>
+<text class="note" x="129.3" y="210.9" text-anchor="end">10.31</text>
+<path class="reference-line" d="M40.0,270 H56.0"/>
+<text class="note" x="62.0" y="274" text-anchor="start">gravity in the simulation: 9.8 m/s²</text>
+<rect class="imu-wash" x="40.0" y="279" width="16" height="10" rx="0"/>
+<text class="note" x="62.0" y="288" text-anchor="start">accepted mean of the IMU’s readings: 9.81 ± 0.5</text>
+<path class="reference-line" d="M40.0,226.0 H348.0"/>
+<text class="row-title" x="8" y="314" text-anchor="start">The IMU publishes, 50 messages per second</text>
+<rect class="imu-wash" x="40.0" y="322" width="308.0" height="8" rx="4"/>
+<rect class="imu-bar" x="133.3" y="322" width="186.7" height="8" rx="4"/>
+<text class="note" x="226.65" y="342" text-anchor="middle">the test keeps these, about 100</text>
+<path class="axis" d="M40.0,346 H348.0"/>
+<text class="note" x="40.0" y="360" text-anchor="middle">0</text>
+<text class="note" x="133.3" y="360" text-anchor="middle">1</text>
+<text class="note" x="226.7" y="360" text-anchor="middle">2</text>
+<text class="note" x="320.0" y="360" text-anchor="middle">3</text>
+<text class="note" x="194.0" y="374" text-anchor="middle">simulation time since the test’s first command, in s</text>
+</svg>
+</div>
+<figcaption markdown="span">The test at rest, as a plan over simulation time. Blue is the command that the test sends, orange the IMU’s messages. The test keeps only the messages of `MEASURE` and checks them.</figcaption>
+</figure>
