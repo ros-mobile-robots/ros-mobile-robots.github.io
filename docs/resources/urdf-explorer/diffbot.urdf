@@ -1,0 +1,358 @@
+<?xml version="1.0" ?>
+<robot name="diffbot">
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+  <material name="red">
+    <color rgba="0.8 0.0 0.0 1.0"/>
+  </material>
+  <material name="silver">
+    <color rgba="0.79 0.82 0.93 1"/>
+  </material>
+  <material name="dark_grey">
+    <color rgba="0.3 0.3 0.3 1"/>
+  </material>
+  <link name="base_footprint"/>
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0.050300000000000004"/>
+  </joint>
+  <link name="base_link"/>
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis_link"/>
+    <origin rpy="0 0 0" xyz="-0.018500000000000003 0 0"/>
+  </joint>
+  <link name="chassis_link">
+    <inertial>
+      <mass value="0.771"/>
+      <inertia ixx="0.00041280625" ixy="0.0" ixz="0.0" iyy="0.0024447125" iyz="0.0" izz="0.0028543062500000003"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/chassis.stl"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <box size="0.195 0.08 0.005"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="rear_caster_base_link">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="2.666666666666667e-06" ixy="0.0" ixz="0.0" iyy="2.666666666666667e-06" iyz="0.0" izz="2.666666666666667e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.02"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/caster_base.stl"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <box size="0.04 0.04 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_caster_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.076 -0.0 0.0045"/>
+    <parent link="chassis_link"/>
+    <child link="rear_caster_base_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.01" friction="0.0"/>
+  </joint>
+  <gazebo reference="rear_caster_base_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+  <link name="rear_caster_rotation_link">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="2.666666666666667e-06" ixy="0.0" ixz="0.0" iyy="2.666666666666667e-06" iyz="0.0" izz="2.666666666666667e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.02"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/caster_wheel_support.stl"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <box size="0.04 0.04 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_caster_rotation_joint" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.077 -0.0 0.0045"/>
+    <parent link="chassis_link"/>
+    <child link="rear_caster_rotation_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.01" friction="0.0"/>
+  </joint>
+  <gazebo reference="rear_caster_rotation_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+  <link name="rear_caster_wheel_link">
+    <inertial>
+      <mass value="0.018"/>
+      <inertia ixx="1.1624999999999999e-06" ixy="0" ixz="0" iyy="1.1624999999999999e-06" iyz="0" izz="2.0249999999999997e-06"/>
+      <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/caster_wheel.stl"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_caster_wheel_joint" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.016 0 -0.04"/>
+    <parent link="rear_caster_rotation_link"/>
+    <child link="rear_caster_wheel_link"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  <gazebo reference="rear_caster_wheel_link">
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+  <link name="front_right_wheel">
+    <visual>
+      <origin rpy="1.5707963267948966 0 -3.141592653589793" xyz="0.0 0 0"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/../components/wheel.stl"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.0333"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.032"/>
+      <inertia ixx="1.0537786666666669e-05" ixy="0" ixz="0" iyy="1.0537786666666669e-05" iyz="0" izz="1.7742240000000004e-05"/>
+      <origin rpy="1.5707963267948966 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <gazebo reference="front_right_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0</minDepth>
+    <maxVel>0.01</maxVel>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+  <joint name="front_right_wheel_joint" type="continuous">
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <parent link="chassis_link"/>
+    <child link="front_right_wheel"/>
+    <origin rpy="0 0 0" xyz="0.018500000000000003 -0.069 -0.017"/>
+  </joint>
+  <transmission name="front_right_wheel_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="front_right_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="front_right_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <link name="front_left_wheel">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0.0" xyz="0.0 0 0"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/../components/wheel.stl"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.0333"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.032"/>
+      <inertia ixx="1.0537786666666669e-05" ixy="0" ixz="0" iyy="1.0537786666666669e-05" iyz="0" izz="1.7742240000000004e-05"/>
+      <origin rpy="1.5707963267948966 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <gazebo reference="front_left_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0</minDepth>
+    <maxVel>0.01</maxVel>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+  <joint name="front_left_wheel_joint" type="continuous">
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <parent link="chassis_link"/>
+    <child link="front_left_wheel"/>
+    <origin rpy="0 0 0" xyz="0.018500000000000003 0.069 -0.017"/>
+  </joint>
+  <transmission name="front_left_wheel_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="front_left_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="front_left_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <link name="right_motor">
+    <visual>
+      <origin rpy="0.0 0 -3.141592653589793" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/motor.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.0225 0.0188"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.041"/>
+      <inertia ixx="2.9372741666666665e-06" ixy="0.0" ixz="0.0" iyy="1.7949253333333336e-05" iyz="0.0" izz="1.847135416666667e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="right_motor_joint" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="right_motor"/>
+    <origin rpy="0 3.141592653589793 0" xyz="0.0015000000000000013 -0.037750000000000006 -0.017"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  <gazebo reference="right_motor">
+    <material>Gazebo/SkyBlue</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <link name="left_motor">
+    <visual>
+      <origin rpy="0.0 0 0.0" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/diffbot/motor.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.0225 0.0188"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.041"/>
+      <inertia ixx="2.9372741666666665e-06" ixy="0.0" ixz="0.0" iyy="1.7949253333333336e-05" iyz="0.0" izz="1.847135416666667e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="left_motor_joint" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="left_motor"/>
+    <origin rpy="0 -0.0 0" xyz="0.0015000000000000013 0.037750000000000006 -0.017"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  <gazebo reference="left_motor">
+    <material>Gazebo/SkyBlue</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <link name="rplidar_laser_link">
+    <visual>
+      <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://diffbot_description/meshes/sensors/rplidar-a2.stl"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.19"/>
+      <inertia ixx="1.2270833333333333e-05" ixy="0" ixz="0" iyy="1.2270833333333333e-05" iyz="0" izz="2.1375e-05"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+  </link>
+  <gazebo reference="rplidar_laser_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+  <joint name="rplidar_laser_joint" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="rplidar_laser_link"/>
+    <origin rpy="0 0 3.141592653589793" xyz="0.0 0.0 0.04"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  <gazebo reference="rplidar_laser_link">
+    <sensor name="head_hokuyo_sensor" type="ray">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>12</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.1415</min_angle>
+            <max_angle>3.1415</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>12.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin filename="libgazebo_ros_laser.so" name="gazebo_ros_head_hokuyo_controller">
+        <topicName>/diffbot/scan</topicName>
+        <frameName>rplidar_laser_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <gazebo>
+    <plugin filename="libgazebo_ros_control.so" name="gazebo_ros_control">
+      <robotNamespace>/diffbot</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+</robot>

@@ -1,0 +1,981 @@
+<?xml version="1.0" ?>
+<robot name="remo">
+  <link name="base_footprint"/>
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0.06659999999999999"/>
+  </joint>
+  <link name="base_link"/>
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis_link"/>
+    <origin rpy="0 0 0" xyz="-0.036000000000000004 0 0"/>
+  </joint>
+  <link name="chassis_link">
+    <inertial>
+      <mass value="0.078"/>
+      <inertia ixx="4.745e-05" ixy="0.0" ixz="0.0" iyy="0.00013325" iyz="0.0" izz="0.00016900000000000002"/>
+      <origin rpy="0 0 0" xyz="0 0 -0.015"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/chassis.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="chassis_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.015"/>
+      <geometry>
+        <box size="0.14 0.08 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="chassis_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="rear_caster_base_link">
+    <inertial>
+      <mass value="0.007"/>
+      <inertia ixx="8.510833333333334e-07" ixy="0" ixz="0" iyy="8.510833333333334e-07" iyz="0" izz="7.875e-07"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.014"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 -0.014"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/caster/caster_shroud_65mm.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="rear_caster_base_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.014"/>
+      <geometry>
+        <cylinder length="0.028" radius="0.015"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_caster_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.051 -0.0 -0.0275"/>
+    <parent link="chassis_link"/>
+    <child link="rear_caster_base_link"/>
+  </joint>
+  <gazebo reference="rear_caster_base_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="rear_caster_rotation_link">
+    <inertial>
+      <mass value="0.003"/>
+      <inertia ixx="1.2899999999999998e-07" ixy="0" ixz="0" iyy="1.2899999999999998e-07" iyz="0" izz="9.6e-08"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.009"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 -0.009"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/caster/caster_base_65mm.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="rear_caster_rotation_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.009"/>
+      <geometry>
+        <cylinder length="0.018" radius="0.008"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_caster_rotation_joint" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.051 -0.0 -0.024"/>
+    <parent link="chassis_link"/>
+    <child link="rear_caster_rotation_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <gazebo reference="rear_caster_rotation_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="rear_caster_wheel_link">
+    <inertial>
+      <mass value="0.012"/>
+      <inertia ixx="6.912e-07" ixy="0.0" ixz="0.0" iyy="6.912e-07" iyz="0.0" izz="6.912e-07"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.012"/>
+      </geometry>
+      <material name="rear_caster_wheel_link">
+        <color rgba="0.70 0.70 0.72 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.012"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_caster_wheel_joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0.0 -0.0 -0.03"/>
+    <parent link="rear_caster_rotation_link"/>
+    <child link="rear_caster_wheel_link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="0.001" friction="0.0"/>
+  </joint>
+  <gazebo reference="rear_caster_wheel_link">
+    <visual>
+      <material>
+        <ambient>0.70 0.70 0.72 1</ambient>
+        <diffuse>0.70 0.70 0.72 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="front_right_wheel">
+    <visual>
+      <origin rpy="1.5707963267948966 0 -3.141592653589793" xyz="0.0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/wheel.stl"/>
+      </geometry>
+      <material name="front_right_wheel">
+        <color rgba="0.10 0.10 0.10 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.033"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.032"/>
+      <inertia ixx="1.0378666666666668e-05" ixy="0" ixz="0" iyy="1.0378666666666668e-05" iyz="0" izz="1.7424e-05"/>
+      <origin rpy="1.5707963267948966 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <gazebo reference="front_right_wheel">
+    <visual>
+      <material>
+        <ambient>0.10 0.10 0.10 1</ambient>
+        <diffuse>0.10 0.10 0.10 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <joint name="front_right_wheel_joint" type="continuous">
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <parent link="chassis_link"/>
+    <child link="front_right_wheel"/>
+    <origin rpy="0 0 0" xyz="0.036000000000000004 -0.072 -0.0336"/>
+  </joint>
+  <transmission name="front_right_wheel_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="front_right_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="front_right_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <link name="front_left_wheel">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0.0" xyz="0.0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/wheel.stl"/>
+      </geometry>
+      <material name="front_left_wheel">
+        <color rgba="0.10 0.10 0.10 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.033"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.032"/>
+      <inertia ixx="1.0378666666666668e-05" ixy="0" ixz="0" iyy="1.0378666666666668e-05" iyz="0" izz="1.7424e-05"/>
+      <origin rpy="1.5707963267948966 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <gazebo reference="front_left_wheel">
+    <visual>
+      <material>
+        <ambient>0.10 0.10 0.10 1</ambient>
+        <diffuse>0.10 0.10 0.10 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <joint name="front_left_wheel_joint" type="continuous">
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <parent link="chassis_link"/>
+    <child link="front_left_wheel"/>
+    <origin rpy="0 0 0" xyz="0.036000000000000004 0.072 -0.0336"/>
+  </joint>
+  <transmission name="front_left_wheel_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="front_left_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="front_left_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <link name="right_motor">
+    <visual>
+      <origin rpy="0.0 0 -3.141592653589793" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/DG01D-E_motor_w_encoder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="right_motor">
+        <color rgba="0.45 0.70 0.90 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.0225 0.0188"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.041"/>
+      <inertia ixx="2.9372741666666665e-06" ixy="0.0" ixz="0.0" iyy="1.7949253333333336e-05" iyz="0.0" izz="1.847135416666667e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="right_motor_joint" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="right_motor"/>
+    <origin rpy="0 3.141592653589793 0" xyz="0.012000000000000004 -0.04325 -0.0336"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  <gazebo reference="right_motor">
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_motor">
+    <visual>
+      <material>
+        <ambient>0.45 0.70 0.90 1</ambient>
+        <diffuse>0.45 0.70 0.90 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="left_motor">
+    <visual>
+      <origin rpy="0.0 0 0.0" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/DG01D-E_motor_w_encoder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="left_motor">
+        <color rgba="0.45 0.70 0.90 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.0225 0.0188"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.041"/>
+      <inertia ixx="2.9372741666666665e-06" ixy="0.0" ixz="0.0" iyy="1.7949253333333336e-05" iyz="0.0" izz="1.847135416666667e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="left_motor_joint" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="left_motor"/>
+    <origin rpy="0 -0.0 0" xyz="0.012000000000000004 0.04325 -0.0336"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  <gazebo reference="left_motor">
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_motor">
+    <visual>
+      <material>
+        <ambient>0.45 0.70 0.90 1</ambient>
+        <diffuse>0.45 0.70 0.90 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="rpi_deck_link">
+    <inertial>
+      <mass value="0.02"/>
+      <inertia ixx="1.3506666666666667e-05" ixy="0.0" ixz="0.0" iyy="3.267333333333334e-05" iyz="0.0" izz="4.616666666666667e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/deck/raspberry_pi_deck.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="rpi_deck_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.14 0.09 0.002"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rpi_deck_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="chassis_link"/>
+    <child link="rpi_deck_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="rpi_deck_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="rpi_link">
+    <inertial>
+      <mass value="0.16"/>
+      <inertia ixx="0.00012" ixy="0.0" ixz="0.0" iyy="6e-05" iyz="0.0" izz="0.000156"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/raspberry_pi_4B.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="rpi_link">
+        <color rgba="0.10 0.42 0.22 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.09 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rpi_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.007"/>
+    <parent link="rpi_deck_link"/>
+    <child link="rpi_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="rpi_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.42 0.22 1</ambient>
+        <diffuse>0.10 0.42 0.22 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="breadboard_link">
+    <inertial>
+      <mass value="0.036"/>
+      <inertia ixx="1.95e-05" ixy="0.0" ixz="0.0" iyy="9.374999999999997e-06" iyz="0.0" izz="2.8274999999999996e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/breadboard_400_point.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="breadboard_link">
+        <color rgba="0.93 0.93 0.91 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.055 0.08 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="breadboard_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.04 0 0"/>
+    <parent link="chassis_link"/>
+    <child link="breadboard_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="breadboard_link">
+    <visual>
+      <material>
+        <ambient>0.93 0.93 0.91 1</ambient>
+        <diffuse>0.93 0.93 0.91 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="lidar_platform_link">
+    <inertial>
+      <mass value="0.028"/>
+      <inertia ixx="2.9166666666666673e-05" ixy="0.0" ixz="0.0" iyy="2.0766666666666672e-05" iyz="0.0" izz="3.826666666666667e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/lidar_platform/platfom_rplidar_a2.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="lidar_platform_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.08 0.1 0.05"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="lidar_platform_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.042 0 0.002"/>
+    <parent link="rpi_deck_link"/>
+    <child link="lidar_platform_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="lidar_platform_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="slamtec_holder_link">
+    <inertial>
+      <mass value="0.002"/>
+      <inertia ixx="1.4166666666666668e-07" ixy="0.0" ixz="0.0" iyy="5.208333333333335e-07" iyz="0.0" izz="4.5416666666666673e-07"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/lidar_platform/slamtec_holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="slamtec_holder_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.015 0.025"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="slamtec_holder_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.00237 0.057735 0.029669"/>
+    <parent link="lidar_platform_link"/>
+    <child link="slamtec_holder_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="slamtec_holder_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="slamtec_usb_to_serial_link">
+    <inertial>
+      <mass value="0.008"/>
+      <inertia ixx="5.666666666666667e-07" ixy="0.0" ixz="0.0" iyy="2.083333333333334e-06" iyz="0.0" izz="1.816666666666667e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/slamtec_rplidar_usb_to_serial.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="slamtec_usb_to_serial_link">
+        <color rgba="0.10 0.10 0.10 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.015 0.025"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="slamtec_usb_to_serial_joint" type="fixed">
+    <origin rpy="0.5 0 0" xyz="0 -0.006 -0.002"/>
+    <parent link="slamtec_holder_link"/>
+    <child link="slamtec_usb_to_serial_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="slamtec_usb_to_serial_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.10 0.10 1</ambient>
+        <diffuse>0.10 0.10 0.10 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="rplidar_laser_link">
+    <visual>
+      <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/sensors/rplidar-a2.stl"/>
+      </geometry>
+      <material name="rplidar_laser_link">
+        <color rgba="0.10 0.10 0.10 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.17"/>
+      <inertia ixx="1.0979166666666666e-05" ixy="0" ixz="0" iyy="1.0979166666666666e-05" iyz="0" izz="1.9125e-05"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+  </link>
+  <gazebo reference="rplidar_laser_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.10 0.10 1</ambient>
+        <diffuse>0.10 0.10 0.10 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <joint name="rplidar_laser_joint" type="fixed">
+    <parent link="lidar_platform_link"/>
+    <child link="rplidar_laser_link"/>
+    <origin rpy="0 0 3.141592653589793" xyz="0.002 0.0 0.07"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  <gazebo reference="rplidar_laser_link">
+    <sensor name="head_hokuyo_sensor" type="ray">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>12</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.1415</min_angle>
+            <max_angle>3.1415</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.10</min>
+          <max>30.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin filename="libgazebo_ros_laser.so" name="gazebo_ros_head_hokuyo_controller">
+        <topicName>/diffbot/scan</topicName>
+        <frameName>rplidar_laser_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <link name="camera_mount_link">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="7.5e-06" ixy="0.0" ixz="0.0" iyy="2.833333333333334e-06" iyz="0.0" izz="8.833333333333334e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/camera_mount/camera_mount.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="camera_mount_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.09 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="camera_mount_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.085198 0 -0.0081709"/>
+    <parent link="chassis_link"/>
+    <child link="camera_mount_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="camera_mount_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="raspi-cam_link">
+    <inertial>
+      <mass value="0.005"/>
+      <inertia ixx="2.0208333333333336e-06" ixy="0.0" ixz="0.0" iyy="6.354166666666668e-07" iyz="0.0" izz="2.135416666666667e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/camera_mount/Raspberry_pi_CAM_holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="raspi-cam_link">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.03 0.065 0.025"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="raspi-cam_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="camera_mount_link"/>
+    <child link="raspi-cam_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="raspi-cam_link">
+    <visual>
+      <material>
+        <ambient>0.12 0.12 0.12 1</ambient>
+        <diffuse>0.12 0.12 0.12 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="camera_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/sensors/raspi_cam_v2_IMX219.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="camera_link">
+        <color rgba="0.10 0.42 0.22 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 1.5707963267948966 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="6.458333333333333e-07" ixy="0" ixz="0" iyy="6.458333333333333e-07" iyz="0" izz="1.1249999999999998e-06"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+  </link>
+  <gazebo reference="camera_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.42 0.22 1</ambient>
+        <diffuse>0.10 0.42 0.22 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 1 0"/>
+    <origin rpy="0 0.35 0" xyz="0.005 0 0.028"/>
+    <parent link="raspi-cam_link"/>
+    <child link="camera_link"/>
+  </joint>
+  <gazebo reference="camera_link">
+    <sensor name="camera1" type="camera">
+      <update_rate>60</update_rate>
+      <visualize>False</visualize>
+      <camera>
+        <horizontal_fov>1.92</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>B8G8R8</format>
+        </image>
+        <depth_camera>
+        </depth_camera>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin filename="libgazebo_ros_camera.so" name="camera_controller">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>diffbot/camera1</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <link name="imu_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/sensors/../components/bno055.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="imu_link">
+        <color rgba="0.10 0.30 0.65 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.003"/>
+      <inertia ixx="5e-10" ixy="0.0" ixz="0.0" iyy="5e-10" iyz="0.0" izz="5e-10"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <gazebo reference="imu_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.30 0.65 1</ambient>
+        <diffuse>0.10 0.30 0.65 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <joint name="imu_joint" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="imu_link"/>
+    <origin rpy="0 0 -1.5707963" xyz="-0.0401 0.0234 0.013"/>
+  </joint>
+  <gazebo reference="imu_link">
+    <sensor name="imu" type="imu">
+      <always_on>true</always_on>
+      <update_rate>50</update_rate>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <robotNamespace>/diffbot</robotNamespace>
+        <topicName>imu/gazebo</topicName>
+        <frameName>imu_link</frameName>
+        <updateRateHZ>50</updateRateHZ>
+        <gaussianNoise>0.005</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <initialOrientationAsReference>false</initialOrientationAsReference>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <gazebo>
+    <plugin filename="libgazebo_ros_control.so" name="gazebo_ros_control">
+      <robotNamespace>/diffbot</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+  <gazebo reference="front_right_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0</minDepth>
+    <maxVel>0.01</maxVel>
+  </gazebo>
+  <gazebo reference="front_left_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0</minDepth>
+    <maxVel>0.01</maxVel>
+  </gazebo>
+  <gazebo reference="rear_caster_rotation_link">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+    <kp>1000000000000</kp>
+    <kd>0</kd>
+    <minDepth>0.0</minDepth>
+  </gazebo>
+  <gazebo reference="rear_caster_wheel_link">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+    <kp>1000000000000</kp>
+    <kd>0</kd>
+    <minDepth>0.01</minDepth>
+  </gazebo>
+  <link name="power_bank_link">
+    <inertial>
+      <mass value="0.25"/>
+      <inertia ixx="0.00010883333333333334" ixy="0.0" ixz="0.0" iyy="0.0003588333333333334" iyz="0.0" izz="0.00045416666666666674"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/power_bank.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="power_bank_link">
+        <color rgba="0.10 0.10 0.10 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.13 0.07 0.018"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="power_bank_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 -0.01"/>
+    <parent link="chassis_link"/>
+    <child link="power_bank_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="power_bank_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.10 0.10 1</ambient>
+        <diffuse>0.10 0.10 0.10 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="battery_pack_link">
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="8.115e-05" ixy="0.0" ixz="0.0" iyy="7.106666666666667e-05" iyz="0.0" izz="0.0001222166666666667"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/battery_pack.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="battery_pack_link">
+        <color rgba="0.10 0.10 0.10 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.058 0.063 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="battery_pack_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.045 0 -0.04"/>
+    <parent link="chassis_link"/>
+    <child link="battery_pack_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="battery_pack_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.10 0.10 1</ambient>
+        <diffuse>0.10 0.10 0.10 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="mcu_link">
+    <inertial>
+      <mass value="0.004"/>
+      <inertia ixx="1.6666666666666668e-07" ixy="0.0" ixz="0.0" iyy="5.666666666666667e-07" iyz="0.0" izz="6.666666666666667e-07"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/teensy_4-0.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="mcu_link">
+        <color rgba="0.10 0.42 0.22 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.02 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="mcu_joint" type="fixed">
+    <origin rpy="0 0 -1.5707963267948966" xyz="-0.0414 -0.0206 0.012"/>
+    <parent link="chassis_link"/>
+    <child link="mcu_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="mcu_link">
+    <visual>
+      <material>
+        <ambient>0.10 0.42 0.22 1</ambient>
+        <diffuse>0.10 0.42 0.22 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="motor_driver_link">
+    <inertial>
+      <mass value="0.005"/>
+      <inertia ixx="3.0208333333333344e-07" ixy="0.0" ixz="0.0" iyy="1.0833333333333335e-06" iyz="0.0" izz="1.3020833333333337e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://remo_description/meshes/remo/../components/adafruit_dc_stepper_featherwing.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="motor_driver_link">
+        <color rgba="0.08 0.08 0.08 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.025 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="motor_driver_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.0086 0 -0.0277"/>
+    <parent link="chassis_link"/>
+    <child link="motor_driver_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <gazebo reference="motor_driver_link">
+    <visual>
+      <material>
+        <ambient>0.08 0.08 0.08 1</ambient>
+        <diffuse>0.08 0.08 0.08 1</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+</robot>
