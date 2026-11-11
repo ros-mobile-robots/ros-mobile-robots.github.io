@@ -482,7 +482,9 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
       const loaded = await loadRobot(key);
       if (choice !== choices) return;
       showRobot(loaded);
+      // The new robot's wheels start at the slider's first position, as the slider and its text do
       wheels.value = wheels.defaultValue;
+      turnWheels();
       showStep(findAll('[data-step]').find((button) => button.getAttribute('aria-pressed') === 'true')?.dataset.step || 'visual');
       status.hidden = true;
     } catch (error) {
@@ -545,6 +547,7 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
   observer.observe(view);
   resize();
   setView('3d');
+  turnWheels();  // The wheels' pose, the angle next to the slider and the spoken angle agree from the start
   showStep('visual');
   render();
   find('.ix-poster').hidden = true;

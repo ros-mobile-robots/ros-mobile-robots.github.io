@@ -51,6 +51,21 @@ SHOWN = f"""() => {{
 REMO_SHOWN = f"document.querySelector('{FIGURE}').ixView.debug().robot.robotName === 'remo'"
 SWITCH_FAILED = f"document.querySelector('{FIGURE} .ix-status').textContent.includes('couldn’t')"
 STATUS_HIDDEN = f"document.querySelector('{FIGURE} .ix-status').hidden"
+# The slider of the drive wheels: its value, the angle shown next to it, the angle that a screen
+# reader speaks, and the angles of the two wheel joints in degrees
+WHEELS = f"""() => {{
+    const root = document.querySelector('{FIGURE}');
+    const {{ robot, state }} = root.ixView.debug();
+    const data = JSON.parse(root.querySelector('.ix-data').textContent);
+    const slider = root.querySelector('.ix-wheels');
+    return {{
+        slider: slider.value,
+        shown: slider.closest('.ix-control').querySelector('output').textContent,
+        spoken: slider.getAttribute('aria-valuetext'),
+        joints: data.robots[state.robot].wheelJoints.map(
+            (name) => Math.round(robot.joints[name].angle * 180 / Math.PI)),
+    }};
+}}"""
 # The buttons of the link list that reach beyond the inside of their panel or cut their name
 # off, with the distance in px by which they do
 BUTTONS_OUTSIDE_PANEL = """(tree) => {
@@ -282,6 +297,28 @@ class TestUrdfExplorerPage(unittest.TestCase):
                 longest = f'{tree} [data-link="slamtec_usb_to_serial_link"]'
                 self.assertTrue(page.is_visible(longest))
                 self.assertEqual(page.eval_on_selector(tree, BUTTONS_OUTSIDE_PANEL), [])
+
+    def test_wheel_angle_is_shown_and_spoken_when_the_view_opens(self):
+        page, _ = self.open_view()
+        self.assertEqual(
+            page.evaluate(WHEELS),
+            {'slider': '0', 'shown': '0°', 'spoken': '0 degrees', 'joints': [0, 0]},
+        )
+
+    def test_wheel_angle_starts_at_zero_again_for_another_robot(self):
+        page, _ = self.open_view()
+        page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
+        page.fill(f'{FIGURE} .ix-wheels', '90')
+        page.dispatch_event(f'{FIGURE} .ix-wheels', 'input')
+        self.assertEqual(
+            page.evaluate(WHEELS),
+            {'slider': '90', 'shown': '90°', 'spoken': '90 degrees', 'joints': [90, 90]},
+        )
+        self.show_remo(page)
+        self.assertEqual(
+            page.evaluate(WHEELS),
+            {'slider': '0', 'shown': '0°', 'spoken': '0 degrees', 'joints': [0, 0]},
+        )
 
     def test_mouse_wheel_scrolls_the_page_unless_ctrl_is_held(self):
         page, _ = self.open_view()
