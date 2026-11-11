@@ -35,7 +35,7 @@ Where the sensor sits and how it's turned comes from the joint's origin, not fro
 
     Gazebo converts the URDF into its own format, SDF, before it simulates the robot. The converted model has no `imu_link`. Gazebo merges links that are joined by fixed joints into one link, and `imu_link` hangs on a fixed joint.
 
-    The sensor is still there, at the same place. The sensor belongs to the link that remains, `base_footprint` for DiffBot, and the sensor's pose in that link is `imu_link`'s position and rotation. `gz sdf -p` prints the converted model when you [convert the model as on the Simulation page](../../../diffbot_gazebo.md#troubleshooting).
+    The sensor is still there, at the same place. The sensor belongs to the link that remains, `base_footprint` for DiffBot, and the sensor's pose in that link is `imu_link`'s position and rotation. `gz sdf -p` prints the converted model when you [convert the model as on the Gazebo Package page](../../../diffbot_gazebo.md#troubleshooting).
 
     For ROS nothing changes. `imu_link` stays the IMU's frame, in the message's header and in the transforms.
 

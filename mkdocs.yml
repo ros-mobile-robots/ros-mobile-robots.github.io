@@ -231,14 +231,7 @@ nav:
       - Actuator Notes (draft): theory/actuation.md
     - Sensors:
       - LiDAR: laser-range-scanner.md
-      - IMU:
-        - BNO055: packages/imu/driver-bno055.md
-        - Simulation:
-          - packages/imu/simulation/index.md
-          - Position and Axes: packages/imu/simulation/position-and-axes.md
-          - From Measurement to Message: packages/imu/simulation/measurement-to-message.md
-          - The Robots' Own IMU Plugin: packages/imu/simulation/plugin.md
-          - Tests: packages/imu/simulation/tests.md
+      - IMU (BNO055): packages/imu/driver-bno055.md
       - Cameras:
         - Raspberry Pi Camera: packages/raspicam_node.md
         - OAK: oak.md
@@ -253,8 +246,15 @@ nav:
     - Robot Description:
       - Robot Description: robot-description.md
       - Remo Description: packages/remo_description.md
-    - Simulation: diffbot_gazebo.md
-    - Simulators: simulators.md
+    - Simulation:
+      - Gazebo Package: diffbot_gazebo.md
+      - Simulators: simulators.md
+      - IMU:
+        - packages/imu/simulation/index.md
+        - Position and Axes: packages/imu/simulation/position-and-axes.md
+        - From Measurement to Message: packages/imu/simulation/measurement-to-message.md
+        - The Robots' Own IMU Plugin: packages/imu/simulation/plugin.md
+        - Tests: packages/imu/simulation/tests.md
     - Control: diffbot_control.md
     - Base Hardware Interface:
       - packages/diffbot_base/index.md
