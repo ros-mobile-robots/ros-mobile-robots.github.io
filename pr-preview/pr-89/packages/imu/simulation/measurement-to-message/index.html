@@ -47,6 +47,25 @@
         <script src="../../../../js/katex-0.19.0/katex.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../../../../js/katex-0.19.0/katex.min.css">
         
+        <script src="../../../../js/mermaid-8.8.0/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <style>
+          /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
+             give the diagrams dark fills with light lines and text, in the light theme's hues. Being
+             CSS, they also apply when visitors switch the scheme without reloading. */
+          [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          /* Nodes that a diagram highlights with "class A,B view;", in both schemes */
+          .mermaid .node.view rect { fill: #fff3e0 !important; stroke: #e65100 !important; stroke-width: 3px !important; }
+          [data-md-color-scheme="slate"] .mermaid .node.view rect { fill: #3d2a12 !important; stroke: #ffb74d !important; }
+          [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel { background-color: #3a3c48 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
+        </style>
+        
 
     
       
@@ -2798,10 +2817,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#the-gazebo-sensor-in-the-model" class="md-nav__link">
+  <a href="#the-imu-sensor-in-the-robots-urdf-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Gazebo sensor in the model
+        The IMU sensor in the robot's URDF model
       
     </span>
   </a>
@@ -2809,10 +2828,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-the-sensor-measures" class="md-nav__link">
+  <a href="#part-1-gazebos-imu-sensor-measures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What the sensor measures
+        Part 1: Gazebo's IMU sensor measures
       
     </span>
   </a>
@@ -2820,43 +2839,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#when-the-plugin-publishes" class="md-nav__link">
+  <a href="#part-2-the-plugin-makes-the-message" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When the plugin publishes
+        Part 2: the plugin makes the message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 2: the plugin makes the message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-checks-before-a-call-publishes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The checks before a call publishes
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#noise-and-covariance" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#reading-the-sensor-and-adding-noise" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Noise and covariance
+        Reading the sensor and adding noise
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#the-header-and-the-stamp" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#filling-the-covariances" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The header and the stamp
+        Filling the covariances
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#the-adapter" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#the-header-and-publishing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The adapter
+        The header and publishing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-3-the-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 3: the adapter
       
     </span>
   </a>
@@ -4619,10 +4666,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#the-gazebo-sensor-in-the-model" class="md-nav__link">
+  <a href="#the-imu-sensor-in-the-robots-urdf-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Gazebo sensor in the model
+        The IMU sensor in the robot's URDF model
       
     </span>
   </a>
@@ -4630,10 +4677,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-the-sensor-measures" class="md-nav__link">
+  <a href="#part-1-gazebos-imu-sensor-measures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What the sensor measures
+        Part 1: Gazebo's IMU sensor measures
       
     </span>
   </a>
@@ -4641,43 +4688,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#when-the-plugin-publishes" class="md-nav__link">
+  <a href="#part-2-the-plugin-makes-the-message" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When the plugin publishes
+        Part 2: the plugin makes the message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 2: the plugin makes the message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-checks-before-a-call-publishes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The checks before a call publishes
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#noise-and-covariance" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#reading-the-sensor-and-adding-noise" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Noise and covariance
+        Reading the sensor and adding noise
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#the-header-and-the-stamp" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#filling-the-covariances" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The header and the stamp
+        Filling the covariances
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#the-adapter" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#the-header-and-publishing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The adapter
+        The header and publishing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-3-the-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 3: the adapter
       
     </span>
   </a>
@@ -4797,16 +4872,204 @@
 
 
 <h1 id="imu-simulation-from-measurement-to-message"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Simulation: From Measurement to Message</h1>
-<p>How one sample of the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is made, from Gazebo's sensor to the message on <code>/diffbot/imu/data_raw</code>. This page belongs to <a href="../"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>, which shows the finished message.</p>
-<p>The sample passes three parts:</p>
+<p>How one sample of the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is made, from Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor to the message on <code>/diffbot/imu/data_raw</code>. This page belongs to <a href="../"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a>, which shows the finished message.</p>
+<p>Three parts make the sample, one after the other:</p>
 <ol>
-<li><a href="#the-gazebo-sensor-in-the-model">Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</a>, which the robot's model declares, <a href="#what-the-sensor-measures">measures two vectors</a>.</li>
-<li>The robots' <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin <a href="#when-the-plugin-publishes">decides whether to publish</a>, <a href="#noise-and-covariance">adds noise and fills the covariances</a>, and <a href="#the-header-and-the-stamp">sets the header</a>.</li>
-<li><a href="#the-adapter">The adapter</a> marks the orientation unavailable.</li>
+<li><strong>Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</strong> is the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor. This sensor measures the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and the specific force <span class="arithmatex">\(\mathbf f\)</span> of <code>imu_link</code>. The robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model declares the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor.</li>
+<li><strong>The robots' <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin</strong> reads the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's two results, adds noise, fills the covariances and the header, and publishes the message on <code>/diffbot/imu/gazebo</code>.</li>
+<li><strong>The adapter</strong> gives the simulated message the form of the message that the real robot's firmware publishes: the same topic, and no orientation. The plugin's message has an orientation <span class="arithmatex">\(\mathbf q\)</span>, a quaternion with four numbers, and the firmware's message has none. So the adapter marks the orientation unavailable and publishes the rest unchanged on <code>/diffbot/imu/data_raw</code>.</li>
 </ol>
-<h2 id="the-gazebo-sensor-in-the-model">The Gazebo sensor in the model</h2>
-<p>Each robot's model declares the sensor in its macro <code>imu_sensor</code>, after the link and the joint that <a href="../position-and-axes/#the-link-and-the-joint-in-the-model">Position and Axes</a> explains. DiffBot's macro is in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L204-L258"><code>common_sensors.xacro</code></a> of <code>diffbot_description</code>, Remo's in <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L211-L268">remo_description's file of the same name</a>. The sensor stands in a block that only Gazebo reads. DiffBot's, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L242-L257"><code>common_sensors.xacro</code>, lines 242–257</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro: the Gazebo sensor and its plugin</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
+<p>The figure shows what each part does, in the order in which the code runs. The sections of this page follow the figure from top to bottom. The arrows show how the data reaches the message, not who calls whom. Gazebo runs the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor and the plugin in two separate loops, and the plugin reads the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's latest measurement.</p>
+<div class="mermaid">graph TB
+  subgraph PART1 [ ]
+    MEASURE["&lt;b&gt;1. Gazebo's IMU sensor&lt;/b&gt;&lt;br/&gt;UpdateImpl(), 50 times per second&lt;br/&gt;of simulation time&lt;br/&gt;measures the angular velocity and&lt;br/&gt;the specific force of imu_link&lt;br/&gt;angularVel, linearAcc"]
+  end
+  subgraph PART2 [ ]
+    CHECKS["&lt;b&gt;2. The robots' IMU plugin&lt;/b&gt;&lt;br/&gt;UpdateChild(), at every simulation step&lt;br/&gt;the checks: clock went back,&lt;br/&gt;rate limit, subscriber&lt;br/&gt;most calls end here"]
+    READ["reads the sensor and adds noise&lt;br/&gt;gyroscope_data, accelerometer_data&lt;br/&gt;GuassianKernel()"]
+    COVARIANCE["fills the covariances&lt;br/&gt;gaussian_noise squared&lt;br/&gt;at the elements 0, 4 and 8"]
+    PUBLISH["sets the header and publishes&lt;br/&gt;frame_id, stamp, publish()&lt;br/&gt;then stores last_time"]
+    CHECKS --&gt; READ
+    READ --&gt; COVARIANCE
+    COVARIANCE --&gt; PUBLISH
+  end
+  subgraph PART3 [ ]
+    CALLBACK["&lt;b&gt;3. The adapter&lt;/b&gt;&lt;br/&gt;callback(), for every received message&lt;br/&gt;marks the orientation unavailable"]
+  end
+  MEASURE --&gt;|the plugin reads the latest measurement| CHECKS
+  PUBLISH --&gt;|imu/gazebo| CALLBACK
+  CALLBACK --&gt;|imu/data_raw| READERS["IMU sample validator, tests"]</div>
+<ul>
+<li><a href="#the-imu-sensor-in-the-robots-urdf-model">The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model</a> comes first. This section shows where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor and the plugin are declared, before anything runs.</li>
+<li><a href="#part-1-gazebos-imu-sensor-measures">Part 1</a> is Gazebo's code.</li>
+<li><a href="#part-2-the-plugin-makes-the-message">Part 2</a> is the plugin's function <code>UpdateChild()</code>, from its first line to its last: <a href="#the-checks-before-a-call-publishes">the checks</a>, <a href="#reading-the-sensor-and-adding-noise">the sensor's values with noise</a>, <a href="#filling-the-covariances">the covariances</a>, and <a href="#the-header-and-publishing">the header and the call that publishes</a>.</li>
+<li><a href="#part-3-the-adapter">Part 3</a> is the adapter's callback.</li>
+</ul>
+<h2 id="the-imu-sensor-in-the-robots-urdf-model">The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model</h2>
+<p>Each robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model declares the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor in a xacro macro named <code>imu_sensor</code>. <a href="../position-and-axes/#the-link-and-the-joint-in-the-robots-urdf-model">Position and Axes</a> explains what a macro and its call are. The diagram shows the macro's call, what the macro adds to the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, and who reads each part. Read the diagram from top to bottom. The two boxes with a bold first line hold what the macro adds. The labels on the arrows are the names that the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> uses for these connections:</p>
+<div class="mermaid">graph TB
+  CALL["The robot's xacro file calls the macro imu_sensor&lt;br/&gt;parent_link: chassis_link&lt;br/&gt;origin: the IMU's xyz and rpy on chassis_link"]
+  PARENT["chassis_link&lt;br/&gt;a link of the robot's URDF model,&lt;br/&gt;there before the call"]
+  subgraph BOTH [ ]
+    JOINT["&lt;b&gt;The macro adds, for ROS and Gazebo&lt;/b&gt;&lt;br/&gt;imu_joint: a fixed joint,&lt;br/&gt;placed by the call's origin"]
+    LINK["imu_link: a link with&lt;br/&gt;the board's shape and mass"]
+    JOINT --&gt;|child| LINK
+  end
+  subgraph BLOCK [ ]
+    SENSOR["&lt;b&gt;The macro adds, for Gazebo only&lt;/b&gt;&lt;br/&gt;the Gazebo block of imu_link:&lt;br/&gt;Gazebo's IMU sensor, type imu,&lt;br/&gt;50 measurements per second"]
+    PLUGIN["in the IMU sensor's element:&lt;br/&gt;the robots' IMU plugin&lt;br/&gt;libdiffbot_gazebo_ros_imu_sensor.so"]
+    SENSOR --&gt;|contains| PLUGIN
+  end
+  CALL --&gt;|names as parent_link| PARENT
+  PARENT --&gt;|parent| JOINT
+  LINK --&gt;|the Gazebo block's reference| SENSOR</div>
+<ul>
+<li><strong><code>imu_joint</code> and <code>imu_link</code>:</strong> ROS and Gazebo both read them. The joint names <code>chassis_link</code> as its parent and <code>imu_link</code> as its child, and the call's origin places the joint. <code>robot_state_publisher</code> publishes the joint's transform, and Gazebo places the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor with this transform.</li>
+<li><strong>The Gazebo block:</strong> only Gazebo reads this block. <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> tools and ROS ignore the block. The block's attribute <code>reference</code> names <code>imu_link</code>, the link that carries the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's element contains the plugin's element.</li>
+</ul>
+<p>DiffBot's macro is in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L204-L258"><code>common_sensors.xacro</code></a> of <code>diffbot_description</code>, Remo's in <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L211-L268">remo_description's file of the same name</a>.</p>
+<details class="example">
+<summary>The complete macro <code>imu_sensor</code> of DiffBot's model</summary>
+<p>The excerpt shows the whole macro with the comment above it, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L191-L258"><code>common_sensors.xacro</code>, lines 191–258</a>. The link is in lines 208–234, the joint in lines 236–240 and the Gazebo block in lines 242–257:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro: the macro imu_sensor</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">&lt;!-- IMU: a Bosch BNO055 board, as a small box (sensor_prop['imu']: mass, size, mesh), and a Gazebo</span>
+<span class="cm">     IMU sensor that stands in for the real one in the simulation.</span>
+<span class="cm">     - imu_link is the sensor's own frame; *origin places it on parent_link, as the board sits on</span>
+<span class="cm">       the robot. The real robot's firmware publishes in the same frame (diffbot_base).</span>
+<span class="cm">     - The Gazebo plugin, libdiffbot_gazebo_ros_imu_sensor.so from diffbot_gazebo_plugins, is a</span>
+<span class="cm">       copy of gazebo_plugins' GazeboRosImuSensor (ROS 1) that doesn't run ROS callbacks in</span>
+<span class="cm">       Gazebo's physics thread. gazebo_plugins' own plugin does, and that can stop the simulation</span>
+<span class="cm">       while the controllers load (#185). The plugin publishes sensor_msgs/Imu on</span>
+<span class="cm">       /diffbot/imu/gazebo at 50 Hz, the firmware's rate. Its message includes an orientation that</span>
+<span class="cm">       the real sensor doesn't provide, so the simulation passes it through an adapter in</span>
+<span class="cm">       diffbot_gazebo, which publishes /diffbot/imu/data_raw like the firmware.</span>
+<span class="cm">     - gaussianNoise is one standard deviation that the plugin adds to every value; it's a</span>
+<span class="cm">       simulation setting, not the BNO055's measured noise. --&gt;</span>
+<span class="nt">&lt;xacro:macro</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_sensor"</span><span class="w"> </span><span class="na">params=</span><span class="s">"parent_link sensor_prop *origin"</span><span class="nt">&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;xacro:property</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu"</span><span class="w"> </span><span class="na">value=</span><span class="s">"${sensor_prop['imu']}"</span><span class="nt">/&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_link"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;xacro:if</span><span class="w"> </span><span class="na">value=</span><span class="s">"${imu['mesh'] != ''}"</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;visual&gt;</span>
+<span class="w">        </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;geometry&gt;</span>
+<span class="w">          </span><span class="nt">&lt;mesh</span><span class="w"> </span><span class="na">filename=</span><span class="s">"package://${package_name}/meshes/sensors/${imu['mesh']}"</span><span class="w"> </span><span class="na">scale=</span><span class="s">"${imu['scale']}"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/geometry&gt;</span>
+<span class="w">        </span><span class="nt">&lt;material</span><span class="w"> </span><span class="na">name=</span><span class="s">"dark_grey"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/visual&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/xacro:if&gt;</span>
+<span class="w">    </span><span class="nt">&lt;xacro:if</span><span class="w"> </span><span class="na">value=</span><span class="s">"${imu['mesh'] == ''}"</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;visual&gt;</span>
+<span class="w">        </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;geometry&gt;</span>
+<span class="w">          </span><span class="nt">&lt;box</span><span class="w"> </span><span class="na">size=</span><span class="s">"${imu['size']['x']} ${imu['size']['y']} ${imu['size']['z']}"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/geometry&gt;</span>
+<span class="w">        </span><span class="nt">&lt;material</span><span class="w"> </span><span class="na">name=</span><span class="s">"red"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/visual&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/xacro:if&gt;</span>
+<span class="w">    </span><span class="nt">&lt;collision&gt;</span>
+<span class="w">      </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;geometry&gt;</span>
+<span class="w">        </span><span class="nt">&lt;box</span><span class="w"> </span><span class="na">size=</span><span class="s">"${imu['size']['x']} ${imu['size']['y']} ${imu['size']['z']}"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/geometry&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/collision&gt;</span>
+<span class="w">    </span><span class="nt">&lt;xacro:box_inertia</span><span class="w"> </span><span class="na">m=</span><span class="s">"${imu['mass']}"</span><span class="w"> </span><span class="na">x=</span><span class="s">"${imu['size']['x']}"</span><span class="w"> </span><span class="na">y=</span><span class="s">"${imu['size']['y']}"</span><span class="w"> </span><span class="na">z=</span><span class="s">"${imu['size']['z']}"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/link&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;joint</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_joint"</span><span class="w"> </span><span class="na">type=</span><span class="s">"fixed"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;parent</span><span class="w"> </span><span class="na">link=</span><span class="s">"${parent_link}"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;child</span><span class="w"> </span><span class="na">link=</span><span class="s">"imu_link"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;xacro:insert_block</span><span class="w"> </span><span class="na">name=</span><span class="s">"origin"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/joint&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;gazebo</span><span class="w"> </span><span class="na">reference=</span><span class="s">"imu_link"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;sensor</span><span class="w"> </span><span class="na">type=</span><span class="s">"imu"</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu"</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;always_on&gt;</span>true<span class="nt">&lt;/always_on&gt;</span>
+<span class="w">      </span><span class="nt">&lt;update_rate&gt;</span>50<span class="nt">&lt;/update_rate&gt;</span>
+<span class="w">      </span><span class="nt">&lt;plugin</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_plugin"</span><span class="w"> </span><span class="na">filename=</span><span class="s">"libdiffbot_gazebo_ros_imu_sensor.so"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;robotNamespace&gt;</span>/diffbot<span class="nt">&lt;/robotNamespace&gt;</span>
+<span class="w">        </span><span class="nt">&lt;topicName&gt;</span>imu/gazebo<span class="nt">&lt;/topicName&gt;</span>
+<span class="w">        </span><span class="nt">&lt;frameName&gt;</span>imu_link<span class="nt">&lt;/frameName&gt;</span>
+<span class="w">        </span><span class="nt">&lt;updateRateHZ&gt;</span>50<span class="nt">&lt;/updateRateHZ&gt;</span>
+<span class="w">        </span><span class="nt">&lt;gaussianNoise&gt;</span>0.005<span class="nt">&lt;/gaussianNoise&gt;</span>
+<span class="w">        </span><span class="nt">&lt;xyzOffset&gt;</span>0<span class="w"> </span>0<span class="w"> </span>0<span class="nt">&lt;/xyzOffset&gt;</span>
+<span class="w">        </span><span class="nt">&lt;rpyOffset&gt;</span>0<span class="w"> </span>0<span class="w"> </span>0<span class="nt">&lt;/rpyOffset&gt;</span>
+<span class="w">        </span><span class="nt">&lt;initialOrientationAsReference&gt;</span>false<span class="nt">&lt;/initialOrientationAsReference&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/plugin&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/sensor&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/gazebo&gt;</span>
+<span class="nt">&lt;/xacro:macro&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<p>The next excerpt shows the macro's Gazebo block, which declares the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor and its plugin, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L242-L257"><code>common_sensors.xacro</code>, lines 242–257</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro: the IMU sensor and its plugin</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
 <span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
@@ -4839,29 +5102,53 @@
 <span class="nt">&lt;/gazebo&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>&lt;gazebo reference="imu_link"&gt;</code></strong> holds what only Gazebo reads. <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> tools ignore this block. <code>reference</code> attaches the sensor to <code>imu_link</code>, so the sensor measures at <code>imu_link</code>'s position and along its axes.</li>
-<li><strong><code>type="imu"</code></strong> is Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor. <code>update_rate</code> makes the sensor measure 50 times per second.</li>
-<li><strong>The plugin</strong> turns the sensor's values into ROS messages. <code>filename</code> names its library, <code>libdiffbot_gazebo_ros_imu_sensor.so</code>, the robots' own copy of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin that comes with ROS. <a href="../plugin/">The Robots' Own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Plugin</a> explains why the robots have a copy, and how <a href="../plugin/#the-plugins-library-in-remos-model">Remo's model gets the library's name</a>.</li>
+<li><strong><code>&lt;gazebo reference="imu_link"&gt;</code>:</strong> this block holds what only Gazebo reads. <code>reference</code> attaches the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor to <code>imu_link</code>, so the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measures at <code>imu_link</code>'s position and along its axes.</li>
+<li><strong><code>type="imu"</code>:</strong> this is Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor. <code>update_rate</code> makes the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measure 50 times per second.</li>
+<li><strong><code>&lt;plugin&gt;</code>:</strong> the plugin turns the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's values into ROS messages. <code>filename</code> names its library, <code>libdiffbot_gazebo_ros_imu_sensor.so</code>, the robots' own copy of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin that comes with ROS. <a href="../plugin/">The Robots' Own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Plugin</a> explains why the robots have a copy, and how <a href="../plugin/#the-plugins-library-in-remos-urdf-model">Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model gets the library's name</a>.</li>
 </ul>
 <p>The lines inside <code>&lt;plugin&gt;</code> are the plugin's parameters:</p>
 <ul>
-<li><code>robotNamespace</code> and <code>topicName</code>, <code>/diffbot</code> and <code>imu/gazebo</code>, give the topic <code>/diffbot/imu/gazebo</code>.</li>
-<li><code>frameName</code>, <code>imu_link</code>, becomes the message's <code>header.frame_id</code>.</li>
-<li><code>updateRateHZ</code>, 50, is the plugin's own limit: at most 50 messages per second.</li>
-<li><code>gaussianNoise</code>, 0.005, in the last highlighted line, is the standard deviation <span class="arithmatex">\(\sigma\)</span> of the <a href="#noise-and-covariance">noise that the plugin adds</a>.</li>
-<li><code>xyzOffset</code> is read, but not used.</li>
-<li><code>rpyOffset</code> and <code>initialOrientationAsReference</code> change only the orientation, which the adapter removes.</li>
+<li><strong><code>robotNamespace</code> and <code>topicName</code>:</strong> <code>/diffbot</code> and <code>imu/gazebo</code> give the topic <code>/diffbot/imu/gazebo</code>.</li>
+<li><strong><code>frameName</code>:</strong> <code>imu_link</code> becomes the message's <code>header.frame_id</code>.</li>
+<li><strong><code>updateRateHZ</code>:</strong> 50 is the plugin's own limit, at most 50 messages per second.</li>
+<li><strong><code>gaussianNoise</code>:</strong> 0.005, in the last highlighted line, is the standard deviation <span class="arithmatex">\(\sigma\)</span> of the <a href="#reading-the-sensor-and-adding-noise">noise that the plugin adds</a>.</li>
+<li><strong><code>xyzOffset</code>:</strong> this parameter has no effect. The plugin reads the value and never uses it, as the comment in its source says: "POSITION OFFSET, UNUSED", in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L275">line 275 of <code>gazebo_ros_imu_sensor.cpp</code></a>. The plugin that comes with ROS has the same comment.</li>
+<li><strong><code>rpyOffset</code> and <code>initialOrientationAsReference</code>:</strong> both change only the orientation, which the adapter removes. <code>rpyOffset</code> is the one part of the offset that the plugin applies, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L150">line 150</a>.</li>
 </ul>
-<p>Where the sensor sits and how it's turned comes from the joint's origin, not from the offsets.</p>
+<p>Where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor sits and how it's turned comes from the joint's origin in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, not from the two offsets.</p>
 <details class="info">
-<summary>If you inspect the model that Gazebo makes from the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr></summary>
-<p>Gazebo converts the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> into its own format, <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, before it simulates the robot. The converted model has no <code>imu_link</code>. Gazebo merges links that are joined by fixed joints into one link, and <code>imu_link</code> hangs on a fixed joint.</p>
-<p>The sensor is still there, at the same place. The sensor belongs to the link that remains, <code>base_footprint</code> for DiffBot, and the sensor's pose in that link is <code>imu_link</code>'s position and rotation. <code>gz sdf -p</code> prints the converted model when you <a href="../../../../diffbot_gazebo/#troubleshooting">convert the model as on the Gazebo Package page</a>.</p>
+<summary>If you inspect the <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> model that Gazebo makes from the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model</summary>
+<p>Gazebo converts the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model into a model in its own format, <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, before it simulates the robot. This <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> model has no <code>imu_link</code>. Gazebo merges links that are joined by fixed joints into one link, and <code>imu_link</code> hangs on a fixed joint.</p>
+<p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor is still there, at the same place. In the <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> model, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor belongs to the link that remains, <code>base_footprint</code> for DiffBot, and the sensor's pose in that link is <code>imu_link</code>'s position and rotation. <code>gz sdf -p</code> prints the <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> model when you <a href="../../../../diffbot_gazebo/#troubleshooting">convert the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model as on the Gazebo Package page</a>.</p>
 <p>For ROS nothing changes. <code>imu_link</code> stays the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame, in the message's header and in the transforms.</p>
 </details>
-<h2 id="what-the-sensor-measures">What the sensor measures</h2>
-<p>In every measurement, Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor computes two vectors along <code>imu_link</code>'s axes: the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and the specific force <span class="arithmatex">\(\mathbf f\)</span>. Gazebo's lines, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/sensors/ImuSensor.cc#L344-L376"><code>ImuSensor.cc</code> in Gazebo Classic 11.15.1, lines 344–376</a>, under the <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/LICENSE">Apache License 2.0</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ImuSensor.cc (Gazebo Classic 11.15.1): the two vectors</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">344</span>
+<h2 id="part-1-gazebos-imu-sensor-measures">Part 1: Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measures</h2>
+<p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor derives its measurements from motion that Gazebo has already computed. Gazebo's physics engine computes the motion of every link in every simulation step, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor reads the motion of the link that carries it. From that motion, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor computes two vectors along <code>imu_link</code>'s axes: the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and the specific force <span class="arithmatex">\(\mathbf f\)</span>.</p>
+<p><strong>Who runs this code, and when:</strong> Gazebo's sensor manager runs the sensors in a loop of its own, apart from the physics engine. For each sensor, the loop calls <code>Sensor::Update()</code>. This function calls the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's <code>ImuSensor::UpdateImpl()</code> once one update period has passed since the last measurement, in <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/sensors/Sensor.cc#L272-L289">lines 272–289 of Gazebo's <code>Sensor.cc</code></a>. With the <code>update_rate</code> of 50 in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, the period is 20 ms of simulation time. The robots' <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin takes no part in the measurement. The plugin only reads the two results afterwards.</p>
+<p>The excerpt shows the lines of Gazebo's source code that compute both vectors, from <code>ImuSensor::UpdateImpl()</code> in <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/sensors/ImuSensor.cc#L322-L380"><code>ImuSensor.cc</code> of Gazebo Classic 11.15.1, lines 322–380</a>, under the <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/LICENSE">Apache License 2.0</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ImuSensor.cc (Gazebo Classic 11.15.1): the two vectors</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
 <span class="normal">345</span>
 <span class="normal">346</span>
 <span class="normal">347</span>
@@ -4893,59 +5180,107 @@
 <span class="normal">373</span>
 <span class="normal">374</span>
 <span class="normal">375</span>
-<span class="normal">376</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Get the angular velocity</span>
-<span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">linkWorldAngularVel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msgs</span><span class="o">::</span><span class="n">ConvertIgn</span><span class="p">(</span>
-<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">());</span>
-
-<span class="c1">/////////////////////////////////////////////////////////////////////</span>
-<span class="c1">// Set the IMU angular velocity (defined in imu's local frame)</span>
-<span class="c1">/////////////////////////////////////////////////////////////////////</span>
-<span class="hll"><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">angularVel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Rot</span><span class="p">().</span><span class="n">Inverse</span><span class="p">().</span><span class="n">RotateVector</span><span class="p">(</span>
-</span><span class="hll"><span class="w">    </span><span class="n">linkWorldAngularVel</span><span class="p">);</span>
-</span><span class="n">msgs</span><span class="o">::</span><span class="n">Set</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">imuMsg</span><span class="p">.</span><span class="n">mutable_angular_velocity</span><span class="p">(),</span>
-<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">angularVel</span><span class="p">);</span>
-
-<span class="c1">/////////////////////////////////////////////////////////////////////</span>
-<span class="c1">// Compute and set the IMU linear acceleration in the imu local frame</span>
-<span class="c1">/////////////////////////////////////////////////////////////////////</span>
-<span class="c1">// first get imu link's linear velocity in world frame</span>
-<span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">linkWorldLinearVel</span>
-<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">msgs</span><span class="o">::</span><span class="n">ConvertIgn</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">linear_velocity</span><span class="p">());</span>
-<span class="c1">// next, account for vel in world frame of the imu</span>
-<span class="c1">// given the imu frame is offset from link frame, and link is rotating</span>
-<span class="c1">// compute the velocity of the imu axis origin in world frame</span>
-<span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">imuWorldLinearVel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linkWorldLinearVel</span><span class="w"> </span><span class="o">+</span>
-<span class="w">    </span><span class="n">linkWorldAngularVel</span><span class="p">.</span><span class="n">Cross</span><span class="p">(</span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Pos</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">parentEntityPose</span><span class="p">.</span><span class="n">Pos</span><span class="p">());</span>
-<span class="c1">// compute acceleration by differentiating velocity in world frame,</span>
-<span class="c1">// and rotate into imu local frame</span>
-<span class="hll"><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">linearAcc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Rot</span><span class="p">().</span><span class="n">Inverse</span><span class="p">().</span><span class="n">RotateVector</span><span class="p">(</span>
-</span><span class="hll"><span class="w">  </span><span class="p">(</span><span class="n">imuWorldLinearVel</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">lastImuWorldLinearVel</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="hll"><span class="n">msg</span><span class="p">.</span><span class="n">CopyFrom</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">incomingLinkData</span><span class="p">[</span><span class="n">readIndex</span><span class="p">].</span><span class="n">get</span><span class="p">());</span>
 </span>
-<span class="c1">// Add contribution from gravity</span>
-<span class="c1">// Do we want to skip if link does not have gravity enabled?</span>
-<span class="c1">//   e.g. if (this-&gt;dataPtr-&gt;parentEntity-&gt;GetGravityMode())</span>
-<span class="hll"><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">linearAcc</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Rot</span><span class="p">().</span><span class="n">Inverse</span><span class="p">().</span><span class="n">RotateVector</span><span class="p">(</span>
-</span><span class="hll"><span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">gravity</span><span class="p">);</span>
-</span></code></pre></div></td></tr></tbody></table></div>
-<p><strong>The angular velocity</strong>, lines 344–354. Gazebo takes the angular velocity of the link that carries the sensor, in the world's axes. The first highlighted lines rotate it into the sensor's axes, which are <code>imu_link</code>'s:</p>
+<span class="n">common</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msgs</span><span class="o">::</span><span class="n">Convert</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">time</span><span class="p">());</span>
+
+<span class="hll"><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">timestamp</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">lastMeasurementTime</span><span class="p">).</span><span class="n">Double</span><span class="p">();</span>
+</span>
+<span class="k">this</span><span class="o">-&gt;</span><span class="n">lastMeasurementTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timestamp</span><span class="p">;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dt</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span><span class="w"> </span><span class="n">lock</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">mutex</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">imuMsg</span><span class="p">.</span><span class="n">set_entity_name</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">ParentName</span><span class="p">());</span>
+
+<span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">gravity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">world</span><span class="o">-&gt;</span><span class="n">Gravity</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">msgs</span><span class="o">::</span><span class="n">Set</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">imuMsg</span><span class="p">.</span><span class="n">mutable_stamp</span><span class="p">(),</span><span class="w"> </span><span class="n">timestamp</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Pose3d</span><span class="w"> </span><span class="n">parentEntityPose</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">parentEntity</span><span class="o">-&gt;</span><span class="n">WorldPose</span><span class="p">();</span>
+<span class="w">  </span><span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Pose3d</span><span class="w"> </span><span class="n">imuWorldPose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pose</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">parentEntityPose</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Get the angular velocity</span>
+<span class="hll"><span class="w">  </span><span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">linkWorldAngularVel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msgs</span><span class="o">::</span><span class="n">ConvertIgn</span><span class="p">(</span>
+</span><span class="hll"><span class="w">      </span><span class="n">msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">());</span>
+</span>
+<span class="w">  </span><span class="c1">/////////////////////////////////////////////////////////////////////</span>
+<span class="w">  </span><span class="c1">// Set the IMU angular velocity (defined in imu's local frame)</span>
+<span class="w">  </span><span class="c1">/////////////////////////////////////////////////////////////////////</span>
+<span class="hll"><span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">angularVel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Rot</span><span class="p">().</span><span class="n">Inverse</span><span class="p">().</span><span class="n">RotateVector</span><span class="p">(</span>
+</span><span class="hll"><span class="w">      </span><span class="n">linkWorldAngularVel</span><span class="p">);</span>
+</span><span class="w">  </span><span class="n">msgs</span><span class="o">::</span><span class="n">Set</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">imuMsg</span><span class="p">.</span><span class="n">mutable_angular_velocity</span><span class="p">(),</span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">angularVel</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">/////////////////////////////////////////////////////////////////////</span>
+<span class="w">  </span><span class="c1">// Compute and set the IMU linear acceleration in the imu local frame</span>
+<span class="w">  </span><span class="c1">/////////////////////////////////////////////////////////////////////</span>
+<span class="w">  </span><span class="c1">// first get imu link's linear velocity in world frame</span>
+<span class="w">  </span><span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">linkWorldLinearVel</span>
+<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">msgs</span><span class="o">::</span><span class="n">ConvertIgn</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">linear_velocity</span><span class="p">());</span>
+<span class="w">  </span><span class="c1">// next, account for vel in world frame of the imu</span>
+<span class="w">  </span><span class="c1">// given the imu frame is offset from link frame, and link is rotating</span>
+<span class="w">  </span><span class="c1">// compute the velocity of the imu axis origin in world frame</span>
+<span class="hll"><span class="w">  </span><span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">imuWorldLinearVel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linkWorldLinearVel</span><span class="w"> </span><span class="o">+</span>
+</span><span class="hll"><span class="w">      </span><span class="n">linkWorldAngularVel</span><span class="p">.</span><span class="n">Cross</span><span class="p">(</span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Pos</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">parentEntityPose</span><span class="p">.</span><span class="n">Pos</span><span class="p">());</span>
+</span><span class="w">  </span><span class="c1">// compute acceleration by differentiating velocity in world frame,</span>
+<span class="w">  </span><span class="c1">// and rotate into imu local frame</span>
+<span class="hll"><span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">linearAcc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Rot</span><span class="p">().</span><span class="n">Inverse</span><span class="p">().</span><span class="n">RotateVector</span><span class="p">(</span>
+</span><span class="hll"><span class="w">    </span><span class="p">(</span><span class="n">imuWorldLinearVel</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">lastImuWorldLinearVel</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span>
+</span>
+<span class="w">  </span><span class="c1">// Add contribution from gravity</span>
+<span class="w">  </span><span class="c1">// Do we want to skip if link does not have gravity enabled?</span>
+<span class="w">  </span><span class="c1">//   e.g. if (this-&gt;dataPtr-&gt;parentEntity-&gt;GetGravityMode())</span>
+<span class="hll"><span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">linearAcc</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">imuWorldPose</span><span class="p">.</span><span class="n">Rot</span><span class="p">().</span><span class="n">Inverse</span><span class="p">().</span><span class="n">RotateVector</span><span class="p">(</span>
+</span><span class="hll"><span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">gravity</span><span class="p">);</span>
+</span>
+<span class="w">  </span><span class="c1">// publish linear acceleration</span>
+<span class="w">  </span><span class="n">msgs</span><span class="o">::</span><span class="n">Set</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">imuMsg</span><span class="p">.</span><span class="n">mutable_linear_acceleration</span><span class="p">(),</span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">dataPtr</span><span class="o">-&gt;</span><span class="n">linearAcc</span><span class="p">);</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The variables, in the order in which the code computes them:</p>
+<ol>
+<li><strong><code>msg</code>:</strong> in line 322, the latest motion data of the link that carries the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor. In Gazebo's <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> model that is the link that remains after the merging, as the box above explains. At the end of every simulation step, this link publishes its linear and angular velocity, in <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/Link.cc#L1265-L1281"><code>Link::PublishData()</code></a>. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor receives each of these messages in <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/sensors/ImuSensor.cc#L252-L258"><code>ImuSensor::OnLinkData()</code></a> and keeps the newest one. These messages stay inside Gazebo. They aren't ROS messages.</li>
+<li><strong><code>dt</code>:</strong> in line 326, the time between this motion data and the motion data of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's last measurement.</li>
+<li><strong><code>imuWorldPose</code>:</strong> in line 342, where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor is in the simulated world, and how the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor is turned. <code>imuWorldPose</code> combines the link's pose with the sensor's pose in the link.</li>
+<li><strong><code>linkWorldAngularVel</code>:</strong> in line 345, the link's angular velocity from <code>msg</code>, along the world's axes.</li>
+<li>
+<p><strong><code>angularVel</code>:</strong> in line 351, the same angular velocity along the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's axes, which are <code>imu_link</code>'s. <code>imuWorldPose.Rot().Inverse().RotateVector()</code> converts a vector from the world's axes to the sensor's. This is the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span>:</p>
 <div class="arithmatex">\[
 \boldsymbol\omega = \begin{pmatrix} \omega_x \\ \omega_y \\ \omega_z \end{pmatrix}
 \]</div>
-<p><span class="arithmatex">\(\omega_x\)</span> is the angular velocity about <code>imu_link</code>'s x axis in rad/s, <span class="arithmatex">\(\omega_y\)</span> about its y axis and <span class="arithmatex">\(\omega_z\)</span> about its z axis. <a href="../#the-angular-velocity">The angular velocity on the overview</a> shows the three rotations in a figure.</p>
-<p><strong>The linear acceleration</strong>, lines 356–376. Gazebo computes it in two steps:</p>
-<ol>
-<li>It takes the velocity of the point where the sensor sits, and divides the velocity's change since the last measurement by the time between the two measurements. The result is that point's acceleration <span class="arithmatex">\(\mathbf a\)</span>, in the second highlighted lines.</li>
-<li>It subtracts gravity <span class="arithmatex">\(\mathbf g\)</span>, in the last highlighted lines.</li>
-</ol>
-<p>Both steps rotate their vector into <code>imu_link</code>'s axes. The result is the <strong>specific force</strong>, in m/s²:</p>
+</li>
+<li>
+<p><strong><code>linkWorldLinearVel</code>:</strong> in line 360, the link's linear velocity from <code>msg</code>, along the world's axes.</p>
+</li>
+<li><strong><code>imuWorldLinearVel</code>:</strong> in line 365, the velocity of the point where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor sits. That point isn't the link's origin, so a turning link moves that point too. The cross product adds this share.</li>
+<li><strong><code>linearAcc</code>:</strong> in line 369, how much <code>imuWorldLinearVel</code> changed since the last measurement, <code>lastImuWorldLinearVel</code>, divided by <code>dt</code>, and converted to the sensor's axes. This is the acceleration <span class="arithmatex">\(\mathbf a\)</span> of the point where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor sits.</li>
+<li>
+<p><strong><code>linearAcc</code> again:</strong> in line 375, the code subtracts gravity <span class="arithmatex">\(\mathbf g\)</span>, converted to the sensor's axes too. <code>linearAcc</code> is now the <strong>specific force</strong> <span class="arithmatex">\(\mathbf f\)</span>, in m/s²:</p>
 <div class="arithmatex">\[
 \mathbf f = \mathbf a - \mathbf g =
 \begin{pmatrix} a_x - g_x \\ a_y - g_y \\ a_z - g_z \end{pmatrix}
 \]</div>
-<p>At rest, <span class="arithmatex">\(\mathbf a\)</span> is zero. With <code>imu_link</code>'s z axis up, gravity is <span class="arithmatex">\(\mathbf g = (0, 0, -9.8)\)</span> m/s², so the sensor reads <span class="arithmatex">\(\mathbf f = (0, 0, +9.8)\)</span> m/s². <a href="../#the-linear-acceleration">The linear acceleration on the overview</a> explains why an accelerometer reads this, with a figure of the robot at rest, speeding up and turning.</p>
-<p>Gazebo's gravity is 9.8 m/s² in the robots' worlds. That is the default of <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, Gazebo's format for worlds, as the <a href="http://sdformat.org/spec?ver=1.6&amp;elem=world#world_gravity"><abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> specification of <code>&lt;gravity&gt;</code></a> says.</p>
-<h2 id="when-the-plugin-publishes">When the plugin publishes</h2>
-<p><code>Load()</code> connects the plugin's <code>UpdateChild()</code> to Gazebo's world update event, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L131-L132">lines 131–132 of <code>gazebo_ros_imu_sensor.cpp</code></a>. So Gazebo's physics thread, the part of Gazebo that computes the simulation's steps, calls <code>UpdateChild()</code> at the start of every step. The first lines of <code>UpdateChild()</code> decide whether a call publishes a message. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L147"><code>gazebo_ros_imu_sensor.cpp</code>, lines 137–147</a>:</p>
+</li>
+</ol>
+<p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor keeps both results. The plugin fetches them later with <code>sensor-&gt;AngularVelocity()</code> and <code>sensor-&gt;LinearAcceleration()</code>.</p>
+<p>At rest, <span class="arithmatex">\(\mathbf a\)</span> is zero. With <code>imu_link</code>'s z axis up, gravity is <span class="arithmatex">\(\mathbf g = (0, 0, -9.8)\)</span> m/s², so the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor reads <span class="arithmatex">\(\mathbf f = (0, 0, +9.8)\)</span> m/s². The overview shows <a href="../#the-angular-velocity">the angular velocity</a> and <a href="../#the-linear-acceleration">the linear acceleration</a> each in a figure, and explains why an accelerometer reads the acceleration minus gravity.</p>
+<p>Gazebo's gravity is 9.8 m/s² in the robots' worlds. That is the default of <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, Gazebo's format for worlds and models, as the <a href="http://sdformat.org/spec?ver=1.6&amp;elem=world#world_gravity"><abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> specification of <code>&lt;gravity&gt;</code></a> says.</p>
+<h2 id="part-2-the-plugin-makes-the-message">Part 2: the plugin makes the message</h2>
+<p>The robots' <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin makes the message in one function, <code>UpdateChild()</code>. <code>Load()</code> connects <code>UpdateChild()</code> to Gazebo's world update event. The excerpt shows this call, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L131-L132"><code>gazebo_ros_imu_sensor.cpp</code>, lines 131–132</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: Load() connects UpdateChild()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">131</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">connection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gazebo</span><span class="o">::</span><span class="n">event</span><span class="o">::</span><span class="n">Events</span><span class="o">::</span><span class="n">ConnectWorldUpdateBegin</span><span class="p">(</span>
+<span class="w">  </span><span class="n">boost</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="o">&amp;</span><span class="n">GazeboRosImuSensor</span><span class="o">::</span><span class="n">UpdateChild</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">boost</span><span class="o">::</span><span class="n">placeholders</span><span class="o">::</span><span class="n">_1</span><span class="p">));</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>So Gazebo's physics thread, the part of Gazebo that computes the simulation's steps, calls <code>UpdateChild()</code> at the start of every step. With the 1 ms step of the simulation test's world, that is 1000 calls per second of simulation time. Most calls end after the checks. A call that passes them goes through the four steps below in this order, and publishes at the end.</p>
+<h3 id="the-checks-before-a-call-publishes">The checks before a call publishes</h3>
+<p>The first lines of <code>UpdateChild()</code> decide whether this call makes a message at all. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L147"><code>gazebo_ros_imu_sensor.cpp</code>, lines 137–147</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: the start of UpdateChild()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
@@ -4958,8 +5293,8 @@
 <span class="normal">146</span>
 <span class="normal">147</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">GazeboRosImuSensor::UpdateChild</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">gazebo</span><span class="o">::</span><span class="n">common</span><span class="o">::</span><span class="n">UpdateInfo</span><span class="w"> </span><span class="o">&amp;</span><span class="cm">/*_info*/</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="n">gazebo</span><span class="o">::</span><span class="n">common</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">current_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sensor</span><span class="o">-&gt;</span><span class="n">LastUpdateTime</span><span class="p">();</span>
-
+<span class="hll"><span class="w">  </span><span class="n">gazebo</span><span class="o">::</span><span class="n">common</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">current_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sensor</span><span class="o">-&gt;</span><span class="n">LastUpdateTime</span><span class="p">();</span>
+</span>
 <span class="hll"><span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">current_time</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">last_time</span><span class="p">)</span><span class="w"> </span><span class="c1">//the clock went back (a reset): start the update rate check anew</span>
 </span><span class="hll"><span class="w">    </span><span class="n">last_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">;</span>
 </span>
@@ -4969,22 +5304,126 @@
 <span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">imu_data_publisher</span><span class="p">.</span><span class="n">getNumSubscribers</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong>Two times.</strong> <code>current_time</code> is the simulation time of the sensor's last measurement. <code>last_time</code> is the value that <code>current_time</code> had in the last call that got past the rate limit. The last line of <code>UpdateChild()</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L191">line 191</a>, stores it.</li>
-<li><strong>The rate limit</strong> is the second <code>if</code>. <code>update_rate</code> is the parameter <code>updateRateHZ</code>, 50. A call returns right away while less than one period, 1/50 s = 20 ms, has passed since <code>last_time</code>. So <code>UpdateChild()</code> goes on at most 50 times per second of simulation time.</li>
-<li><strong>A subscriber.</strong> A call that gets past the rate limit fills and publishes a message only while the topic has a subscriber. In the simulation, the adapter always subscribes.</li>
-<li><strong>A clock that went back</strong> is the first <code>if</code>, the highlighted lines. A reset of the simulation sets Gazebo's clock back to zero. Then the sensor's time is earlier than <code>last_time</code>, and the plugin sets <code>last_time</code> to the sensor's time. The rate limit counts from the new time, and the first message after a reset follows one period later. <a href="../plugin/#publishing-again-after-a-reset">Publishing again after a reset</a> explains what would happen without these two lines.</li>
+<li><strong>Two times:</strong> <code>current_time</code> is the sensor's time: <code>sensor-&gt;LastUpdateTime()</code> in line 139, the simulation time of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's last measurement. <code>last_time</code> is the value that <code>current_time</code> had in the last call that got past the rate limit.</li>
+<li><strong>A clock that went back:</strong> this is the first <code>if</code>, lines 141–142. A reset of the simulation sets Gazebo's clock back to zero. Then <code>current_time</code> is earlier than <code>last_time</code>, and the plugin sets <code>last_time</code> to <code>current_time</code>. The rate limit counts from the new time, and the plugin can publish again one period later. <a href="../plugin/#publishing-again-after-a-reset">Publishing again after a reset</a> explains what would happen without these two lines.</li>
+<li><strong>The rate limit:</strong> this is the second <code>if</code>, lines 144–145. <code>update_rate</code> is the parameter <code>updateRateHZ</code>, 50. A call returns right away while less than one period, 1/50 s = 20 ms, has passed since <code>last_time</code>. So at most 50 calls per second of simulation time go on.</li>
+<li><strong>A subscriber:</strong> this is the third <code>if</code>, line 147. A call that got past the rate limit fills and publishes a message only while the topic has a subscriber. In the simulation, the adapter always subscribes.</li>
 </ul>
-<h2 id="noise-and-covariance">Noise and covariance</h2>
-<p>A call that publishes fills the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message with the sensor's values and adds noise. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L160-L178"><code>gazebo_ros_imu_sensor.cpp</code>, lines 160–178</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: noise and covariance</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
+<h3 id="reading-the-sensor-and-adding-noise">Reading the sensor and adding noise</h3>
+<p>A call that passed the checks reads the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's last measurement and writes the measurement into the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> message, with noise. The excerpt shows these lines, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L149-L166"><code>gazebo_ros_imu_sensor.cpp</code>, lines 149–166</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: the sensor's values, with noise</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
 <span class="normal">163</span>
 <span class="normal">164</span>
 <span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
+<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">//applying offsets to the orientation measurement</span>
+<span class="n">orientation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">offset</span><span class="p">.</span><span class="n">Rot</span><span class="p">()</span><span class="o">*</span><span class="n">sensor</span><span class="o">-&gt;</span><span class="n">Orientation</span><span class="p">();</span>
+<span class="hll"><span class="n">accelerometer_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sensor</span><span class="o">-&gt;</span><span class="n">LinearAcceleration</span><span class="p">();</span>
+</span><span class="hll"><span class="n">gyroscope_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sensor</span><span class="o">-&gt;</span><span class="n">AngularVelocity</span><span class="p">();</span>
+</span>
+<span class="c1">//Guassian noise is applied to all measurements</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orientation</span><span class="p">.</span><span class="n">X</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orientation</span><span class="p">.</span><span class="n">Y</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orientation</span><span class="p">.</span><span class="n">Z</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orientation</span><span class="p">.</span><span class="n">W</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accelerometer_data</span><span class="p">.</span><span class="n">X</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accelerometer_data</span><span class="p">.</span><span class="n">Y</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accelerometer_data</span><span class="p">.</span><span class="n">Z</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gyroscope_data</span><span class="p">.</span><span class="n">X</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gyroscope_data</span><span class="p">.</span><span class="n">Y</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="n">imu_msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gyroscope_data</span><span class="p">.</span><span class="n">Z</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ul>
+<li><strong><code>accelerometer_data</code> and <code>gyroscope_data</code>:</strong> the highlighted lines fetch the two results of <a href="#part-1-gazebos-imu-sensor-measures">Part 1</a> from Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor. <code>accelerometer_data</code> is the specific force <span class="arithmatex">\(\mathbf f\)</span>, and <code>gyroscope_data</code> is the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span>.</li>
+<li><strong><code>orientation</code>:</strong> line 150 fetches the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's orientation <span class="arithmatex">\(\mathbf q\)</span> in the simulated world. The adapter removes the orientation in <a href="#part-3-the-adapter">Part 3</a>.</li>
+<li><strong><code>imu_msg</code>:</strong> the lines from 155 on write each number into the message and add one random number to each.</li>
+</ul>
+<p>The message's values are the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's values plus noise:</p>
+<div class="arithmatex">\[
+\tilde{\boldsymbol\omega} = \boldsymbol\omega + \mathbf n_\omega, \qquad \tilde{\mathbf f} = \mathbf f + \mathbf n_f
+\]</div>
+<p><span class="arithmatex">\(\tilde{\boldsymbol\omega}\)</span> and <span class="arithmatex">\(\tilde{\mathbf f}\)</span> are what the message carries. Each component <span class="arithmatex">\(n\)</span> of <span class="arithmatex">\(\mathbf n_\omega\)</span> and <span class="arithmatex">\(\mathbf n_f\)</span> is a new random number in every message, from a normal distribution with mean 0 and standard deviation <span class="arithmatex">\(\sigma\)</span>:</p>
+<div class="arithmatex">\[
+n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
+\]</div>
+<p><strong>Where <span class="arithmatex">\(\sigma\)</span> comes from:</strong> <span class="arithmatex">\(\sigma\)</span> is the plugin's parameter <code>gaussianNoise</code>, 0.005, in the Gazebo block of the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, <a href="#the-imu-sensor-in-the-robots-urdf-model">line 251 of the macro</a>. The plugin reads the parameter into its variable <code>gaussian_noise</code> when Gazebo loads the plugin. The excerpt shows these lines, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L263-L273"><code>gazebo_ros_imu_sensor.cpp</code>, lines 263–273</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: the parameter gaussianNoise</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">//NOISE</span>
+<span class="hll"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sdf</span><span class="o">-&gt;</span><span class="n">HasElement</span><span class="p">(</span><span class="s">"gaussianNoise"</span><span class="p">))</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll"><span class="w">  </span><span class="n">gaussian_noise</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">sdf</span><span class="o">-&gt;</span><span class="n">Get</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"gaussianNoise"</span><span class="p">);</span>
+</span><span class="w">  </span><span class="n">ROS_INFO_STREAM</span><span class="p">(</span><span class="s">"&lt;gaussianNoise&gt; set to: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">gaussian_noise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">  </span><span class="n">ROS_WARN_STREAM</span><span class="p">(</span><span class="s">"missing &lt;gaussianNoise&gt;, set to default: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">gaussian_noise</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><strong>How a random number is drawn:</strong> <code>GuassianKernel(0, gaussian_noise)</code> returns one random number with mean 0 and the standard deviation <code>gaussian_noise</code>. The excerpt above calls <code>GuassianKernel()</code> once for each value.</p>
+<details class="example">
+<summary>The function <code>GuassianKernel()</code></summary>
+<p>The excerpt shows the function that draws one random number, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L194-L206"><code>gazebo_ros_imu_sensor.cpp</code>, lines 194–206</a>. It turns two evenly distributed random numbers into one normally distributed number, and scales that number with <code>sigma</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: GuassianKernel()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">double</span><span class="w"> </span><span class="nf">GazeboRosImuSensor::GuassianKernel</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">mu</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">sigma</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">// generation of two normalized uniform random variables</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">U1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Rand</span><span class="o">::</span><span class="n">DblUniform</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">U2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ignition</span><span class="o">::</span><span class="n">math</span><span class="o">::</span><span class="n">Rand</span><span class="o">::</span><span class="n">DblUniform</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// using Box-Muller transform to obtain a varaible with a standard normal distribution</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">Z0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="mf">-2.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">::</span><span class="n">log</span><span class="p">(</span><span class="n">U1</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">M_PI</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">U2</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// scaling</span>
+<span class="w">  </span><span class="n">Z0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sigma</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Z0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mu</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Z0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<p><strong>Two places where noise can be set:</strong> the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> could get noise from two parts, and the robots use one of them.</p>
+<ul>
+<li><strong>Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</strong> can add noise of its own, before the plugin reads the values. A <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model asks for this noise with <code>&lt;noise&gt;</code> elements inside the sensor's <code>&lt;imu&gt;</code> element, one for each axis of the angular velocity and of the linear acceleration, as the <a href="http://sdformat.org/spec?ver=1.6&amp;elem=sensor#sensor_imu"><abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> specification of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</a> lists them. The robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models have no such element. So Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor adds no noise.</li>
+<li><strong>The plugin</strong> adds noise when it fills the message. <code>gaussianNoise</code> is its only setting for that. All the noise that the robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models configure comes from the plugin.</li>
+</ul>
+<p><strong>One value for both quantities:</strong> <span class="arithmatex">\(\sigma\)</span> is 0.005 rad/s for the angular velocity and 0.005 m/s² for the specific force. This is a limit of the plugin, which has one parameter for all values, and not a model of a real sensor. A gyroscope's noise in rad/s and an accelerometer's noise in m/s² are different quantities with different sizes. The acceleration's noise doesn't matter to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> today, because the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses only the yaw rate <span class="arithmatex">\(\omega_z\)</span>. The yaw rate's noise and variance do reach the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. They are simulation settings too. So the simulation doesn't show how the real sensor's noise affects the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
+<p><strong>A simulation setting, not a measurement:</strong> 0.005 isn't the BNO055's noise. At rest on Remo, the real BNO055's gyroscope scatters with a standard deviation of 0.0005 to 0.0008 rad/s, and its accelerometer with about 0.02 to 0.03 m/s². The <a href="../../driver-bno055/#bench-checks">bench checks</a> on the BNO055 page have these measurements.</p>
+<h3 id="filling-the-covariances">Filling the covariances</h3>
+<p>After the values, the same call writes the covariances. The excerpt shows these lines, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L168-L178"><code>gazebo_ros_imu_sensor.cpp</code>, lines 168–178</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: the covariances</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
 <span class="normal">171</span>
@@ -4994,15 +5433,7 @@
 <span class="normal">175</span>
 <span class="normal">176</span>
 <span class="normal">177</span>
-<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accelerometer_data</span><span class="p">.</span><span class="n">X</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accelerometer_data</span><span class="p">.</span><span class="n">Y</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accelerometer_data</span><span class="p">.</span><span class="n">Z</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
-
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gyroscope_data</span><span class="p">.</span><span class="n">X</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gyroscope_data</span><span class="p">.</span><span class="n">Y</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">angular_velocity</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gyroscope_data</span><span class="p">.</span><span class="n">Z</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">GuassianKernel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">gaussian_noise</span><span class="p">);</span>
-
-<span class="c1">//covariance is related to the Gaussian noise</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">//covariance is related to the Gaussian noise</span>
 <span class="kt">double</span><span class="w"> </span><span class="n">gn2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gaussian_noise</span><span class="o">*</span><span class="n">gaussian_noise</span><span class="p">;</span>
 <span class="n">imu_msg</span><span class="p">.</span><span class="n">orientation_covariance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gn2</span><span class="p">;</span>
 <span class="n">imu_msg</span><span class="p">.</span><span class="n">orientation_covariance</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gn2</span><span class="p">;</span>
@@ -5014,29 +5445,15 @@
 <span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration_covariance</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gn2</span><span class="p">;</span>
 <span class="n">imu_msg</span><span class="p">.</span><span class="n">linear_acceleration_covariance</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gn2</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><strong>The noise.</strong> The plugin adds a random number to each component of both vectors:</p>
-<div class="arithmatex">\[
-\tilde{\boldsymbol\omega} = \boldsymbol\omega + \mathbf n_\omega, \qquad \tilde{\mathbf f} = \mathbf f + \mathbf n_f
-\]</div>
-<p><span class="arithmatex">\(\tilde{\boldsymbol\omega}\)</span> and <span class="arithmatex">\(\tilde{\mathbf f}\)</span> are what the message carries. Each component <span class="arithmatex">\(n\)</span> of <span class="arithmatex">\(\mathbf n_\omega\)</span> and <span class="arithmatex">\(\mathbf n_f\)</span> is a new random number in every message, from a normal distribution with mean 0 and standard deviation <span class="arithmatex">\(\sigma\)</span>:</p>
-<div class="arithmatex">\[
-n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
-\]</div>
-<ul>
-<li><strong><span class="arithmatex">\(\sigma\)</span> comes from the robot's model.</strong> It's the plugin's parameter <code>gaussianNoise</code>, 0.005, in the <a href="#the-gazebo-sensor-in-the-model">last highlighted line of the model's Gazebo block</a>. The plugin reads the parameter into <code>gaussian_noise</code> when Gazebo loads the model, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L264-L266">lines 264–266</a>.</li>
-<li><strong><code>GuassianKernel(0, gaussian_noise)</code></strong> draws one random number with mean 0 and this standard deviation, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L194-L206">lines 194–206</a>. The excerpt calls it once for each of the six values.</li>
-<li><strong>One setting serves both vectors.</strong> <span class="arithmatex">\(\sigma\)</span> is 0.005 rad/s for the angular velocity and 0.005 m/s² for the specific force.</li>
-<li><strong>It's a simulation setting</strong>, not the BNO055's measured noise. Gazebo's sensor adds no noise of its own, because the model gives it none.</li>
-</ul>
-<p><strong>The covariance.</strong> The plugin writes the variance <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span> into the elements 0, 4 and 8 of each covariance, in (rad/s)² and (m/s²)². These three elements are the matrix's diagonal, as <a href="../#how-the-message-stores-a-covariance">how the message stores a covariance</a> on the overview shows. Element 8 is the yaw rate's variance, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> uses. The other elements stay 0. For the angular velocity:</p>
+<p><code>gn2</code> is <code>gaussian_noise</code> squared, the variance <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span>. The plugin writes this variance into the elements 0, 4 and 8 of each covariance, in (rad/s)² for the angular velocity and in (m/s²)² for the specific force. These three elements are the matrix's diagonal, as <a href="../#how-the-message-stores-a-covariance">how the message stores a covariance</a> on the overview shows. Element 8 of <code>angular_velocity_covariance</code> is the variance of the yaw rate <span class="arithmatex">\(\omega_z\)</span>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> uses. The other elements stay 0. For the angular velocity:</p>
 <div class="arithmatex">\[
 \Sigma_\omega = \begin{pmatrix} \sigma^2 &amp; 0 &amp; 0 \\ 0 &amp; \sigma^2 &amp; 0 \\ 0 &amp; 0 &amp; \sigma^2 \end{pmatrix} = \sigma^2 I_3
 \]</div>
 <p><span class="arithmatex">\(I_3\)</span> is the 3 × 3 identity matrix. The specific force's covariance <span class="arithmatex">\(\Sigma_f\)</span> has the same numbers, in (m/s²)².</p>
-<p><strong>Why the other elements are 0.</strong> An element off the diagonal is the covariance of two axes' errors. The plugin draws a separate random number for each axis, so the noise on one axis says nothing about the noise on another. The two numbers are independent, and the covariance of two independent numbers is 0, as Wikipedia's article on <a href="https://en.wikipedia.org/wiki/Covariance#Uncorrelatedness_and_independence">covariance</a> shows. On a real sensor, the errors of two axes can depend on each other. Then these elements aren't 0.</p>
-<p>The plugin also fills the orientation: Gazebo's orientation of the sensor with noise, in the lines before the excerpt, and the orientation's covariance, in the excerpt's lines 170–172. The adapter removes both.</p>
-<h2 id="the-header-and-the-stamp">The header and the stamp</h2>
-<p>The end of <code>UpdateChild()</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L180-L188"><code>gazebo_ros_imu_sensor.cpp</code>, lines 180–188</a>:</p>
+<p><strong>Why the other elements are 0:</strong> an element off the diagonal is the covariance of two axes' errors. The plugin draws a separate random number for each axis, so the noise on one axis says nothing about the noise on another. The two numbers are independent, and the covariance of two independent numbers is 0, as Wikipedia's article on <a href="https://en.wikipedia.org/wiki/Covariance#Uncorrelatedness_and_independence">covariance</a> shows. On a real sensor, the errors of two axes can depend on each other. Then these elements aren't 0.</p>
+<p>The first three lines of the excerpt write the orientation's covariance. The adapter replaces this covariance in <a href="#part-3-the-adapter">Part 3</a>.</p>
+<h3 id="the-header-and-publishing">The header and publishing</h3>
+<p>The last lines of <code>UpdateChild()</code> set the header, publish the message and store the time for the next call's rate limit. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L180-L192"><code>gazebo_ros_imu_sensor.cpp</code>, lines 180–192</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: the end of UpdateChild()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span>
@@ -5045,23 +5462,44 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 <span class="normal">185</span>
 <span class="normal">186</span>
 <span class="normal">187</span>
-<span class="normal">188</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">//preparing message header</span>
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">frame_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">body_name</span><span class="p">;</span>
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">.</span><span class="n">sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">.</span><span class="n">sec</span><span class="p">;</span>
-<span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">.</span><span class="n">nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">.</span><span class="n">nsec</span><span class="p">;</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">    </span><span class="c1">//preparing message header</span>
+<span class="w">    </span><span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">frame_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">body_name</span><span class="p">;</span>
+<span class="w">    </span><span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">.</span><span class="n">sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">.</span><span class="n">sec</span><span class="p">;</span>
+<span class="w">    </span><span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">.</span><span class="n">nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">.</span><span class="n">nsec</span><span class="p">;</span>
 
-<span class="n">imu_data_publisher</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">imu_msg</span><span class="p">);</span>
-<span class="hll"><span class="c1">// No ros::spinOnce() here: this function runs in Gazebo's physics thread, which must not</span>
-</span><span class="hll"><span class="c1">// run ROS callbacks. A controller manager service that it ran would wait for this thread</span>
-</span><span class="hll"><span class="c1">// (see the notice at the top of this file).</span>
-</span></code></pre></div></td></tr></tbody></table></div>
+<span class="hll"><span class="w">    </span><span class="n">imu_data_publisher</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">imu_msg</span><span class="p">);</span>
+</span><span class="w">    </span><span class="c1">// No ros::spinOnce() here: this function runs in Gazebo's physics thread, which must not</span>
+<span class="w">    </span><span class="c1">// run ROS callbacks. A controller manager service that it ran would wait for this thread</span>
+<span class="w">    </span><span class="c1">// (see the notice at the top of this file).</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="hll"><span class="w">  </span><span class="n">last_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">;</span>
+</span><span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong>The frame</strong> is <code>body_name</code>, the parameter <code>frameName</code>: <code>imu_link</code>.</li>
-<li><strong>The stamp</strong> is the time of the sensor's last measurement, in simulation time.</li>
-<li><strong>After <code>publish()</code></strong>, the plugin does nothing more, as the highlighted comment says. gazebo_plugins' original calls <code>ros::spinOnce()</code> at this place, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L150">line 150 of its source</a>. <a href="../plugin/#why-the-plugin-doesnt-spin">Why the plugin doesn't spin</a> explains why the copy leaves this call out.</li>
+<li><strong>The frame:</strong> <code>body_name</code> is the parameter <code>frameName</code>, <code>imu_link</code>.</li>
+<li><strong>The stamp:</strong> <code>current_time</code> is the simulation time of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's last measurement, from the first line of <code>UpdateChild()</code>.</li>
+<li><strong><code>publish()</code>:</strong> line 185, the first highlighted line, publishes the finished message on <code>/diffbot/imu/gazebo</code>. This is the one place where the plugin publishes.</li>
+<li><strong><code>last_time</code>:</strong> line 191, the second highlighted line, stores <code>current_time</code> for the rate limit of the next calls. Line 191 also runs when no node subscribes.</li>
 </ul>
-<h2 id="the-adapter">The adapter</h2>
-<p>The plugin's message has an orientation, and the firmware's message has none. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/scripts/imu_raw_adapter.py"><code>imu_raw_adapter.py</code></a> makes the simulated message match the firmware's. <code>diffbot_view.launch</code> starts the adapter in the <code>diffbot</code> namespace, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/launch/diffbot_view.launch#L39">line 39</a>. So the adapter's relative topic names become <code>/diffbot/imu/gazebo</code> and <code>/diffbot/imu/data_raw</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/scripts/imu_raw_adapter.py#L16-L36"><code>imu_raw_adapter.py</code>, lines 16–36</a>:</p>
+<div class="admonition note">
+<p class="admonition-title">The original plugin calls <code>ros::spinOnce()</code> after <code>publish()</code></p>
+<p>gazebo_plugins' original <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin calls <code>ros::spinOnce()</code> right after <code>publish()</code>, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L150">line 150 of its source</a>. The robots' copy has the comment of lines 186–188 at this place instead. This one call is the main reason why the robots have their own plugin: with <code>ros::spinOnce()</code> at this place, the simulation's clock can stop for good while the controllers start. <a href="../plugin/#why-the-plugin-doesnt-spin">Why the plugin doesn't spin</a> explains how.</p>
+</div>
+<h2 id="part-3-the-adapter">Part 3: the adapter</h2>
+<p>The adapter is there so that the nodes that read the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> get its message in the same form in the simulation as on the real robot: a <code>sensor_msgs/Imu</code> message on <code>/diffbot/imu/data_raw</code>, with the orientation marked unavailable. On the real robot, the Teensy's firmware publishes this topic without an orientation, as <a href="../../driver-bno055/#what-the-firmware-publishes">what the firmware publishes</a> shows. The plugin's message on <code>/diffbot/imu/gazebo</code> has an orientation <span class="arithmatex">\(\mathbf q\)</span>. So <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/scripts/imu_raw_adapter.py"><code>imu_raw_adapter.py</code></a> takes each of the plugin's messages, marks the orientation unavailable as the firmware does, and publishes the result on <code>/diffbot/imu/data_raw</code>. The adapter changes nothing else. The angular velocity, the specific force and their covariances stay as the plugin set them. So their noise and their variances are the simulation's, not the firmware's.</p>
+<p><code>diffbot_view.launch</code> starts the adapter in the <code>diffbot</code> namespace. So the adapter's relative topic names become <code>/diffbot/imu/gazebo</code> and <code>/diffbot/imu/data_raw</code>. The excerpt shows the line that starts the adapter, with its comment, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/launch/diffbot_view.launch#L37-L39"><code>diffbot_view.launch</code>, lines 37–39</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_view.launch: the adapter's node</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">&lt;!-- The simulated IMU publishes imu/gazebo; this node republishes it as imu/data_raw, without</span>
+<span class="cm">     the orientation, as the real robot's firmware publishes it (scripts/imu_raw_adapter.py) --&gt;</span>
+<span class="nt">&lt;node</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_raw_adapter"</span><span class="w"> </span><span class="na">pkg=</span><span class="s">"diffbot_gazebo"</span><span class="w"> </span><span class="na">type=</span><span class="s">"imu_raw_adapter.py"</span><span class="w"> </span><span class="na">ns=</span><span class="s">"diffbot"</span><span class="w"> </span><span class="na">output=</span><span class="s">"screen"</span><span class="nt">/&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The next excerpt shows the adapter's code, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/scripts/imu_raw_adapter.py#L16-L36"><code>imu_raw_adapter.py</code>, lines 16–36</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_raw_adapter.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
 <span class="normal">17</span>
 <span class="normal">18</span>
@@ -5105,10 +5543,10 @@ n \sim \mathcal N(0, \sigma^2), \qquad \sigma = 0.005
 </span>        <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong>How a field is marked unavailable.</strong> A <code>sensor_msgs/Imu</code> message always has an orientation field. To say that a field holds no data, a publisher sets the first element of the field's covariance to −1. The <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L10-L13">message definition's comments</a> ask for that, and so does <a href="https://www.ros.org/reps/rep-0145.html#topics"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145</a>, the ROS convention for <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> drivers. A node that reads the message should check that element and ignore the field. <code>ORIENTATION_UNAVAILABLE</code> is such a covariance: −1, then eight zeros. <a href="../#how-the-message-stores-a-covariance">How the message stores a covariance</a> shows the array next to the other cases.</li>
-<li><strong>A convention, not a rule to drop the orientation.</strong> <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145 doesn't ask an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> driver to leave out the orientation. A driver whose sensor estimates an orientation can publish it on <code>imu/data</code>. The firmware's topic, <code>imu/data_raw</code>, is <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145's name for the accelerometer's and the gyroscope's data alone.</li>
-<li><strong>The callback</strong> sets the quaternion's four values to 0 and the orientation covariance to a copy of the constant. <code>list()</code> makes the copy, so that the messages don't share the constant's list. Then the callback publishes the same message object.</li>
-<li><strong>What stays:</strong> the header with its stamp and frame, the angular velocity, the specific force and their covariances. The adapter doesn't stamp the message again. The <a href="../../robot_localization/#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> checks how old each sample is, and a new stamp would hide a delay.</li>
+<li><strong>How a field is marked unavailable:</strong> a <code>sensor_msgs/Imu</code> message always has an orientation field. To say that a field holds no data, a publisher sets the first element of the field's covariance to −1. The <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L10-L13">message definition's comments</a> ask for that, and so does <a href="https://www.ros.org/reps/rep-0145.html#topics"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145</a>, the ROS convention for <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> drivers. A node that reads the message should check that element and ignore the field. <code>ORIENTATION_UNAVAILABLE</code> is such a covariance: −1, then eight zeros. <a href="../#how-the-message-stores-a-covariance">How the message stores a covariance</a> shows the array next to the other cases.</li>
+<li><strong>A convention, not a rule to drop the orientation:</strong> <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145 doesn't ask an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> driver to leave out the orientation. A driver whose sensor estimates an orientation can publish the orientation on <code>imu/data</code>. The firmware's topic, <code>imu/data_raw</code>, is <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145's name for the accelerometer's and the gyroscope's data alone.</li>
+<li><strong><code>callback()</code>:</strong> the callback sets the four numbers of the quaternion <span class="arithmatex">\(\mathbf q\)</span> to 0 and the orientation covariance to a copy of the constant. <code>list()</code> makes the copy, so that the messages don't share the constant's list. Then the callback publishes the same message object.</li>
+<li><strong>What stays:</strong> the header with its stamp and frame, the angular velocity <span class="arithmatex">\(\tilde{\boldsymbol\omega}\)</span>, the specific force <span class="arithmatex">\(\tilde{\mathbf f}\)</span> and their covariances <span class="arithmatex">\(\Sigma_\omega\)</span> and <span class="arithmatex">\(\Sigma_f\)</span>. The adapter doesn't stamp the message again. The <a href="../../robot_localization/#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> checks how old each sample is, and a new stamp would hide a delay.</li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->

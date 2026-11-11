@@ -2770,15 +2770,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#the-link-and-the-joint-in-the-model" class="md-nav__link">
+  <a href="#the-link-and-the-joint-in-the-robots-urdf-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The link and the joint in the model
+        The link and the joint in the robot's URDF model
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The link and the joint in the model">
+    <nav class="md-nav" aria-label="The link and the joint in the robot's URDF model">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -4592,15 +4592,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#the-link-and-the-joint-in-the-model" class="md-nav__link">
+  <a href="#the-link-and-the-joint-in-the-robots-urdf-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The link and the joint in the model
+        The link and the joint in the robot's URDF model
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The link and the joint in the model">
+    <nav class="md-nav" aria-label="The link and the joint in the robot's URDF model">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -4862,25 +4862,25 @@
 </div>
 <figcaption>Remo’s frames, to scale. <code>chassis_link</code> is at the center of the base plate’s top. <code>imu_joint</code>, the dashed line, puts <code>imu_link</code> on it, at the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>’s board (blue) on the breadboard. Red is x, green is y and blue is z. A ring with a dot is an axis that points at you, a ring with a cross one that points away.</figcaption>
 </figure>
-<p>The figure shows Remo. DiffBot has the same three parts, with other values. Their names come from the robot's model:</p>
+<p>The figure shows Remo. DiffBot has the same three parts, with other values. Their names come from the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model:</p>
 <ul>
 <li><strong><code>imu_link</code></strong> is the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame: a point on the robot with three axes. Every value in the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s message is along these axes.</li>
-<li><strong><code>chassis_link</code></strong> is the frame at the center of the robot's base plate. Its x axis points forward, its y axis to the left and its z axis up, as <a href="https://www.ros.org/reps/rep-0103.html#axis-orientation"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>, ROS's convention for coordinate frames, asks for a robot's body. The models declare <code>chassis_link</code> in their <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207">base macro</a>.</li>
-<li><strong><code>imu_joint</code></strong> is a fixed joint that puts <code>imu_link</code> on <code>chassis_link</code>. The joint's origin says where the sensor sits and how the sensor is turned:<ul>
+<li><strong><code>chassis_link</code></strong> is the frame at the center of the robot's base plate. Its x axis points forward, its y axis to the left and its z axis up, as <a href="https://www.ros.org/reps/rep-0103.html#axis-orientation"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>, ROS's convention for coordinate frames, asks for a robot's body. The robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models declare <code>chassis_link</code> in their <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207">base macro</a>.</li>
+<li><strong><code>imu_joint</code></strong> is a fixed joint that puts <code>imu_link</code> on <code>chassis_link</code>. The joint's origin says where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor sits and how the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor is turned:<ul>
 <li><code>xyz</code> is the position in m, along <code>chassis_link</code>'s x, y and z axes.</li>
 <li><code>rpy</code> is the rotation in rad: roll about x, pitch about y and yaw about z.</li>
 </ul>
 </li>
 </ul>
-<p>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs the yaw rate along the robot's axes, not along the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> converts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s values with this joint's transform. <a href="http://wiki.ros.org/robot_state_publisher"><code>robot_state_publisher</code></a> publishes the transform: this ROS node reads the robot's model and publishes the position of every link to tf, ROS's system for transforms between frames. In the simulation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/launch/diffbot_control.launch#L28-L30"><code>diffbot_control.launch</code></a> starts <code>robot_state_publisher</code>.</p>
-<h2 id="the-link-and-the-joint-in-the-model">The link and the joint in the model</h2>
-<p>The robots' models are written in <a href="http://wiki.ros.org/xacro">xacro</a>, XML with variables and macros. The program <code>xacro</code> reads such a file and writes the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> that ROS and Gazebo use.</p>
-<p>A <strong>macro</strong> is a piece of model with a name and with blanks. A <strong>call</strong> names the macro and fills the blanks. Where xacro finds a call, it writes the macro's content, with the blanks filled in. So one macro can put the same part on two robots, at a different place on each.</p>
-<p>Both robots' models declare <code>imu_link</code> and <code>imu_joint</code> in a macro named <code>imu_sensor</code>. The excerpts below are DiffBot's. <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L211-L268">Remo's macro in remo_description</a> declares the same link and joint.</p>
-<p><strong>The macro's first line</strong> gives the macro's name and its blanks, which xacro calls parameters. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L204"><code>common_sensors.xacro</code>, line 204</a>:</p>
+<p>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs the yaw rate <span class="arithmatex">\(\omega_z\)</span> along the robot's axes, not along the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> converts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s values with this joint's transform. <a href="http://wiki.ros.org/robot_state_publisher"><code>robot_state_publisher</code></a> publishes the transform: this ROS node reads the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model and publishes the position of every link to tf, ROS's system for transforms between frames. In the simulation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/launch/diffbot_control.launch#L28-L30"><code>diffbot_control.launch</code></a> starts <code>robot_state_publisher</code>.</p>
+<h2 id="the-link-and-the-joint-in-the-robots-urdf-model">The link and the joint in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model</h2>
+<p>The robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models are written in <a href="http://wiki.ros.org/xacro">xacro</a>, XML with variables and macros. The program <code>xacro</code> reads a robot's xacro files and writes one <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> file: the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, which ROS and Gazebo use.</p>
+<p>A <strong>macro</strong> is a piece of a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model with a name and with blanks. A <strong>call</strong> names the macro and fills the blanks. Where xacro finds a call, it writes the macro's content, with the blanks filled in. So one macro can put the same part on two robots, at a different place on each.</p>
+<p>Both robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models declare <code>imu_link</code> and <code>imu_joint</code> in a macro named <code>imu_sensor</code>. The excerpts below are DiffBot's. <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L211-L268">Remo's macro in remo_description</a> declares the same link and joint.</p>
+<p><strong>The macro's first line:</strong> the excerpt shows the line that gives the macro's name and its blanks, which xacro calls parameters, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L204"><code>common_sensors.xacro</code>, line 204</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro: the macro imu_sensor and its parameters</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;xacro:macro</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_sensor"</span><span class="w"> </span><span class="na">params=</span><span class="s">"parent_link sensor_prop *origin"</span><span class="nt">&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><strong>The joint</strong> in the macro uses two of the parameters, in the highlighted lines. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L236-L240"><code>common_sensors.xacro</code>, lines 236–240</a>:</p>
+<p><strong>The joint:</strong> the excerpt shows the joint in the macro, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L236-L240"><code>common_sensors.xacro</code>, lines 236–240</a>. The highlighted lines use two of the parameters:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro: imu_joint in the macro</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">236</span>
 <span class="normal">237</span>
 <span class="normal">238</span>
@@ -4891,7 +4891,7 @@
 <span class="hll"><span class="w">  </span><span class="nt">&lt;xacro:insert_block</span><span class="w"> </span><span class="na">name=</span><span class="s">"origin"</span><span class="nt">/&gt;</span>
 </span><span class="nt">&lt;/joint&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><strong>The call</strong> in DiffBot's model. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82"><code>diffbot.urdf.xacro</code>, lines 80–82</a>:</p>
+<p><strong>The call:</strong> the excerpt shows the call in DiffBot's xacro file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82"><code>diffbot.urdf.xacro</code>, lines 80–82</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot.urdf.xacro: the call of imu_sensor</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
 <span class="normal">81</span>
 <span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;xacro:imu_sensor</span><span class="w"> </span><span class="na">parent_link=</span><span class="s">"chassis_link"</span><span class="w"> </span><span class="na">sensor_prop=</span><span class="s">"${sensor_prop}"</span><span class="nt">&gt;</span>
@@ -4902,12 +4902,12 @@
 <ol>
 <li><code>&lt;xacro:imu_sensor …&gt;</code> is the call. The name after <code>xacro:</code> is the macro's name.</li>
 <li><code>parent_link="chassis_link"</code> fills the parameter <code>parent_link</code>. In the macro, <code>${parent_link}</code> stands for the parameter's value. So the joint's parent becomes <code>chassis_link</code>.</li>
-<li><code>sensor_prop="${sensor_prop}"</code> fills the parameter <code>sensor_prop</code> with the model's sensor settings. The joint doesn't use them. <a href="#the-link">The link</a> does.</li>
+<li><code>sensor_prop="${sensor_prop}"</code> fills the parameter <code>sensor_prop</code> with the robot's sensor settings. The joint doesn't use them. <a href="#the-link">The link</a> does.</li>
 <li><code>*origin</code> is a parameter of another kind. The star says that this blank doesn't take a value in quotes. It takes a whole XML element: the element that stands between the call's opening and closing tags. Here that is the <code>&lt;origin … /&gt;</code> line. The xacro documentation calls such a parameter a block parameter.</li>
 <li><code>&lt;xacro:insert_block name="origin"/&gt;</code> marks the place in the macro where xacro puts that element.</li>
-<li><code>$(arg imu_xyz)</code> and <code>$(arg imu_rpy)</code> are arguments of the model file. Each has a default value, and you can set another one when you run xacro. <a href="#the-mounting-on-each-robot">The mounting on each robot</a> shows their values.</li>
+<li><code>$(arg imu_xyz)</code> and <code>$(arg imu_rpy)</code> are arguments of the robot's xacro file. Each has a default value, and you can set another one when you run xacro. <a href="#the-mounting-on-each-robot">The mounting on each robot</a> shows their values.</li>
 </ol>
-<p>The result is this joint in DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. The lines are xacro's output for <code>diffbot.urdf.xacro</code> at the pinned commit, with the arguments' defaults. They aren't a file in a repository:</p>
+<p>The result is this joint in DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model. The lines are xacro's output for <code>diffbot.urdf.xacro</code> at the pinned commit, with the arguments' defaults. They aren't a file in a repository:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">DiffBot's URDF, expanded by xacro: imu_joint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -4918,9 +4918,9 @@
 <span class="w">  </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0.01"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/joint&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>So the macro says that the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> has a link and a joint. The call says where the joint puts the link. That is why the position and the rotation stand in each robot's model file, and not in the macro. <code>type="fixed"</code> means that the joint can't move: <code>imu_link</code> keeps its place on <code>chassis_link</code>, as the board keeps its place on the robot.</p>
+<p>So the macro says that the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> has a link and a joint. The call says where the joint puts the link. That is why the position and the rotation stand in each robot's xacro file, and not in the macro. <code>type="fixed"</code> means that the joint can't move: <code>imu_link</code> keeps its place on <code>chassis_link</code>, as the board keeps its place on the robot.</p>
 <h3 id="the-link">The link</h3>
-<p>The macro's link gives the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> a shape, a collision box and a mass. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L206-L234"><code>common_sensors.xacro</code>, lines 206–234</a>:</p>
+<p>The macro's link gives the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> a shape, a collision box and a mass. The excerpt shows the link, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/include/common_sensors.xacro#L206-L234"><code>common_sensors.xacro</code>, lines 206–234</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">common_sensors.xacro: the IMU's settings and imu_link</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
@@ -4981,11 +4981,11 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>imu</code> in these lines holds the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s settings. They reach the link in three steps:</p>
 <ol>
-<li>DiffBot's model reads the file <code>sensors.yaml</code> into the property <code>sensor_prop</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33">lines 32–33 of <code>diffbot.urdf.xacro</code></a>.</li>
+<li>DiffBot's xacro file reads the file <code>sensors.yaml</code> into the property <code>sensor_prop</code>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33">lines 32–33 of <code>diffbot.urdf.xacro</code></a>.</li>
 <li>The call passes <code>sensor_prop</code> to the macro, as step 3 of the list above says.</li>
 <li>The highlighted line takes the entry <code>imu</code> out of <code>sensor_prop</code>.</li>
 </ol>
-<p>The entry, <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/config/diffbot/sensors.yaml#L16-L26"><code>sensors.yaml</code>, lines 16–26</a>:</p>
+<p>The excerpt shows the entry, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/config/diffbot/sensors.yaml#L16-L26"><code>sensors.yaml</code>, lines 16–26</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sensors.yaml: the IMU's entry</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
 <span class="normal">17</span>
 <span class="normal">18</span>
@@ -5010,14 +5010,14 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and <code>box_inertia</code> gives the link the board's mass, 3 g. Remo's entry names a mesh of the BNO055 board, in <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/config/remo/sensors.yaml#L38-L51">lines 38–51 of Remo's <code>sensors.yaml</code></a>.</p>
 <h2 id="the-mounting-on-each-robot">The mounting on each robot</h2>
-<p>Each robot's model file sets where its call puts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>. Choose your robot:</p>
+<p>Each robot's xacro file sets where its call puts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>. Choose your robot:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Remo</label><label for="__tabbed_1_2">DiffBot</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Remo seen from the rear left, with the lidar platform hidden. A ring marks the blue BNO055 board on the breadboard, beside the Teensy and behind the Raspberry Pi" src="../../images/remo-imu-overview.webp" width="340"></a>
 <a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Remo from above, front up. The IMU's center lies 7.6 cm behind the wheel axle and 2.34 cm left of the center line. Its x axis points to the robot's right, its y axis forward" src="../../images/remo-imu-top.webp" width="340"></a></p>
 <p>The first picture shows Remo with the lidar platform hidden. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> board sits on the breadboard, at the rear. The second picture shows Remo from above. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s x axis points to the right, its y axis forward, and its z axis up, toward you.</p>
-<p>Remo's model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's model at remo_description 2.5.0, the version that <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_dev.repos"><code>diffbot_dev.repos</code></a> names. The call of the macro puts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> on <code>chassis_link</code>. <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216"><code>remo.urdf.xacro</code>, lines 211–216</a>:</p>
+<p>Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model at remo_description 2.5.0, the version that <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_dev.repos"><code>diffbot_dev.repos</code></a> names. The call of the macro puts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> on <code>chassis_link</code>. The excerpt shows the call, from <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216"><code>remo.urdf.xacro</code>, lines 211–216</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">remo.urdf.xacro: the call of imu_sensor</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
 <span class="normal">212</span>
 <span class="normal">213</span>
@@ -5030,12 +5030,12 @@
 <span class="hll"><span class="w">  </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"$(arg imu_xyz)"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"$(arg imu_rpy)"</span><span class="w"> </span><span class="nt">/&gt;</span>
 </span><span class="nt">&lt;/xacro:imu_sensor&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>imu_xyz</code> and <code>imu_rpy</code> are xacro arguments, declared at the top of the file with their defaults. <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27"><code>remo.urdf.xacro</code>, lines 26–27</a>:</p>
+<p><code>imu_xyz</code> and <code>imu_rpy</code> are xacro arguments, declared at the top of the file with their defaults. The excerpt shows the two arguments, from <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27"><code>remo.urdf.xacro</code>, lines 26–27</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">remo.urdf.xacro: the IMU's mounting</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_xyz"</span><span class="w"> </span><span class="na">default=</span><span class="s">"-0.0401 0.0234 0.013"</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_rpy"</span><span class="w"> </span><span class="na">default=</span><span class="s">"0 0 -1.5707963"</span><span class="w"> </span><span class="nt">/&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Xacro turns the call into this joint in Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. The lines are xacro's output for <code>remo.urdf.xacro</code> at 2.5.0, with the arguments' defaults. They aren't a file in a repository:</p>
+<p>Xacro turns the call into this joint in Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model. The lines are xacro's output for <code>remo.urdf.xacro</code> at 2.5.0, with the arguments' defaults. They aren't a file in a repository:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Remo's URDF, expanded by xacro: imu_joint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -5053,11 +5053,11 @@
 <p>What follows for the message's values on Remo:</p>
 <ul>
 <li>Both z axes point up. So a left turn reads as a positive yaw rate <span class="arithmatex">\(\omega_z\)</span>, for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> as for the robot.</li>
-<li>Forward is <code>imu_link</code>'s y axis. So a forward acceleration appears in <code>linear_acceleration.y</code>, not in <code>linear_acceleration.x</code>.</li>
+<li>Forward is <code>imu_link</code>'s y axis. So a forward acceleration appears in <span class="arithmatex">\(f_y\)</span>, the message's <code>linear_acceleration.y</code>, not in <span class="arithmatex">\(f_x\)</span>, its <code>linear_acceleration.x</code>.</li>
 </ul>
 </div>
 <div class="tabbed-block">
-<p>DiffBot uses the same BNO055 board as Remo, moved from one robot to the other. Its mounting on DiffBot isn't measured yet. So DiffBot's model uses placeholders: 1 cm above <code>chassis_link</code>'s origin, with the board's axes along the robot's. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10"><code>diffbot.urdf.xacro</code>, lines 4–10</a>:</p>
+<p>DiffBot uses the same BNO055 board as Remo, moved from one robot to the other. Its mounting on DiffBot isn't measured yet. So DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model uses placeholders: 1 cm above <code>chassis_link</code>'s origin, with the board's axes along the robot's. The excerpt shows the two arguments with their comment, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10"><code>diffbot.urdf.xacro</code>, lines 4–10</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot.urdf.xacro: the IMU's mounting</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
 <span class="normal"> 5</span>
 <span class="normal"> 6</span>
@@ -5072,19 +5072,19 @@
 <span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_xyz"</span><span class="w"> </span><span class="na">default=</span><span class="s">"0 0 0.01"</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="nt">&lt;xacro:arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"imu_rpy"</span><span class="w"> </span><span class="na">default=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="nt">/&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The call of the macro passes them to the joint. <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82"><code>diffbot.urdf.xacro</code>, lines 80–82</a>:</p>
+<p>The call of the macro passes the two arguments to the joint. The excerpt shows the call, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82"><code>diffbot.urdf.xacro</code>, lines 80–82</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot.urdf.xacro: the call of imu_sensor</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
 <span class="normal">81</span>
 <span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;xacro:imu_sensor</span><span class="w"> </span><span class="na">parent_link=</span><span class="s">"chassis_link"</span><span class="w"> </span><span class="na">sensor_prop=</span><span class="s">"${sensor_prop}"</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"$(arg imu_xyz)"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"$(arg imu_rpy)"</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/xacro:imu_sensor&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>In DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, the joint's origin is <code>&lt;origin rpy="0 0 0" xyz="0 0 0.01"/&gt;</code>, on <code>chassis_link</code>, as <a href="#the-link-and-the-joint-in-the-model">the expanded joint above</a> shows. To try another mounting, override the arguments when you expand the model, for example <code>xacro diffbot.urdf.xacro imu_xyz:='0 0 0.02'</code>.</p>
-<p>What follows for the message's values in DiffBot's model:</p>
+<p>In DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, the joint's origin is <code>&lt;origin rpy="0 0 0" xyz="0 0 0.01"/&gt;</code>, on <code>chassis_link</code>, as <a href="#the-link-and-the-joint-in-the-robots-urdf-model">the expanded joint above</a> shows. To try another mounting, override the arguments when you run xacro, for example <code>xacro diffbot.urdf.xacro imu_xyz:='0 0 0.02'</code>.</p>
+<p>What follows for the message's values in DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model:</p>
 <ul>
 <li><code>imu_link</code> lies straight above <code>chassis_link</code>, with the same directions. Seen from above, the two frames lie on top of each other, so this page has no figure of them.</li>
 <li>Both z axes point up. So a left turn reads as a positive yaw rate <span class="arithmatex">\(\omega_z\)</span>.</li>
-<li>Forward is <code>imu_link</code>'s x axis. So a forward acceleration appears in <code>linear_acceleration.x</code>.</li>
+<li>Forward is <code>imu_link</code>'s x axis. So a forward acceleration appears in <span class="arithmatex">\(f_x\)</span>, the message's <code>linear_acceleration.x</code>.</li>
 </ul>
 </div>
 </div>
