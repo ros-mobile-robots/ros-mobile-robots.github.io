@@ -8,14 +8,17 @@ function prepare(root) {
   const find = (selector) => root.querySelector(selector);
   const select = find('.ix-robot-select'), open = find('.ix-open'), status = find('.ix-status');
   const sizes = JSON.parse(find('.ix-download').dataset.sizes);
-  const showSize = () => { find('.ix-download').textContent = `Loads ${sizes[select.value]}`; };
+  // What opening the view fetches at most: the view's code and the chosen robot's model files
+  const showSize = () => { find('.ix-download').textContent = `Up to ${sizes[select.value]}`; };
   select.addEventListener('change', showSize);
   showSize();
   find('.ix-view3d-start').hidden = false;
 
   let view = null;
   open.addEventListener('click', async () => {
+    // The view opens with the robot that is chosen now, so the choice waits until the view is open
     open.disabled = true;
+    select.disabled = true;
     status.hidden = false;
     status.textContent = 'Loading the 3D view …';
     try {
@@ -37,6 +40,7 @@ function prepare(root) {
       status.textContent = 'The 3D view couldn’t start. It needs WebGL in the browser and its files from this site. '
         + 'The picture and the tables below show the same models.';
     }
+    select.disabled = false;
   });
 }
 

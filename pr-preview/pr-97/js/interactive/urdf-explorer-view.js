@@ -64,7 +64,8 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
   const find = (selector) => root.querySelector(selector);
   const findAll = (selector) => [...root.querySelectorAll(selector)];
   const stage = find('.ix-stage'), view = find('.ix-view3d'), explorer = find('.ix-explorer');
-  const state = { robot: firstRobot, layers: new Set(), selected: null, enlarged: false, frame: 0 };
+  // robot is the key of the robot that the view shows, which showRobot sets
+  const state = { robot: null, layers: new Set(), selected: null, enlarged: false, frame: 0 };
 
   // --- Scene ---------------------------------------------------------------------------------
   const canvas = document.createElement('canvas');
@@ -114,7 +115,7 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
   // --- The robot -----------------------------------------------------------------------------
   const gltf = new GLTFLoader();
   const models = new Map();  // glTF file -> promise of its scene
-  let robot = null, robotSpec = null;
+  let robot = null, robotSpec = null;  // The robot that the view shows, and its entry in the data
   let content = { visual: [], collision: [], inertia: [], com: [], frames: [] };
   const linkParts = new Map();  // link name -> its own objects, for the selection box
   const selectionBox = new THREE.Box3Helper(new THREE.Box3(), COLORS.selected);
@@ -125,9 +126,12 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
 
   function loadModel(file) {
     if (!models.has(file)) {
-      models.set(file, new Promise((resolve, reject) => {
+      const loading = new Promise((resolve, reject) => {
         gltf.load(new URL(`meshes/${file}`, dataUrl).href, (result) => resolve(result.scene), undefined, reject);
-      }));
+      });
+      models.set(file, loading);
+      // A file that couldn't be loaded isn't kept, so the next robot that needs it asks for it again
+      loading.catch(() => models.delete(file));
     }
     return models.get(file);
   }
@@ -137,17 +141,19 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
     return linkParts.get(link.name);
   };
 
+  // Fetch and read a robot's URDF and its parts' models. This takes a moment and changes nothing
+  // in the view, so the robot that is shown stays whole if a file fails or the reader chooses again
   async function loadRobot(key) {
-    robotSpec = data.robots[key];
-    const response = await fetch(new URL(robotSpec.urdf, dataUrl));
-    if (!response.ok) throw new Error(`${robotSpec.urdf}: ${response.status}`);
+    const spec = data.robots[key];
+    const response = await fetch(new URL(spec.urdf, dataUrl));
+    if (!response.ok) throw new Error(`${spec.urdf}: ${response.status}`);
     const loader = new URDFLoader();
     loader.parseCollision = true;
     // A mesh keeps its package:// address, which the table of visuals knows
     loader.packages = (name) => `package://${name}`;
     const waiting = [];
     loader.loadMeshCb = (path, manager, material, done) => {
-      const file = robotSpec.visuals[meshAddress(path)];
+      const file = spec.visuals[meshAddress(path)];
       if (!file) { done(null); return; }  // No model: the link is drawn as its collision shape
       waiting.push(loadModel(file).then((model) => {
         const copy = model.clone(true);
@@ -158,11 +164,17 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
         done(holder);
       }));
     };
-    const next = loader.parse(await response.text());
+    const model = loader.parse(await response.text());
     await Promise.all(waiting);
+    return { key, spec, model };
+  }
 
+  // Put a loaded robot into the view, in place of the one that is shown
+  function showRobot(loaded) {
     if (robot) scene.remove(robot);
-    robot = next;
+    robot = loaded.model;
+    robotSpec = loaded.spec;
+    state.robot = loaded.key;
     content = { visual: [], collision: [], inertia: [], com: [], frames: [] };
     linkParts.clear();
     const links = Object.values(robot.links);
@@ -198,7 +210,7 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
             content.visual.push(standIn);
             partsOf(link).push(standIn);
           }
-          visual.userData.shown = 'simple shape';
+          visual.userData.shown = 'simple shape (the collision shape)';
           continue;
         } else {
           visual.userData.shown = shapeText(visual.urdfNode);
@@ -344,7 +356,9 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
     const list = (link) => {
       const children = link.children.filter((child) => child.isURDFJoint).flatMap((joint) => joint.children.filter((child) => child.isURDFLink));
       const inner = children.length ? `<ul>${children.map(list).join('')}</ul>` : '';
-      return `<li><button type="button" data-link="${link.name}" aria-pressed="false">${link.name}</button>${inner}</li>`;
+      // In a narrow list, a long name goes on at the next line after one of its underscores
+      const name = link.name.replaceAll('_', '_<wbr>');
+      return `<li><button type="button" data-link="${link.name}" aria-pressed="false">${name}</button>${inner}</li>`;
     };
     find('.ix-tree').innerHTML = `<ul>${list(robot)}</ul>`;
     for (const button of findAll('.ix-tree button')) button.addEventListener('click', () => select(button.dataset.link));
@@ -369,7 +383,7 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
 
   // The robot's files first. If they can't be loaded, nothing on the page has changed yet
   try {
-    await loadRobot(firstRobot);
+    showRobot(await loadRobot(firstRobot));
   } catch (error) {
     renderer.dispose();
     throw error;
@@ -455,18 +469,27 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
   // The robot select moves from the start box to the camera buttons
   const robotSelect = find('.ix-robot-select');
   find('.ix-viewbar').prepend(robotSelect.closest('label'));
+  // A robot's files take a moment to load, and the reader may choose again meanwhile. Only the
+  // latest choice changes the view. An earlier choice whose files arrive later, or fail, is dropped
+  let choices = 0;
   robotSelect.addEventListener('change', async () => {
+    const choice = ++choices, key = robotSelect.value;
     const status = find('.ix-status');
+    if (key === state.robot) { status.hidden = true; return; }  // Back to the robot that is shown
     status.hidden = false;
-    status.textContent = `Loading ${data.robots[robotSelect.value].name} …`;
+    status.textContent = `Loading ${data.robots[key].name} …`;
     try {
-      await loadRobot(robotSelect.value);
-      state.robot = robotSelect.value;
+      const loaded = await loadRobot(key);
+      if (choice !== choices) return;
+      showRobot(loaded);
+      // The new robot's wheels start at the slider's first position, as the slider and its text do
       wheels.value = wheels.defaultValue;
+      turnWheels();
       showStep(findAll('[data-step]').find((button) => button.getAttribute('aria-pressed') === 'true')?.dataset.step || 'visual');
       status.hidden = true;
     } catch (error) {
       console.error(error);
+      if (choice !== choices) return;
       robotSelect.value = state.robot;
       status.textContent = 'This robot’s files couldn’t be loaded. The other robot is still shown.';
     }
@@ -524,6 +547,7 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
   observer.observe(view);
   resize();
   setView('3d');
+  turnWheels();  // The wheels' pose, the angle next to the slider and the spoken angle agree from the start
   showStep('visual');
   render();
   find('.ix-poster').hidden = true;
