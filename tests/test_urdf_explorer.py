@@ -94,6 +94,20 @@ class TestInclude(unittest.TestCase):
         for pair in ('{{', '{#', '{%'):
             self.assertNotIn(pair, text)
 
+    def test_size_next_to_the_button_counts_the_views_code_and_the_model_files(self):
+        data = include_data()
+        text = build.INCLUDE.read_text(encoding='utf-8')
+        for key, robot in MANIFEST['robots'].items():
+            models = {file for file in data['robots'][key]['visuals'].values() if file}
+            size = build.viewer_bytes() + (build.DATA_DIR / robot['urdf']).stat().st_size
+            size += sum((build.DATA_DIR / 'meshes' / file).stat().st_size for file in models)
+            shown = f'&quot;{key}&quot;: &quot;{build.megabytes_at_most(size)}&quot;'
+            self.assertIn(shown, text, f'{key}: run scripts/urdf-explorer/build.py')
+
+    def test_size_is_rounded_up(self):
+        self.assertEqual(build.megabytes_at_most(3_300_000), '3.3 MB')
+        self.assertEqual(build.megabytes_at_most(3_300_001), '3.4 MB')
+
     def test_tables_list_every_link(self):
         text = build.INCLUDE.read_text(encoding='utf-8')
         for robot in MANIFEST['robots'].values():

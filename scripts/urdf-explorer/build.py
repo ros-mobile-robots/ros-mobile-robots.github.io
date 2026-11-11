@@ -32,6 +32,7 @@ import hashlib
 import html
 import io
 import json
+import math
 from pathlib import Path
 import posixpath
 import re
@@ -46,6 +47,23 @@ DATA_DIR = ROOT / 'docs' / 'resources' / 'urdf-explorer'
 INCLUDE = ROOT / 'includes' / 'urdf-explorer.html'
 DATA_URL = '/resources/urdf-explorer'
 GITHUB = 'https://github.com/ros-mobile-robots'
+# The code of the 3D view: its script and the files that the script imports, in VIEWER_DIR. The
+# browser fetches them when the reader opens the view, together with the robot's model files.
+# The size next to the button counts both. A browser test checks that the view fetches nothing
+# else (tests/browser/test_urdf_explorer_page.py)
+VIEWER_DIR = ROOT / 'docs' / 'custom_theme' / 'js'
+VIEWER_FILES = (
+    'interactive/urdf-explorer-view.js',
+    'three-0.170.0/build/three.module.min.js',
+    'three-0.170.0/examples/jsm/controls/OrbitControls.js',
+    'three-0.170.0/examples/jsm/loaders/GLTFLoader.js',
+    'three-0.170.0/examples/jsm/utils/BufferGeometryUtils.js',
+    'urdf-loader-0.13.1/URDFLoader.js',
+    'urdf-loader-0.13.1/URDFClasses.js',
+    'three-0.170.0/examples/jsm/loaders/STLLoader.js',
+    'three-0.170.0/examples/jsm/loaders/ColladaLoader.js',
+    'three-0.170.0/examples/jsm/loaders/TGALoader.js',
+)
 
 
 class Robot(NamedTuple):
@@ -308,6 +326,16 @@ def check_inertias(name: str, urdf: str) -> None:
         assert moments[2] <= (moments[0] + moments[1]) * (1 + 1e-9), where
 
 
+def viewer_bytes() -> int:
+    """Return the size of the 3D view's code, as the files are served."""
+    return sum((VIEWER_DIR / file).stat().st_size for file in VIEWER_FILES)
+
+
+def megabytes_at_most(size: int) -> str:
+    """Return a size in MB with one decimal, rounded up, for a text that says "up to"."""
+    return f'{math.ceil(size / 1e5) / 10:.1f} MB'
+
+
 def sha256(data: bytes) -> str:
     """Return the SHA-256 checksum of some bytes."""
     return hashlib.sha256(data).hexdigest()
@@ -355,7 +383,9 @@ def include(
     """Return the include's HTML: the figure, its data and the tables of all links.
 
     visuals has, per robot, the glTF file name of each visual mesh URI, or None for a mesh
-    that is drawn as a shape. sizes has the bytes that opening a robot's 3D view loads.
+    that is drawn as a shape. sizes has the bytes that opening a robot's 3D view fetches at
+    most: the view's code and the robot's model files, which are its URDF file and its parts'
+    glTF files. A host that compresses the code sends less.
     """
     data = {
         'robots': {
@@ -364,7 +394,6 @@ def include(
                 'urdf': f'{key}.urdf',
                 'wheelJoints': list(robot.wheel_joints),
                 'visuals': visuals[key],
-                'download': sizes[key],
                 'source': f'{robot.repository} at {robot.commit[:7]}',
             }
             for key, robot in ROBOTS.items()
@@ -372,7 +401,7 @@ def include(
         'parts': {posixpath.basename(file): name for file, name in PART_NAMES.items()},
         'steps': [{'id': step, 'title': title} for step, title, _ in STEPS],
     }
-    megabytes = {key: f'{size / 1e6:.1f} MB' for key, size in sizes.items()}
+    megabytes = {key: megabytes_at_most(size) for key, size in sizes.items()}
     options = ''.join(
         f'<option value="{key}">{robot.name}</option>' for key, robot in ROBOTS.items()
     )
@@ -406,7 +435,9 @@ def include(
         '<div class="ix-view3d-start" data-live hidden>'
         f'<label>Robot <select class="ix-robot-select">{options}</select></label>'
         '<button type="button" class="ix-open">Open the 3D view</button>'
-        f'<small class="ix-download" data-sizes="{html.escape(json.dumps(megabytes))}"></small>'
+        f'<small class="ix-download" data-sizes="{html.escape(json.dumps(megabytes))}" '
+        'title="The code of the 3D view and the robot\'s model files, before compression">'
+        '</small>'
         '</div>',
         '<p class="ix-status" role="status" hidden></p>',
         '</div>',
@@ -463,7 +494,7 @@ def main() -> None:
     manifest_meshes = {}
     visuals: Dict[str, Dict[str, Optional[str]]] = {}
     rows = {}
-    sizes = {}
+    model_bytes = {}
     used: Set[str] = set()
     for key, robot in ROBOTS.items():
         urdf = expand_xacro(clones[robot.repository], robot)
@@ -486,7 +517,7 @@ def main() -> None:
             },
             'visuals': models,
         }
-        sizes[key] = len(urdf.encode('utf-8'))
+        model_bytes[key] = len(urdf.encode('utf-8'))
     assert used == set(MODELS), sorted(used ^ set(MODELS))
     assert set(VISUALS.values()) == set(MODELS)
 
@@ -513,7 +544,8 @@ def main() -> None:
     notice = git_bytes(arguments.models, f'{MODELS_NOTICE_COMMIT}:LICENSE')
     (DATA_DIR / 'meshes' / 'LICENSE').write_bytes(notice)
     for key in ROBOTS:
-        sizes[key] += sum(mesh_bytes[file] for file in set(visuals[key].values()) if file)
+        model_bytes[key] += sum(mesh_bytes[file] for file in set(visuals[key].values()) if file)
+    sizes = {key: size + viewer_bytes() for key, size in model_bytes.items()}
 
     manifest = {'robots': manifest_robots, 'meshes': manifest_meshes}
     text = json.dumps(manifest, indent=1) + '\n'
@@ -526,8 +558,10 @@ def main() -> None:
     for key, robot in ROBOTS.items():
         with_model = sum(1 for file in visuals[key].values() if file)
         print(
-            f'{robot.name}: {len(rows[key])} links, {sizes[key] / 1e6:.2f} MB to download, '
-            f'{with_model} of {len(visuals[key])} visual meshes have a model'
+            f'{robot.name}: {len(rows[key])} links, {with_model} of {len(visuals[key])} visual '
+            f'meshes have a model, the view fetches up to {megabytes_at_most(sizes[key])} '
+            f'({model_bytes[key] / 1e6:.2f} MB of model files and {viewer_bytes() / 1e6:.2f} MB '
+            'of code)'
         )
     print(f'wrote {DATA_DIR.relative_to(ROOT)} and {INCLUDE.relative_to(ROOT)}')
 

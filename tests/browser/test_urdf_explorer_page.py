@@ -5,14 +5,17 @@ Build the site first, then run from the repository root:
     mkdocs build --strict
     python -m unittest discover -s tests/browser -v
 """
+import math
 import unittest
 
-from local_site import chromium, open_page, served_site, SITE_HOSTS
+from local_site import chromium, open_page, served_site, SITE_DIR, SITE_HOSTS
 
 PAGE = '/robot-description/'
 FIGURE = 'figure[data-ix="urdf-explorer"]'
 # What the 3D view needs. None of it may be requested before the reader opens the view
 VIEW_FILES = ('three-0.170.0', 'urdf-loader-0.13.1', 'urdf-explorer-view.js', '.urdf', '.glb')
+# Where the site keeps its own scripts and the explorer's data
+VIEW_FOLDERS = ('/js/', '/resources/urdf-explorer/')
 
 # The positions of a robot's link frames in its root frame, in mm
 POSITIONS = f"""() => {{
@@ -155,6 +158,23 @@ class TestUrdfExplorerPage(unittest.TestCase):
         self.assertTrue(page.is_visible(f'{FIGURE} .ix-poster'))
         self.assertTrue(page.is_visible(f'{FIGURE} .ix-open'))
         self.assertEqual(log.errors, [])
+
+    def test_size_next_to_the_button_counts_everything_that_the_view_fetches(self):
+        for robot in ('diffbot', 'remo'):
+            with self.subTest(robot=robot):
+                page, log = self.open()
+                self.choose_robot(page, robot)
+                shown = page.inner_text(f'{FIGURE} .ix-download')
+                requested = len(log.requests)
+                page.click(f'{FIGURE} .ix-open')
+                page.wait_for_selector(f'{FIGURE}.ix-is-live', timeout=120000)
+                # The scripts and the robot's files that the page asked for after the click
+                fetched = {
+                    path for path in log.requests[requested:]
+                    if path.startswith(VIEW_FOLDERS) and not path.endswith('.webp')
+                }
+                size = sum((SITE_DIR / path.lstrip('/')).stat().st_size for path in fetched)
+                self.assertEqual(shown, f'Up to {math.ceil(size / 1e5) / 10:.1f} MB')
 
     def test_view_opens_without_errors_and_adds_no_host(self):
         page, log = self.open_view()
