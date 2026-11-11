@@ -32,6 +32,55 @@ X_AXIS = f"""(name) => {{
     const axis = [...link.matrixWorld.elements].slice(0, 3);
     return axis.map((value) => Math.round(value * 1e3) / 1e3);
 }}"""
+# The robot that the open explorer shows, and what its controls and texts say about it
+SHOWN = f"""() => {{
+    const root = document.querySelector('{FIGURE}');
+    const {{ robot, state }} = root.ixView.debug();
+    const status = root.querySelector('.ix-status');
+    return {{
+        selected: root.querySelector('.ix-robot-select').value,
+        state: state.robot,
+        model: robot.robotName,
+        links: Object.keys(robot.links).length,
+        listed: root.querySelectorAll('.ix-tree button').length,
+        label: root.querySelector('.ix-canvas').getAttribute('aria-label'),
+        derived: root.querySelector('.ix-derived').textContent,
+        status: status.hidden ? '' : status.textContent,
+    }};
+}}"""
+REMO_SHOWN = f"document.querySelector('{FIGURE}').ixView.debug().robot.robotName === 'remo'"
+SWITCH_FAILED = f"document.querySelector('{FIGURE} .ix-status').textContent.includes('couldn’t')"
+STATUS_HIDDEN = f"document.querySelector('{FIGURE} .ix-status').hidden"
+
+
+def wait_until(page, condition, timeout=60000):
+    """Wait until a condition on the test's side holds, while the page keeps working."""
+    waited = 0
+    while not condition():
+        if waited >= timeout:
+            raise TimeoutError('the condition did not hold in time')
+        page.wait_for_timeout(50)
+        waited += 50
+
+
+def requests_under_way(page):
+    """Return the set of the page's requests that haven't ended yet, kept current from now on."""
+    under_way = set()
+    page.on('request', lambda request: under_way.add(request))
+    page.on('requestfinished', lambda request: under_way.discard(request))
+    page.on('requestfailed', lambda request: under_way.discard(request))
+    return under_way
+
+
+def wait_for_quiet(page, under_way, quiet=1000, timeout=120000):
+    """Wait until no request has been under way for a while, so a load has run to its end."""
+    still = waited = 0
+    while still < quiet:
+        if waited >= timeout:
+            raise TimeoutError('requests were still under way')
+        page.wait_for_timeout(50)
+        waited += 50
+        still = 0 if under_way else still + 50
 
 
 class TestUrdfExplorerPage(unittest.TestCase):
@@ -59,6 +108,13 @@ class TestUrdfExplorerPage(unittest.TestCase):
         page.click(f'{FIGURE} .ix-open')
         page.wait_for_selector(f'{FIGURE}.ix-is-live', timeout=120000)
         return page, log
+
+    def choose_robot(self, page, key):
+        page.select_option(f'{FIGURE} .ix-robot-select', key)
+
+    def show_remo(self, page):
+        self.choose_robot(page, 'remo')
+        page.wait_for_function(REMO_SHOWN, timeout=120000)
 
     def test_page_loads_nothing_of_the_3d_view_before_it_is_opened(self):
         page, log = self.open()
@@ -120,13 +176,67 @@ class TestUrdfExplorerPage(unittest.TestCase):
 
     def test_remo_loads(self):
         page, log = self.open_view()
-        page.select_option(f'{FIGURE} .ix-robot-select', 'remo')
-        loaded = f"document.querySelector('{FIGURE}').ixView.debug().robot.robotName === 'remo'"
-        page.wait_for_function(loaded, timeout=120000)
+        self.show_remo(page)
         positions = page.evaluate(POSITIONS)
         self.assertEqual(len(positions), 25)
         self.assertEqual(positions['front_left_wheel'], [0, 72, 33])
         self.assertEqual(log.errors, [])
+
+    def test_robot_chosen_last_is_shown_when_an_earlier_choice_arrives_later(self):
+        page, log = self.open_view()
+        under_way = requests_under_way(page)
+        held = []
+        page.route('**/remo.urdf', lambda route: held.append(route))
+        self.choose_robot(page, 'remo')
+        wait_until(page, lambda: held)
+        self.choose_robot(page, 'diffbot')
+        page.wait_for_function(STATUS_HIDDEN, timeout=120000)
+        # Remo's URDF arrives only now, after the reader has gone back to DiffBot
+        held[0].continue_()
+        page.unroute('**/remo.urdf')
+        wait_for_quiet(page, under_way)
+        shown = page.evaluate(SHOWN)
+        self.assertEqual(
+            (shown['selected'], shown['state'], shown['model']), ('diffbot', 'diffbot', 'diffbot')
+        )
+        self.assertEqual((shown['links'], shown['listed']), (11, 11))
+        self.assertIn("In DiffBot's model", shown['derived'])
+        self.assertEqual(shown['status'], '')
+        self.assertEqual(log.errors, [])
+        # The reader can still choose Remo afterwards
+        self.show_remo(page)
+        shown = page.evaluate(SHOWN)
+        self.assertEqual((shown['selected'], shown['state'], shown['links']), ('remo', 'remo', 25))
+
+    def test_failed_robot_choice_keeps_the_shown_robot(self):
+        page, _ = self.open_view()
+        page.route('**/remo.urdf', lambda route: route.abort())
+        self.choose_robot(page, 'remo')
+        page.wait_for_function(SWITCH_FAILED, timeout=60000)
+        # A step writes the canvas's description again, with the robot's name
+        page.click(f'{FIGURE} [data-step="collision"]')
+        shown = page.evaluate(SHOWN)
+        self.assertEqual(
+            (shown['selected'], shown['state'], shown['model']), ('diffbot', 'diffbot', 'diffbot')
+        )
+        self.assertIn("DiffBot's robot model", shown['label'])
+        self.assertIn("In DiffBot's model", shown['derived'])
+
+    def test_robot_choice_waits_while_the_view_opens(self):
+        page, _ = self.open()
+        held = []
+        page.route('**/diffbot.urdf', lambda route: held.append(route))
+        page.click(f'{FIGURE} .ix-open')
+        wait_until(page, lambda: held)
+        self.assertTrue(page.is_disabled(f'{FIGURE} .ix-robot-select'))
+        held[0].continue_()
+        page.unroute('**/diffbot.urdf')
+        page.wait_for_selector(f'{FIGURE}.ix-is-live', timeout=120000)
+        self.assertTrue(page.is_enabled(f'{FIGURE} .ix-robot-select'))
+        shown = page.evaluate(SHOWN)
+        self.assertEqual(
+            (shown['selected'], shown['state'], shown['links']), ('diffbot', 'diffbot', 11)
+        )
 
     def test_mouse_wheel_scrolls_the_page_unless_ctrl_is_held(self):
         page, _ = self.open_view()

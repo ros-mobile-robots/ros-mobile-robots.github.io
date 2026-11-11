@@ -15,7 +15,9 @@ function prepare(root) {
 
   let view = null;
   open.addEventListener('click', async () => {
+    // The view opens with the robot that is chosen now, so the choice waits until the view is open
     open.disabled = true;
+    select.disabled = true;
     status.hidden = false;
     status.textContent = 'Loading the 3D view …';
     try {
@@ -37,6 +39,7 @@ function prepare(root) {
       status.textContent = 'The 3D view couldn’t start. It needs WebGL in the browser and its files from this site. '
         + 'The picture and the tables below show the same models.';
     }
+    select.disabled = false;
   });
 }
 
