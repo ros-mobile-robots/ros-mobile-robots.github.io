@@ -289,9 +289,9 @@ EXAMPLES = [
         ),
         answer=(
             'No. The robot turns about the midpoint of its axle. A frame 2 cm behind that midpoint'
-            ' moves {model_distance_cm} cm on an arc, and the check that allows 0.02 m fails. The'
-            ' odometry reports no movement. On DiffBot and Remo, <code>base_footprint</code> is at'
-            " the axle's midpoint and stays in place."
+            ' follows an arc and ends {model_distance_cm} cm from its start. The check that allows'
+            ' 0.02 m fails. The odometry reports no movement. On DiffBot and Remo,'
+            " <code>base_footprint</code> is at the axle's midpoint and stays in place."
         ),
     ),
     Example(
