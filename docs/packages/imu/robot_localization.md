@@ -38,14 +38,80 @@ The `ekf` argument switches the EKF on. The EKF is off by default. Pass `ekf:=tr
 
 | Where | Command |
 |:--|:--|
-| On the robot | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or [`bringup_with_laser.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup_with_laser.launch)) |
+| On the robot, when you start the bringup yourself | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or [`bringup_with_laser.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup_with_laser.launch)) |
 | In the simulation | `roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true` |
 | Simulation with navigation | `roslaunch diffbot_navigation diffbot.launch model:=remo ekf:=true` |
 | Navigation on the development PC, for a robot that runs with the EKF | `roslaunch diffbot_navigation diffbot_hw.launch model:=remo ekf:=true` |
 
-On the robot, use [`bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch) or `bringup_with_laser.launch` with `ekf:=true`. Both start `robot_state_publisher`, which publishes the transforms between the robot's links from the URDF, among them `imu_link → base_footprint`. The EKF needs this transform to turn the IMU's yaw rate into the robot's frame. [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch) takes the `ekf` argument too, because the bringup files pass the argument through `minimal.launch`. `minimal.launch` doesn't start `robot_state_publisher`. With `minimal.launch ekf:=true` alone, the EKF drops every IMU sample, and its estimate follows the wheels.
+### Which launch file starts what
 
-The launch files that load the drive controller's configuration ([`diffbot_base/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) on the robot, [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch) in the simulation) set the controller's `enable_odom_tf` parameter, `false` with the EKF and `true` without it, and include `ekf.launch` with the EKF. They set it both ways because a value stays on the ROS parameter server after a launch ends: the next launch would otherwise keep the controller's transform off. With `ekf:=true`, the planners ([`move_base.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/move_base.launch) and move_base_flex's) read `/diffbot/odometry/filtered` instead of the controller's odometry, so that their velocities and the transform come from the same estimate.
+A `roslaunch` command names one launch file. roslaunch reads that file and every file that it includes with the [`<include>` tag](http://wiki.ros.org/roslaunch/XML/include), directly or through another included file. It starts the nodes that these files declare. A node is a running ROS program. A file can pass arguments such as `ekf` to a file that it includes. Starting an included file on its own doesn't read the file that includes it.
+
+The two figures show which launch file includes which, and which file declares which node. They don't show the order in which the nodes start. The pill-shaped box is your command. A rectangle is a launch file, written as its package and its file name. A rounded rectangle names the node or the two nodes that a file starts. A thick arrow is an include that passes `ekf` to the included file.
+
+**On the robot**, when you start the bringup yourself, you start one of the two bringup files. This command is for Remo. For DiffBot, use `model:=diffbot`:
+
+```console
+roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true
+```
+
+!!! note "With the robot container"
+    In the [robot container](../../processing_units/robot-container/usage.md), Docker Compose starts `bringup.launch` for you, without `ekf`, as the `bringup` service's command in [`compose.yaml`]({{ diffbot_repo_url }}/.docker/robot/compose.yaml) says. So `robot_state_publisher` runs there and the EKF is off. The container's settings have no switch for the EKF. Don't start a second bringup by hand next to the container's.
+
+```mermaid
+graph TB
+  COMMAND([your roslaunch command<br/>with ekf:=true])
+  BRINGUP[diffbot_bringup:<br/>bringup.launch]
+  MINIMAL[diffbot_bringup:<br/>minimal.launch]
+  BASE[diffbot_base:<br/>diffbot.launch]
+  EKF_LAUNCH[diffbot_control:<br/>ekf.launch]
+  STATE_PUBLISHER(robot_state_publisher)
+  EKF_NODES(imu_validator and<br/>ekf_localization)
+  COMMAND -->|reads| BRINGUP
+  BRINGUP ==>|includes,<br/>passes ekf| MINIMAL
+  BRINGUP -.->|starts| STATE_PUBLISHER
+  MINIMAL ==>|includes,<br/>passes ekf| BASE
+  BASE -->|includes<br/>if ekf is true| EKF_LAUNCH
+  EKF_LAUNCH -.->|starts| EKF_NODES
+  class STATE_PUBLISHER view;
+```
+
+The figure leaves out the other nodes. [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch) also starts rosserial, the connection to the Teensy. [`diffbot_base/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) also starts the hardware interface `diffbot_base`, which runs the drive controller. `bringup_with_laser.launch` does the same as [`bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch) and also starts the lidar.
+
+`minimal.launch` takes the `ekf` argument because the bringup files pass `ekf` through `minimal.launch`. Starting `minimal.launch` on its own with `ekf:=true` doesn't read the bringup file, so nothing starts `robot_state_publisher`. Without another publisher that provides the transform between `imu_link` and `base_footprint`, the EKF can't use the IMU's samples, and its estimate follows the wheels.
+
+**In the simulation**, you start `diffbot_gazebo`'s `diffbot.launch`:
+
+```console
+roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true
+```
+
+```mermaid
+graph TB
+  COMMAND([your roslaunch command<br/>with ekf:=true])
+  SIMULATION[diffbot_gazebo:<br/>diffbot.launch]
+  CONTROL[diffbot_control:<br/>diffbot_control.launch]
+  EKF_LAUNCH[diffbot_control:<br/>ekf.launch]
+  STATE_PUBLISHER(robot_state_publisher)
+  EKF_NODES(imu_validator and<br/>ekf_localization)
+  COMMAND -->|reads| SIMULATION
+  SIMULATION ==>|includes,<br/>passes ekf| CONTROL
+  CONTROL -->|includes<br/>if ekf is true| EKF_LAUNCH
+  CONTROL -.->|starts| STATE_PUBLISHER
+  EKF_LAUNCH -.->|starts| EKF_NODES
+  class STATE_PUBLISHER view;
+```
+
+This figure leaves out the other nodes too. [`diffbot_gazebo/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch) also includes [`diffbot_view.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot_view.launch), which starts Gazebo through gazebo_ros's `empty_world.launch`. Gazebo runs the drive controller.
+
+What the file at the end of the thick arrows does with `ekf`: on the robot, that file is `diffbot_base/launch/diffbot.launch`. In the simulation, that file is [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch). Each of these two launch files loads the drive controller's configuration and does two things with its `ekf` value:
+
+1. The file sets the controller's `enable_odom_tf` parameter to `false` with the EKF and to `true` without it. The file writes the value in both cases because a value stays on the ROS parameter server as long as the ROS master runs. Without the `true`, a launch without the EKF after one with the EKF would keep the controller's transform off.
+2. The file includes [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch), which starts the validator and the EKF, only if `ekf` is true.
+
+Why the EKF needs `robot_state_publisher`, the orange node: `robot_state_publisher` publishes the transforms of the joints in the robot's model, the URDF. From them, TF gets the transform between the IMU's frame `imu_link` and `base_footprint`. The EKF needs this transform to turn the IMU's yaw rate into the robot's frame.
+
+The navigation launch files pass `ekf` on in the same way. [`diffbot_navigation/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot.launch) includes `diffbot_gazebo`'s `diffbot.launch` and [`move_base.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/move_base.launch) and passes `ekf` to both. With `ekf:=true`, the planners in `move_base.launch` and in Move Base Flex's [`move_base.launch.xml`]({{ diffbot_repo_url }}/diffbot_mbf/launch/includes/move_base.launch.xml) read `/diffbot/odometry/filtered` instead of the controller's odometry, so that their velocities and the transform come from the same estimate. [`diffbot_hw.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot_hw.launch) starts no EKF. Its `ekf` argument only selects the odometry that the planner reads, for a robot whose bringup runs with `ekf:=true`.
 
 To see what the filter does, compare the two odometries while the robot turns, for example in RViz with two Odometry displays, or with `rostopic echo /diffbot/odometry/filtered/twist/twist/angular` next to `/diffbot/mobile_base_controller/odom`'s.
 
