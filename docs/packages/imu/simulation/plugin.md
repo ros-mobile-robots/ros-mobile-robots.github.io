@@ -67,7 +67,7 @@ The stall depends on timing. It needs a request of the spawner in the queue at t
 
 ### What the copy does instead
 
-The copy's `UpdateChild()` ends after it publishes, as [the header and the stamp](measurement-to-message.md#the-header-and-the-stamp) shows. So the physics thread never runs a callback. The same request, with the copy:
+The copy's `UpdateChild()` ends after it publishes, as [the header and publishing](measurement-to-message.md#the-header-and-publishing) shows. So the physics thread never runs a callback. The same request, with the copy:
 
 --8<-- "includes/imu-sim-threads-copy.html"
 
@@ -97,7 +97,7 @@ A reset of the simulation sets Gazebo's clock back to zero. `/gazebo/reset_simul
 Both plugins limit their rate. They compare the sensor's time with `last_time`, the time of their last update:
 
 - **The original** has only this rate limit, in [lines 97–100 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L97-L100). After a reset, the sensor's time starts from zero again, and `last_time` still holds a time from before the reset. The difference of the two is negative, so the rate limit stops every call until the clock has passed its value from before the reset. The longer the simulation ran before the reset, the longer the IMU stays silent.
-- **The copy** sets `last_time` to the sensor's time when the sensor's time is the earlier one. The rate limit then counts from the new time, and the first message after a reset follows one period, 20 ms, later. [When the plugin publishes](measurement-to-message.md#when-the-plugin-publishes) shows these lines.
+- **The copy** sets `last_time` to the sensor's time when the sensor's time is the earlier one. The rate limit then counts from the new time, and the first message after a reset follows one period, 20 ms, later. [The checks before a call publishes](measurement-to-message.md#the-checks-before-a-call-publishes) shows these lines.
 
 The IMU sample validator and the EKF start over when the clock goes back, as [the IMU sample validator](../robot_localization.md#the-imu-sample-validator) and [the EKF's limits](../robot_localization.md#limits) on the Localization page explain. So both need the IMU's samples right after a reset. [The reset test](tests.md#the-reset-test) checks that the samples come.
 

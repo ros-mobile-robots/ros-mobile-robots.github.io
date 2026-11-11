@@ -91,7 +91,7 @@ Each stamp must be later than the one before. The IMU sample validator drops a s
 ```
 
 - The frame must be `imu_link`. The EKF looks up this frame to convert the yaw rate into the robot's axes.
-- `orientation_covariance[0]` must be −1: the orientation is marked unavailable, as in the firmware's message. [The adapter](measurement-to-message.md#the-adapter) sets it.
+- `orientation_covariance[0]` must be −1: the orientation is marked unavailable, as in the firmware's message. [The adapter](measurement-to-message.md#part-3-the-adapter) sets it.
 
 **The values and the yaw rate's variance.** In the same loop, [`test_imu.py`, lines 99–104]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L99-L104):
 
@@ -100,7 +100,7 @@ Each stamp must be later than the one before. The IMU sample validator drops a s
 ```
 
 - `angular_velocity.z` and `linear_acceleration.z` must be finite: not NaN, not infinite. The IMU sample validator drops samples with values that aren't finite.
-- `angular_velocity_covariance[8]` must be positive and finite. Element 8 is the yaw rate's variance, $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)² in the simulation, as [how the message stores a covariance](index.md#how-the-message-stores-a-covariance) and [noise and covariance](measurement-to-message.md#noise-and-covariance) show. The EKF weighs the yaw rate with it, and the validator drops samples without a positive, finite variance.
+- `angular_velocity_covariance[8]` must be positive and finite. Element 8 is the yaw rate's variance, $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)² in the simulation, as [how the message stores a covariance](index.md#how-the-message-stores-a-covariance) and [filling the covariances](measurement-to-message.md#filling-the-covariances) show. The EKF weighs the yaw rate with it, and the validator drops samples without a positive, finite variance.
 
 **Gravity.** [`test_imu.py`, lines 105–109]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L105-L109):
 
