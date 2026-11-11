@@ -51,6 +51,22 @@ SHOWN = f"""() => {{
 REMO_SHOWN = f"document.querySelector('{FIGURE}').ixView.debug().robot.robotName === 'remo'"
 SWITCH_FAILED = f"document.querySelector('{FIGURE} .ix-status').textContent.includes('couldn’t')"
 STATUS_HIDDEN = f"document.querySelector('{FIGURE} .ix-status').hidden"
+# The buttons of the link list that reach beyond the inside of their panel or cut their name
+# off, with the distance in px by which they do
+BUTTONS_OUTSIDE_PANEL = """(tree) => {
+    const panel = tree.closest('.ix-panel');
+    const box = panel.getBoundingClientRect(), style = getComputedStyle(panel);
+    const left = box.left + parseFloat(style.paddingLeft);
+    const right = box.right - parseFloat(style.paddingRight);
+    const outside = [];
+    for (const button of tree.querySelectorAll('button')) {
+        const own = button.getBoundingClientRect();
+        const beyond = Math.max(left - own.left, own.right - right);
+        const cut = button.scrollWidth - button.clientWidth;
+        if (beyond > 0.5 || cut > 0) outside.push([button.dataset.link, Math.max(beyond, cut)]);
+    }
+    return outside;
+}"""
 
 
 def wait_until(page, condition, timeout=60000):
@@ -254,6 +270,18 @@ class TestUrdfExplorerPage(unittest.TestCase):
             ('remo', 'remo', 'remo', 25),
         )
         self.assertEqual(shown['status'], '')
+
+    def test_link_names_stay_inside_the_links_panel(self):
+        phone = {'height': 700, 'is_mobile': True, 'has_touch': True}
+        for width, options in ((1280, {}), (320, phone)):
+            with self.subTest(width=width):
+                page, _ = self.open_view(width=width, **options)
+                self.show_remo(page)
+                tree = f'{FIGURE} .ix-tree'
+                # Remo has the longest name, six levels deep in the tree
+                longest = f'{tree} [data-link="slamtec_usb_to_serial_link"]'
+                self.assertTrue(page.is_visible(longest))
+                self.assertEqual(page.eval_on_selector(tree, BUTTONS_OUTSIDE_PANEL), [])
 
     def test_mouse_wheel_scrolls_the_page_unless_ctrl_is_held(self):
         page, _ = self.open_view()

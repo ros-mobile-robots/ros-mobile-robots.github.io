@@ -140,10 +140,11 @@
 @container (max-width: 30rem) { .ix .ix-panels { grid-template-columns: minmax(0, 1fr); } }
 .ix .ix-panel { min-width: 0; padding: .5em .7em; border: 1px solid var(--ix-line); border-radius: .2rem; font-size: .7rem; }
 .md-typeset .ix .ix-panel .ix-group { margin: 0 0 .3em; }
-.md-typeset .ix .ix-tree ul { margin: 0 0 0 .9em; padding: 0; list-style: none; }
+.md-typeset .ix .ix-tree ul { margin: 0 0 0 .8em; padding: 0; list-style: none; }
 .md-typeset .ix .ix-tree > ul { margin-left: 0; }
 .md-typeset .ix .ix-tree li { margin: .15em 0; }
-.ix .ix-tree button { padding: .05em .4em; font: .64rem var(--md-code-font-family, monospace); font-weight: 400; border-color: var(--ix-line); }
+/* A button is at most as wide as the list is at its level. A longer name continues on the next line */
+.ix .ix-tree button { max-width: 100%; padding: .05em .4em; font: .64rem var(--md-code-font-family, monospace); font-weight: 400; text-align: left; overflow-wrap: anywhere; border-color: var(--ix-line); }
 .md-typeset .ix .ix-info p { margin: 0; }
 .md-typeset .ix .ix-info dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .15em .8em; margin: .3em 0 0; }
 .md-typeset .ix .ix-info dt { font-weight: 400; color: var(--md-default-fg-color--light); }

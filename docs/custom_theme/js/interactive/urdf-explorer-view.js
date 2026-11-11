@@ -356,7 +356,9 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
     const list = (link) => {
       const children = link.children.filter((child) => child.isURDFJoint).flatMap((joint) => joint.children.filter((child) => child.isURDFLink));
       const inner = children.length ? `<ul>${children.map(list).join('')}</ul>` : '';
-      return `<li><button type="button" data-link="${link.name}" aria-pressed="false">${link.name}</button>${inner}</li>`;
+      // In a narrow list, a long name goes on at the next line after one of its underscores
+      const name = link.name.replaceAll('_', '_<wbr>');
+      return `<li><button type="button" data-link="${link.name}" aria-pressed="false">${name}</button>${inner}</li>`;
     };
     find('.ix-tree').innerHTML = `<ul>${list(robot)}</ul>`;
     for (const button of findAll('.ix-tree button')) button.addEventListener('click', () => select(button.dataset.link));
