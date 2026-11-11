@@ -171,7 +171,8 @@ STEPS = [
     (
         'inertia',
         'Where the mass is',
-        'Each link has a mass, a center of mass and an inertia. The dot is the center of mass. '
+        'Each physical link has a mass, a center of mass and an inertia. Links that are only '
+        'frames, such as <code>base_footprint</code>, have none. The dot is the center of mass. '
         'The box is a uniform box with the same mass and the same inertia as the link, which is '
         "how Gazebo draws inertia. It isn't the part's outline.",
     ),
@@ -184,6 +185,9 @@ STEPS = [
         "and z up. Turn the wheels: a wheel's frame turns with its wheel.",
     ),
 ]
+# What the tables and the explorer say for a visual mesh without a model. The explorer's script
+# (urdf-explorer-view.js) has the same text
+STAND_IN = 'simple shape (the collision shape)'
 # The layers that the reader can switch: the layer's id and its label
 LAYERS = [
     ('visual', 'Visual shapes'),
@@ -268,14 +272,17 @@ def shape_text(element: ET.Element) -> str:
 
 
 def visual_text(visual: Optional[ET.Element]) -> str:
-    """Say what the explorer draws for a link's visual: a part's model or a shape."""
+    """Say what the explorer draws for a link's visual: a part's model or a shape.
+
+    A mesh without a model is drawn as the link's collision shape, which STAND_IN says.
+    """
     if visual is None:
         return 'none'
     shape = child(visual, 'geometry')[0]
     if shape.tag != 'mesh':
         return shape_text(visual)
     model = VISUALS.get(mesh_uri(attribute(shape, 'filename')))
-    return f'model: {PART_NAMES[model]}' if model else 'simple shape'
+    return f'model: {PART_NAMES[model]}' if model else STAND_IN
 
 
 def link_rows(urdf: str) -> List[Dict[str, str]]:

@@ -222,7 +222,7 @@ class TestUrdfExplorerPage(unittest.TestCase):
         page.keyboard.press('Enter')
         info = page.inner_text(f'{FIGURE} .ix-info')
         self.assertIn('chassis_link', info)
-        self.assertIn('simple shape', info)
+        self.assertIn('simple shape (the collision shape)', info)
         self.assertIn('771 g', info)
 
     def test_remo_loads(self):

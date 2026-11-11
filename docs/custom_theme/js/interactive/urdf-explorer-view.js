@@ -210,7 +210,7 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
             content.visual.push(standIn);
             partsOf(link).push(standIn);
           }
-          visual.userData.shown = 'simple shape';
+          visual.userData.shown = 'simple shape (the collision shape)';
           continue;
         } else {
           visual.userData.shown = shapeText(visual.urdfNode);
