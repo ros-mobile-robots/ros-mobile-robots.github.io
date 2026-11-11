@@ -8,8 +8,9 @@ function prepare(root) {
   const find = (selector) => root.querySelector(selector);
   const select = find('.ix-robot-select'), open = find('.ix-open'), status = find('.ix-status');
   const sizes = JSON.parse(find('.ix-download').dataset.sizes);
-  // What opening the view fetches at most: the view's code and the chosen robot's model files
-  const showSize = () => { find('.ix-download').textContent = `Up to ${sizes[select.value]}`; };
+  // About what opening the view fetches: the view's code and the chosen robot's model files,
+  // compressed as the site sends them
+  const showSize = () => { find('.ix-download').textContent = `About ${sizes[select.value]}`; };
   select.addEventListener('change', showSize);
   showSize();
   find('.ix-view3d-start').hidden = false;
