@@ -126,9 +126,12 @@ export async function openExplorer(root, data, dataUrl, firstRobot) {
 
   function loadModel(file) {
     if (!models.has(file)) {
-      models.set(file, new Promise((resolve, reject) => {
+      const loading = new Promise((resolve, reject) => {
         gltf.load(new URL(`meshes/${file}`, dataUrl).href, (result) => resolve(result.scene), undefined, reject);
-      }));
+      });
+      models.set(file, loading);
+      // A file that couldn't be loaded isn't kept, so the next robot that needs it asks for it again
+      loading.catch(() => models.delete(file));
     }
     return models.get(file);
   }

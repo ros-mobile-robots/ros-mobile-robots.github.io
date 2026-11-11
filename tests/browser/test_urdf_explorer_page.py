@@ -238,6 +238,23 @@ class TestUrdfExplorerPage(unittest.TestCase):
             (shown['selected'], shown['state'], shown['links']), ('diffbot', 'diffbot', 11)
         )
 
+    def test_robot_loads_when_chosen_again_after_a_file_failed(self):
+        page, _ = self.open_view()
+        page.route('**/raspberry_pi_4b.glb', lambda route: route.abort())
+        self.choose_robot(page, 'remo')
+        page.wait_for_function(SWITCH_FAILED, timeout=60000)
+        self.assertEqual(page.evaluate(SHOWN)['model'], 'diffbot')
+        # The file can be loaded again, and the reader chooses Remo once more
+        page.unroute('**/raspberry_pi_4b.glb')
+        self.choose_robot(page, 'remo')
+        page.wait_for_function(f'{REMO_SHOWN} || {SWITCH_FAILED}', timeout=120000)
+        shown = page.evaluate(SHOWN)
+        self.assertEqual(
+            (shown['selected'], shown['state'], shown['model'], shown['links']),
+            ('remo', 'remo', 'remo', 25),
+        )
+        self.assertEqual(shown['status'], '')
+
     def test_mouse_wheel_scrolls_the_page_unless_ctrl_is_held(self):
         page, _ = self.open_view()
         distance = f"document.querySelector('{FIGURE}').ixView.debug().camera.position.length()"
