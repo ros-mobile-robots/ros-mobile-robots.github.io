@@ -54,6 +54,8 @@ PlatformIO writes each build into its standard build folder, `diffbot_firmware/.
 
 **Flash it** with PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html), an app that you install on your PC. It isn't part of the container. It loads `firmware.hex` onto the Teensy over USB. On Linux, it needs PJRC's [udev rules](https://www.pjrc.com/teensy/loader_linux.html), a file that you copy to `/etc/udev/rules.d/`, so that it may write to the Teensy. Flashing from the container is planned in [diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149). For that, the container needs access to the Teensy's USB port.
 
+**Run the unit tests** in the same container with `.docker/firmware/run.sh pio test -e native`. They run on your PC, without a Teensy. [Firmware unit tests](ci.md#firmware-unit-tests) on the Testing and CI page says what they cover.
+
 **Other commands** run the same way, for example `.docker/firmware/run.sh bash` for a shell in the container. Shell syntax such as `&&` needs a shell in the container, for example `.docker/firmware/run.sh bash -c 'pwd && id'`. Otherwise the shell on your PC reads it. Commands start in `diffbot_firmware`. Paths in them are paths in the container, where your clone is `/workspace`, so a folder on your PC outside your clone doesn't exist there.
 
 **Another user and group ID:** the script uses yours (`id -u` and `id -g`) unless you set `LOCAL_UID` and `LOCAL_GID`, for example `LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/run.sh pio run -e teensy40`. That ID needs write access to your clone. In the container, `id` then shows:
@@ -214,4 +216,4 @@ In the third run, no cache has the exact key. `restore-keys` then restores the n
 
 ## Planned
 
-[diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149) tracks the next steps: the firmware's unit tests in this container and in CI ([diffbot#157](https://github.com/ros-mobile-robots/diffbot/issues/157)), flashing from the container, a VS Code dev container for the firmware, and pinning the Teensy platform and libraries.
+[diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149) tracks the next steps: flashing from the container, a VS Code dev container for the firmware, and pinning the Teensy platform and libraries.
