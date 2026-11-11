@@ -28,11 +28,11 @@ tests/test_urdf_explorer.py checks the generated files against this script's tab
 """
 
 import argparse
+import gzip
 import hashlib
 import html
 import io
 import json
-import math
 from pathlib import Path
 import posixpath
 import re
@@ -49,8 +49,8 @@ DATA_URL = '/resources/urdf-explorer'
 GITHUB = 'https://github.com/ros-mobile-robots'
 # The code of the 3D view: its script and the files that the script imports, in VIEWER_DIR. The
 # browser fetches them when the reader opens the view, together with the robot's model files.
-# The size next to the button counts both. A browser test checks that the view fetches nothing
-# else (tests/browser/test_urdf_explorer_page.py)
+# The size next to the button counts both. A browser test checks that the view fetches exactly
+# these files (tests/browser/test_urdf_explorer_page.py)
 VIEWER_DIR = ROOT / 'docs' / 'custom_theme' / 'js'
 VIEWER_FILES = (
     'interactive/urdf-explorer-view.js',
@@ -333,14 +333,24 @@ def check_inertias(name: str, urdf: str) -> None:
         assert moments[2] <= (moments[0] + moments[1]) * (1 + 1e-9), where
 
 
+def transfer_bytes(data: bytes) -> int:
+    """Return about how many bytes the site sends for a file.
+
+    The site's host, GitHub Pages, sends the scripts, the URDF files and the glTF files
+    compressed with gzip. Its sizes are within 2 % of this function's for the explorer's files
+    (compared with curl on a pull request's preview).
+    """
+    return len(gzip.compress(data, compresslevel=6, mtime=0))
+
+
 def viewer_bytes() -> int:
-    """Return the size of the 3D view's code, as the files are served."""
-    return sum((VIEWER_DIR / file).stat().st_size for file in VIEWER_FILES)
+    """Return about how many bytes the site sends for the 3D view's code."""
+    return sum(transfer_bytes((VIEWER_DIR / file).read_bytes()) for file in VIEWER_FILES)
 
 
-def megabytes_at_most(size: int) -> str:
-    """Return a size in MB with one decimal, rounded up, for a text that says "up to"."""
-    return f'{math.ceil(size / 1e5) / 10:.1f} MB'
+def megabytes(size: int) -> str:
+    """Return a size in MB with one decimal."""
+    return f'{size / 1e6:.1f} MB'
 
 
 def sha256(data: bytes) -> str:
@@ -390,9 +400,9 @@ def include(
     """Return the include's HTML: the figure, its data and the tables of all links.
 
     visuals has, per robot, the glTF file name of each visual mesh URI, or None for a mesh
-    that is drawn as a shape. sizes has the bytes that opening a robot's 3D view fetches at
-    most: the view's code and the robot's model files, which are its URDF file and its parts'
-    glTF files. A host that compresses the code sends less.
+    that is drawn as a shape. sizes has about the bytes that the site sends when a robot's 3D
+    view opens: the view's code and the robot's model files, which are its URDF file and its
+    parts' glTF files, all compressed (transfer_bytes).
     """
     data = {
         'robots': {
@@ -408,7 +418,7 @@ def include(
         'parts': {posixpath.basename(file): name for file, name in PART_NAMES.items()},
         'steps': [{'id': step, 'title': title} for step, title, _ in STEPS],
     }
-    megabytes = {key: megabytes_at_most(size) for key, size in sizes.items()}
+    shown_sizes = {key: megabytes(size) for key, size in sizes.items()}
     options = ''.join(
         f'<option value="{key}">{robot.name}</option>' for key, robot in ROBOTS.items()
     )
@@ -442,9 +452,9 @@ def include(
         '<div class="ix-view3d-start" data-live hidden>'
         f'<label>Robot <select class="ix-robot-select">{options}</select></label>'
         '<button type="button" class="ix-open">Open the 3D view</button>'
-        f'<small class="ix-download" data-sizes="{html.escape(json.dumps(megabytes))}" '
-        'title="The code of the 3D view and the robot\'s model files, before compression">'
-        '</small>'
+        f'<small class="ix-download" data-sizes="{html.escape(json.dumps(shown_sizes))}" '
+        'title="The code of the 3D view and the robot\'s model files, compressed as this site '
+        'sends them"></small>'
         '</div>',
         '<p class="ix-status" role="status" hidden></p>',
         '</div>',
@@ -524,7 +534,7 @@ def main() -> None:
             },
             'visuals': models,
         }
-        model_bytes[key] = len(urdf.encode('utf-8'))
+        model_bytes[key] = transfer_bytes(urdf.encode('utf-8'))
     assert used == set(MODELS), sorted(used ^ set(MODELS))
     assert set(VISUALS.values()) == set(MODELS)
 
@@ -538,7 +548,7 @@ def main() -> None:
         (DATA_DIR / 'meshes' / f'{name}.license').write_bytes(notice)
         command = ['git', '-C', str(arguments.models), 'rev-parse', commit]
         full_commit = subprocess.run(command, check=True, capture_output=True, text=True).stdout
-        mesh_bytes[name] = len(data)
+        mesh_bytes[name] = transfer_bytes(data)
         manifest_meshes[name] = {
             'source': {
                 'repository': f'{GITHUB}/{MODELS_REPOSITORY}',
@@ -566,7 +576,7 @@ def main() -> None:
         with_model = sum(1 for file in visuals[key].values() if file)
         print(
             f'{robot.name}: {len(rows[key])} links, {with_model} of {len(visuals[key])} visual '
-            f'meshes have a model, the view fetches up to {megabytes_at_most(sizes[key])} '
+            f'meshes have a model, the view fetches about {megabytes(sizes[key])} compressed '
             f'({model_bytes[key] / 1e6:.2f} MB of model files and {viewer_bytes() / 1e6:.2f} MB '
             'of code)'
         )

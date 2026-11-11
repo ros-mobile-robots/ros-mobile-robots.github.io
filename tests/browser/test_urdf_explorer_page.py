@@ -5,10 +5,16 @@ Build the site first, then run from the repository root:
     mkdocs build --strict
     python -m unittest discover -s tests/browser -v
 """
-import math
+from pathlib import Path
+import sys
 import unittest
 
-from local_site import chromium, open_page, served_site, SITE_DIR, SITE_HOSTS
+# The explorer's build script has the list of the files that are the 3D view's code
+SCRIPTS = Path(__file__).resolve().parent.parent.parent / 'scripts'
+sys.path.insert(0, str(SCRIPTS / 'urdf-explorer'))
+
+import build  # noqa: E402
+from local_site import chromium, open_page, served_site, SITE_HOSTS  # noqa: E402
 
 PAGE = '/robot-description/'
 FIGURE = 'figure[data-ix="urdf-explorer"]'
@@ -34,6 +40,11 @@ X_AXIS = f"""(name) => {{
     link.updateWorldMatrix(true, false);
     const axis = [...link.matrixWorld.elements].slice(0, 3);
     return axis.map((value) => Math.round(value * 1e3) / 1e3);
+}}"""
+# A robot's entry in the figure's data
+ROBOT_DATA = f"""(robot) => {{
+    const data = JSON.parse(document.querySelector('{FIGURE} .ix-data').textContent);
+    return data.robots[robot];
 }}"""
 # The robot that the open explorer shows, and what its controls and texts say about it
 SHOWN = f"""() => {{
@@ -159,12 +170,13 @@ class TestUrdfExplorerPage(unittest.TestCase):
         self.assertTrue(page.is_visible(f'{FIGURE} .ix-open'))
         self.assertEqual(log.errors, [])
 
-    def test_size_next_to_the_button_counts_everything_that_the_view_fetches(self):
+    def test_view_fetches_the_files_that_the_size_next_to_the_button_counts(self):
         for robot in ('diffbot', 'remo'):
             with self.subTest(robot=robot):
                 page, log = self.open()
                 self.choose_robot(page, robot)
-                shown = page.inner_text(f'{FIGURE} .ix-download')
+                self.assertRegex(page.inner_text(f'{FIGURE} .ix-download'), r'^About \d\.\d MB$')
+                data = page.evaluate(ROBOT_DATA, robot)
                 requested = len(log.requests)
                 page.click(f'{FIGURE} .ix-open')
                 page.wait_for_selector(f'{FIGURE}.ix-is-live', timeout=120000)
@@ -173,8 +185,12 @@ class TestUrdfExplorerPage(unittest.TestCase):
                     path for path in log.requests[requested:]
                     if path.startswith(VIEW_FOLDERS) and not path.endswith('.webp')
                 }
-                size = sum((SITE_DIR / path.lstrip('/')).stat().st_size for path in fetched)
-                self.assertEqual(shown, f'Up to {math.ceil(size / 1e5) / 10:.1f} MB')
+                # What the build script adds up: the view's code, the URDF and the parts' models
+                counted = {f'/js/{file}' for file in build.VIEWER_FILES}
+                counted.add(f'/resources/urdf-explorer/{data["urdf"]}')
+                models = {file for file in data['visuals'].values() if file}
+                counted.update(f'/resources/urdf-explorer/meshes/{file}' for file in models)
+                self.assertEqual(fetched, counted)
 
     def test_view_opens_without_errors_and_adds_no_host(self):
         page, log = self.open_view()

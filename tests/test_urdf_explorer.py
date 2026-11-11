@@ -3,6 +3,7 @@
 Run from the repository root: python -m unittest discover -s tests
 """
 import hashlib
+import html
 import json
 from pathlib import Path
 import sys
@@ -97,16 +98,22 @@ class TestInclude(unittest.TestCase):
     def test_size_next_to_the_button_counts_the_views_code_and_the_model_files(self):
         data = include_data()
         text = build.INCLUDE.read_text(encoding='utf-8')
+        start = text.index('data-sizes="') + len('data-sizes="')
+        shown = json.loads(html.unescape(text[start:text.index('"', start)]))
         for key, robot in MANIFEST['robots'].items():
             models = {file for file in data['robots'][key]['visuals'].values() if file}
-            size = build.viewer_bytes() + (build.DATA_DIR / robot['urdf']).stat().st_size
-            size += sum((build.DATA_DIR / 'meshes' / file).stat().st_size for file in models)
-            shown = f'&quot;{key}&quot;: &quot;{build.megabytes_at_most(size)}&quot;'
-            self.assertIn(shown, text, f'{key}: run scripts/urdf-explorer/build.py')
+            files = [build.DATA_DIR / robot['urdf']]
+            files += [build.DATA_DIR / 'meshes' / file for file in models]
+            size = build.viewer_bytes()
+            size += sum(build.transfer_bytes(file.read_bytes()) for file in files)
+            # Versions of the compression library differ by a few kB, so the text may be off by
+            # one in its last digit
+            megabytes = float(shown[key].split()[0])
+            message = f'{key}: run scripts/urdf-explorer/build.py'
+            self.assertAlmostEqual(megabytes, size / 1e6, delta=0.07, msg=message)
 
-    def test_size_is_rounded_up(self):
-        self.assertEqual(build.megabytes_at_most(3_300_000), '3.3 MB')
-        self.assertEqual(build.megabytes_at_most(3_300_001), '3.4 MB')
+    def test_compressed_size_is_smaller_for_text_that_repeats(self):
+        self.assertLess(build.transfer_bytes(b'link ' * 1000), 100)
 
     def test_tables_list_every_link(self):
         text = build.INCLUDE.read_text(encoding='utf-8')
