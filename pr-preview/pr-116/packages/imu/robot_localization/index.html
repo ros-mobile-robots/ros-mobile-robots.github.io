@@ -5326,26 +5326,26 @@
 </table>
 <p>The position and the orientation are the robot's pose in the filter's <code>world_frame</code>, here <code>odom</code>. The velocities and the acceleration are in the robot's own frame, the filter's <code>base_link_frame</code>, here <code>base_footprint</code>. The yaw rate <span class="arithmatex">\(\omega_z\)</span> is the rate at which the heading <span class="arithmatex">\(\theta\)</span> changes.</p>
 <h3 id="the-two-lists">The two lists</h3>
-<p>The excerpt shows the wheel odometry's topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d314266e3030c8bb0aa190980baefbdebff821d2/diffbot_control/config/ekf.yaml#L53-L58"><code>ekf.yaml</code>, lines 53–58</a>. Each row of the list is one group of the state, and the comment at the end of a row names the row's three variables:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf.yaml: the wheel odometry's topic and list</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">53</span>
-<span class="normal">54</span>
+<p>The excerpt shows the wheel odometry's topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_control/config/ekf.yaml#L54-L59"><code>ekf.yaml</code>, lines 54–59</a>. Each row of the list is one group of the state, and the comment at the end of a row names the row's three variables:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf.yaml: the wheel odometry's topic and list</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
-<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">odom0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mobile_base_controller/odom</span>
+<span class="normal">58</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">odom0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mobile_base_controller/odom</span>
 <span class="nt">odom0_config</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w">   </span><span class="c1"># x, y, z</span>
 <span class="w">               </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w">   </span><span class="c1"># roll, pitch, yaw</span>
 <span class="w">               </span><span class="nv">true</span><span class="p p-Indicator">,</span><span class="w">  </span><span class="nv">true</span><span class="p p-Indicator">,</span><span class="w">  </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w">   </span><span class="c1"># vx, vy, vz</span>
 <span class="w">               </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">true</span><span class="p p-Indicator">,</span><span class="w">    </span><span class="c1"># vroll, vpitch, vyaw</span>
 <span class="w">               </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">]</span><span class="w">   </span><span class="c1"># ax, ay, az</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The next excerpt shows the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d314266e3030c8bb0aa190980baefbdebff821d2/diffbot_control/config/ekf.yaml#L70-L75"><code>ekf.yaml</code>, lines 70–75</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf.yaml: the IMU's topic and list</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
+<p>The next excerpt shows the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_control/config/ekf.yaml#L73-L78"><code>ekf.yaml</code>, lines 73–78</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf.yaml: the IMU's topic and list</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">73</span>
 <span class="normal">74</span>
-<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">imu0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">imu/data_validated</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">imu0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">imu/data_validated</span>
 <span class="nt">imu0_config</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w">   </span><span class="c1"># x, y, z</span>
 <span class="w">              </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w">   </span><span class="c1"># roll, pitch, yaw</span>
 <span class="w">              </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w">   </span><span class="c1"># vx, vy, vz</span>
@@ -5681,9 +5681,10 @@
 <h3 id="the-other-settings">The other settings</h3>
 <ul>
 <li><strong><code>odom0_differential</code> and <code>imu0_differential</code>:</strong> the <a href="https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-differential"><code>_differential</code> setting</a> applies to pose values only. With <code>true</code>, the filter would fuse the change between two consecutive poses as a velocity, instead of the pose. Neither list fuses a pose value, so the setting has no effect here. <code>false</code> is robot_localization's default.</li>
-<li><strong><code>odom0_queue_size</code> and <code>imu0_queue_size</code>:</strong> the <a href="https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-queue-size">queue size</a> of the filter's ROS subscriber for the input's topic. Up to 10 messages wait in the queue until the filter node takes them. robot_localization's default is 1.</li>
+<li><strong><code>odom0_queue_size</code> and <code>imu0_queue_size</code>:</strong> the size of the <a href="https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-queue-size">queue</a> of the filter node's ROS subscriber for the input's topic. Messages that arrive while the node is busy wait in the queue. With 10, at most ten wait, and ROS drops the oldest one when another arrives. robot_localization's default is 1.</li>
 <li><strong><code>world_frame</code>:</strong> is <code>odom</code>, so the estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes <code>map → odom</code> itself.</li>
 <li><strong><code>frequency</code>:</strong> is 50 Hz, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s rate. In the simulation, the wheel odometry arrives at 50 Hz too, the drive controller's <code>publish_rate</code> in <code>diffbot_control.yaml</code>. On the robot, the wheel odometry arrives at most 10 times per second: the base node's control loop in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base.cpp</code></a> runs the controller at 10 Hz, and the controller publishes at most one odometry message each time it runs.</li>
+<li><strong><code>reset_on_time_jump</code>:</strong> is <code>true</code>. In the simulation, a reset of Gazebo's world sets the clock back, and every measurement looks older than the one before. The filter then starts again from the new time. <a href="https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#reset-on-time-jump">robot_localization</a> does this only with simulated time. On the robot, a clock that goes back makes the filter ignore the messages of an input, with a warning on the topic <code>/diagnostics</code>, until the input's stamps have caught up with its last stamp from before.</li>
 </ul>
 <p>The controller's <code>update()</code> publishes only when <code>publish_period_</code> has passed since <code>last_state_publish_time_</code>, as <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432">lines 430–432 of <code>diff_drive_controller.cpp</code></a> in ros_controllers 0.22.0 show:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diff_drive_controller.cpp: when update() publishes the odometry</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">430</span>
@@ -5692,6 +5693,122 @@
 <span class="p">{</span>
 <span class="w">  </span><span class="n">last_state_publish_time_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">publish_period_</span><span class="p">;</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>robot_localization 2.7.7 decides what to do with a message that is older than the last one in the callback of the message's input. Both inputs of this configuration, the wheel odometry's velocities and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s angular velocity, pass through the function <code>twistCallback()</code>. The function first tests that the message's stamp isn't older than <code>lastMessageTimes_</code>, the last stamp of the same input. For an older message, the function calls <code>reset()</code> when <code>resetOnTimeJump_</code> is set and <code>ros::Time::isSimTime()</code> says that the ROS time is simulated. Otherwise the function ignores the message and adds a warning to the filter's diagnostics, as <a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2252">lines 2197–2252 of <code>ros_filter.cpp</code></a> show:</p>
+<details class="quote">
+<summary>ros_filter.cpp, lines 2197–2252: a message that is older than the last one of its input</summary>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2197</span>
+<span class="normal">2198</span>
+<span class="normal">2199</span>
+<span class="normal">2200</span>
+<span class="normal">2201</span>
+<span class="normal">2202</span>
+<span class="normal">2203</span>
+<span class="normal">2204</span>
+<span class="normal">2205</span>
+<span class="normal">2206</span>
+<span class="normal">2207</span>
+<span class="normal">2208</span>
+<span class="normal">2209</span>
+<span class="normal">2210</span>
+<span class="normal">2211</span>
+<span class="normal">2212</span>
+<span class="normal">2213</span>
+<span class="normal">2214</span>
+<span class="normal">2215</span>
+<span class="normal">2216</span>
+<span class="normal">2217</span>
+<span class="normal">2218</span>
+<span class="normal">2219</span>
+<span class="normal">2220</span>
+<span class="normal">2221</span>
+<span class="normal">2222</span>
+<span class="normal">2223</span>
+<span class="normal">2224</span>
+<span class="normal">2225</span>
+<span class="normal">2226</span>
+<span class="normal">2227</span>
+<span class="normal">2228</span>
+<span class="normal">2229</span>
+<span class="normal">2230</span>
+<span class="normal">2231</span>
+<span class="normal">2232</span>
+<span class="normal">2233</span>
+<span class="normal">2234</span>
+<span class="normal">2235</span>
+<span class="normal">2236</span>
+<span class="normal">2237</span>
+<span class="normal">2238</span>
+<span class="normal">2239</span>
+<span class="normal">2240</span>
+<span class="normal">2241</span>
+<span class="normal">2242</span>
+<span class="normal">2243</span>
+<span class="normal">2244</span>
+<span class="normal">2245</span>
+<span class="normal">2246</span>
+<span class="normal">2247</span>
+<span class="normal">2248</span>
+<span class="normal">2249</span>
+<span class="normal">2250</span>
+<span class="normal">2251</span>
+<span class="normal">2252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Make sure this message is newer than the last one</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">lastMessageTimes_</span><span class="p">[</span><span class="n">topicName</span><span class="p">])</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">RF_DEBUG</span><span class="p">(</span><span class="s">"Update vector for "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">topicName</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" is:</span><span class="se">\n</span><span class="s">"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">callbackData</span><span class="p">.</span><span class="n">updateVector_</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="nf">measurement</span><span class="p">(</span><span class="n">STATE_SIZE</span><span class="p">);</span>
+<span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="nf">measurementCovariance</span><span class="p">(</span><span class="n">STATE_SIZE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE_SIZE</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">measurement</span><span class="p">.</span><span class="n">setZero</span><span class="p">();</span>
+<span class="w">  </span><span class="n">measurementCovariance</span><span class="p">.</span><span class="n">setZero</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Make sure we're actually updating at least one of these variables</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">updateVectorCorrected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">callbackData</span><span class="p">.</span><span class="n">updateVector_</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Prepare the twist data for inclusion in the filter</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prepareTwist</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">topicName</span><span class="p">,</span><span class="w"> </span><span class="n">targetFrame</span><span class="p">,</span><span class="w"> </span><span class="n">updateVectorCorrected</span><span class="p">,</span><span class="w"> </span><span class="n">measurement</span><span class="p">,</span><span class="w"> </span><span class="n">measurementCovariance</span><span class="p">))</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Store the measurement. Add a "twist" suffix so we know what kind of measurement</span>
+<span class="w">    </span><span class="c1">// we're dealing with when we debug the core filter logic.</span>
+<span class="w">    </span><span class="n">enqueueMeasurement</span><span class="p">(</span><span class="n">topicName</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">measurement</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">measurementCovariance</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">updateVectorCorrected</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">callbackData</span><span class="p">.</span><span class="n">rejectionThreshold_</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">RF_DEBUG</span><span class="p">(</span><span class="s">"Enqueued new measurement for "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">topicName</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"_twist</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">RF_DEBUG</span><span class="p">(</span><span class="s">"Did *not* enqueue measurement for "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">topicName</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"_twist</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">lastMessageTimes_</span><span class="p">[</span><span class="n">topicName</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">RF_DEBUG</span><span class="p">(</span><span class="s">"Last message time for "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">topicName</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" is now "</span><span class="w"> </span><span class="o">&lt;&lt;</span>
+<span class="w">    </span><span class="n">lastMessageTimes_</span><span class="p">[</span><span class="n">topicName</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">resetOnTimeJump_</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">isSimTime</span><span class="p">())</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">reset</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">stringstream</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
+<span class="w">  </span><span class="n">stream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"The "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">topicName</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" message has a timestamp before that of the previous message received,"</span><span class="w"> </span><span class="o">&lt;&lt;</span>
+<span class="w">            </span><span class="s">" this message will be ignored. This may indicate a bad timestamp. (message time: "</span><span class="w"> </span><span class="o">&lt;&lt;</span>
+<span class="w">            </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">.</span><span class="n">toSec</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">")"</span><span class="p">;</span>
+<span class="w">  </span><span class="n">addDiagnostic</span><span class="p">(</span><span class="n">diagnostic_msgs</span><span class="o">::</span><span class="n">DiagnosticStatus</span><span class="o">::</span><span class="n">WARN</span><span class="p">,</span>
+<span class="w">                </span><span class="n">topicName</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"_timestamp"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">stream</span><span class="p">.</span><span class="n">str</span><span class="p">(),</span>
+<span class="w">                </span><span class="nb">false</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">RF_DEBUG</span><span class="p">(</span><span class="s">"Message is too old. Last message time for "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">topicName</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" is "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">lastMessageTimes_</span><span class="p">[</span><span class="n">topicName</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span>
+<span class="w">    </span><span class="s">", current message time is "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">".</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
 <h2 id="the-imu-sample-validator">The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</h2>
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator is the ROS node <code>/diffbot/imu_validator</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code></a>. It subscribes to the topic <code>/diffbot/imu/data_raw</code> and forwards each valid sample, unchanged and with its stamp, on the topic <code>/diffbot/imu/data_validated</code>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> reads. It drops every other sample.</p>
 <h3 id="why-the-ekf-needs-the-validator">Why the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs the validator</h3>
@@ -6077,7 +6194,7 @@ d^2 = \mathbf{y}^\mathsf{T} \left(\mathbf{H} \mathbf{P} \mathbf{H}^\mathsf{T} + 
 <p>What these tests don't show: how the real gyroscope behaves (its noise and bias, how it's mounted), the delays on the robot, the filter with the robot's slower wheel odometry (in these tests, both inputs arrive at 50 Hz), and whether the filter helps on the floor. The <a href="https://github.com/ros-mobile-robots/diffbot/issues/138">floor odometry test</a> will measure that on Remo.</p>
 <h2 id="limits">Limits</h2>
 <ul>
-<li><strong>A clock that goes back:</strong> in the simulation, the filter starts over (<code>reset_on_time_jump</code>). robot_localization does that only with simulated time. On the robot, after the computer's clock goes back, the filter ignores each input until its stamps are newer than its last ones again.</li>
+<li><strong>A clock that goes back:</strong> in the simulation, the filter starts over. On the robot, the filter ignores each input until its stamps have caught up. <a href="#the-other-settings"><code>reset_on_time_jump</code></a> in "The other settings" says why and shows robot_localization's code.</li>
 <li><strong>A reset of the simulation:</strong> <code>/gazebo/reset_simulation</code> sets the simulation's clock back to zero. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, the validator and the filter go on from the new time right away. The drive controller's odometry doesn't. <code>diff_drive_controller</code> publishes again only when the clock has passed <code>last_state_publish_time_</code>, the time of its last message from before the reset. The <a href="#the-other-settings">excerpt of <code>diff_drive_controller.cpp</code></a> shows the condition. Until then, the filter gets the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate but no wheel speeds. In a test run that was reset after 9.7 s, the filter's first output after the reset was stamped 0.08 s, and the wheel odometry's first message 9.75 s.</li>
 <li><strong>Starting values:</strong> the variances that the firmware and the drive controller publish on the robot, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator's time limits, are not measured yet. The <a href="../driver-bno055/#bench-checks">bench checks</a> measured the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s noise at rest. Measurements while driving still have to show the values that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> should use. In the simulation, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance describes the Gaussian noise that the simulated sensor adds.</li>
 <li><strong>Drift:</strong> the pose drifts over time, as any odometry. The gyroscope helps with the heading, but nothing corrects the position. A map-based localization such as amcl corrects it in the <code>map</code> frame.</li>
