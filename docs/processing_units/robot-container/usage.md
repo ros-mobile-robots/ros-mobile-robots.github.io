@@ -84,7 +84,7 @@ Why the command has `--no-build`, and how long a build would take:
 
 - **Without `--no-build`:** Compose would answer a failed download by building the Docker image on the Raspberry Pi, from your clone. With it, a failed download is an error that you see at once.
 - **No build is needed to use the robot:** CI builds the published image for arm64, the Raspberry Pi's processor architecture, on an arm64 computer of GitHub.
-- **How long the build takes in CI:** about two minutes. In seven runs, it took between 1 min 42 s and 1 min 55 s.
+- **How long the build takes in CI:** about two minutes, on that arm64 computer and without emulation. In seven runs, it took between 1 min 42 s and 1 min 55 s.
 - **How long it takes on a Raspberry Pi 4:** not measured yet. The Raspberry Pi 4's processor and SD card are slower than that computer's, so expect a longer build.
 - **When you do need a build:** [Your own build](#your-own-build) explains it, and how to build on the Raspberry Pi or on your PC.
 
@@ -423,7 +423,7 @@ The image has to be built for arm64, the Raspberry Pi's processor architecture. 
 | Where | How it builds for arm64 | What is known |
 |:--|:--|:--|
 | [On the Raspberry Pi](#on-the-raspberry-pi) | Natively. The Raspberry Pi is an arm64 computer | Not run on a Raspberry Pi yet, so the build time on it isn't measured. CI runs the same Dockerfile on its arm64 computer |
-| [On your PC](#on-your-pc-for-the-raspberry-pi) | Under emulation, on a PC with an amd64 processor. The emulator QEMU runs the arm64 programs of the build on it | Not tested yet |
+| [On your PC](#on-your-pc-for-the-raspberry-pi) | Under emulation, on a PC with an amd64 processor. The emulator QEMU runs the arm64 programs of the build on it | Not tested yet, and its build time isn't measured |
 
 For comparison: CI builds the published image natively, on an arm64 computer of GitHub, in about two minutes ([How it's tested](image.md#how-its-tested)).
 
@@ -449,9 +449,9 @@ The first build downloads the official ROS Docker image and compiles the robot's
 ### On your PC, for the Raspberry Pi
 
 !!! warning "Not tested yet"
-    These steps follow Docker's documentation. They haven't been run with the robot's image yet.
+    These steps follow Docker's documentation for a build under emulation. They haven't been run with the robot's Docker image yet, and their build time isn't measured. CI doesn't check them either: it builds and tests the arm64 image natively, on GitHub's arm64 runner. Setting up the builder may need a privileged container, or an emulator registered on the PC. So use a computer where that is allowed.
 
-A PC with an amd64 processor can build the arm64 Docker image too. Docker calls this a multi-platform build ([Docker's guide to multi-platform builds](https://docs.docker.com/build/building/multi-platform/)). It isn't cross compilation, where a compiler on the PC would produce arm64 programs. Here the compiler is an arm64 program itself, and QEMU runs it on the PC's processor. So the Dockerfile needs no change, but each build step runs slower than on an arm64 computer. A computer with an arm64 processor needs no emulation: it builds the image natively.
+A PC with an amd64 processor can build the arm64 Docker image too, as an emulated build. That's one of the three ways to a multi-platform build that Docker's guide names ([the guide's section on the strategies](https://docs.docker.com/build/building/multi-platform/#strategies)). It isn't cross compilation, where a compiler on the PC would produce arm64 programs. Here the compiler is an arm64 program itself, and the emulator QEMU runs it on the PC's processor. So the Dockerfile needs no change, but the build steps can run much slower than on an arm64 computer. A computer with an arm64 processor needs no emulation: it builds the image natively.
 
 1. **Check for emulation:** the builder that Docker uses on the PC has to support arm64. This command lists the builders with their platforms, and marks the selected one with `*`. On your PC:
 
@@ -459,7 +459,10 @@ A PC with an amd64 processor can build the arm64 Docker image too. Docker calls 
     docker buildx ls
     ```
 
-    The selected builder has to list `linux/arm64` among its platforms. Docker Desktop's builder does. With Docker Engine on Linux, Docker's guide names two ways to get there: a builder with the `docker-container` driver, or QEMU installed on the PC ([the guide's section on QEMU](https://docs.docker.com/build/building/multi-platform/#qemu)).
+    The selected builder has to list `linux/arm64` among its platforms. Docker Desktop's builder does. With Docker Engine on Linux, Docker's guide names two ways to get there:
+
+    - **A builder with the `docker-container` driver:** its BuildKit image brings the emulator along, so nothing is registered on the PC ([the guide's section on a custom builder](https://docs.docker.com/build/building/multi-platform/#custom-builder)). Buildx starts this builder as a privileged container ([the driver's source](https://github.com/docker/buildx/blob/v0.30.1/driver/docker-container/driver.go)). The builder doesn't end with the build: Docker starts it again after a restart, until you remove it with `docker buildx rm` and its name ([Docker's page on this driver](https://docs.docker.com/build/builders/drivers/docker-container/)).
+    - **QEMU registered on the PC:** the guide registers the emulator with the PC's kernel, through a privileged container ([the guide's section on QEMU](https://docs.docker.com/build/building/multi-platform/#qemu)).
 
 2. **Build the image for arm64:** this command builds the image from the files of your clone. Run it on your PC, in the root folder of your clone of the diffbot repository:
 
