@@ -57,7 +57,7 @@ The screenshots show Raspberry Pi Imager 2.0.12 with example settings, before wr
 
 ## 2. First login and updates
 
-The first boot takes a few minutes, while Ubuntu applies Imager's settings. Then find the Raspberry Pi's IP address in your router's list of devices. The Raspberry Pi gets its address from the router by DHCP, and when it asks for one, it also sends its hostname, so the router lists it under that name ([`SendHostname=`](https://manpages.ubuntu.com/manpages/noble/man5/systemd.network.5.html), on by default). Then log in from your PC, with the user name from Imager and that address:
+The first boot takes a few minutes, while Ubuntu applies Imager's settings. Then find the Raspberry Pi's IP address in your router's list of devices. The Raspberry Pi gets its address from the router by DHCP. When it asks for an address, it also sends its hostname ([`SendHostname=`](https://manpages.ubuntu.com/manpages/noble/man5/systemd.network.5.html), on by default). So the router lists it under that name. Then log in from your PC, with the user name from Imager and that address:
 
 ```console
 ssh <user>@<robot-ip>
@@ -100,7 +100,7 @@ ROS_MASTER_URI=http://192.168.1.10:11311
 ROS_IP=192.168.1.20
 ```
 
-and your PC, as in [ROS Network Setup](../ros-network-setup.md):
+In the PC's dev container, export the PC's network settings, as in [ROS Network Setup](../ros-network-setup.md):
 
 ```bash title="PC: in the dev container"
 export ROS_MASTER_URI=http://192.168.1.10:11311
@@ -319,7 +319,7 @@ A variable with the same name in the Raspberry Pi's shell wins over `.env` ([pre
 
 ### Why `DIALOUT_GID` is a number
 
-Inside the container, the user `ros` may open the Teensy's device only as a member of the group that owns it, `dialout` on Ubuntu. Docker can add a group to the container's user by name or by number, but it looks a name up in the container's own list of groups, where the same name could have another number than on the Raspberry Pi. So `compose.yaml` adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:
+Inside the container, the user `ros` may open the Teensy's device only as a member of the group that owns it, `dialout` on Ubuntu. Docker can add a group to the container's user by name or by number. It looks a name up in the container's own list of groups. There, the same name could have another number than on the Raspberry Pi. So `compose.yaml` adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:
 
 ```console
 stat -Lc %g /dev/teensy

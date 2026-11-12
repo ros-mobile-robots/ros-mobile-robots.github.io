@@ -4,7 +4,7 @@ How the [robot container's](index.md) Docker image is built, what takes its spac
 
 ## How the image is built
 
-The robot's Docker image is defined in the diffbot repository's [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot) folder. Its [`Dockerfile`]({{ robot_container_src_url }}/.docker/robot/Dockerfile) starts from the official ROS image [`ros:noetic-ros-base`](https://hub.docker.com/_/ros), which exists for arm64 and amd64, and adds the robot's packages in three steps, with the same tools as a native workspace:
+The robot's Docker image is defined in the diffbot repository's [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot) folder. Its [`Dockerfile`]({{ robot_container_src_url }}/.docker/robot/Dockerfile) starts from the official ROS image [`ros:noetic-ros-base`](https://hub.docker.com/_/ros), which exists for arm64 and amd64. It then adds the robot's packages in three steps, with the same tools as a native workspace:
 
 1. **vcstool** fetches the repositories listed in [`remo_robot.repos`]({{ robot_container_src_url }}/remo_robot.repos): Remo's model `remo_description` and the lidar driver `rplidar_ros`.
 2. **rosdep** installs the Ubuntu and ROS packages that the packages' `package.xml` files declare as dependencies.
@@ -39,7 +39,14 @@ Unpacked, the image takes about 3.2 GB on an amd64 PC, and about 0.7 GB compress
 
 ## How it's tested
 
-The workflow [`robot_container.yml`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml) runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (`ubuntu-24.04-arm`, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes. In seven runs, the build step took between 1 min 42 s and 1 min 55 s on the arm64 runner, and between 1 min 42 s and 2 min 21 s on the amd64 runner. These lines of the workflow name the two runners:
+The workflow [`robot_container.yml`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml) runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (`ubuntu-24.04-arm`, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes. The build step's times in seven runs:
+
+| Runner | Shortest build | Longest build |
+|:--|:--|:--|
+| arm64, `ubuntu-24.04-arm` | 1 min 42 s | 1 min 55 s |
+| amd64, `ubuntu-24.04` | 1 min 42 s | 2 min 21 s |
+
+These lines of the workflow name the two runners:
 
 ```yaml title="robot_container.yml" linenums="57"
 --8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:57:67"

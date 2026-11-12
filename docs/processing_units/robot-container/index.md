@@ -6,7 +6,7 @@ The robot's computer, a Raspberry Pi 4 B, can run ROS Noetic in a [Docker](https
     The container doesn't make ROS Noetic supported again. Noetic reached its end of life on 31 May 2025, and its packages get no more updates. What gets updates is the operating system around it, Ubuntu Server 24.04 on the Raspberry Pi.
 
 !!! warning "Experimental: not tested on a robot yet"
-    CI builds the robot's Docker image for arm64, the Raspberry Pi's processor architecture, and tests it without hardware ([How it's tested](image.md#how-its-tested)). It hasn't driven a robot yet. The test with teleop and the lidar on a Raspberry Pi in Remo is open in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109), and the setup steps follow Ubuntu's and Docker's documentation but haven't been run on that Raspberry Pi either. The native setup, [Raspberry Pi Setup](../rpi-setup.md) and [ROS Setup](../ros-setup.md), stays documented as the alternative.
+    CI builds the robot's Docker image for arm64, the Raspberry Pi's processor architecture, and tests it without hardware ([How it's tested](image.md#how-its-tested)). It hasn't driven a robot yet. The test with teleop and the lidar on a Raspberry Pi in Remo is open in [diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109). The setup steps follow Ubuntu's and Docker's documentation. They haven't been run on that Raspberry Pi either. The native setup, [Raspberry Pi Setup](../rpi-setup.md) and [ROS Setup](../ros-setup.md), stays documented as the alternative.
 
 ## How it fits together
 

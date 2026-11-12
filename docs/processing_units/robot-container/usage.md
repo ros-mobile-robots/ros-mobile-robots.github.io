@@ -30,7 +30,13 @@ graph TB
 | On the Raspberry Pi, over SSH | `docker compose` with `up`, `ps`, `logs`, `down`, `pull` and `exec` | Docker Compose's own. They work the same in every project that has a `compose.yaml` ([Compose's command reference](https://docs.docker.com/reference/cli/docker/compose/)) |
 | On your PC, in the dev container | `roscore`, `rostopic`, `rosrun` and `rqt_console` | ROS's own tools |
 
-Only the names inside these commands belong to this project. The services `bringup` and `lidar` are defined in the repository's `compose.yaml`, the settings are in your `.env`, and the script `/entrypoint.sh` is part of the robot's Docker image. Compose reads `compose.yaml` and `.env` from the folder it's started in. So run the `docker compose` commands in the folder `~/diffbot/.docker/robot`.
+Only the names inside these commands belong to this project:
+
+- **The services `bringup` and `lidar`:** defined in the repository's `compose.yaml`.
+- **The settings:** in your `.env`.
+- **The script `/entrypoint.sh`:** part of the robot's Docker image.
+
+Compose reads `compose.yaml` and `.env` from the folder it's started in. So run the `docker compose` commands in the folder `~/diffbot/.docker/robot`.
 
 The ROS tools run on the PC because the PC has the screen. The robot's Docker image has ROS's command-line tools but no rqt, and the Raspberry Pi runs without a screen. The tools on the PC see the robot's topics because the PC and the robot use the same ROS master. [On the robot alone](#on-the-robot-alone) shows how to run the command-line tools on the Raspberry Pi instead.
 
@@ -169,10 +175,17 @@ rostopic hz /diffbot/scan
 
 The robot drives when a node publishes velocity commands on the topic `/diffbot/mobile_base_controller/cmd_vel`. A command is a message of the type [`geometry_msgs/Twist`](https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html). The robot's controller, `mobile_base_controller`, uses two of its fields:
 
-- **`linear.x`:** the speed forward, $v$, in m/s. A negative value drives backward. The controller limits it to 0.3 m/s ([`diffbot_control.yaml`]({{ robot_container_src_url }}/diffbot_control/config/diffbot_control.yaml#L42-L48)).
+- **`linear.x`:** the speed forward, $v$, in m/s. A negative value drives backward. The controller limits it to 0.3 m/s.
 - **`angular.z`:** the turning speed, $\omega$, in rad/s. A positive value turns to the left, seen from above, and a negative value to the right. That's ROS's convention for rotations ([REP 103](https://www.ros.org/reps/rep-0103.html)).
 
-The controller stops the wheels when no command arrives for 0.5 s. That's the default of its parameter `cmd_vel_timeout` ([the parameters of diff_drive_controller](https://wiki.ros.org/diff_drive_controller#Parameters)). So a command has to be repeated, more than twice per second, for as long as the robot should move. The commands below repeat it 10 times per second. They run on your PC, in the dev container.
+??? info "The controller's limits in `diffbot_control.yaml`"
+    These lines of [`diffbot_control.yaml`]({{ robot_container_src_url }}/diffbot_control/config/diffbot_control.yaml#L42-L54) limit the speeds and the accelerations that the controller passes on to the wheels:
+
+    ```yaml title="diffbot_control.yaml" linenums="42"
+    --8<-- "{{ robot_container_src_raw }}/diffbot_control/config/diffbot_control.yaml:42:54"
+    ```
+
+When no command arrives for 0.5 s, the controller sets the speed it aims for to zero. That's the default of its parameter `cmd_vel_timeout` ([the parameters of diff_drive_controller](https://wiki.ros.org/diff_drive_controller#Parameters)). The robot then slows down within the controller's acceleration limit and stops. So a command has to be repeated, more than twice per second, for as long as the robot should move. The commands below repeat it 10 times per second. They run on your PC, in the dev container.
 
 ### With the keyboard
 
@@ -189,10 +202,10 @@ The parts of the command:
 - **`_speed:=0.1`:** drives with $v$ = 0.1 m/s. The tool's default is 0.5 m/s, more than the controller's limit.
 - **`_turn:=0.5`:** turns with $\omega$ = 0.5 rad/s. The tool's default is 1.0 rad/s.
 - **`_repeat_rate:=10.0`:** repeats the current command 10 times per second. Without it, the tool sends one command per key press.
-- **`_key_timeout:=0.6`:** sends a stop command when no key arrives for 0.6 s. So the robot drives only while you hold a key.
+- **`_key_timeout:=0.6`:** sends a stop command when no key press arrives for 0.6 s. A terminal reports a held key as repeated key presses, and it doesn't report the release. So the stop command follows about 0.6 s after you release the key.
 - **`cmd_vel:=…`:** sends the commands to the controller's topic instead of the tool's default topic `cmd_vel`.
 
-Hold a key to drive, and release it to stop:
+Hold a key to drive. After you release it, the robot slows down and stops. In the simulation, Remo stood still 0.74 s after the release. The keys are:
 
 | Key | The robot |
 |:--|:--|
@@ -222,11 +235,11 @@ rostopic pub -r 10 /diffbot/mobile_base_controller/cmd_vel geometry_msgs/Twist '
 
 The fields that a command leaves out are zero. So the first command doesn't turn, and the second one doesn't drive forward.
 
-To stop, press `Ctrl+C`. `rostopic pub` ends, no more commands arrive, and the controller stops the wheels after its 0.5 s. In the simulation, with these two commands, DiffBot and Remo drove with 0.10 m/s and turned with 0.50 rad/s, and stood still 0.65 s to 0.70 s after the last command. On the real robot, this isn't measured yet.
+To stop, press `Ctrl+C`. `rostopic pub` ends, and no more commands arrive. After its 0.5 s, the controller slows the robot down to a stop. In the simulation, with these two commands, DiffBot and Remo drove with 0.10 m/s and turned with 0.50 rad/s. They stood still 0.65 s to 0.70 s after the last command. On the real robot, these times aren't measured yet.
 
 ## Stop
 
-On the Raspberry Pi:
+On the Raspberry Pi, stop and remove the containers:
 
 ```console
 docker compose down
@@ -273,7 +286,7 @@ docker compose exec bringup /entrypoint.sh rostopic list
 | `/entrypoint.sh` | The diffbot repository | [The entrypoint script]({{ robot_container_src_url }}/.docker/robot/entrypoint.sh). It loads ROS and the workspace, then runs the rest of the line |
 | `rostopic list` | ROS | The command itself |
 
-The command has to name `/entrypoint.sh`. Docker runs this script by itself only once, for the container's main process, when the container starts. For a process that `exec` adds later, Docker doesn't run it. Without the script, ROS isn't loaded, and the command isn't found:
+The command has to name `/entrypoint.sh`. Docker runs this script by itself only for the container's main process, each time the container starts. For a process that `exec` adds later, Docker doesn't run it. Without the script, ROS isn't loaded, and the command isn't found:
 
 ```text
 exec: "rostopic": executable file not found in $PATH
@@ -285,7 +298,13 @@ What works on the robot this way, and what doesn't:
 - **Doesn't work:** rqt_console and the other rqt tools. They aren't in the robot's Docker image, and the Raspberry Pi has no screen.
 - **A shell:** `docker compose exec bringup /entrypoint.sh bash` opens a shell in the container, with ROS loaded.
 
-To use the robot without any PC, leave `ROS_MASTER_URI` out of `.env`. roslaunch then starts a ROS master in the bringup container when the bringup starts ([The ROS master](#the-ros-master)). Use this without the lidar for now. Started together, the bringup and the lidar container each try to start a ROS master, and one of the two containers stops. That's the result of our test without hardware.
+### Without any PC
+
+The robot also runs without a PC and its `roscore`:
+
+1. Leave `ROS_MASTER_URI` out of `.env`. roslaunch then starts a ROS master in the bringup container when the bringup starts ([The ROS master](#the-ros-master)).
+2. Leave `COMPOSE_PROFILES=lidar` out too, for now. Started together, the bringup and the lidar container can each start a ROS master, and one of the two containers can then stop. It did in each of three starts of our test without hardware.
+3. Start the robot's containers as in [Start](#start).
 
 ## Versions
 
@@ -356,18 +375,18 @@ A test report, for example for the robot test in [diffbot#109](https://github.co
     docker inspect --format '{{ '{{' }}index .Config.Labels "org.opencontainers.image.revision"{{ '}}' }}' $(docker compose ps -q bringup)
     ```
 
-    For [your own build](#your-own-build), the command prints an empty line. The clone's commit then says what was built.
+    For your own build, the command prints an empty line, because only CI writes this label. [What to note about your own build](#what-to-note-about-your-own-build) says what identifies it instead.
 
-2. **The clone's commit:** it says which `compose.yaml` and which udev rules were used.
+2. **The clone's commit:** it says which `compose.yaml` was used. It says the same for the udev rules, if the installed rules are the clone's ([What a version covers](#what-a-version-covers)). This command prints the commit:
 
     ```console
     git -C ~/diffbot rev-parse HEAD
     ```
 
-3. **The settings:** the lines of `.env` that aren't comments.
+3. **The settings:** what Compose made of them. `docker compose config` prints `compose.yaml` with every setting filled in, from `.env`, from variables in the shell and from the defaults. Run it right after the start, in the same shell, so that it shows what the containers were started with. This command saves its output for the report:
 
     ```console
-    grep -v -e '^#' -e '^$' .env
+    docker compose config > ~/robot-settings.yaml
     ```
 
 4. **The firmware's commit:** it says which firmware the Teensy runs. Note it when you flash. On your PC, in the clone that you flash from:
@@ -385,7 +404,7 @@ The image has to be built for arm64, the Raspberry Pi's processor architecture. 
 | Where | How it builds for arm64 | What is known |
 |:--|:--|:--|
 | [On the Raspberry Pi](#on-the-raspberry-pi) | Natively. The Raspberry Pi is an arm64 computer | Not run on a Raspberry Pi yet, so the build time on it isn't measured. CI runs the same Dockerfile on its arm64 computer |
-| [On your PC](#on-your-pc-for-the-raspberry-pi) | Under emulation. The PC's processor is amd64, and the emulator QEMU runs the arm64 programs of the build on it | Not tested yet |
+| [On your PC](#on-your-pc-for-the-raspberry-pi) | Under emulation, on a PC with an amd64 processor. The emulator QEMU runs the arm64 programs of the build on it | Not tested yet |
 
 For comparison: CI builds the published image natively, on an arm64 computer of GitHub, in about two minutes ([How it's tested](image.md#how-its-tested)).
 
@@ -413,17 +432,17 @@ The first build downloads the official ROS Docker image and compiles the robot's
 !!! warning "Not tested yet"
     These steps follow Docker's documentation. They haven't been run with the robot's image yet.
 
-A PC can build the arm64 Docker image too. Docker calls this a multi-platform build ([Docker's guide to multi-platform builds](https://docs.docker.com/build/building/multi-platform/)). It isn't cross compilation, where a compiler on the PC would produce arm64 programs. Here the compiler is an arm64 program itself, and QEMU runs it on the PC's processor. So the Dockerfile needs no change, but each build step runs slower than on an arm64 computer.
+A PC with an amd64 processor can build the arm64 Docker image too. Docker calls this a multi-platform build ([Docker's guide to multi-platform builds](https://docs.docker.com/build/building/multi-platform/)). It isn't cross compilation, where a compiler on the PC would produce arm64 programs. Here the compiler is an arm64 program itself, and QEMU runs it on the PC's processor. So the Dockerfile needs no change, but each build step runs slower than on an arm64 computer. A computer with an arm64 processor needs no emulation: it builds the image natively.
 
-1. **Check for emulation:** the PC's builder has to be able to emulate arm64. On your PC:
+1. **Check for emulation:** the builder that Docker uses on the PC has to support arm64. This command lists the builders with their platforms, and marks the selected one with `*`. On your PC:
 
     ```console
     docker buildx ls
     ```
 
-    The builder has to list `linux/arm64` among its platforms. Docker Desktop's builder does. With Docker Engine on Linux, Docker's guide names two ways to get there: a builder with the `docker-container` driver, or QEMU installed on the PC ([the guide's section on QEMU](https://docs.docker.com/build/building/multi-platform/#qemu)).
+    The selected builder has to list `linux/arm64` among its platforms. Docker Desktop's builder does. With Docker Engine on Linux, Docker's guide names two ways to get there: a builder with the `docker-container` driver, or QEMU installed on the PC ([the guide's section on QEMU](https://docs.docker.com/build/building/multi-platform/#qemu)).
 
-2. **Build the image for arm64:** on your PC, in the root folder of your clone of the diffbot repository:
+2. **Build the image for arm64:** this command builds the image from the files of your clone. Run it on your PC, in the root folder of your clone of the diffbot repository:
 
     ```console
     docker buildx build --platform linux/arm64 -f .docker/robot/Dockerfile -t diffbot-robot:local --load .
@@ -431,7 +450,7 @@ A PC can build the arm64 Docker image too. Docker calls this a multi-platform bu
 
     `--platform linux/arm64` names the processor architecture to build for. `--load` puts the result into the PC's Docker, next to its other images.
 
-3. **Copy the image to the Raspberry Pi:** on your PC:
+3. **Copy the image to the Raspberry Pi:** this command sends the image over SSH. Run it on your PC, with the Raspberry Pi's user name and address:
 
     ```console
     docker save diffbot-robot:local | gzip | ssh <user>@<robot-ip> docker load
@@ -439,11 +458,23 @@ A PC can build the arm64 Docker image too. Docker calls this a multi-platform bu
 
     `docker save` writes the image as an archive, `gzip` compresses it, `ssh` sends it to the Raspberry Pi, and `docker load` reads it into the Raspberry Pi's Docker.
 
-4. **Start it:** on the Raspberry Pi, with `ROBOT_IMAGE=diffbot-robot:local` in `.env`:
+4. **Start it:** set `ROBOT_IMAGE=diffbot-robot:local` in `.env`. Then start the containers with the copied image. On the Raspberry Pi, in `~/diffbot/.docker/robot`:
 
     ```console
     docker compose up -d --no-build --pull never
     ```
+
+### What to note about your own build
+
+Your own build has no commit written into it. So note where it comes from when you build it, on the computer that builds it. In the clone that you build from:
+
+```console
+git rev-parse HEAD
+git status --short
+```
+
+- **`git rev-parse HEAD`:** prints the commit that the clone is at.
+- **`git status --short`:** lists the files that differ from that commit. If it lists any, the commit alone doesn't describe the build. Commit your changes first, or keep the output of `git diff` with your notes.
 
 ## Logs
 
@@ -453,7 +484,7 @@ The robot's messages end up in three places:
 |:--|:--|:--|
 | [The containers' output](#what-the-containers-print) | What the bringup and the lidar driver print | Until `docker compose down` |
 | [ROS's log files](#ross-log-files) | A file for roslaunch and for each node | Until you delete them |
-| [The node `rosout`](#all-nodes-messages-live) | All nodes' messages, live | It only passes them on |
+| [The node `rosout`](#all-nodes-messages-live) | All nodes' messages, live, and in the file `rosout.log` | The file stays until you delete it |
 
 ### What the containers print
 
@@ -465,7 +496,7 @@ docker compose logs bringup
 
 ### ROS's log files
 
-roslaunch and each node also write a log file. Inside a container, ROS writes them to the folder `/home/ros/.ros/log`. That folder isn't the container's own. Docker mounts a folder of the Raspberry Pi there: the folder appears at that path inside the container, and what the container writes into it lands on the Raspberry Pi's SD card ([Docker's page on bind mounts](https://docs.docker.com/engine/storage/bind-mounts/)). These lines of [`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L36-L43) mount the folder:
+roslaunch and each node also write a log file. Inside a container, ROS writes them to the folder `/home/ros/.ros/log`. The folder `/home/ros/.ros` isn't the container's own. Docker mounts the Raspberry Pi's folder `~/robot-data` there: that folder appears inside the container at the path `/home/ros/.ros` ([Docker's page on bind mounts](https://docs.docker.com/engine/storage/bind-mounts/)). So what a container writes there is written into `~/robot-data`, on the Raspberry Pi's SD card. These lines of [`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L36-L43) mount the folder:
 
 ```yaml title="compose.yaml" linenums="36"
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:36:43"
@@ -498,3 +529,5 @@ Each node also sends its messages to the node `rosout`. `rosout` starts together
 ```console
 rqt_console
 ```
+
+`rosout` also writes the messages to the file `rosout.log`, in the run's log folder on the computer where the ROS master runs. With the ROS master on your PC, that folder is below `~/.ros/log` in the dev container, not in the robot's `~/robot-data/log`.
