@@ -1,0 +1,273 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-flows{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8em 16px;margin:1em 0}
+.md-typeset .lv-flows figure.lv-figure{margin:0;flex:1 1 300px;width:auto;max-width:358px}
+.md-typeset .lv-flows figcaption{margin:.4em auto 0;font-size:.7rem}
+.lv-flows .lv-fig text{font-size:12px}
+.lv-flows .lv-fig .mono{font-size:11.5px}
+.lv-flows .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-flows .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-flows .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:10.5px}
+.lv-flows .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.md-typeset p.lv-badge-line{margin:1em 0 -.4em;text-align:center}
+.md-typeset .lv-badge{display:inline-block;padding:.05em .9em;border-radius:1em;background:var(--md-default-fg-color);color:var(--md-default-bg-color);font-weight:700;font-size:.68rem}
+.lv-flows .lv-fig .badge{fill:var(--md-default-fg-color)}
+.lv-flows .lv-fig .badge-text{fill:var(--md-default-bg-color);font-weight:700}
+.lv-flows .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-flows .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-flows .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-flows .lv-fig .encoder{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-flows .lv-fig .imu-chip{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-flows .lv-fig .motion-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-flows .lv-fig .motion-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-flows .lv-fig .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:1.8}
+.lv-flows .lv-fig .wheels-head{fill:var(--lv-wheels);stroke:none}
+.lv-flows .lv-fig .wheels-wire{fill:none;stroke:var(--lv-wheels);stroke-width:1.3}
+.lv-flows .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.8}
+.lv-flows .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-flows .lv-fig .imu-wire{fill:none;stroke:var(--lv-imu);stroke-width:1.3}
+.lv-flows .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-flows .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-flows .lv-fig .hat{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.1}
+.lv-flows .lv-fig .filter{fill:var(--md-default-bg-color);stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-flows .lv-fig .gazebo{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3}
+.lv-flows .lv-fig .rviz{fill:#2f3338;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-flows .lv-fig .rviz-grid{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1}
+.lv-flows .lv-fig .rviz-text{fill:#eceff1}
+.lv-flows .lv-fig .rviz-axis-line{fill:none;stroke:#eceff1;stroke-width:1.4}
+.lv-flows .lv-fig .rviz-axis-head{fill:#eceff1;stroke:none}
+.lv-flows .lv-fig .rviz-transform{fill:none;stroke:#eceff1;stroke-width:1.3;stroke-dasharray:4 3}
+.lv-flows .lv-fig .rviz-body{fill:#59616b;stroke:#eceff1;stroke-width:1.2}
+.lv-flows .lv-fig .rviz-wheel{fill:#eceff1;stroke:none}
+.lv-flows .lv-fig .rviz-pose-line{fill:none;stroke:#35d19a;stroke-width:2.2}
+.lv-flows .lv-fig .rviz-pose-head{fill:#35d19a;stroke:none}
+.lv-flows .lv-fig .rviz-trail-line{fill:none;stroke:#35d19a;stroke-width:1.6;opacity:.5}
+.lv-flows .lv-fig .rviz-trail-head{fill:#35d19a;stroke:none;opacity:.5}
+</style>
+<div class="lv-flows">
+<figure class="lv-figure">
+<svg class="lv-fig" viewBox="0 0 330 544" role="img" aria-labelledby="lv-flow-robot-title"><title id="lv-flow-robot-title">On the real robot: the wheel encoders and the IMU, the firmware, the drive controller and the IMU sample validator, the EKF, and the EKF's two outputs with the nodes that use them</title>
+<rect class="badge" x="6.0" y="6.0" width="75.0" height="19.0" rx="9.5"/>
+<text class="badge-text" x="43.5" y="19.5" text-anchor="middle">Real robot</text>
+<rect class="robot-wheel" x="104.0" y="64.0" width="13.0" height="40.0" rx="4"/>
+<rect class="robot-wheel" x="213.0" y="64.0" width="13.0" height="40.0" rx="4"/>
+<rect class="robot-body" x="119.0" y="40.0" width="92.0" height="116.0" rx="14"/>
+<circle class="robot-part" cx="165.0" cy="142.0" r="6"/>
+<rect class="robot-part" x="121.0" y="77.0" width="24.0" height="14.0" rx="2"/>
+<rect class="robot-part" x="185.0" y="77.0" width="24.0" height="14.0" rx="2"/>
+<path class="wheels-wire" d="M151,84 V102 M179,84 V102 H135 M135,102 V156"/>
+<circle class="encoder" cx="151.0" cy="84.0" r="4.5"/>
+<circle class="encoder" cx="179.0" cy="84.0" r="4.5"/>
+<path class="imu-wire" d="M150.0,126 V132 H195 V156"/>
+<rect class="imu-chip" x="143.0" y="112.0" width="14.0" height="14.0" rx="2"/>
+<path class="motion-line" d="M165.0,37.0 L165.0,23.0"/>
+<path class="motion-head" d="M165.0,18.0 L169.2,25.0 L160.8,25.0 z"/>
+<text x="172.0" y="31.0" text-anchor="start"><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<path class="motion-line" d="M235.4,75.1 A74,74 0 0 0 210.6,39.7"/>
+<path class="motion-head" d="M209.0,38.5 L217.1,39.5 L211.9,46.1 z"/>
+<text x="233.0" y="48.0" text-anchor="start"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<circle class="encoder" cx="13.0" cy="128.0" r="4.5"/>
+<text x="23.0" y="132.0" text-anchor="start">wheel encoder</text>
+<rect class="imu-chip" x="8.5" y="141.5" width="9.0" height="9.0" rx="2"/>
+<text x="23.0" y="150.0" text-anchor="start">IMU (BNO055)</text>
+<path class="wheels-line" d="M135.0,156.0 L135.0,173.0"/>
+<path class="wheels-head" d="M135.0,178.0 L130.8,171.0 L139.2,171.0 z"/>
+<path class="imu-line" d="M195.0,156.0 L195.0,173.0"/>
+<path class="imu-head" d="M195.0,178.0 L190.8,171.0 L199.2,171.0 z"/>
+<rect class="item" x="6.0" y="178.0" width="318.0" height="24.0" rx="5"/>
+<text x="165.0" y="194.0" text-anchor="middle">Teensy: firmware, over USB to rosserial</text>
+<path class="wheels-line" d="M20.0,202.0 L20.0,243.0"/>
+<path class="wheels-head" d="M20.0,248.0 L15.8,241.0 L24.2,241.0 z"/>
+<text x="28.0" y="221.0" text-anchor="start">wheel angles</text>
+<text class="mono" x="28.0" y="236.0" text-anchor="start">measured_joint_states</text>
+<path class="imu-line" d="M190.0,202.0 L190.0,243.0"/>
+<path class="imu-head" d="M190.0,248.0 L185.8,241.0 L194.2,241.0 z"/>
+<text x="198.0" y="221.0" text-anchor="start">IMU samples</text>
+<text class="mono" x="198.0" y="236.0" text-anchor="start">imu/data_raw</text>
+<rect class="item" x="6.0" y="248.0" width="170.0" height="54.0" rx="5"/>
+<text x="91.0" y="264.0" text-anchor="middle">diffbot_base with the</text>
+<text x="91.0" y="279.0" text-anchor="middle">drive controller</text>
+<text class="mono" x="91.0" y="294.0" text-anchor="middle">mobile_base_controller</text>
+<rect class="item" x="182.0" y="248.0" width="142.0" height="54.0" rx="5"/>
+<text x="253.0" y="271.5" text-anchor="middle">IMU sample validator</text>
+<text class="mono" x="253.0" y="286.5" text-anchor="middle">imu_validator</text>
+<path class="wheels-line" d="M20.0,302.0 L20.0,359.0"/>
+<path class="wheels-head" d="M20.0,364.0 L15.8,357.0 L24.2,357.0 z"/>
+<text x="28.0" y="320.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">wheels</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="28.0" y="336.0" text-anchor="start">mobile_base_controller</text>
+<text class="mono" x="28.0" y="350.0" text-anchor="start">/odom</text>
+<path class="imu-line" d="M190.0,302.0 L190.0,359.0"/>
+<path class="imu-head" d="M190.0,364.0 L185.8,357.0 L194.2,357.0 z"/>
+<text x="198.0" y="320.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">IMU</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="198.0" y="336.0" text-anchor="start">imu/data_validated</text>
+<rect class="filter" x="6.0" y="364.0" width="318.0" height="46.0" rx="5"/>
+<text x="165.0" y="383.0" text-anchor="middle"><tspan class="strong">EKF</tspan><tspan>, the node </tspan><tspan class="mono">ekf_localization</tspan></text>
+<path class="hat" d="M59.2,391.4 l2.8,-2.6 l2.8,2.6"/>
+<text x="58.0" y="400.0" text-anchor="start"><tspan class="vector">x</tspan><tspan>: the filter's estimate of the state </tspan><tspan class="vector">x</tspan></text>
+<path class="estimate-line" d="M20.0,410.0 L20.0,485.0"/>
+<path class="estimate-head" d="M20.0,490.0 L15.8,483.0 L24.2,483.0 z"/>
+<path class="hat" d="M29.2,419.4 l2.8,-2.6 l2.8,2.6"/>
+<text x="28.0" y="428.0" text-anchor="start"><tspan class="vector">x</tspan><tspan class="subscript" dy="2.5">published</tspan><tspan dy="-2.5"> =</tspan></text>
+<text x="28.0" y="444.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="28.0" y="460.0" text-anchor="start">odometry/filtered</text>
+<text x="28.0" y="475.0" text-anchor="start">with covariances</text>
+<path class="estimate-line" d="M190.0,410.0 L190.0,485.0"/>
+<path class="estimate-head" d="M190.0,490.0 L185.8,483.0 L194.2,483.0 z"/>
+<text x="198.0" y="436.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>)</tspan><tspan> as transform</tspan></text>
+<text class="mono" x="198.0" y="452.0" text-anchor="start">odom →</text>
+<text class="mono" x="198.0" y="466.0" text-anchor="start">base_footprint</text>
+<rect class="item" x="6.0" y="490.0" width="170.0" height="46.0" rx="5"/>
+<text x="91.0" y="509.5" text-anchor="middle">the planners in move_base</text>
+<text x="91.0" y="524.5" text-anchor="middle">and Move Base Flex, RViz</text>
+<rect class="item" x="182.0" y="490.0" width="142.0" height="46.0" rx="5"/>
+<text x="253.0" y="509.5" text-anchor="middle">TF: RViz, amcl,</text>
+<text x="253.0" y="524.5" text-anchor="middle">the planners' costmaps</text>
+</svg>
+<figcaption>The real robot, seen from above and not to scale.</figcaption>
+</figure>
+<figure class="lv-figure">
+<svg class="lv-fig" viewBox="0 0 330 760" role="img" aria-labelledby="lv-flow-simulation-title"><title id="lv-flow-simulation-title">In the simulation: Gazebo's wheel joints and its IMU sensor, the drive controller, the adapter and the IMU sample validator, the EKF, and the EKF's two outputs in a sketch of RViz</title>
+<rect class="badge" x="6.0" y="6.0" width="75.0" height="19.0" rx="9.5"/>
+<text class="badge-text" x="43.5" y="19.5" text-anchor="middle">Simulation</text>
+<rect class="gazebo" x="6.0" y="30.0" width="318.0" height="228.0" rx="5"/>
+<text class="strong" x="16.0" y="48.0" text-anchor="start">Gazebo</text>
+<rect class="robot-wheel" x="104.0" y="82.0" width="13.0" height="40.0" rx="4"/>
+<rect class="robot-wheel" x="213.0" y="82.0" width="13.0" height="40.0" rx="4"/>
+<rect class="robot-body" x="119.0" y="58.0" width="92.0" height="116.0" rx="14"/>
+<circle class="robot-part" cx="165.0" cy="160.0" r="6"/>
+<path class="wheels-wire" d="M119,102 V120 M211,102 V120 H119 M135,120 V174"/>
+<circle class="encoder" cx="119.0" cy="102.0" r="4.5"/>
+<circle class="encoder" cx="211.0" cy="102.0" r="4.5"/>
+<path class="imu-wire" d="M150.0,144 V150 H195 V174"/>
+<rect class="imu-chip" x="143.0" y="130.0" width="14.0" height="14.0" rx="2"/>
+<path class="motion-line" d="M165.0,55.0 L165.0,41.0"/>
+<path class="motion-head" d="M165.0,36.0 L169.2,43.0 L160.8,43.0 z"/>
+<text x="172.0" y="49.0" text-anchor="start"><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<path class="motion-line" d="M235.4,93.1 A74,74 0 0 0 210.6,57.7"/>
+<path class="motion-head" d="M209.0,56.5 L217.1,57.5 L211.9,64.1 z"/>
+<text x="233.0" y="66.0" text-anchor="start"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<circle class="encoder" cx="13.0" cy="146.0" r="4.5"/>
+<text x="23.0" y="150.0" text-anchor="start">wheel joint</text>
+<rect class="imu-chip" x="8.5" y="159.5" width="9.0" height="9.0" rx="2"/>
+<text x="23.0" y="168.0" text-anchor="start">IMU sensor</text>
+<path class="wheels-line" d="M135.0,174.0 L135.0,191.0"/>
+<path class="wheels-head" d="M135.0,196.0 L130.8,189.0 L139.2,189.0 z"/>
+<path class="imu-line" d="M195.0,174.0 L195.0,191.0"/>
+<path class="imu-head" d="M195.0,196.0 L190.8,189.0 L199.2,189.0 z"/>
+<rect class="item" x="12.0" y="196.0" width="162.0" height="54.0" rx="5"/>
+<text x="93.0" y="212.0" text-anchor="middle">gazebo_ros_control with</text>
+<text x="93.0" y="227.0" text-anchor="middle">the drive controller</text>
+<text class="mono" x="93.0" y="242.0" text-anchor="middle">mobile_base_controller</text>
+<rect class="item" x="184.0" y="196.0" width="134.0" height="54.0" rx="5"/>
+<text x="251.0" y="219.5" text-anchor="middle">the IMU sensor's</text>
+<text x="251.0" y="234.5" text-anchor="middle">plugin</text>
+<path class="imu-line" d="M190.0,250.0 L190.0,283.0"/>
+<path class="imu-head" d="M190.0,288.0 L185.8,281.0 L194.2,281.0 z"/>
+<text class="mono" x="198.0" y="279.0" text-anchor="start">imu/gazebo</text>
+<rect class="item" x="182.0" y="288.0" width="142.0" height="30.0" rx="5"/>
+<text class="mono" x="253.0" y="307.0" text-anchor="middle">imu_raw_adapter</text>
+<path class="imu-line" d="M190.0,318.0 L190.0,343.0"/>
+<path class="imu-head" d="M190.0,348.0 L185.8,341.0 L194.2,341.0 z"/>
+<text class="mono" x="198.0" y="338.0" text-anchor="start">imu/data_raw</text>
+<rect class="item" x="182.0" y="348.0" width="142.0" height="46.0" rx="5"/>
+<text x="253.0" y="367.5" text-anchor="middle">IMU sample validator</text>
+<text class="mono" x="253.0" y="382.5" text-anchor="middle">imu_validator</text>
+<path class="wheels-line" d="M20,250 V394"/>
+<path class="wheels-line" d="M20.0,394.0 L20.0,451.0"/>
+<path class="wheels-head" d="M20.0,456.0 L15.8,449.0 L24.2,449.0 z"/>
+<text x="28.0" y="412.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">wheels</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="28.0" y="428.0" text-anchor="start">mobile_base_controller</text>
+<text class="mono" x="28.0" y="442.0" text-anchor="start">/odom</text>
+<path class="imu-line" d="M190.0,394.0 L190.0,451.0"/>
+<path class="imu-head" d="M190.0,456.0 L185.8,449.0 L194.2,449.0 z"/>
+<text x="198.0" y="412.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">IMU</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="198.0" y="428.0" text-anchor="start">imu/data_validated</text>
+<rect class="filter" x="6.0" y="456.0" width="318.0" height="46.0" rx="5"/>
+<text x="165.0" y="475.0" text-anchor="middle"><tspan class="strong">EKF</tspan><tspan>, the node </tspan><tspan class="mono">ekf_localization</tspan></text>
+<path class="hat" d="M59.2,483.4 l2.8,-2.6 l2.8,2.6"/>
+<text x="58.0" y="492.0" text-anchor="start"><tspan class="vector">x</tspan><tspan>: the filter's estimate of the state </tspan><tspan class="vector">x</tspan></text>
+<path class="estimate-line" d="M20.0,502.0 L20.0,577.0"/>
+<path class="estimate-head" d="M20.0,582.0 L15.8,575.0 L24.2,575.0 z"/>
+<path class="hat" d="M29.2,511.4 l2.8,-2.6 l2.8,2.6"/>
+<text x="28.0" y="520.0" text-anchor="start"><tspan class="vector">x</tspan><tspan class="subscript" dy="2.5">published</tspan><tspan dy="-2.5"> =</tspan></text>
+<text x="28.0" y="536.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="28.0" y="552.0" text-anchor="start">odometry/filtered</text>
+<text x="28.0" y="567.0" text-anchor="start">with covariances</text>
+<path class="estimate-line" d="M190.0,502.0 L190.0,577.0"/>
+<path class="estimate-head" d="M190.0,582.0 L185.8,575.0 L194.2,575.0 z"/>
+<text x="198.0" y="528.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>)</tspan><tspan> as transform</tspan></text>
+<text class="mono" x="198.0" y="544.0" text-anchor="start">odom →</text>
+<text class="mono" x="198.0" y="558.0" text-anchor="start">base_footprint</text>
+<rect class="rviz" x="6.0" y="582.0" width="318.0" height="170.0" rx="5"/>
+<path class="rviz-grid" d="M36,583 V751 M66,583 V751 M96,583 V751 M126,583 V751 M156,583 V751 M186,583 V751 M216,583 V751 M246,583 V751 M276,583 V751 M306,583 V751 M7,610 H323 M7,640 H323 M7,670 H323 M7,700 H323 M7,730 H323"/>
+<text class="rviz-text" x="16.0" y="600.0" text-anchor="start"><tspan class="strong">RViz</tspan><tspan>, fixed frame </tspan><tspan class="mono">odom</tspan></text>
+<path class="rviz-axis-line" d="M48.0,726.0 L93.0,726.0"/>
+<path class="rviz-axis-head" d="M98.0,726.0 L91.0,730.2 L91.0,721.8 z"/>
+<path class="rviz-axis-line" d="M48.0,726.0 L48.0,681.0"/>
+<path class="rviz-axis-head" d="M48.0,676.0 L52.2,683.0 L43.8,683.0 z"/>
+<text class="rviz-text" x="103.0" y="730.0" text-anchor="start"><tspan class="variable">x</tspan></text>
+<text class="rviz-text" x="45.0" y="671.0" text-anchor="start"><tspan class="variable">y</tspan></text>
+<text class="mono rviz-text" x="46.0" y="743.0" text-anchor="middle">odom</text>
+<path class="rviz-trail-line" d="M118.0,725.0 L128.0,725.0"/>
+<path class="rviz-trail-head" d="M133.0,725.0 L126.0,729.2 L126.0,720.8 z"/>
+<path class="rviz-trail-line" d="M148.0,721.0 L157.9,719.4"/>
+<path class="rviz-trail-head" d="M162.8,718.7 L156.6,723.9 L155.2,715.6 z"/>
+<path class="rviz-trail-line" d="M176.0,712.0 L185.5,708.9"/>
+<path class="rviz-trail-head" d="M190.3,707.4 L184.9,713.5 L182.3,705.5 z"/>
+<path class="rviz-trail-line" d="M200.0,698.0 L209.0,693.6"/>
+<path class="rviz-trail-head" d="M213.5,691.4 L209.0,698.3 L205.3,690.7 z"/>
+<path class="rviz-transform" d="M48,726 L222,654"/>
+<text class="rviz-text" text-anchor="middle" transform="translate(112.4,699.4) rotate(-22.5)" y="-7">odom → base_footprint</text>
+<g transform="translate(222,654) rotate(55) scale(.42)"><rect class="rviz-wheel" x="-61" y="-34" width="13" height="40" rx="4"/><rect class="rviz-wheel" x="48" y="-34" width="13" height="40" rx="4"/><rect class="rviz-body" x="-46" y="-58" width="92" height="116" rx="14"/></g>
+<path class="rviz-transform" d="M222,654 h44"/>
+<path class="rviz-axis-line" d="M256,654 A34,34 0 0 0 249.9,634.5"/>
+<text class="rviz-text" x="261.0" y="647.0" text-anchor="start"><tspan class="variable">θ</tspan></text>
+<path class="rviz-pose-line" d="M222.0,654.0 L263.8,624.7"/>
+<path class="rviz-pose-head" d="M267.9,621.9 L264.5,629.3 L259.7,622.5 z"/>
+<text class="rviz-text" x="316.0" y="743.0" text-anchor="end">Odometry display: kept pose arrows</text>
+</svg>
+<figcaption>The simulation. The dark panel is a sketch of RViz with the EKF's two outputs.</figcaption>
+</figure>
+</div>
