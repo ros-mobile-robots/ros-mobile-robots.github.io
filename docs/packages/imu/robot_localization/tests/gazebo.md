@@ -237,7 +237,7 @@ CI runs both files with the repository's other tests, as [Testing and CI](../../
 ## What the test doesn't show
 
 - **The real gyroscope:** the simulated IMU adds random noise to the true yaw rate and reports the matching variance $\sigma^2$. It has no bias and no mounting error. [The simulated IMU](../../../../diffbot_gazebo.md#inertial-measurement-unit-imu) describes the sensor.
-- **The real robot's rates and delays:** in the simulation, the wheel odometry and the IMU both arrive at 50 Hz, stamped with simulation time. [Limits](../../robot_localization.md#limits) names what differs on the robot.
+- **The real robot's rates and delays:** in the simulation, the wheel odometry and the IMU both arrive at 50 Hz, stamped with simulation time. On the robot, the wheel odometry arrives at most 10 times per second, as [The other settings](../../robot_localization.md#the-other-settings) on the Localization page explains. [How it's tested](../../robot_localization.md#how-its-tested) on the same page lists what the tests don't show about the robot's rates and delays.
 - **Other errors of the wheels:** the test's error is one constant factor on a turn on the spot. The test has no slip that comes and goes and no driving forward.
 - **The position:** the test compares the three turns only, not the positions $x$ and $y$.
 - **Turns of more than $\pi$:** `turned()` returns a change of the heading between $-\pi$ and $\pi$.
