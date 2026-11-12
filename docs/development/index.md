@@ -37,6 +37,8 @@ A feature isn't finished until it's documented: code changes in diffbot come wit
 
 The code follows the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) and the [ROS Quality](http://wiki.ros.org/Quality) guidelines where possible, including the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Pages on this site link to the REPs that apply.
 
+Each repository states its own rules for code, tests and documentation in its `AGENTS.md`, which holds for people and for coding agents alike, and `CONTRIBUTING.md` gives the short form. For the robots' code, start with [diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md): a function does one thing, a name says what a thing is, values that belong together travel as one type, and a test's name says what the test checks. Where those rules and the guides below differ, the repository's rules win.
+
 Good starting points:
 
 - [ROS developer's guide](http://wiki.ros.org/DevelopersGuide): common practices for components shared with the community, with the [naming conventions](http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources) and the [C++](http://wiki.ros.org/CppStyleGuide) and [Python](http://wiki.ros.org/PyStyleGuide) style guides.
@@ -47,6 +49,8 @@ How the code is built, tested and debugged is described in [Testing and CI](ci.m
 ## Writing docs
 
 This site is built with [MkDocs](https://www.mkdocs.org/) and the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme. Its source is the [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) repository: one Markdown file per page in [`docs/`](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs), and the navigation in [`mkdocs.yml`]({{ docs_repo_url }}/mkdocs.yml). Pull requests from branches in this repository get a preview on the real site, see [Testing and CI](ci.md#this-documentation-site).
+
+A page is written for a reader who is new to its topic: terms are defined where they first appear, quantities carry their symbol and unit, every code excerpt is introduced by a sentence, and a figure shows each flow. A feature's pages also walk through its tests, one test after the other, with a picture per test. The [code walkthrough of the simulation test](simulation-test.md#code-walkthrough) shows the form. The full list is in the [writing rules of this site's AGENTS.md]({{ docs_repo_url }}/AGENTS.md#writing-rules).
 
 The packages have no generated API documentation yet. For ROS packages that's usually done with [Doxygen](http://wiki.ros.org/Doxygen).
 

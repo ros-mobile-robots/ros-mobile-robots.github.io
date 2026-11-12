@@ -27,10 +27,20 @@ CI checks the strict build and the spelling of every pull request. Pull requests
 
 ## Writing
 
-- Explain why, not only what: the reader should understand the robot well enough to change it.
-- Short, plain sentences; one idea per paragraph. Use SI units with a space (`0.5 kg`, `3 s`).
-- Link the primary source next to a claim: the code at a pinned commit, the official documentation, or the measurement.
-- Describe the current state. How it got there belongs in the pull requests, not on the page.
+Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules) has these rules with examples.
+
+- **Why:** explain why, not only what. The reader should understand the robot well enough to change it. Short, plain sentences, one idea per paragraph, few semicolons.
+- **Terms and links:** define a term where the page first uses it, and give every link a text that says what it leads to, never "here" or a bare number.
+- **Quantities:** give a quantity its symbol and unit where the page first names it, such as "the yaw rate $\omega_z$ (rad/s)". Use SI units with a space (`0.5 kg`, `3 s`).
+- **Code:** introduce every code excerpt with a full sentence, show the excerpt for every line range you point to, and use the code's own names in the text. A configuration list whose meaning lies in the position of its values gets a table with one row per position.
+- **Figures and order:** draw a figure where the page explains a flow, a structure or a sequence over time, and let the sections follow the order of execution.
+- **Tests:** a feature's pages include a tests page that explains each test in order (what it sets up, what goes in, what happens, what is checked and with which tolerance), with the code excerpts and a picture per test.
+- **Sources:** link the primary source next to a claim: the code at a pinned commit, the official documentation, or the measurement.
+- **The current state:** describe how things are. How they got there belongs in the pull requests, not on the page.
+
+## Scripts and tests
+
+The figure scripts, the hooks and macros, the tests and the theme's JavaScript follow the same rules as the robots' code: one thing per function, names that say what a thing is, one type for values that belong together, type hints on every Python function, and test names that say what the test checks. [AGENTS.md](AGENTS.md#code-in-this-repository) has the list. New logic comes with a test that CI runs.
 
 ## Pull requests
 
