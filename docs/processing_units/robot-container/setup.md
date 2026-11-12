@@ -4,7 +4,7 @@ These steps prepare the robot's Raspberry Pi for the [robot container](index.md)
 
 ## 1. Flash Ubuntu Server 24.04
 
-On your PC, with [Raspberry Pi Imager](https://www.raspberrypi.com/software/) and the robot's microSD card. Imager asks for these settings, one screen each, shown in the tabs below:
+On your PC, write Ubuntu Server onto the robot's microSD card with [Raspberry Pi Imager](https://www.raspberrypi.com/software/). Imager asks for these settings, one screen each, shown in the tabs below:
 
 1. **Device:** Raspberry Pi 4.
 2. **OS:** *Other general-purpose OS* → *Ubuntu* → *Ubuntu Server 24.04.5 LTS (64-bit)*. Ubuntu supports the [Raspberry Pi 4 B](https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/raspberry-pi/) with this release.
