@@ -28,7 +28,7 @@ With this line, rosdep would recognize `diffbot_base` as a package of the worksp
 
 catkin does follow these lines: `catkin build diffbot_bringup` would first build the workspace packages that `diffbot_bringup` declares. But today `diffbot_bringup` declares only `teleop_twist_keyboard`, not the packages its launch files start. Adding them is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
 
-CI builds the image and publishes it ([How it's tested](#how-its-tested)). Docker builds it on the Raspberry Pi only for [your own build](usage.md#your-own-build). The container runs as the user `ros` with UID 1000, not as root. The image also sets `PYTHONUNBUFFERED` and `ROSCONSOLE_STDOUT_LINE_BUFFERED`, so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and `docker compose logs` would show it late.
+CI builds the image and publishes it ([How it's tested](#how-its-tested)). Docker builds it on the Raspberry Pi only for [your own build](versions.md#your-own-build). The container runs as the user `ros` with UID 1000, not as root. The image also sets `PYTHONUNBUFFERED` and `ROSCONSOLE_STDOUT_LINE_BUFFERED`, so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and `docker compose logs` would show it late.
 
 ## What takes the space
 

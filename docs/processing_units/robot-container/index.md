@@ -38,15 +38,16 @@ What runs where, and which page explains it:
 |:--|:--|:--|
 | Your PC | The [dev container](../../development/dev-container.md) with ROS Noetic, Gazebo and RViz, and usually the ROS master (`roscore`) | [Set Up Your PC](../../getting-started/set-up-your-pc.md), [ROS Network Setup](../ros-network-setup.md) |
 | The Raspberry Pi, the robot's computer | Ubuntu Server 24.04 and Docker Engine, the udev rules for the serial devices, the diffbot repository with the settings, and a folder for ROS logs | [Set Up the Raspberry Pi](setup.md) |
-| The robot containers, on the Raspberry Pi | ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robots' URDF models and the lidar driver. CI builds and tests their Docker image and publishes it, and Docker downloads it to the Raspberry Pi | [Start, Check and Stop](usage.md), [Image and Tests](image.md) |
+| The robot containers, on the Raspberry Pi | ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robots' URDF models and the lidar driver. CI builds and tests their Docker image and publishes it, and Docker downloads it to the Raspberry Pi | [Start, Check and Stop](usage.md), [Versions and Your Own Build](versions.md), [Image and Tests](image.md) |
 | The Teensy | The firmware that drives the motors and reads the encoders | [Microcontroller](../teensy-mcu.md): flash it from the PC before the first start |
 
 ## The pages of this section
 
 1. [Set Up the Raspberry Pi](setup.md): once, from the empty microSD card to the settings.
-2. [Start, Check and Stop](usage.md): each time you use the robot. Also the versions, your own build, and where the logs are.
-3. [Troubleshooting](troubleshooting.md): what you might see, how to find the cause, and how to fix it.
-4. [Image and Tests](image.md): how the Docker image is built, what takes its space, and how CI tests it.
+2. [Start, Check and Stop](usage.md): each time you use the robot, and where its logs are.
+3. [Versions and Your Own Build](versions.md): how to update the robot's Docker image, how to stay on one version, and how to build the image yourself.
+4. [Troubleshooting](troubleshooting.md): what you might see, how to find the cause, and how to fix it.
+5. [Image and Tests](image.md): how the Docker image is built, what takes its space, and how CI tests it.
 
 ## Limitations and planned work
 

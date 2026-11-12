@@ -200,7 +200,7 @@ docker run --rm hello-world
     - **Buildx** (`docker-buildx-plugin` or `docker-buildx`): the builder that `docker build` and Compose use.
     - **Compose** (`docker-compose-plugin` or `docker-compose-v2`): the `docker compose` command. It reads a `compose.yaml` file that describes the containers, their devices and their settings, so one command starts them all.
 
-    That's all the robot needs: it downloads one Docker image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself ([Your own build](usage.md#your-own-build)). Members of the `docker` group can control Docker without `sudo`, which amounts to root access on the Raspberry Pi ([Docker's security notes](https://docs.docker.com/engine/security/#docker-daemon-attack-surface)).
+    That's all the robot needs: it downloads one Docker image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself ([Your own build](versions.md#your-own-build)). Members of the `docker` group can control Docker without `sudo`, which amounts to root access on the Raspberry Pi ([Docker's security notes](https://docs.docker.com/engine/security/#docker-daemon-attack-surface)).
 
 ## 6. The diffbot repository
 
@@ -315,7 +315,7 @@ A variable with the same name in the Raspberry Pi's shell wins over `.env` ([pre
 | `TEENSY_DEVICE`, `LIDAR_DEVICE` | `/dev/teensy`, `/dev/rplidar` | The serial devices on the Raspberry Pi, from [step 7](#7-stable-device-names) |
 | `DIALOUT_GID` | `20` | The number of the group that owns the serial devices on the Raspberry Pi |
 | `ROBOT_DATA` | `~/robot-data` | The folder for logs, from [step 8](#8-the-folder-for-logs) |
-| `ROBOT_IMAGE` | `ghcr.io/ros-mobile-robots/diffbot-robot:noetic` | The Docker image to run: the newest published one, a fixed version, or your own build ([Versions](usage.md#versions), [Your own build](usage.md#your-own-build)) |
+| `ROBOT_IMAGE` | `ghcr.io/ros-mobile-robots/diffbot-robot:noetic` | The Docker image to run: the newest published one, a fixed version, or your own build ([Versions](versions.md#versions), [Your own build](versions.md#your-own-build)) |
 
 ### Why `DIALOUT_GID` is a number
 
@@ -348,5 +348,5 @@ Each service then adds what's its own (lines 50–70):
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:50:70"
 ```
 
-- **`bringup`** (lines 53–60): `build` tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in `.docker/robot`, for [your own build](usage.md#your-own-build). Its `context` is the whole repository, the folder whose files the Dockerfile can copy into the image. `devices` passes the Teensy into the container as `/dev/ttyACM0`, where the bringup's launch file expects it. `command` starts `bringup.launch` with the robot model from `ROBOT_MODEL`.
+- **`bringup`** (lines 53–60): `build` tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in `.docker/robot`, for [your own build](versions.md#your-own-build). Its `context` is the whole repository, the folder whose files the Dockerfile can copy into the image. `devices` passes the Teensy into the container as `/dev/ttyACM0`, where the bringup's launch file expects it. `command` starts `bringup.launch` with the robot model from `ROBOT_MODEL`.
 - **`lidar`** (lines 64–70): runs only with the profile `lidar`, which `COMPOSE_PROFILES` selects. Compose starts it after the bringup (`depends_on`). It gets the lidar as `/dev/ttyUSB0` and starts `lidar.launch`, the lidar driver alone.

@@ -204,6 +204,7 @@ nav:
         - processing_units/robot-container/index.md
         - Set Up the Raspberry Pi: processing_units/robot-container/setup.md
         - Start, Check and Stop: processing_units/robot-container/usage.md
+        - Versions and Your Own Build: processing_units/robot-container/versions.md
         - Troubleshooting: processing_units/robot-container/troubleshooting.md
         - Image and Tests: processing_units/robot-container/image.md
       - ROS Network Setup: processing_units/ros-network-setup.md
