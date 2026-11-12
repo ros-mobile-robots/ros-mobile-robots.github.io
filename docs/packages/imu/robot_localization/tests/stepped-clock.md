@@ -210,7 +210,7 @@ The assertions are the same in the three phases. No kept output is above 0.51 ra
 
 ### Phase 6: the clock goes back
 
-The test sets the clock back from 107 s to `RESTART`, 50 s, as a reset of Gazebo's world does in the simulation. The validator starts its order check over, and the EKF starts over from the new time, because [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets `reset_on_time_jump`. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 425–448]({{ ekf_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L425-L448):
+The test sets the clock back from 107 s to `RESTART`, 50 s, as a call of the service `/gazebo/reset_simulation` does in the simulation. The validator starts its order check over, and the EKF starts over from the new time, because [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets `reset_on_time_jump`. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 425–448]({{ ekf_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L425-L448):
 
 ```python title="test_ekf_synthetic.py: phase 6" linenums="425"
 --8<-- "{{ ekf_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:425:448"

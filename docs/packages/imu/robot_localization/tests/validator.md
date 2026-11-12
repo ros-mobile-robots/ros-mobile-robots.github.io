@@ -153,7 +153,7 @@ Check 5 compares the stamp $t_s$ with $t_\text{last}$, the stamp of the last val
 
 ### A clock that goes back
 
-The ROS time goes back when Gazebo's world is reset, or when the SBC's clock is corrected. The validator notices this in `observe_time()`, when a call's `now` is earlier than the `now` of the call before. It then forgets the last valid sample, so that the order check starts over. The excerpt shows the two tests, from [`test_imu_validator.py`, lines 147–164]({{ ekf_src_url }}/diffbot_control/test/test_imu_validator.py#L147-L164):
+The ROS time goes back after a call of the service `/gazebo/reset_simulation` in the simulation, or when the SBC's clock is corrected on the robot. The validator notices this in `observe_time()`, when a call's `now` is earlier than the `now` of the call before. It then forgets the last valid sample, so that the order check starts over. The excerpt shows the two tests, from [`test_imu_validator.py`, lines 147–164]({{ ekf_src_url }}/diffbot_control/test/test_imu_validator.py#L147-L164):
 
 ```python title="test_imu_validator.py: the clock goes back" linenums="147"
 --8<-- "{{ ekf_src_raw }}/diffbot_control/test/test_imu_validator.py:147:164"
