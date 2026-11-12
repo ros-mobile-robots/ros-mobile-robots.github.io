@@ -224,13 +224,15 @@ Hold a key to drive. After you release it, the robot slows down and stops. In th
 This command drives straight and slowly, forward with $v$ = 0.1 m/s:
 
 ```console
-rostopic pub -r 10 /diffbot/mobile_base_controller/cmd_vel geometry_msgs/Twist '{linear: {x: 0.1}}'
+rostopic pub -r 10 /diffbot/mobile_base_controller/cmd_vel geometry_msgs/Twist \
+  '{linear: {x: 0.1}}'
 ```
 
 This command turns on the spot, to the left with $\omega$ = 0.5 rad/s:
 
 ```console
-rostopic pub -r 10 /diffbot/mobile_base_controller/cmd_vel geometry_msgs/Twist '{angular: {z: 0.5}}'
+rostopic pub -r 10 /diffbot/mobile_base_controller/cmd_vel geometry_msgs/Twist \
+  '{angular: {z: 0.5}}'
 ```
 
 The fields that a command leaves out are zero. So the first command doesn't turn, and the second one doesn't drive forward.
@@ -300,11 +302,28 @@ What works on the robot this way, and what doesn't:
 
 ### Without any PC
 
-The robot also runs without a PC and its `roscore`:
+The robot also runs without a PC and its `roscore`. All three steps run on the Raspberry Pi, in `~/diffbot/.docker/robot`:
 
-1. Leave `ROS_MASTER_URI` out of `.env`. roslaunch then starts a ROS master in the bringup container when the bringup starts ([The ROS master](#the-ros-master)).
-2. Leave `COMPOSE_PROFILES=lidar` out too, for now. Started together, the bringup and the lidar container can each start a ROS master, and one of the two containers can then stop. It did in each of three starts of our test without hardware.
-3. Start the robot's containers as in [Start](#start).
+1. Stop the robot's containers, the lidar included, before you change the settings:
+
+    ```console
+    docker compose --profile lidar down
+    ```
+
+    Without this step, a lidar container from an earlier start stays. Compose doesn't stop it once its profile is gone from the settings.
+
+2. Remove two lines from `.env`: `ROS_MASTER_URI` and `COMPOSE_PROFILES=lidar`.
+
+    - **Without `ROS_MASTER_URI`:** roslaunch starts a ROS master in the bringup container when the bringup starts ([The ROS master](#the-ros-master)).
+    - **Without the lidar, for now:** started together, the bringup and the lidar container can each start a ROS master, and one of the two containers can then stop. It did in each of three starts of our test without hardware.
+    - **Variables of the shell:** a variable with one of these two names in the Raspberry Pi's shell still wins over `.env` ([When Compose reads `.env`](setup.md#when-compose-reads-env)). Remove it too.
+    - **Without a network:** if the Raspberry Pi isn't connected to your network, remove `ROS_IP` as well. The Raspberry Pi doesn't have that address then, and roslaunch stops with *Unable to contact my own server*.
+
+3. Start the bringup:
+
+    ```console
+    docker compose up -d --no-build
+    ```
 
 ## Versions
 
@@ -474,7 +493,15 @@ git status --short
 ```
 
 - **`git rev-parse HEAD`:** prints the commit that the clone is at.
-- **`git status --short`:** lists the files that differ from that commit. If it lists any, the commit alone doesn't describe the build. Commit your changes first, or keep the output of `git diff` with your notes.
+- **`git status --short`:** lists the files that differ from that commit. If it lists any, the commit alone doesn't describe the build.
+
+The simple way is to commit your changes before you build. Otherwise keep the changes with your notes. This command writes them to a file:
+
+```console
+git diff --binary HEAD > own-build.patch
+```
+
+The file doesn't hold new files that Git doesn't track yet. `git status --short` marks them with `??`. Keep a copy of each of them too.
 
 ## Logs
 
