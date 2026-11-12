@@ -1,0 +1,167 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .cut{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .cut-gap{fill:var(--md-default-bg-color);stroke:none}
+.lv-fig .former-stamp,.lv-key .former-stamp{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:3.5 2.5}
+.lv-fig .wheels-line,.lv-key .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:2.4}
+.lv-fig .imu-line,.lv-key .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-fig .estimate-dot,.lv-key .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:2}
+.lv-fig .estimate-range,.lv-key .estimate-range{fill:none;stroke:var(--lv-estimate);stroke-width:2}
+.lv-fig .estimate-path,.lv-key .estimate-path{fill:none;stroke:var(--lv-estimate);stroke-width:1.6;stroke-dasharray:2 2.5}
+.lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
+.lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
+.lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-large .lv-fig .letter{font-size:11px}
+.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large .lv-fig .index{font-size:9.8px}
+.lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
+.lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-fig .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
+.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
+.lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
+.md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
+.md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+</style>
+<figure class="lv-figure lv-large">
+<svg class="lv-fig" viewBox="0 0 300 247" role="img" aria-labelledby="lv-test-stepped-clock-title"><title id="lv-test-stepped-clock-title">The seven phases of the stepped-clock test from left to right: the yaw rate that the wheel odometry and the valid IMU samples report, the samples that the validator has to drop, the ranges that the test accepts for the filter's estimate, and the estimates that a run printed</title>
+<text class="note" x="2.0" y="14.0" text-anchor="start">Phase</text>
+<text class="note" x="2.0" y="31.0" text-anchor="start">IMU valid</text>
+<text class="note" x="2.0" y="47.0" text-anchor="start">IMU to drop</text>
+<text class="strong" x="67.3" y="14.0" text-anchor="middle">1</text>
+<g><title>Phase 1: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="67.3" y="32" text-anchor="middle">✓</text></g>
+<text class="strong" x="117.0" y="14.0" text-anchor="middle">2</text>
+<g><title>Phase 2: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="117.0" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M104.6,3 V54"/>
+<path class="phase-edge" d="M104.6,78.0 V211"/>
+<text class="strong" x="141.9" y="14.0" text-anchor="middle">3</text>
+<g><title>Phase 3: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="141.9" y="32" text-anchor="middle">✓</text></g>
+<g><title>Phase 3: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="141.9" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M129.4,3 V54"/>
+<path class="phase-edge" d="M129.4,106.0 V211"/>
+<text class="strong" x="166.7" y="14.0" text-anchor="middle">4</text>
+<g><title>Phase 4: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="166.7" y="32" text-anchor="middle">✓</text></g>
+<g><title>Phase 4: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="166.7" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M154.3,3 V54"/>
+<path class="phase-edge" d="M154.3,106.0 V211"/>
+<text class="strong" x="191.6" y="14.0" text-anchor="middle">5</text>
+<g><title>Phase 5: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="191.6" y="32" text-anchor="middle">✓</text></g>
+<g><title>Phase 5: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="191.6" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M179.1,3 V54"/>
+<path class="phase-edge" d="M179.1,106.0 V211"/>
+<text class="strong" x="229.4" y="14.0" text-anchor="middle">6</text>
+<g><title>Phase 6: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="229.4" y="32" text-anchor="middle">✓</text></g>
+<path class="phase-edge" d="M204.0,3 V54"/>
+<text class="strong" x="273.4" y="14.0" text-anchor="middle">7</text>
+<text class="note" x="273.4" y="39.0" text-anchor="middle">none</text>
+<path class="phase-edge" d="M254.7,3 V54"/>
+<path class="phase-edge" d="M254.7,78.0 V211"/>
+<g><title>The clock goes back from 107 s to 50 s</title><path class="clock-jump" d="M204.0,3 V215"/></g>
+<text class="note" x="2" y="69">Yaw rate ω<tspan class="index" dy="2.5">z</tspan><tspan dy="-2.5"> in rad/s</tspan></text>
+<path class="axis" d="M30,74 V211 H292"/>
+<path class="tick" d="M26,183.0 h4"/>
+<text class="note" x="24.0" y="187.0" text-anchor="end">0.4</text>
+<path class="tick" d="M26,113.0 h4"/>
+<text class="note" x="24.0" y="117.0" text-anchor="end">0.5</text>
+<text class="note" x="30.0" y="226.0" text-anchor="start">100</text>
+<path class="tick" d="M104.6,211 v4"/>
+<text class="note" x="104.6" y="226.0" text-anchor="middle">103</text>
+<path class="tick" d="M129.4,211 v4"/>
+<text class="note" x="129.4" y="226.0" text-anchor="middle">104</text>
+<path class="tick" d="M154.3,211 v4"/>
+<text class="note" x="154.3" y="226.0" text-anchor="middle">105</text>
+<path class="tick" d="M179.1,211 v4"/>
+<path class="tick" d="M254.7,211 v4"/>
+<text class="note" x="254.7" y="226.0" text-anchor="middle">52.04</text>
+<text class="note" x="200.0" y="226.0" text-anchor="end">107</text>
+<text class="strong" x="208.0" y="226.0" text-anchor="start">50</text>
+<text class="note" x="30.0" y="240.0" text-anchor="start">ROS time t in s</text>
+<g><title>Wheel odometry: 0.4 rad/s in every step</title><path class="wheels-line" d="M30,183.0 H292"/></g>
+<text class="strong" x="35.0" y="177.0" text-anchor="start">wheels</text>
+<g><title>Phase 1: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M30.0,113.0 H104.6"/></g>
+<g><title>Phase 3: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M129.4,113.0 H154.3"/></g>
+<g><title>Phase 4: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M154.3,113.0 H179.1"/></g>
+<g><title>Phase 5: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M179.1,113.0 H204.0"/></g>
+<g><title>Phase 6: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M204.0,113.0 H254.7"/></g>
+<text class="strong" x="35.0" y="107.0" text-anchor="start">IMU</text>
+<g><title>Phases 2 to 5: no output that the test keeps, one per step, may be above 0.51 rad/s</title><path class="limit" d="M104.6,106.0 H204.0"/></g>
+<text x="154.3" y="88.0" text-anchor="middle">kept outputs</text>
+<text x="154.3" y="101.0" text-anchor="middle">at most 0.51</text>
+<g><title>Phase 1: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M102.1,106.0 V120.0 M98.6,106.0 h7 M98.6,120.0 h7"/></g>
+<g><title>Phase 2: the last output has to be 0.4 ± 0.02 rad/s</title><path class="estimate-range" d="M126.9,169.0 V197.0 M123.4,169.0 h7 M123.4,197.0 h7"/></g>
+<g><title>Phase 3: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M151.8,106.0 V120.0 M148.3,106.0 h7 M148.3,120.0 h7"/></g>
+<g><title>Phase 4: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M176.6,106.0 V120.0 M173.1,106.0 h7 M173.1,120.0 h7"/></g>
+<g><title>Phase 5: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M201.5,106.0 V120.0 M198.0,106.0 h7 M198.0,120.0 h7"/></g>
+<g><title>Phase 6: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M252.2,106.0 V120.0 M248.7,106.0 h7 M248.7,120.0 h7"/></g>
+<path class="estimate-path" d="M104.6,115.4 L126.9,182.6"/>
+<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 3ef4a91</title><circle class="estimate-dot" cx="102.1" cy="113.9" r="4"/></g>
+<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 3ef4a91</title><circle class="estimate-dot" cx="126.9" cy="182.6" r="4"/></g>
+<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 3ef4a91</title><circle class="estimate-dot" cx="252.2" cy="113.9" r="4"/></g>
+<text class="strong" x="94.1" y="131.0" text-anchor="end">estimate</text>
+<text class="strong" x="94.1" y="144.0" text-anchor="end">0.4987</text>
+<text class="strong halo" x="134.9" y="199.0" text-anchor="start">0.4005</text>
+<text class="strong" x="209.0" y="131.0" text-anchor="start">0.4987</text>
+</svg>
+<p class="lv-band">What each step sends</p>
+<ul class="lv-legend lv-keys">
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="wheels-line" d="M1,6 H23"/></svg>wheel odometry: 0.4 rad/s in every step of every phase</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="imu-line" d="M1,6 H23"/></svg>IMU: the valid samples report 0.5 rad/s</li>
+<li><span class="lv-sign">✓</span>a valid IMU sample in each step of the phase. The validator forwards it</li>
+<li><span class="lv-sign">✕</span>an IMU sample that the validator has to drop, in each step of the phase. It reports 2.0 rad/s, which is beyond the chart. Its stamp is 0.5 s before the time of the step in phase 2, the stamp of the valid sample in phase 3, 0.5 s after the time of the step in phase 4, and 0.01 s before the time of the step in phase 5. In phases 3 to 5, the test sends it after the valid sample</li>
+</ul>
+<p class="lv-band">What the test asserts</p>
+<ul class="lv-legend lv-keys">
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"/></svg>the range for the last output of a phase: 0.5 ± 0.01 rad/s, and 0.4 ± 0.02 rad/s in phase 2</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="limit" d="M1,6 H23"/></svg>the limit in phases 2 to 5: no output that the test keeps, one per step, may be above 0.51 rad/s</li>
+</ul>
+<p class="lv-band">What the test printed in a run at the diffbot commit 3ef4a91</p>
+<ul class="lv-legend lv-keys">
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="4"/></svg>the filter's estimate in the last output of phase 1, 0.4987 rad/s, of phase 2, 0.4005 rad/s, and of phase 6, 0.4987 rad/s</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-path" d="M1,6 H23"/></svg>joins the first estimate of phase 2, 0.4966 rad/s, and the last one. The run printed only these two</li>
+</ul>
+<figcaption>The stepped-clock test from left to right, one step every 20 ms of ROS time. The rows "IMU valid" and "IMU to drop" show the samples of one step of each phase. At the solid vertical line, the clock goes back from 107 s to 50 s.</figcaption>
+</figure>
