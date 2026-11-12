@@ -248,7 +248,15 @@ nav:
     - SLAM: diffbot_slam.md
     - Move Base Flex: diffbot_mbf.md
     - Perception: diffbot_perception.md
-    - Localization (robot_localization): packages/imu/robot_localization.md
+    - Localization (robot_localization):
+      - Overview: packages/imu/robot_localization.md
+      - Tests:
+        - packages/imu/robot_localization/tests/index.md
+        - IMU Sample Validator: packages/imu/robot_localization/tests/validator.md
+        - EKF on a Stepped Clock: packages/imu/robot_localization/tests/stepped-clock.md
+        - EKF in Gazebo: packages/imu/robot_localization/tests/gazebo.md
+        - The ekf Switch: packages/imu/robot_localization/tests/switch.md
+        - The Transform's Publisher: packages/imu/robot_localization/tests/odom-tf.md
   - Robotics Theory:
     - theory/index.md
     # Hidden until written: Linear Algebra, Programming, Pinhole Camera Model, Recursive State Estimation
