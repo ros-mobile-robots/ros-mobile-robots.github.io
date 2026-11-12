@@ -103,7 +103,7 @@ The figure shows the messages of one step with a valid IMU sample. Read the figu
 
 The five things of one step, as the docstring of `step()` numbers them:
 
-1. **Publish the inputs:** `publish_inputs()` publishes the step's wheel odometry and IMU samples, stamped with the step's ROS time.
+1. **Publish the inputs:** `publish_inputs()` publishes the step's wheel odometry, stamped with the step's ROS time, and its IMU samples, each stamped with that time plus the sample's `offset`.
 2. **Wait for the validator:** `wait_for_forwarded()` waits on the wall clock until the validator's output for the step's valid samples reached the test. The EKF subscribes to the same topic.
 3. **Wait `DELIVERY`:** `advance()` sleeps `DELIVERY`, 20 ms of wall time, so that the inputs reach the EKF before the clock moves.
 4. **Advance the clock:** `advance_clock()` adds `STEP` to `self.now` and publishes the new clock. The EKF's update runs 50 times per second of ROS time, so the new clock lets the filter process the step's inputs.
