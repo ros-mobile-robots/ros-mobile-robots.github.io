@@ -197,16 +197,16 @@ The position and the orientation are the robot's pose in the filter's `world_fra
 
 ### The two lists
 
-The excerpt shows the wheel odometry's topic and list, from [`ekf.yaml`, lines 53–58]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L53-L58). Each row of the list is one group of the state, and the comment at the end of a row names the row's three variables:
+The excerpt shows the wheel odometry's topic and list, from [`ekf.yaml`, lines 54–59]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L54-L59). Each row of the list is one group of the state, and the comment at the end of a row names the row's three variables:
 
-```yaml title="ekf.yaml: the wheel odometry's topic and list" linenums="53"
---8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:53:58"
+```yaml title="ekf.yaml: the wheel odometry's topic and list" linenums="54"
+--8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:54:59"
 ```
 
-The next excerpt shows the IMU's topic and list, from [`ekf.yaml`, lines 70–75]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L70-L75):
+The next excerpt shows the IMU's topic and list, from [`ekf.yaml`, lines 73–78]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L73-L78):
 
-```yaml title="ekf.yaml: the IMU's topic and list" linenums="70"
---8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:70:75"
+```yaml title="ekf.yaml: the IMU's topic and list" linenums="73"
+--8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:73:78"
 ```
 
 The figure shows both lists in the file's layout. A green cell with a check mark is a `true`: the filter fuses this value from the input. A plain cell is a `false`: the filter ignores this value of the input, even when the message carries it. A dashed cell belongs to a variable that `two_d_mode` keeps at 0, whatever the list says.
@@ -276,15 +276,23 @@ So the two lists can't change these seven variables. A `false` at their position
 ### The other settings
 
 - **`odom0_differential` and `imu0_differential`:** the [`_differential` setting](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-differential) applies to pose values only. With `true`, the filter would fuse the change between two consecutive poses as a velocity, instead of the pose. Neither list fuses a pose value, so the setting has no effect here. `false` is robot_localization's default.
-- **`odom0_queue_size` and `imu0_queue_size`:** the [queue size](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-queue-size) of the filter's ROS subscriber for the input's topic. Up to 10 messages wait in the queue until the filter node takes them. robot_localization's default is 1.
+- **`odom0_queue_size` and `imu0_queue_size`:** the size of the [queue](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-queue-size) of the filter node's ROS subscriber for the input's topic. Messages that arrive while the node is busy wait in the queue. With 10, at most ten wait, and ROS drops the oldest one when another arrives. robot_localization's default is 1.
 - **`world_frame`:** is `odom`, so the estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes `map → odom` itself.
 - **`frequency`:** is 50 Hz, the IMU's rate. In the simulation, the wheel odometry arrives at 50 Hz too, the drive controller's `publish_rate` in `diffbot_control.yaml`. On the robot, the wheel odometry arrives at most 10 times per second: the base node's control loop in [`diffbot_base.cpp`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) runs the controller at 10 Hz, and the controller publishes at most one odometry message each time it runs.
+- **`reset_on_time_jump`:** is `true`. In the simulation, a reset of Gazebo's world sets the clock back, and every measurement looks older than the one before. The filter then starts again from the new time. [robot_localization](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#reset-on-time-jump) does this only with simulated time. On the robot, a clock that goes back makes the filter ignore the messages of an input, with a warning on the topic `/diagnostics`, until the input's stamps have caught up with its last stamp from before.
 
 The controller's `update()` publishes only when `publish_period_` has passed since `last_state_publish_time_`, as [lines 430–432 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432) in ros_controllers 0.22.0 show:
 
 ```cpp title="diff_drive_controller.cpp: when update() publishes the odometry" linenums="430"
 --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:430:432"
 ```
+
+robot_localization 2.7.7 decides what to do with a message that is older than the last one in the callback of the message's input. Both inputs of this configuration, the wheel odometry's velocities and the IMU's angular velocity, pass through the function `twistCallback()`. The function first tests that the message's stamp isn't older than `lastMessageTimes_`, the last stamp of the same input. For an older message, the function calls `reset()` when `resetOnTimeJump_` is set and `ros::Time::isSimTime()` says that the ROS time is simulated. Otherwise the function ignores the message and adds a warning to the filter's diagnostics, as [lines 2197–2252 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2252) show:
+
+??? quote "ros_filter.cpp, lines 2197–2252: a message that is older than the last one of its input"
+    ```cpp linenums="2197"
+    --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp:2197:2252"
+    ```
 
 ## The IMU sample validator
 
@@ -391,7 +399,7 @@ What these tests don't show: how the real gyroscope behaves (its noise and bias,
 
 ## Limits
 
-- **A clock that goes back:** in the simulation, the filter starts over (`reset_on_time_jump`). robot_localization does that only with simulated time. On the robot, after the computer's clock goes back, the filter ignores each input until its stamps are newer than its last ones again.
+- **A clock that goes back:** in the simulation, the filter starts over. On the robot, the filter ignores each input until its stamps have caught up. [`reset_on_time_jump`](#the-other-settings) in "The other settings" says why and shows robot_localization's code.
 - **A reset of the simulation:** `/gazebo/reset_simulation` sets the simulation's clock back to zero. The simulated IMU, the validator and the filter go on from the new time right away. The drive controller's odometry doesn't. `diff_drive_controller` publishes again only when the clock has passed `last_state_publish_time_`, the time of its last message from before the reset. The [excerpt of `diff_drive_controller.cpp`](#the-other-settings) shows the condition. Until then, the filter gets the IMU's yaw rate but no wheel speeds. In a test run that was reset after 9.7 s, the filter's first output after the reset was stamped 0.08 s, and the wheel odometry's first message 9.75 s.
 - **Starting values:** the variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's time limits, are not measured yet. The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest. Measurements while driving still have to show the values that the EKF should use. In the simulation, the IMU's variance describes the Gaussian noise that the simulated sensor adds.
 - **Drift:** the pose drifts over time, as any odometry. The gyroscope helps with the heading, but nothing corrects the position. A map-based localization such as amcl corrects it in the `map` frame.
