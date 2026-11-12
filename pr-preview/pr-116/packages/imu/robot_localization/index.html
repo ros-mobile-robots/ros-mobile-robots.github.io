@@ -5326,7 +5326,7 @@
 </table>
 <p>The position and the orientation are the robot's pose in the filter's <code>world_frame</code>, here <code>odom</code>. The velocities and the acceleration are in the robot's own frame, the filter's <code>base_link_frame</code>, here <code>base_footprint</code>. The yaw rate <span class="arithmatex">\(\omega_z\)</span> is the rate at which the heading <span class="arithmatex">\(\theta\)</span> changes.</p>
 <h3 id="the-two-lists">The two lists</h3>
-<p>The excerpt shows the wheel odometry's topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/6362e4c218404bdb8469e92678649ce6ae909630/diffbot_control/config/ekf.yaml#L53-L58"><code>ekf.yaml</code>, lines 53–58</a>. Each row of the list is one group of the state, and the comment at the end of a row names the row's three variables:</p>
+<p>The excerpt shows the wheel odometry's topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d314266e3030c8bb0aa190980baefbdebff821d2/diffbot_control/config/ekf.yaml#L53-L58"><code>ekf.yaml</code>, lines 53–58</a>. Each row of the list is one group of the state, and the comment at the end of a row names the row's three variables:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf.yaml: the wheel odometry's topic and list</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">53</span>
 <span class="normal">54</span>
 <span class="normal">55</span>
@@ -5339,7 +5339,7 @@
 <span class="w">               </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">true</span><span class="p p-Indicator">,</span><span class="w">    </span><span class="c1"># vroll, vpitch, vyaw</span>
 <span class="w">               </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">false</span><span class="p p-Indicator">]</span><span class="w">   </span><span class="c1"># ax, ay, az</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The next excerpt shows the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/6362e4c218404bdb8469e92678649ce6ae909630/diffbot_control/config/ekf.yaml#L70-L75"><code>ekf.yaml</code>, lines 70–75</a>:</p>
+<p>The next excerpt shows the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s topic and list, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d314266e3030c8bb0aa190980baefbdebff821d2/diffbot_control/config/ekf.yaml#L70-L75"><code>ekf.yaml</code>, lines 70–75</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf.yaml: the IMU's topic and list</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
