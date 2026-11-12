@@ -5087,7 +5087,7 @@
 </figure>
 
 <h2 id="what-the-simulation-starts">What the simulation starts</h2>
-<p>Two rostest files run the test, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/sim_ekf_diffbot.test"><code>sim_ekf_diffbot.test</code></a> for the simulated DiffBot and <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/sim_ekf_remo.test"><code>sim_ekf_remo.test</code></a> for the simulated Remo. A rostest file is a launch file with a <code>&lt;test&gt;</code> element. rostest starts the file's nodes, runs the test node and stops everything when the test node ends, as <a href="../../../../../development/simulation-test/#1-the-test-file">the test file on Simulation Test</a> explains. The excerpt shows what DiffBot's file starts, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/sim_ekf_diffbot.test#L9-L21"><code>sim_ekf_diffbot.test</code>, lines 9–21</a>:</p>
+<p>Two rostest files run the test, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/sim_ekf_diffbot.test"><code>sim_ekf_diffbot.test</code></a> for the simulated DiffBot and <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/sim_ekf_remo.test"><code>sim_ekf_remo.test</code></a> for the simulated Remo. A rostest file is a launch file with a <code>&lt;test&gt;</code> element. rostest starts the file's nodes, runs the test node and stops everything when the test node ends, as <a href="../../../../../development/simulation-test/#1-the-test-file">the test file on Simulation Test</a> explains. The excerpt shows what DiffBot's file starts, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/sim_ekf_diffbot.test#L9-L21"><code>sim_ekf_diffbot.test</code>, lines 9–21</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_ekf_diffbot.test: the simulation with the EKF, the wheel separation and the test node</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 9</span>
 <span class="normal">10</span>
 <span class="normal">11</span>
@@ -5120,7 +5120,7 @@
 <li><strong><code>wheel_separation</code>:</strong> the <code>&lt;param&gt;</code> line comes after the include, so its value replaces the value that the included files loaded from the robot's <code>geometry.yaml</code>. 0.1725 m is 1.25 times DiffBot's 0.138 m. <code>sim_ekf_remo.test</code> sets 0.18 m, 1.25 times Remo's 0.144 m.</li>
 <li><strong>The test node:</strong> <code>ekf_diffbot</code> runs <code>test_ekf.py</code>. The node's private parameter <code>model</code> names the robot whose <code>geometry.yaml</code> the test reads.</li>
 </ul>
-<p>The next excerpt shows how <code>ekf</code> reaches the drive controller's launch file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/sim_drive.launch#L15-L25"><code>sim_drive.launch</code>, lines 15–25</a>:</p>
+<p>The next excerpt shows how <code>ekf</code> reaches the drive controller's launch file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/sim_drive.launch#L15-L25"><code>sim_drive.launch</code>, lines 15–25</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_drive.launch: Gazebo without a window, and the controllers with the ekf argument</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
 <span class="normal">16</span>
 <span class="normal">17</span>
@@ -5159,7 +5159,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <h2 id="the-constants">The constants</h2>
 <details class="example">
 <summary>The constants of <code>test_ekf.py</code>, lines 41–69</summary>
-<p>The excerpt shows the topics, the names and the numbers of the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L41-L69"><code>test_ekf.py</code>, lines 41–69</a>. <code>STARTUP_TIMEOUT</code> and <code>POLL_INTERVAL</code> are seconds of wall time, the computer's clock. <code>DURATION</code> and <code>SETTLE</code> are seconds of simulation time, Gazebo's clock.</p>
+<p>The excerpt shows the topics, the names and the numbers of the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L41-L69"><code>test_ekf.py</code>, lines 41–69</a>. <code>STARTUP_TIMEOUT</code> and <code>POLL_INTERVAL</code> are seconds of wall time, the computer's clock. <code>DURATION</code> and <code>SETTLE</code> are seconds of simulation time, Gazebo's clock.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: the constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
@@ -5221,7 +5221,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 </details>
 <h2 id="reading-the-three-headings">Reading the three headings</h2>
 <p>The test compares three headings <span class="arithmatex">\(\theta\)</span> of the robot: the true heading from Gazebo, the heading of the wheel odometry and the heading of the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s estimate. Each of these three sources publishes on a topic. The class <code>HeadingObserver</code> subscribes to the topics and keeps the latest heading of each source. <a href="#waiting-until-everything-runs">Waiting until everything runs</a> and <a href="#the-turn">The turn</a> show where the test reads them.</p>
-<p>A message of these topics carries a pose, not a heading. The excerpt shows the two functions that turn a pose into a heading and two headings into a turn, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L86-L94"><code>test_ekf.py</code>, lines 86–94</a>:</p>
+<p>A message of these topics carries a pose, not a heading. The excerpt shows the two functions that turn a pose into a heading and two headings into a turn, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L86-L94"><code>test_ekf.py</code>, lines 86–94</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: yaw() and turned()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">86</span>
 <span class="normal">87</span>
 <span class="normal">88</span>
@@ -5244,7 +5244,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <li><strong><code>yaw()</code>:</strong> a pose stores its orientation as a quaternion. <code>euler_from_quaternion()</code> returns roll, pitch and yaw, and <code>yaw()</code> returns the third, the heading <span class="arithmatex">\(\theta\)</span>.</li>
 <li><strong><code>turned()</code>:</strong> returns the change of the heading from <code>start</code> to <code>end</code>, between <span class="arithmatex">\(-\pi\)</span> and <span class="arithmatex">\(\pi\)</span>. The turn of this test is less than 2 rad, so the result is the turn itself.</li>
 </ul>
-<p>The next excerpt shows the type <code>Headings</code> and how a <code>HeadingObserver</code> starts, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L106-L134"><code>test_ekf.py</code>, lines 106–134</a>:</p>
+<p>The next excerpt shows the type <code>Headings</code> and how a <code>HeadingObserver</code> starts, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L106-L134"><code>test_ekf.py</code>, lines 106–134</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: Headings and HeadingObserver.__init__()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span>
@@ -5310,7 +5310,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <li><strong>The four subscribers:</strong> they read the drive controller's wheel odometry (<code>WHEEL_ODOMETRY_TOPIC</code>), the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s estimate (<code>FILTERED_TOPIC</code>), Gazebo's model states (<code>MODEL_STATES_TOPIC</code>), which carry the robot's true pose, and the validator's output (<code>VALIDATED_IMU_TOPIC</code>). The subscriber of the model states keeps one message, <code>MODEL_STATES_QUEUE_SIZE</code>, because only the latest true pose matters. The subscriber of the validated samples keeps up to 100 messages, <code>IMU_QUEUE_SIZE</code>, because the test counts every sample.</li>
 <li><strong><code>lock</code>:</strong> rospy calls each callback in a thread of its own, and the test reads the observer in another thread. The lock lets one thread at a time read or change the observer's values. So the test gets the three headings as one consistent copy, and no callback changes a heading while the test copies them. The three headings are the latest of each source, not headings of the same instant.</li>
 </ul>
-<p>Each callback stores what the test needs from one message. The excerpt shows the four callbacks, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L136-L155"><code>test_ekf.py</code>, lines 136–155</a>:</p>
+<p>Each callback stores what the test needs from one message. The excerpt shows the four callbacks, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L136-L155"><code>test_ekf.py</code>, lines 136–155</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: the callbacks of HeadingObserver</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
@@ -5357,7 +5357,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <li><strong><code>on_validated_imu()</code>:</strong> counts a sample that the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator forwarded.</li>
 <li><strong><code>with self.lock</code>:</strong> each callback holds the lock while it changes its value.</li>
 </ul>
-<p>The test reads the observer through three methods. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L157-L175"><code>test_ekf.py</code>, lines 157–175</a>:</p>
+<p>The test reads the observer through three methods. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L157-L175"><code>test_ekf.py</code>, lines 157–175</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: latest(), silent_sources() and validated_sample_count()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
@@ -5402,7 +5402,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <li><strong><code>validated_sample_count()</code>:</strong> returns the number of validated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples so far.</li>
 </ul>
 <h2 id="waiting-until-everything-runs">Waiting until everything runs</h2>
-<p>unittest calls <code>setUpClass()</code> once, before the first test of the class. <code>setUpClass()</code> creates the test's node, a <code>HeadingObserver</code>, the observer of the topic <code>/tf</code> and the publisher of the velocity commands. Then it waits until <code>ready()</code> returns true. The excerpt shows both methods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L185-L204"><code>test_ekf.py</code>, lines 185–204</a>:</p>
+<p>unittest calls <code>setUpClass()</code> once, before the first test of the class. <code>setUpClass()</code> creates the test's node, a <code>HeadingObserver</code>, the observer of the topic <code>/tf</code> and the publisher of the velocity commands. Then it waits until <code>ready()</code> returns true. The excerpt shows both methods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L185-L204"><code>test_ekf.py</code>, lines 185–204</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: setUpClass() and ready()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
 <span class="normal">186</span>
 <span class="normal">187</span>
@@ -5451,7 +5451,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <li><strong><code>STARTUP_TIMEOUT</code>:</strong> after 120 s of wall time, <code>setUpClass()</code> raises an <code>AssertionError</code>. Its message names the sources that sent no heading, from <code>silent_sources()</code>, and the number of subscribers to the commands.</li>
 </ul>
 <h2 id="the-turn">The turn</h2>
-<p><code>measure_turn()</code> turns the robot on the spot and returns what each source saw. It reads the headings with <code>latest_headings()</code>. The excerpt shows both methods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L206-L233"><code>test_ekf.py</code>, lines 206–233</a>:</p>
+<p><code>measure_turn()</code> turns the robot on the spot and returns what each source saw. It reads the headings with <code>latest_headings()</code>. The excerpt shows both methods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L206-L233"><code>test_ekf.py</code>, lines 206–233</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: latest_headings() and measure_turn()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
@@ -5517,7 +5517,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <li>It waits <code>SETTLE</code>, 1 s of simulation time, until the robot stands.</li>
 <li>It reads the three headings again into <code>stopped</code> and returns a <code>TurnMeasurement</code>. For each source, <code>turned()</code> gives the turn from the heading in <code>start</code> to the heading in <code>stopped</code>, for example <code>turned(start.true, stopped.true)</code>.</li>
 </ol>
-<p>The excerpt shows the result's type, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L72-L83"><code>test_ekf.py</code>, lines 72–83</a>:</p>
+<p>The excerpt shows the result's type, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L72-L83"><code>test_ekf.py</code>, lines 72–83</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: TurnMeasurement</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">72</span>
 <span class="normal">73</span>
 <span class="normal">74</span>
@@ -5544,7 +5544,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>report()</code> returns the three turns as one line of text. The test prints this line and puts it into the message of a failed check.</p>
 <h2 id="the-checks-on-the-turn">The checks on the turn</h2>
-<p>The excerpt shows the test method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L271-L281"><code>test_ekf.py</code>, lines 271–281</a>. The method first reads the controller's wheel separation from the parameter server and checks it, so a wrong setup fails before the robot is commanded to turn. Then the method measures one turn and makes the other three assertions:</p>
+<p>The excerpt shows the test method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L271-L281"><code>test_ekf.py</code>, lines 271–281</a>. The method first reads the controller's wheel separation from the parameter server and checks it, so a wrong setup fails before the robot is commanded to turn. Then the method measures one turn and makes the other three assertions:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: the turn test</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">271</span>
 <span class="normal">272</span>
 <span class="normal">273</span>
@@ -5567,7 +5567,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_odometry_falls_behind</span><span class="p">(</span><span class="n">measurement</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_ekf_follows_the_true_turn</span><span class="p">(</span><span class="n">measurement</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The next excerpt shows the four assertion methods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L235-L259"><code>test_ekf.py</code>, lines 235–259</a>:</p>
+<p>The next excerpt shows the four assertion methods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L235-L259"><code>test_ekf.py</code>, lines 235–259</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: the four assertions</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">235</span>
 <span class="normal">236</span>
 <span class="normal">237</span>
@@ -5625,7 +5625,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 <li><strong>The wheel odometry falls behind</strong>, <code>assert_odometry_falls_behind()</code>: <span class="arithmatex">\(\Delta\theta_\text{true} - \Delta\theta_\text{odom}\)</span> is more than <code>MIN_ODOMETRY_ERROR</code>, 0.15 rad. This check shows that the error that the test needs is there. With the scaled separation, the wheel odometry reports 1 / 1.25 of the true turn, so the difference is a fifth of the true turn.</li>
 <li><strong>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> follows the true turn</strong>, <code>assert_ekf_follows_the_true_turn()</code>: <span class="arithmatex">\(|\Delta\theta_\text{EKF} - \Delta\theta_\text{true}|\)</span> is at most <code>EKF_TOLERANCE</code>, 0.05 rad.</li>
 </ol>
-<p><code>assert_wheel_separation_is_scaled()</code> gets the robot's own value from <code>nominal_wheel_separation()</code>. The excerpt shows this function, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L97-L103"><code>test_ekf.py</code>, lines 97–103</a>:</p>
+<p><code>assert_wheel_separation_is_scaled()</code> gets the robot's own value from <code>nominal_wheel_separation()</code>. The excerpt shows this function, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L97-L103"><code>test_ekf.py</code>, lines 97–103</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: nominal_wheel_separation()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
@@ -5673,7 +5673,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
 </table>
 <p>In this run, the wheel odometry fell behind the true turn by 0.370 rad for DiffBot and 0.374 rad for Remo. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s turn differed from the true turn by 0.005 rad for DiffBot and 0.003 rad for Remo.</p>
 <h2 id="who-publishes-the-transform">Who publishes the transform</h2>
-<p>With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> has to publish the transform <code>odom → base_footprint</code>, and the drive controller must not. The excerpt shows the second test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_ekf.py#L261-L269"><code>test_ekf.py</code>, lines 261–269</a>:</p>
+<p>With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> has to publish the transform <code>odom → base_footprint</code>, and the drive controller must not. The excerpt shows the second test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L261-L269"><code>test_ekf.py</code>, lines 261–269</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: only the EKF publishes odom → base_footprint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>

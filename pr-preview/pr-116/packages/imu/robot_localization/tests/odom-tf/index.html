@@ -4960,7 +4960,7 @@
 </figure>
 
 <h2 id="where-the-test-runs">Where the test runs</h2>
-<p>The simulation test files run <code>test_odom_tf.py</code> as their fifth test node. The excerpt shows the test node in DiffBot's file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/sim_drive_diffbot.test#L41-L51"><code>sim_drive_diffbot.test</code>, lines 41–51</a>:</p>
+<p>The simulation test files run <code>test_odom_tf.py</code> as their fifth test node. The excerpt shows the test node in DiffBot's file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/sim_drive_diffbot.test#L41-L51"><code>sim_drive_diffbot.test</code>, lines 41–51</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_drive_diffbot.test: the test node of test_odom_tf.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
@@ -4990,7 +4990,7 @@
 </ul>
 <p><code>sim_drive_remo.test</code> has the same test node for the simulated Remo, named <code>odom_tf_remo</code>.</p>
 <h2 id="the-observer">The observer</h2>
-<p><code>OdomTfObserver</code> subscribes to the topic <code>/tf</code> and counts the transforms <code>odom → base_footprint</code> for each publishing node. Both tests use it. The excerpt shows its constants, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/odom_tf_observer.py#L17-L23"><code>odom_tf_observer.py</code>, lines 17–23</a>:</p>
+<p><code>OdomTfObserver</code> subscribes to the topic <code>/tf</code> and counts the transforms <code>odom → base_footprint</code> for each publishing node. Both tests use it. The excerpt shows its constants, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/odom_tf_observer.py#L17-L23"><code>odom_tf_observer.py</code>, lines 17–23</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">odom_tf_observer.py: the constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
 <span class="normal">18</span>
 <span class="normal">19</span>
@@ -5006,7 +5006,7 @@
 <span class="n">POLL_INTERVAL</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># s of wall time between checks for the first transform</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>OBSERVE</code> is 3 s of simulation time, Gazebo's clock. <code>POLL_INTERVAL</code> is 0.1 s of wall time, the computer's clock.</p>
-<p>The excerpt shows how the observer subscribes and how it counts, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/odom_tf_observer.py#L33-L50"><code>odom_tf_observer.py</code>, lines 33–50</a>:</p>
+<p>The excerpt shows how the observer subscribes and how it counts, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/odom_tf_observer.py#L33-L50"><code>odom_tf_observer.py</code>, lines 33–50</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">odom_tf_observer.py: the subscriber and the callback</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span>
@@ -5050,7 +5050,7 @@
 <li><strong>The two <code>if</code> conditions:</strong> <code>on_tf()</code> counts a transform only if its parent frame <code>header.frame_id</code> is <code>PARENT_FRAME</code>, <code>odom</code>, and its <code>child_frame_id</code> is <code>CHILD_FRAME</code>, <code>base_footprint</code>. The topic <code>/tf</code> also carries the transforms of the robot's joints, which the observer ignores.</li>
 <li><strong>The lock:</strong> rospy calls <code>on_tf()</code> in one thread for each publisher of the topic <code>/tf</code>, and the test reads the counts in another thread. The lock lets one thread at a time change or read the counter.</li>
 </ul>
-<p>The excerpt shows the two methods that the tests call, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/odom_tf_observer.py#L52-L66"><code>odom_tf_observer.py</code>, lines 52–66</a>:</p>
+<p>The excerpt shows the two methods that the tests call, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/odom_tf_observer.py#L52-L66"><code>odom_tf_observer.py</code>, lines 52–66</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">odom_tf_observer.py: counts() and wait_for_first_transform()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
@@ -5086,7 +5086,7 @@
 <li><strong><code>wait_for_first_transform()</code>:</strong> waits until the observer has counted a first transform and returns whether one came. The wait ends after <code>timeout</code> seconds of wall time, so it ends also when the simulation's clock doesn't run.</li>
 </ul>
 <h2 id="the-test">The test</h2>
-<p>The excerpt shows the test class of <code>test_odom_tf.py</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/13e20569fb9c98ba0f9bd8f3a4395d58a83a2721/diffbot_gazebo/test/test_odom_tf.py#L26-L43"><code>test_odom_tf.py</code>, lines 26–43</a>:</p>
+<p>The excerpt shows the test class of <code>test_odom_tf.py</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_odom_tf.py#L26-L43"><code>test_odom_tf.py</code>, lines 26–43</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_odom_tf.py: the test</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
