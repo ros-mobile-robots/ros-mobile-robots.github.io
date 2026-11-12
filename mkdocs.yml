@@ -99,6 +99,10 @@ extra:
   # Simulation tests page shows
   ros_comm_src_raw: https://raw.githubusercontent.com/ros/ros_comm/25d371664e34ec9d26ee331434de9a38c412c890
   ros_comm_src_url: https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890
+  # The diffbot commit that the excerpts on the Localization pages show (diffbot #154). Move both to
+  # #154's merge commit before these pages' pull request merges, and check the excerpts' line ranges
+  ekf_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/d314266e3030c8bb0aa190980baefbdebff821d2
+  ekf_src_url: https://github.com/ros-mobile-robots/diffbot/blob/d314266e3030c8bb0aa190980baefbdebff821d2
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
