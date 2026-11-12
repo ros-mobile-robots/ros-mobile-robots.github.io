@@ -74,7 +74,7 @@ sudo reboot
 ```
 
 - **`cloud-init status --wait`:** [cloud-init](https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status) is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi ([step 3](#3-fixed-ip-addresses)), so it may still be installing packages when you log in. The command returns when cloud-init is done.
-- **`sudo apt update && sudo apt full-upgrade`:** the system on the SD card is as old as the image. `apt update` fetches the lists of available packages, and `apt full-upgrade` installs all updates published since, the Linux kernel included. Ubuntu installs security updates by itself, once a day ([automatic updates](https://ubuntu.com/server/docs/how-to/software/automatic-updates/)). All other updates, such as bug fixes, come only with this command, so run it from time to time.
+- **`sudo apt update && sudo apt full-upgrade`:** the system on the SD card is as old as the Ubuntu image that Imager wrote. `apt update` fetches the lists of available packages, and `apt full-upgrade` installs all updates published since, the Linux kernel included. Ubuntu installs security updates by itself, once a day ([automatic updates](https://ubuntu.com/server/docs/how-to/software/automatic-updates/)). All other updates, such as bug fixes, come only with this command, so run it from time to time.
 - **`sudo reboot`:** restarts the Raspberry Pi, so that it runs the new kernel. After the restart, log in again.
 
 To check that the Raspberry Pi runs the new kernel, compare these two after the restart:
@@ -132,7 +132,7 @@ It shows `System clock synchronized: yes` once the clock is right. Ubuntu's time
 
 ## 5. Docker Engine
 
-Docker Engine downloads the image and runs the containers. Install it the same way as on your PC ([Set Up Your PC](../../getting-started/set-up-your-pc.md#docker)):
+Docker Engine downloads the robot's Docker image and runs the containers. Install it the same way as on your PC ([Set Up Your PC](../../getting-started/set-up-your-pc.md#docker)):
 
 === "Docker's repository (recommended)"
 
@@ -200,7 +200,7 @@ docker run --rm hello-world
     - **Buildx** (`docker-buildx-plugin` or `docker-buildx`): the builder that `docker build` and Compose use.
     - **Compose** (`docker-compose-plugin` or `docker-compose-v2`): the `docker compose` command. It reads a `compose.yaml` file that describes the containers, their devices and their settings, so one command starts them all.
 
-    That's all the robot needs: it downloads one image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself ([Your own build](usage.md#your-own-build)). Members of the `docker` group can control Docker without `sudo`, which amounts to root access on the Raspberry Pi ([Docker's security notes](https://docs.docker.com/engine/security/#docker-daemon-attack-surface)).
+    That's all the robot needs: it downloads one Docker image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself ([Your own build](usage.md#your-own-build)). Members of the `docker` group can control Docker without `sudo`, which amounts to root access on the Raspberry Pi ([Docker's security notes](https://docs.docker.com/engine/security/#docker-daemon-attack-surface)).
 
 ## 6. The diffbot repository
 
@@ -241,7 +241,7 @@ After the next steps, the robot's files are in these places on the Raspberry Pi:
 
 ## 7. Stable device names
 
-The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always `/dev/ttyACM0`. [udev](https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html), the service that creates the device files, can add fixed names by rules. The repository's [rules]({{ robot_container_src_url }}/.docker/robot/99-diffbot-robot.rules) name the Teensy `/dev/teensy` and the lidar `/dev/rplidar`, recognized by their USB vendor and product IDs:
+The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always `/dev/ttyACM0`. [udev](https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html), the service that creates the device files, can add fixed names by rules. The repository's [rules]({{ robot_container_src_url }}/.docker/robot/99-diffbot-robot.rules) name the Teensy `/dev/teensy` and the lidar `/dev/rplidar`, recognized by their USB vendor and product IDs. Install the rules and check the names, on the Raspberry Pi:
 
 ```console
 sudo cp ~/diffbot/.docker/robot/99-diffbot-robot.rules /etc/udev/rules.d/
@@ -258,6 +258,8 @@ ls -l /dev/teensy /dev/rplidar
 `lsusb` lists the USB devices with their IDs: the Teensy is `16c0:0483`, the lidar's USB adapter `10c4:ea60`. Two devices with the same IDs need a rule with their serial number, as the [rules file explains]({{ robot_container_src_url }}/.docker/robot/99-diffbot-robot.rules#L7-L8).
 
 ## 8. The folder for logs
+
+On the Raspberry Pi, create the folder for ROS's log files, and print your user ID:
 
 ```console
 mkdir -p ~/robot-data
@@ -285,12 +287,12 @@ ROS_MASTER_URI=http://192.168.1.10:11311 # (3)!
 ROS_IP=192.168.1.20 # (4)!
 ```
 
-1. The robot this Raspberry Pi is in: `remo` or `diffbot`. It selects the robot model and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.
+1. The robot this Raspberry Pi is in: `remo` or `diffbot`. It selects the robot's URDF model, the description of its links and joints, and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.
 2. Starts the lidar driver too. Leave this line out on a robot without a lidar. To switch the lidar off later, run `docker compose down` while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.
 3. The PC that runs `roscore`: `http://` and the PC's IP address, and `11311`, the ROS master's port ([`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI)).
 4. The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address ([`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME)).
 
-On your PC, set `ROS_MASTER_URI` to the same value, and `ROS_IP` to the PC's own address, as in [step 3](#3-fixed-ip-addresses). Without `ROS_MASTER_URI`, the bringup starts its own ROS master on the robot, which is enough to check the robot alone.
+On your PC, set `ROS_MASTER_URI` to the same value, and `ROS_IP` to the PC's own address, as in [step 3](#3-fixed-ip-addresses). Without `ROS_MASTER_URI`, the bringup starts its own ROS master on the robot, which is enough to check the robot alone ([On the robot alone](usage.md#on-the-robot-alone)).
 
 ### When Compose reads `.env`
 
@@ -313,7 +315,7 @@ A variable with the same name in the Raspberry Pi's shell wins over `.env` ([pre
 | `TEENSY_DEVICE`, `LIDAR_DEVICE` | `/dev/teensy`, `/dev/rplidar` | The serial devices on the Raspberry Pi, from [step 7](#7-stable-device-names) |
 | `DIALOUT_GID` | `20` | The number of the group that owns the serial devices on the Raspberry Pi |
 | `ROBOT_DATA` | `~/robot-data` | The folder for logs, from [step 8](#8-the-folder-for-logs) |
-| `ROBOT_IMAGE` | `ghcr.io/ros-mobile-robots/diffbot-robot:noetic` | The image to run: the newest published one, a fixed version, or your own build ([Versions](usage.md#versions), [Your own build](usage.md#your-own-build)) |
+| `ROBOT_IMAGE` | `ghcr.io/ros-mobile-robots/diffbot-robot:noetic` | The Docker image to run: the newest published one, a fixed version, or your own build ([Versions](usage.md#versions), [Your own build](usage.md#your-own-build)) |
 
 ### Why `DIALOUT_GID` is a number
 
