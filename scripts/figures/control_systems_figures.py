@@ -121,7 +121,7 @@ class Figure:
                 + '\n'.join(self.elements) + '\n</svg>')
 
 
-def system() -> Figure:
+def system_figure() -> Figure:
     """Return the figure of a system: actuators, process and sensors in a chain."""
     figure = Figure('cs-system', 294,
                     'A system: actuators give inputs to the process, and sensors turn its '
@@ -139,7 +139,7 @@ def system() -> Figure:
     return figure
 
 
-def closed_loop() -> Figure:
+def closed_loop_figure() -> Figure:
     """Return the figure of the system with a controller that closes the loop."""
     figure = Figure('cs-loop', 384,
                     'A closed control loop: reference, comparison, controller, actuators, '
@@ -177,10 +177,10 @@ def write_include(path: str, figure: Figure, caption: str, style: str = '') -> N
 
 def main() -> None:
     """Write both includes."""
-    write_include('includes/control-systems-system.html', system(),
+    write_include('includes/control-systems-system.html', system_figure(),
                   'A system from its actuators to its sensors. Read the figure from top to '
                   'bottom.', style_element(RULES) + '\n')
-    write_include('includes/control-systems-closed-loop.html', closed_loop(),
+    write_include('includes/control-systems-closed-loop.html', closed_loop_figure(),
                   'A closed loop. Start at the reference (1) and follow the numbers around '
                   'the loop, back to the comparison in the circle.')
 
