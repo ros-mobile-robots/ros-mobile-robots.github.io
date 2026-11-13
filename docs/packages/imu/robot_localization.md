@@ -553,7 +553,7 @@ These settings supply the numbers on the diagonals:
 
 - **The wheel odometry's variances:** the drive controller publishes the values of its parameter [`twist_covariance_diagonal`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L37) in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml), on the robot and in the simulation.
 - **The IMU's variance on the robot:** the firmware publishes its setting [`angular_velocity_variance`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71), 4 · 10⁻⁴ (rad/s)². [What the firmware publishes](driver-bno055.md#what-the-firmware-publishes) on the BNO055 page lists the firmware's settings. The value is a starting value from the datasheet's noise and offsets. The [bench checks](driver-bno055.md#bench-checks) on the same page measured the gyroscope's noise with the robot at rest: a variance of 2 to 6 · 10⁻⁷ (rad/s)². The starting value stays for now, because driving adds vibration and drift, which a recording at rest doesn't show.
-- **The IMU's variance in the simulation:** the simulated sensor publishes the square of `gaussianNoise`, 0.005 rad/s, in DiffBot's [`common_sensors.xacro`]({{ ekf_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L251) and in Remo's [`common_sensors.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L261), the noise that the sensor adds to each value.
+- **The IMU's variance in the simulation:** the simulated sensor publishes the square of `gaussianNoise`, the noise of 0.005 rad/s that the sensor adds to each value. The setting stands in DiffBot's [`common_sensors.xacro`]({{ ekf_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L251) and in Remo's [`common_sensors.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L261).
 
 #### The frames
 
@@ -683,7 +683,7 @@ robot_localization checks the stamp of every message of an input itself. But thi
 - **$t$:** the ROS time, the clock of the receiving node when a sample arrives.
 - **$t_s$:** the sample's stamp, `msg->header.stamp`.
 - **$t_\text{input}$:** `lastMessageTimes_`, the last stamp of the same input that the filter took.
-- **$t_\text{filter}$:** `lastMeasurementTime_`, the stamp of the last measurement that the filter processed, from either input.
+- **$t_\text{filter}$:** `lastMeasurementTime_`, the time of the filter's estimate. It is the stamp of the last measurement that the filter processed, from either input, unless the filter has predicted without a measurement since then, after [`sensor_timeout`](#the-other-settings).
 
 **1. The stamp check compares with the input's last stamp, not with the clock:** the filter takes an IMU sample when $t_s \ge t_\text{input}$. So an equal stamp passes, and so does a stamp that lies far behind the ROS time $t$, as the figure shows:
 
@@ -785,7 +785,7 @@ The validator also never gives an old sample a new stamp.
 
 Judging a value is a statistical test inside robot_localization, which a **rejection threshold** switches on. Each input can have a threshold for its pose update, for its velocity update and for its acceleration update. With a threshold, the filter doesn't fuse an update that lies too far from the filter's own prediction. The filter measures "too far" as a [Mahalanobis distance](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_threshold): the difference between the measurement and the prediction, counted in units of their combined uncertainty. For an update of one value, the distance is the number of standard deviations between the measurement and the prediction. For an update of several values, the distance is one number for all of them together, not a limit for each value. The test compares an input with the filter's prediction, not with the other input.
 
-The figure shows the distance $d$ for one value and for two values, with example numbers:
+The figure below the list shows the distance $d$ for one value and for two values, with example numbers:
 
 - **One value:** the prediction of the yaw rate $\omega_z$ has the standard deviation $\sigma_\text{pred}$, and the IMU's measurement has the standard deviation $\sigma_\text{IMU}$. The difference $y$ between the measurement and the prediction counts in units of both standard deviations together:
 
@@ -793,7 +793,7 @@ The figure shows the distance $d$ for one value and for two values, with example
     d = \frac{|y|}{\sqrt{\sigma_\text{pred}^2 + \sigma_\text{IMU}^2}} = \frac{0.05\ \text{rad/s}}{\sqrt{(0.015\ \text{rad/s})^2 + (0.02\ \text{rad/s})^2}} = \frac{0.05\ \text{rad/s}}{0.025\ \text{rad/s}} = 2
     $$
 
-- **Two values:** the forward speed $v_x$ and the yaw rate $\omega_z$ each have their own difference, $y_{v_x}$ and $y_{\omega_z}$, and their own standard deviation of the prediction and the measurement together, $\sigma_{v_x}$ and $\sigma_{\omega_z}$. When the errors of the two values don't go together, as in the example, the squares of the two counts add up to the square of the distance:
+- **Two values:** the forward speed $v_x$ and the yaw rate $\omega_z$ each have their own difference, $y_{v_x}$ and $y_{\omega_z}$, and their own standard deviation of the prediction and the measurement together, $\sigma_{v_x}$ and $\sigma_{\omega_z}$. Each difference counts in units of its own standard deviation. When the errors of the two values don't go together, as in the example, the squares of the two counted differences add up to the square of the distance:
 
     $$
     d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\sigma_{\omega_z}}\right)^2
