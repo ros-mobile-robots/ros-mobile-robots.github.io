@@ -234,7 +234,7 @@ def main() -> None:
     caption = ("What the geometry test reads, compares and reports, with Remo's values. A blue "
                'double arrow connects two things that must agree. The sketch shows the wheels '
                'from behind, to scale.')
-    with open('includes/geometry-test-flow.html', 'w') as include:
+    with open('includes/geometry-test-flow.html', 'w', encoding='utf-8') as include:
         include.write(f'{style_element(RULES)}\n<figure class="gt-figure">\n'
                       f'{geometry_test().svg()}\n<figcaption>{caption}</figcaption>\n</figure>\n')
 
