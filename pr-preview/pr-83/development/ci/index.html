@@ -5043,8 +5043,10 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio run -e teensy40</span>
 <span class="go">.docker/firmware/run.sh pio run -e teensy31</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><a href="../firmware-container/">Firmware Container</a> explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.
-- <strong>Firmware unit tests:</strong> in the same container, also from the root folder of your diffbot clone:</p>
+<p><a href="../firmware-container/">Firmware Container</a> explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.</p>
+</li>
+<li>
+<p><strong>Firmware unit tests:</strong> in the same container, also from the root folder of your diffbot clone:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio test -e native</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>PlatformIO builds each test folder in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test"><code>diffbot_firmware/test</code></a> for the PC and runs it. It lists every test with <code>PASS</code> or <code>FAIL</code>, and a summary at the end.</p>
