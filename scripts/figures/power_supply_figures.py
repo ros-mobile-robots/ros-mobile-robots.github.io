@@ -200,6 +200,36 @@ def draw_battery_and_motors(figure: Figure, battery: Sequence[Line], voltage: st
     figure.box(RIGHT_X, driver_y + 104, RIGHT_WIDTH, 38, [('Two DG01D-E motors', 'name')])
 
 
+def draw_teensy(figure: Figure) -> None:
+    """Add the Teensy on the Raspberry Pi's USB port: one cable for the supply and the data."""
+    figure.supply(f'M60,130 V{186 - HEAD_TIP}', Source.BANK)
+    figure.line(f'M{60 + PAIR_GAP},130 V186', LineKind.DATA)
+    figure.text(76, 162, '5 V and data, USB', 'volt-bank')
+    figure.box(LEFT_X, 186, LEFT_WIDTH, 54, [('Teensy 4.0', 'name')])
+
+
+def draw_driver_logic_lines(figure: Figure) -> None:
+    """Add the motor driver's logic on the Teensy: 3.3 V, I2C and ground."""
+    left_edge, right_edge = LEFT_X + LEFT_WIDTH, RIGHT_X
+    middle = (left_edge + right_edge) / 2
+    figure.supply(f'M{left_edge},199 H{right_edge - HEAD_TIP}', Source.BANK)
+    figure.text(middle, 194, '3.3 V', 'volt-bank', 'middle')
+    figure.line(f'M{left_edge},214 H{right_edge}', LineKind.DATA)
+    figure.text(middle, 210, 'I2C', 'note', 'middle')
+    figure.line(f'M{left_edge},229 H{right_edge}', LineKind.GROUND)
+    figure.text(middle, 225, 'GND', 'note', 'middle')
+
+
+def draw_teensy_sensors(figure: Figure) -> None:
+    """Add the Teensy's sensors, the encoders and the IMU, each with its supply and data line."""
+    for x, width, lines in ((LEFT_X, 66, [('Encoders', 'name'), ('both wheels', 'note')]),
+                            (LEFT_X + 74, 66, [('IMU', 'name'), ('BNO055', 'note')])):
+        figure.supply(f'M{x + 18},240 V{290 - HEAD_TIP}', Source.BANK)
+        figure.line(f'M{x + 18 + PAIR_GAP},240 V290', LineKind.DATA)
+        figure.text(x + 31, 269, '3.3 V', 'volt-bank')
+        figure.box(x, 290, width, 38, lines)
+
+
 def remo() -> Figure:
     """Return Remo's figure: every part's supply is checked."""
     figure = Figure('pf-remo', 400, "Remo's power flow: the power bank supplies the Raspberry Pi, "
@@ -210,31 +240,9 @@ def remo() -> Figure:
     draw_battery_and_motors(figure, [('Six NiMH AA cells', 'name')], '7.2 V nominal', [
         ('Motor driver', 'name'), ('Adafruit FeatherWing', 'note'),
         ('joins battery − and GND', 'note')])
-
-    # The Teensy on the Raspberry Pi's USB port: one cable for the supply and the data
-    figure.supply(f'M60,130 V{186 - HEAD_TIP}', Source.BANK)
-    figure.line(f'M{60 + PAIR_GAP},130 V186', LineKind.DATA)
-    figure.text(76, 162, '5 V and data, USB', 'volt-bank')
-    figure.box(LEFT_X, 186, LEFT_WIDTH, 54, [('Teensy 4.0', 'name')])
-
-    # The motor driver's logic on the Teensy: 3.3 V, I2C and ground
-    left_edge, right_edge = LEFT_X + LEFT_WIDTH, RIGHT_X
-    middle = (left_edge + right_edge) / 2
-    figure.supply(f'M{left_edge},199 H{right_edge - HEAD_TIP}', Source.BANK)
-    figure.text(middle, 194, '3.3 V', 'volt-bank', 'middle')
-    figure.line(f'M{left_edge},214 H{right_edge}', LineKind.DATA)
-    figure.text(middle, 210, 'I2C', 'note', 'middle')
-    figure.line(f'M{left_edge},229 H{right_edge}', LineKind.GROUND)
-    figure.text(middle, 225, 'GND', 'note', 'middle')
-
-    # The Teensy's sensors
-    for x, width, lines in ((LEFT_X, 66, [('Encoders', 'name'), ('both wheels', 'note')]),
-                            (LEFT_X + 74, 66, [('IMU', 'name'), ('BNO055', 'note')])):
-        figure.supply(f'M{x + 18},240 V{290 - HEAD_TIP}', Source.BANK)
-        figure.line(f'M{x + 18 + PAIR_GAP},240 V290', LineKind.DATA)
-        figure.text(x + 31, 269, '3.3 V', 'volt-bank')
-        figure.box(x, 290, width, 38, lines)
-
+    draw_teensy(figure)
+    draw_driver_logic_lines(figure)
+    draw_teensy_sensors(figure)
     figure.legend(352, (LEGEND_BANK, LEGEND_BATTERY, LEGEND_DATA, LEGEND_GROUND))
     return figure
 
