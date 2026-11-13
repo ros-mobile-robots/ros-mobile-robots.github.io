@@ -367,8 +367,8 @@ As an example, this adds a test that drives backward. It runs for both robots, b
 
 1. **Write the test method.** Add it to the `TestDrive` class in [`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py), next to `test_forward()`. The highlighted lines are the ones that differ from `test_forward()`:
 
-    ```python title="test_backward() (example)" hl_lines="3 5"
-    def test_backward(self) -> None:
+    ```python title="test_backward_drive_matches_the_command() (example)" hl_lines="3 5"
+    def test_backward_drive_matches_the_command(self) -> None:
         odom_motion, true_motion = self.measure_motion(
             linear_velocity=-FORWARD_VELOCITY, angular_velocity=0.0, duration=DURATION)
         motions = f'odometry {odom_motion}, true pose {true_motion}'
@@ -380,7 +380,7 @@ As an example, this adds a test that drives backward. It runs for both robots, b
         self.assertAlmostEqual(odom_motion.forward, true_motion.forward, delta=0.03, msg=motions)
     ```
 
-    A negative linear velocity drives backward, so `forward` is negative: −0.6 m are expected. The tolerances are copied from `test_forward()` for a start. The method's name must start with `test`, so that unittest runs it. unittest runs it first, before `test_forward()`, because of the alphabetical order; that's fine, because each test checks only its own motion.
+    A negative linear velocity drives backward, so `forward` is negative: −0.6 m are expected. The tolerances are copied from `test_forward()` for a start. The method's name must start with `test`, so that unittest runs it, and it says what the test checks, as a sentence: the subject, the result, then the condition. unittest runs it first, before `test_forward()`, because of the alphabetical order. That's fine, because each test checks only its own motion.
 
 2. **Run it** for both robots, as in [Run it](#run-it):
 
@@ -389,13 +389,13 @@ As an example, this adds a test that drives backward. It runs for both robots, b
     rostest diffbot_gazebo sim_drive_remo.test
     ```
 
-    The summary now lists `test_backward` too, for example `[diffbot_gazebo.rosunit-drive_diffbot/test_backward][passed]`.
+    The summary now lists `test_backward_drive_matches_the_command` too, for example `[diffbot_gazebo.rosunit-drive_diffbot/test_backward_drive_matches_the_command][passed]`.
 
-3. **Look at the measured values** in the result file, as in [Read the results](#read-the-results). The first two lines are now `test_backward()`'s motions. In our run, DiffBot drove −0.57 m by the odometry and −0.58 m by the true pose, and turned 0.1 rad to the right on the way, more than when it drives forward. Remo drove −0.58 and −0.59 m, almost without turning.
+3. **Look at the measured values** in the result file, as in [Read the results](#read-the-results). The first two lines are now `test_backward_drive_matches_the_command()`'s motions. In our run, DiffBot drove −0.57 m by the odometry and −0.58 m by the true pose, and turned 0.1 rad to the right on the way, more than when it drives forward. Remo drove −0.58 and −0.59 m, almost without turning.
 
 4. **Choose the tolerances.** Each tolerance should allow what both robots measure and reject the mistakes the test should catch. To see what a mistake gives, make one on purpose: for example, make `wheel_radius` in [`config/diffbot/geometry.yaml`]({{ diffbot_src_url }}/diffbot_control/config/diffbot/geometry.yaml) 10 % bigger, run the test again, look at the values, and undo the change. Then set each tolerance between the two, and write in a comment what you measured.
 
-5. **Keep the file's style:** [PEP 8](https://peps.python.org/pep-0008/) with ROS 2's line length of 99 characters ([ament_flake8's settings](https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini)), [type hints](https://docs.python.org/3/library/typing.html), and named constants instead of bare numbers in the commands.
+5. **Keep the file's style:** [PEP 8](https://peps.python.org/pep-0008/) with ROS 2's line length of 99 characters ([ament_flake8's settings](https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini)), [type hints](https://docs.python.org/3/library/typing.html), and named constants instead of bare numbers in the commands. [diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md) has all the rules.
 
 A test that needs another world or robot needs its own `.test` file. Register it with `add_rostest` in the package's [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_gazebo/CMakeLists.txt), and give it its own `gazebo_port` (the comment in [`sim_drive.launch`][s2] explains why).
 
