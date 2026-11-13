@@ -77,6 +77,26 @@ class TestIncludes(unittest.TestCase):
              'imu-sim-test-reset.html'])
 
 
+class TestFrameAxes(unittest.TestCase):
+    """A frame's axis is an arrow along the drawing and a ring along the line of sight."""
+
+    def test_only_the_upward_axis_points_along_the_line_of_sight_from_above(self) -> None:
+        view = imu_sim_robot_figures.view_from_above(scale=1500, origin=(170, 152))
+        along_the_line_of_sight = [
+            imu_sim_robot_figures.points_along_the_line_of_sight(view, direction)
+            for direction in imu_sim_robot_figures.IMU_AXES]
+        self.assertEqual(along_the_line_of_sight, [False, False, True])
+
+    def test_draw_frame_adds_a_ring_for_the_axis_toward_the_viewer(self) -> None:
+        view = imu_sim_robot_figures.view_from_above(scale=1500, origin=(170, 152))
+        drawing = imu_sim_robot_figures.Figure('frame', 340, 306, 'title', 'description')
+        imu_sim_robot_figures.draw_frame(drawing, view, (0.0, 0.0, 0.0),
+                                         imu_sim_robot_figures.CHASSIS_AXES, length=42)
+        rings = [element for element in drawing.elements if 'class="ring ' in element]
+        self.assertEqual(len(rings), 1, rings)
+        self.assertIn('class="ring z"', rings[0])
+
+
 class TestTextsFromValues(unittest.TestCase):
     """The drawings' texts take their numbers from the scripts' constants."""
 

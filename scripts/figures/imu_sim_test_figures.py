@@ -432,33 +432,77 @@ RESET_STAMP = Scale(0.0, RUN_AFTER_RESET, 190.0, 60.0)
 IMU_PERIOD = 1.0 / IMU_RATE
 
 
-def draw_reset_axes(figure: Figure, heading: str) -> None:
-    """Add a reset panel's heading, grid, axes, the fresh region and the reset's guide."""
+def draw_reset_heading(figure: Figure, heading: str) -> None:
+    """Add a reset panel's heading and, below it, what the vertical axis shows."""
     figure.text(8, 14, heading, 'row-title')
     figure.text(8, 32, 'Stamp of the IMU’s samples, in s of simulation time', 'note')
-    left, right = RESET_RUN.first_position, RESET_RUN.last_position
+
+
+def draw_fresh_region(figure: Figure) -> None:
+    """Add the region in which a sample counts as fresh: after the reset, below RECOVERY."""
     reset_x = RESET_RUN.position(RUN_BEFORE_RESET)
-    figure.rectangle(reset_x, RESET_STAMP.position(RECOVERY), right - reset_x,
+    figure.rectangle(reset_x, RESET_STAMP.position(RECOVERY), RESET_RUN.last_position - reset_x,
                      RESET_STAMP.position(0.0) - RESET_STAMP.position(RECOVERY), 'fresh')
+
+
+def draw_stamp_grid(figure: Figure) -> None:
+    """Add a horizontal grid line with its stamp at 0, RECOVERY and RUN_BEFORE_RESET."""
+    left, right = RESET_RUN.first_position, RESET_RUN.last_position
     for stamp in (0.0, RECOVERY, RUN_BEFORE_RESET):
         y = RESET_STAMP.position(stamp)
         figure.path(f'M{left},{y} H{right}', 'grid')
         figure.text(left - 6, y + 4, f'{stamp:g}', 'note', 'end')
-    figure.path(f'M{left},{RESET_STAMP.position(0.0)} H{right}', 'axis')
+
+
+def draw_run_axis(figure: Figure) -> None:
+    """Add the horizontal axis as a line at stamp 0."""
+    figure.path(f'M{RESET_RUN.first_position},{RESET_STAMP.position(0.0)} '
+                f'H{RESET_RUN.last_position}', 'axis')
+
+
+def draw_reset_guide(figure: Figure) -> None:
+    """Add a vertical line where the test resets the simulation, with its label."""
+    reset_x = RESET_RUN.position(RUN_BEFORE_RESET)
     figure.path(f'M{reset_x},{RESET_STAMP.position(0.0)} V{RESET_STAMP.last_position - 8}',
                 'span')
     for index, line in enumerate(('the test resets', 'the simulation')):
         figure.text(reset_x - 6, RESET_STAMP.last_position - 3 + index * LINE_HEIGHT, line,
                     'note', 'end')
+
+
+def draw_run_axis_labels(figure: Figure) -> None:
+    """Add the horizontal axis's numbers and, below them, what the axis shows."""
+    left, right = RESET_RUN.first_position, RESET_RUN.last_position
     axis_y = RESET_STAMP.position(0.0)
     for seconds in (0.0, RUN_BEFORE_RESET, 2 * RUN_BEFORE_RESET):
         figure.text(RESET_RUN.position(seconds), axis_y + 14, f'{seconds:g}', 'note', 'middle')
     figure.text((left + right) / 2, axis_y + 28, 'seconds that the simulation has run', 'note',
                 'middle')
+
+
+def draw_reset_legend(figure: Figure) -> None:
+    """Add the legend below the horizontal axis: Gazebo's clock and the IMU's samples."""
+    left = RESET_RUN.first_position
+    axis_y = RESET_STAMP.position(0.0)
     figure.path(f'M{left},{axis_y + 44} H{left + 16}', 'clock-line')
     figure.text(left + 22, axis_y + 48, 'Gazebo’s clock', 'note')
     figure.path(f'M{left + 118},{axis_y + 44} H{left + 134}', 'imu-line')
     figure.text(left + 140, axis_y + 48, 'the IMU’s samples', 'note')
+
+
+def draw_reset_chart(figure: Figure, heading: str) -> None:
+    """Add what both reset panels share: the chart without the clock and the samples.
+
+    The parts lie on top of each other in this order, so the axis and the reset's guide cover
+    the fresh region and the grid.
+    """
+    draw_reset_heading(figure, heading)
+    draw_fresh_region(figure)
+    draw_stamp_grid(figure)
+    draw_run_axis(figure)
+    draw_reset_guide(figure)
+    draw_run_axis_labels(figure)
+    draw_reset_legend(figure)
 
 
 def clock_path(first_run: float, last_run: float, clock_start: float) -> str:
@@ -507,7 +551,7 @@ def reset_with_the_copy() -> Figure:
         f'sample after the reset is stamped about {IMU_PERIOD:.2f} s. Samples after the reset '
         f'with a stamp below {RECOVERY:g} s count as fresh. The test passes with '
         f'{FRESH_SAMPLE_COUNT} of them, which takes about {FRESH_SAMPLE_COUNT * IMU_PERIOD:g} s.')
-    draw_reset_axes(figure, 'With the robots’ IMU plugin')
+    draw_reset_chart(figure, 'With the robots’ IMU plugin')
     draw_reset_run(figure, None)
     figure.text(8, RESET_HEIGHT - 8, f'{FRESH_SAMPLE_COUNT} fresh samples: the test passes',
                 'strong')
@@ -524,7 +568,7 @@ def reset_with_the_old_time() -> Figure:
         f'stays silent until the clock has passed {RUN_BEFORE_RESET:g} s again. No sample after '
         f'the reset has a stamp below {RECOVERY:g} s, so none counts as fresh, and the test '
         'fails.')
-    draw_reset_axes(figure, 'With a plugin that keeps the old time')
+    draw_reset_chart(figure, 'With a plugin that keeps the old time')
     draw_reset_run(figure, RUN_BEFORE_RESET)
     figure.text(8, RESET_HEIGHT - 8, 'no fresh sample: the test fails', 'strong')
     return figure

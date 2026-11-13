@@ -45,6 +45,14 @@ class Box(NamedTuple):
     z_max: float
 
 
+class Axis(NamedTuple):
+    """One axis of a frame: its letter, the frame's origin in m and the axis's direction."""
+
+    name: str
+    origin: Vector
+    direction: Vector
+
+
 # Remo at remo_description 2.5.0, in chassis_link's axes, in m.
 # config/remo/base.yaml, base: 0.14 x 0.08 x 0.03, with chassis_link at the center of its top
 PLATE = Box(-0.07, 0.07, -0.04, 0.04, -0.03, 0.0)
@@ -77,6 +85,9 @@ IMU_AXES: Tuple[Vector, Vector, Vector] = (
     (-math.sin(IMU_YAW), math.cos(IMU_YAW), 0.0),
     (0.0, 0.0, 1.0))
 AXIS_NAMES = ('x', 'y', 'z')
+# An axis whose arrow on the drawing would be shorter than this share of its length points along
+# the viewer's line of sight. The drawing shows it as a ring
+RING_SHARE = 0.2
 
 # The examples of the specific force figure
 GRAVITY = 9.8  # m/s², Gazebo's gravity in the robots' worlds
@@ -435,49 +446,67 @@ def draw_remo_from_behind(figure: Figure, view: View) -> None:
     draw_wheel(figure, view, -1)
 
 
-def draw_axis(figure: Figure, view: View, origin: Vector, direction: Vector, name: str,
-              length: float, label_offset: Optional[Point]) -> None:
-    """Add one axis of a frame as an arrow, with its letter.
+def points_along_the_line_of_sight(view: View, direction: Vector) -> bool:
+    """Return whether a direction points at the viewer or away from the viewer."""
+    return math.hypot(*view.on_drawing(direction, 1.0)) < RING_SHARE
 
-    An axis that points out of the drawing becomes a ring with a dot, and one that points into
-    the drawing a ring with a cross. label_offset is where the letter goes, measured from the
-    arrow's tip or the ring's center. Without it, the letter goes beyond the arrow's tip, and a
-    ring gets none.
+
+def draw_axis_ring(figure: Figure, view: View, axis: Axis,
+                   label_offset: Optional[Point]) -> None:
+    """Add an axis along the line of sight as a ring around the frame's origin.
+
+    The ring holds a dot when the axis points out of the drawing, and a cross when it points
+    into the drawing. label_offset is where the letter goes, measured from the ring's center.
+    Without it, the ring gets no letter.
     """
-    start = view.project(origin)
-    offset = view.on_drawing(direction, length)
-    if math.hypot(*offset) < 0.2 * length:
-        figure.circle(start, 5.5, f'ring {name}')
-        if view.toward_viewer(direction) > 0:
-            figure.circle(start, 2.0, f'head {name}')
-        else:
-            for sign in (1, -1):
-                figure.polyline([(start[0] - 3.2, start[1] - 3.2 * sign),
-                                 (start[0] + 3.2, start[1] + 3.2 * sign)], f'shaft thin {name}')
-        if label_offset:
-            figure.text((start[0] + label_offset[0], start[1] + label_offset[1]), name,
-                        f'{name} halo', 'middle')
-        return
+    center = view.project(axis.origin)
+    figure.circle(center, 5.5, f'ring {axis.name}')
+    if view.toward_viewer(axis.direction) > 0:
+        figure.circle(center, 2.0, f'head {axis.name}')
+    else:
+        for sign in (1, -1):
+            figure.polyline([(center[0] - 3.2, center[1] - 3.2 * sign),
+                             (center[0] + 3.2, center[1] + 3.2 * sign)],
+                            f'shaft thin {axis.name}')
+    if label_offset:
+        figure.text((center[0] + label_offset[0], center[1] + label_offset[1]), axis.name,
+                    f'{axis.name} halo', 'middle')
+
+
+def draw_axis_arrow(figure: Figure, view: View, axis: Axis, length: float,
+                    label_offset: Optional[Point]) -> None:
+    """Add an axis as an arrow of length SVG units from the frame's origin, with its letter.
+
+    label_offset is where the letter goes, measured from the arrow's tip. Without it, the letter
+    goes beyond the tip.
+    """
+    start = view.project(axis.origin)
+    offset = view.on_drawing(axis.direction, length)
     end = (start[0] + offset[0], start[1] + offset[1])
-    figure.arrow(start, end, name)
+    figure.arrow(start, end, axis.name)
     reach = math.hypot(*offset)
     beyond = (9 * offset[0] / reach, 9 * offset[1] / reach + 4)
     label = label_offset or beyond
-    figure.text((end[0] + label[0], end[1] + label[1]), name, f'{name} halo', 'middle')
+    figure.text((end[0] + label[0], end[1] + label[1]), axis.name, f'{axis.name} halo', 'middle')
 
 
 def draw_frame(figure: Figure, view: View, origin: Vector, axes: Tuple[Vector, Vector, Vector],
                length: float, label_offsets: Optional[Dict[str, Point]] = None) -> None:
-    """Add a frame's three axes in ROS's colors, the axes along the drawing first.
+    """Add a frame's three axes in ROS's colors, the arrows first and then the rings.
 
-    label_offsets moves an axis's letter, as draw_axis() describes.
+    An axis along the drawing is an arrow of length SVG units, and an axis along the line of
+    sight is a ring. label_offsets moves an axis's letter, as draw_axis_arrow() and
+    draw_axis_ring() describe.
     """
     offsets = label_offsets or {}
-    along = [index for index in range(3)
-             if math.hypot(*view.on_drawing(axes[index], 1.0)) >= 0.2]
-    for index in along + [index for index in range(3) if index not in along]:
-        name = AXIS_NAMES[index]
-        draw_axis(figure, view, origin, axes[index], name, length, offsets.get(name))
+    frame_axes = [Axis(name=name, origin=origin, direction=direction)
+                  for name, direction in zip(AXIS_NAMES, axes)]
+    rings = [axis for axis in frame_axes if points_along_the_line_of_sight(view, axis.direction)]
+    for axis in frame_axes:
+        if axis not in rings:
+            draw_axis_arrow(figure, view, axis, length, offsets.get(axis.name))
+    for axis in rings:
+        draw_axis_ring(figure, view, axis, offsets.get(axis.name))
 
 
 def draw_joint(figure: Figure, view: View) -> None:
