@@ -758,7 +758,7 @@ A stamp can fail only one of the two checks, so their order doesn't matter. The 
 - **Not too old:** the stamp is at most `max_age`, 0.1 s, older than the ROS time. That is five samples at the IMU's 50 Hz. On the robot, a sample takes time to travel from the Teensy over USB and through rosserial's node. So its stamp is normally a little older than the ROS time when the sample arrives, as sample B. A sample that waited long in a buffer on the way is older than `max_age`, as sample A.
 - **Not too far ahead:** the stamp is at most `max_future`, 0.02 s, ahead of the ROS time. That is one sample. The Teensy stamps a sample with its own clock, which rosserial synchronizes only approximately with the SBC's clock. The offset that remains between the two clocks can put a stamp ahead of the ROS time, as sample C. In the simulation, a sample can arrive before the node has received the matching message on the topic `/clock`. Sample D is ahead by more than `max_future`. `max_future` is the allowed difference, not a measured delay.
 
-The values of `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured.
+The values of `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured. The issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#LATENCY_ISSUE)](https://github.com/ros-mobile-robots/diffbot/issues/LATENCY_ISSUE) plans this measurement.
 
 #### Check 5: the stamp against the last forwarded sample
 
