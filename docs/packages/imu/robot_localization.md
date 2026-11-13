@@ -126,8 +126,11 @@ The `ekf` argument switches the EKF on. The EKF is off by default. Pass `ekf:=tr
 |:--|:--|
 | On the robot, when you start the bringup yourself | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or [`bringup_with_laser.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup_with_laser.launch)) |
 | In the simulation | `roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true` |
+| In the simulation, with an RViz window | `roslaunch diffbot_control diffbot.launch model:=remo ekf:=true` |
 | Simulation with navigation | `roslaunch diffbot_navigation diffbot.launch model:=remo ekf:=true` |
 | Navigation on the development PC, for a robot that runs with the EKF | `roslaunch diffbot_navigation diffbot_hw.launch model:=remo ekf:=true` |
+
+The second and the third command start the same simulation: Gazebo with the robot, the robot's controllers, the IMU sample validator and the EKF. The third command also starts RViz. [What RViz shows with the EKF](#what-rviz-shows-with-the-ekf) describes the RViz window.
 
 ### Which launch file starts what
 
@@ -187,7 +190,7 @@ This command also starts the following nodes, which the figure leaves out:
 
 #### In the simulation
 
-In the simulation, you start `diffbot_gazebo`'s `diffbot.launch`:
+In the simulation, you start one of two launch files that are both named `diffbot.launch`. The file in `diffbot_gazebo` starts the simulation. The file in `diffbot_control` starts the same simulation and also RViz. This command starts the file in `diffbot_gazebo`:
 
 ```console
 roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true
@@ -214,6 +217,14 @@ graph TB
 ```
 
 This command also reads one more file, which the figure leaves out. [`diffbot_gazebo/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch) also includes [`diffbot_view.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot_view.launch). That file starts Gazebo through gazebo_ros's `empty_world.launch`, the adapter `imu_raw_adapter` and the node that puts the robot into Gazebo. Gazebo runs the drive controller.
+
+[`diffbot_control/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot.launch) includes the same two files, `diffbot_control.launch` and `diffbot_view.launch`, and passes `ekf` to `diffbot_control.launch` in the same way. So the figure also holds for the following command, with `diffbot_control: diffbot.launch` in the place of `diffbot_gazebo: diffbot.launch`:
+
+```console
+roslaunch diffbot_control diffbot.launch model:=remo ekf:=true
+```
+
+`diffbot_control/launch/diffbot.launch` also starts RViz. [What RViz shows with the EKF](#what-rviz-shows-with-the-ekf) describes the RViz window.
 
 #### What the launch files do with `ekf`
 
@@ -269,6 +280,34 @@ So with `ekf:=true`, the planner's velocities and the transform come from the sa
     ```xml linenums="28"
     --8<-- "{{ ekf_src_raw }}/diffbot_mbf/launch/includes/move_base.launch.xml:28:29"
     ```
+
+### What RViz shows with the EKF
+
+`roslaunch diffbot_control diffbot.launch model:=remo ekf:=true` starts RViz with the configuration [`diffbot_control/rviz/diffbot.rviz`]({{ diffbot_repo_url }}/diffbot_control/rviz/diffbot.rviz). The configuration sets RViz's Fixed Frame to `odom`, as the excerpt of its global options shows, from [`diffbot.rviz`, lines 212–216]({{ ekf_src_url }}/diffbot_control/rviz/diffbot.rviz#L212-L216):
+
+```yaml title="diffbot.rviz: the Fixed Frame is odom" linenums="212"
+--8<-- "{{ ekf_src_raw }}/diffbot_control/rviz/diffbot.rviz:212:216"
+```
+
+The configuration has four displays:
+
+- **Grid:** a grid with cells of 1 m on the ground plane of the `odom` frame.
+- **RobotModel:** the robot's URDF model, which the launch file loads into the parameter `/diffbot/robot_description`. The display is set to draw the URDF model's visual shapes and not its collision shapes.
+- **TF:** the `odom` frame and the frames of the robot's links, as axes with their names.
+- **LaserScan:** the lidar's scan from the topic `/diffbot/scan`.
+
+RViz draws the robot's frames and the URDF model at the pose that the transform `odom → base_footprint` gives. With `ekf:=true`, the EKF publishes this transform. So the pose of the robot's frames in the RViz window is the EKF's estimate. What the RobotModel display adds to the frames depends on the robot:
+
+- **DiffBot:** the display draws DiffBot's body.
+- **Remo:** with these settings, the window shows Remo's frames and the scan, and no body. [STL files](../remo_description.md#stl-files) on the Remo Description page says which mesh files the public `remo_description` repository has and how to get Remo's meshes. To see Remo's body without the meshes, tick **Collision Enabled** in the RobotModel display. The display then draws the collision shapes of Remo's URDF model, as in the picture of [Comparing the two odometries](#comparing-the-two-odometries).
+
+The configuration has no Odometry display, so the window doesn't draw the messages of the topic `/diffbot/odometry/filtered`. To see these messages, add an Odometry display in the RViz window:
+
+1. Click **Add** in the Displays panel.
+2. Select **Odometry** on the tab **By display type** and click **OK**.
+3. Set the **Topic** of the new display to `/diffbot/odometry/filtered`.
+
+RViz then draws arrows at poses of the EKF's odometry messages. With the display's default settings, an arrow is 1.3 m long, far longer than the robot. [Comparing the two odometries](#comparing-the-two-odometries) lists the settings that fit a small robot and adds a second display for the wheel odometry.
 
 ### Comparing the two odometries
 
@@ -605,7 +644,7 @@ Four tests check the EKF without the robot, in [CI with the repository's other t
 - **The validator alone:** [`test_imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_imu_validator.py) calls the validator's checks directly, without a ROS master. Its 27 unit tests cover each reason to drop a sample, the limits `max_age` and `max_future`, a clock that goes back, and the diagnostics: the status for each case and the counts of a report.
 - **On a stepped clock:** [`ekf_synthetic.test`]({{ diffbot_repo_url }}/diffbot_control/test/ekf_synthetic.test) starts `ekf.launch` with DiffBot's URDF for the IMU's frame. The test publishes the simulated clock itself and advances it 20 ms at a time: it publishes a step's inputs, waits until the validator's output has arrived and a little longer, moves the clock on, and waits for the filter's output, each wait with a time limit. These bounded waits reduce how much the results depend on the computer's speed, although they can't prove that the filter received each input before the clock moved. The wheels report a yaw rate $\omega_z$ of 0.4 rad/s, as with a wheel separation that is too large, and the IMU 0.5 rad/s: the estimate is 0.499 rad/s. The test then sends IMU samples that are 0.5 s old, from the future, repeated or out of order, each reporting 2.0 rad/s. The validator drops them, and the estimate stays with the valid samples, or goes to the wheels' 0.4 rad/s when only old samples come. After the clock goes back, the filter starts over. The validator's counts on the topic `/diagnostics` have to match the samples the test sent.
 - **In Gazebo:** [`sim_ekf_diffbot.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test) and [`sim_ekf_remo.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_remo.test) give the drive controller a wheel separation 25 % larger than the robot's. The controller then turns the robot 25 % more than commanded, while its odometry reports the commanded turn. In a 3 s left turn, DiffBot turned 1.849 rad, its odometry said 1.479 rad and the EKF 1.844 rad. Remo turned 1.873 rad, its odometry said 1.499 rad and the EKF 1.870 rad. These numbers are from a run in a container of the dev container's image, at the commit `3ef4a91` of the pull request [EKF: fuse the wheel odometry with the IMU's yaw rate (diffbot#154)](https://github.com/ros-mobile-robots/diffbot/pull/154). The test also checks that the controller's wheel separation is 1.25 times the robot's, and that only the EKF publishes the transform `odom → base_footprint` on the topic `/tf`.
-- **The switch:** [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py) reads the launch files with roslaunch's loader, without starting them, and checks both positions of `ekf` and its default: which nodes start, `enable_odom_tf`, and which odometry the planners read. With `ekf:=true`, the two bringup files and `diffbot_gazebo`'s `diffbot.launch` also have to start `robot_state_publisher`. The planners' launch files start no EKF, so the test checks only the odometry topic that their planner reads.
+- **The switch:** [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py) reads the launch files with roslaunch's loader, without starting them, and checks both positions of `ekf` and its default: which nodes start, `enable_odom_tf`, and which odometry the planners read. With `ekf:=true`, the two bringup files and the two simulation files, `diffbot_gazebo`'s and `diffbot_control`'s `diffbot.launch`, also have to start `robot_state_publisher`. The planners' launch files start no EKF, so the test checks only the odometry topic that their planner reads.
 
 These tests don't show four things: how the real gyroscope behaves while the robot drives, how long the samples take to arrive on the robot, how the filter works with the robot's slower wheel odometry (in these tests, both inputs arrive at 50 Hz), and whether the filter improves the odometry on the floor. The [floor odometry test](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure the last of the four on Remo.
 
