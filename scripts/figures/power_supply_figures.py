@@ -16,9 +16,35 @@ Run from the repository root after changing a figure:
     python3 scripts/figures/power_supply_figures.py
 """
 
+from enum import Enum
 from typing import List
+from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
+
+
+class Source(Enum):
+    """The source of a supply. The value is the CSS class of the source's color."""
+
+    BANK = 'bank'
+    BATTERY = 'battery'
+
+
+class LineKind(Enum):
+    """What a line of a figure shows. The value is the line's CSS class."""
+
+    BANK_SUPPLY = Source.BANK.value
+    BATTERY_SUPPLY = Source.BATTERY.value
+    DATA = 'data'
+    GROUND = 'ground'
+
+
+class LegendEntry(NamedTuple):
+    """A legend entry: the kind of its line sample and what such a line means."""
+
+    kind: LineKind
+    meaning: str
+
 
 WIDTH = 360
 # The parts on the power bank are in the left column, the motor battery's parts in the right one
@@ -33,13 +59,11 @@ HEAD_TIP = 5
 
 # A text line in a box: the text and its CSS class
 Line = Tuple[str, str]
-# A legend entry: the CSS class of its line sample and its text
-LegendEntry = Tuple[str, str]
 
-LEGEND_BANK: LegendEntry = ('bank', 'supply from the power bank')
-LEGEND_BATTERY: LegendEntry = ('battery', 'supply from the motor battery')
-LEGEND_DATA: LegendEntry = ('data', 'data connection')
-LEGEND_GROUND: LegendEntry = ('ground', 'ground wire (GND)')
+LEGEND_BANK = LegendEntry(LineKind.BANK_SUPPLY, 'supply from the power bank')
+LEGEND_BATTERY = LegendEntry(LineKind.BATTERY_SUPPLY, 'supply from the motor battery')
+LEGEND_DATA = LegendEntry(LineKind.DATA, 'data connection')
+LEGEND_GROUND = LegendEntry(LineKind.GROUND, 'ground wire (GND)')
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -96,17 +120,17 @@ class Figure:
             baseline = y + height / 2 + (index - (len(lines) - 1) / 2) * 13 + 4
             self.text(x + width / 2, baseline, text, text_class, 'middle')
 
-    def line(self, path: str, kind: str) -> None:
-        """Add a line along an SVG path. kind is bank, battery, data or ground."""
-        self.elements.append(f'<path class="line {kind}" d="{path}"/>')
+    def line(self, path: str, kind: LineKind) -> None:
+        """Add a line along an SVG path."""
+        self.elements.append(f'<path class="line {kind.value}" d="{path}"/>')
 
-    def supply(self, path: str, source: str) -> None:
+    def supply(self, path: str, source: Source) -> None:
         """Add a supply line with an arrowhead toward the part it feeds.
 
-        source is bank or battery. The arrowhead's tip is HEAD_TIP px beyond the path's end.
+        The arrowhead's tip is HEAD_TIP px beyond the path's end.
         """
-        self.elements.append(f'<path class="line {source}" d="{path}" '
-                             f'marker-end="url(#{self.name}-{source}-head)"/>')
+        self.elements.append(f'<path class="line {source.value}" d="{path}" '
+                             f'marker-end="url(#{self.name}-{source.value}-head)"/>')
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'start') -> None:
@@ -117,18 +141,19 @@ class Figure:
 
     def legend(self, y: float, entries: Sequence[LegendEntry]) -> None:
         """Add the legend's rows below y: a sample of each line and what it means."""
-        for row, (kind, meaning) in enumerate(entries):
+        for row, entry in enumerate(entries):
             baseline = y + 14 * row
-            self.line(f'M{LEFT_X},{baseline - 3.5} H{LEFT_X + 26}', kind)
-            self.text(LEFT_X + 34, baseline, meaning)
+            self.line(f'M{LEFT_X},{baseline - 3.5} H{LEFT_X + 26}', entry.kind)
+            self.text(LEFT_X + 34, baseline, entry.meaning)
 
     def svg(self) -> str:
         """Return the figure as an SVG element."""
         heads = ''.join(
-            f'<marker id="{self.name}-{source}-head" viewBox="0 0 10 10" refX="{10 - HEAD_TIP}" '
-            'refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" '
-            f'orient="auto"><path class="head-{source}" d="M0,0 L10,5 L0,10 z"/></marker>'
-            for source in ('bank', 'battery'))
+            f'<marker id="{self.name}-{source.value}-head" viewBox="0 0 10 10" '
+            f'refX="{10 - HEAD_TIP}" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" '
+            f'markerHeight="10" orient="auto"><path class="head-{source.value}" '
+            'd="M0,0 L10,5 L0,10 z"/></marker>'
+            for source in Source)
         return (f'<svg class="pf-fig" viewBox="0 0 {WIDTH} {self.height}" role="img" '
                 f'aria-labelledby="{self.name}-title"><title id="{self.name}-title">'
                 f'{escape(self.title)}</title><defs>{heads}</defs>\n'
@@ -138,7 +163,7 @@ class Figure:
 def draw_power_bank_and_pi(figure: Figure) -> None:
     """Add the power bank and the Raspberry Pi on it."""
     figure.box(LEFT_X, 6, LEFT_WIDTH, 38, [('USB power bank', 'name')], 'source bank')
-    figure.supply(f'M60,44 V{70 - HEAD_TIP}', 'bank')
+    figure.supply(f'M60,44 V{70 - HEAD_TIP}', Source.BANK)
     figure.text(69, 61, '5 V, USB-C', 'volt-bank')
     figure.box(LEFT_X, 70, LEFT_WIDTH, 60, [('Raspberry Pi 4 B', 'name')])
 
@@ -150,11 +175,11 @@ def draw_lidar_and_camera(figure: Figure) -> None:
     line only.
     """
     left_edge, box_x = LEFT_X + LEFT_WIDTH, 196
-    figure.supply(f'M{left_edge},79 H{box_x - HEAD_TIP}', 'bank')
-    figure.line(f'M{left_edge},{79 + PAIR_GAP} H{box_x}', 'data')
+    figure.supply(f'M{left_edge},79 H{box_x - HEAD_TIP}', Source.BANK)
+    figure.line(f'M{left_edge},{79 + PAIR_GAP} H{box_x}', LineKind.DATA)
     figure.text((left_edge + box_x) / 2, 73, '5 V', 'volt-bank', 'middle')
     figure.box(box_x, 64, 122, 34, [('RPLidar A2M8', 'name'), ('USB adapter', 'note')])
-    figure.line(f'M{left_edge},118 H{box_x}', 'data')
+    figure.line(f'M{left_edge},118 H{box_x}', LineKind.DATA)
     figure.box(box_x, 106, 122, 34, [('Raspberry Pi Camera', 'name'), ('camera cable', 'note')])
 
 
@@ -166,10 +191,10 @@ def draw_battery_and_motors(figure: Figure, battery: Sequence[Line], voltage: st
     voltage is the battery's nominal voltage, and driver_y is the top of the motor driver's box.
     """
     figure.box(RIGHT_X, 6, RIGHT_WIDTH, 38, battery, 'source battery')
-    figure.supply(f'M338,44 V{driver_y - HEAD_TIP}', 'battery')
+    figure.supply(f'M338,44 V{driver_y - HEAD_TIP}', Source.BATTERY)
     figure.text(330, driver_y - 20, voltage, 'volt-battery', 'end')
     figure.box(RIGHT_X, driver_y, RIGHT_WIDTH, 54, driver)
-    figure.supply(f'M285,{driver_y + 54} V{driver_y + 104 - HEAD_TIP}', 'battery')
+    figure.supply(f'M285,{driver_y + 54} V{driver_y + 104 - HEAD_TIP}', Source.BATTERY)
     figure.text(277, driver_y + 77, 'switched on and off', 'volt-battery', 'end')
     figure.text(277, driver_y + 89, 'by the driver (PWM)', 'volt-battery', 'end')
     figure.box(RIGHT_X, driver_y + 104, RIGHT_WIDTH, 38, [('Two DG01D-E motors', 'name')])
@@ -187,26 +212,26 @@ def remo() -> Figure:
         ('joins battery − and GND', 'note')])
 
     # The Teensy on the Raspberry Pi's USB port: one cable for the supply and the data
-    figure.supply(f'M60,130 V{186 - HEAD_TIP}', 'bank')
-    figure.line(f'M{60 + PAIR_GAP},130 V186', 'data')
+    figure.supply(f'M60,130 V{186 - HEAD_TIP}', Source.BANK)
+    figure.line(f'M{60 + PAIR_GAP},130 V186', LineKind.DATA)
     figure.text(76, 162, '5 V and data, USB', 'volt-bank')
     figure.box(LEFT_X, 186, LEFT_WIDTH, 54, [('Teensy 4.0', 'name')])
 
     # The motor driver's logic on the Teensy: 3.3 V, I2C and ground
     left_edge, right_edge = LEFT_X + LEFT_WIDTH, RIGHT_X
     middle = (left_edge + right_edge) / 2
-    figure.supply(f'M{left_edge},199 H{right_edge - HEAD_TIP}', 'bank')
+    figure.supply(f'M{left_edge},199 H{right_edge - HEAD_TIP}', Source.BANK)
     figure.text(middle, 194, '3.3 V', 'volt-bank', 'middle')
-    figure.line(f'M{left_edge},214 H{right_edge}', 'data')
+    figure.line(f'M{left_edge},214 H{right_edge}', LineKind.DATA)
     figure.text(middle, 210, 'I2C', 'note', 'middle')
-    figure.line(f'M{left_edge},229 H{right_edge}', 'ground')
+    figure.line(f'M{left_edge},229 H{right_edge}', LineKind.GROUND)
     figure.text(middle, 225, 'GND', 'note', 'middle')
 
     # The Teensy's sensors
     for x, width, lines in ((LEFT_X, 66, [('Encoders', 'name'), ('both wheels', 'note')]),
                             (LEFT_X + 74, 66, [('IMU', 'name'), ('BNO055', 'note')])):
-        figure.supply(f'M{x + 18},240 V{290 - HEAD_TIP}', 'bank')
-        figure.line(f'M{x + 18 + PAIR_GAP},240 V290', 'data')
+        figure.supply(f'M{x + 18},240 V{290 - HEAD_TIP}', Source.BANK)
+        figure.line(f'M{x + 18 + PAIR_GAP},240 V290', LineKind.DATA)
         figure.text(x + 31, 269, '3.3 V', 'volt-bank')
         figure.box(x, 290, width, 38, lines)
 
