@@ -6,6 +6,7 @@ the pages' includes.
 Run from the repository root: python -m unittest discover -s tests
 """
 
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -14,8 +15,14 @@ import tempfile
 from typing import Dict
 from typing import Sequence
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
+
+import imu_sim_robot_figures  # noqa: E402
+import imu_sim_test_figures  # noqa: E402
+
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
 # Python's own switch to UTF-8 for that locale
 ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
@@ -68,6 +75,46 @@ class TestIncludes(unittest.TestCase):
             'imu_sim_test_figures.py',
             ['imu-sim-test-at-rest.html', 'imu-sim-test-left-turn.html',
              'imu-sim-test-reset.html'])
+
+
+class TestTextsFromValues(unittest.TestCase):
+    """The drawings' texts take their numbers from the scripts' constants."""
+
+    def test_centimeters_drops_trailing_zeros_after_two_decimals(self) -> None:
+        for meters, text in ((0.0401, '4.01'), (0.013, '1.3'), (0.08, '8'), (0.12346, '12.35')):
+            self.assertEqual(imu_sim_robot_figures.centimeters(meters), text, f'{meters} m')
+
+    def test_degrees_writes_a_minus_sign_for_a_negative_angle(self) -> None:
+        self.assertEqual(imu_sim_robot_figures.degrees(-math.pi / 2), '\u221290°')
+        self.assertEqual(imu_sim_robot_figures.degrees(math.pi), '180°')
+
+    def test_message_values_in_a_sentence_are_along_imu_links_axes(self) -> None:
+        # On Remo, imu_link's y axis points forward: a reading forward is the message's y
+        forward_and_up = (0.5, 0.0, 9.8)
+        self.assertEqual(imu_sim_robot_figures.message_values_in_a_sentence(forward_and_up),
+                         '0, +0.5 and +9.8')
+
+    def test_frames_from_above_names_the_distances_of_another_imu_position(self) -> None:
+        behind_left_and_above = (-0.05, 0.03, 0.02)  # m, in chassis_link's axes
+        with mock.patch.object(imu_sim_robot_figures, 'IMU_POSITION', behind_left_and_above):
+            drawing = imu_sim_robot_figures.frames_from_above()
+        self.assertIn('5 cm behind and 3 cm left of chassis_link', drawing.description)
+        self.assertIn('imu_joint puts imu_link 5 cm back, 3 cm left', drawing.svg())
+        self.assertIn('and 2 cm up, and turns it by \u221290° about z', drawing.svg())
+
+    def test_left_turn_caption_names_the_angle_of_another_turn_rate(self) -> None:
+        turn_rate = 1.0  # rad/s
+        with mock.patch.object(imu_sim_test_figures, 'TURN_RATE', turn_rate):
+            caption = imu_sim_test_figures.left_turn_caption()
+        self.assertIn(f'1.0 rad/s turns the robot by 1 rad, about {math.degrees(turn_rate):.0f}°',
+                      caption)
+
+    def test_reset_caption_names_another_reset_time_and_sample_count(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', 4.0), \
+                mock.patch.object(imu_sim_test_figures, 'FRESH_SAMPLE_COUNT', 20):
+            caption = imu_sim_test_figures.reset_caption()
+        self.assertIn('the reset comes at exactly 4 s', caption)
+        self.assertIn('The test passes with 20 fresh samples', caption)
 
 
 if __name__ == '__main__':

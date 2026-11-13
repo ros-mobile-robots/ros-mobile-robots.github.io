@@ -531,28 +531,41 @@ def figure_html(drawings: Sequence[Figure], caption: str, basis: int, widest: in
             f'<figcaption markdown="span">{caption}</figcaption>\n</figure>\n')
 
 
-def main() -> None:
-    """Write the three includes."""
-    rest = ('The test at rest, as a plan over simulation time. Blue is the command that the '
+def at_rest_caption() -> str:
+    """Return the caption of the test at rest's timeline, as Markdown."""
+    return ('The test at rest, as a plan over simulation time. Blue is the command that the '
             'test sends, orange the IMU’s messages. The test keeps only the messages of '
             '`MEASURE` and checks them.')
-    turn = ('The left turn, as a plan over simulation time. The robot’s headings follow from '
-            'the commanded turn rate: 0.5 rad/s turns the robot by 0.5 rad, about 29°, in each '
-            'second. The simulated robot needs a moment to reach the turn rate, so it turns a '
-            'little less.')
-    reset = ('The reset test, as an idealized example: the reset comes at exactly 3 s, and the '
-             'IMU publishes exactly 50 samples per second. The robot stands still, and the test '
-             'sends no command. Each panel shows the stamps of the IMU’s samples while the '
-             'simulation runs. The horizontal axis doesn’t start over at the reset. A sample '
-             'counts as fresh in the gray area: after the reset, with a stamp below `RECOVERY`, '
-             '1 s. The test passes with 10 fresh samples.')
+
+
+def left_turn_caption() -> str:
+    """Return the caption of the left turn's timeline, as Markdown."""
+    return ('The left turn, as a plan over simulation time. The robot’s headings follow from '
+            f'the commanded turn rate: {TURN_RATE} rad/s turns the robot by {TURN_RATE:g} rad, '
+            f'about {math.degrees(TURN_RATE):.0f}°, in each second. The simulated robot needs a '
+            'moment to reach the turn rate, so it turns a little less.')
+
+
+def reset_caption() -> str:
+    """Return the caption of the reset test's two panels, as Markdown."""
+    return ('The reset test, as an idealized example: the reset comes at exactly '
+            f'{RUN_BEFORE_RESET:g} s, and the IMU publishes exactly {IMU_RATE:g} samples per '
+            'second. The robot stands still, and the test sends no command. Each panel shows '
+            'the stamps of the IMU’s samples while the simulation runs. The horizontal axis '
+            'doesn’t start over at the reset. A sample counts as fresh in the gray area: after '
+            f'the reset, with a stamp below `RECOVERY`, {RECOVERY:g} s. The test passes with '
+            f'{FRESH_SAMPLE_COUNT} fresh samples.')
+
+
+def main() -> None:
+    """Write the three includes."""
     with open('includes/imu-sim-test-at-rest.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([at_rest()], rest, 300, 480))
+        include.write(figure_html([at_rest()], at_rest_caption(), 300, 480))
     with open('includes/imu-sim-test-left-turn.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([left_turn()], turn, 300, 480))
+        include.write(figure_html([left_turn()], left_turn_caption(), 300, 480))
     with open('includes/imu-sim-test-reset.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([reset_with_the_copy(), reset_with_the_old_time()], reset,
-                                  280, 400))
+        include.write(figure_html([reset_with_the_copy(), reset_with_the_old_time()],
+                                  reset_caption(), 280, 400))
 
 
 if __name__ == '__main__':
