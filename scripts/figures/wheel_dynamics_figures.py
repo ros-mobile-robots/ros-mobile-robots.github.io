@@ -409,7 +409,9 @@ speeds_data = data_block(
     "25 Hz shows up in the traces as a slower one or not at all. Every sample of the left turns is in "
     "scripts/figures/data/wheel-dynamics-speeds.csv.")
 
-open("includes/wheel-dynamics-contacts.html", "w").write(STYLE + "\n" + fig_contacts + fig_turn + contacts_data)
-open("includes/wheel-dynamics-sinkage.html", "w").write(fig_sink + sink_data)
-open("includes/wheel-dynamics-wheel-speeds.html", "w").write(fig_speeds + speeds_data)
-open("includes/wheel-dynamics-stability.html", "w").write(fig_stab + stab_data)
+open("includes/wheel-dynamics-contacts.html", "w", encoding="utf-8").write(
+    STYLE + "\n" + fig_contacts + fig_turn + contacts_data)
+open("includes/wheel-dynamics-sinkage.html", "w", encoding="utf-8").write(fig_sink + sink_data)
+open("includes/wheel-dynamics-wheel-speeds.html", "w", encoding="utf-8").write(
+    fig_speeds + speeds_data)
+open("includes/wheel-dynamics-stability.html", "w", encoding="utf-8").write(fig_stab + stab_data)

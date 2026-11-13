@@ -191,7 +191,7 @@ labels = "".join(f'<label for="__tabbed_rc_{i + 1}">{esc(label)}</label>' for i,
 blocks = "".join(f'<div class="tabbed-block">\n<figure>\n{svg}\n</figure>\n</div>\n' for _, svg in TABS)
 out = (STYLE + f'\n<div class="tabbed-set tabbed-alternate rc-figs" data-tabs="rc:{len(TABS)}">{inputs}'
        + f'<div class="tabbed-labels">{labels}</div>\n<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
-open("includes/simulation-test-figures.html", "w").write(out)
+open("includes/simulation-test-figures.html", "w", encoding="utf-8").write(out)
 
 # Robot Motion: the odometry motion model's rot1, trans, rot2
 mv = Fig(262, "The motion between two poses as a rotation, a translation and a rotation")
@@ -245,7 +245,7 @@ caption = ("The motion from the start to the end pose in the odometry motion mod
            '<span class="arithmatex">\\(\\delta_\\text{rot1}\\)</span>, drive straight for '
            '<span class="arithmatex">\\(\\delta_\\text{trans}\\)</span>, rotate by '
            '<span class="arithmatex">\\(\\delta_\\text{rot2}\\)</span>.')
-open("includes/odometry-motion-model.html", "w").write(
+open("includes/odometry-motion-model.html", "w", encoding="utf-8").write(
     STYLE + f'\n<figure class="rc-single">\n{mv.svg("rc-motion")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
 
 # relative_pose() in test_drive.py: the end pose in the robot's frame at the start
@@ -288,7 +288,7 @@ rp.text(p1[0] - 10, p1[1] + 4, "end (x\u2081, y\u2081, \u03b8\u2081)", "t-pt", "
 caption = ("The end pose relative to the start pose, in the robot's frame at the start "
            '(<span class="arithmatex">\\(x_r, y_r\\)</span>): how far the robot moved forward '
            "and to the left, and the angle it turned.")
-open("includes/simulation-test-relative-pose.html", "w").write(
+open("includes/simulation-test-relative-pose.html", "w", encoding="utf-8").write(
     f'<figure class="rc-single">\n{rp.svg("rc-relpose")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
 
 # Why the odometry alone can miss a wrong wheel radius: the controller uses its configured radius
@@ -314,7 +314,7 @@ caption = ("The configured radius <span class=\"arithmatex\">\\(r_\\text{cfg}\\)
            "<code>diffbot_control/config/&lt;model&gt;/geometry.yaml</code> is used twice on the way to the odometry, the model's "
            "radius <span class=\"arithmatex\">\\(r_\\text{model}\\)</span> from the URDF once on the "
            "way to the true pose.")
-open("includes/simulation-test-wheel-radius.html", "w").write(
+open("includes/simulation-test-wheel-radius.html", "w", encoding="utf-8").write(
     f'<figure class="rc-single">\n{wr.svg("rc-radius")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
 
 # Turning on the spot: the robot turns about the midpoint of its axle, and base_footprint, which
@@ -366,5 +366,5 @@ pv.text(P[0], 286, "Solid: start \u00b7 Dotted: after the turn", "t-node", "midd
 caption = ("Remo from above, with the wheel geometry to scale. In an ideal 1.5 rad turn to the left, the "
            "axle's midpoint stays where it is. <code>base_footprint</code> follows the dotted arc and ends "
            "up 4.9 cm from its start, as the blue arrow shows.")
-open("includes/simulation-test-pivot.html", "w").write(
+open("includes/simulation-test-pivot.html", "w", encoding="utf-8").write(
     f'<figure class="rc-single">\n{pv.svg("rc-pivot")}\n<figcaption>{caption}</figcaption>\n</figure>\n')
