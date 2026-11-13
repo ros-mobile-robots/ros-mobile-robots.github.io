@@ -109,7 +109,9 @@ def escape(text: str) -> str:
 
 def subscript(symbol: str, index: str) -> str:
     """Return SVG markup for a symbol with a subscript."""
-    return f'{symbol}<tspan class="sub" dy="3">{index}</tspan><tspan dy="-3">​</tspan>'
+    # The second tspan moves the baseline back up for the text after the subscript. A shift
+    # applies to a character, so the tspan holds one that has no width: U+200B
+    return f'{symbol}<tspan class="sub" dy="3">{index}</tspan><tspan dy="-3">\u200b</tspan>'
 
 
 def style_element(rules: Sequence[Tuple[str, str]]) -> str:
