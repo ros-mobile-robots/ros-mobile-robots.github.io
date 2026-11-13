@@ -5046,13 +5046,99 @@
 
 
 <h1 id="localization-wheel-odometry-and-imu-ekf">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</h1>
-<p>DiffBot and Remo estimate how far they drove and turned from their wheels. The wheels' estimate of turning is the weak part. A wheel that slips, or a wheel separation that is a little off in the configuration, makes the estimated turn too small or too large. The error in the heading then grows into an error in the position, the further the robot drives.</p>
+<p>DiffBot and Remo estimate how far they drove and turned from their wheels. The wheels' estimate of turning is the weak part. A wheel that slips, or a wheel separation <span class="arithmatex">\(b\)</span> that is a little off in the configuration, makes the estimated turn too small or too large. The wheel separation is the distance between the two drive wheels. The error in the heading then grows into an error in the position, the further the robot drives.</p>
 <p>The estimate from the wheels is the <strong>odometry</strong>. The drive controller computes the odometry from the wheel encoders' angles. The odometry has two parts:</p>
 <ul>
 <li><strong>A pose in the <code>odom</code> frame:</strong> the position <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> and the heading <span class="arithmatex">\(\theta\)</span>.</li>
 <li><strong>A velocity in the robot's own frame, <code>base_footprint</code>:</strong> the forward speed <span class="arithmatex">\(v_x\)</span> and the <strong>yaw rate</strong> <span class="arithmatex">\(\omega_z\)</span>, the angular velocity about the upward axis.</li>
 </ul>
-<p><a href="https://www.ros.org/reps/rep-0105.html#odom"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 105's <code>odom</code> frame</a> is ROS's convention for such a frame: the robot's pose in the <code>odom</code> frame changes smoothly, without jumps, but drifts over time.</p>
+<p><a id="where-the-odom-frame-sits"></a>The figure shows where the two frames sit on the floor, seen from above. A frame is a coordinate system with a name:</p>
+<ul>
+<li><strong>The <code>odom</code> frame:</strong> stays at one place. After a fresh start, its origin is where the robot stood when the odometry started.</li>
+<li><strong>The frame <code>base_footprint</code>:</strong> moves with the robot. Its origin lies on the floor below the middle of the wheel axle. Its x axis points forward and its y axis to the left, as <a href="https://www.ros.org/reps/rep-0103.html#axis-orientation"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103's axis orientation</a> says for a robot's body.</li>
+</ul>
+<p>The position <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> says where <code>base_footprint</code> lies along the two axes of <code>odom</code>. The heading <span class="arithmatex">\(\theta\)</span> is the angle from the x axis of <code>odom</code> to the robot's forward direction. The transform <code>odom → base_footprint</code> holds this pose.</p>
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.lv-odom .lv-fig .floor{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-odom .lv-fig .floor-grid{fill:none;stroke:var(--md-default-fg-color--lightest);stroke-width:1}
+.lv-odom .lv-fig .start-robot{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:3 2.5;vector-effect:non-scaling-stroke}
+.lv-odom .lv-fig .projection{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:1.5 3}
+.lv-odom .lv-fig .foot{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+</style>
+<figure class="lv-figure lv-drawing lv-odom">
+<svg class="lv-fig" viewBox="0 0 340 232" role="img" aria-labelledby="lv-odom-frame-title"><title id="lv-odom-frame-title">The floor seen from above. The odom frame has its origin where the robot started, with its x axis in the direction the robot faced. The robot has driven a left curve. Its frame base_footprint lies at x and y in the odom frame and is turned by the heading θ</title>
+<rect class="floor" x="6.0" y="6.0" width="328.0" height="220.0" rx="5"></rect>
+<path class="floor-grid" d="M32,7 V225 M62,7 V225 M92,7 V225 M122,7 V225 M152,7 V225 M182,7 V225 M212,7 V225 M242,7 V225 M272,7 V225 M302,7 V225 M332,7 V225 M7,20 H333 M7,50 H333 M7,80 H333 M7,110 H333 M7,140 H333 M7,170 H333 M7,200 H333"></path>
+<text class="strong" x="16.0" y="24.0" text-anchor="start">The floor from above</text>
+<g transform="translate(62.0,172.0) rotate(90) scale(0.42)"><rect class="start-robot" x="-61" y="-20" width="13" height="40" rx="4"></rect><rect class="start-robot" x="48" y="-20" width="13" height="40" rx="4"></rect><rect class="start-robot" x="-46" y="-44" width="92" height="116" rx="14"></rect></g>
+<text class="quiet" x="16.0" y="214.0" text-anchor="start">the robot at the start</text>
+<path class="projection" d="M252.4,112.0 V172 M252.4,112.0 H62"></path>
+<path class="frame-axis-line" d="M62.0,172.0 L307.0,172.0"></path>
+<path class="frame-axis-head" d="M312.0,172.0 L305.0,176.2 L305.0,167.8 z"></path>
+<path class="frame-axis-line" d="M62.0,172.0 L62.0,61.0"></path>
+<path class="frame-axis-head" d="M62.0,56.0 L66.2,63.0 L57.8,63.0 z"></path>
+<text x="317.0" y="176.0" text-anchor="start"><tspan class="variable">x</tspan></text>
+<text x="59.0" y="51.0" text-anchor="start"><tspan class="variable">y</tspan></text>
+<path class="foot" d="M252.4,168 v8 M58,112.0 h8"></path>
+<text class="mono" x="86.0" y="187.0" text-anchor="start">odom</text>
+<path class="transform" d="M62.0,172.0 L252.4,112.0"></path>
+<text text-anchor="middle" transform="translate(145.8,145.6) rotate(-17.5)" y="-7">odom → base_footprint</text>
+<g transform="translate(252.4,112.0) rotate(55) scale(0.42)"><rect class="pose-wheel" x="-61" y="-20" width="13" height="40" rx="4"></rect><rect class="pose-wheel" x="48" y="-20" width="13" height="40" rx="4"></rect><rect class="pose-body" x="-46" y="-44" width="92" height="116" rx="14"></rect></g>
+<path class="transform" d="M252.4,112.0 h40"></path>
+<path class="angle" d="M282.4,112.0 A30,30 0 0 0 277.0,94.8"></path>
+<text x="287.4" y="105.0" text-anchor="start"><tspan class="variable">θ</tspan></text>
+<path class="frame-axis-line" d="M252.4,112.0 L281.1,91.9"></path>
+<path class="frame-axis-head" d="M285.2,89.0 L281.9,96.5 L277.1,89.6 z"></path>
+<path class="frame-axis-line" d="M252.4,112.0 L232.4,83.3"></path>
+<path class="frame-axis-head" d="M229.5,79.2 L236.9,82.5 L230.1,87.3 z"></path>
+<text class="mono" x="240.4" y="66.0" text-anchor="middle">base_footprint</text>
+</svg>
+<figcaption>In this setup, after a fresh start, the origin of <code>odom</code> is where the robot's frame <code>base_footprint</code> was at the start, with its x axis in the direction that the robot faced. The pose (x, y, θ) is the robot's estimated position and heading in <code>odom</code>. The figure leaves the drift out.</figcaption>
+</figure>
+
+<p><a href="https://www.ros.org/reps/rep-0105.html#odom"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 105's <code>odom</code> frame</a> is ROS's convention for such a frame: the robot's pose in the <code>odom</code> frame changes smoothly, without jumps, but drifts over time. The <code>odom</code> frame itself is fixed in the world. What drifts is the estimate: the odometry's small errors add up, so the estimated pose moves away from the robot's true pose. During navigation on a map, <a href="http://wiki.ros.org/amcl">amcl</a>, the node that estimates the robot's pose on a known map, adjusts the transform <code>map → odom</code> to make up for this error. <code>map</code> is the frame of that map. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> alone doesn't publish <code>map → odom</code>. <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 105's section on the <a href="https://www.ros.org/reps/rep-0105.html#relationship-between-frames">relationship between the frames</a> has a diagram of how the frames <code>map</code> and <code>odom</code> and the robot's base frame are attached to each other.</p>
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s gyroscope measures the turn directly. The gyroscope's yaw rate <span class="arithmatex">\(\omega_z\)</span> doesn't depend on the wheels.</p>
 <p>With <code>ekf:=true</code>, an <strong>extended Kalman filter (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</strong> from the <a href="http://docs.ros.org/en/noetic/api/robot_localization/html/index.html"><code>robot_localization</code></a> package combines both sensors:</p>
 <ul>
@@ -5071,7 +5157,7 @@
 <details class="info">
 <summary>Reading the code on this page</summary>
 <ul>
-<li>The excerpts on this page show fixed revisions: the diffbot repository at one commit, robot_localization 2.7.7, ros_controllers 0.22.0, the navigation stack 1.17.3 and ROS's common_msgs at one commit. The line numbers are those of the original files.</li>
+<li>The excerpts on this page show fixed revisions: the diffbot repository at one commit, robot_localization 2.7.7, ros_controllers 0.22.0, gazebo_ros_pkgs 2.9.3, the navigation stack 1.17.3 and ROS's common_msgs at one commit. The line numbers are those of the original files.</li>
 <li>The link in the sentence before an excerpt opens that revision and those lines on GitHub.</li>
 </ul>
 </details>
@@ -5085,12 +5171,14 @@
 <p>A bold letter is a vector: the letter stands for several values at once.</p>
 <!-- TODO(theory): link the Robotics Theory page on the Kalman filter from the list above once that page exists, for example theory/state-estimation/gaussian-filters.md with a section on this notation -->
 
-<p>The two figures show the way of the values, first on the real robot and then in the simulation. The topics' names in the figures leave out their namespace <code>/diffbot</code>, so <code>imu/data_raw</code> stands for the topic <code>/diffbot/imu/data_raw</code>. Read each figure from top to bottom:</p>
+<p><a id="the-loop"></a>The figure shows the way of the values as a loop, in two variants. The tab <strong>Real robot</strong> shows the loop on the robot. The tab <strong>Simulation</strong> shows the same loop with Gazebo in the place of the robot's hardware. From the drive controller and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator on, both tabs show the same parts and topics at the same places. The topics' names in the figure leave out their namespace <code>/diffbot</code>, so <code>imu/data_raw</code> stands for the topic <code>/diffbot/imu/data_raw</code>.</p>
+<p>Read the figure from the robot at the top down to the filter and to RViz, and then along the dashed arrows back up to the robot:</p>
 <ol>
 <li><strong>The sensors:</strong> a blue dot marks where the wheels' angles come from, and an orange square marks the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>. <span class="arithmatex">\(v_x\)</span> and <span class="arithmatex">\(\omega_z\)</span> at the robot show the directions of the forward speed and of the yaw rate.</li>
-<li><strong>The way to the filter:</strong> on the real robot, the firmware on the Teensy reads both sensors. In the simulation, Gazebo computes the wheel joints' angles and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's values. The drive controller turns the wheel angles into the wheel odometry, the measurement <span class="arithmatex">\(\mathbf{z}_\text{wheels}\)</span>. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator forwards the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s valid samples, the measurement <span class="arithmatex">\(\mathbf{z}_\text{IMU}\)</span>. The label at an arrow names the topic that carries the values.</li>
+<li><strong>The way to the filter:</strong> on the real robot, the firmware on the Teensy reads both sensors. In the simulation, Gazebo computes the wheel joints' angles and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's values, and two Gazebo plugins pass them on. A plugin is code that Gazebo loads and runs as a part of itself. The drive controller turns the wheel angles into the wheel odometry, the measurement <span class="arithmatex">\(\mathbf{z}_\text{wheels}\)</span>. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator forwards the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s valid samples, the measurement <span class="arithmatex">\(\mathbf{z}_\text{IMU}\)</span>. The label at an arrow names the topic that carries the values.</li>
 <li><strong>The filter:</strong> the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses both measurements into its estimate <span class="arithmatex">\(\hat{\mathbf{x}}\)</span>.</li>
-<li><strong>The two outputs:</strong> the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the pose and the velocities of its estimate on a topic, and the pose as a transform. The first figure names the nodes that use each output. The second figure ends in a sketch of RViz with <code>odom</code> as its Fixed Frame. RViz's RobotModel display places the robot where the transform puts it, and an Odometry display keeps arrows at poses of the topic's messages. The dashed line of the transform, the letters at the axes and the heading angle <span class="arithmatex">\(\theta\)</span> are added in the sketch to explain the pose. RViz doesn't draw them.</li>
+<li><strong>The two outputs:</strong> the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the pose and the velocities of its estimate on a topic, and the pose as a transform. Both arrows end in a sketch of RViz with <code>odom</code> as its Fixed Frame. RViz can show the same two outputs for the real robot and for the simulation. RViz's RobotModel display places the robot where the transform puts it, and an Odometry display keeps arrows at poses of the topic's messages. The dashed line of the transform, the letters at the axes and the heading angle <span class="arithmatex">\(\theta\)</span> are added in the sketch to explain the pose. RViz doesn't draw them. The sketch shows the same pose as <a href="#where-the-odom-frame-sits">the figure of the <code>odom</code> frame</a>.</li>
+<li><strong>The way back to the wheels:</strong> the dashed gray arrows show the way of the velocity commands. A velocity command says how fast the robot is to drive forward and how fast the robot is to turn: the target forward speed <span class="arithmatex">\(v_x^*\)</span> and the target yaw rate <span class="arithmatex">\(\omega_z^*\)</span>. The star marks a target value. A command comes from a teleop node, with which a person steers the robot, or from the planner in <code>move_base</code>, the node that computes the commands that lead the robot to a navigation goal. The planner reads the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s two outputs, which the thin green arrow at the figure's right edge shows. The drive controller turns each command into two target wheel speeds, the angular velocities <span class="arithmatex">\(\omega_\text{l}^*\)</span> for the left wheel and <span class="arithmatex">\(\omega_\text{r}^*\)</span> for the right wheel. On the real robot, the firmware on the Teensy drives the motors so that the wheels reach these speeds. In the simulation, the Gazebo plugin <code>gazebo_ros_control</code> applies a torque <span class="arithmatex">\(\tau\)</span> to each wheel joint. A torque is the turning effect of a force about an axis, here the joint's axis. The robot moves, the sensors measure the motion, and the loop starts again.</li>
 </ol>
 <style>
 .md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
@@ -5136,238 +5224,338 @@
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.lv-flows{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8em 16px;margin:1em 0}
-.md-typeset .lv-flows figure.lv-figure{margin:0;flex:1 1 300px;width:auto;max-width:358px}
-.md-typeset .lv-flows figcaption{margin:.4em auto 0;font-size:.7rem}
-.lv-flows .lv-fig text{font-size:12px}
-.lv-flows .lv-fig .mono{font-size:11.5px}
-.lv-flows .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
-.lv-flows .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
-.lv-flows .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:10.5px}
-.lv-flows .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
 .md-typeset p.lv-badge-line{margin:1em 0 -.4em;text-align:center}
 .md-typeset .lv-badge{display:inline-block;padding:.05em .9em;border-radius:1em;background:var(--md-default-fg-color);color:var(--md-default-bg-color);font-weight:700;font-size:.68rem}
-.lv-flows .lv-fig .badge{fill:var(--md-default-fg-color)}
-.lv-flows .lv-fig .badge-text{fill:var(--md-default-bg-color);font-weight:700}
-.lv-flows .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
-.lv-flows .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
-.lv-flows .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
-.lv-flows .lv-fig .encoder{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
-.lv-flows .lv-fig .imu-chip{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
-.lv-flows .lv-fig .motion-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
-.lv-flows .lv-fig .motion-head{fill:var(--md-default-fg-color);stroke:none}
-.lv-flows .lv-fig .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:1.8}
-.lv-flows .lv-fig .wheels-head{fill:var(--lv-wheels);stroke:none}
-.lv-flows .lv-fig .wheels-wire{fill:none;stroke:var(--lv-wheels);stroke-width:1.3}
-.lv-flows .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.8}
-.lv-flows .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
-.lv-flows .lv-fig .imu-wire{fill:none;stroke:var(--lv-imu);stroke-width:1.3}
-.lv-flows .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
-.lv-flows .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
-.lv-flows .lv-fig .hat{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.1}
-.lv-flows .lv-fig .filter{fill:var(--md-default-bg-color);stroke:var(--lv-estimate);stroke-width:1.8}
-.lv-flows .lv-fig .gazebo{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3}
-.lv-flows .lv-fig .rviz{fill:#2f3338;stroke:var(--md-default-fg-color--light);stroke-width:1}
-.lv-flows .lv-fig .rviz-grid{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1}
-.lv-flows .lv-fig .rviz-text{fill:#eceff1}
-.lv-flows .lv-fig .rviz-axis-line{fill:none;stroke:#eceff1;stroke-width:1.4}
-.lv-flows .lv-fig .rviz-axis-head{fill:#eceff1;stroke:none}
-.lv-flows .lv-fig .rviz-transform{fill:none;stroke:#eceff1;stroke-width:1.3;stroke-dasharray:4 3}
-.lv-flows .lv-fig .rviz-body{fill:#59616b;stroke:#eceff1;stroke-width:1.2}
-.lv-flows .lv-fig .rviz-wheel{fill:#eceff1;stroke:none}
-.lv-flows .lv-fig .rviz-pose-line{fill:none;stroke:#35d19a;stroke-width:2.2}
-.lv-flows .lv-fig .rviz-pose-head{fill:#35d19a;stroke:none}
-.lv-flows .lv-fig .rviz-trail-line{fill:none;stroke:#35d19a;stroke-width:1.6;opacity:.5}
-.lv-flows .lv-fig .rviz-trail-head{fill:#35d19a;stroke:none;opacity:.5}
+.md-typeset .lv-loop-tabs figure.lv-figure{margin-top:.6em}
+.lv-loop .lv-fig .encoder{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-loop .lv-fig .imu-chip{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-loop .lv-fig .motion-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-loop .lv-fig .motion-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-loop .lv-fig .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:1.8}
+.lv-loop .lv-fig .wheels-head{fill:var(--lv-wheels);stroke:none}
+.lv-loop .lv-fig .wheels-wire{fill:none;stroke:var(--lv-wheels);stroke-width:1.3}
+.lv-loop .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.8}
+.lv-loop .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-loop .lv-fig .imu-wire{fill:none;stroke:var(--lv-imu);stroke-width:1.3}
+.lv-loop .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-loop .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-loop .lv-fig .command-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-loop .lv-fig .command-head{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-loop .lv-fig .estimate-lane-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.3}
+.lv-loop .lv-fig .estimate-lane-head{fill:var(--lv-estimate);stroke:none}
+.lv-loop .lv-fig .hat{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.1}
+.lv-loop .lv-fig .filter{fill:var(--md-default-bg-color);stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-loop .lv-fig .gazebo{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3}
+.lv-loop .lv-fig .rviz{fill:#2f3338;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-loop .lv-fig .rviz-grid{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1}
+.lv-loop .lv-fig .rviz-scene text{fill:#eceff1}
+.lv-loop .lv-fig .rviz-scene .frame-axis-line{stroke:#eceff1}
+.lv-loop .lv-fig .rviz-scene .frame-axis-head{fill:#eceff1}
+.lv-loop .lv-fig .rviz-scene .transform{stroke:#eceff1}
+.lv-loop .lv-fig .rviz-scene .angle{stroke:#eceff1}
+.lv-loop .lv-fig .rviz-scene .pose-body{fill:#59616b;stroke:#eceff1}
+.lv-loop .lv-fig .rviz-scene .pose-wheel{fill:#eceff1}
+.lv-loop .lv-fig .rviz-pose-line{fill:none;stroke:#35d19a;stroke-width:2.2}
+.lv-loop .lv-fig .rviz-pose-head{fill:#35d19a;stroke:none}
+.lv-loop .lv-fig .rviz-trail-line{fill:none;stroke:#35d19a;stroke-width:1.6;opacity:.5}
+.lv-loop .lv-fig .rviz-trail-head{fill:#35d19a;stroke:none;opacity:.5}
+.md-typeset ul.lv-legend.lv-lines{display:flex;flex-wrap:wrap;justify-content:center;gap:0 1.3em;margin:.5em 0 0}
+.md-typeset ul.lv-legend.lv-lines li{margin:0;padding:0;text-indent:0}
+.lv-lines .lv-line{display:inline-block;width:1.7em;margin-right:.45em;vertical-align:.25em;border-top:3px solid var(--lv-wheels)}
+.lv-lines .lv-line.lv-from-imu{border-top-color:var(--lv-imu)}
+.lv-lines .lv-line.lv-estimated{border-top-color:var(--lv-estimate)}
+.lv-lines .lv-line.lv-commanded{border-top:2px dashed var(--md-default-fg-color--light)}
 </style>
-<div class="lv-flows">
-<figure class="lv-figure">
-<svg class="lv-fig" viewBox="0 0 330 544" role="img" aria-labelledby="lv-flow-robot-title"><title id="lv-flow-robot-title">On the real robot: the wheel encoders and the IMU, the firmware, the drive controller and the IMU sample validator, the EKF, and the EKF's two outputs with the nodes that use them</title>
-<rect class="badge" x="6.0" y="6.0" width="75.0" height="19.0" rx="9.5"></rect>
-<text class="badge-text" x="43.5" y="19.5" text-anchor="middle">Real robot</text>
-<rect class="robot-wheel" x="104.0" y="64.0" width="13.0" height="40.0" rx="4"></rect>
-<rect class="robot-wheel" x="213.0" y="64.0" width="13.0" height="40.0" rx="4"></rect>
-<rect class="robot-body" x="119.0" y="40.0" width="92.0" height="116.0" rx="14"></rect>
-<circle class="robot-part" cx="165.0" cy="142.0" r="6"></circle>
-<rect class="robot-part" x="121.0" y="77.0" width="24.0" height="14.0" rx="2"></rect>
-<rect class="robot-part" x="185.0" y="77.0" width="24.0" height="14.0" rx="2"></rect>
-<path class="wheels-wire" d="M151,84 V102 M179,84 V102 H135 M135,102 V156"></path>
-<circle class="encoder" cx="151.0" cy="84.0" r="4.5"></circle>
-<circle class="encoder" cx="179.0" cy="84.0" r="4.5"></circle>
-<path class="imu-wire" d="M150.0,126 V132 H195 V156"></path>
-<rect class="imu-chip" x="143.0" y="112.0" width="14.0" height="14.0" rx="2"></rect>
-<path class="motion-line" d="M165.0,37.0 L165.0,23.0"></path>
-<path class="motion-head" d="M165.0,18.0 L169.2,25.0 L160.8,25.0 z"></path>
-<text x="172.0" y="31.0" text-anchor="start"><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
-<path class="motion-line" d="M235.4,75.1 A74,74 0 0 0 210.6,39.7"></path>
-<path class="motion-head" d="M209.0,38.5 L217.1,39.5 L211.9,46.1 z"></path>
-<text x="233.0" y="48.0" text-anchor="start"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
-<circle class="encoder" cx="13.0" cy="128.0" r="4.5"></circle>
-<text x="23.0" y="132.0" text-anchor="start">wheel encoder</text>
-<rect class="imu-chip" x="8.5" y="141.5" width="9.0" height="9.0" rx="2"></rect>
-<text x="23.0" y="150.0" text-anchor="start">IMU (BNO055)</text>
-<path class="wheels-line" d="M135.0,156.0 L135.0,173.0"></path>
-<path class="wheels-head" d="M135.0,178.0 L130.8,171.0 L139.2,171.0 z"></path>
-<path class="imu-line" d="M195.0,156.0 L195.0,173.0"></path>
-<path class="imu-head" d="M195.0,178.0 L190.8,171.0 L199.2,171.0 z"></path>
-<rect class="item" x="6.0" y="178.0" width="318.0" height="24.0" rx="5"></rect>
-<text x="165.0" y="194.0" text-anchor="middle">Teensy: firmware, over USB to rosserial</text>
-<path class="wheels-line" d="M20.0,202.0 L20.0,243.0"></path>
-<path class="wheels-head" d="M20.0,248.0 L15.8,241.0 L24.2,241.0 z"></path>
-<text x="28.0" y="221.0" text-anchor="start">wheel angles</text>
-<text class="mono" x="28.0" y="236.0" text-anchor="start">measured_joint_states</text>
-<path class="imu-line" d="M190.0,202.0 L190.0,243.0"></path>
-<path class="imu-head" d="M190.0,248.0 L185.8,241.0 L194.2,241.0 z"></path>
-<text x="198.0" y="221.0" text-anchor="start">IMU samples</text>
-<text class="mono" x="198.0" y="236.0" text-anchor="start">imu/data_raw</text>
-<rect class="item" x="6.0" y="248.0" width="170.0" height="54.0" rx="5"></rect>
-<text x="91.0" y="264.0" text-anchor="middle">diffbot_base with the</text>
-<text x="91.0" y="279.0" text-anchor="middle">drive controller</text>
-<text class="mono" x="91.0" y="294.0" text-anchor="middle">mobile_base_controller</text>
-<rect class="item" x="182.0" y="248.0" width="142.0" height="54.0" rx="5"></rect>
-<text x="253.0" y="271.5" text-anchor="middle">IMU sample validator</text>
-<text class="mono" x="253.0" y="286.5" text-anchor="middle">imu_validator</text>
-<path class="wheels-line" d="M20.0,302.0 L20.0,359.0"></path>
-<path class="wheels-head" d="M20.0,364.0 L15.8,357.0 L24.2,357.0 z"></path>
-<text x="28.0" y="320.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">wheels</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
-<text class="mono" x="28.0" y="336.0" text-anchor="start">mobile_base_controller</text>
-<text class="mono" x="28.0" y="350.0" text-anchor="start">/odom</text>
-<path class="imu-line" d="M190.0,302.0 L190.0,359.0"></path>
-<path class="imu-head" d="M190.0,364.0 L185.8,357.0 L194.2,357.0 z"></path>
-<text x="198.0" y="320.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">IMU</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
-<text class="mono" x="198.0" y="336.0" text-anchor="start">imu/data_validated</text>
-<rect class="filter" x="6.0" y="364.0" width="318.0" height="46.0" rx="5"></rect>
-<text x="165.0" y="383.0" text-anchor="middle"><tspan class="strong">EKF</tspan><tspan>, the node </tspan><tspan class="mono">ekf_localization</tspan></text>
-<path class="hat" d="M59.2,391.4 l2.8,-2.6 l2.8,2.6"></path>
-<text x="58.0" y="400.0" text-anchor="start"><tspan class="vector">x</tspan><tspan>: the filter's estimate of the state </tspan><tspan class="vector">x</tspan></text>
-<path class="estimate-line" d="M20.0,410.0 L20.0,485.0"></path>
-<path class="estimate-head" d="M20.0,490.0 L15.8,483.0 L24.2,483.0 z"></path>
-<path class="hat" d="M29.2,419.4 l2.8,-2.6 l2.8,2.6"></path>
-<text x="28.0" y="428.0" text-anchor="start"><tspan class="vector">x</tspan><tspan class="subscript" dy="2.5">published</tspan><tspan dy="-2.5"> =</tspan></text>
-<text x="28.0" y="444.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
-<text class="mono" x="28.0" y="460.0" text-anchor="start">odometry/filtered</text>
-<text x="28.0" y="475.0" text-anchor="start">with covariances</text>
-<path class="estimate-line" d="M190.0,410.0 L190.0,485.0"></path>
-<path class="estimate-head" d="M190.0,490.0 L185.8,483.0 L194.2,483.0 z"></path>
-<text x="198.0" y="436.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>)</tspan><tspan> as transform</tspan></text>
-<text class="mono" x="198.0" y="452.0" text-anchor="start">odom →</text>
-<text class="mono" x="198.0" y="466.0" text-anchor="start">base_footprint</text>
-<rect class="item" x="6.0" y="490.0" width="170.0" height="46.0" rx="5"></rect>
-<text x="91.0" y="509.5" text-anchor="middle">the planners in move_base</text>
-<text x="91.0" y="524.5" text-anchor="middle">and Move Base Flex, RViz</text>
-<rect class="item" x="182.0" y="490.0" width="142.0" height="46.0" rx="5"></rect>
-<text x="253.0" y="509.5" text-anchor="middle">TF: RViz, amcl,</text>
-<text x="253.0" y="524.5" text-anchor="middle">the planners' costmaps</text>
+<div class="tabbed-set tabbed-alternate lv-loop-tabs" data-tabs="lv-loop:2"><input checked="" id="__tabbed_lv_loop_1" name="__tabbed_lv_loop" type="radio"><input id="__tabbed_lv_loop_2" name="__tabbed_lv_loop" type="radio"><div class="tabbed-labels"><label for="__tabbed_lv_loop_1">Real robot</label><label for="__tabbed_lv_loop_2">Simulation</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<figure class="lv-figure lv-drawing lv-loop">
+<svg class="lv-fig" viewBox="0 0 340 778" role="img" aria-labelledby="lv-loop-robot-title"><title id="lv-loop-robot-title">The loop on the real robot: the wheel encoders and the IMU, the firmware on the Teensy, the drive controller and the IMU sample validator, the EKF, its two outputs in a sketch of RViz, and the velocity commands that go back to the motors</title>
+<rect class="robot-wheel" x="109.0" y="58.0" width="13.0" height="40.0" rx="4"></rect>
+<rect class="robot-wheel" x="218.0" y="58.0" width="13.0" height="40.0" rx="4"></rect>
+<rect class="robot-body" x="124.0" y="34.0" width="92.0" height="116.0" rx="14"></rect>
+<circle class="robot-part" cx="170.0" cy="136.0" r="6"></circle>
+<rect class="robot-part" x="126.0" y="71.0" width="24.0" height="14.0" rx="2"></rect>
+<rect class="robot-part" x="190.0" y="71.0" width="24.0" height="14.0" rx="2"></rect>
+<path class="wheels-wire" d="M156,78 V96 M184,78 V96 H140 M140,96 V150"></path>
+<circle class="encoder" cx="156.0" cy="78.0" r="4.5"></circle>
+<circle class="encoder" cx="184.0" cy="78.0" r="4.5"></circle>
+<path class="imu-wire" d="M155.0,120 V126 H200 V150"></path>
+<rect class="imu-chip" x="148.0" y="106.0" width="14.0" height="14.0" rx="2"></rect>
+<path class="motion-line" d="M170.0,31.0 L170.0,17.0"></path>
+<path class="motion-head" d="M170.0,12.0 L174.2,19.0 L165.8,19.0 z"></path>
+<text x="177.0" y="25.0" text-anchor="start"><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<path class="motion-line" d="M240.4,69.1 A74,74 0 0 0 215.6,33.7"></path>
+<path class="motion-head" d="M214.0,32.5 L222.1,33.5 L216.9,40.1 z"></path>
+<text x="238.0" y="42.0" text-anchor="start"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<circle class="encoder" cx="13.0" cy="112.0" r="4.5"></circle>
+<text x="23.0" y="116.0" text-anchor="start">wheel encoder</text>
+<rect class="imu-chip" x="8.5" y="124.5" width="9.0" height="9.0" rx="2"></rect>
+<text x="23.0" y="133.0" text-anchor="start">IMU (BNO055)</text>
+<path class="command-line" d="M6,146 H20"></path>
+<text class="quiet" x="23.0" y="150.0" text-anchor="start">to the motors</text>
+<path class="wheels-line" d="M140.0,150.0 L140.0,167.0"></path>
+<path class="wheels-head" d="M140.0,172.0 L135.8,165.0 L144.2,165.0 z"></path>
+<path class="imu-line" d="M200.0,150.0 L200.0,167.0"></path>
+<path class="imu-head" d="M200.0,172.0 L195.8,165.0 L204.2,165.0 z"></path>
+<path class="command-line" d="M115.5,172.0 L115.5,105.0"></path>
+<path class="command-head" d="M115.5,100.0 L119.7,107.0 L111.3,107.0 z"></path>
+<path class="command-line" d="M224.5,172.0 L224.5,105.0"></path>
+<path class="command-head" d="M224.5,100.0 L228.7,107.0 L220.3,107.0 z"></path>
+<rect class="item" x="6.0" y="172.0" width="328.0" height="24.0" rx="5"></rect>
+<text x="170.0" y="188.0" text-anchor="middle">Teensy: firmware, over USB to rosserial</text>
+<path class="command-line" d="M12.0,280.0 L12.0,201.0"></path>
+<path class="command-head" d="M12.0,196.0 L16.2,203.0 L7.8,203.0 z"></path>
+<path class="wheels-line" d="M30.0,196.0 L30.0,275.0"></path>
+<path class="wheels-head" d="M30.0,280.0 L25.8,273.0 L34.2,273.0 z"></path>
+<text x="38.0" y="213.0" text-anchor="start">↓ wheel angles</text>
+<text class="mono" x="38.0" y="228.0" text-anchor="start">measured_joint_states</text>
+<text class="quiet" x="38.0" y="250.0" text-anchor="start">↑ target wheel speeds</text>
+<text class="mono quiet" x="38.0" y="265.0" text-anchor="start">wheel_cmd_velocities</text>
+<path class="imu-line" d="M200.0,196.0 L200.0,275.0"></path>
+<path class="imu-head" d="M200.0,280.0 L195.8,273.0 L204.2,273.0 z"></path>
+<text x="208.0" y="228.0" text-anchor="start">IMU samples</text>
+<text class="mono" x="208.0" y="243.0" text-anchor="start">imu/data_raw</text>
+<rect class="item" x="6.0" y="280.0" width="180.0" height="54.0" rx="5"></rect>
+<text x="96.0" y="296.0" text-anchor="middle">drive controller</text>
+<text class="mono" x="96.0" y="311.0" text-anchor="middle">mobile_base_controller</text>
+<text class="quiet" x="96.0" y="326.0" text-anchor="middle">in the node diffbot_base</text>
+<rect class="item" x="192.0" y="280.0" width="142.0" height="54.0" rx="5"></rect>
+<text x="263.0" y="303.5" text-anchor="middle">IMU sample validator</text>
+<text class="mono" x="263.0" y="318.5" text-anchor="middle">imu_validator</text>
+<path class="wheels-line" d="M30.0,334.0 L30.0,391.0"></path>
+<path class="wheels-head" d="M30.0,396.0 L25.8,389.0 L34.2,389.0 z"></path>
+<text x="38.0" y="352.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">wheels</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="38.0" y="368.0" text-anchor="start">mobile_base_controller</text>
+<text class="mono" x="38.0" y="382.0" text-anchor="start">/odom</text>
+<path class="imu-line" d="M200.0,334.0 L200.0,391.0"></path>
+<path class="imu-head" d="M200.0,396.0 L195.8,389.0 L204.2,389.0 z"></path>
+<text x="208.0" y="352.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">IMU</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="208.0" y="368.0" text-anchor="start">imu/data_validated</text>
+<rect class="filter" x="22.0" y="396.0" width="300.0" height="46.0" rx="5"></rect>
+<text x="172.0" y="415.0" text-anchor="middle"><tspan class="strong">EKF</tspan><tspan>, the node </tspan><tspan class="mono">ekf_localization</tspan></text>
+<path class="hat" d="M66.2,423.4 l2.8,-2.6 l2.8,2.6"></path>
+<text x="65.0" y="432.0" text-anchor="start"><tspan class="vector">x</tspan><tspan>: the filter's estimate of the state </tspan><tspan class="vector">x</tspan></text>
+<path class="estimate-line" d="M30.0,442.0 L30.0,517.0"></path>
+<path class="estimate-head" d="M30.0,522.0 L25.8,515.0 L34.2,515.0 z"></path>
+<path class="hat" d="M39.2,451.4 l2.8,-2.6 l2.8,2.6"></path>
+<text x="38.0" y="460.0" text-anchor="start"><tspan class="vector">x</tspan><tspan class="subscript" dy="2.5">published</tspan><tspan dy="-2.5"> =</tspan></text>
+<text x="38.0" y="476.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="38.0" y="492.0" text-anchor="start">odometry/filtered</text>
+<text x="38.0" y="507.0" text-anchor="start">with covariances</text>
+<path class="estimate-line" d="M200.0,442.0 L200.0,517.0"></path>
+<path class="estimate-head" d="M200.0,522.0 L195.8,515.0 L204.2,515.0 z"></path>
+<text x="208.0" y="460.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>)</tspan></text>
+<text x="208.0" y="476.0" text-anchor="start">as the transform</text>
+<text class="mono" x="208.0" y="492.0" text-anchor="start">odom →</text>
+<text class="mono" x="208.0" y="506.0" text-anchor="start">base_footprint</text>
+<rect class="rviz" x="22.0" y="522.0" width="300.0" height="170.0" rx="5"></rect>
+<path class="rviz-grid" d="M52,523 V691 M82,523 V691 M112,523 V691 M142,523 V691 M172,523 V691 M202,523 V691 M232,523 V691 M262,523 V691 M292,523 V691 M23,550 H321 M23,580 H321 M23,610 H321 M23,640 H321 M23,670 H321"></path>
+<g class="rviz-scene">
+<text x="32.0" y="540.0" text-anchor="start"><tspan class="strong">RViz</tspan><tspan>, fixed frame </tspan><tspan class="mono">odom</tspan></text>
+<path class="frame-axis-line" d="M64.0,666.0 L109.0,666.0"></path>
+<path class="frame-axis-head" d="M114.0,666.0 L107.0,670.2 L107.0,661.8 z"></path>
+<path class="frame-axis-line" d="M64.0,666.0 L64.0,621.0"></path>
+<path class="frame-axis-head" d="M64.0,616.0 L68.2,623.0 L59.8,623.0 z"></path>
+<text x="119.0" y="670.0" text-anchor="start"><tspan class="variable">x</tspan></text>
+<text x="61.0" y="611.0" text-anchor="start"><tspan class="variable">y</tspan></text>
+<text class="mono" x="62.0" y="683.0" text-anchor="middle">odom</text>
+<path class="rviz-trail-line" d="M127.3,659.9 L137.2,658.0"></path>
+<path class="rviz-trail-head" d="M142.1,657.0 L136.0,662.5 L134.4,654.3 z"></path>
+<path class="rviz-trail-line" d="M158.3,652.3 L167.9,649.5"></path>
+<path class="rviz-trail-head" d="M172.7,648.1 L167.2,654.1 L164.8,646.0 z"></path>
+<path class="rviz-trail-line" d="M188.4,641.8 L197.6,638.1"></path>
+<path class="rviz-trail-head" d="M202.3,636.2 L197.4,642.7 L194.2,634.9 z"></path>
+<path class="rviz-trail-line" d="M217.3,628.5 L226.2,623.9"></path>
+<path class="rviz-trail-head" d="M230.6,621.6 L226.3,628.5 L222.5,621.1 z"></path>
+<path class="transform" d="M64.0,666.0 L254.4,606.0"></path>
+<text text-anchor="middle" transform="translate(147.8,639.6) rotate(-17.5)" y="-7">odom → base_footprint</text>
+<g transform="translate(254.4,606.0) rotate(55) scale(0.42)"><rect class="pose-wheel" x="-61" y="-20" width="13" height="40" rx="4"></rect><rect class="pose-wheel" x="48" y="-20" width="13" height="40" rx="4"></rect><rect class="pose-body" x="-46" y="-44" width="92" height="116" rx="14"></rect></g>
+<path class="transform" d="M254.4,606.0 h44"></path>
+<path class="angle" d="M288.4,606.0 A34,34 0 0 0 282.3,586.5"></path>
+<text x="293.4" y="599.0" text-anchor="start"><tspan class="variable">θ</tspan></text>
+<path class="rviz-pose-line" d="M254.4,606.0 L296.2,576.7"></path>
+<path class="rviz-pose-head" d="M300.3,573.8 L297.0,581.3 L292.2,574.4 z"></path>
+<text x="314.0" y="683.0" text-anchor="end">Odometry display: kept pose arrows</text>
+</g>
+<rect class="item" x="22.0" y="742.0" width="114.0" height="30.0" rx="5"></rect>
+<text x="79.0" y="761.0" text-anchor="middle">a teleop node</text>
+<rect class="item" x="146.0" y="742.0" width="188.0" height="30.0" rx="5"></rect>
+<text x="240.0" y="761.0" text-anchor="middle">the planner in move_base</text>
+<path class="estimate-lane-line" d="M322.0,419.0 L330.0,419.0 L330.0,737.0"></path>
+<path class="estimate-lane-head" d="M330.0,742.0 L325.8,735.0 L334.2,735.0 z"></path>
+<path class="command-line" d="M79.0,742 V733"></path>
+<path class="command-line" d="M240.0,742.0 L240.0,733.0 L12.0,733.0 L12.0,339.0"></path>
+<path class="command-head" d="M12.0,334.0 L16.2,341.0 L7.8,341.0 z"></path>
+<text class="quiet" x="22.0" y="709.0" text-anchor="start">↑ velocity commands</text>
+<text class="mono quiet" x="22.0" y="724.0" text-anchor="start">mobile_base_controller/cmd_vel</text>
 </svg>
-<figcaption>The real robot, seen from above and not to scale.</figcaption>
-</figure>
-<figure class="lv-figure">
-<svg class="lv-fig" viewBox="0 0 330 760" role="img" aria-labelledby="lv-flow-simulation-title"><title id="lv-flow-simulation-title">In the simulation: Gazebo's wheel joints and its IMU sensor, the drive controller, the adapter and the IMU sample validator, the EKF, and the EKF's two outputs in a sketch of RViz</title>
-<rect class="badge" x="6.0" y="6.0" width="75.0" height="19.0" rx="9.5"></rect>
-<text class="badge-text" x="43.5" y="19.5" text-anchor="middle">Simulation</text>
-<rect class="gazebo" x="6.0" y="30.0" width="318.0" height="228.0" rx="5"></rect>
-<text class="strong" x="16.0" y="48.0" text-anchor="start">Gazebo</text>
-<rect class="robot-wheel" x="104.0" y="82.0" width="13.0" height="40.0" rx="4"></rect>
-<rect class="robot-wheel" x="213.0" y="82.0" width="13.0" height="40.0" rx="4"></rect>
-<rect class="robot-body" x="119.0" y="58.0" width="92.0" height="116.0" rx="14"></rect>
-<circle class="robot-part" cx="165.0" cy="160.0" r="6"></circle>
-<path class="wheels-wire" d="M119,102 V120 M211,102 V120 H119 M135,120 V174"></path>
-<circle class="encoder" cx="119.0" cy="102.0" r="4.5"></circle>
-<circle class="encoder" cx="211.0" cy="102.0" r="4.5"></circle>
-<path class="imu-wire" d="M150.0,144 V150 H195 V174"></path>
-<rect class="imu-chip" x="143.0" y="130.0" width="14.0" height="14.0" rx="2"></rect>
-<path class="motion-line" d="M165.0,55.0 L165.0,41.0"></path>
-<path class="motion-head" d="M165.0,36.0 L169.2,43.0 L160.8,43.0 z"></path>
-<text x="172.0" y="49.0" text-anchor="start"><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
-<path class="motion-line" d="M235.4,93.1 A74,74 0 0 0 210.6,57.7"></path>
-<path class="motion-head" d="M209.0,56.5 L217.1,57.5 L211.9,64.1 z"></path>
-<text x="233.0" y="66.0" text-anchor="start"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
-<circle class="encoder" cx="13.0" cy="146.0" r="4.5"></circle>
-<text x="23.0" y="150.0" text-anchor="start">wheel joint</text>
-<rect class="imu-chip" x="8.5" y="159.5" width="9.0" height="9.0" rx="2"></rect>
-<text x="23.0" y="168.0" text-anchor="start">IMU sensor</text>
-<path class="wheels-line" d="M135.0,174.0 L135.0,191.0"></path>
-<path class="wheels-head" d="M135.0,196.0 L130.8,189.0 L139.2,189.0 z"></path>
-<path class="imu-line" d="M195.0,174.0 L195.0,191.0"></path>
-<path class="imu-head" d="M195.0,196.0 L190.8,189.0 L199.2,189.0 z"></path>
-<rect class="item" x="12.0" y="196.0" width="162.0" height="54.0" rx="5"></rect>
-<text x="93.0" y="212.0" text-anchor="middle">gazebo_ros_control with</text>
-<text x="93.0" y="227.0" text-anchor="middle">the drive controller</text>
-<text class="mono" x="93.0" y="242.0" text-anchor="middle">mobile_base_controller</text>
-<rect class="item" x="184.0" y="196.0" width="134.0" height="54.0" rx="5"></rect>
-<text x="251.0" y="219.5" text-anchor="middle">the IMU sensor's</text>
-<text x="251.0" y="234.5" text-anchor="middle">plugin</text>
-<path class="imu-line" d="M190.0,250.0 L190.0,283.0"></path>
-<path class="imu-head" d="M190.0,288.0 L185.8,281.0 L194.2,281.0 z"></path>
-<text class="mono" x="198.0" y="279.0" text-anchor="start">imu/gazebo</text>
-<rect class="item" x="182.0" y="288.0" width="142.0" height="30.0" rx="5"></rect>
-<text class="mono" x="253.0" y="307.0" text-anchor="middle">imu_raw_adapter</text>
-<path class="imu-line" d="M190.0,318.0 L190.0,343.0"></path>
-<path class="imu-head" d="M190.0,348.0 L185.8,341.0 L194.2,341.0 z"></path>
-<text class="mono" x="198.0" y="338.0" text-anchor="start">imu/data_raw</text>
-<rect class="item" x="182.0" y="348.0" width="142.0" height="46.0" rx="5"></rect>
-<text x="253.0" y="367.5" text-anchor="middle">IMU sample validator</text>
-<text class="mono" x="253.0" y="382.5" text-anchor="middle">imu_validator</text>
-<path class="wheels-line" d="M20,250 V394"></path>
-<path class="wheels-line" d="M20.0,394.0 L20.0,451.0"></path>
-<path class="wheels-head" d="M20.0,456.0 L15.8,449.0 L24.2,449.0 z"></path>
-<text x="28.0" y="412.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">wheels</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
-<text class="mono" x="28.0" y="428.0" text-anchor="start">mobile_base_controller</text>
-<text class="mono" x="28.0" y="442.0" text-anchor="start">/odom</text>
-<path class="imu-line" d="M190.0,394.0 L190.0,451.0"></path>
-<path class="imu-head" d="M190.0,456.0 L185.8,449.0 L194.2,449.0 z"></path>
-<text x="198.0" y="412.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">IMU</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
-<text class="mono" x="198.0" y="428.0" text-anchor="start">imu/data_validated</text>
-<rect class="filter" x="6.0" y="456.0" width="318.0" height="46.0" rx="5"></rect>
-<text x="165.0" y="475.0" text-anchor="middle"><tspan class="strong">EKF</tspan><tspan>, the node </tspan><tspan class="mono">ekf_localization</tspan></text>
-<path class="hat" d="M59.2,483.4 l2.8,-2.6 l2.8,2.6"></path>
-<text x="58.0" y="492.0" text-anchor="start"><tspan class="vector">x</tspan><tspan>: the filter's estimate of the state </tspan><tspan class="vector">x</tspan></text>
-<path class="estimate-line" d="M20.0,502.0 L20.0,577.0"></path>
-<path class="estimate-head" d="M20.0,582.0 L15.8,575.0 L24.2,575.0 z"></path>
-<path class="hat" d="M29.2,511.4 l2.8,-2.6 l2.8,2.6"></path>
-<text x="28.0" y="520.0" text-anchor="start"><tspan class="vector">x</tspan><tspan class="subscript" dy="2.5">published</tspan><tspan dy="-2.5"> =</tspan></text>
-<text x="28.0" y="536.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
-<text class="mono" x="28.0" y="552.0" text-anchor="start">odometry/filtered</text>
-<text x="28.0" y="567.0" text-anchor="start">with covariances</text>
-<path class="estimate-line" d="M190.0,502.0 L190.0,577.0"></path>
-<path class="estimate-head" d="M190.0,582.0 L185.8,575.0 L194.2,575.0 z"></path>
-<text x="198.0" y="528.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>)</tspan><tspan> as transform</tspan></text>
-<text class="mono" x="198.0" y="544.0" text-anchor="start">odom →</text>
-<text class="mono" x="198.0" y="558.0" text-anchor="start">base_footprint</text>
-<rect class="rviz" x="6.0" y="582.0" width="318.0" height="170.0" rx="5"></rect>
-<path class="rviz-grid" d="M36,583 V751 M66,583 V751 M96,583 V751 M126,583 V751 M156,583 V751 M186,583 V751 M216,583 V751 M246,583 V751 M276,583 V751 M306,583 V751 M7,610 H323 M7,640 H323 M7,670 H323 M7,700 H323 M7,730 H323"></path>
-<text class="rviz-text" x="16.0" y="600.0" text-anchor="start"><tspan class="strong">RViz</tspan><tspan>, fixed frame </tspan><tspan class="mono">odom</tspan></text>
-<path class="rviz-axis-line" d="M48.0,726.0 L93.0,726.0"></path>
-<path class="rviz-axis-head" d="M98.0,726.0 L91.0,730.2 L91.0,721.8 z"></path>
-<path class="rviz-axis-line" d="M48.0,726.0 L48.0,681.0"></path>
-<path class="rviz-axis-head" d="M48.0,676.0 L52.2,683.0 L43.8,683.0 z"></path>
-<text class="rviz-text" x="103.0" y="730.0" text-anchor="start"><tspan class="variable">x</tspan></text>
-<text class="rviz-text" x="45.0" y="671.0" text-anchor="start"><tspan class="variable">y</tspan></text>
-<text class="mono rviz-text" x="46.0" y="743.0" text-anchor="middle">odom</text>
-<path class="rviz-trail-line" d="M118.0,725.0 L128.0,725.0"></path>
-<path class="rviz-trail-head" d="M133.0,725.0 L126.0,729.2 L126.0,720.8 z"></path>
-<path class="rviz-trail-line" d="M148.0,721.0 L157.9,719.4"></path>
-<path class="rviz-trail-head" d="M162.8,718.7 L156.6,723.9 L155.2,715.6 z"></path>
-<path class="rviz-trail-line" d="M176.0,712.0 L185.5,708.9"></path>
-<path class="rviz-trail-head" d="M190.3,707.4 L184.9,713.5 L182.3,705.5 z"></path>
-<path class="rviz-trail-line" d="M200.0,698.0 L209.0,693.6"></path>
-<path class="rviz-trail-head" d="M213.5,691.4 L209.0,698.3 L205.3,690.7 z"></path>
-<path class="rviz-transform" d="M48,726 L222,654"></path>
-<text class="rviz-text" text-anchor="middle" transform="translate(112.4,699.4) rotate(-22.5)" y="-7">odom → base_footprint</text>
-<g transform="translate(222,654) rotate(55) scale(.42)"><rect class="rviz-wheel" x="-61" y="-34" width="13" height="40" rx="4"></rect><rect class="rviz-wheel" x="48" y="-34" width="13" height="40" rx="4"></rect><rect class="rviz-body" x="-46" y="-58" width="92" height="116" rx="14"></rect></g>
-<path class="rviz-transform" d="M222,654 h44"></path>
-<path class="rviz-axis-line" d="M256,654 A34,34 0 0 0 249.9,634.5"></path>
-<text class="rviz-text" x="261.0" y="647.0" text-anchor="start"><tspan class="variable">θ</tspan></text>
-<path class="rviz-pose-line" d="M222.0,654.0 L263.8,624.7"></path>
-<path class="rviz-pose-head" d="M267.9,621.9 L264.5,629.3 L259.7,622.5 z"></path>
-<text class="rviz-text" x="316.0" y="743.0" text-anchor="end">Odometry display: kept pose arrows</text>
-</svg>
-<figcaption>The simulation. The dark panel is a sketch of RViz with the EKF's two outputs.</figcaption>
+<ul class="lv-legend lv-lines">
+<li><span class="lv-line"></span>from the wheels</li>
+<li><span class="lv-line lv-from-imu"></span>from the IMU</li>
+<li><span class="lv-line lv-estimated"></span>the filter's estimate</li>
+<li><span class="lv-line lv-commanded"></span>commands, back to the wheels</li>
+</ul>
+<figcaption>The loop on the real robot. The robot is drawn from above and not to scale.</figcaption>
 </figure>
 </div>
+<div class="tabbed-block">
+<figure class="lv-figure lv-drawing lv-loop">
+<svg class="lv-fig" viewBox="0 0 340 778" role="img" aria-labelledby="lv-loop-simulation-title"><title id="lv-loop-simulation-title">The loop in the simulation: Gazebo's wheel joints and its IMU sensor, Gazebo's plugins, the drive controller, the adapter and the IMU sample validator, the EKF, its two outputs in a sketch of RViz, and the velocity commands that go back to the wheel joints</title>
+<path class="gazebo" d="M8,6 H332 a5,5 0 0 1 5,5 V195 a5,5 0 0 1 -5,5 H194 a5,5 0 0 0 -5,5 V333 a5,5 0 0 1 -5,5 H8 a5,5 0 0 1 -5,-5 V11 a5,5 0 0 1 5,-5 z"></path>
+<text class="strong" x="13.0" y="24.0" text-anchor="start">Gazebo</text>
+<rect class="robot-wheel" x="109.0" y="58.0" width="13.0" height="40.0" rx="4"></rect>
+<rect class="robot-wheel" x="218.0" y="58.0" width="13.0" height="40.0" rx="4"></rect>
+<rect class="robot-body" x="124.0" y="34.0" width="92.0" height="116.0" rx="14"></rect>
+<circle class="robot-part" cx="170.0" cy="136.0" r="6"></circle>
+<path class="wheels-wire" d="M124,78 V96 M216,78 V96 H124 M140,96 V150"></path>
+<circle class="encoder" cx="124.0" cy="78.0" r="4.5"></circle>
+<circle class="encoder" cx="216.0" cy="78.0" r="4.5"></circle>
+<path class="imu-wire" d="M155.0,120 V126 H200 V150"></path>
+<rect class="imu-chip" x="148.0" y="106.0" width="14.0" height="14.0" rx="2"></rect>
+<path class="motion-line" d="M170.0,31.0 L170.0,17.0"></path>
+<path class="motion-head" d="M170.0,12.0 L174.2,19.0 L165.8,19.0 z"></path>
+<text x="177.0" y="25.0" text-anchor="start"><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<path class="motion-line" d="M240.4,69.1 A74,74 0 0 0 215.6,33.7"></path>
+<path class="motion-head" d="M214.0,32.5 L222.1,33.5 L216.9,40.1 z"></path>
+<text x="238.0" y="42.0" text-anchor="start"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<circle class="encoder" cx="13.0" cy="112.0" r="4.5"></circle>
+<text x="23.0" y="116.0" text-anchor="start">wheel joint</text>
+<rect class="imu-chip" x="8.5" y="124.5" width="9.0" height="9.0" rx="2"></rect>
+<text x="23.0" y="133.0" text-anchor="start">IMU sensor</text>
+<path class="command-line" d="M6,146 H20"></path>
+<text class="quiet" x="23.0" y="150.0" text-anchor="start">joint torques</text>
+<path class="wheels-line" d="M140.0,150.0 L140.0,167.0"></path>
+<path class="wheels-head" d="M140.0,172.0 L135.8,165.0 L144.2,165.0 z"></path>
+<path class="imu-line" d="M200.0,150.0 L200.0,167.0"></path>
+<path class="imu-head" d="M200.0,172.0 L195.8,165.0 L204.2,165.0 z"></path>
+<path class="command-line" d="M115.5,172.0 L115.5,105.0"></path>
+<path class="command-head" d="M115.5,100.0 L119.7,107.0 L111.3,107.0 z"></path>
+<path class="command-line" d="M224.5,172.0 L224.5,105.0"></path>
+<path class="command-head" d="M224.5,100.0 L228.7,107.0 L220.3,107.0 z"></path>
+<rect class="item" x="6.0" y="172.0" width="328.0" height="24.0" rx="5"></rect>
+<text x="170.0" y="188.0" text-anchor="middle">gazebo_ros_control and the IMU sensor's plugin</text>
+<path class="command-line" d="M12.0,280.0 L12.0,201.0"></path>
+<path class="command-head" d="M12.0,196.0 L16.2,203.0 L7.8,203.0 z"></path>
+<path class="wheels-line" d="M30.0,196.0 L30.0,275.0"></path>
+<path class="wheels-head" d="M30.0,280.0 L25.8,273.0 L34.2,273.0 z"></path>
+<text x="38.0" y="213.0" text-anchor="start">↓ wheel joints' angles</text>
+<text class="quiet" x="38.0" y="235.0" text-anchor="start">↑ target wheel speeds</text>
+<text class="quiet" x="38.0" y="257.0" text-anchor="start">inside Gazebo,</text>
+<text class="quiet" x="38.0" y="272.0" text-anchor="start">without a topic</text>
+<path class="imu-line" d="M200.0,196.0 L200.0,218.0"></path>
+<path class="imu-head" d="M200.0,223.0 L195.8,216.0 L204.2,216.0 z"></path>
+<text class="mono" x="208.0" y="213.0" text-anchor="start">imu/gazebo</text>
+<rect class="item" x="192.0" y="223.0" width="142.0" height="26.0" rx="5"></rect>
+<text class="mono" x="263.0" y="240.0" text-anchor="middle">imu_raw_adapter</text>
+<path class="imu-line" d="M200.0,249.0 L200.0,275.0"></path>
+<path class="imu-head" d="M200.0,280.0 L195.8,273.0 L204.2,273.0 z"></path>
+<text class="mono" x="208.0" y="268.0" text-anchor="start">imu/data_raw</text>
+<rect class="item" x="6.0" y="280.0" width="180.0" height="54.0" rx="5"></rect>
+<text x="96.0" y="296.0" text-anchor="middle">drive controller</text>
+<text class="mono" x="96.0" y="311.0" text-anchor="middle">mobile_base_controller</text>
+<text class="quiet" x="96.0" y="326.0" text-anchor="middle">inside gazebo_ros_control</text>
+<rect class="item" x="192.0" y="280.0" width="142.0" height="54.0" rx="5"></rect>
+<text x="263.0" y="303.5" text-anchor="middle">IMU sample validator</text>
+<text class="mono" x="263.0" y="318.5" text-anchor="middle">imu_validator</text>
+<path class="wheels-line" d="M30.0,334.0 L30.0,391.0"></path>
+<path class="wheels-head" d="M30.0,396.0 L25.8,389.0 L34.2,389.0 z"></path>
+<text x="38.0" y="352.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">wheels</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="38.0" y="368.0" text-anchor="start">mobile_base_controller</text>
+<text class="mono" x="38.0" y="382.0" text-anchor="start">/odom</text>
+<path class="imu-line" d="M200.0,334.0 L200.0,391.0"></path>
+<path class="imu-head" d="M200.0,396.0 L195.8,389.0 L204.2,389.0 z"></path>
+<text x="208.0" y="352.0" text-anchor="start"><tspan class="vector">z</tspan><tspan class="subscript" dy="2.5">IMU</tspan><tspan dy="-2.5"> = </tspan><tspan>(</tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="208.0" y="368.0" text-anchor="start">imu/data_validated</text>
+<rect class="filter" x="22.0" y="396.0" width="300.0" height="46.0" rx="5"></rect>
+<text x="172.0" y="415.0" text-anchor="middle"><tspan class="strong">EKF</tspan><tspan>, the node </tspan><tspan class="mono">ekf_localization</tspan></text>
+<path class="hat" d="M66.2,423.4 l2.8,-2.6 l2.8,2.6"></path>
+<text x="65.0" y="432.0" text-anchor="start"><tspan class="vector">x</tspan><tspan>: the filter's estimate of the state </tspan><tspan class="vector">x</tspan></text>
+<path class="estimate-line" d="M30.0,442.0 L30.0,517.0"></path>
+<path class="estimate-head" d="M30.0,522.0 L25.8,515.0 L34.2,515.0 z"></path>
+<path class="hat" d="M39.2,451.4 l2.8,-2.6 l2.8,2.6"></path>
+<text x="38.0" y="460.0" text-anchor="start"><tspan class="vector">x</tspan><tspan class="subscript" dy="2.5">published</tspan><tspan dy="-2.5"> =</tspan></text>
+<text x="38.0" y="476.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5">, </tspan><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan><tspan dy="-2.5">)</tspan></text>
+<text class="mono" x="38.0" y="492.0" text-anchor="start">odometry/filtered</text>
+<text x="38.0" y="507.0" text-anchor="start">with covariances</text>
+<path class="estimate-line" d="M200.0,442.0 L200.0,517.0"></path>
+<path class="estimate-head" d="M200.0,522.0 L195.8,515.0 L204.2,515.0 z"></path>
+<text x="208.0" y="460.0" text-anchor="start"><tspan>(</tspan><tspan class="variable">x</tspan><tspan>, </tspan><tspan class="variable">y</tspan><tspan>, </tspan><tspan class="variable">θ</tspan><tspan>)</tspan></text>
+<text x="208.0" y="476.0" text-anchor="start">as the transform</text>
+<text class="mono" x="208.0" y="492.0" text-anchor="start">odom →</text>
+<text class="mono" x="208.0" y="506.0" text-anchor="start">base_footprint</text>
+<rect class="rviz" x="22.0" y="522.0" width="300.0" height="170.0" rx="5"></rect>
+<path class="rviz-grid" d="M52,523 V691 M82,523 V691 M112,523 V691 M142,523 V691 M172,523 V691 M202,523 V691 M232,523 V691 M262,523 V691 M292,523 V691 M23,550 H321 M23,580 H321 M23,610 H321 M23,640 H321 M23,670 H321"></path>
+<g class="rviz-scene">
+<text x="32.0" y="540.0" text-anchor="start"><tspan class="strong">RViz</tspan><tspan>, fixed frame </tspan><tspan class="mono">odom</tspan></text>
+<path class="frame-axis-line" d="M64.0,666.0 L109.0,666.0"></path>
+<path class="frame-axis-head" d="M114.0,666.0 L107.0,670.2 L107.0,661.8 z"></path>
+<path class="frame-axis-line" d="M64.0,666.0 L64.0,621.0"></path>
+<path class="frame-axis-head" d="M64.0,616.0 L68.2,623.0 L59.8,623.0 z"></path>
+<text x="119.0" y="670.0" text-anchor="start"><tspan class="variable">x</tspan></text>
+<text x="61.0" y="611.0" text-anchor="start"><tspan class="variable">y</tspan></text>
+<text class="mono" x="62.0" y="683.0" text-anchor="middle">odom</text>
+<path class="rviz-trail-line" d="M127.3,659.9 L137.2,658.0"></path>
+<path class="rviz-trail-head" d="M142.1,657.0 L136.0,662.5 L134.4,654.3 z"></path>
+<path class="rviz-trail-line" d="M158.3,652.3 L167.9,649.5"></path>
+<path class="rviz-trail-head" d="M172.7,648.1 L167.2,654.1 L164.8,646.0 z"></path>
+<path class="rviz-trail-line" d="M188.4,641.8 L197.6,638.1"></path>
+<path class="rviz-trail-head" d="M202.3,636.2 L197.4,642.7 L194.2,634.9 z"></path>
+<path class="rviz-trail-line" d="M217.3,628.5 L226.2,623.9"></path>
+<path class="rviz-trail-head" d="M230.6,621.6 L226.3,628.5 L222.5,621.1 z"></path>
+<path class="transform" d="M64.0,666.0 L254.4,606.0"></path>
+<text text-anchor="middle" transform="translate(147.8,639.6) rotate(-17.5)" y="-7">odom → base_footprint</text>
+<g transform="translate(254.4,606.0) rotate(55) scale(0.42)"><rect class="pose-wheel" x="-61" y="-20" width="13" height="40" rx="4"></rect><rect class="pose-wheel" x="48" y="-20" width="13" height="40" rx="4"></rect><rect class="pose-body" x="-46" y="-44" width="92" height="116" rx="14"></rect></g>
+<path class="transform" d="M254.4,606.0 h44"></path>
+<path class="angle" d="M288.4,606.0 A34,34 0 0 0 282.3,586.5"></path>
+<text x="293.4" y="599.0" text-anchor="start"><tspan class="variable">θ</tspan></text>
+<path class="rviz-pose-line" d="M254.4,606.0 L296.2,576.7"></path>
+<path class="rviz-pose-head" d="M300.3,573.8 L297.0,581.3 L292.2,574.4 z"></path>
+<text x="314.0" y="683.0" text-anchor="end">Odometry display: kept pose arrows</text>
+</g>
+<rect class="item" x="22.0" y="742.0" width="114.0" height="30.0" rx="5"></rect>
+<text x="79.0" y="761.0" text-anchor="middle">a teleop node</text>
+<rect class="item" x="146.0" y="742.0" width="188.0" height="30.0" rx="5"></rect>
+<text x="240.0" y="761.0" text-anchor="middle">the planner in move_base</text>
+<path class="estimate-lane-line" d="M322.0,419.0 L330.0,419.0 L330.0,737.0"></path>
+<path class="estimate-lane-head" d="M330.0,742.0 L325.8,735.0 L334.2,735.0 z"></path>
+<path class="command-line" d="M79.0,742 V733"></path>
+<path class="command-line" d="M240.0,742.0 L240.0,733.0 L12.0,733.0 L12.0,339.0"></path>
+<path class="command-head" d="M12.0,334.0 L16.2,341.0 L7.8,341.0 z"></path>
+<text class="quiet" x="22.0" y="709.0" text-anchor="start">↑ velocity commands</text>
+<text class="mono quiet" x="22.0" y="724.0" text-anchor="start">mobile_base_controller/cmd_vel</text>
+</svg>
+<ul class="lv-legend lv-lines">
+<li><span class="lv-line"></span>from the wheels</li>
+<li><span class="lv-line lv-from-imu"></span>from the IMU</li>
+<li><span class="lv-line lv-estimated"></span>the filter's estimate</li>
+<li><span class="lv-line lv-commanded"></span>commands, back to the wheels</li>
+</ul>
+<figcaption>The loop in the simulation. Gazebo takes the place of the robot's hardware, and the rest of the loop is the same.</figcaption>
+</figure>
+</div>
+</div>
+</div>
 
-<p><a href="#how-it-fits-together">How it fits together</a> goes through the nodes and the topics of the figures one by one.</p>
-<p>The formulas below write the two measurements and the published estimate as vectors, with the symbols of the figures and of <a href="#the-filters-state">the filter's state</a>. The position <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> is in m, the heading <span class="arithmatex">\(\theta\)</span> in rad, the speeds <span class="arithmatex">\(v_x\)</span>, <span class="arithmatex">\(v_y\)</span> in m/s and the yaw rate <span class="arithmatex">\(\omega_z\)</span> in rad/s.</p>
+<p><a href="#how-it-fits-together">How it fits together</a> goes through the nodes and the topics of the figure one by one.</p>
+<p>The formulas below write the two measurements and the published estimate as vectors, with the symbols of the figure and of <a href="#the-filters-state">the filter's state</a>. The position <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> is in m, the heading <span class="arithmatex">\(\theta\)</span> in rad, the speeds <span class="arithmatex">\(v_x\)</span>, <span class="arithmatex">\(v_y\)</span> in m/s and the yaw rate <span class="arithmatex">\(\omega_z\)</span> in rad/s.</p>
 <p>The wheel odometry's measurement is the three velocities that the filter fuses from one odometry message:</p>
 <div class="arithmatex">\[
 \mathbf{z}_\text{wheels} = (\,v_x,\ v_y,\ \omega_z\,)
@@ -5457,13 +5645,190 @@
 </code></pre></div></td></tr></tbody></table></div>
 </details>
 <h2 id="how-it-fits-together">How it fits together</h2>
-<p>This section goes through the nodes and the topics of <a href="#what-goes-in-and-what-comes-out">the two figures</a>. The data takes two branches that meet at the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples pass the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator, step 2 of the list. The wheels' angles pass the drive controller, step 3. The sensors' and the odometry's topics are in the <code>/diffbot</code> namespace. The transform is published on the global topic <code>/tf</code>.</p>
+<p>This section goes through the nodes and the topics of <a href="#the-loop">the loop figure</a>, in the figure's order, and says where the real robot and the simulation differ. On the way to the filter, the data takes two branches that meet at the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. The wheels' angles pass the drive controller, step 2 of the list. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples pass the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator, step 3. The sensors', the odometry's and the commands' topics are in the <code>/diffbot</code> namespace. The transform is published on the global topic <code>/tf</code>.</p>
 <ol>
-<li><strong>The firmware:</strong> reads the wheel encoders and the BNO055 on the Teensy. The firmware publishes the wheels' angles on the topic <code>/diffbot/measured_joint_states</code>. The firmware publishes the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples on the topic <code>/diffbot/imu/data_raw</code> at 50 Hz, as <a href="../driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Bosch BNO055</a> explains. In the simulation, Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor and a small adapter publish the same topic <code>/diffbot/imu/data_raw</code>, as the <a href="../../../diffbot_gazebo/#inertial-measurement-unit-imu">Simulation page's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> section</a> explains.</li>
+<li><strong>The source of the sensors' values:</strong> the real robot and the simulation differ here.<ul>
+<li><strong>Real robot:</strong> the firmware on the Teensy reads the wheel encoders and the BNO055. rosserial, the connection between the Teensy and the robot's single-board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>), turns what the firmware sends into ROS topics. The firmware publishes the wheels' angles and the wheels' angular velocities <span class="arithmatex">\(\omega_\text{l}\)</span> and <span class="arithmatex">\(\omega_\text{r}\)</span>, in rad/s, on the topic <code>/diffbot/measured_joint_states</code>. The firmware publishes the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples on the topic <code>/diffbot/imu/data_raw</code> at 50 Hz, as <a href="../driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Bosch BNO055</a> explains.</li>
+<li><strong>Simulation:</strong> Gazebo computes the wheel joints' angles and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's values. The Gazebo plugin <code>gazebo_ros_control</code> reads the wheel joints' angles inside Gazebo, without a topic. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's plugin publishes the topic <code>/diffbot/imu/gazebo</code>, and the small adapter <code>imu_raw_adapter</code> republishes its samples on the topic <code>/diffbot/imu/data_raw</code>, as the <a href="../../../diffbot_gazebo/#inertial-measurement-unit-imu">Simulation page's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> section</a> explains.</li>
+</ul>
+</li>
+<li><strong>The wheels' branch, the drive controller:</strong> <code>mobile_base_controller</code>, a <a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>, computes the wheel odometry from the wheels' angles and publishes the wheel odometry on the topic <code>/diffbot/mobile_base_controller/odom</code>. On the real robot, the drive controller runs in the node <code>diffbot_base</code>, whose hardware interface takes the wheels' angles from the topic <code>/diffbot/measured_joint_states</code>. In the simulation, the drive controller runs inside Gazebo, in <code>gazebo_ros_control</code>. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, the drive controller doesn't publish the transform <code>odom → base_footprint</code>. Two nodes that publish the same transform would make the robot's pose jump between their two estimates.</li>
 <li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s branch, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator:</strong> the node <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code></a> subscribes to the topic <code>/diffbot/imu/data_raw</code>. The validator checks each sample against what this <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> configuration needs and forwards the valid samples, unchanged, on the topic <code>/diffbot/imu/data_validated</code>. <a href="#the-imu-sample-validator">The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> lists its checks.</li>
-<li><strong>The wheels' branch, the drive controller:</strong> <code>mobile_base_controller</code>, a <a href="http://wiki.ros.org/diff_drive_controller">diff_drive_controller</a>, publishes the wheel odometry on the topic <code>/diffbot/mobile_base_controller/odom</code>. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, the drive controller doesn't publish the transform <code>odom → base_footprint</code>. Two nodes that publish the same transform would make the robot's pose jump between their two estimates.</li>
-<li><strong>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>:</strong> the node <code>/diffbot/ekf_localization</code> subscribes to the validated samples on the topic <code>/diffbot/imu/data_validated</code> and to the wheel odometry on the topic <code>/diffbot/mobile_base_controller/odom</code>. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses the two. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the filtered odometry on the topic <code>/diffbot/odometry/filtered</code> and the transform <code>odom → base_footprint</code> on the topic <code>/tf</code>.</li>
+<li><strong>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>:</strong> the node <code>/diffbot/ekf_localization</code> subscribes to the wheel odometry on the topic <code>/diffbot/mobile_base_controller/odom</code> and to the validated samples on the topic <code>/diffbot/imu/data_validated</code>. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses the two. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the filtered odometry on the topic <code>/diffbot/odometry/filtered</code> and the transform <code>odom → base_footprint</code> on the topic <code>/tf</code>.</li>
+<li><strong>The readers of the two outputs:</strong> RViz can show both outputs, as in the figure's sketch, for the real robot and for the simulation alike. For the topic, RViz needs an Odometry display, which <a href="#comparing-the-two-odometries">Comparing the two odometries</a> sets up. The planner in <code>move_base</code> or in Move Base Flex reads both outputs too. <a href="#the-two-outputs">The two outputs</a> names every node that reads them.</li>
+<li>
+<p><strong>The velocity commands:</strong> a node that wants the robot to move publishes <a href="http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html"><code>geometry_msgs/Twist</code></a> messages on the topic <code>/diffbot/mobile_base_controller/cmd_vel</code>. The drive controller subscribes to this topic and uses two values of a command: <code>linear.x</code>, the target forward speed <span class="arithmatex">\(v_x^*\)</span> in m/s, and <code>angular.z</code>, the target yaw rate <span class="arithmatex">\(\omega_z^*\)</span> in rad/s. The launch files of the diffbot repository start three kinds of nodes that publish commands:</p>
+<ul>
+<li><strong>A teleop node for the keyboard:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_bringup/launch/keyboard_teleop.launch"><code>keyboard_teleop.launch</code></a> starts <code>teleop_twist_keyboard</code>, which turns key presses into commands.</li>
+<li><strong>A teleop window:</strong> in the simulation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/diffbot_control.launch"><code>diffbot_control.launch</code></a> starts <code>rqt_robot_steering</code>, a window with sliders to drive the robot.</li>
+<li><strong>The planner:</strong> <code>move_base</code> and Move Base Flex compute the commands that lead the robot to a goal. With <code>ekf:=true</code>, the planner reads the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s two outputs, so the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s estimate is part of the loop. <a href="#the-planners-odometry-topic">The planners' odometry topic</a> shows the lines that connect the planner to both topics.</li>
+</ul>
+<p>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> doesn't read the velocity commands. robot_localization can use the commands in its prediction with the setting <a href="https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#use-control"><code>use_control</code></a>, whose default is <code>false</code>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/ekf.yaml"><code>ekf.yaml</code></a> doesn't set <code>use_control</code>, so the figure has no arrow from the commands to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
+</li>
+<li>
+<p><strong>The way back to the wheels:</strong> the drive controller first limits the command's velocities and accelerations to the limits in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a>. From the limited command, the drive controller computes two target wheel speeds in rad/s, the angular velocities <span class="arithmatex">\(\omega_\text{l}^*\)</span> for the left wheel and <span class="arithmatex">\(\omega_\text{r}^*\)</span> for the right wheel:</p>
+<div class="arithmatex">\[
+\omega_\text{l}^* = \frac{v_x^* - \omega_z^* \, b / 2}{r}, \qquad \omega_\text{r}^* = \frac{v_x^* + \omega_z^* \, b / 2}{r}
+\]</div>
+<p><span class="arithmatex">\(b\)</span> is the wheel separation and <span class="arithmatex">\(r\)</span> is the wheel radius, both in m. The real robot and the simulation differ in what happens to the two targets.</p>
+<ul>
+<li><strong>Real robot:</strong> the hardware interface in the node <code>diffbot_base</code> publishes the two targets on the topic <code>/diffbot/wheel_cmd_velocities</code>. The firmware on the Teensy receives them through rosserial. For each motor, a <a href="../../diffbot_base/pid/">proportional–integral–derivative (<abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>) controller</a> in the firmware compares the wheel's target with the wheel's angular velocity that the encoder measures, <span class="arithmatex">\(\omega_\text{l}\)</span> or <span class="arithmatex">\(\omega_\text{r}\)</span>, and sets the motor driver's output for this motor. <a href="../../diffbot_base/low-level/">Low-Level <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Approach</a> explains the firmware.</li>
+<li><strong>Simulation:</strong> <code>gazebo_ros_control</code> gets the two targets inside Gazebo, without a topic. For each wheel joint, a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller of <code>gazebo_ros_control</code> compares the target with the joint's angular velocity and applies a torque <span class="arithmatex">\(\tau\)</span> in N m to the joint. <a href="../../../theory/modeling-control/wheel-dynamics-simulation/#turning-a-wheel-speed-command-into-torque">Turning a wheel-speed command into torque</a> explains this <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller. The controller's gains are in the robot's <code>pid.yaml</code>, for Remo <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/remo/pid.yaml"><code>diffbot_control/config/remo/pid.yaml</code></a>.</li>
+</ul>
+<p>The wheels turn, the robot moves, and the sensors of step 1 measure the motion.</p>
+</li>
 </ol>
+<p>The collapsed box shows the code of step 7, from a velocity command to the wheels.</p>
+<details class="quote">
+<summary>The way back in the code: from a velocity command to the wheels</summary>
+<p>The table lists the quantities of step 7 with their names in the code of the four excerpts:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Symbol</th>
+<th style="text-align: left;">Unit</th>
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">Names in the code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(v_x^*\)</span></td>
+<td style="text-align: left;">m/s</td>
+<td style="text-align: left;">target forward speed, after the limits</td>
+<td style="text-align: left;"><code>curr_cmd.lin</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(\omega_z^*\)</span></td>
+<td style="text-align: left;">rad/s</td>
+<td style="text-align: left;">target yaw rate, after the limits</td>
+<td style="text-align: left;"><code>curr_cmd.ang</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(b\)</span></td>
+<td style="text-align: left;">m</td>
+<td style="text-align: left;">wheel separation</td>
+<td style="text-align: left;"><code>ws</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(r\)</span></td>
+<td style="text-align: left;">m</td>
+<td style="text-align: left;">wheel radius</td>
+<td style="text-align: left;"><code>lwr</code> for the left wheel, <code>rwr</code> for the right wheel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(\omega_\text{l}^*\)</span>, <span class="arithmatex">\(\omega_\text{r}^*\)</span></td>
+<td style="text-align: left;">rad/s</td>
+<td style="text-align: left;">target wheel speeds</td>
+<td style="text-align: left;"><code>vel_left</code> and <code>vel_right</code>, <code>joint_velocity_commands_</code>, <code>wheel_cmd_velocity_left_</code> and <code>wheel_cmd_velocity_right_</code>, <code>joint_velocity_command_</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(\omega_\text{l}\)</span>, <span class="arithmatex">\(\omega_\text{r}\)</span></td>
+<td style="text-align: left;">rad/s</td>
+<td style="text-align: left;">measured wheel speeds</td>
+<td style="text-align: left;"><code>angular_velocity_</code> of <code>joint_state_left_</code> and <code>joint_state_right_</code>, <code>joint_velocity_</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(\tau\)</span></td>
+<td style="text-align: left;">N m</td>
+<td style="text-align: left;">torque on a wheel joint</td>
+<td style="text-align: left;"><code>effort</code></td>
+</tr>
+</tbody>
+</table>
+<p>The drive controller's function <code>update()</code> computes <code>vel_left</code> and <code>vel_right</code>, the two target wheel speeds, from <code>curr_cmd.lin</code> and <code>curr_cmd.ang</code>, the limited command, the wheel separation <code>ws</code> and the wheel radii <code>lwr</code> and <code>rwr</code>. <code>setCommand()</code> hands each target to the hardware interface, as <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L491-L500">lines 491–500 of <code>diff_drive_controller.cpp</code></a> in ros_controllers 0.22.0 show:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Compute wheels velocities:</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">vel_left</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">curr_cmd</span><span class="p">.</span><span class="n">lin</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">curr_cmd</span><span class="p">.</span><span class="n">ang</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ws</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span><span class="o">/</span><span class="n">lwr</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">vel_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">curr_cmd</span><span class="p">.</span><span class="n">lin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">curr_cmd</span><span class="p">.</span><span class="n">ang</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ws</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span><span class="o">/</span><span class="n">rwr</span><span class="p">;</span>
+
+<span class="c1">// Set wheels velocities:</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">wheel_joints_size_</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">left_wheel_joints_</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">setCommand</span><span class="p">(</span><span class="n">vel_left</span><span class="p">);</span>
+<span class="w">  </span><span class="n">right_wheel_joints_</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">setCommand</span><span class="p">(</span><span class="n">vel_right</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>On the real robot, the control loop of the node <code>diffbot_base</code> calls the hardware interface's function <code>DiffBotHWInterface::write()</code> after each <code>update()</code> of the drive controller. <code>write()</code> first scales the left target by <code>(gain_ - trim_) / motor_constant_</code> and the right target by <code>(gain_ + trim_) / motor_constant_</code>. Both factors are 1 with the settings <code>gain</code>, <code>trim</code> and <code>motor_constant</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/config/base.yaml"><code>base.yaml</code></a>. <code>write()</code> then copies the two targets from <code>joint_velocity_commands_</code> into the message <code>wheel_cmd_msg</code> and publishes the message, as <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_base/src/diffbot_hw_interface.cpp#L169-L186">lines 169–186 of <code>diffbot_hw_interface.cpp</code></a> show:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// adjusting k by gain and trim</span>
+<span class="kt">double</span><span class="w"> </span><span class="n">motor_constant_right_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">gain_</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">trim_</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">motor_constant_</span><span class="p">;</span>
+<span class="kt">double</span><span class="w"> </span><span class="n">motor_constant_left_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">gain_</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">trim_</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">motor_constant_</span><span class="p">;</span>
+
+
+<span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">motor_constant_left_inv</span><span class="p">;</span>
+<span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">motor_constant_right_inv</span><span class="p">;</span>
+
+
+<span class="c1">// Publish the desired (commanded) angular wheel joint velocities</span>
+<span class="n">diffbot_msgs</span><span class="o">::</span><span class="n">WheelsCmdStamped</span><span class="w"> </span><span class="n">wheel_cmd_msg</span><span class="p">;</span>
+<span class="n">wheel_cmd_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_JOINTS</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">wheel_cmd_msg</span><span class="p">.</span><span class="n">wheels_cmd</span><span class="p">.</span><span class="n">angular_velocities</span><span class="p">.</span><span class="n">joint</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">joint_velocity_commands_</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="n">pub_wheel_cmd_velocities_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">wheel_cmd_msg</span><span class="p">);</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>In the firmware, the function <code>WheelControl::step()</code> calls <code>BaseController::read()</code> on each control step. <code>WheelControl::step()</code> then calls <code>BaseController::write()</code>, unless the last command is older than the command timeout. <code>BaseController::write()</code> computes the two motor outputs <code>motor_cmd_left_</code> and <code>motor_cmd_right_</code> with the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers <code>motor_pid_left_</code> and <code>motor_pid_right_</code>. Each <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller gets its wheel's target, <code>wheel_cmd_velocity_left_</code> or <code>wheel_cmd_velocity_right_</code>, and the wheel's measured <code>angular_velocity_</code>. <code>setSpeed()</code> passes each output to the motor driver, as <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_firmware/lib/base_controller/base_controller.h#L484-L488">lines 484–488 of <code>base_controller.h</code></a> show:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">motor_cmd_left_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">motor_pid_left_</span><span class="p">.</span><span class="n">compute</span><span class="p">(</span><span class="n">wheel_cmd_velocity_left_</span><span class="p">,</span><span class="w"> </span><span class="n">joint_state_left_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="p">);</span>
+<span class="n">motor_cmd_right_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">motor_pid_right_</span><span class="p">.</span><span class="n">compute</span><span class="p">(</span><span class="n">wheel_cmd_velocity_right_</span><span class="p">,</span><span class="w"> </span><span class="n">joint_state_right_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="p">);</span>
+
+<span class="n">p_motor_controller_left_</span><span class="o">-&gt;</span><span class="n">setSpeed</span><span class="p">(</span><span class="n">motor_cmd_left_</span><span class="p">);</span>
+<span class="n">p_motor_controller_right_</span><span class="o">-&gt;</span><span class="n">setSpeed</span><span class="p">(</span><span class="n">motor_cmd_right_</span><span class="p">);</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>In the simulation, the update callback of <code>gazebo_ros_control</code> calls <code>DefaultRobotHWSim::readSim()</code>, then the controllers' <code>update()</code> and then <code>DefaultRobotHWSim::writeSim()</code>. <code>writeSim()</code> computes the <code>error</code> between the target <code>joint_velocity_command_</code> and the joint's velocity <code>joint_velocity_</code>. The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller <code>pid_controllers_</code> turns the error into the torque <code>effort</code>, which <code>clamp()</code> keeps within the joint's effort limit. <code>SetForce()</code> applies the torque to Gazebo's joint, as <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/default_robot_hw_sim.cpp#L370-L380">lines 370–380 of <code>default_robot_hw_sim.cpp</code></a> in gazebo_ros_pkgs 2.9.3 show:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">case</span><span class="w"> </span><span class="no">VELOCITY_PID</span><span class="p">:</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">e_stop_active_</span><span class="p">)</span>
+<span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">joint_velocity_</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">joint_velocity_command_</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">joint_velocity_</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">effort_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">joint_effort_limits_</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">effort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clamp</span><span class="p">(</span><span class="n">pid_controllers_</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">computeCommand</span><span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">period</span><span class="p">),</span>
+<span class="w">                              </span><span class="o">-</span><span class="n">effort_limit</span><span class="p">,</span><span class="w"> </span><span class="n">effort_limit</span><span class="p">);</span>
+<span class="w">  </span><span class="n">sim_joints_</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">SetForce</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">effort</span><span class="p">);</span>
+<span class="w">  </span><span class="k">break</span><span class="p">;</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/ekf.launch"><code>ekf.launch</code></a> in <code>diffbot_control</code> starts the validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, for the robot and the simulation alike.</p>
 <h2 id="running-it">Running it</h2>
 <p>The <code>ekf</code> argument switches the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> is off by default. Pass <code>ekf:=true</code> to the launch file that you start:</p>
@@ -5503,7 +5868,7 @@
 <li><strong>A rounded rectangle:</strong> the node or the two nodes that a file starts.</li>
 <li><strong>A thick arrow:</strong> an include that passes <code>ekf</code> to the included file.</li>
 <li><strong>The node with the thick orange border:</strong> <code>robot_state_publisher</code>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs.</li>
-<li><strong>The badge above a figure:</strong> says whether the figure is for the real robot or for the simulation, as the badges of the two figures in <a href="#what-goes-in-and-what-comes-out">What goes in and what comes out</a> do.</li>
+<li><strong>The badge above a figure:</strong> says whether the figure is for the real robot or for the simulation.</li>
 </ul>
 <h4 id="on-the-real-robot">On the real robot</h4>
 <p>When you start the bringup yourself, you start one of the two bringup files. This command is for Remo. For DiffBot, use <code>model:=diffbot</code>:</p>
@@ -5579,9 +5944,11 @@
 <p><code>robot_state_publisher</code>, the node with the thick orange border in the figures, publishes the transforms of the joints in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model. From these transforms, TF gets the transform between the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame <code>imu_link</code> and <code>base_footprint</code>. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs this transform to turn the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate <span class="arithmatex">\(\omega_z\)</span> into the robot's frame.</p>
 <h4 id="the-planners-odometry-topic">The planners' odometry topic</h4>
 <p>The navigation launch files pass <code>ekf</code> on in the same way. <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_navigation/launch/diffbot.launch"><code>diffbot_navigation/launch/diffbot.launch</code></a> includes <code>diffbot_gazebo</code>'s <code>diffbot.launch</code> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_navigation/launch/move_base.launch"><code>move_base.launch</code></a> and passes <code>ekf</code> to both.</p>
-<p><code>move_base.launch</code> starts no <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. The file uses its <code>ekf</code> argument to choose the odometry topic that the planner reads. Line 8 computes the default of the argument <code>odom_topic</code> from <code>ekf</code>: <code>/diffbot/odometry/filtered</code> with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, and the wheel odometry's topic <code>/diffbot/mobile_base_controller/odom</code> without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. The excerpt shows the two arguments, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_navigation/launch/move_base.launch#L7-L8"><code>move_base.launch</code>, lines 7–8</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">move_base.launch: the odometry topic follows ekf</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">7</span>
-<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"ekf"</span><span class="w"> </span><span class="na">default=</span><span class="s">"false"</span><span class="w"> </span><span class="na">doc=</span><span class="s">"the robot runs with the EKF (ekf:=true): read its filtered odometry"</span><span class="nt">/&gt;</span>
+<p><code>move_base.launch</code> starts no <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. The file uses its <code>ekf</code> argument to choose the odometry topic that the planner reads. Line 8 computes the default of the argument <code>odom_topic</code> from <code>ekf</code>: <code>/diffbot/odometry/filtered</code> with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, and the wheel odometry's topic <code>/diffbot/mobile_base_controller/odom</code> without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. The excerpt shows the two arguments in lines 7 and 8, and above them the argument <code>cmd_vel_topic</code> for the topic of the planner's velocity commands, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_navigation/launch/move_base.launch#L6-L8"><code>move_base.launch</code>, lines 6–8</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">move_base.launch: the odometry topic follows ekf</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"cmd_vel_topic"</span><span class="w"> </span><span class="na">default=</span><span class="s">"/diffbot/mobile_base_controller/cmd_vel"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"ekf"</span><span class="w"> </span><span class="na">default=</span><span class="s">"false"</span><span class="w"> </span><span class="na">doc=</span><span class="s">"the robot runs with the EKF (ekf:=true): read its filtered odometry"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"odom_topic"</span><span class="w"> </span><span class="na">default=</span><span class="s">"$(eval '/diffbot/odometry/filtered' if arg('ekf') else '/diffbot/mobile_base_controller/odom')"</span><span class="w"> </span><span class="nt">/&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The planner subscribes to a topic named <code>odom</code>. Line 28 remaps this name to the topic of <code>odom_topic</code>, as the excerpt of the node's two remappings shows, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_navigation/launch/move_base.launch#L27-L28"><code>move_base.launch</code>, lines 27–28</a>:</p>
@@ -5589,6 +5956,7 @@
 <span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;remap</span><span class="w"> </span><span class="na">from=</span><span class="s">"cmd_vel"</span><span class="w"> </span><span class="na">to=</span><span class="s">"$(arg cmd_vel_topic)"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;remap</span><span class="w"> </span><span class="na">from=</span><span class="s">"odom"</span><span class="w"> </span><span class="na">to=</span><span class="s">"$(arg odom_topic)"</span><span class="nt">/&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>Line 27 connects the planner's output in the same way. The planner publishes its velocity commands on a topic named <code>cmd_vel</code>. Line 27 remaps this name to the topic of <code>cmd_vel_topic</code>, <code>/diffbot/mobile_base_controller/cmd_vel</code>, to which the drive controller subscribes. <a href="#the-loop">The loop figure</a> shows both connections.</p>
 <p>So with <code>ekf:=true</code>, the planner's velocities and the transform come from the same estimate. Two more files work in the same way:</p>
 <ul>
 <li><strong>Move Base Flex:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_mbf/launch/includes/move_base.launch.xml"><code>move_base.launch.xml</code></a> has the same argument and the same remapping, as the collapsed box shows.</li>
@@ -5596,9 +5964,11 @@
 </ul>
 <details class="quote">
 <summary>move_base.launch.xml: the same lines for Move Base Flex</summary>
-<p>The excerpt shows the two arguments, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_mbf/launch/includes/move_base.launch.xml#L6-L7"><code>move_base.launch.xml</code>, lines 6–7</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"ekf"</span><span class="w"> </span><span class="na">default=</span><span class="s">"false"</span><span class="w"> </span><span class="na">doc=</span><span class="s">"the robot runs with the EKF (ekf:=true): read its filtered odometry"</span><span class="nt">/&gt;</span>
+<p>The excerpt shows the three arguments, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_mbf/launch/includes/move_base.launch.xml#L5-L7"><code>move_base.launch.xml</code>, lines 5–7</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"cmd_vel_topic"</span><span class="w"> </span><span class="na">default=</span><span class="s">"/diffbot/mobile_base_controller/cmd_vel"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"ekf"</span><span class="w"> </span><span class="na">default=</span><span class="s">"false"</span><span class="w"> </span><span class="na">doc=</span><span class="s">"the robot runs with the EKF (ekf:=true): read its filtered odometry"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;arg</span><span class="w"> </span><span class="na">name=</span><span class="s">"odom_topic"</span><span class="w"> </span><span class="na">default=</span><span class="s">"$(eval '/diffbot/odometry/filtered' if arg('ekf') else '/diffbot/mobile_base_controller/odom')"</span><span class="w"> </span><span class="nt">/&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The next excerpt shows the two remappings, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_mbf/launch/includes/move_base.launch.xml#L28-L29"><code>move_base.launch.xml</code>, lines 28–29</a>:</p>
@@ -6689,6 +7059,7 @@ d^2 = \mathbf{y}^\mathsf{T} \left(\mathbf{H} \mathbf{P} \mathbf{H}^\mathsf{T} + 
 <ul>
 <li><strong>A clock that goes back:</strong> in the simulation, the filter starts over. On the robot, the filter ignores each input until its stamps have caught up. <a href="#the-other-settings"><code>reset_on_time_jump</code></a> in "The other settings" says why and shows robot_localization's code.</li>
 <li><strong>A reset of the simulation:</strong> <code>/gazebo/reset_simulation</code> sets the simulation's clock back to zero. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, the validator and the filter go on from the new time right away. The drive controller's odometry doesn't. <code>diff_drive_controller</code> publishes again only when the clock has passed <code>last_state_publish_time_</code>, the time of its last message from before the reset. The <a href="#the-other-settings">excerpt of <code>diff_drive_controller.cpp</code></a> shows the condition. Until then, the filter gets the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate but no wheel speeds. In a test run that was reset after 9.7 s, the filter's first output after the reset was stamped 0.08 s, and the wheel odometry's first message 9.75 s.</li>
+<li><strong>The poses after a reset of the simulation:</strong> <code>/gazebo/reset_simulation</code> also treats the two pose estimates differently. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s reset clears the filter's state, so the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s position <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> starts again at 0 m and its heading <span class="arithmatex">\(\theta\)</span> at 0 rad. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> doesn't take over the drive controller's pose. The reset doesn't restart the drive controller, and the drive controller doesn't clear the pose that its odometry has added up. A reset of the simulation therefore cannot be treated as a fresh start for both odometries. <a href="#where-the-odom-frame-sits">The figure of the <code>odom</code> frame</a> describes a fresh start only. These statements follow from the code and are not measured in a run: the functions <code>RosFilter::reset()</code> in <a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp"><code>ros_filter.cpp</code></a> and <code>FilterBase::reset()</code> in <a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp"><code>filter_base.cpp</code></a> of robot_localization 2.7.7, the class <code>Odometry</code> in <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/odometry.cpp"><code>odometry.cpp</code></a> of ros_controllers 0.22.0, and <code>GazeboRosControlPlugin::Reset()</code> in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp"><code>gazebo_ros_control_plugin.cpp</code></a> of gazebo_ros_pkgs 2.9.3.</li>
 <li><strong>Starting values:</strong> the variances that the firmware and the drive controller publish on the robot, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator's time limits, are not measured yet. The <a href="../driver-bno055/#bench-checks">bench checks</a> measured the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s noise at rest. Measurements while driving still have to show the values that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> should use. In the simulation, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance describes the Gaussian noise that the simulated sensor adds.</li>
 <li><strong>Drift:</strong> the pose drifts over time, as any odometry. The gyroscope helps with the heading, but no input measures the position independently of the wheels, so the position's drift remains. A map-based localization such as amcl corrects the drift in the <code>map</code> frame.</li>
 </ul>
