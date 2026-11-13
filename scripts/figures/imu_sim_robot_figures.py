@@ -70,6 +70,8 @@ WHEEL_RADIUS = 0.033
 WHEEL_WIDTH = 0.025
 WHEEL_SEPARATION = 0.144
 FLOOR_Z = AXLE_Z - WHEEL_RADIUS
+# The hub that the schematic draws in the middle of a wheel
+HUB_RADIUS = 0.3 * WHEEL_RADIUS
 # config/remo/caster_wheel.yaml: dx and the ball's radius
 CASTER_X = -0.051
 CASTER_RADIUS = 0.012
@@ -362,7 +364,7 @@ def draw_remo_from_the_side(figure: Figure, view: View) -> None:
     outline(figure, view, BREADBOARD, 'part', 1.5)
     outline(figure, view, imu_board(), 'board', 1)
     figure.circle(view.project(wheel_center(-1)), WHEEL_RADIUS * view.scale, 'wheel')
-    figure.circle(view.project(wheel_center(-1)), 0.3 * WHEEL_RADIUS * view.scale, 'body')
+    figure.circle(view.project(wheel_center(-1)), HUB_RADIUS * view.scale, 'body')
 
 
 def draw_floor(figure: Figure, view: View, left: float, right: float) -> None:
@@ -431,7 +433,7 @@ def draw_wheel(figure: Figure, view: View, side: int) -> None:
     rims = wheel_rim(view, side, near, WHEEL_RADIUS) + wheel_rim(view, side, -near, WHEEL_RADIUS)
     figure.polygon(convex_hull(rims), 'wheel')
     figure.polygon(wheel_rim(view, side, near, WHEEL_RADIUS), 'wheel')
-    figure.polygon(wheel_rim(view, side, near, 0.3 * WHEEL_RADIUS), 'body')
+    figure.polygon(wheel_rim(view, side, near, HUB_RADIUS), 'body')
 
 
 def draw_remo_from_behind(figure: Figure, view: View) -> None:
