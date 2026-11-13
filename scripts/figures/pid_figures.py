@@ -21,6 +21,7 @@ Run from the repository root after changing the figure:
 """
 
 import math
+from typing import Callable
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
@@ -164,16 +165,13 @@ def measured_speed(ticks: int) -> float:
 
 
 def ticks_in_period(step: LoggedStep) -> int:
-    """Return the whole number of ticks that gives the step's measured speed.
+    """Return the whole number of ticks that comes closest to the step's measured speed.
 
     The debug output doesn't print the ticks of a single step. This is the count that fits the
     logged speed when the step took the nominal control period.
+    check_ticks_give_the_measured_speed() checks that the count gives the logged speed.
     """
-    ticks = round(step.measured_speed / measured_speed(1))
-    if round(measured_speed(ticks), 2) != step.measured_speed:
-        raise ValueError(f'{ticks} ticks are {measured_speed(ticks):.4f} rad/s, '
-                         f'not the logged {step.measured_speed} rad/s')
-    return ticks
+    return round(step.measured_speed / measured_speed(1))
 
 
 def pid_output(step: LoggedStep) -> float:
@@ -181,15 +179,54 @@ def pid_output(step: LoggedStep) -> float:
     return K_P * step.error + K_I * step.error_sum + K_D * step.error_change
 
 
-def check(step: LoggedStep) -> None:
-    """Stop if the logged values don't fit the firmware's formulas."""
-    if round(step.target_speed - step.measured_speed, 2) != step.error:
-        raise ValueError('the error is not the target minus the measured speed')
-    if not -PWM_MAX <= pid_output(step) <= PWM_MAX:
-        raise ValueError('the PID output is outside the range that the example explains')
-    if int(pid_output(step)) != step.motor_command:
-        raise ValueError(f'the PID output {pid_output(step):.2f} does not give the logged '
-                         f'motor command {step.motor_command}')
+def check_error_is_target_minus_measured(step: LoggedStep) -> List[str]:
+    """Check that the logged error is the target speed minus the measured speed."""
+    error = round(step.target_speed - step.measured_speed, 2)
+    if error == step.error:
+        return []
+    return [f'the target {step.target_speed} rad/s minus the measured {step.measured_speed} '
+            f'rad/s is {error} rad/s, not the logged error {step.error} rad/s']
+
+
+def check_pid_output_is_within_the_pwm_range(step: LoggedStep) -> List[str]:
+    """Check that the PID's output lies within the motor command's range, the example's case."""
+    if -PWM_MAX <= pid_output(step) <= PWM_MAX:
+        return []
+    return [f'the PID output {pid_output(step):.2f} is outside {-PWM_MAX} to {PWM_MAX}, the '
+            'range that the example explains']
+
+
+def check_pid_output_gives_the_motor_command(step: LoggedStep) -> List[str]:
+    """Check that the PID's output, cut to a whole number, is the logged motor command."""
+    if int(pid_output(step)) == step.motor_command:
+        return []
+    return [f'the PID output {pid_output(step):.2f} does not give the logged motor command '
+            f'{step.motor_command}']
+
+
+def check_ticks_give_the_measured_speed(step: LoggedStep) -> List[str]:
+    """Check that a whole number of ticks in one control period gives the logged speed."""
+    ticks = ticks_in_period(step)
+    if round(measured_speed(ticks), 2) == step.measured_speed:
+        return []
+    return [f'{ticks} ticks are {measured_speed(ticks):.4f} rad/s, not the logged '
+            f'{step.measured_speed} rad/s']
+
+
+# Each check takes the logged step and returns its problems as messages
+CHECKS: Tuple[Callable[[LoggedStep], List[str]], ...] = (
+    check_error_is_target_minus_measured,
+    check_pid_output_is_within_the_pwm_range,
+    check_pid_output_gives_the_motor_command,
+    check_ticks_give_the_measured_speed,
+)
+
+
+def check_logged_step(step: LoggedStep) -> None:
+    """Stop with every problem of a logged step that doesn't fit the firmware's formulas."""
+    problems = [problem for check in CHECKS for problem in check(step)]
+    if problems:
+        raise ValueError('. '.join(problems))
 
 
 def on_time_percent(motor_command: int) -> float:
@@ -264,7 +301,7 @@ def feedback_loop(step: LoggedStep) -> Figure:
 
 def main() -> None:
     """Write the include with the figure and its caption."""
-    check(LOGGED_STEP)
+    check_logged_step(LOGGED_STEP)
     caption = ("One wheel's speed control loop. Start at the target wheel speed (1) and follow "
                'the numbers around the loop, back to the comparison in the circle. The boxes '
                'inside the Teensy firmware are code. The motor driver, the motor with the wheel '
