@@ -69,7 +69,7 @@ Run the tests in the [firmware container](firmware-container.md), on your PC, fr
 
 The first run downloads what the tests need from PlatformIO's registry, so it needs the internet. The libraries Unity, rosserial and GoogleTest are part of that download and land in `diffbot_firmware/.pio/libdeps`. Later runs work without the internet.
 
-With PlatformIO installed on your PC instead ([Firmware Container](firmware-container.md) shows how), the same `pio test` commands run in the folder `diffbot_firmware`, without `.docker/firmware/run.sh`. That route needs a C++17 compiler on the PC. It wasn't tested with the GoogleTest environment.
+With PlatformIO installed on your PC instead, in the virtual environment that [Firmware Container](firmware-container.md) sets up, call that environment's `pio` in the folder `diffbot_firmware`: `~/.venvs/platformio/bin/pio test -e native -e native_googletest`. That route needs a C++17 compiler on the PC. It wasn't tested with the GoogleTest environment.
 
 To run one environment, name only that one. To run one suite, add `--filter` with the suite's path below `test`:
 
