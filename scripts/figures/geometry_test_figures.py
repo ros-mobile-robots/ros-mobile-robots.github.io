@@ -219,7 +219,7 @@ def draw_results(figure: Figure) -> None:
         ('A difference', 'name'), ('the test fails and names it', 'note')])
 
 
-def geometry_test() -> Figure:
+def geometry_test_figure() -> Figure:
     """Return the figure of the geometry test's inputs, comparisons and results."""
     figure = Figure('The geometry test: the robot model and the controller configuration go in, '
                     'the test compares their wheel values and joints, and it passes or fails')
@@ -236,7 +236,8 @@ def main() -> None:
                'from behind, to scale.')
     with open('includes/geometry-test-flow.html', 'w', encoding='utf-8') as include:
         include.write(f'{style_element(RULES)}\n<figure class="gt-figure">\n'
-                      f'{geometry_test().svg()}\n<figcaption>{caption}</figcaption>\n</figure>\n')
+                      f'{geometry_test_figure().svg()}\n<figcaption>{caption}</figcaption>\n'
+                      '</figure>\n')
 
 
 if __name__ == '__main__':
