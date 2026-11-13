@@ -361,7 +361,7 @@ So with `ekf:=true`, the planner's velocities and the transform come from the sa
 
 ### What RViz shows with the EKF
 
-`roslaunch diffbot_control diffbot.launch model:=remo ekf:=true` starts RViz with the configuration [`diffbot_control/rviz/diffbot.rviz`]({{ diffbot_repo_url }}/diffbot_control/rviz/diffbot.rviz). The configuration sets RViz's Fixed Frame to `odom`, as the excerpt of its global options shows, from [`diffbot.rviz`, lines 212–216]({{ ekf_src_url }}/diffbot_control/rviz/diffbot.rviz#L212-L216):
+`roslaunch diffbot_control diffbot.launch model:=remo ekf:=true` starts RViz with the configuration [`diffbot_control/rviz/diffbot.rviz`]({{ diffbot_repo_url }}/diffbot_control/rviz/diffbot.rviz). The configuration sets RViz's [Fixed Frame](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/visualization_manager.cpp#L176) to `odom`, as the excerpt of its global options shows, from [`diffbot.rviz`, lines 212–216]({{ ekf_src_url }}/diffbot_control/rviz/diffbot.rviz#L212-L216):
 
 ```yaml title="diffbot.rviz: the Fixed Frame is odom" linenums="212"
 --8<-- "{{ ekf_src_raw }}/diffbot_control/rviz/diffbot.rviz:212:216"
@@ -369,21 +369,21 @@ So with `ekf:=true`, the planner's velocities and the transform come from the sa
 
 The configuration has four displays:
 
-- **Grid:** a grid with cells of 1 m on the ground plane of the `odom` frame.
-- **RobotModel:** the robot's URDF model, which the launch file loads into the parameter `/diffbot/robot_description`. The display is set to draw the URDF model's visual shapes and not its collision shapes.
-- **TF:** the `odom` frame and the frames of the robot's links, as axes with their names.
-- **LaserScan:** the lidar's scan from the topic `/diffbot/scan`.
+- **[Grid](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/grid_display.h#L51):** a grid with cells of 1 m on the ground plane of the `odom` frame.
+- **[RobotModel](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/robot_model_display.h#L62):** the robot's URDF model, which the launch file loads into the parameter [`/diffbot/robot_description`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot_view.launch#L35). The display is set to draw the URDF model's visual shapes and not its collision shapes.
+- **[TF](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/tf_display.h#L65):** the `odom` frame and the frames of the robot's links, as axes with their names.
+- **[LaserScan](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/laser_scan_display.h#L48):** the lidar's scan from the topic `/diffbot/scan`.
 
 RViz draws the robot's frames and the URDF model at the pose that the transform `odom → base_footprint` gives. With `ekf:=true`, the EKF publishes this transform. So the pose of the robot's frames in the RViz window is the EKF's estimate. What the RobotModel display adds to the frames depends on the robot:
 
 - **DiffBot:** the display draws DiffBot's body.
-- **Remo:** with these settings, the window shows Remo's frames and the scan, and no body. [STL files](../remo_description.md#stl-files) on the Remo Description page says which mesh files the public `remo_description` repository has and how to get Remo's meshes. To see Remo's body without the meshes, tick **Collision Enabled** in the RobotModel display. The display then draws the collision shapes of Remo's URDF model, as in the picture of [Comparing the two odometries](#comparing-the-two-odometries).
+- **Remo:** with these settings, the window shows Remo's frames and the scan, and no body. [STL files](../remo_description.md#stl-files) on the Remo Description page says which mesh files the public `remo_description` repository has and how to get Remo's meshes. To see Remo's body without the meshes, tick **[Collision Enabled](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/robot_model_display.cpp#L64)** in the RobotModel display. The display then draws the collision shapes of Remo's URDF model, as in the picture of [Comparing the two odometries](#comparing-the-two-odometries).
 
 The configuration has no Odometry display, so the window doesn't draw the messages of the topic `/diffbot/odometry/filtered`. To see these messages, add an Odometry display in the RViz window:
 
 1. Click **Add** in the Displays panel.
-2. Select **Odometry** on the tab **By display type** and click **OK**.
-3. Set the **Topic** of the new display to `/diffbot/odometry/filtered`.
+2. Select **[Odometry](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.h#L61)** on the tab **By display type** and click **OK**.
+3. Set the **[Topic](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/message_filter_display.h#L58)** of the new display to `/diffbot/odometry/filtered`.
 
 RViz then draws arrows at poses of the EKF's odometry messages. With the display's default settings, an arrow is 1.3 m long, far longer than the robot. [Comparing the two odometries](#comparing-the-two-odometries) lists the settings that fit a small robot and adds a second display for the wheel odometry.
 
