@@ -459,7 +459,7 @@ def write_parts(path: str, parts: Sequence[str], caption: str,
                 rules: Sequence[Tuple[str, str]] = RULES, css_class: str = '') -> None:
     """Write an include with the CSS rules, a figure of SVG and HTML parts, and its caption."""
     classes = f'lv-figure {css_class}'.strip()
-    with open(path, 'w') as include:
+    with open(path, 'w', encoding='utf-8') as include:
         include.write(f'{style_element(rules)}\n<figure class="{classes}">\n'
                       + '\n'.join(parts)
                       + f'\n<figcaption>{caption}</figcaption>\n</figure>\n')
@@ -915,7 +915,7 @@ def write_flows() -> None:
     figures = [f'<figure class="lv-figure">\n{drawing.svg()}\n<figcaption>{caption}'
                '</figcaption>\n</figure>'
                for drawing, caption in zip((robot_flow(), simulation_flow()), captions)]
-    with open('includes/localization-flows.html', 'w') as include:
+    with open('includes/localization-flows.html', 'w', encoding='utf-8') as include:
         include.write(f'{style_element(RULES + LARGE_RULES + FLOW_RULES)}\n'
                       '<div class="lv-flows">\n' + '\n'.join(figures) + '\n</div>\n')
 
