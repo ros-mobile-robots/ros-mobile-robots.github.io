@@ -269,7 +269,7 @@ def main() -> None:
                'the numbers around the loop, back to the comparison in the circle. The boxes '
                'inside the Teensy firmware are code. The motor driver, the motor with the wheel '
                'and the encoder are hardware.')
-    with open('includes/pid-feedback-loop.html', 'w') as include:
+    with open('includes/pid-feedback-loop.html', 'w', encoding='utf-8') as include:
         include.write(f'{style_element(RULES)}\n<figure class="pid-loop-figure">\n'
                       f'{feedback_loop(LOGGED_STEP).svg()}\n'
                       f'<figcaption>{caption}</figcaption>\n</figure>\n')
