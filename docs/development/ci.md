@@ -147,6 +147,7 @@ The workflows use the latest major versions of the GitHub actions, which run on 
     ```
 
     [Firmware Container](firmware-container.md) explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.
+
 - **Firmware unit tests:** in the same container, also from the root folder of your diffbot clone:
 
     ```console
