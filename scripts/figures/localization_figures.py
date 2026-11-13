@@ -1,8 +1,11 @@
 """Generate the figures of the Localization page as inline SVG with HTML legends.
 
-The page is docs/packages/imu/robot_localization.md. The script writes three includes that follow
+The page is docs/packages/imu/robot_localization.md. The script writes four includes that follow
 the site's light and dark colors:
 
+- includes/localization-odom-frame.html: where the odom frame sits. The floor from above, with
+  the odom frame where the robot started, the robot's frame base_footprint, and the pose x, y
+  and θ between the two.
 - includes/localization-loop.html: what goes into the filter and what comes out, as a loop in
   one layout with two variants, in two tabs. The values run from the wheels' sensors and the IMU
   through the ROS nodes to the filter, and the filter's two outputs end in a sketch of RViz.
@@ -126,6 +129,9 @@ WHEELS_EXIT_X = ROBOT_CENTER_X - 30  # where the line of the wheels' sensors lea
 # The small robot of a drawing of a pose, and the heading that such a drawing shows, in degrees
 SMALL_ROBOT_SCALE = 0.42
 POSE_HEADING = 35
+# The figure of where the odom frame sits
+ODOM_WIDTH = 340
+ODOM_HEIGHT = 232
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -285,6 +291,18 @@ LOOP_RULES = (
     ('.lv-lines .lv-line.lv-from-imu', 'border-top-color:var(--lv-imu)'),
     ('.lv-lines .lv-line.lv-estimated', 'border-top-color:var(--lv-estimate)'),
     ('.lv-lines .lv-line.lv-commanded', f'border-top:2px dashed {FG_LIGHT}'),
+)
+# The figure of where the odom frame sits: the floor from above, in the page's colors
+ODOM_RULES = (
+    ('.lv-odom .lv-fig .floor', f'fill:var(--md-code-bg-color);stroke:{FG_LIGHT};'
+                                'stroke-width:1'),
+    ('.lv-odom .lv-fig .floor-grid', 'fill:none;stroke:var(--md-default-fg-color--lightest);'
+                                     'stroke-width:1'),
+    ('.lv-odom .lv-fig .start-robot', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.2;'
+                                      'stroke-dasharray:3 2.5;vector-effect:non-scaling-stroke'),
+    ('.lv-odom .lv-fig .projection', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.2;'
+                                     'stroke-dasharray:1.5 3'),
+    ('.lv-odom .lv-fig .foot', f'fill:none;stroke:{FG};stroke-width:1.4'),
 )
 
 
@@ -1162,8 +1180,62 @@ def write_loop() -> None:
                       f'{tab_set("lv-loop", tabs)}\n')
 
 
+def odom_frame() -> Figure:
+    """Return the drawing of where the odom frame sits: the floor from above with both frames.
+
+    The odom frame's origin is where the robot started, drawn as a dashed outline. The robot's
+    pose is the same as in the loop figure's sketch of RViz.
+    """
+    figure = Figure('lv-odom-frame', 'The floor seen from above. The odom frame has its origin '
+                    'where the robot started, with its x axis in the direction the robot faced. '
+                    'The robot has driven a left curve. Its frame base_footprint lies at x and '
+                    'y in the odom frame and is turned by the heading θ', ODOM_HEIGHT,
+                    ODOM_WIDTH)
+    left, right, top, bottom = BLOCK_START, BLOCK_END, 6, ODOM_HEIGHT - 6
+    figure.rect(left, top, right - left, bottom - top, 'floor', corner_radius=5)
+    grid = [f'M{x},{top + 1} V{bottom - 1}' for x in range(left + 26, right, 30)]
+    grid += [f'M{left + 1},{line_y} H{right - 1}' for line_y in range(top + 14, bottom, 30)]
+    figure.path(' '.join(grid), 'floor-grid')
+    figure.text(left + 10, top + 18, 'The floor from above', 'strong')
+
+    pose = pose_from(left + 56, bottom - 54)
+    # Where the robot started: its outline, and the odom frame at the middle of its wheel axle
+    small_robot(figure, pose.origin_x, pose.origin_y, 0, 'start-robot', 'start-robot')
+    figure.text(left + 10, pose.origin_y + 42, 'the robot at the start', 'quiet')
+    # The position's two parts: from the robot to the odom frame's axes
+    figure.path(f'M{pose.robot_x:.1f},{pose.robot_y:.1f} V{pose.origin_y} '
+                f'M{pose.robot_x:.1f},{pose.robot_y:.1f} H{pose.origin_x}', 'projection')
+    odom_axes(figure, pose, 250, 116)
+    figure.path(f'M{pose.robot_x:.1f},{pose.origin_y - 4} v8 '
+                f'M{pose.origin_x - 4},{pose.robot_y:.1f} h8', 'foot')
+    figure.text(pose.origin_x + 24, pose.origin_y + 15, 'odom', 'mono')
+    transform_line(figure, pose)
+    small_robot(figure, pose.robot_x, pose.robot_y, POSE_HEADING)
+    heading_angle(figure, pose, 30)
+    # The robot's own frame: its x axis points forward, its y axis to the left
+    heading = math.radians(POSE_HEADING)
+    figure.arrow(pose.robot_x, pose.robot_y, pose.robot_x + 40 * math.cos(heading),
+                 pose.robot_y - 40 * math.sin(heading), 'frame-axis')
+    figure.arrow(pose.robot_x, pose.robot_y, pose.robot_x - 40 * math.sin(heading),
+                 pose.robot_y - 40 * math.cos(heading), 'frame-axis')
+    figure.text(pose.robot_x - 12, pose.robot_y - 46, 'base_footprint', 'mono', 'middle')
+    return figure
+
+
+def write_odom_frame() -> None:
+    """Write the include with the drawing of where the odom frame sits."""
+    write_parts(
+        'includes/localization-odom-frame.html', [odom_frame().svg()],
+        "In this setup, after a fresh start, the origin of <code>odom</code> is where the robot's "
+        'frame <code>base_footprint</code> was at the start, with its x axis in the direction '
+        "that the robot faced. The pose (x, y, θ) is the robot's estimated position and heading "
+        'in <code>odom</code>. The figure leaves the drift out.',
+        RULES + DRAWING_RULES + ODOM_RULES, 'lv-drawing lv-odom')
+
+
 def main() -> None:
-    """Write the three includes of the Localization page."""
+    """Write the four includes of the Localization page."""
+    write_odom_frame()
     write_loop()
     write_fused_values()
     write_validator_checks()

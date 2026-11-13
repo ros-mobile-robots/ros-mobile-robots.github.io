@@ -1,6 +1,6 @@
 """Tests for scripts/figures/localization_figures.py.
 
-The script writes the figures of the Localization page as three includes.
+The script writes the figures of the Localization page as four includes.
 
 Run from the repository root: python -m unittest discover -s tests
 """
@@ -18,7 +18,7 @@ import unittest
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / 'scripts' / 'figures' / 'localization_figures.py'
 INCLUDE_NAMES = ['localization-fused-values.html', 'localization-loop.html',
-                 'localization-validator-checks.html']
+                 'localization-odom-frame.html', 'localization-validator-checks.html']
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
 # Python's own switch to UTF-8 for that locale
 ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
