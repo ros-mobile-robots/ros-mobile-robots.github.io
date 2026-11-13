@@ -67,7 +67,11 @@ Run the tests in the [firmware container](firmware-container.md), on your PC, fr
 .docker/firmware/run.sh pio test -e native -e native_googletest
 ```
 
-The first run downloads what the tests need from PlatformIO's registry, so it needs the internet. The libraries Unity, rosserial and GoogleTest are part of that download and land in `diffbot_firmware/.pio/libdeps`. Later runs work without the internet. To run one environment, name only that one. To run one suite, add `--filter` with the suite's path below `test`:
+The first run downloads what the tests need from PlatformIO's registry, so it needs the internet. The libraries Unity, rosserial and GoogleTest are part of that download and land in `diffbot_firmware/.pio/libdeps`. Later runs work without the internet.
+
+With PlatformIO installed on your PC instead ([Firmware Container](firmware-container.md) shows how), the same `pio test` commands run in the folder `diffbot_firmware`, without `.docker/firmware/run.sh`. That route needs a C++17 compiler on the PC. It wasn't tested with the GoogleTest environment.
+
+To run one environment, name only that one. To run one suite, add `--filter` with the suite's path below `test`:
 
 ```console
 .docker/firmware/run.sh pio test -e native
@@ -124,7 +128,7 @@ Expected: false
 - **The check that failed:** its file and line, the expression, its value and the expected value.
 - **The test's name:** the name ends with the case, `BothShort`, and the case's values follow `where GetParam() =`. The other three cases ran too, and passed.
 
-After the tests of a suite with a failure, PlatformIO prints `Program received signal SIGHUP (Hangup)` and gives the suite the status `ERRORED`. No signal was sent. The test program ends with the exit status 1 when a test fails, and PlatformIO reads a nonzero status as a signal's number ([`raise_for_status()`](https://github.com/platformio/platformio-core/blob/v6.2.0/platformio/test/runners/readers/native.py#L116-L128) in PlatformIO 6.2.0). Signal 1 is SIGHUP. A Unity suite with one failed test shows the same line.
+After the tests of a suite with a failure, PlatformIO 6.2.0 in the firmware container prints `Program received signal SIGHUP (Hangup)` and gives the suite the status `ERRORED`. In such a run, no signal was sent. The test program ends with the exit status 1 when a test fails, and PlatformIO reads a nonzero status as a signal's number ([`raise_for_status()`](https://github.com/platformio/platformio-core/blob/v6.2.0/platformio/test/runners/readers/native.py#L116-L128) in PlatformIO 6.2.0). Signal 1 is SIGHUP. A Unity suite with one failed test shows the same line.
 
 ## Write a GoogleTest suite
 
@@ -151,7 +155,7 @@ The steps for a new suite, with the wire bus suite's code for each:
     - **The name:** it says the subject, the result and the condition: `writeRegister()` fails when the address is not acknowledged. That is the project's rule for test names ([AGENTS.md]({{ diffbot_repo_url }}/AGENTS.md) of the diffbot repository). GoogleTest's names have no underscores ([GoogleTest's FAQ](https://google.github.io/googletest/faq.html#why-should-test-suite-names-and-test-names-not-contain-underscore)), so each word starts with a capital letter.
     - **The members:** `wire_` and `bus_` are the fixture's. The first test calls `writeRegister()` and then compares `wire_.sent`, the bytes that `FakeWire` recorded, with the register and the value.
     - **The values:** they have names, which the top of the file defines: `DEVICE_ADDRESS`, `WRITTEN_REGISTER`, `WRITTEN_VALUE` and `ADDRESS_NOT_ACKNOWLEDGED`.
-    - **The checks:** they start with `EXPECT_`. A failed `EXPECT_` check marks the test as failed and lets the test go on, so one run shows every failed check. An `ASSERT_` check ends the test function, for a check whose failure makes the rest pointless ([Assertions](https://google.github.io/googletest/primer.html#assertions) in the primer).
+    - **The checks:** they start with `EXPECT_`. A failed `EXPECT_` check marks the test as failed and lets the test go on, so one run shows every failed check. A failed `ASSERT_` check returns from the function that it is in. In a test's body, that ends the test, for a check whose failure makes the rest pointless ([Assertions](https://google.github.io/googletest/primer.html#assertions) in the primer).
 
 4. **A parameterized test for several values:** a read can come back short in four ways. They are four cases of one behavior: `readRegisters()` fails and drains the bytes. A parameterized test is written once and runs once per case. The type `ShortRead` describes a case, and the fixture `WireBusShortReadTest` adds the case to `WireBusTest`, [lines 121–145]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L121-L145):
 
@@ -178,7 +182,7 @@ The steps for a new suite, with the wire bus suite's code for each:
     --8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:172:179"
     ```
 
-    `RUN_ALL_TESTS()` runs every `TEST_F` and `TEST_P` of the file. In a Unity suite, a test runs only if `main()` names it in a `RUN_TEST` line.
+    `InitGoogleTest()` comes first: it reads the options that GoogleTest takes from the command line, and it has to run before the tests ([Writing the main() Function](https://google.github.io/googletest/primer.html#writing-the-main-function) in the primer). Then `RUN_ALL_TESTS()` runs every `TEST_F` and `TEST_P` of the file. In a Unity suite, a test runs only if `main()` names it in a `RUN_TEST` line.
 
     `main()` returns `RUN_ALL_TESTS()`'s result as the program's exit status, which is 1 when anything failed. The example on PlatformIO's page returns 0 and leaves the result to the output that PlatformIO reads. In our check with PlatformIO 6.2.0, a failure outside a test's body, in a fixture's `SetUpTestSuite()`, then ended with `pio test` reporting success. With the exit status 1, the run fails.
 
