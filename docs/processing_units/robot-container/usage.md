@@ -207,7 +207,7 @@ The parts of the command:
 
 What a key press does with these parameters:
 
-- **One tap also drives the robot:** the tool repeats the command until no key press has arrived for 0.6 s. Then the tool sends the stop command, and the controller slows the robot down. In the simulation, one tap of `i` moved Remo 6 cm, and Remo stood still 0.83 s after the tap.
+- **One tap also drives the robot:** the tool repeats the command until no key press has arrived for 0.6 s. Then the tool sends the stop command, and the controller slows the robot down. In the simulation, one tap of `i` moved Remo 6 cm, and Remo came to a stop about 0.85 s after the tap.
 - **A held key drives until you release the key:** the repeated key presses come from the keyboard's key repeat. So the key repeat has to be on, and the delay before the first repeat has to be shorter than the key timeout. The tool's README recommends a key timeout that is longer than this delay, and names 0.5 s as the delay's default on Ubuntu ([the README's section on the key timeout](https://github.com/ros-teleop/teleop_twist_keyboard#key-timeout)).
 - **After you release the key:** the robot slows down and stops. In the simulation, Remo stood still 0.74 s after the release.
 
