@@ -612,11 +612,18 @@ This section explains the settings of [`ekf.yaml`]({{ diffbot_repo_url }}/diffbo
     --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:8:12"
     ```
 
-    The inputs don't have to arrive at this rate. In the simulation, the wheel odometry arrives at 50 Hz too, the drive controller's `publish_rate` in `diffbot_control.yaml`. On the robot, the wheel odometry arrives at most 10 times per second: the base node's control loop in [`diffbot_base.cpp`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) runs the controller at 10 Hz, and the controller publishes at most one odometry message each time the controller runs. The drive controller's `update()` publishes the odometry only when `publish_period_` has passed since `last_state_publish_time_`, as [lines 430–432 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432) in ros_controllers 0.22.0 show:
+    The inputs don't have to arrive at this rate. In the simulation, the wheel odometry arrives at a nominal 50 Hz too, in simulation time, the drive controller's `publish_rate` in `diffbot_control.yaml`. On the robot, two rates in the code limit the wheel odometry:
+
+    - **The firmware's rate:** the firmware on the Teensy sends the wheels' joint states at a nominal 20 Hz, its setting [`UPDATE_RATE_CONTROL`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L30).
+    - **The control loop's rate:** the control loop of the node `diffbot_base` reads the latest joint states, runs the drive controller and writes the wheel commands at a nominal 10 Hz, with [`ros::Rate rate(10.0)` in `diffbot_base.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_base.cpp#L27).
+
+    The drive controller publishes at most one odometry message each time it runs, so the wheel odometry arrives at most 10 times per second. The drive controller's `update()` publishes the odometry only when `publish_period_` has passed since `last_state_publish_time_`, as [lines 430–432 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432) in ros_controllers 0.22.0 show:
 
     ```cpp title="diff_drive_controller.cpp: when update() publishes the odometry" linenums="430"
     --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:430:432"
     ```
+
+    Between two wheel messages, the IMU's samples at 50 Hz keep the prediction and the correction going. So the estimate's yaw rate $\omega_z$ follows the gyroscope at 50 Hz, while the wheels correct the forward speed $v_x$ only when a wheel message arrives. These rates are set in the code and not measured on the robot. The issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures them.
 
 - **`sensor_timeout`:** when no measurement has arrived for 0.1 s, five of the IMU's sample periods, the filter predicts its estimate to the ROS time in each run, without a correction. The [`sensor_timeout`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-timeout) keeps the estimate moving when the inputs stop, as the excerpt from [`ekf.yaml`, lines 13–14]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L13-L14) says:
 
@@ -877,7 +884,12 @@ Four tests check the EKF without the robot, in [CI with the repository's other t
 - **In Gazebo:** [`sim_ekf_diffbot.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test) and [`sim_ekf_remo.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_remo.test) give the drive controller a wheel separation 25 % larger than the robot's. The controller then turns the robot 25 % more than commanded, while its odometry reports the commanded turn. In a 3 s left turn, DiffBot turned 1.849 rad, its odometry said 1.479 rad and the EKF 1.844 rad. Remo turned 1.873 rad, its odometry said 1.499 rad and the EKF 1.870 rad. These numbers are from a run in a container of the dev container's image, at the commit `3ef4a91` of the pull request [EKF: fuse the wheel odometry with the IMU's yaw rate (diffbot#154)](https://github.com/ros-mobile-robots/diffbot/pull/154). The test also checks that the controller's wheel separation is 1.25 times the robot's, and that only the EKF publishes the transform `odom → base_footprint` on the topic `/tf`.
 - **The switch:** [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py) reads the launch files with roslaunch's loader, without starting them, and checks both positions of `ekf` and its default: which nodes start, `enable_odom_tf`, and which odometry the planners read. With `ekf:=true`, the two bringup files and `diffbot_gazebo`'s `diffbot.launch` also have to start `robot_state_publisher`. The planners' launch files start no EKF, so the test checks only the odometry topic that their planner reads.
 
-These tests don't show four things: how the real gyroscope behaves while the robot drives, how long the samples take to arrive on the robot, how the filter works with the robot's slower wheel odometry (in these tests, both inputs arrive at 50 Hz), and whether the filter improves the odometry on the floor. The [floor odometry test](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure the last of the four on Remo.
+These tests don't show four things:
+
+- **The real gyroscope while the robot drives:** the tests use the simulated IMU's samples, or samples that the stepped-clock test publishes itself.
+- **How long the samples take to arrive on the robot:** the issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#LATENCY_ISSUE)](https://github.com/ros-mobile-robots/diffbot/issues/LATENCY_ISSUE) measures it.
+- **The robot's slower wheel odometry:** in these tests, both inputs arrive at 50 Hz, the simulation's rates. On the robot, the wheel odometry arrives at a nominal 10 Hz, as [`frequency`](#the-other-settings) in "The other settings" explains. The issue [EKF tests: wheel odometry at 10 Hz with the IMU at 50 Hz (diffbot#187)](https://github.com/ros-mobile-robots/diffbot/issues/187) adds a test at the robot's rate. The issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures the rates on the robot.
+- **Whether the filter improves the odometry on the floor:** the [floor odometry test (diffbot#138)](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure this on Remo.
 
 ## Limits
 
