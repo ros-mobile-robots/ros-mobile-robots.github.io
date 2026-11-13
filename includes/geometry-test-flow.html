@@ -1,0 +1,94 @@
+<style>
+.md-typeset figure.gt-figure{margin:1em auto;width:100%;max-width:480px}
+.gt-fig{width:100%;height:auto;--gt-compare:#1e63c4;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .gt-fig{--gt-compare:#82b1ff}
+.gt-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.gt-fig .test{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.gt-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.gt-fig .file{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.gt-fig .arrow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.gt-fig .arrow-head{fill:var(--md-default-fg-color--light)}
+.gt-fig .compare{fill:none;stroke:var(--gt-compare);stroke-width:1.8}
+.gt-fig .compare-head{fill:var(--gt-compare)}
+.gt-fig .name{font-size:11px}
+.gt-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.gt-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.gt-fig .band{font-weight:700}
+.gt-fig .wheel{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.gt-fig .collision{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:3 2}
+.gt-fig .ground{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.gt-fig .extension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.gt-fig .dimension{fill:none;stroke:var(--gt-compare);stroke-width:1.8}
+.gt-fig .joint{fill:var(--md-default-fg-color)}
+</style>
+<figure class="gt-figure">
+<svg class="gt-fig" viewBox="0 0 360 484" role="img" aria-labelledby="gt-title"><title id="gt-title">The geometry test: the robot model and the controller configuration go in, the test compares their wheel values and joints, and it passes or fails</title><defs><marker id="gt-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="gt-compare" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path class="compare-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="band" x="12" y="14" text-anchor="start">In</text>
+<rect class="file" x="12" y="20" width="152" height="52" rx="5"/>
+<text class="name" x="88.0" y="37.0" text-anchor="middle">Robot model (URDF)</text>
+<text class="mono" x="88.0" y="50.0" text-anchor="middle">front_wheel.yaml</text>
+<text class="mono" x="88.0" y="63.0" text-anchor="middle">base.yaml</text>
+<rect class="file" x="196" y="20" width="152" height="52" rx="5"/>
+<text class="name" x="272.0" y="37.0" text-anchor="middle">Controller configuration</text>
+<text class="mono" x="272.0" y="50.0" text-anchor="middle">geometry.yaml</text>
+<text class="mono" x="272.0" y="63.0" text-anchor="middle">diffbot_control.yaml</text>
+<path class="arrow" d="M88.0,72 V89" marker-end="url(#gt-head)"/>
+<path class="arrow" d="M272.0,72 V89" marker-end="url(#gt-head)"/>
+<rect class="item" x="12" y="90" width="336" height="52" rx="5"/>
+<text class="mono" x="180.0" y="107.0" text-anchor="middle">roslaunch --dump-params</text>
+<text class="note" x="180.0" y="120.0" text-anchor="middle">reads the launch files of the robot and of the</text>
+<text class="note" x="180.0" y="133.0" text-anchor="middle">simulation, and prints their parameters</text>
+<path class="arrow" d="M88.0,142 V199" marker-end="url(#gt-head)"/>
+<text class="mono" x="96.0" y="158" text-anchor="start">robot_description</text>
+<path class="arrow" d="M272.0,142 V199" marker-end="url(#gt-head)"/>
+<text class="note" x="280.0" y="158" text-anchor="start">controller</text>
+<text class="note" x="280.0" y="170" text-anchor="start">parameters</text>
+<rect class="test" x="4" y="176" width="352" height="236" rx="5"/>
+<text class="band" x="12" y="191" text-anchor="start">Compared</text>
+<rect class="item" x="12" y="198" width="152" height="98" rx="5"/>
+<text class="note" x="88.0" y="211" text-anchor="middle">wheel joints 0.144 m apart</text>
+<path class="dimension" d="M41.2,219 H134.8"/>
+<path class="dimension" d="M41.2,215 V223"/>
+<path class="extension" d="M41.2,223 V254"/>
+<rect class="wheel" x="33.1" y="232.6" width="16.2" height="42.9" rx="4"/>
+<circle class="collision" cx="41.2" cy="254.0" r="21.4"/>
+<circle class="joint" cx="41.2" cy="254.0" r="2.2"/>
+<path class="dimension" d="M134.8,215 V223"/>
+<path class="extension" d="M134.8,223 V254"/>
+<rect class="wheel" x="126.7" y="232.6" width="16.2" height="42.9" rx="4"/>
+<circle class="collision" cx="134.8" cy="254.0" r="21.4"/>
+<circle class="joint" cx="134.8" cy="254.0" r="2.2"/>
+<path class="ground" d="M18,275.4 H158"/>
+<path class="dimension" d="M134.8,254 V275.4"/>
+<text class="note" x="88.0" y="290" text-anchor="middle">collision radius 0.033 m</text>
+<rect class="item" x="196" y="198" width="152" height="36" rx="5"/>
+<text class="mono" x="272.0" y="213.5" text-anchor="middle">wheel_separation</text>
+<text class="note" x="272.0" y="226.5" text-anchor="middle">0.144, within 0.1 mm</text>
+<path class="compare" d="M167,216 H193" marker-start="url(#gt-compare)" marker-end="url(#gt-compare)"/>
+<rect class="item" x="196" y="260" width="152" height="36" rx="5"/>
+<text class="mono" x="272.0" y="275.5" text-anchor="middle">wheel_radius</text>
+<text class="note" x="272.0" y="288.5" text-anchor="middle">0.033, within 0.1 mm</text>
+<path class="compare" d="M167,278 H193" marker-start="url(#gt-compare)" marker-end="url(#gt-compare)"/>
+<rect class="item" x="12" y="304" width="152" height="36" rx="5"/>
+<text class="name" x="88.0" y="319.5" text-anchor="middle">wheel joints: continuous,</text>
+<text class="note" x="88.0" y="332.5" text-anchor="middle">with a velocity interface</text>
+<rect class="item" x="196" y="304" width="152" height="36" rx="5"/>
+<text class="mono" x="272.0" y="319.5" text-anchor="middle">left_wheel, right_wheel</text>
+<text class="note" x="272.0" y="332.5" text-anchor="middle">the wheel joints' names</text>
+<path class="compare" d="M167,322 H193" marker-start="url(#gt-compare)" marker-end="url(#gt-compare)"/>
+<path class="compare" d="M272.0,343 V365" marker-start="url(#gt-compare)" marker-end="url(#gt-compare)"/>
+<rect class="item" x="196" y="368" width="152" height="36" rx="5"/>
+<text class="mono" x="272.0" y="383.5" text-anchor="middle">hardware_interface/joints</text>
+<text class="note" x="272.0" y="396.5" text-anchor="middle">the same joints, left first</text>
+<text class="band" x="12" y="430" text-anchor="start">Out</text>
+<path class="arrow" d="M88.0,412 V439" marker-end="url(#gt-head)"/>
+<path class="arrow" d="M272.0,412 V439" marker-end="url(#gt-head)"/>
+<rect class="item" x="12" y="440" width="152" height="36" rx="5"/>
+<text class="name" x="88.0" y="455.5" text-anchor="middle">All agree</text>
+<text class="note" x="88.0" y="468.5" text-anchor="middle">the test passes</text>
+<rect class="item" x="196" y="440" width="152" height="36" rx="5"/>
+<text class="name" x="272.0" y="455.5" text-anchor="middle">A difference</text>
+<text class="note" x="272.0" y="468.5" text-anchor="middle">the test fails and names it</text>
+</svg>
+<figcaption>What the geometry test reads, compares and reports, with Remo's values. A blue double arrow connects two things that must agree. The sketch shows the wheels from behind, to scale.</figcaption>
+</figure>
