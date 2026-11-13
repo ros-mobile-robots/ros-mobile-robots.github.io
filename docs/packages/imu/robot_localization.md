@@ -541,7 +541,13 @@ The sideways speed $v_y$ is always 0 in the wheel odometry, because a differenti
 
 ### What `two_d_mode` does
 
-DiffBot and Remo drive on a flat floor, so `ekf.yaml` sets [`two_d_mode`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#two-d-mode). The setting concerns seven of the 15 variables: the height $z$, roll, pitch, their velocities $v_z$, $\omega_x$ and $\omega_y$, and the vertical acceleration $a_z$. For every measurement, the filter replaces the measurement's value for each of the seven with 0, gives the 0 the small variance 10⁻⁶, and marks the variable as fused. The function `forceTwoD()` does this with its arguments `measurement`, `measurementCovariance` and `updateVector`, as [lines 347–374 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L347-L374) show:
+DiffBot and Remo drive on a flat floor, so `ekf.yaml` sets [`two_d_mode`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#two-d-mode) to `true`, as the excerpt from [`ekf.yaml`, lines 15–16]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L15-L16) shows:
+
+```yaml title="ekf.yaml: two_d_mode" linenums="15"
+--8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:15:16"
+```
+
+The setting concerns seven of the 15 variables: the height $z$, roll, pitch, their velocities $v_z$, $\omega_x$ and $\omega_y$, and the vertical acceleration $a_z$. For every measurement, the filter replaces the measurement's value for each of the seven with 0, gives the 0 the small variance 10⁻⁶, and marks the variable as fused. The function `forceTwoD()` does this with its arguments `measurement`, `measurementCovariance` and `updateVector`, as [lines 347–374 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L347-L374) show:
 
 ??? quote "ros_filter.cpp, lines 347–374: forceTwoD()"
     ```cpp linenums="347"
@@ -552,16 +558,41 @@ So the two lists can't change these seven variables. A `false` at their position
 
 ### The other settings
 
-- **`odom0_differential` and `imu0_differential`:** the [`_differential` setting](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-differential) applies to pose values only. With `true`, the filter would fuse the change between two consecutive poses as a velocity, instead of the pose. Neither list fuses a pose value, so the setting has no effect here. `false` is robot_localization's default.
-- **`odom0_queue_size` and `imu0_queue_size`:** each of the two parameters sets the size of the [queue](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-queue-size) of the filter node's ROS subscriber for the input's topic. Messages that arrive while the node is busy wait in the queue. With 10, at most ten wait, and ROS drops the oldest one when another arrives. robot_localization's default is 1.
-- **`world_frame`:** the value is `odom`, so the estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes `map → odom` itself.
-- **`frequency`:** the value is 50 Hz, the IMU's rate. In the simulation, the wheel odometry arrives at 50 Hz too, the drive controller's `publish_rate` in `diffbot_control.yaml`. On the robot, the wheel odometry arrives at most 10 times per second: the base node's control loop in [`diffbot_base.cpp`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) runs the controller at 10 Hz, and the controller publishes at most one odometry message each time the controller runs. The drive controller's `update()` publishes the odometry only when `publish_period_` has passed since `last_state_publish_time_`, as [lines 430–432 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432) in ros_controllers 0.22.0 show:
+This section explains the settings of [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) that the sections above don't, in the order of the file. Each setting comes with its lines of the file.
+
+- **`frequency`:** the filter produces its estimate 50 times per second, at the [`frequency`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#frequency) of 50 Hz, the IMU's rate. In each of these runs, the filter processes the measurements that have arrived, up to the ROS time, and publishes the estimate. The excerpt shows the setting with its comment, from [`ekf.yaml`, lines 8–12]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L8-L12):
+
+    ```yaml title="ekf.yaml: frequency" linenums="8"
+    --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:8:12"
+    ```
+
+    The inputs don't have to arrive at this rate. In the simulation, the wheel odometry arrives at 50 Hz too, the drive controller's `publish_rate` in `diffbot_control.yaml`. On the robot, the wheel odometry arrives at most 10 times per second: the base node's control loop in [`diffbot_base.cpp`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) runs the controller at 10 Hz, and the controller publishes at most one odometry message each time the controller runs. The drive controller's `update()` publishes the odometry only when `publish_period_` has passed since `last_state_publish_time_`, as [lines 430–432 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432) in ros_controllers 0.22.0 show:
 
     ```cpp title="diff_drive_controller.cpp: when update() publishes the odometry" linenums="430"
     --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:430:432"
     ```
 
-- **`reset_on_time_jump`:** the value is `true`. In the simulation, a call of the service `/gazebo/reset_simulation` sets the clock back to zero, and every measurement after the call looks older than the one before. The filter then starts again from the new time. robot_localization does this only with simulated time, as its [description of `reset_on_time_jump`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#reset-on-time-jump) says. On the robot, a clock that goes back makes the filter ignore the messages of an input, with a warning on the topic `/diagnostics`, until the input's stamps have caught up with its last stamp from before.
+- **`sensor_timeout`:** when no measurement has arrived for 0.1 s, five of the IMU's sample periods, the filter predicts its estimate to the ROS time in each run, without a correction. The [`sensor_timeout`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-timeout) keeps the estimate moving when the inputs stop, as the excerpt from [`ekf.yaml`, lines 13–14]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L13-L14) says:
+
+    ```yaml title="ekf.yaml: sensor_timeout" linenums="13"
+    --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:13:14"
+    ```
+
+- **The frames:** five settings name the frames of [REP 105](https://www.ros.org/reps/rep-0105.html) for this robot and say which transform the filter publishes. robot_localization's description of the [frame settings](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#frame) explains them. The excerpt shows the five, from [`ekf.yaml`, lines 18–24]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L18-L24):
+
+    ```yaml title="ekf.yaml: the frames" linenums="18"
+    --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:18:24"
+    ```
+
+    - **`map_frame`, `odom_frame` and `base_link_frame`:** the names of the frames `map` and `odom` and of the robot's frame `base_footprint`. The filter fuses the velocities in `base_link_frame`, as [The frames](#the-frames) explains.
+    - **`world_frame`:** the value is `odom`, so the filter estimates the pose in `odom`. The estimate is continuous, without the jumps of a map-based localization such as amcl, which publishes `map → odom` itself. A filter with `world_frame: map` would publish `map → odom` instead. This filter doesn't, so `map_frame` only names the frame.
+    - **`publish_tf`:** with `true`, the filter publishes the transform from `world_frame` to `base_link_frame`, here `odom → base_footprint`, as robot_localization's [description of `publish_tf`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#publish-tf) says.
+
+- **`reset_on_time_jump`:** the value is `true`. In the simulation, a call of the service `/gazebo/reset_simulation` sets the clock back to zero, and every measurement after the call looks older than the one before. The filter then starts again from the new time. robot_localization does this only with simulated time, as its [description of `reset_on_time_jump`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#reset-on-time-jump) says. On the robot, a clock that goes back makes the filter ignore the messages of an input, with a warning on the topic `/diagnostics`, until the input's stamps have caught up with its last stamp from before. The excerpt shows the setting with its comment, from [`ekf.yaml`, lines 26–32]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L26-L32):
+
+    ```yaml title="ekf.yaml: reset_on_time_jump" linenums="26"
+    --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:26:32"
+    ```
 
     robot_localization 2.7.7 decides what to do with a message that is older than the last one in the callback of the message's input. Both inputs of this configuration, the wheel odometry's velocities and the IMU's angular velocity, pass through the function `twistCallback()`. The function first tests that the message's stamp isn't older than `lastMessageTimes_`, the last stamp of the same input. For an older message, the function calls `reset()` when `resetOnTimeJump_` is set and `ros::Time::isSimTime()` says that the ROS time is simulated. Otherwise the function ignores the message and adds a warning to the filter's diagnostics, as [lines 2197–2252 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2252) show:
 
@@ -569,6 +600,21 @@ So the two lists can't change these seven variables. A `false` at their position
         ```cpp linenums="2197"
         --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp:2197:2252"
         ```
+
+- **The inputs' other settings, `_differential` and `_queue_size`:** each input has the same two. The excerpt shows them for the wheel odometry, from [`ekf.yaml`, lines 60–66]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L60-L66):
+
+    ```yaml title="ekf.yaml: the wheel odometry's other settings" linenums="60"
+    --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:60:66"
+    ```
+
+    The next excerpt shows them for the IMU, from [`ekf.yaml`, lines 79–81]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L79-L81):
+
+    ```yaml title="ekf.yaml: the IMU's other settings" linenums="79"
+    --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:79:81"
+    ```
+
+    - **`odom0_differential` and `imu0_differential`:** the [`_differential` setting](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-differential) applies to pose values only. With `true`, the filter would fuse the change between two consecutive poses as a velocity, instead of the pose. Neither list fuses a pose value, so the setting has no effect here. `false` is robot_localization's default.
+    - **`odom0_queue_size` and `imu0_queue_size`:** each of the two parameters sets the size of the [queue](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-queue-size) of the filter node's ROS subscriber for the input's topic. Messages that arrive while the node is busy wait in the queue. With 10, at most ten wait, and ROS drops the oldest one when another arrives. robot_localization's default is 1.
 
 ## The IMU sample validator
 
