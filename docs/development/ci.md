@@ -7,7 +7,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | Workflow | File | What it checks |
 |:---------|:-----|:---------------|
 | CI | [`.github/workflows/diffbot_ci_action.yml`]({{ diffbot_repo_url }}/.github/workflows/diffbot_ci_action.yml) | Builds and tests all catkin packages with [industrial_ci](https://github.com/ros-industrial/industrial_ci), against ROS Noetic packages from the ROS `testing` and `main` repositories (one job each) |
-| Firmware | [`.github/workflows/firmware.yml`]({{ diffbot_repo_url }}/.github/workflows/firmware.yml) | Builds the Teensy firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) with [PlatformIO](https://platformio.org/), in the firmware's container ([`.docker/firmware`]({{ diffbot_repo_url }}/.docker/firmware)), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2). A second job runs the firmware's unit tests on the PC (`native`), in the same container |
+| Firmware | [`.github/workflows/firmware.yml`]({{ diffbot_repo_url }}/.github/workflows/firmware.yml) | Builds the Teensy firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware) with [PlatformIO](https://platformio.org/), in the firmware's container ([`.docker/firmware`]({{ diffbot_repo_url }}/.docker/firmware)), once for each board in its [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini): `teensy40` (Teensy 4.0) and `teensy31` (Teensy 3.1/3.2). A second job runs the firmware's unit tests on the PC, in the same container: the environment `native` with the Unity suites and `native_googletest` with the GoogleTest suites |
 | Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
 | PR description | [`.github/workflows/pr_description.yml`]({{ diffbot_repo_url }}/.github/workflows/pr_description.yml) | Checks that the pull request's description links its documentation: the docs pull request, a page on this site, or `None` ([how](#pr-description)) |
 | Robot container | [`.github/workflows/robot_container.yml`]({{ diffbot_repo_url }}/.github/workflows/robot_container.yml) | Builds the [robot image](../processing_units/robot-container/index.md) when it or its packages change, natively on GitHub's arm64 and amd64 runners. It checks the settings template and runs the image's smoke test without hardware, in the image and through Docker Compose |
@@ -115,7 +115,7 @@ The [EKF](../packages/imu/robot_localization.md#how-its-tested) that fuses the w
 
 #### Firmware unit tests
 
-Parts of the Teensy firmware run on the PC, with fake hardware and a fake ROS connection: the IMU code ([IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)), the PID controller, the subscriber for the wheel commands, and the wheel control's command timeout. Each has its test folder in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test). PlatformIO's `native` environment builds them for the PC, in the firmware's container like the boards. The Firmware workflow runs them in a job of their own, `unit tests (native)`. On your PC, see [Running the checks locally](#running-the-checks-locally).
+Parts of the Teensy firmware run on the PC, with fake hardware and a fake ROS connection: the IMU code ([IMU (BNO055)](../packages/imu/driver-bno055.md#how-the-firmware-reads-it)), the PID controller, the subscriber for the wheel commands, and the wheel control's command timeout. Each has its test folder in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test). PlatformIO builds them for the PC, in the firmware's container like the boards. The tests use two test frameworks, and PlatformIO has an environment for each: `native` runs the suites written with Unity, and `native_googletest` those written with GoogleTest. The Firmware workflow runs both environments in a job of their own, `unit tests (native)`. [Firmware Unit Tests](firmware-unit-tests.md) explains the two frameworks, how to run the suites on your PC and how to write a new one.
 
 #### Robot container smoke test
 
@@ -147,13 +147,14 @@ The workflows use the latest major versions of the GitHub actions, which run on 
     ```
 
     [Firmware Container](firmware-container.md) explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.
+
 - **Firmware unit tests:** in the same container, also from the root folder of your diffbot clone:
 
     ```console
-    .docker/firmware/run.sh pio test -e native
+    .docker/firmware/run.sh pio test -e native -e native_googletest
     ```
 
-    PlatformIO builds each test folder in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test) for the PC and runs it. It lists every test with `PASS` or `FAIL`, and a summary at the end.
+    PlatformIO builds each test folder in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test) for the PC and runs it: the Unity suites in the environment `native`, the GoogleTest suites in `native_googletest`. It lists every test with its result, and a summary at the end. [Run the tests](firmware-unit-tests.md#run-the-tests) on the Firmware Unit Tests page shows the output and how to run one suite.
 
 ## This documentation site
 

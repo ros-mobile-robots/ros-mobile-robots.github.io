@@ -54,7 +54,7 @@ PlatformIO writes each build into its standard build folder, `diffbot_firmware/.
 
 **Flash it** with PJRC's [Teensy Loader](https://www.pjrc.com/teensy/loader.html), an app that you install on your PC. It isn't part of the container. It loads `firmware.hex` onto the Teensy over USB. On Linux, it needs PJRC's [udev rules](https://www.pjrc.com/teensy/loader_linux.html), a file that you copy to `/etc/udev/rules.d/`, so that it may write to the Teensy. Flashing from the container is planned in [diffbot#149](https://github.com/ros-mobile-robots/diffbot/issues/149). For that, the container needs access to the Teensy's USB port.
 
-**Run the unit tests** in the same container with `.docker/firmware/run.sh pio test -e native`. They run on your PC, without a Teensy. [Firmware unit tests](ci.md#firmware-unit-tests) on the Testing and CI page says what they cover.
+**Run the unit tests** in the same container with `.docker/firmware/run.sh pio test -e native -e native_googletest`. They run on your PC, without a Teensy. [Firmware unit tests](ci.md#firmware-unit-tests) on the Testing and CI page says what they cover, and [Firmware Unit Tests](firmware-unit-tests.md) explains the two environments of that command.
 
 **Other commands** run the same way, for example `.docker/firmware/run.sh bash` for a shell in the container. Shell syntax such as `&&` needs a shell in the container, for example `.docker/firmware/run.sh bash -c 'pwd && id'`. Otherwise the shell on your PC reads it. Commands start in `diffbot_firmware`. Paths in them are paths in the container, where your clone is `/workspace`, so a folder on your PC outside your clone doesn't exist there.
 
