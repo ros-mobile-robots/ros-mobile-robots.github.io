@@ -36,7 +36,7 @@ The filter publishes its estimate in two forms, which navigation and RViz use:
 ??? info "Reading the code on this page"
     - The excerpts on this page show fixed revisions: the diffbot repository at one commit, robot_localization 2.7.7, ros_controllers 0.22.0, gazebo_ros_pkgs 2.9.3, the navigation stack 1.17.3 and ROS's common_msgs at one commit. The line numbers are those of the original files.
     - The link in the sentence before an excerpt opens that revision and those lines on GitHub.
-    - Where a section names a function, a class, a member, a setting or a file of the code, the name links to its line at that revision, or the section shows the name in an excerpt. File names of the diffbot repository link to the file's current version.
+    - Where a section names a function, a class, a member or a setting of the code, the name links to its line at that revision or to the section of this page that shows it, or the section shows the name in an excerpt. A file name links to the file, for the diffbot repository to its current version.
 
 ## What goes in and what comes out
 
@@ -57,7 +57,7 @@ Read the figure from the robot at the top down to the filter and to RViz, and th
 1. **The sensors:** a blue dot marks where the wheels' angles come from, and an orange square marks the IMU. $v_x$ and $\omega_z$ at the robot show the directions of the forward speed and of the yaw rate.
 2. **The way to the filter:** on the real robot, the firmware on the Teensy reads both sensors. In the simulation, Gazebo computes the wheel joints' angles and the IMU sensor's values, and two Gazebo plugins pass them on. A plugin is code that Gazebo loads and runs as a part of itself. The drive controller turns the wheel angles into the wheel odometry, the measurement $\mathbf{z}_\text{wheels}$. The IMU sample validator forwards the IMU's valid samples, the measurement $\mathbf{z}_\text{IMU}$. The label at an arrow names the topic that carries the values.
 3. **The filter:** the EKF fuses both measurements into its estimate $\hat{\mathbf{x}}$.
-4. **The two outputs:** the EKF publishes the pose and the velocities of its estimate on a topic, and the pose as a transform. Both arrows end in a sketch of RViz with `odom` as its Fixed Frame. RViz can show the same two outputs for the real robot and for the simulation. RViz's RobotModel display places the robot where the transform puts it, and an Odometry display keeps arrows at poses of the topic's messages. The dashed line of the transform, the letters at the axes and the heading angle $\theta$ are added in the sketch to explain the pose. RViz doesn't draw them. The sketch shows the same pose as [the figure of the `odom` frame](#where-the-odom-frame-sits).
+4. **The two outputs:** the EKF publishes the pose and the velocities of its estimate on a topic, and the pose as a transform. Both arrows end in a sketch of RViz with `odom` as its [Fixed Frame](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/visualization_manager.cpp#L176). RViz can show the same two outputs for the real robot and for the simulation. RViz's RobotModel display places the robot where the transform puts it, and an Odometry display keeps arrows at poses of the topic's messages. The dashed line of the transform, the letters at the axes and the heading angle $\theta$ are added in the sketch to explain the pose. RViz doesn't draw them. The sketch shows the same pose as [the figure of the `odom` frame](#where-the-odom-frame-sits).
 5. **The way back to the wheels:** the dashed gray arrows show the way of the velocity commands. A velocity command says how fast the robot is to drive forward and how fast the robot is to turn: the target forward speed $v_x^*$ and the target yaw rate $\omega_z^*$. The star marks a target value. A command comes from a teleop node, with which a person steers the robot, or from the planner in `move_base`, the node that computes the commands that lead the robot to a navigation goal. The planner reads the EKF's two outputs, which the thin green arrow at the figure's right edge shows. The drive controller turns each command into two target wheel speeds, the angular velocities $\omega_\text{l}^*$ for the left wheel and $\omega_\text{r}^*$ for the right wheel. On the real robot, the firmware on the Teensy drives the motors so that the wheels reach these speeds. In the simulation, the Gazebo plugin [`gazebo_ros_control`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control) applies a torque $\tau$ to each wheel joint. A torque is the turning effect of a force about an axis, here the joint's axis. The robot moves, the sensors measure the motion, and the loop starts again.
 
 --8<-- "includes/localization-loop.html"
@@ -136,7 +136,7 @@ This section goes through the nodes and the topics of [the loop figure](#the-loo
     - **A teleop window:** in the simulation, [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch) starts `rqt_robot_steering`, a window with sliders to drive the robot.
     - **The planner:** `move_base` and Move Base Flex compute the commands that lead the robot to a goal. With `ekf:=true`, the planner reads the EKF's two outputs, so the EKF's estimate is part of the loop. [The planners' odometry topic](#the-planners-odometry-topic) shows the lines that connect the planner to both topics.
 
-    The EKF doesn't read the velocity commands. robot_localization can use the commands in its prediction with the setting [`use_control`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#use-control), whose default is `false`. [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) doesn't set `use_control`, so the figure has no arrow from the commands to the EKF.
+    The EKF doesn't read the velocity commands. robot_localization can use the commands in its prediction with the setting [`use_control`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L924), whose default is `false`, as robot_localization's [description of `use_control`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#use-control) says. [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) doesn't set `use_control`, so the figure has no arrow from the commands to the EKF.
 
 7. **The way back to the wheels:** the drive controller first limits the command's velocities and accelerations to the limits in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). From the limited command, the drive controller computes two target wheel speeds in rad/s, the angular velocities $\omega_\text{l}^*$ for the left wheel and $\omega_\text{r}^*$ for the right wheel:
 
@@ -172,7 +172,7 @@ The collapsed box shows the code of step 7, from a velocity command to the wheel
     --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:491:500"
     ```
 
-    On the real robot, the control loop of the node `diffbot_base` calls the hardware interface's function [`DiffBotHWInterface::write()`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L163) after each `update()` of the drive controller. `write()` first scales the left target by `(gain_ - trim_) / motor_constant_` and the right target by `(gain_ + trim_) / motor_constant_`. Both factors are 1 with the settings `gain`, `trim` and `motor_constant` in [`base.yaml`, lines 6–8]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L6-L8). `write()` then copies the two targets from `joint_velocity_commands_` into the message `wheel_cmd_msg` and publishes the message, as [lines 169–186 of `diffbot_hw_interface.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L169-L186) show:
+    On the real robot, the control loop of the node `diffbot_base` calls the hardware interface's function [`DiffBotHWInterface::write()`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L163) after each `update()` of the drive controller. `write()` first scales the left target by `(gain_ - trim_) / motor_constant_` and the right target by `(gain_ + trim_) / motor_constant_`. Both factors are 1 with the settings [`gain`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L6), [`trim`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L7) and [`motor_constant`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L8) in [`base.yaml`]({{ diffbot_repo_url }}/diffbot_base/config/base.yaml). `write()` then copies the two targets from `joint_velocity_commands_` into the message `wheel_cmd_msg` and publishes the message, as [lines 169–186 of `diffbot_hw_interface.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L169-L186) show:
 
     ```cpp linenums="169"
     --8<-- "{{ ekf_src_raw }}/diffbot_base/src/diffbot_hw_interface.cpp:169:186"
@@ -203,6 +203,8 @@ The `ekf` argument switches the EKF on. The EKF is off by default. Pass `ekf:=tr
 | Simulation with navigation | `roslaunch diffbot_navigation diffbot.launch model:=remo ekf:=true` |
 | Navigation on the development PC, for a robot that runs with the EKF | `roslaunch diffbot_navigation diffbot_hw.launch model:=remo ekf:=true` |
 
+The four commands start these launch files: [`diffbot_bringup/launch/bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch), [`diffbot_gazebo/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_navigation/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot.launch) and [`diffbot_navigation/launch/diffbot_hw.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot_hw.launch).
+
 ### Which launch file starts what
 
 A `roslaunch` command names one launch file. roslaunch reads that file and every file that it includes with the [`<include>` tag](http://wiki.ros.org/roslaunch/XML/include), directly or through another included file. roslaunch starts the nodes that these files declare. A node is a running ROS program. A file can pass arguments such as `ekf` to a file that it includes. Starting an included file on its own doesn't read the file that includes it.
@@ -229,7 +231,7 @@ roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true
 !!! note "With the robot container"
     In the [robot container](../../processing_units/robot-container/usage.md), Docker Compose starts [`bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch) for you, without `ekf`, as the `bringup` service's command in [`compose.yaml`]({{ diffbot_repo_url }}/.docker/robot/compose.yaml) says. So `robot_state_publisher` runs there and the EKF is off. The container's settings have no switch for the EKF. The issue [Robot container: a setting that starts the bringup with the EKF (diffbot#202)](https://github.com/ros-mobile-robots/diffbot/issues/202) asks for such a setting. Don't start a second bringup by hand next to the container's.
 
-The figure shows which files this command reads on the real robot and which nodes they start:
+The figure shows which files this command reads on the real robot, [`bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch), [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch), [`diffbot_base/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) and [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
 
 <p class="lv-badge-line"><span class="lv-badge">Real robot</span></p>
 
@@ -267,7 +269,7 @@ In the simulation, you start `diffbot_gazebo`'s [`diffbot.launch`]({{ diffbot_re
 roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true
 ```
 
-The figure shows which files this command reads in the simulation and which nodes they start:
+The figure shows which files this command reads in the simulation, [`diffbot_gazebo/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch) and [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
 
 <p class="lv-badge-line"><span class="lv-badge">Simulation</span></p>
 
@@ -355,11 +357,11 @@ To see what the filter does, compare the two odometries while the robot turns:
 
 You can compare them in two ways:
 
-- **In RViz:** set RViz's Fixed Frame to `odom`. Add one Odometry display for each of the two topics, and give the two displays different colors. Four settings of an Odometry display matter for a small robot. The source of RViz 1.14.26's [Odometry display](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp) defines their defaults and the rule for adding an arrow:
-    - **Keep:** the number of arrows that the display keeps. The default is 100, and 0 keeps all arrows.
-    - **Position Tolerance and Angle Tolerance:** the display adds a new arrow only when the pose has moved by at least one of the two tolerances since the last arrow. The defaults are 0.1 m and 0.1 rad.
-    - **Shaft Length, Shaft Radius, Head Length and Head Radius:** the size of an arrow. The default arrow is 1.3 m long, far longer than the robot.
-    - **Covariance:** the display also draws each pose's covariance by default. Switch this setting off to see the arrows alone.
+- **In RViz:** set RViz's [Fixed Frame](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/visualization_manager.cpp#L176) to `odom`. Add one Odometry display for each of the two topics, and give the two displays different colors. Four settings of an Odometry display matter for a small robot. The source of RViz 1.14.26's [Odometry display](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp) defines their defaults and the rule for adding an arrow:
+    - **[Keep](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L63):** the number of arrows that the display keeps. The default is 100, and 0 keeps all arrows.
+    - **[Position Tolerance](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L50) and [Angle Tolerance](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L56):** the display adds a new arrow only when the pose has moved by at least one of the two tolerances since the last arrow. The defaults are 0.1 m and 0.1 rad.
+    - **[Shaft Length](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L82), [Shaft Radius](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L87), [Head Length](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L91) and [Head Radius](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L96):** the size of an arrow. The default arrow is 1.3 m long, far longer than the robot.
+    - **[Covariance](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.cpp#L106):** the display also draws each pose's covariance by default. Switch this setting off to see the arrows alone.
 - **In a terminal:** print the yaw rate $\omega_z$ of both topics side by side, with `rostopic echo /diffbot/mobile_base_controller/odom/twist/twist/angular/z` and `rostopic echo /diffbot/odometry/filtered/twist/twist/angular/z`.
 
 The picture shows such a comparison in RViz, for the simulated Remo with `ekf:=true`. The robot drove 1.5 s straight, then a left arc of 5 s, then 1.5 s straight again, at 0.2 m/s and with a commanded yaw rate of 0.5 rad/s in the arc. What the picture shows:
@@ -472,6 +474,8 @@ The wheel odometry arrives as [`nav_msgs/Odometry`](http://docs.ros.org/en/noeti
     --8<-- "https://raw.githubusercontent.com/ros/common_msgs/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg"
     ```
 
+    The field `twist` has the type `geometry_msgs/TwistWithCovariance`, which holds the velocities and their covariance, as [`TwistWithCovariance.msg`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/TwistWithCovariance.msg) defines:
+
     ```text title="geometry_msgs/msg/TwistWithCovariance.msg" linenums="1"
     --8<-- "https://raw.githubusercontent.com/ros/common_msgs/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/TwistWithCovariance.msg"
     ```
@@ -528,7 +532,7 @@ What fills the elements, and what the filter does with them:
 - **Only the diagonals are filled:** the drive controller and the firmware write a variance onto each element of the diagonal and leave every other element at 0. So both messages say that the errors of two different values don't go together.
 - **The filter copies all elements:** robot_localization copies each array into a matrix, element by element, and rotates the matrix into `base_footprint`. The wheel odometry's velocities are in `base_footprint` already. The z axis of `imu_link` points up like the robot's, so the rotation leaves the yaw rate's variance at index 8 as it is.
 - **The filter fuses four variances:** the three of the wheel odometry's fused velocities, at 0, 7 and 35, and the IMU's yaw rate's, at 8. These are the cells with a check mark.
-- **`two_d_mode` replaces the hatched variances:** the variances of $v_z$, $\omega_x$ and $\omega_y$ become 10⁻⁶, as [What `two_d_mode` does](#what-two_d_mode-does) explains.
+- **`two_d_mode` replaces the hatched variances:** the variance of $v_z$ becomes 10⁻⁶ (m/s)², and those of $\omega_x$ and $\omega_y$ become 10⁻⁶ (rad/s)², as [What `two_d_mode` does](#what-two_d_mode-does) explains.
 
 ??? quote "The code that fills the arrays and copies them into matrices"
     The drive controller writes the six values of its parameter [`twist_covariance_diagonal`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L37) onto the diagonal of `twist.covariance` and 0 everywhere else, in its function [`setOdomPubFields()`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L689), as [lines 722–728 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L722-L728) in ros_controllers 0.22.0 show:
@@ -613,20 +617,23 @@ This section explains the settings of [`ekf.yaml`]({{ diffbot_repo_url }}/diffbo
     --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:8:12"
     ```
 
-    The inputs don't have to arrive at this rate. In the simulation, the wheel odometry arrives at a nominal 50 Hz too, in simulation time, the drive controller's [`publish_rate`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L25) in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). On the robot, two rates in the code limit the wheel odometry:
+    The inputs don't have to arrive at this rate. In the simulation, the wheel odometry arrives at a nominal 50 Hz too, in simulation time, the drive controller's [`publish_rate`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L25) in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). On the robot, the wheel odometry arrives at most 10 times per second, as the collapsed box explains.
 
-    - **The firmware's rate:** the firmware on the Teensy sends the wheels' joint states at a nominal 20 Hz, its setting [`UPDATE_RATE_CONTROL`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L30).
-    - **The control loop's rate:** the control loop of the node `diffbot_base` reads the latest joint states, runs the drive controller and writes the wheel commands at a nominal 10 Hz, with [`ros::Rate rate(10.0)` in `diffbot_base.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_base.cpp#L27).
+    ??? info "Why the robot's wheel odometry arrives at most 10 times per second"
+        Two rates in the code limit the wheel odometry on the robot:
 
-    The drive controller publishes at most one odometry message each time it runs, so the wheel odometry arrives at most 10 times per second. The drive controller's [`update()`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L391) publishes the odometry only when `publish_period_` has passed since `last_state_publish_time_`, as [lines 430–432 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432) in ros_controllers 0.22.0 show:
+        - **The firmware's rate:** the firmware on the Teensy sends the wheels' joint states at a nominal 20 Hz, its setting [`UPDATE_RATE_CONTROL`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L30).
+        - **The control loop's rate:** the control loop of the node `diffbot_base` reads the latest joint states, runs the drive controller and writes the wheel commands at a nominal 10 Hz, with [`ros::Rate rate(10.0)` in `diffbot_base.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_base.cpp#L27).
 
-    ```cpp title="diff_drive_controller.cpp: when update() publishes the odometry" linenums="430"
-    --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:430:432"
-    ```
+        The drive controller publishes at most one odometry message each time it runs, so the wheel odometry arrives at most 10 times per second. The drive controller's [`update()`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L391) publishes the odometry only when `publish_period_` has passed since `last_state_publish_time_`, as [lines 430–432 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L430-L432) in ros_controllers 0.22.0 show:
+
+        ```cpp title="diff_drive_controller.cpp: when update() publishes the odometry" linenums="430"
+        --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:430:432"
+        ```
 
     Between two wheel messages, the IMU's samples at 50 Hz keep the prediction and the correction going. So the estimate's yaw rate $\omega_z$ follows the gyroscope at 50 Hz, while the wheels correct the forward speed $v_x$ only when a wheel message arrives. These rates are set in the code and not measured on the robot. The issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures them.
 
-- **`sensor_timeout`:** when no measurement has arrived for 0.1 s, five of the IMU's sample periods, the filter predicts its estimate to the ROS time in each run, without a correction. The [`sensor_timeout`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-timeout) keeps the estimate moving when the inputs stop, as the excerpt from [`ekf.yaml`, lines 13–14]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L13-L14) says:
+- **`sensor_timeout`:** the [`sensor_timeout`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-timeout) of 0.1 s, five of the IMU's sample periods, keeps the estimate moving when the inputs stop. When no measurement waits in the filter's queue and the ROS time is at least 0.1 s past the time of the filter's estimate, the filter predicts its estimate to the ROS time, without a correction. The prediction moves the time of the estimate to the ROS time. So while the inputs stay silent, the filter predicts about every 0.1 s, not in each of its runs. The function [`integrateMeasurements()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L597) does this. The excerpt shows the setting with its comment, from [`ekf.yaml`, lines 13–14]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L13-L14) says:
 
     ```yaml title="ekf.yaml: sensor_timeout" linenums="13"
     --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:13:14"
@@ -678,12 +685,12 @@ The IMU sample validator is the ROS node `/diffbot/imu_validator`, from [`imu_va
 
 ### Why the EKF needs the validator
 
-robot_localization checks the stamp of every message of an input itself. But this stamp check allows equal stamps and doesn't limit a sample's age. Three facts about robot_localization 2.7.7, the version in the dev container, matter here. The figures and the formulas use four times:
+robot_localization checks the stamp of every message of an input itself. But this stamp check allows equal stamps and doesn't limit a sample's age. Three facts about robot_localization 2.7.7, the version in the dev container, matter here. The figures and the formulas use four times, each in s:
 
 - **$t$:** the ROS time, the clock of the receiving node when a sample arrives.
 - **$t_s$:** the sample's stamp, `msg->header.stamp`.
-- **$t_\text{input}$:** `lastMessageTimes_`, the last stamp of the same input that the filter took.
-- **$t_\text{filter}$:** `lastMeasurementTime_`, the time of the filter's estimate. It is the stamp of the last measurement that the filter processed, from either input, unless the filter has predicted without a measurement since then, after [`sensor_timeout`](#the-other-settings).
+- **$t_\text{input}$:** `lastMessageTimes_`, the last stamp of the same input that passed the filter's stamp check, even if the filter couldn't use the message afterwards, for example without the transform into `base_footprint`.
+- **$t_\text{filter}$:** `lastMeasurementTime_`, the time to which the filter has moved its estimate. A measurement of either input whose stamp isn't earlier sets $t_\text{filter}$ to its stamp. An older measurement leaves $t_\text{filter}$ as it is. A prediction without a measurement, after [`sensor_timeout`](#the-other-settings), moves $t_\text{filter}$ to the ROS time.
 
 **1. The stamp check compares with the input's last stamp, not with the clock:** the filter takes an IMU sample when $t_s \ge t_\text{input}$. So an equal stamp passes, and so does a stamp that lies far behind the ROS time $t$, as the figure shows:
 
@@ -699,7 +706,7 @@ $$
 - **When $\Delta t = 0$:** the filter skips the prediction and corrects its estimate with the measurement. $t_\text{filter}$ stays.
 - **When $\Delta t < 0$:** the filter skips the prediction too, and corrects its estimate at $t_\text{filter}$ with the older measurement. $t_\text{filter}$ stays.
 
-**3. The filter doesn't go back in time:** [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) off, so the filter doesn't return to $t_s$ to process a late measurement in its place.
+**3. The filter doesn't go back in time:** [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L893) at its default `false`, which robot_localization's [description of `smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) explains, so the filter doesn't return to $t_s$ to process a late measurement in its place.
 
 The figure shows the second and the third fact for a current and for a late IMU sample:
 
@@ -722,15 +729,15 @@ The collapsed box shows the code of the first two facts.
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:205:234"
     ```
 
-    At its end, the function moves `lastMeasurementTime_` to the measurement's stamp only when `delta` is not negative, as [lines 259–262 of `filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L259-L262) show:
+    At its end, the function moves `lastMeasurementTime_` to the measurement's stamp only when `delta` is not negative, as [lines 261–264 of `filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L261-L264) show:
 
-    ```cpp linenums="259"
-    --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:259:262"
+    ```cpp linenums="261"
+    --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:261:264"
     ```
 
 Two settings of the EKF sound as if they covered this case. They don't:
 
-- **[`sensor_timeout`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_timeout):** makes the filter predict without a correction when its inputs stop.
+- **[`sensor_timeout`](#the-other-settings):** makes the filter predict without a correction when its inputs stop.
 - **A rejection threshold:** compares a measurement's value with the filter's prediction, as [What the validator doesn't check](#what-the-validator-doesnt-check) explains.
 
 Neither setting looks at a sample's age, its frame or a repeated stamp.
@@ -801,6 +808,8 @@ The figure below the list shows the distance $d$ for one value and for two value
 
     All measurements with the same distance lie on an ellipse around the prediction, and a threshold is one of these ellipses. So a measurement can lie within two standard deviations in each value alone and still have a distance of more than 2, as Q.
 
+The two cases are reduced examples. The updates of this configuration also hold the zeros that [`two_d_mode`](#what-two_d_mode-does) adds, as the collapsed box below the figure explains.
+
 --8<-- "includes/localization-distance.html"
 
 [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets no rejection threshold, so this test is off for both inputs. The filter's other handling of an input stays: the stamp-order check, the transform into `base_footprint`, the selection by the [two lists](#the-two-lists), and leaving out values that are not finite. The test is off for two reasons:
@@ -831,7 +840,7 @@ The issue [EKF: evaluate outlier rejection on recorded drives (diffbot#205)](htt
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:384:401"
     ```
 
-    The threshold for the wheel odometry's velocities is `odom0_twist_rejection_threshold`, which robot_localization 2.7.7 reads in [line 1126 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1126). The parameter tests the whole velocity update at once: $v_x$, $v_y$ and $\omega_z$, together with the zeros that [`two_d_mode`](#what-two_d_mode-does) adds. When the update fails the test, the filter fuses none of the three velocities. No parameter tests the yaw rate alone.
+    The threshold for the wheel odometry's velocities is [`odom0_twist_rejection_threshold`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1126). The parameter tests the whole velocity update at once: $v_x$, $v_y$ and $\omega_z$, together with the zeros that [`two_d_mode`](#what-two_d_mode-does) adds. When the update fails the test, the filter fuses none of the three velocities. No parameter tests the yaw rate alone.
 
     The threshold for an IMU's angular velocity is `imu0_twist_rejection_threshold`. The [parameter documentation](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_threshold) calls it `imu0_angular_velocity_rejection_threshold`, but robot_localization 2.7.7 reads the name with `twist`, as [lines 1414–1418 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1414-L1418) show:
 
@@ -896,8 +905,12 @@ These tests don't show four things:
 ## Limits
 
 - **A clock that goes back:** the filter recovers differently on the robot and in the simulation. In the simulation, the filter starts over. On the robot, the filter ignores each input until the input's stamps have caught up. The reason is robot_localization's code, which starts over only with simulated time, as [`reset_on_time_jump`](#the-other-settings) in "The other settings" shows. So on the robot, a clock that goes back pauses the filter's inputs for as long as the clock went back.
-- **The wheel odometry after a reset of the simulation:** the drive controller's odometry pauses. `/gazebo/reset_simulation` sets the simulation's clock back to zero. The simulated IMU, the validator and the filter go on from the new time right away. `diff_drive_controller` publishes again only when the clock has passed `last_state_publish_time_`, the time of its last message from before the reset, as the [excerpt of `diff_drive_controller.cpp`](#the-other-settings) shows. Until then, the filter gets the IMU's yaw rate but no wheel speeds. In a test run that was reset after 9.7 s, the filter's first output after the reset was stamped 0.08 s, and the wheel odometry's first message 9.75 s.
-- **The poses after a reset of the simulation:** the two pose estimates don't start again together. The EKF's reset clears the filter's state, so the EKF's position $x$, $y$ starts again at 0 m and its heading $\theta$ at 0 rad. The EKF doesn't take over the drive controller's pose. The reset doesn't restart the drive controller, and the drive controller doesn't clear the pose that its odometry has added up. So a reset of the simulation is not a fresh start for both odometries, and [the figure of the `odom` frame](#where-the-odom-frame-sits) describes a fresh start only. These statements follow from the code and are not measured in a run: the functions [`RosFilter::reset()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L161) and [`FilterBase::reset()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L78) of robot_localization 2.7.7, the class [`Odometry`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/include/diff_drive_controller/odometry.h#L59) of ros_controllers 0.22.0 with its methods in [`odometry.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/odometry.cpp), and [`GazeboRosControlPlugin::Reset()`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L261) of gazebo_ros_pkgs 2.9.3.
+- **The wheel odometry after a reset of the simulation:** the drive controller's odometry pauses. `/gazebo/reset_simulation` sets the simulation's clock back to zero. The simulated IMU, the validator and the filter go on from the new time right away. `diff_drive_controller` publishes again only when the clock has passed [`last_state_publish_time_`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/include/diff_drive_controller/diff_drive_controller.h#L107), the time of its last message from before the reset, as the [excerpt of `diff_drive_controller.cpp`](#the-other-settings) shows. Until then, the filter gets the IMU's yaw rate but no wheel speeds. In a test run that was reset after 9.7 s, the filter's first output after the reset was stamped 0.08 s, and the wheel odometry's first message 9.75 s.
+- **The poses after a reset of the simulation:** the two pose estimates don't start again together. The EKF's reset clears the filter's state, so the EKF's position $x$, $y$ starts again at 0 m and its heading $\theta$ at 0 rad. The EKF doesn't take over the drive controller's pose. The reset doesn't restart the drive controller, and the drive controller doesn't clear the pose that its odometry has added up. So a reset of the simulation is not a fresh start for both odometries, and [the figure of the `odom` frame](#where-the-odom-frame-sits) describes a fresh start only. These statements follow from the code and are not measured in a run, as the collapsed box says.
+
+    ??? info "The code behind the two poses after a reset"
+        The statements follow from the functions [`RosFilter::reset()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L161) and [`FilterBase::reset()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L78) of robot_localization 2.7.7, the class [`Odometry`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/include/diff_drive_controller/odometry.h#L59) of ros_controllers 0.22.0 with its methods in [`odometry.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/odometry.cpp), and [`GazeboRosControlPlugin::Reset()`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L261) of gazebo_ros_pkgs 2.9.3.
+
 - **Starting values:** the robot's variances and the validator's time limits are not measured yet. These are the variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33). The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest only, and measurements while driving still have to show the values that the EKF should use. So on the robot, the filter's weights of the two inputs are a first choice. In the simulation, the IMU's variance describes the Gaussian noise that the simulated sensor adds.
 - **Drift:** the pose drifts over time, as with any odometry. The gyroscope helps with the heading, but no input measures the position independently of the wheels, so the position's drift remains. A map-based localization such as amcl corrects the drift in the `map` frame.
 

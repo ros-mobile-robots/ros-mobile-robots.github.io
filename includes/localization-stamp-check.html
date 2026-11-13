@@ -72,6 +72,7 @@
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .second-index{font-size:9.5px}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
@@ -105,12 +106,12 @@
 <path class="reference" d="M238.2,34 V90"/>
 <text x="73.0" y="104.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5">input</tspan></text>
 <text x="238.2" y="104.0" text-anchor="middle"><tspan>now: </tspan><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5"></tspan></text>
-<g><title>Sample P: forwarded. the same stamp as the last one of this input. The filter takes the sample. The validator drops it in check 5</title><circle class="pass-mark" cx="73.0" cy="74.0" r="7.5"/><text class="letter" x="73.0" y="77.8" text-anchor="middle">P</text></g>
+<g><title>Sample P: forwarded. the same stamp as the last one of this input. The filter takes the sample. The validator drops this one already in check 4, because it is 0.14 s old. A recent sample with a repeated stamp fails check 5</title><circle class="pass-mark" cx="73.0" cy="74.0" r="7.5"/><text class="letter" x="73.0" y="77.8" text-anchor="middle">P</text></g>
 <g><title>Sample Q: forwarded. stamped 0.11 s before the ROS time. The filter takes the sample, because it compares the stamp only with the last one of this input. The validator drops it in check 4</title><circle class="pass-mark" cx="108.4" cy="74.0" r="7.5"/><text class="letter" x="108.4" y="77.8" text-anchor="middle">Q</text></g>
 <g><title>Sample R: dropped. earlier than the last stamp of this input. The filter ignores the sample, or starts over with simulated time</title><circle class="drop-mark" cx="43.5" cy="74.0" r="7.5"/><text class="letter" x="43.5" y="77.8" text-anchor="middle">R</text></g>
 </svg>
 <ul class="lv-legend">
-<li><span class="lv-mark">P</span><strong>✓ taken:</strong> the same stamp as the last one of this input. The filter takes the sample. The validator drops it in check 5</li>
+<li><span class="lv-mark">P</span><strong>✓ taken:</strong> the same stamp as the last one of this input. The filter takes the sample. The validator drops this one already in check 4, because it is 0.14 s old. A recent sample with a repeated stamp fails check 5</li>
 <li><span class="lv-mark">Q</span><strong>✓ taken:</strong> stamped 0.11 s before the ROS time. The filter takes the sample, because it compares the stamp only with the last one of this input. The validator drops it in check 4</li>
 <li><span class="lv-mark lv-drop">R</span><strong>✕ ignored:</strong> earlier than the last stamp of this input. The filter ignores the sample, or starts over with simulated time</li>
 </ul>

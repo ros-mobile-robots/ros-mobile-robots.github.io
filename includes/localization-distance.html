@@ -72,6 +72,7 @@
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .second-index{font-size:9.5px}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
@@ -119,8 +120,8 @@
 <path class="axis" d="M280.2,118.0 L274.2,121.6 L274.2,114.4 z"/>
 <path class="axis" d="M150,215.2 V20.8"/>
 <path class="axis" d="M150.0,14.8 L153.6,20.8 L146.4,20.8 z"/>
-<text x="278.2" y="110.0" text-anchor="end"><tspan class="variable">v</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
-<text x="158.0" y="24.8" text-anchor="start"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<text x="278.2" y="109.0" text-anchor="end"><tspan class="variable">y</tspan><tspan class="subscript index" dy="2.5">v</tspan><tspan class="subscript index second-index" dy="2">x</tspan></text>
+<text x="158.0" y="24.8" text-anchor="start"><tspan class="variable">y</tspan><tspan class="subscript index" dy="2.5">ω</tspan><tspan class="subscript index second-index" dy="2">z</tspan></text>
 <path class="tick" d="M58.0,118 v4"/>
 <path class="tick" d="M150,190.0 h4"/>
 <path class="tick" d="M242.0,118 v4"/>
@@ -139,5 +140,5 @@
 <li><span class="lv-mark">P</span><strong>✓ fused:</strong> the forward speed 1.25 and the yaw rate 0.6 standard deviations from the prediction: d = 1.4, inside the ellipse</li>
 <li><span class="lv-mark lv-drop">Q</span><strong>✕ not fused:</strong> each value 1.6 standard deviations from the prediction, so each value alone lies inside the rectangle. Together, d = 2.3, outside the ellipse</li>
 </ul>
-<figcaption>The distance between a measurement and the prediction, counted in standard deviations, with an example threshold of 2. The green dot of the second drawing is the prediction. <code>ekf.yaml</code> sets no threshold. Example values: the IMU's standard deviation is the firmware's, the others are chosen for the figure.</figcaption>
+<figcaption>The distance between a measurement and the prediction, counted in standard deviations, with an example threshold of 2. In the second drawing, the axes are the differences y from the prediction, so the prediction, the green dot, lies at the origin. <code>ekf.yaml</code> sets no threshold. Example values: the IMU's standard deviation is the firmware's, the others are chosen for the figure.</figcaption>
 </figure>

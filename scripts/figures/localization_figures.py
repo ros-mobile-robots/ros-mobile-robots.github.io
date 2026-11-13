@@ -377,6 +377,7 @@ SYMBOL_RULES = (
     ('.lv-symbols .lv-fig .ellipse', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1'),
     ('.lv-symbols .lv-fig .threshold', 'fill:var(--lv-good-fill);stroke:var(--lv-good);'
                                        'stroke-width:1.6'),
+    ('.lv-symbols .lv-fig .second-index', 'font-size:9.5px'),
     ('.lv-symbols .lv-fig .limit-box', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1;'
                                        'stroke-dasharray:5 3'),
     ('.lv-symbols .lv-fig .cell-replaced', 'fill:url(#lv-hatch-covariance);'
@@ -836,6 +837,15 @@ def symbol(figure: Figure, x: float, y: float, letter: str, index: str, italic_i
     figure.rich_text(x, y, spans, anchor)
 
 
+def difference_symbol(figure: Figure, x: float, y: float, letter: str, index: str,
+                      anchor: str) -> None:
+    """Add the difference y of a variable from its prediction, such as y with the index v_x."""
+    figure.elements.append(
+        f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}"><tspan class="variable">y</tspan>'
+        f'<tspan class="subscript index" dy="2.5">{escape(letter)}</tspan>'
+        f'<tspan class="subscript index second-index" dy="2">{escape(index)}</tspan></text>')
+
+
 def stamp_check() -> Tuple[Figure, Tuple[Sample, ...]]:
     """Return the drawing of robot_localization's own stamp check of an input, and its samples.
 
@@ -866,7 +876,8 @@ def stamp_check() -> Tuple[Figure, Tuple[Sample, ...]]:
 
     samples = (
         Sample('P', last_x, True, 'the same stamp as the last one of this input. The filter '
-               'takes the sample. The validator drops it in check 5'),
+               'takes the sample. The validator drops this one already in check 4, because it '
+               'is 0.14 s old. A recent sample with a repeated stamp fails check 5'),
         Sample('Q', axis.at(sample_q_ms), True, 'stamped 0.11 s before the ROS time. The filter '
                'takes the sample, because it compares the stamp only with the last one of this '
                'input. The validator drops it in check 4'),
@@ -1044,8 +1055,9 @@ def two_value_distance() -> Tuple[Figure, Tuple[Sample, ...]]:
     figure.path(f'M{center_x},{center_y + 2.7 * unit_y:.1f} V{center_y - 2.7 * unit_y:.1f}',
                 'axis')
     figure.path(arrow_head(center_x, center_y - 2.7 * unit_y - 6, 0, -1, 6), 'axis')
-    symbol(figure, center_x + 2.7 * unit_x + 4, center_y - 8, 'v', 'x', True, 'end')
-    symbol(figure, center_x + 8, center_y - 2.7 * unit_y + 4, 'ω', 'z', True, 'start')
+    # The axes are the differences from the prediction, as in the formula of d²
+    difference_symbol(figure, center_x + 2.7 * unit_x + 4, center_y - 9, 'v', 'x', 'end')
+    difference_symbol(figure, center_x + 8, center_y - 2.7 * unit_y + 4, 'ω', 'z', 'start')
     for sign in (-1, 1):
         figure.path(f'M{center_x + sign * limit * unit_x:.1f},{center_y} v4', 'tick')
         figure.path(f'M{center_x},{center_y - sign * limit * unit_y:.1f} h4', 'tick')
@@ -1083,8 +1095,9 @@ def write_distance() -> None:
          band('Two values: the forward speed and the yaw rate'), two_values.svg(),
          sample_legend(samples, ('✓ fused', '✕ not fused'))],
         'The distance between a measurement and the prediction, counted in standard deviations, '
-        f'with an example threshold of {EXAMPLE_THRESHOLD:.0f}. The green dot of the second '
-        'drawing is the prediction. '
+        f'with an example threshold of {EXAMPLE_THRESHOLD:.0f}. In the second drawing, the axes '
+        'are the differences y from the prediction, so the prediction, the green dot, lies at the '
+        'origin. '
         "<code>ekf.yaml</code> sets no threshold. Example values: the IMU's standard deviation "
         "is the firmware's, the others are chosen for the figure.",
         RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES, 'lv-large lv-drawing lv-symbols')
