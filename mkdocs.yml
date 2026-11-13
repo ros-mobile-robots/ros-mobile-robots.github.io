@@ -65,8 +65,8 @@ extra:
   diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8
   # The diffbot commit that the code excerpts and file links on the Robot Container pages show. Update both
   # when that code changes, and check the excerpts' line ranges against the new commit
-  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7044c2beef568d2372e49f74705c8f992d473c59
-  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7044c2beef568d2372e49f74705c8f992d473c59
+  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3
+  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3
   # The diffbot commit that the workflow excerpts on Testing and CI show. Update both when that
   # workflow changes, and check the excerpts' line ranges and highlighted lines against it
   ci_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/22e3f0e15052910c90f7f18decc0833a84271ab6
@@ -204,6 +204,7 @@ nav:
         - processing_units/robot-container/index.md
         - Set Up the Raspberry Pi: processing_units/robot-container/setup.md
         - Start, Check and Stop: processing_units/robot-container/usage.md
+        - Versions and Your Own Build: processing_units/robot-container/versions.md
         - Troubleshooting: processing_units/robot-container/troubleshooting.md
         - Image and Tests: processing_units/robot-container/image.md
       - ROS Network Setup: processing_units/ros-network-setup.md
