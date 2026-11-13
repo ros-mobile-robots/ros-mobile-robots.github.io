@@ -11,9 +11,14 @@ import subprocess
 import sys
 import tempfile
 from typing import Dict
+from typing import Optional
 import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
+
+import control_systems_figures  # noqa: E402
+
 SCRIPT = ROOT / 'scripts' / 'figures' / 'control_systems_figures.py'
 INCLUDE_NAMES = ['control-systems-closed-loop.html', 'control-systems-system.html']
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
@@ -49,6 +54,32 @@ class TestIncludes(unittest.TestCase):
             committed = (ROOT / 'includes' / include_name).read_bytes()
             self.assertEqual(written[include_name], committed,
                              f'{include_name} is not what {SCRIPT.name} writes')
+
+
+def signal_label(number: Optional[int] = None) -> str:
+    """Return the SVG elements of one signal's label, as Figure.signal() adds them."""
+    figure_height = 100
+    signal_x, signal_y = 10, 20
+    figure = control_systems_figures.Figure('test', figure_height, 'title')
+    figure.signal(signal_x, signal_y, 'inputs', 'torque on the wheel', number)
+    return ''.join(figure.elements)
+
+
+class TestSignal(unittest.TestCase):
+    """A signal's label has a number in a disc only when the signal has a number."""
+
+    def test_signal_without_a_number_has_no_disc(self) -> None:
+        self.assertNotIn('number-disc', signal_label())
+
+    def test_signal_with_a_number_shows_the_number_in_a_disc(self) -> None:
+        label = signal_label(number=4)
+        self.assertIn('class="number-disc"', label)
+        self.assertIn('>4</text>', label)
+
+    def test_signal_with_the_number_zero_shows_the_zero_in_a_disc(self) -> None:
+        label = signal_label(number=0)
+        self.assertIn('class="number-disc"', label)
+        self.assertIn('>0</text>', label)
 
 
 if __name__ == '__main__':

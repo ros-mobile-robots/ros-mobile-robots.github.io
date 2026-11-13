@@ -16,6 +16,7 @@ Run from the repository root after changing a figure:
 """
 
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -101,9 +102,10 @@ class Figure:
         self.elements.append(
             f'<text{class_attribute} x="{x}" y="{y}" text-anchor="{anchor}">{escape(text)}</text>')
 
-    def signal(self, x: float, y: float, name: str, example: str, number: int = 0) -> None:
+    def signal(self, x: float, y: float, name: str, example: str,
+               number: Optional[int] = None) -> None:
         """Add a signal's label: its name, its example below, and its number if it has one."""
-        if number:
+        if number is not None:
             self.circle(x + 7, y - 3.5, 7, 'number-disc')
             self.text(x + 7, y - 0.3, str(number), 'number', 'middle')
             x += 18
