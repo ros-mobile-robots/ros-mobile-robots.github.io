@@ -48,6 +48,7 @@ What runs where, and which page explains it:
 3. [Versions and Your Own Build](versions.md): how to update the robot's Docker image, how to stay on one version, and how to build the image yourself.
 4. [Troubleshooting](troubleshooting.md): what you might see, how to find the cause, and how to fix it.
 5. [Image and Tests](image.md): how the Docker image is built, what takes its space, and how CI tests it.
+6. [Code Walkthrough](walkthrough.md): the container's files, one by one, with a figure of when and where each file acts.
 
 ## Limitations and planned work
 

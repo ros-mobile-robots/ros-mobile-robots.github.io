@@ -207,6 +207,7 @@ nav:
         - Versions and Your Own Build: processing_units/robot-container/versions.md
         - Troubleshooting: processing_units/robot-container/troubleshooting.md
         - Image and Tests: processing_units/robot-container/image.md
+        - Code Walkthrough: processing_units/robot-container/walkthrough.md
       - ROS Network Setup: processing_units/ros-network-setup.md
       - Microcontroller: processing_units/teensy-mcu.md
       - Hardware Interfaces: processing_units/hardware-interfaces.md
