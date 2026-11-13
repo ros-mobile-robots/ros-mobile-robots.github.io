@@ -14,6 +14,8 @@ The motors get their own supply because they need more current than a USB connec
 | Motor supply | Four AA batteries in the robot kit's holder under the chassis | Six NiMH AA cells in the holder under the top plate |
 | Motors | Two [DG01D-E](DG01D-E-motor-with-encoder.md), rated 3 V to 9 V | The same |
 
+The sections on [DiffBot](#diffbot-four-aa-batteries-and-the-grove-i2c-motor-driver) and [Remo](#remo-six-nimh-cells-and-the-adafruit-featherwing) each have a figure of the robot's power flow.
+
 ## Raspberry Pi
 
 The Raspberry Pi 4 B gets 5 V through its USB-C port.
@@ -73,6 +75,12 @@ The slowdown is a hint, not a measurement of the charge that's left.
 DiffBot's four AA batteries sit in the holder of the robot kit, under the chassis.
 The holder's cable goes to the power terminal of the [Grove I2C Motor Driver V1.3](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/).
 
+--8<-- "includes/power-supply-flow-diffbot.html"
+
+The figure shows the two supplies and the parts that are known to be on them.
+It leaves out the Teensy, the encoders, the LiDAR and the camera, because their supply on DiffBot isn't checked yet.
+The same holds for the I2C connection that brings the motor commands to the motor driver.
+
 - **Input range:** Seeed specifies 6 V to 15 V at this terminal. The board also makes the 5 V for its own logic from this input. Four alkaline batteries give about 6 V under load, right at the lower end of the range. As they discharge, their voltage falls below 6 V.
 - **Voltage drop:** On its way to a motor, the current passes a protection diode (D9, a 1N4007, in Seeed's [schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)) and two transistors of the L298. At 1 A, the [1N4007 datasheet](https://www.vishay.com/docs/88503/1n4001.pdf) gives up to 1.1 V for the diode. The [L298 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf) gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. The L298's typical curve still shows more than 2 V at 0.8 A, its lowest current.
 - **What the motors get:** At full speed, a motor gets the battery voltage minus both drops. For example, if the drops add up to 3 V, a motor gets 3 V of the battery's 6 V. That's the lower end of its 3 V to 9 V. So DiffBot's top speed depends a lot on the state of its batteries.
@@ -85,6 +93,16 @@ The holder's cable goes to the power terminal of the [Grove I2C Motor Driver V1.
 
 Remo's six NiMH AA cells sit in the battery holder under the top plate ([assembly step 10](hardware_setup/assembly.md#step-10-battery-pack)).
 The holder's cable goes to the 2-pin power terminal of the [Adafruit DC Motor + Stepper FeatherWing](https://www.adafruit.com/product/2927).
+
+--8<-- "includes/power-supply-flow-remo.html"
+
+- **From the power bank:** the Raspberry Pi gets 5 V at its USB-C port. The Teensy gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The LiDAR's USB adapter is on another USB port of the Raspberry Pi and gets the LiDAR's supply from it. The adapter has no supply of its own. The Teensy's 3.3 V pin supplies the encoders, the IMU and the logic of the motor driver ([bench check](https://github.com/ros-mobile-robots/diffbot/issues/169), section 8).
+- **From the motor battery:** the motors only. The motor driver switches the battery voltage to them.
+- **The motor driver** is the only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over I2C. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection ([schematic](https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB)), so both supplies share one ground.
+- **Without the Teensy, the motors stop.** The motor driver's logic loses its 3.3 V together with the Teensy. In the bench check, pulling the Teensy's USB cable while driving stopped the wheels at once.
+- **The camera** is drawn with a dashed line, its data connection to the Raspberry Pi. Its supply isn't drawn, because it isn't checked on Remo yet.
+
+The battery and the motor driver fit together like this:
 
 - **Input range:** Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its [guide](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts) asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged down to 6.0 V at the end of the rated discharge.
 - **Voltage drop:** The TB6612 switches with MOSFETs. Its [datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=10660) gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. So the motors get almost the full battery voltage.
