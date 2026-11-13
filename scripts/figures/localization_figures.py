@@ -164,8 +164,8 @@ COVARIANCE_HATCH = ('<defs><pattern id="lv-hatch-covariance" width="5" height="5
 INPUT_LAST_STAMP_MS = -140  # t_input, the last stamp of the IMU input that the filter took
 ROW_LABEL_WIDTH = 62  # the rows' names stand to the left of the time axis
 STEP_PIXELS_PER_MS = 1.6
-FORWARD_FILTER_TIME_MS = -50  # t_filter when a current sample arrives
-FORWARD_SAMPLE_MS = -10  # the current sample's stamp t_s
+FORWARD_FILTER_TIME_MS = -70  # t_filter when a current sample arrives
+FORWARD_SAMPLE_MS = -30  # the current sample's stamp t_s
 LATE_FILTER_TIME_MS = -20  # t_filter when a late sample arrives
 LATE_SAMPLE_MS = -90  # the late sample's stamp t_s
 
@@ -384,8 +384,8 @@ SYMBOL_RULES = (
                                            'stroke-dasharray:2 2'),
     ('.lv-symbols .lv-pair', 'display:flex;flex-wrap:wrap;justify-content:center;'
                              'align-items:flex-start;gap:.4em 1.2em'),
-    ('.lv-symbols .lv-pair .lv-fig.lv-twist', 'width:262px;max-width:100%'),
-    ('.lv-symbols .lv-pair .lv-fig.lv-angular', 'width:240px;max-width:100%'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-twist', 'width:252px;max-width:100%'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-angular', 'width:232px;max-width:100%'),
     ('.md-typeset figure.lv-figure.lv-symbols.lv-covariances', 'max-width:520px'),
 )
 
@@ -925,7 +925,7 @@ def forward_step() -> Figure:
                     'corrects it', 140, CHECKS_WIDTH)
     filter_x, sample_x = axis.at(FORWARD_FILTER_TIME_MS), axis.at(FORWARD_SAMPLE_MS)
     time_marks(figure, axis, FORWARD_FILTER_TIME_MS, FORWARD_SAMPLE_MS)
-    step_rows(figure, axis, (-90, -70, FORWARD_FILTER_TIME_MS))
+    step_rows(figure, axis, (-90, FORWARD_FILTER_TIME_MS))
     figure.circle(filter_x, 36, 4.5, 'estimate-dot')
     figure.arrow(filter_x + 5, 36, sample_x - 5, 36, 'estimate')
     figure.circle(sample_x, 36, 4.5, 'estimate-dot')
@@ -996,11 +996,14 @@ def one_value_distance() -> Figure:
                 'bell-prediction')
     figure.path(bell(measurement_x, IMU_SIGMA * PIXELS_PER_RAD_PER_S, 70 * PREDICTION_SIGMA
                      / IMU_SIGMA, axis_y), 'bell-imu')
-    for x, name, index, sigma in ((prediction_x - 16, 'prediction', 'pred', PREDICTION_SIGMA),
-                                  (measurement_x + 16, 'IMU', 'IMU', IMU_SIGMA)):
-        figure.text(x, 22, name, '', 'middle')
+    # Each standard deviation next to its curve: the prediction's ends left of its peak, the
+    # IMU's starts right of its peak, so that the two labels don't meet
+    for x, anchor, name, index, sigma in (
+            (prediction_x + 10, 'end', 'prediction', 'pred', PREDICTION_SIGMA),
+            (measurement_x - 10, 'start', 'IMU', 'IMU', IMU_SIGMA)):
+        figure.text(x, 22, name, '', anchor)
         figure.rich_text(x, 38, (Span('σ', 'variable'), Span(index, 'subscript'),
-                                 Span(f' = {sigma}')), 'middle')
+                                 Span(f' = {sigma} rad/s')), anchor)
 
     figure.path(f'M{x_at(low)},{axis_y} H{x_at(high) + 7:.1f}', 'axis')
     figure.path(f'M{x_at(high) + 7:.1f},{axis_y} l-6,-3.5 M{x_at(high) + 7:.1f},{axis_y} l-6,3.5',
@@ -1056,7 +1059,7 @@ def two_value_distance() -> Tuple[Figure, Tuple[Sample, ...]]:
     figure.text(center_x + 7, box_bottom + 14, f'−{rate:.1f}', 'note')
     figure.text(center_x - unit_x * 0.72 - 4, center_y - unit_y * 0.72 - 3, 'd = 1', 'note',
                 'end')
-    figure.text(center_x - 50, center_y - limit * unit_y + 18, f'd = {limit:.0f}', 'strong')
+    figure.text(center_x - 48, center_y + limit * unit_y - 20, f'd = {limit:.0f}', 'strong')
     figure.circle(center_x, center_y, 4.5, 'estimate-dot')
 
     samples = (

@@ -848,8 +848,8 @@ The validator publishes its counts on the topic `/diagnostics`, next to the EKF'
 The example comes from the simulation, at the commit [`ead3402`](https://github.com/ros-mobile-robots/diffbot/commit/ead34027a9507c65d7415f93817177340d60d549) of the diffbot repository, with Remo and `ekf:=true`. Five IMU samples stamped 0.5 s before the ROS time were sent by hand on the topic `/diffbot/imu/data_raw`, next to the simulated IMU's own samples. The validator dropped four of them before its report at the ROS time 16 s, and the fifth before its next report. The picture shows the report at 16 s in rqt_runtime_monitor, next to the two entries of robot_localization's node:
 
 <figure markdown="span">
-![rqt_runtime_monitor with the entry of the IMU sample validator under Warnings and two entries of the EKF under Ok. The validator's entry is selected, and its values are 792 samples forwarded and 4 dropped as too old.](images/localization-runtime-monitor.png){ width="600" }
-<figcaption>rqt_runtime_monitor in the simulation, at the ROS time 16 s. The robot's diagnostics are not recorded yet.</figcaption>
+![rqt_runtime_monitor's two panes, one above the other. The upper pane lists the entry of the IMU sample validator under Warnings and two entries of the EKF under Ok. The lower pane shows the selected validator entry: the message "dropped 4 samples since the last report", 792 samples forwarded and 4 dropped as too old.](images/localization-runtime-monitor.png){ width="446" }
+<figcaption>rqt_runtime_monitor in the simulation, at the ROS time 16 s. The window shows the list of entries and the selected entry's values side by side. The picture puts the list above the values. The robot's diagnostics are not recorded yet.</figcaption>
 </figure>
 
 The collapsed box shows the same report as `rostopic echo /diagnostics` prints it. The level 1 is a warning.

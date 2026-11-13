@@ -75,23 +75,22 @@
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:262px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:240px;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
 .md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols">
 <p class="lv-band">Δt &gt; 0: the filter predicts, then corrects</p>
 <svg class="lv-fig" viewBox="0 0 300 140" role="img" aria-labelledby="lv-step-forward-title"><title id="lv-step-forward-title">A current IMU sample: its stamp lies after the filter's time, so the filter predicts its estimate forward to the stamp and then corrects it</title>
-<path class="reference" d="M158.0,20 V102"/>
-<path class="reference" d="M222.0,20 V102"/>
-<text x="158.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5">filter</tspan></text>
-<text x="222.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript index" dy="2.5">s</tspan></text>
+<path class="reference" d="M126.0,20 V102"/>
+<path class="reference" d="M190.0,20 V102"/>
+<text x="126.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5">filter</tspan></text>
+<text x="190.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript index" dy="2.5">s</tspan></text>
 <text class="quiet" x="4.0" y="40.0" text-anchor="start">estimate</text>
 <text class="quiet" x="4.0" y="64.0" text-anchor="start">wheels</text>
 <text class="quiet" x="4.0" y="86.0" text-anchor="start">IMU</text>
 <circle class="wheels-dot" cx="94.0" cy="60.0" r="4.5"/>
 <circle class="wheels-dot" cx="126.0" cy="60.0" r="4.5"/>
-<circle class="wheels-dot" cx="158.0" cy="60.0" r="4.5"/>
 <path class="axis" d="M62,102 H293.0"/>
 <path class="axis" d="M293.0,102 l-6,-3.5 M293.0,102 l-6,3.5"/>
 <path class="tick" d="M62.0,102 v4"/>
@@ -104,15 +103,15 @@
 <path class="tick" d="M286.0,102 v4"/>
 <path class="now" d="M238.0,96 V108"/>
 <text x="238.0" y="122.0" text-anchor="middle"><tspan>now: </tspan><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5"></tspan></text>
-<circle class="estimate-dot" cx="158.0" cy="36.0" r="4.5"/>
-<path class="estimate-line" d="M163.0,36.0 L212.0,36.0"/>
-<path class="estimate-head" d="M217.0,36.0 L210.0,40.2 L210.0,31.8 z"/>
-<circle class="estimate-dot" cx="222.0" cy="36.0" r="4.5"/>
-<text x="190.0" y="30.0" text-anchor="middle">predict</text>
-<text x="230.0" y="40.0" text-anchor="start">correct</text>
-<circle class="imu-dot" cx="222.0" cy="82.0" r="4.5"/>
-<path class="dimension" d="M158.0,116 H222.0 M158.0,113 V119 M222.0,113 V119"/>
-<text x="190.0" y="132.0" text-anchor="middle"><tspan>Δ</tspan><tspan class="variable">t</tspan><tspan> &gt; 0</tspan></text>
+<circle class="estimate-dot" cx="126.0" cy="36.0" r="4.5"/>
+<path class="estimate-line" d="M131.0,36.0 L180.0,36.0"/>
+<path class="estimate-head" d="M185.0,36.0 L178.0,40.2 L178.0,31.8 z"/>
+<circle class="estimate-dot" cx="190.0" cy="36.0" r="4.5"/>
+<text x="158.0" y="30.0" text-anchor="middle">predict</text>
+<text x="198.0" y="40.0" text-anchor="start">correct</text>
+<circle class="imu-dot" cx="190.0" cy="82.0" r="4.5"/>
+<path class="dimension" d="M126.0,116 H190.0 M126.0,113 V119 M190.0,113 V119"/>
+<text x="158.0" y="132.0" text-anchor="middle"><tspan>Δ</tspan><tspan class="variable">t</tspan><tspan> &gt; 0</tspan></text>
 </svg>
 <p class="lv-band">Δt &lt; 0: the filter corrects only</p>
 <svg class="lv-fig" viewBox="0 0 300 140" role="img" aria-labelledby="lv-step-late-title"><title id="lv-step-late-title">A late IMU sample: its stamp lies before the filter's time, so the filter corrects its estimate at the filter's time, with the old sample, and doesn't go back to the stamp</title>
