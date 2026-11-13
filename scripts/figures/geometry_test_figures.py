@@ -161,13 +161,12 @@ def draw_wheels(figure: Figure, y: float) -> None:
     """
     radius = WHEEL_RADIUS * PIXELS_PER_METER
     half_length = WHEEL_LENGTH * PIXELS_PER_METER / 2
-    center_x = LEFT_X + COLUMN_WIDTH / 2
     joint_y, dimension_y = y + 56, y + 21
-    left_x = center_x - WHEEL_SEPARATION * PIXELS_PER_METER / 2
-    right_x = center_x + WHEEL_SEPARATION * PIXELS_PER_METER / 2
+    left_x = LEFT_CENTER - WHEEL_SEPARATION * PIXELS_PER_METER / 2
+    right_x = LEFT_CENTER + WHEEL_SEPARATION * PIXELS_PER_METER / 2
 
     figure.box(LEFT_X, y, COLUMN_WIDTH, 98, 'item')
-    figure.text(center_x, y + 13, f'wheel joints {WHEEL_SEPARATION} m apart', 'note', 'middle')
+    figure.text(LEFT_CENTER, y + 13, f'wheel joints {WHEEL_SEPARATION} m apart', 'note', 'middle')
     figure.line(f'M{left_x:.1f},{dimension_y} H{right_x:.1f}', 'dimension')
     for joint_x in (left_x, right_x):
         figure.line(f'M{joint_x:.1f},{dimension_y - 4} V{dimension_y + 4}', 'dimension')
@@ -179,7 +178,7 @@ def draw_wheels(figure: Figure, y: float) -> None:
         figure.circle(joint_x, joint_y, 2.2, 'joint')
     figure.line(f'M{LEFT_X + 6},{joint_y + radius:.1f} H{LEFT_X + COLUMN_WIDTH - 6}', 'ground')
     figure.line(f'M{right_x:.1f},{joint_y} V{joint_y + radius:.1f}', 'dimension')
-    figure.text(center_x, y + 92, f'collision radius {WHEEL_RADIUS} m', 'note', 'middle')
+    figure.text(LEFT_CENTER, y + 92, f'collision radius {WHEEL_RADIUS} m', 'note', 'middle')
 
 
 def draw_comparisons(figure: Figure) -> None:
