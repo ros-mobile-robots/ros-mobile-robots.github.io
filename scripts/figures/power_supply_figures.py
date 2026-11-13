@@ -230,7 +230,7 @@ def draw_teensy_sensors(figure: Figure) -> None:
         figure.box(x, 290, width, 38, lines)
 
 
-def remo() -> Figure:
+def remo_power_flow_figure() -> Figure:
     """Return Remo's figure: every part's supply is checked."""
     figure = Figure('pf-remo', 400, "Remo's power flow: the power bank supplies the Raspberry Pi, "
                     'the LiDAR, the Teensy and its sensors, and the six NiMH cells supply the '
@@ -247,7 +247,7 @@ def remo() -> Figure:
     return figure
 
 
-def diffbot() -> Figure:
+def diffbot_power_flow_figure() -> Figure:
     """Return DiffBot's figure: its two supplies, which are the parts that are checked."""
     figure = Figure('pf-diffbot', 292, "DiffBot's power flow: the power bank supplies the "
                     'Raspberry Pi, and the four AA batteries supply the motors')
@@ -269,10 +269,10 @@ def write_include(path: str, figure: Figure, caption: str, style: str = '') -> N
 
 def main() -> None:
     """Write both includes."""
-    write_include('includes/power-supply-flow-diffbot.html', diffbot(),
+    write_include('includes/power-supply-flow-diffbot.html', diffbot_power_flow_figure(),
                   "DiffBot's two supplies. Follow each color from its source at the top.",
                   style_element(RULES) + '\n')
-    write_include('includes/power-supply-flow-remo.html', remo(),
+    write_include('includes/power-supply-flow-remo.html', remo_power_flow_figure(),
                   "Remo's two supplies. Follow each color from its source at the top. The motor "
                   'driver is the only part on both supplies.')
 
