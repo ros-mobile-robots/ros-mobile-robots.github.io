@@ -750,13 +750,19 @@ Before the first check, the node drops every sample while the ROS time is zero. 
 
 #### Checks 1 to 3: the sample's form
 
-The first three checks look at the sample's frame, values and variances, fields of its [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message, as the figure shows:
+The first three checks look at the sample's frame, values and variances, fields of its [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message. Each of the three figures shows the fields that its check reads, for a sample that passes and for one that the node drops.
 
---8<-- "includes/localization-validator-form.html"
+**1. The frame:** [`check_frame()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L264) checks that the sample's `header.frame_id` is the node's parameter [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
 
-1. **The frame:** [`check_frame()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L264) checks that the sample's `header.frame_id` is the node's parameter [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
-2. **The values:** [`check_finite_values()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L268) checks that the three components of the angular velocity $\boldsymbol\omega$ and of the accelerometer's reading $\mathbf f$, the field `linear_acceleration`, are finite numbers, so that none is NaN or infinite.
-3. **The variances:** [`check_angular_velocity_covariance()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L275) checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances $\sigma^2$, is positive.
+--8<-- "includes/localization-validator-frame.html"
+
+**2. The values:** [`check_finite_values()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L268) checks that the three components of the angular velocity $\boldsymbol\omega$ and of the accelerometer's reading $\mathbf f$, the field `linear_acceleration`, are finite numbers, so that none is NaN or infinite.
+
+--8<-- "includes/localization-validator-values.html"
+
+**3. The variances:** [`check_angular_velocity_covariance()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L275) checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances $\sigma^2$, is positive. The figure lays the covariance out as [the figure of the covariances](#the-variances) does.
+
+--8<-- "includes/localization-validator-variances.html"
 
 #### Check 4: the stamp against the ROS time
 
@@ -790,17 +796,23 @@ When the ROS time goes back, for example after a call of the service `/gazebo/re
 
 The validator also never gives an old sample a new stamp.
 
-Judging a value is a statistical test inside robot_localization, which a **rejection threshold** switches on. Each input can have a threshold for its pose update, for its velocity update and for its acceleration update. With a threshold, the filter doesn't fuse an update that lies too far from the filter's own prediction. The filter measures "too far" as a [Mahalanobis distance](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_threshold): the difference between the measurement and the prediction, counted in units of their combined uncertainty. For an update of one value, the distance is the number of standard deviations between the measurement and the prediction. For an update of several values, the distance is one number for all of them together, not a limit for each value. The test compares an input with the filter's prediction, not with the other input.
+Judging a value is a statistical test inside robot_localization, which a **rejection threshold** switches on. An odometry input can have a threshold for its pose update and one for its velocity update. An IMU input can have one for its orientation, one for its angular velocity and one for its linear acceleration. With a threshold, the filter doesn't fuse an update that lies too far from the filter's own prediction. The filter measures "too far" as a [Mahalanobis distance](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_threshold): the difference between the measurement and the prediction, counted in units of their combined uncertainty. For an update of one value, the distance is the number of standard deviations between the measurement and the prediction. For an update of several values, the distance is one number for all of them together, not a limit for each value. The test compares an input with the filter's prediction, not with the other input.
 
 The figure below the list shows the distance $d$ for one value and for two values, with example numbers:
 
-- **One value:** the prediction of the yaw rate $\omega_z$ has the standard deviation $\sigma_\text{pred}$, and the IMU's measurement has the standard deviation $\sigma_\text{IMU}$. The difference $y$ between the measurement and the prediction counts in units of both standard deviations together:
+- **One value, an IMU sample's yaw rate:** this is the update that [`imu0_twist_rejection_threshold`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1417) would test. The prediction of the yaw rate $\omega_z$ has the standard deviation $\sigma_\text{pred}$, and the IMU's measurement has the standard deviation $\sigma_\text{IMU}$, 0.02 rad/s, the square root of the firmware's variance 4 · 10⁻⁴ (rad/s)². The difference $y$ between the measurement and the prediction counts in units of both standard deviations together:
 
     $$
     d = \frac{|y|}{\sqrt{\sigma_\text{pred}^2 + \sigma_\text{IMU}^2}} = \frac{0.05\ \text{rad/s}}{\sqrt{(0.015\ \text{rad/s})^2 + (0.02\ \text{rad/s})^2}} = \frac{0.05\ \text{rad/s}}{0.025\ \text{rad/s}} = 2
     $$
 
-- **Two values:** the forward speed $v_x$ and the yaw rate $\omega_z$ each have their own difference, $y_{v_x}$ and $y_{\omega_z}$, and their own standard deviation of the prediction and the measurement together, $\sigma_{v_x}$ and $\sigma_{\omega_z}$. Each difference counts in units of its own standard deviation. When the errors of the two values don't go together, as in the example, the squares of the two counted differences add up to the square of the distance:
+- **Two values, the wheel odometry's forward speed and yaw rate:** these are two of the velocities that [`odom0_twist_rejection_threshold`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1126) would test together. The forward speed $v_x$ and the yaw rate $\omega_z$ each have their own difference, $y_{v_x}$ and $y_{\omega_z}$, and their own standard deviation of the prediction and the measurement together, $\sigma_{v_x}$ and $\sigma_{\omega_z}$. The wheel odometry's variances are 0.001 (m/s)² for $v_x$ and 0.03 (rad/s)² for $\omega_z$. With the same prediction of the yaw rate as above and a prediction of the forward speed with the standard deviation 0.024 m/s, the example's values are:
+
+    $$
+    \sigma_{v_x} = \sqrt{0.001\ (\text{m/s})^2 + (0.024\ \text{m/s})^2} \approx 0.04\ \text{m/s}, \qquad \sigma_{\omega_z} = \sqrt{0.03\ (\text{rad/s})^2 + (0.015\ \text{rad/s})^2} \approx 0.17\ \text{rad/s}
+    $$
+
+    The wheel odometry's yaw rate has 75 times the IMU's variance, so its $\sigma_{\omega_z}$ is about seven times the 0.025 rad/s of the IMU's example. Each difference counts in units of its own standard deviation. When the errors of the two values don't go together, as in the example, the squares of the two counted differences add up to the square of the distance:
 
     $$
     d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\sigma_{\omega_z}}\right)^2
@@ -808,7 +820,7 @@ The figure below the list shows the distance $d$ for one value and for two value
 
     All measurements with the same distance lie on an ellipse around the prediction, and a threshold is one of these ellipses. So a measurement can lie within two standard deviations in each value alone and still have a distance of more than 2, as Q.
 
-The two cases are reduced examples. The updates of this configuration also hold the zeros that [`two_d_mode`](#what-two_d_mode-does) adds, as the collapsed box below the figure explains.
+The two cases are reduced examples. The updates of this configuration also hold the zeros that [`two_d_mode`](#what-two_d_mode-does) adds, and the wheel odometry's update also holds the sideways speed $v_y$, as the collapsed box below the figure explains.
 
 --8<-- "includes/localization-distance.html"
 

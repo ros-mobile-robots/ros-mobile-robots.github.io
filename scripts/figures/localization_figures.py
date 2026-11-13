@@ -22,11 +22,12 @@ follow the site's light and dark colors:
   against the last stamp of the same input, on a time axis.
 - includes/localization-time-step.html: the filter's time step Δt for a current and for a late
   IMU sample: predict and correct, or correct only.
-- includes/localization-validator-form.html, localization-validator-time.html and
-  localization-validator-order.html: the five checks of diffbot_control/scripts/imu_validator.py
-  in three figures. Checks 1 to 3 look at the sample's form. Check 4 compares the sample's stamp
-  with the ROS time, drawn on a time axis to scale. Check 5 compares the stamp with the last
-  forwarded sample's. The values are those of diffbot_control/launch/ekf.launch.
+- includes/localization-validator-frame.html, -values.html, -variances.html, -time.html and
+  -order.html: the five checks of diffbot_control/scripts/imu_validator.py, one figure each.
+  Checks 1 to 3 show the fields of the sample that the check reads, for a sample that passes and
+  one that is dropped. Check 4 compares the sample's stamp with the ROS time, drawn on a time
+  axis to scale. Check 5 compares the stamp with the last forwarded sample's. The limits are
+  those of diffbot_control/launch/ekf.launch.
 - includes/localization-distance.html: the distance of robot_localization's rejection test, for
   one value as two bell curves and for two values as ellipses, with example values.
 
@@ -64,9 +65,16 @@ MARK_RADIUS = 6.5
 
 # The figure of the five checks: three drawings, each CHECKS_WIDTH wide
 CHECKS_WIDTH = 300
-FORM_BOX_WIDTH = 88
-FORM_BOX_HEIGHT = 40
-FORM_BOX_GAP = 10
+# Checks 1 to 3: the fields of a sample that a check reads, for a sample that passes and one
+# that is dropped, each in a card. Example values
+CARD_WIDTH = 140
+VALUE_CELL_WIDTH = 44
+VALUE_CELL_HEIGHT = 24
+VALUE_CELLS_X = 150  # the angular velocity's and the acceleration's three cells start here
+VALUE_ROW_HEIGHT = 30
+EXAMPLE_ANGULAR_VELOCITY = ('0.01', '−0.02', '0.48')  # rad/s
+EXAMPLE_LINEAR_ACCELERATION = ('0.12', '0.05', '9.79')  # m/s²
+EXAMPLE_VARIANCE = '4·10⁻⁴'  # (rad/s)², the firmware's angular_velocity_variance
 WINDOW_TOP = 38
 WINDOW_HEIGHT = 46
 ORDER_TOP = 6
@@ -177,9 +185,15 @@ PREDICTION_SIGMA = 0.015  # rad/s
 IMU_SIGMA = 0.02  # rad/s
 YAW_RATE_AXIS = (0.43, 0.62)  # rad/s, the ends of the axis
 PIXELS_PER_RAD_PER_S = 1400
-# Two values: the combined standard deviations of the forward speed and the yaw rate
-FORWARD_SPEED_SIGMA = 0.04  # m/s
-YAW_RATE_SIGMA = 0.2  # rad/s
+# Two values, the wheel odometry's forward speed and yaw rate: the standard deviations of the
+# prediction and the measurement together. The measurement's variances are those of
+# twist_covariance_diagonal in diffbot_control.yaml, the prediction's standard deviations are
+# chosen, the yaw rate's the same as in the drawing of one value
+WHEEL_FORWARD_SPEED_VARIANCE = 0.001  # (m/s)²
+WHEEL_YAW_RATE_VARIANCE = 0.03  # (rad/s)²
+PREDICTED_FORWARD_SPEED_SIGMA = 0.024  # m/s
+FORWARD_SPEED_SIGMA = math.sqrt(WHEEL_FORWARD_SPEED_VARIANCE + PREDICTED_FORWARD_SPEED_SIGMA ** 2)
+YAW_RATE_SIGMA = math.sqrt(WHEEL_YAW_RATE_VARIANCE + PREDICTION_SIGMA ** 2)
 PIXELS_PER_FORWARD_SPEED_SIGMA = 46
 PIXELS_PER_YAW_RATE_SIGMA = 36
 EXAMPLE_THRESHOLD = 2.0
@@ -378,6 +392,16 @@ SYMBOL_RULES = (
     ('.lv-symbols .lv-fig .threshold', 'fill:var(--lv-good-fill);stroke:var(--lv-good);'
                                        'stroke-width:1.6'),
     ('.lv-symbols .lv-fig .second-index', 'font-size:9.5px'),
+    ('.lv-symbols .lv-fig .card-pass', 'fill:var(--lv-good-fill);stroke:var(--lv-good);'
+                                       'stroke-width:1.4'),
+    ('.lv-symbols .lv-fig .card-drop', 'fill:var(--lv-bad-fill);stroke:var(--lv-bad);'
+                                       'stroke-width:1.4;stroke-dasharray:4 3'),
+    ('.lv-symbols .lv-fig .verdict-pass', 'fill:var(--lv-good);font-weight:700'),
+    ('.lv-symbols .lv-fig .verdict-drop', 'fill:var(--lv-bad);font-weight:700'),
+    ('.lv-symbols .lv-fig .cell-bad', 'fill:var(--lv-bad-fill);stroke:var(--lv-bad);'
+                                      'stroke-width:1.8'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-check-grid', 'width:196px;max-width:100%'),
+    ('.md-typeset figure.lv-figure.lv-symbols.lv-check-pair', 'max-width:440px'),
     ('.lv-symbols .lv-fig .limit-box', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1;'
                                        'stroke-dasharray:5 3'),
     ('.lv-symbols .lv-fig .cell-replaced', 'fill:url(#lv-hatch-covariance);'
@@ -649,22 +673,6 @@ def sample_legend(samples: Sequence[Sample],
     return '<ul class="lv-legend">\n' + '\n'.join(lines) + '\n</ul>'
 
 
-def form_checks() -> Figure:
-    """Return the drawing of checks 1 to 3: the sample's frame, values and variances."""
-    figure = Figure('lv-form', "Checks 1 to 3: the sample's frame is imu_link, its values are "
-                    'finite, and the variances of its angular velocity are positive',
-                    FORM_BOX_HEIGHT + 8, CHECKS_WIDTH)
-    boxes = (
-        (('1  Frame', 'name'), ('imu_link', 'mono')),
-        (('2  Values', 'name'), ('finite', 'note')),
-        (('3  Variances', 'name'), ('positive', 'note')),
-    )
-    for index, lines in enumerate(boxes):
-        x = 8 + index * (FORM_BOX_WIDTH + FORM_BOX_GAP)
-        figure.box(x, 4, FORM_BOX_WIDTH, FORM_BOX_HEIGHT, lines)
-    return figure
-
-
 def time_check() -> Tuple[Figure, Tuple[Sample, ...]]:
     """Return the drawing of check 4 and its samples: the window around the ROS time."""
     axis = TimeAxis(-150, 80, 14, WINDOW_TOP + WINDOW_HEIGHT, 1.18)
@@ -798,13 +806,134 @@ CHECKS_CAPTION_END = ('A solid green mark is a forwarded sample, a dashed red ma
                       'Each example assumes that the sample passes the other checks.')
 
 
-def write_validator_form_checks() -> None:
-    """Write the include with checks 1 to 3 of the IMU sample validator: the sample's form."""
+def verdict(figure: Figure, x: float, y: float, forwarded: bool, reason: str = '') -> None:
+    """Add what the validator does with a sample: forwarded, or dropped and why."""
+    if forwarded:
+        figure.text(x, y, '✓ forwarded', 'verdict-pass')
+    else:
+        figure.text(x, y, f'✕ dropped: {reason}' if reason else '✕ dropped', 'verdict-drop')
+
+
+def frame_check() -> Figure:
+    """Return the drawing of check 1: the sample's header.frame_id against the parameter."""
+    figure = Figure('lv-check-frame', 'Check 1: a sample whose header.frame_id is imu_link '
+                    'passes. A sample with the frame base_link is dropped', 112, CHECKS_WIDTH)
+    figure.rich_text(6, 16, (Span("The node's parameter "), Span('frame_id', 'mono'),
+                             Span(' = '), Span('imu_link', 'mono')))
+    for x, value, forwarded in ((6, '"imu_link"', True), (154, '"base_link"', False)):
+        figure.rect(x, 28, CARD_WIDTH, 52, 'card-pass' if forwarded else 'card-drop',
+                    corner_radius=5)
+        figure.text(x + 10, 47, 'header.frame_id', 'mono quiet')
+        figure.text(x + 10, 68, value, 'mono strong')
+        verdict(figure, x + 2, 100, forwarded, 'wrong frame')
+    return figure
+
+
+def value_cells(figure: Figure, y: float, values: Sequence[str]) -> None:
+    """Add three cells with the x, y and z components of a vector, a NaN marked as bad."""
+    for column, value in enumerate(values):
+        x = VALUE_CELLS_X + column * (VALUE_CELL_WIDTH + 2)
+        figure.rect(x, y, VALUE_CELL_WIDTH, VALUE_CELL_HEIGHT,
+                    'cell-bad' if value == 'NaN' else 'cell')
+        figure.text(x + VALUE_CELL_WIDTH / 2, y + 16.5, value,
+                    'strong' if value == 'NaN' else '', 'middle')
+
+
+def values_check() -> Figure:
+    """Return the drawing of check 2: the angular velocity and the acceleration are finite."""
+    figure = Figure('lv-check-values', 'Check 2: a sample whose angular velocity and linear '
+                    'acceleration are finite passes. A sample with a NaN in its angular velocity '
+                    'is dropped', 214, CHECKS_WIDTH)
+    for column, axis in enumerate(('x', 'y', 'z')):
+        figure.text(VALUE_CELLS_X + column * (VALUE_CELL_WIDTH + 2) + VALUE_CELL_WIDTH / 2, 14,
+                    axis, 'variable', 'middle')
+    samples = ((EXAMPLE_ANGULAR_VELOCITY, True),
+               ((EXAMPLE_ANGULAR_VELOCITY[0], 'NaN', EXAMPLE_ANGULAR_VELOCITY[2]), False))
+    for index, (angular_velocity, forwarded) in enumerate(samples):
+        top = 22 + index * 96
+        figure.rect(4, top, CHECKS_WIDTH - 8, 2 * VALUE_ROW_HEIGHT + 10,
+                    'card-pass' if forwarded else 'card-drop', corner_radius=5)
+        for row, (field, unit, values) in enumerate((
+                ('angular_velocity', 'rad/s', angular_velocity),
+                ('linear_acceleration', 'm/s²', EXAMPLE_LINEAR_ACCELERATION))):
+            row_top = top + 5 + row * VALUE_ROW_HEIGHT
+            figure.text(10, row_top + 11, field, 'mono quiet')
+            figure.text(10, row_top + 24, unit, 'note')
+            value_cells(figure, row_top + 2, values)
+        verdict(figure, 6, top + 2 * VALUE_ROW_HEIGHT + 28, forwarded, 'not finite')
+    return figure
+
+
+def variances_check(forwarded: bool) -> Figure:
+    """Return the drawing of check 3 for one sample: its angular_velocity_covariance.
+
+    The grid has the layout of the covariance figure: the diagonal holds the three variances,
+    which have to be positive. A dropped sample has a variance of 0.
+    """
+    size = len(ANGULAR_VELOCITY_VARIABLES)
+    left = COVARIANCE_LABEL_WIDTH
+    top = 58
+    width = left + size * VALUE_CELL_WIDTH + 4
+    name = 'pass' if forwarded else 'drop'
+    title = ('Check 3, a sample that passes: the three variances on the diagonal of '
+             'angular_velocity_covariance are positive' if forwarded else
+             'Check 3, a sample that is dropped: the variance of the yaw rate is 0')
+    figure = Figure(f'lv-check-variances-{name}', title, top + size * VALUE_CELL_HEIGHT + 4,
+                    width, 'lv-check-grid')
+    verdict(figure, 2, 14, forwarded, '')
+    figure.text(2, 30, 'three positive variances' if forwarded else 'a variance of 0', 'note')
+    for position, (letter, index) in enumerate(ANGULAR_VELOCITY_VARIABLES):
+        middle = position * VALUE_CELL_WIDTH + VALUE_CELL_WIDTH / 2
+        symbol(figure, left + middle - 2, top - 8, letter, index, True)
+        symbol(figure, left - 18, top + position * VALUE_CELL_HEIGHT + 17, letter, index, True)
+    for row in range(size):
+        for column in range(size):
+            x = left + column * VALUE_CELL_WIDTH
+            y = top + row * VALUE_CELL_HEIGHT
+            middle_x, text_y = x + VALUE_CELL_WIDTH / 2, y + 16.5
+            if row != column:
+                figure.rect(x, y, VALUE_CELL_WIDTH, VALUE_CELL_HEIGHT, 'cell')
+                figure.text(middle_x, text_y, '0', 'note', 'middle')
+            elif not forwarded and row == size - 1:
+                figure.rect(x, y, VALUE_CELL_WIDTH, VALUE_CELL_HEIGHT, 'cell-bad')
+                figure.text(middle_x, text_y, '0', 'strong', 'middle')
+            else:
+                figure.rect(x, y, VALUE_CELL_WIDTH, VALUE_CELL_HEIGHT, 'cell-fused')
+                figure.text(middle_x, text_y, EXAMPLE_VARIANCE, '', 'middle')
+    return figure
+
+
+CHECK_FIGURE_RULES = RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES
+CHECK_FIGURE_CLASSES = 'lv-large lv-drawing lv-symbols'
+
+
+def write_validator_frame_check() -> None:
+    """Write the include with check 1 of the IMU sample validator: the sample's frame."""
     write_parts(
-        'includes/localization-validator-form.html', [form_checks().svg()],
-        "Checks 1 to 3 look at the sample's form: its frame, its values and the variances of "
-        'its angular velocity.',
-        RULES + LARGE_RULES, 'lv-large')
+        'includes/localization-validator-frame.html', [frame_check().svg()],
+        "Check 1 reads the sample's <code>header.frame_id</code>. Example values.",
+        CHECK_FIGURE_RULES, CHECK_FIGURE_CLASSES)
+
+
+def write_validator_values_check() -> None:
+    """Write the include with check 2 of the IMU sample validator: finite values."""
+    write_parts(
+        'includes/localization-validator-values.html', [values_check().svg()],
+        "Check 2 reads the three components of the sample's <code>angular_velocity</code>, in "
+        'rad/s, and of its <code>linear_acceleration</code>, in m/s². Example values.',
+        CHECK_FIGURE_RULES, CHECK_FIGURE_CLASSES)
+
+
+def write_validator_variances_check() -> None:
+    """Write the include with check 3 of the IMU sample validator: the variances."""
+    pair = ('<div class="lv-pair">\n' + variances_check(True).svg() + '\n'
+            + variances_check(False).svg() + '\n</div>')
+    write_parts(
+        'includes/localization-validator-variances.html', [pair],
+        "Check 3 reads the sample's <code>angular_velocity_covariance</code>, laid out as in the "
+        'figure of the covariances. Its diagonal holds the three variances, in (rad/s)². '
+        "Example values: the firmware's variance 4 · 10⁻⁴ (rad/s)², and 0 as the error.",
+        CHECK_FIGURE_RULES, f'{CHECK_FIGURE_CLASSES} lv-check-pair')
 
 
 def write_validator_time_check() -> None:
@@ -1067,8 +1196,8 @@ def two_value_distance() -> Tuple[Figure, Tuple[Sample, ...]]:
     box_bottom = center_y + limit * unit_y
     figure.text(center_x + limit * unit_x, box_bottom + 14, f'{speed:.2f} m/s', 'note', 'middle')
     figure.text(center_x - limit * unit_x, box_bottom + 14, f'−{speed:.2f}', 'note', 'middle')
-    figure.text(center_x + 7, center_y - limit * unit_y - 4, f'{rate:.1f} rad/s', 'note')
-    figure.text(center_x + 7, box_bottom + 14, f'−{rate:.1f}', 'note')
+    figure.text(center_x + 7, center_y - limit * unit_y - 4, f'{rate:.2f} rad/s', 'note')
+    figure.text(center_x + 7, box_bottom + 14, f'−{rate:.2f}', 'note')
     figure.text(center_x - unit_x * 0.72 - 4, center_y - unit_y * 0.72 - 3, 'd = 1', 'note',
                 'end')
     figure.text(center_x - 48, center_y + limit * unit_y - 20, f'd = {limit:.0f}', 'strong')
@@ -1091,15 +1220,16 @@ def write_distance() -> None:
     two_values, samples = two_value_distance()
     write_parts(
         'includes/localization-distance.html',
-        [band('One value: the yaw rate'), one_value_distance().svg(),
-         band('Two values: the forward speed and the yaw rate'), two_values.svg(),
+        [band("One value: an IMU sample's yaw rate"), one_value_distance().svg(),
+         band("Two values: the wheel odometry's forward speed and yaw rate"), two_values.svg(),
          sample_legend(samples, ('✓ fused', '✕ not fused'))],
         'The distance between a measurement and the prediction, counted in standard deviations, '
-        f'with an example threshold of {EXAMPLE_THRESHOLD:.0f}. In the second drawing, the axes '
-        'are the differences y from the prediction, so the prediction, the green dot, lies at the '
-        'origin. '
-        "<code>ekf.yaml</code> sets no threshold. Example values: the IMU's standard deviation "
-        "is the firmware's, the others are chosen for the figure.",
+        f'with an example threshold of {EXAMPLE_THRESHOLD:.0f}. The wheel odometry has its own, '
+        "larger variance of the yaw rate, so the second drawing's standard deviation of the yaw "
+        "rate is larger than the first's. The second drawing's axes are the differences y from "
+        'the prediction, the green dot. Example values: the variances of the firmware and of '
+        '<code>diffbot_control.yaml</code>, chosen ones for the prediction. '
+        '<code>ekf.yaml</code> sets no threshold.',
         RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES, 'lv-large lv-drawing lv-symbols')
 
 
@@ -1692,7 +1822,9 @@ def main() -> None:
     write_covariances()
     write_stamp_check()
     write_time_step()
-    write_validator_form_checks()
+    write_validator_frame_check()
+    write_validator_values_check()
+    write_validator_variances_check()
     write_validator_time_check()
     write_validator_order_check()
     write_distance()

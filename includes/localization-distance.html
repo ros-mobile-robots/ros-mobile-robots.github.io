@@ -73,6 +73,13 @@
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
 .lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
@@ -81,7 +88,7 @@
 .md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols">
-<p class="lv-band">One value: the yaw rate</p>
+<p class="lv-band">One value: an IMU sample's yaw rate</p>
 <svg class="lv-fig" viewBox="0 0 300 172" role="img" aria-labelledby="lv-distance-one-title"><title id="lv-distance-one-title">The yaw rate on an axis: the prediction and the IMU's measurement as two bell curves, 0.05 rad/s apart. The distance d counts this difference in units of the two standard deviations together, 0.025 rad/s, so d is 2</title>
 <path class="bell-prediction" d="M46.4,124 L46.4,123.9 L48.5,123.8 L50.6,123.8 L52.7,123.7 L54.8,123.6 L56.9,123.4 L59.0,123.2 L61.1,123.0 L63.2,122.6 L65.3,122.2 L67.4,121.6 L69.5,120.9 L71.6,120.1 L73.7,119.0 L75.8,117.8 L77.9,116.3 L80.0,114.5 L82.1,112.5 L84.2,110.1 L86.3,107.5 L88.4,104.5 L90.5,101.3 L92.6,97.7 L94.7,93.9 L96.8,89.9 L98.9,85.8 L101.0,81.5 L103.1,77.3 L105.2,73.2 L107.3,69.2 L109.4,65.5 L111.5,62.2 L113.6,59.4 L115.7,57.1 L117.8,55.4 L119.9,54.3 L122.0,54.0 L124.1,54.3 L126.2,55.4 L128.3,57.1 L130.4,59.4 L132.5,62.2 L134.6,65.5 L136.7,69.2 L138.8,73.2 L140.9,77.3 L143.0,81.5 L145.1,85.8 L147.2,89.9 L149.3,93.9 L151.4,97.7 L153.5,101.3 L155.6,104.5 L157.7,107.5 L159.8,110.1 L161.9,112.5 L164.0,114.5 L166.1,116.3 L168.2,117.8 L170.3,119.0 L172.4,120.1 L174.5,120.9 L176.6,121.6 L178.7,122.2 L180.8,122.6 L182.9,123.0 L185.0,123.2 L187.1,123.4 L189.2,123.6 L191.3,123.7 L193.4,123.8 L195.5,123.8 L197.6,123.9 z"/>
 <path class="bell-imu" d="M91.2,124 L91.2,123.9 L94.0,123.9 L96.8,123.8 L99.6,123.8 L102.4,123.7 L105.2,123.6 L108.0,123.4 L110.8,123.2 L113.6,123.0 L116.4,122.6 L119.2,122.2 L122.0,121.7 L124.8,121.1 L127.6,120.3 L130.4,119.3 L133.2,118.2 L136.0,116.9 L138.8,115.4 L141.6,113.6 L144.4,111.6 L147.2,109.4 L150.0,107.0 L152.8,104.3 L155.6,101.4 L158.4,98.4 L161.2,95.3 L164.0,92.2 L166.8,89.0 L169.6,85.9 L172.4,82.9 L175.2,80.1 L178.0,77.7 L180.8,75.5 L183.6,73.8 L186.4,72.5 L189.2,71.8 L192.0,71.5 L194.8,71.8 L197.6,72.5 L200.4,73.8 L203.2,75.5 L206.0,77.7 L208.8,80.1 L211.6,82.9 L214.4,85.9 L217.2,89.0 L220.0,92.2 L222.8,95.3 L225.6,98.4 L228.4,101.4 L231.2,104.3 L234.0,107.0 L236.8,109.4 L239.6,111.6 L242.4,113.6 L245.2,115.4 L248.0,116.9 L250.8,118.2 L253.6,119.3 L256.4,120.3 L259.2,121.1 L262.0,121.7 L264.8,122.2 L267.6,122.6 L270.4,123.0 L273.2,123.2 L276.0,123.4 L278.8,123.6 L281.6,123.7 L284.4,123.8 L287.2,123.8 L290.0,123.9 L292.8,123.9 z"/>
@@ -111,7 +118,7 @@
 <circle class="imu-dot" cx="192.0" cy="152.0" r="4.5"/>
 <text x="112.0" y="156.0" text-anchor="end"><tspan class="variable">d</tspan></text>
 </svg>
-<p class="lv-band">Two values: the forward speed and the yaw rate</p>
+<p class="lv-band">Two values: the wheel odometry's forward speed and yaw rate</p>
 <svg class="lv-fig" viewBox="0 0 300 236" role="img" aria-labelledby="lv-distance-two-title"><title id="lv-distance-two-title">The differences between measurement and prediction for the forward speed and the yaw rate as a plane. Around the prediction, the ellipses of the distances 1 and 2, and the rectangle of two standard deviations for each value alone</title>
 <rect class="limit-box" x="58.0" y="46.0" width="184.0" height="144.0" rx="0"/>
 <ellipse class="threshold" cx="150.0" cy="118.0" rx="92.0" ry="72.0"/>
@@ -128,8 +135,8 @@
 <path class="tick" d="M150,46.0 h4"/>
 <text class="note" x="242.0" y="204.0" text-anchor="middle">0.08 m/s</text>
 <text class="note" x="58.0" y="204.0" text-anchor="middle">−0.08</text>
-<text class="note" x="157.0" y="42.0" text-anchor="start">0.4 rad/s</text>
-<text class="note" x="157.0" y="204.0" text-anchor="start">−0.4</text>
+<text class="note" x="157.0" y="42.0" text-anchor="start">0.35 rad/s</text>
+<text class="note" x="157.0" y="204.0" text-anchor="start">−0.35</text>
 <text class="note" x="112.9" y="89.1" text-anchor="end">d = 1</text>
 <text class="strong" x="102.0" y="170.0" text-anchor="start">d = 2</text>
 <circle class="estimate-dot" cx="150.0" cy="118.0" r="4.5"/>
@@ -140,5 +147,5 @@
 <li><span class="lv-mark">P</span><strong>✓ fused:</strong> the forward speed 1.25 and the yaw rate 0.6 standard deviations from the prediction: d = 1.4, inside the ellipse</li>
 <li><span class="lv-mark lv-drop">Q</span><strong>✕ not fused:</strong> each value 1.6 standard deviations from the prediction, so each value alone lies inside the rectangle. Together, d = 2.3, outside the ellipse</li>
 </ul>
-<figcaption>The distance between a measurement and the prediction, counted in standard deviations, with an example threshold of 2. In the second drawing, the axes are the differences y from the prediction, so the prediction, the green dot, lies at the origin. <code>ekf.yaml</code> sets no threshold. Example values: the IMU's standard deviation is the firmware's, the others are chosen for the figure.</figcaption>
+<figcaption>The distance between a measurement and the prediction, counted in standard deviations, with an example threshold of 2. The wheel odometry has its own, larger variance of the yaw rate, so the second drawing's standard deviation of the yaw rate is larger than the first's. The second drawing's axes are the differences y from the prediction, the green dot. Example values: the variances of the firmware and of <code>diffbot_control.yaml</code>, chosen ones for the prediction. <code>ekf.yaml</code> sets no threshold.</figcaption>
 </figure>
