@@ -237,7 +237,7 @@ After the next steps, the robot's files are in these places on the Raspberry Pi:
     └── log/              ROS's log files
 ```
 
-[Image and Tests](image.md#how-the-image-is-built) explains how the workspace gets into the image. `.ros` isn't part of the image: Compose mounts the Raspberry Pi's folder `~/robot-data` there, so the logs stay on the Raspberry Pi when the containers are removed.
+[Build the workspace](walkthrough.md#build-the-workspace) in the Code Walkthrough explains how the workspace gets into the image. `.ros` isn't part of the image: Compose mounts the Raspberry Pi's folder `~/robot-data` there, so the logs stay on the Raspberry Pi when the containers are removed.
 
 ## 7. Stable device names
 
@@ -329,24 +329,6 @@ stat -Lc %g /dev/teensy
 
 ### How `compose.yaml` uses the settings
 
-[`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml) describes two services, `bringup` and `lidar`. A service is a container that Compose starts, with its image, devices and settings. What both containers share is written once, in the block `x-robot`, and each service takes it over with `<<: *robot` (lines 21–48):
+[`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml) describes two services, `bringup` and `lidar`. A service is a container that Compose starts. The file fills the settings into the services' descriptions: the Docker image, the devices, the group, the folder for logs, the robot and the ROS network.
 
-```yaml title="compose.yaml" linenums="21"
---8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:21:48"
-```
-
-- **`image`** (line 25): the image from `ROBOT_IMAGE`, or the published one. Compose writes `${NAME:-default}` for a setting with a default.
-- **`network_mode: host`** (line 27): the containers use the Raspberry Pi's network directly, so their ROS nodes are reachable at its IP address, like native ones. ROS 1 needs this: besides the master's port 11311, every node opens its own random port, and the other nodes connect to it directly ([ROS Network Setup](../ros-network-setup.md)).
-- **`group_add`** (lines 30–31): the group with the number from `DIALOUT_GID`.
-- **`environment`** (lines 32–35): the environment variables inside the containers. `ROS_MASTER_URI`, `ROS_IP` and `ROS_HOSTNAME` are listed without a value: Compose takes their values from `.env`, or from the shell, when it creates the containers. A variable that's set in neither isn't set in the containers either ([`environment`](https://docs.docker.com/reference/compose-file/services/#environment)).
-- **`volumes`** (lines 38–43): mounts the logs folder as the containers' `~/.ros`, where ROS writes its logs. Compose doesn't create a missing folder: Docker would create it for root, and the user `ros` couldn't write into it.
-- **`logging`** (lines 47–48): Docker's [local log format](https://docs.docker.com/engine/logging/drivers/local/). By default, it keeps at most five files of 20 MB per container and deletes the oldest, so the containers' output can't fill the SD card. Docker's default format, json-file, keeps everything unless rotation is configured.
-
-Each service then adds what's its own (lines 50–70):
-
-```yaml title="compose.yaml" linenums="50"
---8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:50:70"
-```
-
-- **`bringup`** (lines 53–60): `build` tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in `.docker/robot`, for [your own build](versions.md#your-own-build). Its `context` is the whole repository, the folder whose files the Dockerfile can copy into the image. `devices` passes the Teensy into the container as `/dev/ttyACM0`, where the bringup's launch file expects it. `command` starts `bringup.launch` with the robot model from `ROBOT_MODEL`.
-- **`lidar`** (lines 64–70): runs only with the profile `lidar`, which `COMPOSE_PROFILES` selects. Compose starts it after the bringup (`depends_on`). It gets the lidar as `/dev/ttyUSB0` and starts `lidar.launch`, the lidar driver alone.
+[`compose.yaml`](walkthrough.md#composeyaml) in the Code Walkthrough goes through the file line by line, with a figure of which device and folder goes into which container, and a table from each setting to the line that uses the setting.

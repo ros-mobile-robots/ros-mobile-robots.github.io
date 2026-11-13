@@ -111,7 +111,7 @@ Only `diffbot_gazebo` registers catkin tests so far: the simulation test and the
 
 #### Robot container smoke test
 
-The [robot image](../processing_units/robot-container/image.md#how-its-tested) is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)).
+The [robot image](../processing_units/robot-container/image.md#how-its-tested) is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)). [The workflow](../processing_units/robot-container/walkthrough.md#the-workflow) in the Code Walkthrough goes through the workflow's file, job by job, and through the script that publishes the image.
 
 ### GitHub Actions versions
 

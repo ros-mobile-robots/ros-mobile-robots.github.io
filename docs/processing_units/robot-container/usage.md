@@ -296,7 +296,7 @@ docker compose exec bringup /entrypoint.sh rostopic list
 | `/entrypoint.sh` | The diffbot repository | [The entrypoint script]({{ robot_container_src_url }}/.docker/robot/entrypoint.sh). The script loads ROS and the workspace, then runs the rest of the line |
 | `rostopic list` | ROS | The command itself |
 
-The command has to name `/entrypoint.sh`. Docker runs this script by itself only for the container's main process, each time the container starts. For a process that `exec` adds later, Docker doesn't run the script. Without the script, ROS isn't loaded, and the command isn't found:
+The command has to name `/entrypoint.sh`. Docker runs this script by itself only for the container's main process, each time the container starts. For a process that `exec` adds later, Docker doesn't run the script ([Who starts the script](walkthrough.md#who-starts-the-script)). Without the script, ROS isn't loaded, and the command isn't found:
 
 ```text
 exec: "rostopic": executable file not found in $PATH
@@ -363,7 +363,7 @@ roslaunch and each node also write a log file. Inside a container, ROS writes th
 - **`target`** (line 41): the path inside the container. The path is the folder `.ros` in the home folder of the container's user `ros`. ROS writes its log files into the folder `log` below `.ros`.
 - **`create_host_path: false`** (line 43): Docker doesn't create a missing folder, for the reason in the comment. [Step 8](setup.md#8-the-folder-for-logs) of the setup creates the folder.
 
-So the log files are in `~/robot-data/log` on the Raspberry Pi. A container's own files are deleted with the container, at `docker compose down`. The files in the mounted folder stay.
+The lines are part of the block that both containers share ([What both containers share](walkthrough.md#what-both-containers-share)). So the log files are in `~/robot-data/log` on the Raspberry Pi. A container's own files are deleted with the container, at `docker compose down`. The files in the mounted folder stay.
 
 The files of one run are in one folder. ROS names the folder after the run's ID, which is set when the ROS master starts. So all starts of the robot under one `roscore` write into the same folder. To find the newest folder, on the Raspberry Pi:
 
