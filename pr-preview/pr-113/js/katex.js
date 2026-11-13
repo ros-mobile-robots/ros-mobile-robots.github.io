@@ -18,21 +18,29 @@ var katexMath = (function (root) {
     }
 });
 
-// Renders the math of an element that was appended to <body>, and keeps a preview that opens
-// above its link at Material's distance from the link. Material measures the preview's height
-// when it appends the preview, before this script renders the math, and stores the preview's
-// offset from the link in --md-tooltip-y, negative above the link. Rendering changes the height
-// of a short preview, so the offset changes by the same amount.
-var renderAdded = (function (element) {
+// Keeps a preview that opens above its link at Material's distance from the link, after the
+// preview's height has changed from heightBefore. Material measures the preview's height when
+// it appends the preview, before this script renders the math, and stores the preview's offset
+// from the link in --md-tooltip-y, negative above the link. Rendering changes the height of a
+// short preview, so the offset changes by the same amount. An element without a negative
+// offset stays as it is.
+var keepPreviewAboveItsLink = (function (preview, heightBefore) {
+    var offset = parseFloat(preview.style.getPropertyValue('--md-tooltip-y'));
+    if (offset < 0 && preview.offsetHeight !== heightBefore) {
+      preview.style.setProperty('--md-tooltip-y',
+                                (offset + heightBefore - preview.offsetHeight) + 'px');
+    }
+});
+
+// Renders the math of an element that was appended to <body>. Rendering can change the
+// element's height, so a hover preview is then moved back to its link.
+var renderMathOfAddedElement = (function (element) {
     if (!element.querySelector('.arithmatex')) {
       return;
     }
-    var height = element.offsetHeight;
+    var heightBefore = element.offsetHeight;
     katexMath(element);
-    var offset = parseFloat(element.style.getPropertyValue('--md-tooltip-y'));
-    if (offset < 0 && element.offsetHeight !== height) {
-      element.style.setProperty('--md-tooltip-y', (offset + height - element.offsetHeight) + 'px');
-    }
+    keepPreviewAboveItsLink(element, heightBefore);
 });
 
 (function () {
@@ -59,8 +67,9 @@ var renderAdded = (function (element) {
       new MutationObserver(function (records) {
         for (var i = 0; i < records.length; i++) {
           for (var j = 0; j < records[i].addedNodes.length; j++) {
-            if (records[i].addedNodes[j].nodeType === Node.ELEMENT_NODE) {
-              renderAdded(records[i].addedNodes[j]);
+            var addedNode = records[i].addedNodes[j];
+            if (addedNode.nodeType === Node.ELEMENT_NODE) {
+              renderMathOfAddedElement(addedNode);
             }
           }
         }
