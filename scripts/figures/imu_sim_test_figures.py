@@ -177,21 +177,33 @@ class Figure:
                 + '\n'.join(self.elements) + '\n</svg>')
 
 
+class Row(NamedTuple):
+    """A row of a timeline: the y position of its upper edge and its height."""
+
+    top: float
+    height: float
+
+    @property
+    def bottom(self) -> float:
+        """Return the y position of the row's lower edge."""
+        return self.top + self.height
+
+
 # The two drive tests: the layout that both timelines share
 DRIVE_WIDTH = 360
 DRIVE_HEIGHT = 380
 # Simulation time since the test's first command, with room after the last phase
 DRIVE_TIME = Scale(0.0, 3.3, 40.0, 348.0)
-COMMAND_BAR = (22, 20)  # its top and its height
+COMMAND_BAR = Row(top=22, height=20)
 PHASES_Y = 54
 ROBOT_TITLE_Y = 90
 ROBOT_Y = 126
 ROBOT_LABEL_Y = 164
 CHART_TITLE_Y = 186
-CHART = (196, 256)  # its top and its bottom
+CHART = Row(top=196, height=60)
 LEGEND_Y = 274
 MESSAGES_TITLE_Y = 314
-MESSAGES_BAR = (322, 8)  # its top and its height
+MESSAGES_BAR = Row(top=322, height=8)
 AXIS_Y = 346
 
 
@@ -211,23 +223,28 @@ class Robot(NamedTuple):
     anchor: str = 'middle'
 
 
+class Band(NamedTuple):
+    """The means of a reading that a drive test accepts: the lowest and the highest one."""
+
+    lowest: float
+    highest: float
+
+
 class Reading(NamedTuple):
     """The chart of the one reading that a drive test checks."""
 
     title: str  # SVG markup
     values: Scale
     ticks: Sequence[Tuple[float, str]]
-    accepted: Tuple[float, float]  # the lowest and the highest accepted mean
-    accepted_labels: Tuple[str, str]
+    accepted: Band
     legend: Sequence[Tuple[str, str]]  # (CSS class of the key, text)
 
 
 def draw_guide(figure: Figure, time: float) -> None:
     """Add a vertical guide at a time, in the rows without a label that the guide would cross."""
     x = DRIVE_TIME.position(time)
-    command_bottom = COMMAND_BAR[0] + COMMAND_BAR[1]
-    figure.path(f'M{x},{command_bottom + 4} V{PHASES_Y + 4} M{x},{CHART[0] - 4} V{CHART[1]} '
-                f'M{x},{MESSAGES_BAR[0] - 4} V{MESSAGES_BAR[0] + MESSAGES_BAR[1] + 2} '
+    figure.path(f'M{x},{COMMAND_BAR.bottom + 4} V{PHASES_Y + 4} M{x},{CHART.top - 4} '
+                f'V{CHART.bottom} M{x},{MESSAGES_BAR.top - 4} V{MESSAGES_BAR.bottom + 2} '
                 f'M{x},{AXIS_Y - 4} V{AXIS_Y}', 'grid')
 
 
@@ -235,7 +252,7 @@ def draw_command(figure: Figure, text: str, phases: Sequence[Phase], stops: bool
     """Add the command that the test sends, the phases below it and the guides at their ends."""
     figure.text(8, 14, f'The test sends this command, {COMMAND_RATE} times per second',
                 'row-title')
-    top, height = COMMAND_BAR
+    top, height = COMMAND_BAR.top, COMMAND_BAR.height
     start = DRIVE_TIME.position(0.0)
     end = DRIVE_TIME.position(sum(phase.seconds for phase in phases))
     figure.rectangle(start, top, end - start, height, 'command-wash', 4)
@@ -303,12 +320,12 @@ def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scal
         figure.text(left - 6, y + 4, label, 'note', 'end')
     band_left = DRIVE_TIME.position(measure_start)
     band_right = DRIVE_TIME.position(measure_start + MEASURE)
-    band_top = reading.values.position(reading.accepted[1])
-    band_bottom = reading.values.position(reading.accepted[0])
+    band_top = reading.values.position(reading.accepted.highest)
+    band_bottom = reading.values.position(reading.accepted.lowest)
     figure.rectangle(band_left, band_top, band_right - band_left, band_bottom - band_top,
                      'imu-wash')
-    figure.text(band_left - 4, band_bottom + 4, reading.accepted_labels[0], 'note', 'end')
-    figure.text(band_left - 4, band_top + 4, reading.accepted_labels[1], 'note', 'end')
+    figure.text(band_left - 4, band_bottom + 4, f'{reading.accepted.lowest:.2f}', 'note', 'end')
+    figure.text(band_left - 4, band_top + 4, f'{reading.accepted.highest:.2f}', 'note', 'end')
     for index, (key_class, text) in enumerate(reading.legend):
         y = LEGEND_Y + index * LINE_HEIGHT
         if key_class == 'imu-wash':
@@ -323,7 +340,7 @@ def draw_messages(figure: Figure, measure_start: float) -> None:
     """Add the IMU's messages, the ones the test keeps, and the time axis below them."""
     figure.text(8, MESSAGES_TITLE_Y, f'The IMU publishes, {IMU_RATE:g} messages per second',
                 'row-title')
-    top, height = MESSAGES_BAR
+    top, height = MESSAGES_BAR.top, MESSAGES_BAR.height
     left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
     figure.rectangle(left, top, right - left, height, 'imu-wash', 4)
     kept_left = DRIVE_TIME.position(measure_start)
@@ -355,11 +372,9 @@ def at_rest() -> Figure:
                 [(SETTLE / 2, ['may still brake', 'after the left turn'])])
     reading = Reading(
         title='Reading on the upward axis, ' + subscript('f', 'z') + ', in m/s²',
-        values=Scale(9.0, 10.6, CHART[1], CHART[0]),
+        values=Scale(9.0, 10.6, CHART.bottom, CHART.top),
         ticks=[(9.0, '9'), (10.0, '10')],
-        accepted=(GRAVITY - GRAVITY_TOLERANCE, GRAVITY + GRAVITY_TOLERANCE),
-        accepted_labels=(f'{GRAVITY - GRAVITY_TOLERANCE:.2f}',
-                         f'{GRAVITY + GRAVITY_TOLERANCE:.2f}'),
+        accepted=Band(lowest=GRAVITY - GRAVITY_TOLERANCE, highest=GRAVITY + GRAVITY_TOLERANCE),
         legend=[('reference-line', f'gravity in the simulation: {GAZEBO_GRAVITY} m/s²'),
                 ('imu-wash', f'accepted mean of the IMU’s readings: {GRAVITY} ± '
                              f'{GRAVITY_TOLERANCE}')])
@@ -392,11 +407,10 @@ def left_turn() -> Figure:
     draw_robots(figure, robots, [])
     reading = Reading(
         title='Turn rate about the upward axis, ' + subscript('ω', 'z') + ', in rad/s',
-        values=Scale(0.0, 0.7, CHART[1], CHART[0]),
+        values=Scale(0.0, 0.7, CHART.bottom, CHART.top),
         ticks=[(0.0, '0'), (TURN_RATE, f'{TURN_RATE}')],
-        accepted=(TURN_RATE - TURN_RATE_TOLERANCE, TURN_RATE + TURN_RATE_TOLERANCE),
-        accepted_labels=(f'{TURN_RATE - TURN_RATE_TOLERANCE:.2f}',
-                         f'{TURN_RATE + TURN_RATE_TOLERANCE:.2f}'),
+        accepted=Band(lowest=TURN_RATE - TURN_RATE_TOLERANCE,
+                      highest=TURN_RATE + TURN_RATE_TOLERANCE),
         legend=[('command-line', f'the test’s command: {TURN_RATE} rad/s'),
                 ('imu-wash', f'accepted mean of the IMU’s yaw rates: {TURN_RATE} ± '
                              f'{TURN_RATE_TOLERANCE}')])

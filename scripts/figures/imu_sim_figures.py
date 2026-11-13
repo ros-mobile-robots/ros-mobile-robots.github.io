@@ -18,17 +18,64 @@ Run from the repository root after changing a figure:
 """
 
 from typing import List
+from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
+
+class Lane(NamedTuple):
+    """A thread's lane on the drawing: the x positions of its left and right edges."""
+
+    left: float
+    right: float
+
+    @property
+    def width(self) -> float:
+        """Return the lane's width."""
+        return self.right - self.left
+
+    @property
+    def center(self) -> float:
+        """Return the x position of the lane's middle."""
+        return (self.left + self.right) / 2
+
+
+class Box(NamedTuple):
+    """A box on the drawing: its upper left corner and its size."""
+
+    x: float
+    y: float
+    width: float
+    height: float
+
+    @property
+    def right(self) -> float:
+        """Return the x position of the box's right edge."""
+        return self.x + self.width
+
+    @property
+    def bottom(self) -> float:
+        """Return the y position of the box's lower edge."""
+        return self.y + self.height
+
+    @property
+    def center_x(self) -> float:
+        """Return the x position of the box's middle."""
+        return self.x + self.width / 2
+
+    @property
+    def center_y(self) -> float:
+        """Return the y position of the box's middle."""
+        return self.y + self.height / 2
+
+
 WIDTH = 360
-# The two lanes: where each starts and ends, from left to right
-PHYSICS_LANE = (18, 178)
-SPINNER_LANE = (186, 352)
+PHYSICS_LANE = Lane(left=18, right=178)
+SPINNER_LANE = Lane(left=186, right=352)
 LANE_TOP = 62
 # The boxes above the lanes
-SPAWNER_BOX = (18, 8, 152, 38)
-QUEUE_BOX = (200, 8, 152, 38)
+SPAWNER_BOX = Box(x=18, y=8, width=152, height=38)
+QUEUE_BOX = Box(x=200, y=8, width=152, height=38)
 # Where the request leaves the queue downward, to the right of the spinner lane's name
 REQUEST_X = 338
 LINE_HEIGHT = 14
@@ -141,31 +188,25 @@ class Figure:
                 f'<defs>{heads}</defs>\n' + '\n'.join(self.elements) + '\n</svg>')
 
 
-def lane_center(lane: Tuple[float, float]) -> float:
-    """Return the x position of a lane's middle."""
-    return (lane[0] + lane[1]) / 2
-
-
 def draw_request(figure: Figure) -> None:
     """Add the spawner, the callback queue and the request between them (step 1)."""
-    x, y, width, height = SPAWNER_BOX
-    figure.rectangle(x, y, width, height, 'box')
-    figure.lines(x + width / 2, y + 16, [('controller spawner', ''),
-                                         ('another ROS node', 'note')])
-    queue_x, _, queue_width, _ = QUEUE_BOX
-    figure.rectangle(queue_x, y, queue_width, height, 'queue')
-    figure.lines(queue_x + queue_width / 2, y + 16, [('global callback queue', ''),
-                                                     ('a waiting list', 'note')])
-    figure.arrow(f'M{x + width},{y + height / 2} H{queue_x - 1}', 'request')
-    figure.step((x + width + queue_x) / 2, y + height / 2 - 12, 1)
+    spawner, queue = SPAWNER_BOX, QUEUE_BOX
+    figure.rectangle(spawner.x, spawner.y, spawner.width, spawner.height, 'box')
+    figure.lines(spawner.center_x, spawner.y + 16, [('controller spawner', ''),
+                                                    ('another ROS node', 'note')])
+    figure.rectangle(queue.x, queue.y, queue.width, queue.height, 'queue')
+    figure.lines(queue.center_x, queue.y + 16, [('global callback queue', ''),
+                                                ('a waiting list', 'note')])
+    figure.arrow(f'M{spawner.right},{spawner.center_y} H{queue.x - 1}', 'request')
+    figure.step((spawner.right + queue.x) / 2, spawner.center_y - 12, 1)
 
 
 def draw_lanes(figure: Figure) -> None:
     """Add the two lanes with their names."""
     for lane, name in ((PHYSICS_LANE, 'physics thread'), (SPINNER_LANE, 'ROS spinner thread')):
-        figure.rectangle(lane[0], LANE_TOP, lane[1] - lane[0], figure.height - LANE_TOP - 4,
-                         'lane', 6)
-        figure.text(lane_center(lane), LANE_TOP + 17, name, 'lane-name')
+        figure.rectangle(lane.left, LANE_TOP, lane.width, figure.height - LANE_TOP - 4, 'lane',
+                         6)
+        figure.text(lane.center, LANE_TOP + 17, name, 'lane-name')
     figure.elements.append(f'<text class="note" transform="translate(13,{LANE_TOP + 4}) '
                            'rotate(-90)" text-anchor="end">time</text>')
     figure.arrow(f'M9,{LANE_TOP + 34} V{figure.height - 10}', 'flow')
@@ -184,8 +225,7 @@ def with_the_original() -> Figure:
                     'stops. The ROS spinner thread finds the queue empty.')
     draw_request(figure)
     draw_lanes(figure)
-    left, right = PHYSICS_LANE
-    center = lane_center(PHYSICS_LANE)
+    left, right, center = PHYSICS_LANE.left, PHYSICS_LANE.right, PHYSICS_LANE.center
     # UpdateChild() holds ros::spinOnce(), which holds the callback. The two outer frames stay
     # open at the bottom: these functions never return
     figure.path(f'M{left + 4},262 V88 H{right - 4} V262', 'box')
@@ -200,14 +240,13 @@ def with_the_original() -> Figure:
                 ('waits for update()', '')])
     figure.step(left + 16, 166, 4)
     # The request goes from the queue down the spinner lane and into ros::spinOnce()
-    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX[1] + QUEUE_BOX[3]} V150 H{right - 9}', 'request')
+    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V150 H{right - 9}', 'request')
     figure.step(REQUEST_X, 112, 3)
     figure.box(left + 4, 286, right - left - 8, 'stuck',
                [('update()', 'mono stuck-text'), ('never runs: its thread waits', 'note')])
     figure.step(left + 4, 286, 5)
     figure.text(center, 340, 'deadlock: the clock stops', 'stuck-text strong')
-    spinner_left, spinner_right = SPINNER_LANE
-    figure.box(spinner_left + 20, 176, spinner_right - spinner_left - 40, 'idle',
+    figure.box(SPINNER_LANE.left + 20, 176, SPINNER_LANE.width - 40, 'idle',
                [('finds the queue', 'note'), ('empty', 'note')])
     return figure
 
@@ -224,8 +263,7 @@ def with_the_copy() -> Figure:
                     'returns, and the spawner gets its answer.')
     draw_request(figure)
     draw_lanes(figure)
-    left, right = PHYSICS_LANE
-    center = lane_center(PHYSICS_LANE)
+    left, right, center = PHYSICS_LANE.left, PHYSICS_LANE.right, PHYSICS_LANE.center
     width = right - left - 8
     figure.box(left + 4, 88, width, 'box',
                [('UpdateChild()', 'mono'), ('publishes the IMU message', 'note'),
@@ -237,10 +275,9 @@ def with_the_copy() -> Figure:
                                                   ('takes the change', 'note')])
     figure.step(left + 4, 222, 4)
     figure.lines(center, 282, [('next steps: the clock', 'note'), ('runs on', 'note')])
-    spinner_left, spinner_right = SPINNER_LANE
-    spinner_center = lane_center(SPINNER_LANE)
-    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX[1] + QUEUE_BOX[3]} V87', 'request')
-    figure.rectangle(spinner_left + 4, 88, spinner_right - spinner_left - 8, 172, 'callback')
+    spinner_left, spinner_center = SPINNER_LANE.left, SPINNER_LANE.center
+    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V87', 'request')
+    figure.rectangle(spinner_left + 4, 88, SPINNER_LANE.width - 8, 172, 'callback')
     figure.lines(spinner_center, 105, [('switch_controller', 'mono'), ('callback', 'note'),
                                        ('notes the change,', ''), ('waits for update()', '')])
     figure.step(spinner_left + 4, 88, 3)
