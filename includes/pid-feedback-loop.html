@@ -1,0 +1,84 @@
+<style>
+.md-typeset figure.pid-loop-figure{margin:1em auto;width:100%;max-width:480px}
+.pid-loop{width:100%;height:auto;--pid-value:#1e63c4;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .pid-loop{--pid-value:#82b1ff}
+.pid-loop text{fill:var(--md-default-fg-color);font-size:10px}
+.pid-loop .firmware{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.pid-loop .code{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.pid-loop .hardware{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.pid-loop .arrow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.pid-loop .arrow-head{fill:var(--md-default-fg-color--light)}
+.pid-loop .number-disc{fill:var(--md-default-fg-color)}
+.pid-loop .number{fill:var(--md-default-bg-color);font-size:9.5px;font-weight:700}
+.pid-loop .name{font-size:11px}
+.pid-loop .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.pid-loop .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.pid-loop .container-name{font-weight:700}
+.pid-loop .sign{font-size:13px;font-weight:700}
+.pid-loop .value{fill:var(--pid-value);font-weight:700}
+</style>
+<figure class="pid-loop-figure">
+<svg class="pid-loop" viewBox="0 0 360 480" role="img" aria-labelledby="pid-loop-title"><title id="pid-loop-title">One wheel's speed control loop in the Teensy firmware, with the motor driver, the motor, the wheel and the encoder</title><defs><marker id="pid-loop-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="code" x="30" y="6" width="150" height="34" rx="5"/>
+<text class="name" x="105.0" y="20.5" text-anchor="middle">Raspberry Pi</text>
+<text class="mono" x="105.0" y="33.5" text-anchor="middle">wheel_cmd_velocities</text>
+<path class="arrow" d="M105,40 V112" marker-end="url(#pid-loop-head)"/>
+<circle class="number-disc" cx="120" cy="52.5" r="7"/>
+<text class="number" x="120" y="55.7" text-anchor="middle">1</text>
+<text x="131" y="56" text-anchor="start">target wheel speed</text>
+<text class="value" x="131" y="68" text-anchor="start">6.06 rad/s</text>
+<rect class="firmware" x="4" y="74" width="352" height="176" rx="5"/>
+<text class="container-name" x="348" y="89" text-anchor="end">Teensy firmware, every 50 ms</text>
+<circle class="code" cx="105" cy="126" r="13"/>
+<text class="sign" x="92" y="114" text-anchor="end">+</text>
+<text class="sign" x="122" y="141" text-anchor="start">−</text>
+<path class="arrow" d="M265,180 V126 H119" marker-end="url(#pid-loop-head)"/>
+<circle class="number-disc" cx="136" cy="104.5" r="7"/>
+<text class="number" x="136" y="107.7" text-anchor="middle">7</text>
+<text x="147" y="108" text-anchor="start">measured wheel speed</text>
+<text class="value" x="147" y="120" text-anchor="start">5.56 rad/s</text>
+<path class="arrow" d="M105,139 V179" marker-end="url(#pid-loop-head)"/>
+<circle class="number-disc" cx="120" cy="152.5" r="7"/>
+<text class="number" x="120" y="155.7" text-anchor="middle">2</text>
+<text x="131" y="156" text-anchor="start">error</text>
+<text class="value" x="131" y="168" text-anchor="start">0.50 rad/s</text>
+<rect class="code" x="30" y="180" width="150" height="52" rx="5"/>
+<text class="name" x="105.0" y="197.0" text-anchor="middle">PID controller</text>
+<text class="mono" x="105.0" y="210.0" text-anchor="middle">PID::compute()</text>
+<text class="note" x="105.0" y="223.0" text-anchor="middle">K_P 0.6, K_I 0.3, K_D 0.5</text>
+<rect class="code" x="200" y="180" width="130" height="52" rx="5"/>
+<text class="name" x="265.0" y="203.5" text-anchor="middle">speed from ticks</text>
+<text class="mono" x="265.0" y="216.5" text-anchor="middle">Encoder::jointState()</text>
+<path class="arrow" d="M105,232 V303" marker-end="url(#pid-loop-head)"/>
+<circle class="number-disc" cx="120" cy="266.5" r="7"/>
+<text class="number" x="120" y="269.7" text-anchor="middle">3</text>
+<text x="131" y="270" text-anchor="start">motor command</text>
+<text class="value" x="131" y="282" text-anchor="start">96 (−255 to 255)</text>
+<rect class="hardware" x="30" y="304" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="321.5" text-anchor="middle">Motor driver</text>
+<text class="note" x="105.0" y="334.5" text-anchor="middle">Adafruit FeatherWing</text>
+<path class="arrow" d="M105,344 V397" marker-end="url(#pid-loop-head)"/>
+<circle class="number-disc" cx="120" cy="360.5" r="7"/>
+<text class="number" x="120" y="363.7" text-anchor="middle">4</text>
+<text x="131" y="364" text-anchor="start">PWM voltage to the motor</text>
+<text class="value" x="131" y="376" text-anchor="start">on 37.5 % of the time</text>
+<rect class="hardware" x="30" y="398" width="150" height="40" rx="5"/>
+<text class="name" x="105.0" y="415.5" text-anchor="middle">Motor and wheel</text>
+<text class="note" x="105.0" y="428.5" text-anchor="middle">DG01D-E gear motor</text>
+<path class="arrow" d="M180,418 H265 V345" marker-end="url(#pid-loop-head)"/>
+<circle class="number-disc" cx="193" cy="408.5" r="7"/>
+<text class="number" x="193" y="411.7" text-anchor="middle">5</text>
+<text x="204" y="412" text-anchor="start">rotation</text>
+<rect class="hardware" x="200" y="304" width="130" height="40" rx="5"/>
+<text class="name" x="265.0" y="321.5" text-anchor="middle">Encoder</text>
+<text class="note" x="265.0" y="334.5" text-anchor="middle">542 ticks per wheel turn</text>
+<path class="arrow" d="M265,304 V233" marker-end="url(#pid-loop-head)"/>
+<circle class="number-disc" cx="278" cy="266.5" r="7"/>
+<text class="number" x="278" y="269.7" text-anchor="middle">6</text>
+<text x="289" y="270" text-anchor="start">ticks</text>
+<text class="value" x="289" y="282" text-anchor="start">24 in 50 ms</text>
+<text class="value" x="180.0" y="458" text-anchor="middle">Blue: one control step of Remo's left wheel</text>
+<text class="value" x="180.0" y="471" text-anchor="middle">The ticks (6) are calculated from the measured speed (7)</text>
+</svg>
+<figcaption>One wheel's speed control loop. Start at the target wheel speed (1) and follow the numbers around the loop, back to the comparison in the circle. The boxes inside the Teensy firmware are code. The motor driver, the motor with the wheel and the encoder are hardware.</figcaption>
+</figure>
