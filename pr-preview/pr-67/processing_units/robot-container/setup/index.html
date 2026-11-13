@@ -1418,6 +1418,8 @@
       
         
       
+        
+      
     
     
     
@@ -1711,6 +1713,34 @@
     
   
     Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versions and Your Own Build
   
 
     
@@ -4710,7 +4740,7 @@
 <h1 id="set-up-the-raspberry-pi">Set Up the Raspberry Pi</h1>
 <p>These steps prepare the robot's Raspberry Pi for the <a href="../">robot container</a>, once. Each step says where it runs: on your PC, or on the Raspberry Pi over SSH. Afterwards, <a href="../usage/">Start, Check and Stop</a> starts the robot.</p>
 <h2 id="1-flash-ubuntu-server-2404">1. Flash Ubuntu Server 24.04</h2>
-<p>On your PC, with <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a> and the robot's microSD card. Imager asks for these settings, one screen each, shown in the tabs below:</p>
+<p>On your PC, write Ubuntu Server onto the robot's microSD card with <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>. Imager asks for these settings, one screen each, shown in the tabs below:</p>
 <ol>
 <li><strong>Device:</strong> Raspberry Pi 4.</li>
 <li><strong>OS:</strong> <em>Other general-purpose OS</em> → <em>Ubuntu</em> → <em>Ubuntu Server 24.04.5 <abbr title="Long-term support. A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic.">LTS</abbr> (64-bit)</em>. Ubuntu supports the <a href="https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/raspberry-pi/">Raspberry Pi 4 B</a> with this release.</li>
@@ -4758,7 +4788,7 @@
 </div>
 <p>The screenshots show Raspberry Pi Imager 2.0.12 with example settings, before writing. Use your own SD card, time zone, network and credentials. <a href="https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi">Ubuntu's guide</a> shows the same steps.</p>
 <h2 id="2-first-login-and-updates">2. First login and updates</h2>
-<p>The first boot takes a few minutes, while Ubuntu applies Imager's settings. Then find the Raspberry Pi's IP address in your router's list of devices. The Raspberry Pi gets its address from the router by DHCP, and when it asks for one, it also sends its hostname, so the router lists it under that name (<a href="https://manpages.ubuntu.com/manpages/noble/man5/systemd.network.5.html"><code>SendHostname=</code></a>, on by default). Then log in from your PC, with the user name from Imager and that address:</p>
+<p>The first boot takes a few minutes, while Ubuntu applies Imager's settings. Then find the Raspberry Pi's IP address in your router's list of devices. The Raspberry Pi gets its address from the router by DHCP. When it asks for an address, it also sends its hostname (<a href="https://manpages.ubuntu.com/manpages/noble/man5/systemd.network.5.html"><code>SendHostname=</code></a>, on by default). So the router lists it under that name. Then log in from your PC, with the user name from Imager and that address:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">ssh &lt;user&gt;@&lt;robot-ip&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>For example <code>ssh robot@192.168.1.20</code>. Once the first boot has finished, <code>ssh robot@remo.local</code> works too, with your hostname, from PCs that look up <code>.local</code> names (<em>Names instead of addresses</em> in <a href="#3-fixed-ip-addresses">step 3</a>).</p>
@@ -4771,7 +4801,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
 <li><strong><code>cloud-init status --wait</code>:</strong> <a href="https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status">cloud-init</a> is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi (<a href="#3-fixed-ip-addresses">step 3</a>), so it may still be installing packages when you log in. The command returns when cloud-init is done.</li>
-<li><strong><code>sudo apt update &amp;&amp; sudo apt full-upgrade</code>:</strong> the system on the SD card is as old as the image. <code>apt update</code> fetches the lists of available packages, and <code>apt full-upgrade</code> installs all updates published since, the Linux kernel included. Ubuntu installs security updates by itself, once a day (<a href="https://ubuntu.com/server/docs/how-to/software/automatic-updates/">automatic updates</a>). All other updates, such as bug fixes, come only with this command, so run it from time to time.</li>
+<li><strong><code>sudo apt update &amp;&amp; sudo apt full-upgrade</code>:</strong> the system on the SD card is as old as the Ubuntu image that Imager wrote. <code>apt update</code> fetches the lists of available packages, and <code>apt full-upgrade</code> installs all updates published since, the Linux kernel included. Ubuntu installs security updates by itself, once a day (<a href="https://ubuntu.com/server/docs/how-to/software/automatic-updates/">automatic updates</a>). All other updates, such as bug fixes, come only with this command, so run it from time to time.</li>
 <li><strong><code>sudo reboot</code>:</strong> restarts the Raspberry Pi, so that it runs the new kernel. After the restart, log in again.</li>
 </ul>
 <p>To check that the Raspberry Pi runs the new kernel, compare these two after the restart:</p>
@@ -4791,7 +4821,7 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">ROS_MASTER_URI</span><span class="o">=</span>http://192.168.1.10:11311
 <span class="nv">ROS_IP</span><span class="o">=</span><span class="m">192</span>.168.1.20
 </code></pre></div></td></tr></tbody></table></div>
-<p>and your PC, as in <a href="../../ros-network-setup/">ROS Network Setup</a>:</p>
+<p>In the PC's dev container, export the PC's network settings, as in <a href="../../ros-network-setup/">ROS Network Setup</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">PC: in the dev container</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">ROS_MASTER_URI</span><span class="o">=</span>http://192.168.1.10:11311
 <span class="nb">export</span><span class="w"> </span><span class="nv">ROS_IP</span><span class="o">=</span><span class="m">192</span>.168.1.10
@@ -4814,7 +4844,7 @@
 <li><strong><code>Poll interval</code>:</strong> how often it asks. It starts at 32 seconds and grows up to 34 minutes while the clock stays steady (<a href="https://manpages.ubuntu.com/manpages/noble/man5/timesyncd.conf.5.html">timesyncd.conf</a>).</li>
 </ul>
 <h2 id="5-docker-engine">5. Docker Engine</h2>
-<p>Docker Engine downloads the image and runs the containers. Install it the same way as on your PC (<a href="../../../getting-started/set-up-your-pc/#docker">Set Up Your PC</a>):</p>
+<p>Docker Engine downloads the robot's Docker image and runs the containers. Install it the same way as on your PC (<a href="../../../getting-started/set-up-your-pc/#docker">Set Up Your PC</a>):</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Docker's repository (recommended)</label><label for="__tabbed_2_2">Ubuntu's packages</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -4888,7 +4918,7 @@
 <li><strong>Buildx</strong> (<code>docker-buildx-plugin</code> or <code>docker-buildx</code>): the builder that <code>docker build</code> and Compose use.</li>
 <li><strong>Compose</strong> (<code>docker-compose-plugin</code> or <code>docker-compose-v2</code>): the <code>docker compose</code> command. It reads a <code>compose.yaml</code> file that describes the containers, their devices and their settings, so one command starts them all.</li>
 </ul>
-<p>That's all the robot needs: it downloads one image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself (<a href="../usage/#versions-and-your-own-build">Versions and your own build</a>). Members of the <code>docker</code> group can control Docker without <code>sudo</code>, which amounts to root access on the Raspberry Pi (<a href="https://docs.docker.com/engine/security/#docker-daemon-attack-surface">Docker's security notes</a>).</p>
+<p>That's all the robot needs: it downloads one Docker image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself (<a href="../versions/#your-own-build">Your own build</a>). Members of the <code>docker</code> group can control Docker without <code>sudo</code>, which amounts to root access on the Raspberry Pi (<a href="https://docs.docker.com/engine/security/#docker-daemon-attack-surface">Docker's security notes</a>).</p>
 </div>
 <h2 id="6-the-diffbot-repository">6. The diffbot repository</h2>
 <p>On the Raspberry Pi, clone the <a href="https://github.com/ros-mobile-robots/diffbot">diffbot repository</a> into your home folder:</p>
@@ -4929,7 +4959,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><a href="../image/#how-the-image-is-built">Image and Tests</a> explains how the workspace gets into the image. <code>.ros</code> isn't part of the image: Compose mounts the Raspberry Pi's folder <code>~/robot-data</code> there, so the logs stay on the Raspberry Pi when the containers are removed.</p>
 <h2 id="7-stable-device-names">7. Stable device names</h2>
-<p>The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always <code>/dev/ttyACM0</code>. <a href="https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html">udev</a>, the service that creates the device files, can add fixed names by rules. The repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/99-diffbot-robot.rules">rules</a> name the Teensy <code>/dev/teensy</code> and the lidar <code>/dev/rplidar</code>, recognized by their USB vendor and product IDs:</p>
+<p>The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always <code>/dev/ttyACM0</code>. <a href="https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html">udev</a>, the service that creates the device files, can add fixed names by rules. The repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/99-diffbot-robot.rules">rules</a> name the Teensy <code>/dev/teensy</code> and the lidar <code>/dev/rplidar</code>, recognized by their USB vendor and product IDs. Install the rules and check the names, on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -4946,6 +4976,7 @@
 </ol>
 <p><code>lsusb</code> lists the USB devices with their IDs: the Teensy is <code>16c0:0483</code>, the lidar's USB adapter <code>10c4:ea60</code>. Two devices with the same IDs need a rule with their serial number, as the <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/99-diffbot-robot.rules#L7-L8">rules file explains</a>.</p>
 <h2 id="8-the-folder-for-logs">8. The folder for logs</h2>
+<p>On the Raspberry Pi, create the folder for ROS's log files, and print your user ID:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">mkdir -p ~/robot-data</span>
 <span class="go">id -u</span>
@@ -4969,12 +5000,12 @@
 <span class="nv">ROS_IP</span><span class="o">=</span><span class="m">192</span>.168.1.20<span class="w"> </span><span class="c1"># (4)!</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ol>
-<li>The robot this Raspberry Pi is in: <code>remo</code> or <code>diffbot</code>. It selects the robot model and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.</li>
+<li>The robot this Raspberry Pi is in: <code>remo</code> or <code>diffbot</code>. It selects the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, the description of its links and joints, and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.</li>
 <li>Starts the lidar driver too. Leave this line out on a robot without a lidar. To switch the lidar off later, run <code>docker compose down</code> while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.</li>
 <li>The PC that runs <code>roscore</code>: <code>http://</code> and the PC's IP address, and <code>11311</code>, the ROS master's port (<a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI"><code>ROS_MASTER_URI</code></a>).</li>
 <li>The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address (<a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME"><code>ROS_IP</code></a>).</li>
 </ol>
-<p>On your PC, set <code>ROS_MASTER_URI</code> to the same value, and <code>ROS_IP</code> to the PC's own address, as in <a href="#3-fixed-ip-addresses">step 3</a>. Without <code>ROS_MASTER_URI</code>, the bringup starts its own ROS master on the robot, which is enough to check the robot alone.</p>
+<p>On your PC, set <code>ROS_MASTER_URI</code> to the same value, and <code>ROS_IP</code> to the PC's own address, as in <a href="#3-fixed-ip-addresses">step 3</a>. Without <code>ROS_MASTER_URI</code>, the bringup starts its own ROS master on the robot, which is enough to check the robot alone (<a href="../usage/#on-the-robot-alone">On the robot alone</a>).</p>
 <h3 id="when-compose-reads-env">When Compose reads <code>.env</code></h3>
 <p>Neither the Raspberry Pi's shell nor the containers read <code>.env</code>. Docker Compose does:</p>
 <ol>
@@ -5031,12 +5062,12 @@
 <tr>
 <td style="text-align: left;"><code>ROBOT_IMAGE</code></td>
 <td style="text-align: left;"><code>ghcr.io/ros-mobile-robots/diffbot-robot:noetic</code></td>
-<td style="text-align: left;">The image to run: the newest published one, a fixed version, or your own build (<a href="../usage/#versions-and-your-own-build">Versions and your own build</a>)</td>
+<td style="text-align: left;">The Docker image to run: the newest published one, a fixed version, or your own build (<a href="../versions/#versions">Versions</a>, <a href="../versions/#your-own-build">Your own build</a>)</td>
 </tr>
 </tbody>
 </table>
 <h3 id="why-dialout_gid-is-a-number">Why <code>DIALOUT_GID</code> is a number</h3>
-<p>Inside the container, the user <code>ros</code> may open the Teensy's device only as a member of the group that owns it, <code>dialout</code> on Ubuntu. Docker can add a group to the container's user by name or by number, but it looks a name up in the container's own list of groups, where the same name could have another number than on the Raspberry Pi. So <code>compose.yaml</code> adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:</p>
+<p>Inside the container, the user <code>ros</code> may open the Teensy's device only as a member of the group that owns it, <code>dialout</code> on Ubuntu. Docker can add a group to the container's user by name or by number. It looks a name up in the container's own list of groups. There, the same name could have another number than on the Raspberry Pi. So <code>compose.yaml</code> adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">stat -Lc %g /dev/teensy</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><a href="https://manpages.ubuntu.com/manpages/noble/man1/stat.1.html"><code>stat</code></a> shows a file's details, and <code>%g</code> its group's number. <code>-L</code> follows the link <code>/dev/teensy</code> to the real device. Without it, <code>stat</code> shows the group of the link itself. Write the number into <code>.env</code>: Compose doesn't run commands in it.</p>
@@ -5150,7 +5181,7 @@
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roslaunch diffbot_bringup lidar.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>bringup</code></strong> (lines 53–60): <code>build</code> tells Compose how to build the image, from the <a href="../image/#how-the-image-is-built">Dockerfile</a> in <code>.docker/robot</code>, for <a href="../usage/#versions-and-your-own-build">your own build</a>. Its <code>context</code> is the whole repository, the folder whose files the Dockerfile can copy into the image. <code>devices</code> passes the Teensy into the container as <code>/dev/ttyACM0</code>, where the bringup's launch file expects it. <code>command</code> starts <code>bringup.launch</code> with the robot model from <code>ROBOT_MODEL</code>.</li>
+<li><strong><code>bringup</code></strong> (lines 53–60): <code>build</code> tells Compose how to build the image, from the <a href="../image/#how-the-image-is-built">Dockerfile</a> in <code>.docker/robot</code>, for <a href="../versions/#your-own-build">your own build</a>. Its <code>context</code> is the whole repository, the folder whose files the Dockerfile can copy into the image. <code>devices</code> passes the Teensy into the container as <code>/dev/ttyACM0</code>, where the bringup's launch file expects it. <code>command</code> starts <code>bringup.launch</code> with the robot model from <code>ROBOT_MODEL</code>.</li>
 <li><strong><code>lidar</code></strong> (lines 64–70): runs only with the profile <code>lidar</code>, which <code>COMPOSE_PROFILES</code> selects. Compose starts it after the bringup (<code>depends_on</code>). It gets the lidar as <code>/dev/ttyUSB0</code> and starts <code>lidar.launch</code>, the lidar driver alone.</li>
 </ul>
 <!-- Mechanical parts and tools -->

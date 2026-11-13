@@ -8,7 +8,7 @@
         <link rel="canonical" href="https://ros-mobile-robots.com/pr-preview/pr-67/processing_units/robot-container/troubleshooting/">
       
       
-        <link rel="prev" href="../usage/">
+        <link rel="prev" href="../versions/">
       
       
         <link rel="next" href="../image/">
@@ -1418,6 +1418,8 @@
       
         
       
+        
+      
     
     
     
@@ -1515,6 +1517,34 @@
     
   
     Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versions and Your Own Build
   
 
     
@@ -4426,6 +4456,16 @@
 <td style="text-align: left;">Start <code>roscore</code> first, then <code>docker compose up -d --no-build</code>. Correct <code>ROS_MASTER_URI</code>. A PC with <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 needs <a href="../../ros-network-setup/#work-machine-on-windows-wsl-2">mirrored networking</a></td>
 </tr>
 <tr>
+<td style="text-align: left;">Without <code>ROS_MASTER_URI</code> and with the lidar, the bringup or the lidar stops with <em>run_id on parameter server does not match declared run_id</em></td>
+<td style="text-align: left;"><code>docker compose ps -a</code> shows one of the two as <code>Exited</code></td>
+<td style="text-align: left;">Both containers started a ROS master. <code>docker compose --profile lidar down</code>, then use the robot alone without the lidar, or the ROS master on the PC (<a href="../usage/#without-any-pc">Without any PC</a>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>docker compose exec bringup</code> with a ROS command stops with <em>executable file not found in $PATH</em></td>
+<td style="text-align: left;">The command has no <code>/entrypoint.sh</code> in front of the ROS command</td>
+<td style="text-align: left;">Put the script in front: <code>docker compose exec bringup /entrypoint.sh rostopic list</code> (<a href="../usage/#on-the-robot-alone">On the robot alone</a>)</td>
+</tr>
+<tr>
 <td style="text-align: left;">The PC lists the robot's topics, but <code>rostopic hz</code> shows no messages</td>
 <td style="text-align: left;"><code>ROS_IP</code> on each machine is its own address</td>
 <td style="text-align: left;">Correct <code>ROS_IP</code> on the robot or the PC. Both directions must work (<a href="../../ros-network-setup/">ROS Network Setup</a>)</td>
@@ -4543,7 +4583,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer">
         
           
-          <a href="../usage/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Start, Check and Stop">
+          <a href="../versions/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Versions and Your Own Build">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
@@ -4553,7 +4593,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Start, Check and Stop
+                Versions and Your Own Build
               </div>
             </div>
           </a>

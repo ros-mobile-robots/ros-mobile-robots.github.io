@@ -1437,6 +1437,8 @@
       
         
       
+        
+      
     
     
     
@@ -1534,6 +1536,34 @@
     
   
     Start, Check and Stop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versions and Your Own Build
   
 
     
@@ -4422,7 +4452,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Experimental: not tested on a robot yet</p>
-<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the image for arm64, the Raspberry Pi's processor architecture, and tests it without hardware (<a href="image/#how-its-tested">How it's tested</a>). It hasn't driven a robot yet. The test with teleop and the lidar on a Raspberry Pi in Remo is open in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>, and the setup steps follow Ubuntu's and Docker's documentation but haven't been run on that Raspberry Pi either. The native setup, <a href="../rpi-setup/">Raspberry Pi Setup</a> and <a href="../ros-setup/">ROS Setup</a>, stays documented as the alternative.</p>
+<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the robot's Docker image for arm64, the Raspberry Pi's processor architecture, and tests it without hardware (<a href="image/#how-its-tested">How it's tested</a>). It hasn't driven a robot yet. The test with teleop and the lidar on a Raspberry Pi in Remo is open in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>. The setup steps follow Ubuntu's and Docker's documentation. They haven't been run on that Raspberry Pi either. The native setup, <a href="../rpi-setup/">Raspberry Pi Setup</a> and <a href="../ros-setup/">ROS Setup</a>, stays documented as the alternative.</p>
 </div>
 <h2 id="how-it-fits-together">How it fits together</h2>
 <div class="mermaid">graph LR
@@ -4442,7 +4472,7 @@
   B ---|USB serial| T
   L ---|USB serial| S
   DEV -.-&gt;|firmware, flashed&lt;br/&gt;from the PC| T</div>
-<p>The robot is Remo or DiffBot, with its Raspberry Pi, its Teensy and, if it has one, its lidar. The Raspberry Pi runs Ubuntu Server 24.04 and Docker, and two containers, both from the same image: the bringup and the lidar. They talk ROS with your PC over the network, in both directions, and to the Teensy and the lidar over USB. The Teensy's firmware isn't part of the container: you flash it from the PC.</p>
+<p>The robot is Remo or DiffBot, with its Raspberry Pi, its Teensy and, if it has one, its lidar. The Raspberry Pi runs Ubuntu Server 24.04 and Docker, and two containers, both from the same Docker image: the bringup and the lidar. They talk ROS with your PC over the network, in both directions, and to the Teensy and the lidar over USB. The Teensy's firmware isn't part of the container: you flash it from the PC.</p>
 <p>What runs where, and which page explains it:</p>
 <table>
 <thead>
@@ -4465,8 +4495,8 @@
 </tr>
 <tr>
 <td style="text-align: left;">The robot containers, on the Raspberry Pi</td>
-<td style="text-align: left;">ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robot models and the lidar driver. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds and tests their image and publishes it, and Docker downloads it to the Raspberry Pi</td>
-<td style="text-align: left;"><a href="usage/">Start, Check and Stop</a>, <a href="image/">Image and Tests</a></td>
+<td style="text-align: left;">ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models and the lidar driver. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds and tests their Docker image and publishes it, and Docker downloads it to the Raspberry Pi</td>
+<td style="text-align: left;"><a href="usage/">Start, Check and Stop</a>, <a href="versions/">Versions and Your Own Build</a>, <a href="image/">Image and Tests</a></td>
 </tr>
 <tr>
 <td style="text-align: left;">The Teensy</td>
@@ -4479,15 +4509,16 @@
 <ol>
 <li><a href="setup/">Set Up the Raspberry Pi</a>: once, from the empty microSD card to the settings.</li>
 <li><a href="usage/">Start, Check and Stop</a>: each time you use the robot, and where its logs are.</li>
+<li><a href="versions/">Versions and Your Own Build</a>: how to update the robot's Docker image, how to stay on one version, and how to build the image yourself.</li>
 <li><a href="troubleshooting/">Troubleshooting</a>: what you might see, how to find the cause, and how to fix it.</li>
-<li><a href="image/">Image and Tests</a>: how the image is built, what takes its space, and how <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> tests it.</li>
+<li><a href="image/">Image and Tests</a>: how the Docker image is built, what takes its space, and how <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> tests it.</li>
 </ol>
 <h2 id="limitations-and-planned-work">Limitations and planned work</h2>
 <ul>
-<li><strong>The camera.</strong> The Raspberry Pi camera driver, <code>raspicam_node</code>, needs the Raspberry Pi's legacy camera stack, which current operating systems no longer have. A driver for libcamera is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/111">diffbot#111</a>.</li>
+<li><strong>The camera:</strong> the Raspberry Pi camera driver, <code>raspicam_node</code>, needs the Raspberry Pi's legacy camera stack, which current operating systems no longer have. A driver for libcamera is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/111">diffbot#111</a>.</li>
 <li><strong><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> and <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> on the Raspberry Pi</strong> aren't passed into the containers yet. The current robots don't need them: the motor driver and the optional <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> connect to the Teensy, which reaches the Raspberry Pi over USB (<a href="../">Processing Units</a>). Parts on the Raspberry Pi's own pins wouldn't work in the containers yet, such as the Grove motor driver of earlier DiffBot versions or the ultrasonic ranger (<a href="../hardware-interfaces/">Hardware Interfaces</a>).</li>
-<li><strong>Starting at boot.</strong> For now, start the robot with the command in <a href="usage/#start">Start, Check and Stop</a> after logging in. An automatic start needs the Teensy, the network, the synchronized clock and the PC's ROS master when the Raspberry Pi boots. Docker's restart policy alone can't handle a missing device, so this needs its own tests.</li>
-<li><strong>A smaller image.</strong> <code>diffbot_description</code> and <code>remo_description</code> declare RViz as a dependency, because they have launch files that open RViz. So the image contains RViz with its graphics libraries, about 0.7 GB, which the robot never shows (<a href="image/#what-takes-the-space">What takes the space</a>). Husky, for example, keeps its RViz launch files in a package of their own, <a href="https://github.com/husky/husky/blob/noetic-devel/husky_viz/package.xml"><code>husky_viz</code></a>, and its description package doesn't declare RViz. The same split here would leave RViz out of the image.</li>
+<li><strong>Starting at boot:</strong> for now, start the robot with the command in <a href="usage/#start">Start, Check and Stop</a> after logging in. An automatic start needs the Teensy, the network, the synchronized clock and the PC's ROS master when the Raspberry Pi boots. Docker's restart policy alone can't handle a missing device, so this needs its own tests.</li>
+<li><strong>A smaller Docker image:</strong> <code>diffbot_description</code> and <code>remo_description</code> declare RViz as a dependency, because they have launch files that open RViz. So the image contains RViz with its graphics libraries, about 0.7 GB, which the robot never shows (<a href="image/#what-takes-the-space">What takes the space</a>). Husky, for example, keeps its RViz launch files in a package of their own, <a href="https://github.com/husky/husky/blob/noetic-devel/husky_viz/package.xml"><code>husky_viz</code></a>, and its description package doesn't declare RViz. The same split here would leave RViz out of the image.</li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
