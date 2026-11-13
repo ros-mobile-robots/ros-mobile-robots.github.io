@@ -43,7 +43,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 - **Why:** explain why, in short, plain sentences, one idea per paragraph. Theory pages teach concepts with the robots as examples. Package and setup pages say how to do something.
 - **Terms:** define a term where a page first uses it, and link it to the page that explains it. `includes/glossary.yml` holds the terms that many pages share.
 - **Links:** a link's text says what the link leads to: the title of the page or section, the path of the file, or what the issue is about. Never "here", "this" or a bare number.
-- **Quantities:** a quantity has its symbol and its unit where a page first names it, and the same symbol after that: "the yaw rate $\omega_z$ (rad/s)". SI units with a space (`0.5 kg`, `3 s`).
+- **Quantities:** a value always has its unit, in SI units with a space (`0.5 kg`, `3 s`). A quantity also has its symbol on a page that has a formula or a figure with that symbol: from where the page first names the quantity, and the same symbol after that, as in "the yaw rate $\omega_z$ (rad/s)". A page of setup steps without formulas needs no symbols.
 - **Which model:** say which one you mean, the robot's URDF model (the xacro files), the SDF model that Gazebo converts it to, or the real robot. Never "the model" alone where two of them are near.
 - **Where a command runs:** on the PC, in the dev container or on the robot.
 - **The current state:** describe how things are. How the code or the text got there belongs in the pull request: no "now", "no longer", "previously". Don't name contributors or their decisions.

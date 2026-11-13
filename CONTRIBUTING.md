@@ -31,7 +31,7 @@ Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules)
 
 - **Why:** explain why, not only what. The reader should understand the robot well enough to change it. Short, plain sentences, one idea per paragraph, few semicolons.
 - **Terms and links:** define a term where the page first uses it, and give every link a text that says what it leads to, never "here" or a bare number.
-- **Quantities:** give a quantity its symbol and unit where the page first names it, such as "the yaw rate $\omega_z$ (rad/s)". Use SI units with a space (`0.5 kg`, `3 s`).
+- **Quantities:** give every value its unit, in SI units with a space (`0.5 kg`, `3 s`). Give a quantity its symbol too on a page that has a formula or a figure with that symbol, such as "the yaw rate $\omega_z$ (rad/s)".
 - **Code:** introduce every code excerpt with a full sentence, show the excerpt for every line range you point to, and use the code's own names in the text. A configuration list whose meaning lies in the position of its values gets a table with one row per position.
 - **Figures and order:** draw a figure where the page explains a flow, a structure or a sequence over time, and let the sections follow the order of execution.
 - **Tests:** a feature's pages include a tests page that explains each test in order (what it sets up, what goes in, what happens, what is checked and with which tolerance), with the code excerpts and a picture per test.

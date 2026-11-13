@@ -7,7 +7,7 @@
 ## How it was checked
 
 <!-- mkdocs build --strict, the preview, and what you compared facts, figures or code excerpts with. -->
-<!-- For a page about a feature: every excerpt has a sentence before it, quantities have their symbol and unit, and the feature's tests are walked through, with a picture per test. -->
+<!-- For a page about a feature: every excerpt has a sentence before it, values have their unit, quantities have their symbol where a formula or a figure uses it, and the feature's tests are walked through, with a picture per test. -->
 
 <!-- Remove the next line if there's no issue. -->
 Closes #
