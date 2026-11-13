@@ -502,7 +502,53 @@ The filter doesn't read the sample's `orientation` and `linear_acceleration`, be
 
 #### The variances
 
-A message stores a covariance matrix row by row. `twist.covariance` has 6 × 6 elements for the three linear and the three angular velocities, so the variances on its diagonal are the elements 0, 7, 14, 21, 28 and 35. `angular_velocity_covariance` has 3 × 3 elements, with the variances at 0, 4 and 8. These settings supply the numbers:
+A covariance matrix $\boldsymbol\Sigma$ holds the uncertainties of several values at once. Its element in row $i$ and column $j$ is the covariance of the $i$-th and the $j$-th value. On the diagonal, where $i = j$, the element is the variance $\sigma^2$ of one value. Off the diagonal, the element says how the errors of two different values go together. For the IMU's angular velocity $\boldsymbol\omega$, the matrix is:
+
+$$
+\boldsymbol\Sigma_{\boldsymbol\omega} = \begin{pmatrix}
+\sigma^2_{\omega_x} & \sigma_{\omega_x \omega_y} & \sigma_{\omega_x \omega_z} \\
+\sigma_{\omega_y \omega_x} & \sigma^2_{\omega_y} & \sigma_{\omega_y \omega_z} \\
+\sigma_{\omega_z \omega_x} & \sigma_{\omega_z \omega_y} & \sigma^2_{\omega_z}
+\end{pmatrix}
+$$
+
+A message has no type for a matrix, so it stores the matrix as an array, row by row: first the elements of row 0, then those of row 1, and so on. With $n$ rows and $n$ columns, counted from 0, the element in row $i$ and column $j$ has the index $k$ in the array:
+
+$$
+k = n\,i + j
+$$
+
+`twist.covariance` holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n = 6$. Its variances lie at the indices 0, 7, 14, 21, 28 and 35. `angular_velocity_covariance` holds the 3 × 3 matrix above, with $n = 3$ and the variances at 0, 4 and 8. The figure shows both matrices with the index of each element:
+
+--8<-- "includes/localization-covariances.html"
+
+What fills the elements, and what the filter does with them:
+
+- **Only the diagonals are filled:** the drive controller and the firmware write a variance onto each element of the diagonal and leave every other element at 0. So both messages say that the errors of two different values don't go together.
+- **The filter copies all elements:** robot_localization copies each array into a matrix, element by element, and rotates the matrix into `base_footprint`. The wheel odometry's velocities are in `base_footprint` already. The z axis of `imu_link` points up like the robot's, so the rotation leaves the yaw rate's variance at index 8 as it is.
+- **The filter fuses four variances:** the three of the wheel odometry's fused velocities, at 0, 7 and 35, and the IMU's yaw rate's, at 8. These are the cells with a check mark.
+- **`two_d_mode` replaces the hatched variances:** the variances of $v_z$, $\omega_x$ and $\omega_y$ become 10⁻⁶, as [What `two_d_mode` does](#what-two_d_mode-does) explains.
+
+??? quote "The code that fills the arrays and copies them into matrices"
+    The drive controller writes the six values of its parameter `twist_covariance_diagonal` onto the diagonal of `twist.covariance` and 0 everywhere else, in its function `setOdomPubFields()`, as [lines 722–728 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L722-L728) in ros_controllers 0.22.0 show:
+
+    ```cpp linenums="722"
+    --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:722:728"
+    ```
+
+    The firmware's function `ImuPublisher::publish()` writes `angular_velocity_variance` to the indices 0, 4 and 8 of `angular_velocity_covariance`, as [lines 220–224 of `imu_publisher.h`]({{ ekf_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L220-L224) show:
+
+    ```cpp linenums="220"
+    --8<-- "{{ ekf_src_raw }}/diffbot_firmware/lib/imu/imu_publisher.h:220:224"
+    ```
+
+    robot_localization's function `copyCovariance()` takes the element in row `i` and column `j` from the index `dimension * i + j` of the array, which is $k = n\,i + j$ with `dimension` as $n$, as [lines 2336–2340 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2336-L2340) in robot_localization 2.7.7 show:
+
+    ```cpp linenums="2336"
+    --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp:2336:2340"
+    ```
+
+These settings supply the numbers on the diagonals:
 
 - **The wheel odometry's variances:** the drive controller publishes the values of its parameter `twist_covariance_diagonal` in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml), on the robot and in the simulation.
 - **The IMU's variance on the robot:** the firmware publishes its setting `angular_velocity_variance`, 4 · 10⁻⁴ (rad/s)². [What the firmware publishes](driver-bno055.md#what-the-firmware-publishes) on the BNO055 page lists the firmware's settings. The value is a starting value from the datasheet's noise and offsets. The [bench checks](driver-bno055.md#bench-checks) on the same page measured the gyroscope's noise with the robot at rest: a variance of 2 to 6 · 10⁻⁷ (rad/s)². The starting value stays for now, because driving adds vibration and drift, which a recording at rest doesn't show.
@@ -624,27 +670,54 @@ The IMU sample validator is the ROS node `/diffbot/imu_validator`, from [`imu_va
 
 ### Why the EKF needs the validator
 
-robot_localization checks the stamp of every message of an input itself. But this stamp check allows equal stamps and doesn't limit a sample's age. Three facts about robot_localization 2.7.7, the version in the dev container, matter here:
+robot_localization checks the stamp of every message of an input itself. But this stamp check allows equal stamps and doesn't limit a sample's age. Three facts about robot_localization 2.7.7, the version in the dev container, matter here. The figures and the formulas use four times:
 
-1. **The stamp check compares with the input's last stamp, not with the clock:** the IMU's angular velocity passes the check when its stamp `msg->header.stamp` isn't earlier than `lastMessageTimes_`, the last stamp of the same input. So an equal stamp passes, and so does a stamp that lies far behind the ROS time.
-2. **The filter predicts only forward in time:** `delta` is the time from the last measurement that the filter processed to the new measurement. When the new measurement's stamp isn't later, `delta` is not positive. The filter then skips `predict()` and corrects its current estimate with the measurement.
-3. **The filter doesn't go back in time:** [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) off, so the filter doesn't return to the time of a late measurement.
+- **$t$:** the ROS time, the clock of the receiving node when a sample arrives.
+- **$t_s$:** the sample's stamp, `msg->header.stamp`.
+- **$t_\text{input}$:** `lastMessageTimes_`, the last stamp of the same input that the filter took.
+- **$t_\text{filter}$:** `lastMeasurementTime_`, the stamp of the last measurement that the filter processed, from either input.
+
+**1. The stamp check compares with the input's last stamp, not with the clock:** the filter takes an IMU sample when $t_s \ge t_\text{input}$. So an equal stamp passes, and so does a stamp that lies far behind the ROS time $t$, as the figure shows:
+
+--8<-- "includes/localization-stamp-check.html"
+
+**2. The filter predicts only forward in time:** the time step $\Delta t$, in s, is the time from the filter's time to the new measurement's stamp:
+
+$$
+\Delta t = t_s - t_\text{filter}
+$$
+
+- **When $\Delta t > 0$:** the filter predicts its estimate forward by $\Delta t$, to $t_s$, and then corrects it with the measurement. $t_s$ becomes the new $t_\text{filter}$.
+- **When $\Delta t = 0$:** the filter skips the prediction and corrects its estimate with the measurement. $t_\text{filter}$ stays.
+- **When $\Delta t < 0$:** the filter skips the prediction too, and corrects its estimate at $t_\text{filter}$ with the older measurement. $t_\text{filter}$ stays.
+
+**3. The filter doesn't go back in time:** [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) off, so the filter doesn't return to $t_s$ to process a late measurement in its place.
+
+The figure shows the second and the third fact for a current and for a late IMU sample:
+
+--8<-- "includes/localization-time-step.html"
 
 So a delayed sample, or a sample with the same stamp as the sample before, can pass the filter's stamp check. If the sample also passes the filter's other input checks, such as the transform into `base_footprint`, the filter corrects its current estimate with the sample, as if the sample were current. A sample that waited in a buffer would count as the robot's yaw rate $\omega_z$ now.
 
 The collapsed box shows the code of the first two facts.
 
 ??? quote "ros_filter.cpp and filter_base.cpp: the stamp check, and prediction only forward in time"
-    [Lines 2197–2221 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2221) show the stamp check of an angular velocity:
+    The function `twistCallback()` checks the stamp of an angular velocity, as [lines 2197–2221 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2221) show:
 
     ```cpp linenums="2197"
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp:2197:2221"
     ```
 
-    [Lines 205–234 of `filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L205-L234) show that the filter predicts only when `delta` is positive:
+    The function `processMeasurement()` computes `delta`, $\Delta t$, from `measurement.time_`, $t_s$, and `lastMeasurementTime_`, $t_\text{filter}$. The function calls `predict()` only when `delta` is positive, and then `correct()`, as [lines 205–234 of `filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L205-L234) show:
 
     ```cpp linenums="205"
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:205:234"
+    ```
+
+    At its end, the function moves `lastMeasurementTime_` to the measurement's stamp only when `delta` is not negative, as [lines 259–262 of `filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L259-L262) show:
+
+    ```cpp linenums="259"
+    --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:259:262"
     ```
 
 Two settings of the EKF sound as if they covered this case. They don't:
@@ -656,21 +729,44 @@ Neither setting looks at a sample's age, its frame or a repeated stamp.
 
 ### The five checks
 
-A sample is valid only if it passes all five checks of the list below the figure. For each sample, the node calls `validate_and_record()` of the class `ImuValidator`, which runs the checks in this order and returns the reason of the first one that fails. In the figure and in the list, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
+A sample is valid only if it passes all five checks. For each sample, the node calls `validate_and_record()` of the class `ImuValidator`, which runs the checks and returns the reason of the first one that fails. In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
 
---8<-- "includes/localization-validator-checks.html"
+Before the first check, the node drops every sample while the ROS time is zero. With simulation time, the ROS time is zero until the first message on Gazebo's topic `/clock` arrives. `frame_id`, `max_age` and `max_future` are the node's parameters, which [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) sets.
+
+#### Checks 1 to 3: the sample's form
+
+The first three checks look at the sample's frame, values and variances, as the figure shows:
+
+--8<-- "includes/localization-validator-form.html"
 
 1. **The frame:** `check_frame()` checks that the sample's `header.frame_id` is the node's parameter `frame_id`, `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
 2. **The values:** `check_finite_values()` checks that the three components of the angular velocity $\boldsymbol\omega$ and of the accelerometer's reading $\mathbf f$, the field `linear_acceleration`, are finite numbers, so that none is NaN or infinite.
 3. **The variances:** `check_angular_velocity_covariance()` checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances $\sigma^2$, is positive.
-4. **The stamp against the ROS time:** `check_not_too_old()` and `check_not_from_the_future()` check that the sample's stamp lies in this interval: $t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}$. A stamp can fail only one of the two checks, so their order doesn't matter.
-    - **Not too old:** the stamp is at most `max_age`, 0.1 s, older than the ROS time. That is five samples at the IMU's 50 Hz. On the robot, a sample takes time to travel from the Teensy over USB and through rosserial's node. So its stamp is normally a little older than the ROS time when the sample arrives, as sample B in the figure. A sample that waited long in a buffer on the way is older than `max_age`, as sample A.
-    - **Not too far ahead:** the stamp is at most `max_future`, 0.02 s, ahead of the ROS time. That is one sample. The Teensy stamps a sample with its own clock, which rosserial synchronizes only approximately with the SBC's clock. The offset that remains between the two clocks can put a stamp ahead of the ROS time, as sample C. In the simulation, a sample can arrive before the node has received the matching message on the topic `/clock`. Sample D is ahead by more than `max_future`. `max_future` is the allowed difference, not a measured delay.
-5. **The stamp against the last forwarded sample:** `check_newer_than_the_last()` checks that the sample's stamp is later than the stamp of the last forwarded sample: $t_s > t_\text{last}$. A sample with an older stamp arrived out of order, as sample E. A sample with the same stamp came twice, as sample F.
 
-Before the first check, the node drops every sample while the ROS time is zero. With simulation time, the ROS time is zero until the first message on Gazebo's topic `/clock` arrives. When the ROS time goes back, for example after a call of the service `/gazebo/reset_simulation`, the order check starts over from the new time.
+#### Check 4: the stamp against the ROS time
 
-`frame_id`, `max_age` and `max_future` are the node's parameters, which [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) sets. The values of `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured.
+`check_not_too_old()` and `check_not_from_the_future()` check that the sample's stamp lies in this interval:
+
+$$
+t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
+$$
+
+A stamp can fail only one of the two checks, so their order doesn't matter. The figure shows samples inside and outside the interval:
+
+--8<-- "includes/localization-validator-time.html"
+
+- **Not too old:** the stamp is at most `max_age`, 0.1 s, older than the ROS time. That is five samples at the IMU's 50 Hz. On the robot, a sample takes time to travel from the Teensy over USB and through rosserial's node. So its stamp is normally a little older than the ROS time when the sample arrives, as sample B. A sample that waited long in a buffer on the way is older than `max_age`, as sample A.
+- **Not too far ahead:** the stamp is at most `max_future`, 0.02 s, ahead of the ROS time. That is one sample. The Teensy stamps a sample with its own clock, which rosserial synchronizes only approximately with the SBC's clock. The offset that remains between the two clocks can put a stamp ahead of the ROS time, as sample C. In the simulation, a sample can arrive before the node has received the matching message on the topic `/clock`. Sample D is ahead by more than `max_future`. `max_future` is the allowed difference, not a measured delay.
+
+The values of `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured.
+
+#### Check 5: the stamp against the last forwarded sample
+
+`check_newer_than_the_last()` checks that the sample's stamp is later than the stamp of the last forwarded sample: $t_s > t_\text{last}$. A sample with an older stamp arrived out of order, as sample E. A sample with the same stamp came twice, as sample F:
+
+--8<-- "includes/localization-validator-order.html"
+
+When the ROS time goes back, for example after a call of the service `/gazebo/reset_simulation`, the order check starts over from the new time.
 
 ### What the validator doesn't check
 
@@ -681,6 +777,24 @@ The validator also never gives an old sample a new stamp.
 
 Judging a value is a statistical test inside robot_localization, which a **rejection threshold** switches on. Each input can have a threshold for its pose update, for its velocity update and for its acceleration update. With a threshold, the filter doesn't fuse an update that lies too far from the filter's own prediction. The filter measures "too far" as a [Mahalanobis distance](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#sensor_threshold): the difference between the measurement and the prediction, counted in units of their combined uncertainty. For an update of one value, the distance is the number of standard deviations between the measurement and the prediction. For an update of several values, the distance is one number for all of them together, not a limit for each value. The test compares an input with the filter's prediction, not with the other input.
 
+The figure shows the distance $d$ for one value and for two values, with example numbers:
+
+- **One value:** the prediction of the yaw rate $\omega_z$ has the standard deviation $\sigma_\text{pred}$, and the IMU's measurement has the standard deviation $\sigma_\text{IMU}$. The difference $y$ between the measurement and the prediction counts in units of both standard deviations together:
+
+    $$
+    d = \frac{|y|}{\sqrt{\sigma_\text{pred}^2 + \sigma_\text{IMU}^2}} = \frac{0.05\ \text{rad/s}}{\sqrt{(0.015\ \text{rad/s})^2 + (0.02\ \text{rad/s})^2}} = \frac{0.05\ \text{rad/s}}{0.025\ \text{rad/s}} = 2
+    $$
+
+- **Two values:** the forward speed $v_x$ and the yaw rate $\omega_z$ each have their own difference, $y_{v_x}$ and $y_{\omega_z}$, and their own standard deviation of the prediction and the measurement together, $\sigma_{v_x}$ and $\sigma_{\omega_z}$. When the errors of the two values don't go together, as in the example, the squares of the two counts add up to the square of the distance:
+
+    $$
+    d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\sigma_{\omega_z}}\right)^2
+    $$
+
+    All measurements with the same distance lie on an ellipse around the prediction, and a threshold is one of these ellipses. So a measurement can lie within two standard deviations in each value alone and still have a distance of more than 2, as Q.
+
+--8<-- "includes/localization-distance.html"
+
 [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets no rejection threshold, so this test is off for both inputs. The filter's other handling of an input stays: the stamp-order check, the transform into `base_footprint`, the selection by the [two lists](#the-two-lists), and leaving out values that are not finite. The test is off for two reasons:
 
 - **The robot's variances are starting values:** the firmware and the drive controller publish fixed variances. Whether these fit while the robot drives isn't checked yet. A threshold counts in these uncertainties, so a number chosen today would mean little.
@@ -689,7 +803,7 @@ Judging a value is a statistical test inside robot_localization, which a **rejec
 The issue [EKF: evaluate outlier rejection on recorded drives (diffbot#205)](https://github.com/ros-mobile-robots/diffbot/issues/205) covers the evaluation of the thresholds on recorded drives of the robot.
 
 ??? info "How robot_localization 2.7.7 computes the test, and the parameters' names"
-    Once the filter has its first measurement, which sets the state without a test, the filter compares the squared distance $d^2$ of every update with the square of the threshold:
+    Once the filter has its first measurement, which sets the state without a test, the filter compares the squared distance $d^2$ of every update with the square of the threshold. For one value, the formula is the one of the figure, with $\mathbf{H} \mathbf{P} \mathbf{H}^\mathsf{T} = \sigma_\text{pred}^2$ and $\mathbf{R} = \sigma_\text{IMU}^2$. The squared distance is:
 
     $$
     d^2 = \mathbf{y}^\mathsf{T} \left(\mathbf{H} \mathbf{P} \mathbf{H}^\mathsf{T} + \mathbf{R}\right)^{-1} \mathbf{y}, \qquad \mathbf{y} = \mathbf{z} - \mathbf{H} \hat{\mathbf{x}}

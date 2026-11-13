@@ -1,7 +1,7 @@
 """Generate the figures of the Localization page as inline SVG with HTML legends.
 
-The page is docs/packages/imu/robot_localization.md. The script writes four includes that follow
-the site's light and dark colors:
+The page is docs/packages/imu/robot_localization.md. The script writes these includes, which
+follow the site's light and dark colors:
 
 - includes/localization-odom-frame.html: where the odom frame sits. The floor from above, with
   the odom frame where the robot started, the robot's frame base_footprint, and the pose x, y
@@ -15,11 +15,20 @@ the site's light and dark colors:
   diffbot_control/config/ekf.yaml in the diffbot repository, each as a grid of five rows of
   three, with the values that the filter fuses. The two grids stand side by side on a wide
   screen and one below the other on a phone.
-- includes/localization-validator-checks.html: the five checks of
-  diffbot_control/scripts/imu_validator.py. Checks 1 to 3 look at the sample's form. Check 4
-  compares the sample's stamp with the ROS time, drawn on a time axis to scale. Check 5 compares
-  the stamp with the last forwarded sample's. The values are those of
-  diffbot_control/launch/ekf.launch.
+- includes/localization-covariances.html: the covariances twist.covariance of the wheel
+  odometry and angular_velocity_covariance of the IMU as matrices, with each element's index in
+  the message's array, and which variances the filter fuses or two_d_mode replaces.
+- includes/localization-stamp-check.html: robot_localization's own check of a sample's stamp,
+  against the last stamp of the same input, on a time axis.
+- includes/localization-time-step.html: the filter's time step Δt for a current and for a late
+  IMU sample: predict and correct, or correct only.
+- includes/localization-validator-form.html, localization-validator-time.html and
+  localization-validator-order.html: the five checks of diffbot_control/scripts/imu_validator.py
+  in three figures. Checks 1 to 3 look at the sample's form. Check 4 compares the sample's stamp
+  with the ROS time, drawn on a time axis to scale. Check 5 compares the stamp with the last
+  forwarded sample's. The values are those of diffbot_control/launch/ekf.launch.
+- includes/localization-distance.html: the distance of robot_localization's rejection test, for
+  one value as two bell curves and for two values as ellipses, with example values.
 
 Long explanations are HTML text below a drawing, not text inside the SVG, so that they keep the
 page's text size on a phone.
@@ -132,6 +141,48 @@ POSE_HEADING = 35
 # The figure of where the odom frame sits
 ODOM_WIDTH = 340
 ODOM_HEIGHT = 232
+
+# The two covariances of the inputs' messages, as grids of their elements: each cell holds the
+# element's index in the message's array, which stores the matrix row by row
+COVARIANCE_CELL = 32
+COVARIANCE_LABEL_WIDTH = 34  # the row labels stand to the left of the grid
+COVARIANCE_TOP = 56  # the field's name, the source and the column labels stand above the grid
+COVARIANCE_MIN_WIDTH = 210  # room for the long field name angular_velocity_covariance
+TWIST_VARIABLES = (('v', 'x'), ('v', 'y'), ('v', 'z'), ('ω', 'x'), ('ω', 'y'), ('ω', 'z'))
+ANGULAR_VELOCITY_VARIABLES = (('ω', 'x'), ('ω', 'y'), ('ω', 'z'))
+# The variances that the filter fuses, and those that two_d_mode replaces, by array index
+TWIST_FUSED_VARIANCES = (0, 7, 35)  # vx, vy and the yaw rate
+TWIST_REPLACED_VARIANCES = (14, 21, 28)  # vz and the rates of roll and pitch
+ANGULAR_VELOCITY_FUSED_VARIANCES = (8,)  # the yaw rate
+ANGULAR_VELOCITY_REPLACED_VARIANCES = (0, 4)  # the rates of roll and pitch
+COVARIANCE_HATCH = ('<defs><pattern id="lv-hatch-covariance" width="5" height="5" '
+                    'patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+                    '<path class="hatch" d="M0,0 V5"/></pattern></defs>')
+
+# The figures of the filter's own stamp check and of its time step: stamps in ms from the ROS
+# time t, on axes that are CHECKS_WIDTH wide. Example values
+INPUT_LAST_STAMP_MS = -140  # t_input, the last stamp of the IMU input that the filter took
+ROW_LABEL_WIDTH = 62  # the rows' names stand to the left of the time axis
+STEP_PIXELS_PER_MS = 1.6
+FORWARD_FILTER_TIME_MS = -50  # t_filter when a current sample arrives
+FORWARD_SAMPLE_MS = -10  # the current sample's stamp t_s
+LATE_FILTER_TIME_MS = -20  # t_filter when a late sample arrives
+LATE_SAMPLE_MS = -90  # the late sample's stamp t_s
+
+# The figures of the rejection test. Example values: the prediction's standard deviation is
+# chosen, the IMU's is the square root of the firmware's variance 4e-4 (rad/s)²
+PREDICTED_YAW_RATE = 0.50  # rad/s
+MEASURED_YAW_RATE = 0.55  # rad/s
+PREDICTION_SIGMA = 0.015  # rad/s
+IMU_SIGMA = 0.02  # rad/s
+YAW_RATE_AXIS = (0.43, 0.62)  # rad/s, the ends of the axis
+PIXELS_PER_RAD_PER_S = 1400
+# Two values: the combined standard deviations of the forward speed and the yaw rate
+FORWARD_SPEED_SIGMA = 0.04  # m/s
+YAW_RATE_SIGMA = 0.2  # rad/s
+PIXELS_PER_FORWARD_SPEED_SIGMA = 46
+PIXELS_PER_YAW_RATE_SIGMA = 36
+EXAMPLE_THRESHOLD = 2.0
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -304,6 +355,39 @@ ODOM_RULES = (
                                      'stroke-dasharray:1.5 3'),
     ('.lv-odom .lv-fig .foot', f'fill:none;stroke:{FG};stroke-width:1.4'),
 )
+# The figures of the filter's checks and of the covariances: symbols in the formulas' fonts
+# (DRAWING_RULES), and the series colors of the wheels, the IMU and the estimate
+SYMBOL_RULES = (
+    ('.md-typeset figure.lv-figure.lv-symbols', 'max-width:360px'),
+    ('.lv-symbols .lv-fig .reference', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1;'
+                                       'stroke-dasharray:3 3'),
+    ('.lv-symbols .lv-fig .wheels-dot', f'fill:var(--lv-wheels);stroke:{BG};stroke-width:1'),
+    ('.lv-symbols .lv-fig .imu-dot', f'fill:var(--lv-imu);stroke:{BG};stroke-width:1'),
+    ('.lv-symbols .lv-fig .estimate-dot', f'fill:var(--lv-estimate);stroke:{BG};'
+                                          'stroke-width:1'),
+    ('.lv-symbols .lv-fig .estimate-line', 'fill:none;stroke:var(--lv-estimate);'
+                                           'stroke-width:1.8'),
+    ('.lv-symbols .lv-fig .estimate-head', 'fill:var(--lv-estimate);stroke:none'),
+    ('.lv-symbols .lv-fig .imu-line', 'fill:none;stroke:var(--lv-imu);stroke-width:1.6'),
+    ('.lv-symbols .lv-fig .imu-head', 'fill:var(--lv-imu);stroke:none'),
+    ('.lv-symbols .lv-fig .bell-prediction', 'fill:var(--lv-estimate);fill-opacity:.16;'
+                                             'stroke:var(--lv-estimate);stroke-width:1.6'),
+    ('.lv-symbols .lv-fig .bell-imu', 'fill:var(--lv-imu);fill-opacity:.16;'
+                                      'stroke:var(--lv-imu);stroke-width:1.6'),
+    ('.lv-symbols .lv-fig .ellipse', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1'),
+    ('.lv-symbols .lv-fig .threshold', 'fill:var(--lv-good-fill);stroke:var(--lv-good);'
+                                       'stroke-width:1.6'),
+    ('.lv-symbols .lv-fig .limit-box', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1;'
+                                       'stroke-dasharray:5 3'),
+    ('.lv-symbols .lv-fig .cell-replaced', 'fill:url(#lv-hatch-covariance);'
+                                           f'stroke:{FG_LIGHT};stroke-width:.8;'
+                                           'stroke-dasharray:2 2'),
+    ('.lv-symbols .lv-pair', 'display:flex;flex-wrap:wrap;justify-content:center;'
+                             'align-items:flex-start;gap:.4em 1.2em'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-twist', 'width:262px;max-width:100%'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-angular', 'width:240px;max-width:100%'),
+    ('.md-typeset figure.lv-figure.lv-symbols.lv-covariances', 'max-width:520px'),
+)
 
 
 class Sample(NamedTuple):
@@ -403,11 +487,13 @@ def arrow_head(x: float, y: float, direction_x: float, direction_y: float,
 class Figure:
     """The elements of one SVG drawing, in drawing order."""
 
-    def __init__(self, name: str, title: str, height: int, width: int = WIDTH) -> None:
+    def __init__(self, name: str, title: str, height: int, width: int = WIDTH,
+                 css_class: str = '') -> None:
         self.name = name  # unique on the page: the id of the drawing's title starts with it
         self.title = title
         self.width = width
         self.height = height
+        self.css_class = css_class  # added to the SVG element's class lv-fig
         self.elements: List[str] = []
 
     def text(self, x: float, y: float, content: str, css_class: str = '',
@@ -511,10 +597,17 @@ class Figure:
         self.elements.append(f'<circle class="{css_class}" cx="{x:.1f}" cy="{y:.1f}" '
                              f'r="{radius}"/>')
 
+    def ellipse(self, x: float, y: float, radius_x: float, radius_y: float,
+                css_class: str) -> None:
+        """Add an ellipse with its center at x, y and its axes along the drawing's axes."""
+        self.elements.append(f'<ellipse class="{css_class}" cx="{x:.1f}" cy="{y:.1f}" '
+                             f'rx="{radius_x:.1f}" ry="{radius_y:.1f}"/>')
+
     def svg(self) -> str:
         """Return the drawing as an SVG element."""
         title_id = f'{self.name}-title'
-        return (f'<svg class="lv-fig" viewBox="0 0 {self.width} {self.height}" role="img" '
+        classes = f'lv-fig {self.css_class}'.strip()
+        return (f'<svg class="{classes}" viewBox="0 0 {self.width} {self.height}" role="img" '
                 f'aria-labelledby="{title_id}"><title id="{title_id}">{escape(self.title)}'
                 '</title>\n' + '\n'.join(self.elements) + '\n</svg>')
 
@@ -540,12 +633,16 @@ def band(title: str) -> str:
     return f'<p class="lv-band">{escape(title)}</p>'
 
 
-def sample_legend(samples: Sequence[Sample]) -> str:
-    """Return an HTML list with one line per sample: its mark, what happens to it, and why."""
+def sample_legend(samples: Sequence[Sample],
+                  verdicts: Tuple[str, str] = ('✓ forwarded', '✕ dropped')) -> str:
+    """Return an HTML list with one line per sample: its mark, what happens to it, and why.
+
+    verdicts are the words for a sample that passes and for one that doesn't.
+    """
     lines = []
     for sample in samples:
         mark_class = 'lv-mark' if sample.forwarded else 'lv-mark lv-drop'
-        verdict = '✓ forwarded' if sample.forwarded else '✕ dropped'
+        verdict = verdicts[0] if sample.forwarded else verdicts[1]
         lines.append(f'<li><span class="{mark_class}">{escape(sample.letter)}</span>'
                      f'<strong>{verdict}:</strong> {escape(sample.explanation)}</li>')
     return '<ul class="lv-legend">\n' + '\n'.join(lines) + '\n</ul>'
@@ -696,27 +793,365 @@ def write_fused_values() -> None:
         RULES + LARGE_RULES, 'lv-grids')
 
 
-def write_validator_checks() -> None:
-    """Write the include with the five checks of the IMU sample validator."""
-    time_figure, time_samples = time_check()
-    order_figure, order_samples = order_check()
-    parts = [
-        band("Checks 1 to 3: the sample's form"),
-        form_checks().svg(),
-        band('Check 4: the stamp against the ROS time'),
-        time_figure.svg(),
-        sample_legend(time_samples),
-        band("Check 5: the stamp against the last forwarded sample's"),
-        order_figure.svg(),
-        sample_legend(order_samples),
-    ]
+CHECKS_CAPTION_END = ('A solid green mark is a forwarded sample, a dashed red mark a dropped one. '
+                      'Each example assumes that the sample passes the other checks.')
+
+
+def write_validator_form_checks() -> None:
+    """Write the include with checks 1 to 3 of the IMU sample validator: the sample's form."""
     write_parts(
-        'includes/localization-validator-checks.html', parts,
-        'The five checks of the IMU sample validator. Both axes show stamps, with time running '
-        f"to the right and one tick every {SAMPLE_PERIOD_MS / 1000:.2f} s, the IMU's sample "
-        'period at 50 Hz. A solid green mark is a forwarded sample, a dashed red mark a dropped '
-        'one. Each example assumes that the sample passes the other checks.',
+        'includes/localization-validator-form.html', [form_checks().svg()],
+        "Checks 1 to 3 look at the sample's form: its frame, its values and the variances of "
+        'its angular velocity.',
         RULES + LARGE_RULES, 'lv-large')
+
+
+def write_validator_time_check() -> None:
+    """Write the include with check 4 of the IMU sample validator: the stamp against the time."""
+    figure, samples = time_check()
+    write_parts(
+        'includes/localization-validator-time.html', [figure.svg(), sample_legend(samples)],
+        'Check 4: the stamp against the ROS time. The axis shows stamps, with time running to '
+        f"the right and one tick every {SAMPLE_PERIOD_MS / 1000:.2f} s, the IMU's sample period "
+        f'at 50 Hz. {CHECKS_CAPTION_END}',
+        RULES + LARGE_RULES, 'lv-large')
+
+
+def write_validator_order_check() -> None:
+    """Write the include with check 5 of the IMU sample validator: the stamps' order."""
+    figure, samples = order_check()
+    write_parts(
+        'includes/localization-validator-order.html', [figure.svg(), sample_legend(samples)],
+        "Check 5: the stamp against the last forwarded sample's. The ticks are "
+        f'{SAMPLE_PERIOD_MS / 1000:.2f} s apart. {CHECKS_CAPTION_END}',
+        RULES + LARGE_RULES, 'lv-large')
+
+
+def symbol(figure: Figure, x: float, y: float, letter: str, index: str, italic_index: bool,
+           anchor: str = 'middle', before: str = '') -> None:
+    """Add a variable with its index lowered, such as t with the index filter, after before."""
+    index_class = 'subscript index' if italic_index else 'subscript'
+    spans = ((Span(before),) if before else ()) + (Span(letter, 'variable'),
+                                                   Span(index, index_class))
+    figure.rich_text(x, y, spans, anchor)
+
+
+def stamp_check() -> Tuple[Figure, Tuple[Sample, ...]]:
+    """Return the drawing of robot_localization's own stamp check of an input, and its samples.
+
+    The check compares a stamp only with the last stamp of the same input, t_input, not with
+    the ROS time t.
+    """
+    axis = TimeAxis(-190, 40, 14, WINDOW_TOP + WINDOW_HEIGHT, 1.18)
+    figure = Figure('lv-stamp-check', "robot_localization's stamp check on a time axis: a stamp "
+                    'passes when it is not earlier than the last stamp of the same input, '
+                    'however far it lies behind the ROS time', 116, CHECKS_WIDTH)
+    last_x = axis.at(INPUT_LAST_STAMP_MS)
+    now_x = axis.at(0)
+    end_x = axis.at(axis.end_ms)
+    figure.rect(axis.x, WINDOW_TOP, last_x - axis.x, WINDOW_HEIGHT, 'drop-zone')
+    figure.rect(last_x, WINDOW_TOP, end_x - last_x, WINDOW_HEIGHT, 'pass-zone')
+    figure.text(axis.x + 3, WINDOW_TOP + 13, 'ignored', 'strong')
+    figure.text(end_x - 3, WINDOW_TOP + 13, 'passes', 'strong', 'end')
+
+    sample_q_ms = -110
+    figure.dimension(axis.at(sample_q_ms), now_x, 26)
+    figure.text((axis.at(sample_q_ms) + now_x) / 2, 20, '0.11 s', 'note', 'middle')
+
+    figure.time_axis(axis, -180)
+    figure.path(f'M{last_x:.1f},{WINDOW_TOP - 4} V{axis.y + 6}', 'now')
+    figure.path(f'M{now_x:.1f},{WINDOW_TOP - 4} V{axis.y + 6}', 'reference')
+    symbol(figure, last_x, axis.y + 20, 't', 'input', False)
+    symbol(figure, now_x, axis.y + 20, 't', '', False, before='now: ')
+
+    samples = (
+        Sample('P', last_x, True, 'the same stamp as the last one of this input. The filter '
+               'takes the sample. The validator drops it in check 5'),
+        Sample('Q', axis.at(sample_q_ms), True, 'stamped 0.11 s before the ROS time. The filter '
+               'takes the sample, because it compares the stamp only with the last one of this '
+               'input. The validator drops it in check 4'),
+        Sample('R', axis.at(-165), False, 'earlier than the last stamp of this input. The '
+               'filter ignores the sample, or starts over with simulated time'),
+    )
+    for sample in samples:
+        figure.mark(sample, sample.x, axis.y - 10, LARGE_MARK_RADIUS)
+    return figure, samples
+
+
+def write_stamp_check() -> None:
+    """Write the include with robot_localization's own stamp check of an input."""
+    figure, samples = stamp_check()
+    write_parts(
+        'includes/localization-stamp-check.html',
+        [figure.svg(), sample_legend(samples, ('✓ taken', '✕ ignored'))],
+        "robot_localization's own check of an IMU sample's stamp. The axis shows stamps, with "
+        'time running to the right, and the ROS time at the dashed line. Example values.',
+        RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES, 'lv-large lv-drawing lv-symbols')
+
+
+def step_rows(figure: Figure, axis: TimeAxis, wheel_stamps_ms: Sequence[float]) -> None:
+    """Add the time axis, the rows' names and the wheel odometry's messages of a time step."""
+    for name, row_y in (('estimate', 40), ('wheels', 64), ('IMU', 86)):
+        figure.text(4, row_y, name, 'quiet')
+    for stamp_ms in wheel_stamps_ms:
+        figure.circle(axis.at(stamp_ms), 60, 4.5, 'wheels-dot')
+    figure.time_axis(axis, axis.start_ms)
+    figure.path(f'M{axis.at(0):.1f},{axis.y - 6} V{axis.y + 6}', 'now')
+    symbol(figure, axis.at(0), axis.y + 20, 't', '', False, before='now: ')
+
+
+def time_step_dimension(figure: Figure, axis: TimeAxis, filter_ms: float, sample_ms: float,
+                        relation: str) -> None:
+    """Add the time step Δt as a dimension line from the filter's time to the sample's stamp."""
+    filter_x, sample_x = axis.at(filter_ms), axis.at(sample_ms)
+    figure.dimension(min(filter_x, sample_x), max(filter_x, sample_x), 116)
+    figure.rich_text((filter_x + sample_x) / 2, 132, (Span('Δ'), Span('t', 'variable'),
+                                                      Span(f' {relation} 0')), 'middle')
+
+
+def time_marks(figure: Figure, axis: TimeAxis, filter_ms: float, sample_ms: float) -> None:
+    """Add the lines and the labels of the filter's time and of the sample's stamp."""
+    for stamp_ms in (filter_ms, sample_ms):
+        figure.path(f'M{axis.at(stamp_ms):.1f},20 V{axis.y}', 'reference')
+    symbol(figure, axis.at(filter_ms), 14, 't', 'filter', False)
+    symbol(figure, axis.at(sample_ms), 14, 't', 's', True)
+
+
+def forward_step() -> Figure:
+    """Return the drawing of a time step that is positive: the filter predicts, then corrects."""
+    axis = TimeAxis(-110, 30, ROW_LABEL_WIDTH, 102, STEP_PIXELS_PER_MS)
+    figure = Figure('lv-step-forward', "A current IMU sample: its stamp lies after the filter's "
+                    'time, so the filter predicts its estimate forward to the stamp and then '
+                    'corrects it', 140, CHECKS_WIDTH)
+    filter_x, sample_x = axis.at(FORWARD_FILTER_TIME_MS), axis.at(FORWARD_SAMPLE_MS)
+    time_marks(figure, axis, FORWARD_FILTER_TIME_MS, FORWARD_SAMPLE_MS)
+    step_rows(figure, axis, (-90, -70, FORWARD_FILTER_TIME_MS))
+    figure.circle(filter_x, 36, 4.5, 'estimate-dot')
+    figure.arrow(filter_x + 5, 36, sample_x - 5, 36, 'estimate')
+    figure.circle(sample_x, 36, 4.5, 'estimate-dot')
+    figure.text((filter_x + sample_x) / 2, 30, 'predict', '', 'middle')
+    figure.text(sample_x + 8, 40, 'correct')
+    figure.circle(sample_x, 82, 4.5, 'imu-dot')
+    time_step_dimension(figure, axis, FORWARD_FILTER_TIME_MS, FORWARD_SAMPLE_MS, '>')
+    return figure
+
+
+def late_step() -> Figure:
+    """Return the drawing of a time step that is negative: the filter corrects only."""
+    axis = TimeAxis(-110, 30, ROW_LABEL_WIDTH, 102, STEP_PIXELS_PER_MS)
+    figure = Figure('lv-step-late', "A late IMU sample: its stamp lies before the filter's "
+                    "time, so the filter corrects its estimate at the filter's time, with the "
+                    "old sample, and doesn't go back to the stamp", 140, CHECKS_WIDTH)
+    filter_x, sample_x = axis.at(LATE_FILTER_TIME_MS), axis.at(LATE_SAMPLE_MS)
+    time_marks(figure, axis, LATE_FILTER_TIME_MS, LATE_SAMPLE_MS)
+    step_rows(figure, axis, (-80, -60, -40, LATE_FILTER_TIME_MS))
+    figure.circle(sample_x, 82, 4.5, 'imu-dot')
+    # From the late sample to the estimate at the filter's time
+    end_x = filter_x - 6
+    figure.path(f'M{sample_x:.1f},76 C{sample_x:.1f},40 {sample_x + 40:.1f},36 '
+                f'{end_x - 5:.1f},36', 'imu-line')
+    figure.path(arrow_head(end_x, 36, 1, 0), 'imu-head')
+    figure.circle(filter_x, 36, 4.5, 'estimate-dot')
+    figure.text(filter_x + 8, 40, 'correct')
+    time_step_dimension(figure, axis, LATE_FILTER_TIME_MS, LATE_SAMPLE_MS, '<')
+    return figure
+
+
+def write_time_step() -> None:
+    """Write the include with the filter's time step for a current and for a late sample."""
+    write_parts(
+        'includes/localization-time-step.html',
+        [band('Δt > 0: the filter predicts, then corrects'), forward_step().svg(),
+         band('Δt < 0: the filter corrects only'), late_step().svg()],
+        "The filter's time step for an IMU sample, with the wheel odometry's messages that the "
+        "filter processed before. The dots on the top row are the filter's estimate. The axis "
+        'shows stamps. t is the ROS time when the IMU sample arrives. Example values.',
+        RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES, 'lv-large lv-drawing lv-symbols')
+
+
+def bell(center_x: float, sigma_pixels: float, peak: float, base_y: float) -> str:
+    """Return the path commands of a normal distribution's curve, closed along its base."""
+    points = []
+    for step in range(-36, 37):
+        offset = step / 10 * sigma_pixels
+        points.append(f'{center_x + offset:.1f},'
+                      f'{base_y - peak * math.exp(-0.5 * (step / 10) ** 2):.1f}')
+    return f'M{center_x - 3.6 * sigma_pixels:.1f},{base_y} L' + ' L'.join(points) + ' z'
+
+
+def one_value_distance() -> Figure:
+    """Return the drawing of the distance between a prediction and a measurement of one value."""
+    figure = Figure('lv-distance-one', "The yaw rate on an axis: the prediction and the IMU's "
+                    'measurement as two bell curves, 0.05 rad/s apart. The distance d counts '
+                    'this difference in units of the two standard deviations together, 0.025 '
+                    'rad/s, so d is 2', 172, CHECKS_WIDTH)
+    low, high = YAW_RATE_AXIS
+    axis_y = 124
+
+    def x_at(rate: float) -> float:
+        return 24 + (rate - low) * PIXELS_PER_RAD_PER_S
+
+    prediction_x, measurement_x = x_at(PREDICTED_YAW_RATE), x_at(MEASURED_YAW_RATE)
+    figure.path(bell(prediction_x, PREDICTION_SIGMA * PIXELS_PER_RAD_PER_S, 70, axis_y),
+                'bell-prediction')
+    figure.path(bell(measurement_x, IMU_SIGMA * PIXELS_PER_RAD_PER_S, 70 * PREDICTION_SIGMA
+                     / IMU_SIGMA, axis_y), 'bell-imu')
+    for x, name, index, sigma in ((prediction_x - 16, 'prediction', 'pred', PREDICTION_SIGMA),
+                                  (measurement_x + 16, 'IMU', 'IMU', IMU_SIGMA)):
+        figure.text(x, 22, name, '', 'middle')
+        figure.rich_text(x, 38, (Span('σ', 'variable'), Span(index, 'subscript'),
+                                 Span(f' = {sigma}')), 'middle')
+
+    figure.path(f'M{x_at(low)},{axis_y} H{x_at(high) + 7:.1f}', 'axis')
+    figure.path(f'M{x_at(high) + 7:.1f},{axis_y} l-6,-3.5 M{x_at(high) + 7:.1f},{axis_y} l-6,3.5',
+                'axis')
+    for rate in (0.45, 0.50, 0.55):
+        figure.path(f'M{x_at(rate):.1f},{axis_y} v4', 'tick')
+        figure.text(x_at(rate), axis_y + 16, f'{rate:.2f}', 'note', 'middle')
+    figure.text(x_at(high) + 7, axis_y + 16, 'rad/s', 'note', 'end')
+    symbol(figure, 4, axis_y + 4, 'ω', 'z', True, 'start')
+
+    # The distance's scale: one unit is the combined standard deviation
+    combined = math.hypot(PREDICTION_SIGMA, IMU_SIGMA) * PIXELS_PER_RAD_PER_S
+    ruler_y = 152
+    figure.path(f'M{prediction_x:.1f},{ruler_y} H{prediction_x + 3 * combined:.1f}', 'axis')
+    for unit in range(4):
+        figure.path(f'M{prediction_x + unit * combined:.1f},{ruler_y - 3} v6', 'tick')
+        figure.text(prediction_x + unit * combined, ruler_y + 15, str(unit), 'note', 'middle')
+    figure.circle(measurement_x, ruler_y, 4.5, 'imu-dot')
+    figure.rich_text(prediction_x - 10, ruler_y + 4, (Span('d', 'variable'),), 'end')
+    return figure
+
+
+def two_value_distance() -> Tuple[Figure, Tuple[Sample, ...]]:
+    """Return the drawing of the distance for two values, with the ellipses of equal distance."""
+    figure = Figure('lv-distance-two', 'The differences between measurement and prediction for '
+                    'the forward speed and the yaw rate as a plane. Around the prediction, the '
+                    'ellipses of the distances 1 and 2, and the rectangle of two standard '
+                    'deviations for each value alone', 236, CHECKS_WIDTH)
+    center_x, center_y = 150, 118
+    unit_x, unit_y = PIXELS_PER_FORWARD_SPEED_SIGMA, PIXELS_PER_YAW_RATE_SIGMA
+    limit = EXAMPLE_THRESHOLD
+    figure.rect(center_x - limit * unit_x, center_y - limit * unit_y, 2 * limit * unit_x,
+                2 * limit * unit_y, 'limit-box')
+    figure.ellipse(center_x, center_y, limit * unit_x, limit * unit_y, 'threshold')
+    figure.ellipse(center_x, center_y, unit_x, unit_y, 'ellipse')
+    figure.path(f'M26,{center_y} H{center_x + 2.7 * unit_x:.1f}', 'axis')
+    figure.path(arrow_head(center_x + 2.7 * unit_x + 6, center_y, 1, 0, 6), 'axis')
+    figure.path(f'M{center_x},{center_y + 2.7 * unit_y:.1f} V{center_y - 2.7 * unit_y:.1f}',
+                'axis')
+    figure.path(arrow_head(center_x, center_y - 2.7 * unit_y - 6, 0, -1, 6), 'axis')
+    symbol(figure, center_x + 2.7 * unit_x + 4, center_y - 8, 'v', 'x', True, 'end')
+    symbol(figure, center_x + 8, center_y - 2.7 * unit_y + 4, 'ω', 'z', True, 'start')
+    for sign in (-1, 1):
+        figure.path(f'M{center_x + sign * limit * unit_x:.1f},{center_y} v4', 'tick')
+        figure.path(f'M{center_x},{center_y - sign * limit * unit_y:.1f} h4', 'tick')
+    speed, rate = limit * FORWARD_SPEED_SIGMA, limit * YAW_RATE_SIGMA
+    # The values at the rectangle's edges: below its bottom corners and next to its top and
+    # bottom edges, off the ellipses' lines
+    box_bottom = center_y + limit * unit_y
+    figure.text(center_x + limit * unit_x, box_bottom + 14, f'{speed:.2f} m/s', 'note', 'middle')
+    figure.text(center_x - limit * unit_x, box_bottom + 14, f'−{speed:.2f}', 'note', 'middle')
+    figure.text(center_x + 7, center_y - limit * unit_y - 4, f'{rate:.1f} rad/s', 'note')
+    figure.text(center_x + 7, box_bottom + 14, f'−{rate:.1f}', 'note')
+    figure.text(center_x - unit_x * 0.72 - 4, center_y - unit_y * 0.72 - 3, 'd = 1', 'note',
+                'end')
+    figure.text(center_x - 50, center_y - limit * unit_y + 18, f'd = {limit:.0f}', 'strong')
+    figure.circle(center_x, center_y, 4.5, 'estimate-dot')
+
+    samples = (
+        Sample('P', center_x + 1.25 * unit_x, True, 'the forward speed 1.25 and the yaw rate '
+               '0.6 standard deviations from the prediction: d = 1.4, inside the ellipse'),
+        Sample('Q', center_x + 1.6 * unit_x, False, 'each value 1.6 standard deviations from '
+               'the prediction, so each value alone lies inside the rectangle. Together, '
+               'd = 2.3, outside the ellipse'),
+    )
+    figure.mark(samples[0], samples[0].x, center_y - 0.6 * unit_y, LARGE_MARK_RADIUS)
+    figure.mark(samples[1], samples[1].x, center_y + 1.6 * unit_y, LARGE_MARK_RADIUS)
+    return figure, samples
+
+
+def write_distance() -> None:
+    """Write the include with the distance of the rejection test, for one and for two values."""
+    two_values, samples = two_value_distance()
+    write_parts(
+        'includes/localization-distance.html',
+        [band('One value: the yaw rate'), one_value_distance().svg(),
+         band('Two values: the forward speed and the yaw rate'), two_values.svg(),
+         sample_legend(samples, ('✓ fused', '✕ not fused'))],
+        'The distance between a measurement and the prediction, counted in standard deviations, '
+        f'with an example threshold of {EXAMPLE_THRESHOLD:.0f}. The green dot of the second '
+        'drawing is the prediction. '
+        "<code>ekf.yaml</code> sets no threshold. Example values: the IMU's standard deviation "
+        "is the firmware's, the others are chosen for the figure.",
+        RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES, 'lv-large lv-drawing lv-symbols')
+
+
+def covariance_grid(name: str, field: str, source: str, variables: Sequence[Tuple[str, str]],
+                    fused: Sequence[int], replaced: Sequence[int], css_class: str) -> Figure:
+    """Return a covariance as a grid: each cell holds its index in the message's array.
+
+    The array stores the matrix row by row, so the element in row i and column j has the
+    index n i + j, with n rows and columns.
+    """
+    size = len(variables)
+    grid_width = COVARIANCE_LABEL_WIDTH + size * COVARIANCE_CELL
+    width = max(grid_width, COVARIANCE_MIN_WIDTH) + 4
+    left = (width - grid_width) / 2 + COVARIANCE_LABEL_WIDTH
+    figure = Figure(name, f'The covariance {field} of the {source} as a grid of {size} rows '
+                    f'and {size} columns, with the index of each element in the array',
+                    COVARIANCE_TOP + size * COVARIANCE_CELL + 4, int(width), css_class)
+    figure.elements.append(COVARIANCE_HATCH)
+    figure.text(width / 2, 13, field, 'mono', 'middle')
+    figure.text(width / 2, 28, source, 'note', 'middle')
+    for position, (letter, index) in enumerate(variables):
+        middle = position * COVARIANCE_CELL + COVARIANCE_CELL / 2
+        symbol(figure, left + middle - 2, COVARIANCE_TOP - 8, letter, index, True)
+        symbol(figure, left - 18, COVARIANCE_TOP + middle + 4, letter, index, True)
+    for row in range(size):
+        for column in range(size):
+            element = size * row + column
+            x = left + column * COVARIANCE_CELL
+            y = COVARIANCE_TOP + row * COVARIANCE_CELL
+            text_y = y + COVARIANCE_CELL / 2 + 4
+            if element in fused:
+                figure.rect(x, y, COVARIANCE_CELL, COVARIANCE_CELL, 'cell-fused')
+                figure.text(x + COVARIANCE_CELL / 2, text_y, f'✓{element}', 'strong', 'middle')
+            elif element in replaced:
+                figure.rect(x, y, COVARIANCE_CELL, COVARIANCE_CELL, 'cell-replaced')
+                figure.text(x + COVARIANCE_CELL / 2, text_y, str(element), '', 'middle')
+            else:
+                figure.rect(x, y, COVARIANCE_CELL, COVARIANCE_CELL, 'cell')
+                figure.text(x + COVARIANCE_CELL / 2, text_y, str(element), 'note', 'middle')
+    return figure
+
+
+def write_covariances() -> None:
+    """Write the include with the two covariances that the filter reads, as grids."""
+    grids = (
+        covariance_grid('lv-twist-covariance', 'twist.covariance', 'wheel odometry, 6 × 6',
+                        TWIST_VARIABLES, TWIST_FUSED_VARIANCES, TWIST_REPLACED_VARIANCES,
+                        'lv-twist'),
+        covariance_grid('lv-angular-covariance', 'angular_velocity_covariance', 'IMU, 3 × 3',
+                        ANGULAR_VELOCITY_VARIABLES, ANGULAR_VELOCITY_FUSED_VARIANCES,
+                        ANGULAR_VELOCITY_REPLACED_VARIANCES, 'lv-angular'),
+    )
+    legend = (
+        '<ul class="lv-legend">\n'
+        '<li><span class="lv-swatch lv-fused">✓</span>the variance of a value that the filter '
+        'fuses</li>\n'
+        '<li><span class="lv-swatch lv-zero"></span>a variance that <code>two_d_mode</code> '
+        'replaces with 10⁻⁶</li>\n'
+        '<li><span class="lv-swatch"></span>a covariance of two different values, 0 in both '
+        'messages</li>\n'
+        '</ul>')
+    pair = '<div class="lv-pair">\n' + '\n'.join(grid.svg() for grid in grids) + '\n</div>'
+    write_parts(
+        'includes/localization-covariances.html', [pair, legend],
+        "The two covariances as matrices. A row's and a column's symbols name the two values of "
+        "an element. The number in a cell is the element's index in the message's array.",
+        RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES,
+        'lv-large lv-drawing lv-symbols lv-covariances')
 
 
 class Label(NamedTuple):
@@ -1234,11 +1669,17 @@ def write_odom_frame() -> None:
 
 
 def main() -> None:
-    """Write the four includes of the Localization page."""
+    """Write the includes of the Localization page."""
     write_odom_frame()
     write_loop()
     write_fused_values()
-    write_validator_checks()
+    write_covariances()
+    write_stamp_check()
+    write_time_step()
+    write_validator_form_checks()
+    write_validator_time_check()
+    write_validator_order_check()
+    write_distance()
 
 
 if __name__ == '__main__':

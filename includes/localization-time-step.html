@@ -1,0 +1,151 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:262px;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:240px;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+</style>
+<figure class="lv-figure lv-large lv-drawing lv-symbols">
+<p class="lv-band">Δt &gt; 0: the filter predicts, then corrects</p>
+<svg class="lv-fig" viewBox="0 0 300 140" role="img" aria-labelledby="lv-step-forward-title"><title id="lv-step-forward-title">A current IMU sample: its stamp lies after the filter's time, so the filter predicts its estimate forward to the stamp and then corrects it</title>
+<path class="reference" d="M158.0,20 V102"/>
+<path class="reference" d="M222.0,20 V102"/>
+<text x="158.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5">filter</tspan></text>
+<text x="222.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript index" dy="2.5">s</tspan></text>
+<text class="quiet" x="4.0" y="40.0" text-anchor="start">estimate</text>
+<text class="quiet" x="4.0" y="64.0" text-anchor="start">wheels</text>
+<text class="quiet" x="4.0" y="86.0" text-anchor="start">IMU</text>
+<circle class="wheels-dot" cx="94.0" cy="60.0" r="4.5"/>
+<circle class="wheels-dot" cx="126.0" cy="60.0" r="4.5"/>
+<circle class="wheels-dot" cx="158.0" cy="60.0" r="4.5"/>
+<path class="axis" d="M62,102 H293.0"/>
+<path class="axis" d="M293.0,102 l-6,-3.5 M293.0,102 l-6,3.5"/>
+<path class="tick" d="M62.0,102 v4"/>
+<path class="tick" d="M94.0,102 v4"/>
+<path class="tick" d="M126.0,102 v4"/>
+<path class="tick" d="M158.0,102 v4"/>
+<path class="tick" d="M190.0,102 v4"/>
+<path class="tick" d="M222.0,102 v4"/>
+<path class="tick" d="M254.0,102 v4"/>
+<path class="tick" d="M286.0,102 v4"/>
+<path class="now" d="M238.0,96 V108"/>
+<text x="238.0" y="122.0" text-anchor="middle"><tspan>now: </tspan><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5"></tspan></text>
+<circle class="estimate-dot" cx="158.0" cy="36.0" r="4.5"/>
+<path class="estimate-line" d="M163.0,36.0 L212.0,36.0"/>
+<path class="estimate-head" d="M217.0,36.0 L210.0,40.2 L210.0,31.8 z"/>
+<circle class="estimate-dot" cx="222.0" cy="36.0" r="4.5"/>
+<text x="190.0" y="30.0" text-anchor="middle">predict</text>
+<text x="230.0" y="40.0" text-anchor="start">correct</text>
+<circle class="imu-dot" cx="222.0" cy="82.0" r="4.5"/>
+<path class="dimension" d="M158.0,116 H222.0 M158.0,113 V119 M222.0,113 V119"/>
+<text x="190.0" y="132.0" text-anchor="middle"><tspan>Δ</tspan><tspan class="variable">t</tspan><tspan> &gt; 0</tspan></text>
+</svg>
+<p class="lv-band">Δt &lt; 0: the filter corrects only</p>
+<svg class="lv-fig" viewBox="0 0 300 140" role="img" aria-labelledby="lv-step-late-title"><title id="lv-step-late-title">A late IMU sample: its stamp lies before the filter's time, so the filter corrects its estimate at the filter's time, with the old sample, and doesn't go back to the stamp</title>
+<path class="reference" d="M206.0,20 V102"/>
+<path class="reference" d="M94.0,20 V102"/>
+<text x="206.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5">filter</tspan></text>
+<text x="94.0" y="14.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript index" dy="2.5">s</tspan></text>
+<text class="quiet" x="4.0" y="40.0" text-anchor="start">estimate</text>
+<text class="quiet" x="4.0" y="64.0" text-anchor="start">wheels</text>
+<text class="quiet" x="4.0" y="86.0" text-anchor="start">IMU</text>
+<circle class="wheels-dot" cx="110.0" cy="60.0" r="4.5"/>
+<circle class="wheels-dot" cx="142.0" cy="60.0" r="4.5"/>
+<circle class="wheels-dot" cx="174.0" cy="60.0" r="4.5"/>
+<circle class="wheels-dot" cx="206.0" cy="60.0" r="4.5"/>
+<path class="axis" d="M62,102 H293.0"/>
+<path class="axis" d="M293.0,102 l-6,-3.5 M293.0,102 l-6,3.5"/>
+<path class="tick" d="M62.0,102 v4"/>
+<path class="tick" d="M94.0,102 v4"/>
+<path class="tick" d="M126.0,102 v4"/>
+<path class="tick" d="M158.0,102 v4"/>
+<path class="tick" d="M190.0,102 v4"/>
+<path class="tick" d="M222.0,102 v4"/>
+<path class="tick" d="M254.0,102 v4"/>
+<path class="tick" d="M286.0,102 v4"/>
+<path class="now" d="M238.0,96 V108"/>
+<text x="238.0" y="122.0" text-anchor="middle"><tspan>now: </tspan><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5"></tspan></text>
+<circle class="imu-dot" cx="94.0" cy="82.0" r="4.5"/>
+<path class="imu-line" d="M94.0,76 C94.0,40 134.0,36 195.0,36"/>
+<path class="imu-head" d="M200.0,36.0 L193.0,40.2 L193.0,31.8 z"/>
+<circle class="estimate-dot" cx="206.0" cy="36.0" r="4.5"/>
+<text x="214.0" y="40.0" text-anchor="start">correct</text>
+<path class="dimension" d="M94.0,116 H206.0 M94.0,113 V119 M206.0,113 V119"/>
+<text x="150.0" y="132.0" text-anchor="middle"><tspan>Δ</tspan><tspan class="variable">t</tspan><tspan> &lt; 0</tspan></text>
+</svg>
+<figcaption>The filter's time step for an IMU sample, with the wheel odometry's messages that the filter processed before. The dots on the top row are the filter's estimate. The axis shows stamps. t is the ROS time when the IMU sample arrives. Example values.</figcaption>
+</figure>

@@ -1,0 +1,118 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:262px;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:240px;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+</style>
+<figure class="lv-figure lv-large lv-drawing lv-symbols">
+<svg class="lv-fig" viewBox="0 0 300 116" role="img" aria-labelledby="lv-stamp-check-title"><title id="lv-stamp-check-title">robot_localization's stamp check on a time axis: a stamp passes when it is not earlier than the last stamp of the same input, however far it lies behind the ROS time</title>
+<rect class="drop-zone" x="14.0" y="38.0" width="59.0" height="46.0" rx="0"/>
+<rect class="pass-zone" x="73.0" y="38.0" width="212.4" height="46.0" rx="0"/>
+<text class="strong" x="17.0" y="51.0" text-anchor="start">ignored</text>
+<text class="strong" x="282.4" y="51.0" text-anchor="end">passes</text>
+<path class="dimension" d="M108.4,26 H238.2 M108.4,23 V29 M238.2,23 V29"/>
+<text class="note" x="173.3" y="20.0" text-anchor="middle">0.11 s</text>
+<path class="axis" d="M14,84 H292.4"/>
+<path class="axis" d="M292.4,84 l-6,-3.5 M292.4,84 l-6,3.5"/>
+<path class="tick" d="M25.8,84 v4"/>
+<path class="tick" d="M49.4,84 v4"/>
+<path class="tick" d="M73.0,84 v4"/>
+<path class="tick" d="M96.6,84 v4"/>
+<path class="tick" d="M120.2,84 v4"/>
+<path class="tick" d="M143.8,84 v4"/>
+<path class="tick" d="M167.4,84 v4"/>
+<path class="tick" d="M191.0,84 v4"/>
+<path class="tick" d="M214.6,84 v4"/>
+<path class="tick" d="M238.2,84 v4"/>
+<path class="tick" d="M261.8,84 v4"/>
+<path class="tick" d="M285.4,84 v4"/>
+<path class="now" d="M73.0,34 V90"/>
+<path class="reference" d="M238.2,34 V90"/>
+<text x="73.0" y="104.0" text-anchor="middle"><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5">input</tspan></text>
+<text x="238.2" y="104.0" text-anchor="middle"><tspan>now: </tspan><tspan class="variable">t</tspan><tspan class="subscript" dy="2.5"></tspan></text>
+<g><title>Sample P: forwarded. the same stamp as the last one of this input. The filter takes the sample. The validator drops it in check 5</title><circle class="pass-mark" cx="73.0" cy="74.0" r="7.5"/><text class="letter" x="73.0" y="77.8" text-anchor="middle">P</text></g>
+<g><title>Sample Q: forwarded. stamped 0.11 s before the ROS time. The filter takes the sample, because it compares the stamp only with the last one of this input. The validator drops it in check 4</title><circle class="pass-mark" cx="108.4" cy="74.0" r="7.5"/><text class="letter" x="108.4" y="77.8" text-anchor="middle">Q</text></g>
+<g><title>Sample R: dropped. earlier than the last stamp of this input. The filter ignores the sample, or starts over with simulated time</title><circle class="drop-mark" cx="43.5" cy="74.0" r="7.5"/><text class="letter" x="43.5" y="77.8" text-anchor="middle">R</text></g>
+</svg>
+<ul class="lv-legend">
+<li><span class="lv-mark">P</span><strong>✓ taken:</strong> the same stamp as the last one of this input. The filter takes the sample. The validator drops it in check 5</li>
+<li><span class="lv-mark">Q</span><strong>✓ taken:</strong> stamped 0.11 s before the ROS time. The filter takes the sample, because it compares the stamp only with the last one of this input. The validator drops it in check 4</li>
+<li><span class="lv-mark lv-drop">R</span><strong>✕ ignored:</strong> earlier than the last stamp of this input. The filter ignores the sample, or starts over with simulated time</li>
+</ul>
+<figcaption>robot_localization's own check of an IMU sample's stamp. The axis shows stamps, with time running to the right, and the ROS time at the dashed line. Example values.</figcaption>
+</figure>
