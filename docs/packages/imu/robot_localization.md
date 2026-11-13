@@ -773,7 +773,7 @@ A stamp can fail only one of the two checks, so their order doesn't matter. The 
 - **Not too old:** the stamp is at most [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32), 0.1 s, older than the ROS time. That is five samples at the IMU's 50 Hz. On the robot, a sample takes time to travel from the Teensy over USB and through rosserial's node. So its stamp is normally a little older than the ROS time when the sample arrives, as sample B. A sample that waited long in a buffer on the way is older than `max_age`, as sample A.
 - **Not too far ahead:** the stamp is at most [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33), 0.02 s, ahead of the ROS time. That is one sample. The Teensy stamps a sample with its own clock, which rosserial synchronizes only approximately with the SBC's clock. The offset that remains between the two clocks can put a stamp ahead of the ROS time, as sample C. In the simulation, a sample can arrive before the node has received the matching message on the topic `/clock`. Sample D is ahead by more than `max_future`. `max_future` is the allowed difference, not a measured delay.
 
-The values of `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured. The issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#LATENCY_ISSUE)](https://github.com/ros-mobile-robots/diffbot/issues/LATENCY_ISSUE) plans this measurement.
+The values of `max_age` and `max_future` are initial policy values, not standard IMU limits. They stay until the latency of the robot's USB link and rosserial is measured. The issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#219)](https://github.com/ros-mobile-robots/diffbot/issues/219) plans this measurement.
 
 #### Check 5: the stamp against the last forwarded sample
 
@@ -898,7 +898,7 @@ Four tests check the EKF without the robot, in [CI with the repository's other t
 These tests don't show four things:
 
 - **The real gyroscope while the robot drives:** the tests use the simulated IMU's samples, or samples that the stepped-clock test publishes itself.
-- **How long the samples take to arrive on the robot:** the issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#LATENCY_ISSUE)](https://github.com/ros-mobile-robots/diffbot/issues/LATENCY_ISSUE) measures it.
+- **How long the samples take to arrive on the robot:** the issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#219)](https://github.com/ros-mobile-robots/diffbot/issues/219) measures it.
 - **The robot's slower wheel odometry:** in these tests, both inputs arrive at 50 Hz, the simulation's rates. On the robot, the wheel odometry arrives at a nominal 10 Hz, as [`frequency`](#the-other-settings) in "The other settings" explains. The issue [EKF tests: wheel odometry at 10 Hz with the IMU at 50 Hz (diffbot#187)](https://github.com/ros-mobile-robots/diffbot/issues/187) adds a test at the robot's rate. The issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures the rates on the robot.
 - **Whether the filter improves the odometry on the floor:** the [floor odometry test (diffbot#138)](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure this on Remo.
 
