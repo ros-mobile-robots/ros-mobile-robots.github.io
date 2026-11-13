@@ -671,6 +671,11 @@ def draw_vector(figure: Figure, start: Point, offset: Point, css_class: str) -> 
     return end
 
 
+def factor_in_words(factor: int) -> str:
+    """Return a whole factor for a sentence: ten as a word, another factor in digits."""
+    return 'ten' if factor == 10 else str(factor)
+
+
 def signed(value: float) -> str:
     """Return a value in m/s² with at most two decimals and its sign. Zero has none."""
     return '0' if abs(value) < 0.005 else f'{value:+.2f}'.rstrip('0').rstrip('.')
@@ -799,8 +804,9 @@ def specific_force_speeding_up_figure() -> Figure:
         f'gravity g points down with {GAZEBO_GRAVITY} m/s², and the acceleration a points '
         f'forward with {forward} m/s². The sensor reads f = a − g: {forward} m/s² forward and '
         f'{GAZEBO_GRAVITY} m/s² up, so f leans forward by {tilt_from_vertical(reading):.0f} '
-        f'degrees. A circle shows the tip of f ten times larger: f ends {forward} m/s² in front '
-        'of the point straight above the sensor. On Remo, the message’s x, y and z are '
+        f'degrees. A circle shows the tip of f {factor_in_words(TIP_MAGNIFICATION)} times '
+        f'larger: f ends {forward} m/s² in front of the point straight above the sensor. On '
+        'Remo, the message’s x, y and z are '
         f'{message_values_in_a_sentence(reading)}.', FORWARD_ACCELERATION)
     figure.arrow((132, 46), (178, 46), 'motion thin', 7)
     figure.text((155, 39), 'speeds up', 'note', 'middle')

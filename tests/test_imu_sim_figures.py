@@ -122,6 +122,12 @@ class TestTextsFromValues(unittest.TestCase):
         self.assertIn('imu_joint puts imu_link 5 cm back, 3 cm left', drawing.svg())
         self.assertIn('and 2 cm up, and turns it by \u221290° about z', drawing.svg())
 
+    def test_speeding_up_figure_names_another_magnification_of_the_tip(self) -> None:
+        with mock.patch.object(imu_sim_robot_figures, 'TIP_MAGNIFICATION', 5):
+            drawing = imu_sim_robot_figures.specific_force_speeding_up_figure()
+        self.assertIn('A circle shows the tip of f 5 times larger', drawing.description)
+        self.assertIn('>5\u00d7 larger</text>', drawing.svg())
+
     def test_left_turn_caption_names_the_angle_of_another_turn_rate(self) -> None:
         turn_rate = 1.0  # rad/s
         with mock.patch.object(imu_sim_test_figures, 'TURN_RATE', turn_rate):
