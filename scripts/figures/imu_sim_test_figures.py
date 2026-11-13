@@ -546,11 +546,11 @@ def main() -> None:
              'simulation runs. The horizontal axis doesn’t start over at the reset. A sample '
              'counts as fresh in the gray area: after the reset, with a stamp below `RECOVERY`, '
              '1 s. The test passes with 10 fresh samples.')
-    with open('includes/imu-sim-test-at-rest.html', 'w') as include:
+    with open('includes/imu-sim-test-at-rest.html', 'w', encoding='utf-8') as include:
         include.write(figure_html([at_rest()], rest, 300, 480))
-    with open('includes/imu-sim-test-left-turn.html', 'w') as include:
+    with open('includes/imu-sim-test-left-turn.html', 'w', encoding='utf-8') as include:
         include.write(figure_html([left_turn()], turn, 300, 480))
-    with open('includes/imu-sim-test-reset.html', 'w') as include:
+    with open('includes/imu-sim-test-reset.html', 'w', encoding='utf-8') as include:
         include.write(figure_html([reset_with_the_copy(), reset_with_the_old_time()], reset,
                                   280, 400))
 

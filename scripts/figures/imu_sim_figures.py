@@ -273,9 +273,9 @@ def main() -> None:
                 '`update()` that only this thread can run.')
     copy = ('With the robots’ copy of the plugin. A ROS spinner thread runs the callback and '
             'waits. The physics thread goes on and calls `update()`.')
-    with open('includes/imu-sim-threads-original.html', 'w') as include:
+    with open('includes/imu-sim-threads-original.html', 'w', encoding='utf-8') as include:
         include.write(figure_html(with_the_original(), original))
-    with open('includes/imu-sim-threads-copy.html', 'w') as include:
+    with open('includes/imu-sim-threads-copy.html', 'w', encoding='utf-8') as include:
         include.write(figure_html(with_the_copy(), copy))
 
 

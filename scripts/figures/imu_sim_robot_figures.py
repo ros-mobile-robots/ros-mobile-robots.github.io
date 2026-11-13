@@ -823,7 +823,7 @@ def write_frames() -> None:
                'top. `imu_joint`, the dashed line, puts `imu_link` on it, at the IMU’s board '
                '(blue) on the breadboard. Red is x, green is y and blue is z. A ring with a dot '
                'is an axis that points at you, a ring with a cross one that points away.')
-    with open('includes/imu-sim-frames.html', 'w') as include:
+    with open('includes/imu-sim-frames.html', 'w', encoding='utf-8') as include:
         include.write(figure_html([frames_from_above(), frames_from_the_side()], caption, 300,
                                   400))
 
@@ -835,7 +835,7 @@ def write_angular_velocity() -> None:
                'curl in the positive direction. On Remo, `imu_link`’s y axis points forward and '
                'its x axis to the robot’s right, because the board is mounted turned by −90° '
                'about z, as the [figure of Remo’s frames](position-and-axes.md) shows.')
-    with open('includes/imu-sim-angular-velocity.html', 'w') as include:
+    with open('includes/imu-sim-angular-velocity.html', 'w', encoding='utf-8') as include:
         include.write(figure_html([angular_velocity()], caption, 300, 480))
 
 
@@ -857,7 +857,7 @@ def write_specific_force() -> None:
                'gravity’s 9.8 m/s², and at the scale of **g** it would be too short to see.')
     drawings = [specific_force_at_rest(), specific_force_speeding_up(),
                 specific_force_in_a_turn()]
-    with open('includes/imu-sim-specific-force.html', 'w') as include:
+    with open('includes/imu-sim-specific-force.html', 'w', encoding='utf-8') as include:
         include.write(figure_html(drawings, caption, 200, 290))
 
 
