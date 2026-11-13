@@ -35,6 +35,8 @@ FORWARD_X = 105
 FEEDBACK_X = 265
 COMPARISON_Y = 126
 
+# The firmware's values, from the diffbot repository (https://github.com/ros-mobile-robots/diffbot)
+# at commit f5f282e.
 # diffbot_firmware/lib/config/diffbot_base_config.h
 K_P = 0.6
 K_I = 0.3
@@ -43,7 +45,8 @@ PWM_MAX = 255
 CONTROL_RATE = 20  # Hz, UPDATE_RATE_CONTROL
 # diffbot_base/config/base.yaml, encoder_resolution: ticks per turn of the wheel
 ENCODER_RESOLUTION = 542
-# Adafruit_DCMotor::setSpeed() sets speed * 16 of the PCA9685's 4096 steps per PWM period
+# Adafruit Motor Shield V2 Library 1.1.4, Adafruit_MotorShield.cpp: Adafruit_DCMotor::setSpeed()
+# sets speed * 16 of the PCA9685's 4096 steps per PWM period
 PWM_STEPS_PER_SPEED = 16
 PWM_STEPS_PER_PERIOD = 4096
 
