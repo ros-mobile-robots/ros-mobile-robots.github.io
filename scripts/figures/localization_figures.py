@@ -1056,7 +1056,7 @@ def two_value_distance() -> Tuple[Figure, Tuple[Sample, ...]]:
                 'axis')
     figure.path(arrow_head(center_x, center_y - 2.7 * unit_y - 6, 0, -1, 6), 'axis')
     # The axes are the differences from the prediction, as in the formula of d²
-    difference_symbol(figure, center_x + 2.7 * unit_x + 4, center_y - 9, 'v', 'x', 'end')
+    difference_symbol(figure, center_x + 2.7 * unit_x + 4, center_y - 15, 'v', 'x', 'end')
     difference_symbol(figure, center_x + 8, center_y - 2.7 * unit_y + 4, 'ω', 'z', 'start')
     for sign in (-1, 1):
         figure.path(f'M{center_x + sign * limit * unit_x:.1f},{center_y} v4', 'tick')
