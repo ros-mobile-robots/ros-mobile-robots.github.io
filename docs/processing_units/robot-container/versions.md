@@ -120,7 +120,7 @@ Then build the Docker image from your clone and start the containers. On the Ras
 docker compose up -d --build --pull never
 ```
 
-- **`--build`:** builds the image before the start, with the [Dockerfile](image.md#how-the-image-is-built) and the packages in your clone.
+- **`--build`:** builds the image before the start, with the [Dockerfile](walkthrough.md#the-dockerfile) and the packages in your clone.
 - **`--pull never`:** keeps Compose from looking for `diffbot-robot:local` in a registry.
 
 The first build downloads the official ROS Docker image and compiles the robot's packages. Later builds reuse the steps whose input didn't change, so they're usually much faster. The name `diffbot-robot:local` keeps your build apart from the published versions. To go back to them, remove the line from `.env` and run `docker compose pull --policy always` and `docker compose up -d --no-build`.
