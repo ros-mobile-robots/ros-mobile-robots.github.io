@@ -594,9 +594,11 @@ This section explains the settings of [`ekf.yaml`]({{ diffbot_repo_url }}/diffbo
     --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:26:32"
     ```
 
-    robot_localization 2.7.7 decides what to do with a message that is older than the last one in the callback of the message's input. Both inputs of this configuration, the wheel odometry's velocities and the IMU's angular velocity, pass through the function `twistCallback()`. The function first tests that the message's stamp isn't older than `lastMessageTimes_`, the last stamp of the same input. For an older message, the function calls `reset()` when `resetOnTimeJump_` is set and `ros::Time::isSimTime()` says that the ROS time is simulated. Otherwise the function ignores the message and adds a warning to the filter's diagnostics, as [lines 2197–2252 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2252) show:
+    The collapsed box shows in robot_localization's code why the filter starts over only with simulated time.
 
-    ??? quote "ros_filter.cpp, lines 2197–2252: a message that is older than the last one of its input"
+    ??? quote "Why only simulated time starts the filter over: ros_filter.cpp, lines 2197–2252"
+        robot_localization 2.7.7 decides what to do with a message that is older than the last one in the callback of the message's input. Both inputs of this configuration, the wheel odometry's velocities and the IMU's angular velocity, pass through the function `twistCallback()`. The function first tests that the message's stamp isn't older than `lastMessageTimes_`, the last stamp of the same input. For an older message, the function calls `reset()` when `resetOnTimeJump_` is set and `ros::Time::isSimTime()` says that the ROS time is simulated. Otherwise the function ignores the message and adds a warning to the filter's diagnostics, as [lines 2197–2252 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L2197-L2252) show:
+
         ```cpp linenums="2197"
         --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp:2197:2252"
         ```
