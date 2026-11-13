@@ -80,18 +80,27 @@ class TestIncludes(unittest.TestCase):
 class TestFrameAxes(unittest.TestCase):
     """A frame's axis is an arrow along the drawing and a ring along the line of sight."""
 
+    # A view from above, as the frames' drawing has it: SVG units per m, and where the frame's
+    # origin lies on the drawing
+    SCALE = 1500
+    ORIGIN = (170, 152)
+    DRAWING_WIDTH, DRAWING_HEIGHT = 340, 306
+    FRAME_ORIGIN = (0.0, 0.0, 0.0)  # m
+    AXIS_LENGTH = 42  # SVG units
+
     def test_only_the_upward_axis_points_along_the_line_of_sight_from_above(self) -> None:
-        view = imu_sim_robot_figures.view_from_above(scale=1500, origin=(170, 152))
+        view = imu_sim_robot_figures.view_from_above(self.SCALE, self.ORIGIN)
         along_the_line_of_sight = [
             imu_sim_robot_figures.points_along_the_line_of_sight(view, direction)
             for direction in imu_sim_robot_figures.IMU_AXES]
         self.assertEqual(along_the_line_of_sight, [False, False, True])
 
     def test_draw_frame_adds_a_ring_for_the_axis_toward_the_viewer(self) -> None:
-        view = imu_sim_robot_figures.view_from_above(scale=1500, origin=(170, 152))
-        drawing = imu_sim_robot_figures.Figure('frame', 340, 306, 'title', 'description')
-        imu_sim_robot_figures.draw_frame(drawing, view, (0.0, 0.0, 0.0),
-                                         imu_sim_robot_figures.CHASSIS_AXES, length=42)
+        view = imu_sim_robot_figures.view_from_above(self.SCALE, self.ORIGIN)
+        drawing = imu_sim_robot_figures.Figure('frame', self.DRAWING_WIDTH, self.DRAWING_HEIGHT,
+                                               'title', 'description')
+        imu_sim_robot_figures.draw_frame(drawing, view, self.FRAME_ORIGIN,
+                                         imu_sim_robot_figures.CHASSIS_AXES, self.AXIS_LENGTH)
         rings = [element for element in drawing.elements if 'class="ring ' in element]
         self.assertEqual(len(rings), 1, rings)
         self.assertIn('class="ring z"', rings[0])
@@ -123,7 +132,8 @@ class TestTextsFromValues(unittest.TestCase):
         self.assertIn('and 2 cm up, and turns it by \u221290° about z', drawing.svg())
 
     def test_speeding_up_figure_names_another_magnification_of_the_tip(self) -> None:
-        with mock.patch.object(imu_sim_robot_figures, 'TIP_MAGNIFICATION', 5):
+        magnification = 5
+        with mock.patch.object(imu_sim_robot_figures, 'TIP_MAGNIFICATION', magnification):
             drawing = imu_sim_robot_figures.specific_force_speeding_up_figure()
         self.assertIn('A circle shows the tip of f 5 times larger', drawing.description)
         self.assertIn('>5\u00d7 larger</text>', drawing.svg())
@@ -136,8 +146,10 @@ class TestTextsFromValues(unittest.TestCase):
                       caption)
 
     def test_reset_caption_names_another_reset_time_and_sample_count(self) -> None:
-        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', 4.0), \
-                mock.patch.object(imu_sim_test_figures, 'FRESH_SAMPLE_COUNT', 20):
+        run_before_reset = 4.0  # s
+        fresh_sample_count = 20
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', run_before_reset), \
+                mock.patch.object(imu_sim_test_figures, 'FRESH_SAMPLE_COUNT', fresh_sample_count):
             caption = imu_sim_test_figures.reset_caption()
         self.assertIn('the reset comes at exactly 4 s', caption)
         self.assertIn('The test passes with 20 fresh samples', caption)
