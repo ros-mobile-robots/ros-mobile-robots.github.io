@@ -28,7 +28,9 @@ ROW_HEIGHT = 36
 WHEEL_RADIUS = 0.033
 WHEEL_SEPARATION = 0.144
 WHEEL_LENGTH = 0.025
-TOLERANCE = '0.1 mm'
+# The largest difference that the test accepts, in m: test_geometry_consistency.py's TOLERANCE
+TOLERANCE = 0.0001
+TOLERANCE_TEXT = f'{TOLERANCE * 1000:g} mm'
 # The sketch of the wheels is to scale
 PIXELS_PER_METER = 650
 
@@ -189,10 +191,10 @@ def draw_comparisons(figure: Figure) -> None:
     # The two lengths, each within the tolerance
     draw_wheels(figure, 198)
     figure.box(RIGHT_X, 198, COLUMN_WIDTH, ROW_HEIGHT, 'item', [
-        ('wheel_separation', 'mono'), (f'{WHEEL_SEPARATION}, within {TOLERANCE}', 'note')])
+        ('wheel_separation', 'mono'), (f'{WHEEL_SEPARATION}, within {TOLERANCE_TEXT}', 'note')])
     figure.comparison(f'M{gap_start},216 H{gap_end}')
     figure.box(RIGHT_X, 260, COLUMN_WIDTH, ROW_HEIGHT, 'item', [
-        ('wheel_radius', 'mono'), (f'{WHEEL_RADIUS}, within {TOLERANCE}', 'note')])
+        ('wheel_radius', 'mono'), (f'{WHEEL_RADIUS}, within {TOLERANCE_TEXT}', 'note')])
     figure.comparison(f'M{gap_start},278 H{gap_end}')
 
     # The wheel joints that the controller names
