@@ -212,7 +212,7 @@ def draw_lanes(figure: Figure) -> None:
     figure.arrow(f'M9,{LANE_TOP + 34} V{figure.height - 10}', 'flow')
 
 
-def with_the_original() -> Figure:
+def threads_with_the_original_figure() -> Figure:
     """Return the drawing of the request with gazebo_plugins' original plugin: a deadlock."""
     figure = Figure('th-original', 352, 'The request with the original IMU plugin',
                     'Step 1: the controller spawner, another ROS node, sends a switch_controller '
@@ -251,7 +251,7 @@ def with_the_original() -> Figure:
     return figure
 
 
-def with_the_copy() -> Figure:
+def threads_with_the_copy_figure() -> Figure:
     """Return the drawing of the request with the robots' copy of the plugin: no deadlock."""
     figure = Figure('th-copy', 322, 'The request with the robots’ copy of the IMU plugin',
                     'Step 1: the controller spawner sends a switch_controller request, which '
@@ -311,9 +311,9 @@ def main() -> None:
     copy = ('With the robots’ copy of the plugin. A ROS spinner thread runs the callback and '
             'waits. The physics thread goes on and calls `update()`.')
     with open('includes/imu-sim-threads-original.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html(with_the_original(), original))
+        include.write(figure_html(threads_with_the_original_figure(), original))
     with open('includes/imu-sim-threads-copy.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html(with_the_copy(), copy))
+        include.write(figure_html(threads_with_the_copy_figure(), copy))
 
 
 if __name__ == '__main__':

@@ -355,7 +355,7 @@ def draw_messages(figure: Figure, measure_start: float) -> None:
                 'simulation time since the test’s first command, in s', 'note', 'middle')
 
 
-def at_rest() -> Figure:
+def at_rest_figure() -> Figure:
     """Return the timeline of the test at rest."""
     figure = Figure(
         'tl-at-rest', DRIVE_WIDTH, DRIVE_HEIGHT, 'The test at rest over simulation time',
@@ -385,7 +385,7 @@ def at_rest() -> Figure:
     return figure
 
 
-def left_turn() -> Figure:
+def left_turn_figure() -> Figure:
     """Return the timeline of the left turn."""
     turn_end = SPEED_UP + MEASURE
     figure = Figure(
@@ -542,7 +542,7 @@ def draw_reset_run(figure: Figure, silent_until: Optional[float]) -> None:
                     'end')
 
 
-def reset_with_the_copy() -> Figure:
+def reset_with_the_copy_figure() -> Figure:
     """Return the reset panel with the robots' IMU plugin: fresh samples right away."""
     figure = Figure(
         'tl-reset-copy', RESET_WIDTH, RESET_HEIGHT, 'The reset test with the robots’ IMU plugin',
@@ -558,7 +558,7 @@ def reset_with_the_copy() -> Figure:
     return figure
 
 
-def reset_with_the_old_time() -> Figure:
+def reset_with_the_old_time_figure() -> Figure:
     """Return the reset panel with a plugin that keeps the old time: no fresh sample."""
     figure = Figure(
         'tl-reset-old-time', RESET_WIDTH, RESET_HEIGHT,
@@ -618,11 +618,11 @@ def reset_caption() -> str:
 def main() -> None:
     """Write the three includes."""
     with open('includes/imu-sim-test-at-rest.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([at_rest()], at_rest_caption(), 300, 480))
+        include.write(figure_html([at_rest_figure()], at_rest_caption(), 300, 480))
     with open('includes/imu-sim-test-left-turn.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([left_turn()], left_turn_caption(), 300, 480))
+        include.write(figure_html([left_turn_figure()], left_turn_caption(), 300, 480))
     with open('includes/imu-sim-test-reset.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([reset_with_the_copy(), reset_with_the_old_time()],
+        include.write(figure_html([reset_with_the_copy_figure(), reset_with_the_old_time_figure()],
                                   reset_caption(), 280, 400))
 
 

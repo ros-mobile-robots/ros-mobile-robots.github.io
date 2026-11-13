@@ -90,7 +90,7 @@ AXIS_NAMES = ('x', 'y', 'z')
 RING_SHARE = 0.2
 
 # The examples of the specific force figure
-GRAVITY = 9.8  # m/s², Gazebo's gravity in the robots' worlds
+GAZEBO_GRAVITY = 9.8  # m/s², Gazebo's gravity in the robots' worlds
 # Below the drive controller's limit of 0.6 m/s² (diffbot_control.yaml, max_acceleration)
 FORWARD_ACCELERATION = 0.5  # m/s²
 TURN_RATE = 0.5  # rad/s, the left turn of test_imu.py
@@ -529,7 +529,7 @@ def degrees(radians: float) -> str:
     return f'{math.degrees(radians):.0f}°'.replace('-', '\u2212')
 
 
-def frames_from_above() -> Figure:
+def frames_from_above_figure() -> Figure:
     """Return the drawing of the three frames from above."""
     x, y, z = IMU_POSITION
     back, left, up = centimeters(-x), centimeters(y), centimeters(z)
@@ -559,7 +559,7 @@ def frames_from_above() -> Figure:
     return figure
 
 
-def frames_from_the_side() -> Figure:
+def frames_from_the_side_figure() -> Figure:
     """Return the drawing of the three frames from the robot's right side."""
     up = centimeters(IMU_POSITION[2])
     figure = Figure('imu-frames-side', 340, 270, 'chassis_link, imu_joint and imu_link on Remo, '
@@ -609,7 +609,7 @@ def rotation_arrow(view: View, origin: Vector, axis: Vector, distance: float, ra
     return points
 
 
-def angular_velocity() -> Figure:
+def angular_velocity_figure() -> Figure:
     """Return the drawing of the angular velocity about each of imu_link's axes."""
     figure = Figure('imu-angular-velocity', 360, 330, 'The angular velocity about imu_link’s '
                     'three axes',
@@ -655,7 +655,7 @@ def angular_velocity() -> Figure:
 FORCE_WIDTH = 216
 FORCE_HEIGHT = 310
 GRAVITY_LENGTH = 46.0
-FORCE_SCALE = GRAVITY_LENGTH / GRAVITY  # SVG units per m/s²
+FORCE_SCALE = GRAVITY_LENGTH / GAZEBO_GRAVITY  # SVG units per m/s²
 TIP_MAGNIFICATION = 10
 # The turn's drawing shows only the direction of a. At FORCE_SCALE, its arrow would be 0.1 units
 # long
@@ -676,7 +676,7 @@ def signed(value: float) -> str:
 
 def specific_force(acceleration: Vector) -> Vector:
     """Return what the sensor reads for an acceleration: the acceleration minus gravity."""
-    return add(acceleration, (0.0, 0.0, 1.0), GRAVITY)
+    return add(acceleration, (0.0, 0.0, 1.0), GAZEBO_GRAVITY)
 
 
 def tilt_from_vertical(reading: Vector) -> float:
@@ -736,7 +736,7 @@ def draw_magnified_tip(figure: Figure, tip: Point, acceleration: float) -> None:
     above_sensor = (reading_tip[0] - forward, reading_tip[1])
     shown_height = 30.0
     figure.polyline([(above_sensor[0], above_sensor[1] + shown_height), above_sensor], 'guide')
-    figure.arrow((reading_tip[0] - shown_height * acceleration / GRAVITY,
+    figure.arrow((reading_tip[0] - shown_height * acceleration / GAZEBO_GRAVITY,
                   reading_tip[1] + shown_height), reading_tip, 'reading', 9)
     figure.arrow(above_sensor, reading_tip, 'acceleration', 7)
     figure.text((center[0], reading_tip[1] - 8), f'a = {number(acceleration)}', 'acceleration',
@@ -744,8 +744,8 @@ def draw_magnified_tip(figure: Figure, tip: Point, acceleration: float) -> None:
     figure.text((reading_tip[0] + 6, reading_tip[1] + 17), 'f', 'reading')
 
 
-def specific_force_side(name: str, title: str, description: str,
-                        acceleration: float) -> Figure:
+def specific_force_from_the_side_figure(name: str, title: str, description: str,
+                                        acceleration: float) -> Figure:
     """Return a drawing of the specific force for a robot on the floor, seen from its right side.
 
     acceleration is the robot's forward acceleration in m/s². g and f are drawn to FORCE_SCALE.
@@ -760,8 +760,8 @@ def specific_force_side(name: str, title: str, description: str,
     figure.elements.append('</g>')
     sensor = view.project(IMU_POSITION)
     reading = specific_force((acceleration, 0.0, 0.0))
-    draw_vector(figure, sensor, (0, GRAVITY * FORCE_SCALE), 'gravity')
-    figure.text((sensor[0] - 8, sensor[1] + GRAVITY_LENGTH / 2 + 8), f'g = {GRAVITY}',
+    draw_vector(figure, sensor, (0, GAZEBO_GRAVITY * FORCE_SCALE), 'gravity')
+    figure.text((sensor[0] - 8, sensor[1] + GRAVITY_LENGTH / 2 + 8), f'g = {GAZEBO_GRAVITY}',
                 'gravity halo', 'end')
     tip = draw_vector(figure, sensor, (reading[0] * FORCE_SCALE, -reading[2] * FORCE_SCALE),
                       'reading')
@@ -774,36 +774,36 @@ def specific_force_side(name: str, title: str, description: str,
     return figure
 
 
-def specific_force_at_rest() -> Figure:
+def specific_force_at_rest_figure() -> Figure:
     """Return the drawing of the specific force while the robot stands still."""
     reading = specific_force((0.0, 0.0, 0.0))
-    figure = specific_force_side(
+    figure = specific_force_from_the_side_figure(
         'imu-force-rest', 'At rest',
         'Remo stands still on the floor, seen from its right side. At the IMU, gravity g points '
-        f'down with {GRAVITY} m/s². The acceleration a is zero. The sensor reads f = a − g, which '
-        f'points up with {GRAVITY} m/s². On Remo, the message’s x, y and z are '
-        f'{message_values_in_a_sentence(reading)}.', 0.0)
-    reading_lines(figure, 'forward 0,', f'up +{GRAVITY} m/s²', reading)
+        f'down with {GAZEBO_GRAVITY} m/s². The acceleration a is zero. The sensor reads '
+        f'f = a − g, which points up with {GAZEBO_GRAVITY} m/s². On Remo, the message’s x, y and '
+        f'z are {message_values_in_a_sentence(reading)}.', 0.0)
+    reading_lines(figure, 'forward 0,', f'up +{GAZEBO_GRAVITY} m/s²', reading)
     return figure
 
 
-def specific_force_speeding_up() -> Figure:
+def specific_force_speeding_up_figure() -> Figure:
     """Return the drawing of the specific force while the robot speeds up forward."""
     reading = specific_force((FORWARD_ACCELERATION, 0.0, 0.0))
     forward = number(FORWARD_ACCELERATION)
-    figure = specific_force_side(
+    figure = specific_force_from_the_side_figure(
         'imu-force-speeding-up', 'Speeding up forward',
         f'Remo speeds up forward with {forward} m/s², seen from its right side. At the IMU, '
-        f'gravity g points down with {GRAVITY} m/s², and the acceleration a points forward with '
-        f'{forward} m/s². The sensor reads f = a − g: {forward} m/s² forward and {GRAVITY} m/s² '
-        f'up, so f leans forward by {tilt_from_vertical(reading):.0f} degrees. A circle shows '
-        f'the tip of f ten times larger: f ends {forward} m/s² in front of the point straight '
-        'above the sensor. On Remo, the message’s x, y and z are '
+        f'gravity g points down with {GAZEBO_GRAVITY} m/s², and the acceleration a points '
+        f'forward with {forward} m/s². The sensor reads f = a − g: {forward} m/s² forward and '
+        f'{GAZEBO_GRAVITY} m/s² up, so f leans forward by {tilt_from_vertical(reading):.0f} '
+        f'degrees. A circle shows the tip of f ten times larger: f ends {forward} m/s² in front '
+        'of the point straight above the sensor. On Remo, the message’s x, y and z are '
         f'{message_values_in_a_sentence(reading)}.', FORWARD_ACCELERATION)
     figure.arrow((132, 46), (178, 46), 'motion thin', 7)
     figure.text((155, 39), 'speeds up', 'note', 'middle')
-    reading_lines(figure, f'forward {signed(FORWARD_ACCELERATION)},', f'up +{GRAVITY} m/s²',
-                  reading)
+    reading_lines(figure, f'forward {signed(FORWARD_ACCELERATION)},',
+                  f'up +{GAZEBO_GRAVITY} m/s²', reading)
     return figure
 
 
@@ -829,7 +829,7 @@ def centripetal_acceleration() -> float:
     return TURN_RATE ** 2 * turn_radius()
 
 
-def specific_force_in_a_turn() -> Figure:
+def specific_force_in_a_turn_figure() -> Figure:
     """Return the drawing of the specific force while the robot turns left on the spot."""
     centripetal = f'{centripetal_acceleration():.2f}'
     reading = specific_force(turn_acceleration())
@@ -838,11 +838,10 @@ def specific_force_in_a_turn() -> Figure:
                     f'around the midpoint of the wheel axle, {100 * turn_radius():.0f} cm '
                     f'away. Its acceleration a points to that midpoint. At {TURN_RATE} rad/s, a '
                     f'is {centripetal} m/s², tiny next to gravity. Its arrow shows only its '
-                    'direction. The sensor reads '
-                    f'this {centripetal} m/s² toward the center and {GRAVITY} m/s² up, out of '
-                    'the drawing, so f leans toward the center by '
-                    f'{tilt_from_vertical(reading):.1f} degrees. On Remo, the message’s x, y '
-                    f'and z are {message_values_in_a_sentence(reading)}.')
+                    f'direction. The sensor reads this {centripetal} m/s² toward the center '
+                    f'and {GAZEBO_GRAVITY} m/s² up, out of the drawing, so f leans toward the '
+                    f'center by {tilt_from_vertical(reading):.1f} degrees. On Remo, the '
+                    f'message’s x, y and z are {message_values_in_a_sentence(reading)}.')
     view = view_from_above(900, (FORCE_WIDTH / 2, 142))
     figure.text((6, 18), 'Turning left, from above', 'title')
     figure.elements.append('<g class="context">')
@@ -863,7 +862,8 @@ def specific_force_in_a_turn() -> Figure:
     figure.circle(sensor, 5.5, 'ring reading')
     figure.circle(sensor, 2.0, 'head reading')
     figure.text((sensor[0] - 10, sensor[1] + 4), 'f', 'reading halo', 'end')
-    reading_lines(figure, f'toward the center {centripetal},', f'up +{GRAVITY} m/s²', reading)
+    reading_lines(figure, f'toward the center {centripetal},', f'up +{GAZEBO_GRAVITY} m/s²',
+                  reading)
     return figure
 
 
@@ -889,8 +889,8 @@ def write_frames() -> None:
                '(blue) on the breadboard. Red is x, green is y and blue is z. A ring with a dot '
                'is an axis that points at you, a ring with a cross one that points away.')
     with open('includes/imu-sim-frames.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([frames_from_above(), frames_from_the_side()], caption, 300,
-                                  400))
+        include.write(figure_html([frames_from_above_figure(), frames_from_the_side_figure()],
+                                  caption, 300, 400))
 
 
 def write_angular_velocity() -> None:
@@ -902,7 +902,7 @@ def write_angular_velocity() -> None:
                f'{degrees(IMU_YAW)} about z, as the [figure of Remo’s frames]'
                '(position-and-axes.md) shows.')
     with open('includes/imu-sim-angular-velocity.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([angular_velocity()], caption, 300, 480))
+        include.write(figure_html([angular_velocity_figure()], caption, 300, 480))
 
 
 def write_specific_force() -> None:
@@ -920,10 +920,10 @@ def write_specific_force() -> None:
                'y axis points forward. In the turn, the dotted circle is the sensor’s path. '
                f'**f** points up, at you, and leans toward the center by {turn_tilt:.1f}°. The '
                f'arrow of **a** shows only its direction: its {centripetal_acceleration():.2f} '
-               f'm/s² is tiny next to gravity’s {GRAVITY} m/s², and at the scale of **g** it '
-               'would be too short to see.')
-    drawings = [specific_force_at_rest(), specific_force_speeding_up(),
-                specific_force_in_a_turn()]
+               f'm/s² is tiny next to gravity’s {GAZEBO_GRAVITY} m/s², and at the scale of '
+               '**g** it would be too short to see.')
+    drawings = [specific_force_at_rest_figure(), specific_force_speeding_up_figure(),
+                specific_force_in_a_turn_figure()]
     with open('includes/imu-sim-specific-force.html', 'w', encoding='utf-8') as include:
         include.write(figure_html(drawings, caption, 200, 290))
 

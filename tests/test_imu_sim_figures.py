@@ -114,10 +114,10 @@ class TestTextsFromValues(unittest.TestCase):
         self.assertEqual(imu_sim_robot_figures.message_values_in_a_sentence(forward_and_up),
                          '0, +0.5 and +9.8')
 
-    def test_frames_from_above_names_the_distances_of_another_imu_position(self) -> None:
+    def test_frames_from_above_figure_names_the_distances_of_another_imu_position(self) -> None:
         behind_left_and_above = (-0.05, 0.03, 0.02)  # m, in chassis_link's axes
         with mock.patch.object(imu_sim_robot_figures, 'IMU_POSITION', behind_left_and_above):
-            drawing = imu_sim_robot_figures.frames_from_above()
+            drawing = imu_sim_robot_figures.frames_from_above_figure()
         self.assertIn('5 cm behind and 3 cm left of chassis_link', drawing.description)
         self.assertIn('imu_joint puts imu_link 5 cm back, 3 cm left', drawing.svg())
         self.assertIn('and 2 cm up, and turns it by \u221290° about z', drawing.svg())
