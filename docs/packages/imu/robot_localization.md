@@ -1,13 +1,22 @@
 # Localization: Wheel Odometry and IMU (EKF)
 
-DiffBot and Remo estimate how far they drove and turned from their wheels. The wheels' estimate of turning is the weak part. A wheel that slips, or a wheel separation that is a little off in the configuration, makes the estimated turn too small or too large. The error in the heading then grows into an error in the position, the further the robot drives.
+DiffBot and Remo estimate how far they drove and turned from their wheels. The wheels' estimate of turning is the weak part. A wheel that slips, or a wheel separation $b$ that is a little off in the configuration, makes the estimated turn too small or too large. The wheel separation is the distance between the two drive wheels. The error in the heading then grows into an error in the position, the further the robot drives.
 
 The estimate from the wheels is the **odometry**. The drive controller computes the odometry from the wheel encoders' angles. The odometry has two parts:
 
 - **A pose in the `odom` frame:** the position $x$, $y$ and the heading $\theta$.
 - **A velocity in the robot's own frame, `base_footprint`:** the forward speed $v_x$ and the **yaw rate** $\omega_z$, the angular velocity about the upward axis.
 
-[REP 105's `odom` frame](https://www.ros.org/reps/rep-0105.html#odom) is ROS's convention for such a frame: the robot's pose in the `odom` frame changes smoothly, without jumps, but drifts over time.
+<a id="where-the-odom-frame-sits"></a>The figure shows where the two frames sit on the floor, seen from above. A frame is a coordinate system with a name:
+
+- **The `odom` frame:** stays at one place. After a fresh start, its origin is where the robot stood when the odometry started.
+- **The frame `base_footprint`:** moves with the robot. Its origin lies on the floor below the middle of the wheel axle. Its x axis points forward and its y axis to the left, as [REP 103's axis orientation](https://www.ros.org/reps/rep-0103.html#axis-orientation) says for a robot's body.
+
+The position $x$, $y$ says where `base_footprint` lies along the two axes of `odom`. The heading $\theta$ is the angle from the x axis of `odom` to the robot's forward direction. The transform `odom → base_footprint` holds this pose.
+
+--8<-- "includes/localization-odom-frame.html"
+
+[REP 105's `odom` frame](https://www.ros.org/reps/rep-0105.html#odom) is ROS's convention for such a frame: the robot's pose in the `odom` frame changes smoothly, without jumps, but drifts over time. The `odom` frame itself is fixed in the world. What drifts is the estimate: the odometry's small errors add up, so the estimated pose moves away from the robot's true pose. During navigation on a map, [amcl](http://wiki.ros.org/amcl), the node that estimates the robot's pose on a known map, adjusts the transform `map → odom` to make up for this error. `map` is the frame of that map. The EKF alone doesn't publish `map → odom`. REP 105's section on the [relationship between the frames](https://www.ros.org/reps/rep-0105.html#relationship-between-frames) has a diagram of how the frames `map` and `odom` and the robot's base frame are attached to each other.
 
 The IMU's gyroscope measures the turn directly. The gyroscope's yaw rate $\omega_z$ doesn't depend on the wheels.
 
@@ -25,7 +34,7 @@ The filter publishes its estimate in two forms, which navigation and RViz use:
     The EKF runs in the simulation and in the tests that [How it's tested](#how-its-tested) lists. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet. Remo's URDF model in remo_description includes the IMU's position and orientation as the same bench checks confirmed them. DiffBot uses the same BNO055, but its mounting and the firmware still need checking on DiffBot. The variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's time limits, are starting values, not measurements.
 
 ??? info "Reading the code on this page"
-    - The excerpts on this page show fixed revisions: the diffbot repository at one commit, robot_localization 2.7.7, ros_controllers 0.22.0, the navigation stack 1.17.3 and ROS's common_msgs at one commit. The line numbers are those of the original files.
+    - The excerpts on this page show fixed revisions: the diffbot repository at one commit, robot_localization 2.7.7, ros_controllers 0.22.0, gazebo_ros_pkgs 2.9.3, the navigation stack 1.17.3 and ROS's common_msgs at one commit. The line numbers are those of the original files.
     - The link in the sentence before an excerpt opens that revision and those lines on GitHub.
 
 ## What goes in and what comes out
@@ -40,18 +49,21 @@ A bold letter is a vector: the letter stands for several values at once.
 
 <!-- TODO(theory): link the Robotics Theory page on the Kalman filter from the list above once that page exists, for example theory/state-estimation/gaussian-filters.md with a section on this notation -->
 
-The two figures show the way of the values, first on the real robot and then in the simulation. The topics' names in the figures leave out their namespace `/diffbot`, so `imu/data_raw` stands for the topic `/diffbot/imu/data_raw`. Read each figure from top to bottom:
+<a id="the-loop"></a>The figure shows the way of the values as a loop, in two variants. The tab **Real robot** shows the loop on the robot. The tab **Simulation** shows the same loop with Gazebo in the place of the robot's hardware. From the drive controller and the IMU sample validator on, both tabs show the same parts and topics at the same places. The topics' names in the figure leave out their namespace `/diffbot`, so `imu/data_raw` stands for the topic `/diffbot/imu/data_raw`.
+
+Read the figure from the robot at the top down to the filter and to RViz, and then along the dashed arrows back up to the robot:
 
 1. **The sensors:** a blue dot marks where the wheels' angles come from, and an orange square marks the IMU. $v_x$ and $\omega_z$ at the robot show the directions of the forward speed and of the yaw rate.
-2. **The way to the filter:** on the real robot, the firmware on the Teensy reads both sensors. In the simulation, Gazebo computes the wheel joints' angles and the IMU sensor's values. The drive controller turns the wheel angles into the wheel odometry, the measurement $\mathbf{z}_\text{wheels}$. The IMU sample validator forwards the IMU's valid samples, the measurement $\mathbf{z}_\text{IMU}$. The label at an arrow names the topic that carries the values.
+2. **The way to the filter:** on the real robot, the firmware on the Teensy reads both sensors. In the simulation, Gazebo computes the wheel joints' angles and the IMU sensor's values, and two Gazebo plugins pass them on. A plugin is code that Gazebo loads and runs as a part of itself. The drive controller turns the wheel angles into the wheel odometry, the measurement $\mathbf{z}_\text{wheels}$. The IMU sample validator forwards the IMU's valid samples, the measurement $\mathbf{z}_\text{IMU}$. The label at an arrow names the topic that carries the values.
 3. **The filter:** the EKF fuses both measurements into its estimate $\hat{\mathbf{x}}$.
-4. **The two outputs:** the EKF publishes the pose and the velocities of its estimate on a topic, and the pose as a transform. The first figure names the nodes that use each output. The second figure ends in a sketch of RViz with `odom` as its Fixed Frame. RViz's RobotModel display places the robot where the transform puts it, and an Odometry display keeps arrows at poses of the topic's messages. The dashed line of the transform, the letters at the axes and the heading angle $\theta$ are added in the sketch to explain the pose. RViz doesn't draw them.
+4. **The two outputs:** the EKF publishes the pose and the velocities of its estimate on a topic, and the pose as a transform. Both arrows end in a sketch of RViz with `odom` as its Fixed Frame. RViz can show the same two outputs for the real robot and for the simulation. RViz's RobotModel display places the robot where the transform puts it, and an Odometry display keeps arrows at poses of the topic's messages. The dashed line of the transform, the letters at the axes and the heading angle $\theta$ are added in the sketch to explain the pose. RViz doesn't draw them. The sketch shows the same pose as [the figure of the `odom` frame](#where-the-odom-frame-sits).
+5. **The way back to the wheels:** the dashed gray arrows show the way of the velocity commands. A velocity command says how fast the robot is to drive forward and how fast the robot is to turn: the target forward speed $v_x^*$ and the target yaw rate $\omega_z^*$. The star marks a target value. A command comes from a teleop node, with which a person steers the robot, or from the planner in `move_base`, the node that computes the commands that lead the robot to a navigation goal. The planner reads the EKF's two outputs, which the thin green arrow at the figure's right edge shows. The drive controller turns each command into two target wheel speeds, the angular velocities $\omega_\text{l}^*$ for the left wheel and $\omega_\text{r}^*$ for the right wheel. On the real robot, the firmware on the Teensy drives the motors so that the wheels reach these speeds. In the simulation, the Gazebo plugin `gazebo_ros_control` applies a torque $\tau$ to each wheel joint. A torque is the turning effect of a force about an axis, here the joint's axis. The robot moves, the sensors measure the motion, and the loop starts again.
 
---8<-- "includes/localization-flows.html"
+--8<-- "includes/localization-loop.html"
 
-[How it fits together](#how-it-fits-together) goes through the nodes and the topics of the figures one by one.
+[How it fits together](#how-it-fits-together) goes through the nodes and the topics of the figure one by one.
 
-The formulas below write the two measurements and the published estimate as vectors, with the symbols of the figures and of [the filter's state](#the-filters-state). The position $x$, $y$ is in m, the heading $\theta$ in rad, the speeds $v_x$, $v_y$ in m/s and the yaw rate $\omega_z$ in rad/s.
+The formulas below write the two measurements and the published estimate as vectors, with the symbols of the figure and of [the filter's state](#the-filters-state). The position $x$, $y$ is in m, the heading $\theta$ in rad, the speeds $v_x$, $v_y$ in m/s and the yaw rate $\omega_z$ in rad/s.
 
 The wheel odometry's measurement is the three velocities that the filter fuses from one odometry message:
 
@@ -109,12 +121,73 @@ The planner's subscriber is the function `odomCallback()` of the class `Odometry
 
 ## How it fits together
 
-This section goes through the nodes and the topics of [the two figures](#what-goes-in-and-what-comes-out). The data takes two branches that meet at the EKF. The IMU's samples pass the IMU sample validator, step 2 of the list. The wheels' angles pass the drive controller, step 3. The sensors' and the odometry's topics are in the `/diffbot` namespace. The transform is published on the global topic `/tf`.
+This section goes through the nodes and the topics of [the loop figure](#the-loop), in the figure's order, and says where the real robot and the simulation differ. On the way to the filter, the data takes two branches that meet at the EKF. The wheels' angles pass the drive controller, step 2 of the list. The IMU's samples pass the IMU sample validator, step 3. The sensors', the odometry's and the commands' topics are in the `/diffbot` namespace. The transform is published on the global topic `/tf`.
 
-1. **The firmware:** reads the wheel encoders and the BNO055 on the Teensy. The firmware publishes the wheels' angles on the topic `/diffbot/measured_joint_states`. The firmware publishes the IMU's samples on the topic `/diffbot/imu/data_raw` at 50 Hz, as [IMU: Bosch BNO055](driver-bno055.md) explains. In the simulation, Gazebo's IMU sensor and a small adapter publish the same topic `/diffbot/imu/data_raw`, as the [Simulation page's IMU section](../../diffbot_gazebo.md#inertial-measurement-unit-imu) explains.
-2. **The IMU's branch, the IMU sample validator:** the node [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py) subscribes to the topic `/diffbot/imu/data_raw`. The validator checks each sample against what this EKF configuration needs and forwards the valid samples, unchanged, on the topic `/diffbot/imu/data_validated`. [The IMU sample validator](#the-imu-sample-validator) lists its checks.
-3. **The wheels' branch, the drive controller:** `mobile_base_controller`, a [diff_drive_controller](http://wiki.ros.org/diff_drive_controller), publishes the wheel odometry on the topic `/diffbot/mobile_base_controller/odom`. With the EKF on, the drive controller doesn't publish the transform `odom → base_footprint`. Two nodes that publish the same transform would make the robot's pose jump between their two estimates.
-4. **The EKF:** the node `/diffbot/ekf_localization` subscribes to the validated samples on the topic `/diffbot/imu/data_validated` and to the wheel odometry on the topic `/diffbot/mobile_base_controller/odom`. The EKF fuses the two. The EKF publishes the filtered odometry on the topic `/diffbot/odometry/filtered` and the transform `odom → base_footprint` on the topic `/tf`.
+1. **The source of the sensors' values:** the real robot and the simulation differ here.
+    - **Real robot:** the firmware on the Teensy reads the wheel encoders and the BNO055. rosserial, the connection between the Teensy and the robot's single-board computer (SBC), turns what the firmware sends into ROS topics. The firmware publishes the wheels' angles and the wheels' angular velocities $\omega_\text{l}$ and $\omega_\text{r}$, in rad/s, on the topic `/diffbot/measured_joint_states`. The firmware publishes the IMU's samples on the topic `/diffbot/imu/data_raw` at 50 Hz, as [IMU: Bosch BNO055](driver-bno055.md) explains.
+    - **Simulation:** Gazebo computes the wheel joints' angles and the IMU sensor's values. The Gazebo plugin `gazebo_ros_control` reads the wheel joints' angles inside Gazebo, without a topic. The IMU sensor's plugin publishes the topic `/diffbot/imu/gazebo`, and the small adapter `imu_raw_adapter` republishes its samples on the topic `/diffbot/imu/data_raw`, as the [Simulation page's IMU section](../../diffbot_gazebo.md#inertial-measurement-unit-imu) explains.
+2. **The wheels' branch, the drive controller:** `mobile_base_controller`, a [diff_drive_controller](http://wiki.ros.org/diff_drive_controller), computes the wheel odometry from the wheels' angles and publishes the wheel odometry on the topic `/diffbot/mobile_base_controller/odom`. On the real robot, the drive controller runs in the node `diffbot_base`, whose hardware interface takes the wheels' angles from the topic `/diffbot/measured_joint_states`. In the simulation, the drive controller runs inside Gazebo, in `gazebo_ros_control`. With the EKF on, the drive controller doesn't publish the transform `odom → base_footprint`. Two nodes that publish the same transform would make the robot's pose jump between their two estimates.
+3. **The IMU's branch, the IMU sample validator:** the node [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py) subscribes to the topic `/diffbot/imu/data_raw`. The validator checks each sample against what this EKF configuration needs and forwards the valid samples, unchanged, on the topic `/diffbot/imu/data_validated`. [The IMU sample validator](#the-imu-sample-validator) lists its checks.
+4. **The EKF:** the node `/diffbot/ekf_localization` subscribes to the wheel odometry on the topic `/diffbot/mobile_base_controller/odom` and to the validated samples on the topic `/diffbot/imu/data_validated`. The EKF fuses the two. The EKF publishes the filtered odometry on the topic `/diffbot/odometry/filtered` and the transform `odom → base_footprint` on the topic `/tf`.
+5. **The readers of the two outputs:** RViz can show both outputs, as in the figure's sketch, for the real robot and for the simulation alike. For the topic, RViz needs an Odometry display, which [Comparing the two odometries](#comparing-the-two-odometries) sets up. The planner in `move_base` or in Move Base Flex reads both outputs too. [The two outputs](#the-two-outputs) names every node that reads them.
+6. **The velocity commands:** a node that wants the robot to move publishes [`geometry_msgs/Twist`](http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) messages on the topic `/diffbot/mobile_base_controller/cmd_vel`. The drive controller subscribes to this topic and uses two values of a command: `linear.x`, the target forward speed $v_x^*$ in m/s, and `angular.z`, the target yaw rate $\omega_z^*$ in rad/s. The launch files of the diffbot repository start three kinds of nodes that publish commands:
+    - **A teleop node for the keyboard:** [`keyboard_teleop.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/keyboard_teleop.launch) starts `teleop_twist_keyboard`, which turns key presses into commands.
+    - **A teleop window:** in the simulation, [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch) starts `rqt_robot_steering`, a window with sliders to drive the robot.
+    - **The planner:** `move_base` and Move Base Flex compute the commands that lead the robot to a goal. With `ekf:=true`, the planner reads the EKF's two outputs, so the EKF's estimate is part of the loop. [The planners' odometry topic](#the-planners-odometry-topic) shows the lines that connect the planner to both topics.
+
+    The EKF doesn't read the velocity commands. robot_localization can use the commands in its prediction with the setting [`use_control`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#use-control), whose default is `false`. [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) doesn't set `use_control`, so the figure has no arrow from the commands to the EKF.
+
+7. **The way back to the wheels:** the drive controller first limits the command's velocities and accelerations to the limits in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). From the limited command, the drive controller computes two target wheel speeds in rad/s, the angular velocities $\omega_\text{l}^*$ for the left wheel and $\omega_\text{r}^*$ for the right wheel:
+
+    $$
+    \omega_\text{l}^* = \frac{v_x^* - \omega_z^* \, b / 2}{r}, \qquad \omega_\text{r}^* = \frac{v_x^* + \omega_z^* \, b / 2}{r}
+    $$
+
+    $b$ is the wheel separation and $r$ is the wheel radius, both in m. The real robot and the simulation differ in what happens to the two targets.
+
+    - **Real robot:** the hardware interface in the node `diffbot_base` publishes the two targets on the topic `/diffbot/wheel_cmd_velocities`. The firmware on the Teensy receives them through rosserial. For each motor, a [proportional–integral–derivative (PID) controller](../diffbot_base/pid.md) in the firmware compares the wheel's target with the wheel's angular velocity that the encoder measures, $\omega_\text{l}$ or $\omega_\text{r}$, and sets the motor driver's output for this motor. [Low-Level PID Approach](../diffbot_base/low-level.md) explains the firmware.
+    - **Simulation:** `gazebo_ros_control` gets the two targets inside Gazebo, without a topic. For each wheel joint, a PID controller of `gazebo_ros_control` compares the target with the joint's angular velocity and applies a torque $\tau$ in N m to the joint. [Turning a wheel-speed command into torque](../../theory/modeling-control/wheel-dynamics-simulation.md#turning-a-wheel-speed-command-into-torque) explains this PID controller. The controller's gains are in the robot's `pid.yaml`, for Remo [`diffbot_control/config/remo/pid.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/remo/pid.yaml).
+
+    The wheels turn, the robot moves, and the sensors of step 1 measure the motion.
+
+The collapsed box shows the code of step 7, from a velocity command to the wheels.
+
+??? quote "The way back in the code: from a velocity command to the wheels"
+    The table lists the quantities of step 7 with their names in the code of the four excerpts:
+
+    | Symbol | Unit | Quantity | Names in the code |
+    |:--|:--|:--|:--|
+    | $v_x^*$ | m/s | target forward speed, after the limits | `curr_cmd.lin` |
+    | $\omega_z^*$ | rad/s | target yaw rate, after the limits | `curr_cmd.ang` |
+    | $b$ | m | wheel separation | `ws` |
+    | $r$ | m | wheel radius | `lwr` for the left wheel, `rwr` for the right wheel |
+    | $\omega_\text{l}^*$, $\omega_\text{r}^*$ | rad/s | target wheel speeds | `vel_left` and `vel_right`, `joint_velocity_commands_`, `wheel_cmd_velocity_left_` and `wheel_cmd_velocity_right_`, `joint_velocity_command_` |
+    | $\omega_\text{l}$, $\omega_\text{r}$ | rad/s | measured wheel speeds | `angular_velocity_` of `joint_state_left_` and `joint_state_right_`, `joint_velocity_` |
+    | $\tau$ | N m | torque on a wheel joint | `effort` |
+
+    The drive controller's function `update()` computes `vel_left` and `vel_right`, the two target wheel speeds, from `curr_cmd.lin` and `curr_cmd.ang`, the limited command, the wheel separation `ws` and the wheel radii `lwr` and `rwr`. `setCommand()` hands each target to the hardware interface, as [lines 491–500 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L491-L500) in ros_controllers 0.22.0 show:
+
+    ```cpp linenums="491"
+    --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:491:500"
+    ```
+
+    On the real robot, the control loop of the node `diffbot_base` calls the hardware interface's function `DiffBotHWInterface::write()` after each `update()` of the drive controller. `write()` first scales the left target by `(gain_ - trim_) / motor_constant_` and the right target by `(gain_ + trim_) / motor_constant_`. Both factors are 1 with the settings `gain`, `trim` and `motor_constant` in [`base.yaml`]({{ diffbot_repo_url }}/diffbot_base/config/base.yaml). `write()` then copies the two targets from `joint_velocity_commands_` into the message `wheel_cmd_msg` and publishes the message, as [lines 169–186 of `diffbot_hw_interface.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L169-L186) show:
+
+    ```cpp linenums="169"
+    --8<-- "{{ ekf_src_raw }}/diffbot_base/src/diffbot_hw_interface.cpp:169:186"
+    ```
+
+    In the firmware, the function `WheelControl::step()` calls `BaseController::read()` on each control step. `WheelControl::step()` then calls `BaseController::write()`, unless the last command is older than the command timeout. `BaseController::write()` computes the two motor outputs `motor_cmd_left_` and `motor_cmd_right_` with the PID controllers `motor_pid_left_` and `motor_pid_right_`. Each PID controller gets its wheel's target, `wheel_cmd_velocity_left_` or `wheel_cmd_velocity_right_`, and the wheel's measured `angular_velocity_`. `setSpeed()` passes each output to the motor driver, as [lines 484–488 of `base_controller.h`]({{ ekf_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L484-L488) show:
+
+    ```cpp linenums="484"
+    --8<-- "{{ ekf_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:484:488"
+    ```
+
+    In the simulation, the update callback of `gazebo_ros_control` calls `DefaultRobotHWSim::readSim()`, then the controllers' `update()` and then `DefaultRobotHWSim::writeSim()`. `writeSim()` computes the `error` between the target `joint_velocity_command_` and the joint's velocity `joint_velocity_`. The PID controller `pid_controllers_` turns the error into the torque `effort`, which `clamp()` keeps within the joint's effort limit. `SetForce()` applies the torque to Gazebo's joint, as [lines 370–380 of `default_robot_hw_sim.cpp`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/default_robot_hw_sim.cpp#L370-L380) in gazebo_ros_pkgs 2.9.3 show:
+
+    ```cpp linenums="370"
+    --8<-- "https://raw.githubusercontent.com/ros-simulation/gazebo_ros_pkgs/2.9.3/gazebo_ros_control/src/default_robot_hw_sim.cpp:370:380"
+    ```
 
 [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) in `diffbot_control` starts the validator and the EKF, for the robot and the simulation alike.
 
@@ -145,7 +218,7 @@ Read the figures as follows:
 - **A rounded rectangle:** the node or the two nodes that a file starts.
 - **A thick arrow:** an include that passes `ekf` to the included file.
 - **The node with the thick orange border:** `robot_state_publisher`, which the EKF needs.
-- **The badge above a figure:** says whether the figure is for the real robot or for the simulation, as the badges of the two figures in [What goes in and what comes out](#what-goes-in-and-what-comes-out) do.
+- **The badge above a figure:** says whether the figure is for the real robot or for the simulation.
 
 #### On the real robot
 
@@ -251,10 +324,10 @@ Because line 45 writes `true` without the EKF, every start sets the value that f
 
 The navigation launch files pass `ekf` on in the same way. [`diffbot_navigation/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot.launch) includes `diffbot_gazebo`'s `diffbot.launch` and [`move_base.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/move_base.launch) and passes `ekf` to both.
 
-`move_base.launch` starts no EKF. The file uses its `ekf` argument to choose the odometry topic that the planner reads. Line 8 computes the default of the argument `odom_topic` from `ekf`: `/diffbot/odometry/filtered` with the EKF, and the wheel odometry's topic `/diffbot/mobile_base_controller/odom` without the EKF. The excerpt shows the two arguments, from [`move_base.launch`, lines 7–8]({{ ekf_src_url }}/diffbot_navigation/launch/move_base.launch#L7-L8):
+`move_base.launch` starts no EKF. The file uses its `ekf` argument to choose the odometry topic that the planner reads. Line 8 computes the default of the argument `odom_topic` from `ekf`: `/diffbot/odometry/filtered` with the EKF, and the wheel odometry's topic `/diffbot/mobile_base_controller/odom` without the EKF. The excerpt shows the two arguments in lines 7 and 8, and above them the argument `cmd_vel_topic` for the topic of the planner's velocity commands, from [`move_base.launch`, lines 6–8]({{ ekf_src_url }}/diffbot_navigation/launch/move_base.launch#L6-L8):
 
-```xml title="move_base.launch: the odometry topic follows ekf" linenums="7"
---8<-- "{{ ekf_src_raw }}/diffbot_navigation/launch/move_base.launch:7:8"
+```xml title="move_base.launch: the odometry topic follows ekf" linenums="6"
+--8<-- "{{ ekf_src_raw }}/diffbot_navigation/launch/move_base.launch:6:8"
 ```
 
 The planner subscribes to a topic named `odom`. Line 28 remaps this name to the topic of `odom_topic`, as the excerpt of the node's two remappings shows, from [`move_base.launch`, lines 27–28]({{ ekf_src_url }}/diffbot_navigation/launch/move_base.launch#L27-L28):
@@ -263,16 +336,18 @@ The planner subscribes to a topic named `odom`. Line 28 remaps this name to the 
 --8<-- "{{ ekf_src_raw }}/diffbot_navigation/launch/move_base.launch:27:28"
 ```
 
+Line 27 connects the planner's output in the same way. The planner publishes its velocity commands on a topic named `cmd_vel`. Line 27 remaps this name to the topic of `cmd_vel_topic`, `/diffbot/mobile_base_controller/cmd_vel`, to which the drive controller subscribes. [The loop figure](#the-loop) shows both connections.
+
 So with `ekf:=true`, the planner's velocities and the transform come from the same estimate. Two more files work in the same way:
 
 - **Move Base Flex:** [`move_base.launch.xml`]({{ diffbot_repo_url }}/diffbot_mbf/launch/includes/move_base.launch.xml) has the same argument and the same remapping, as the collapsed box shows.
 - **Navigation for the real robot:** [`diffbot_hw.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot_hw.launch) starts no EKF. Its `ekf` argument only selects the odometry that the planner reads, for a robot whose bringup runs with `ekf:=true`.
 
 ??? quote "move_base.launch.xml: the same lines for Move Base Flex"
-    The excerpt shows the two arguments, from [`move_base.launch.xml`, lines 6–7]({{ ekf_src_url }}/diffbot_mbf/launch/includes/move_base.launch.xml#L6-L7):
+    The excerpt shows the three arguments, from [`move_base.launch.xml`, lines 5–7]({{ ekf_src_url }}/diffbot_mbf/launch/includes/move_base.launch.xml#L5-L7):
 
-    ```xml linenums="6"
-    --8<-- "{{ ekf_src_raw }}/diffbot_mbf/launch/includes/move_base.launch.xml:6:7"
+    ```xml linenums="5"
+    --8<-- "{{ ekf_src_raw }}/diffbot_mbf/launch/includes/move_base.launch.xml:5:7"
     ```
 
     The next excerpt shows the two remappings, from [`move_base.launch.xml`, lines 28–29]({{ ekf_src_url }}/diffbot_mbf/launch/includes/move_base.launch.xml#L28-L29):
@@ -652,6 +727,7 @@ These tests don't show four things: how the real gyroscope behaves while the rob
 
 - **A clock that goes back:** in the simulation, the filter starts over. On the robot, the filter ignores each input until its stamps have caught up. [`reset_on_time_jump`](#the-other-settings) in "The other settings" says why and shows robot_localization's code.
 - **A reset of the simulation:** `/gazebo/reset_simulation` sets the simulation's clock back to zero. The simulated IMU, the validator and the filter go on from the new time right away. The drive controller's odometry doesn't. `diff_drive_controller` publishes again only when the clock has passed `last_state_publish_time_`, the time of its last message from before the reset. The [excerpt of `diff_drive_controller.cpp`](#the-other-settings) shows the condition. Until then, the filter gets the IMU's yaw rate but no wheel speeds. In a test run that was reset after 9.7 s, the filter's first output after the reset was stamped 0.08 s, and the wheel odometry's first message 9.75 s.
+- **The poses after a reset of the simulation:** `/gazebo/reset_simulation` also treats the two pose estimates differently. The EKF's reset clears the filter's state, so the EKF's position $x$, $y$ starts again at 0 m and its heading $\theta$ at 0 rad. The EKF doesn't take over the drive controller's pose. The reset doesn't restart the drive controller, and the drive controller doesn't clear the pose that its odometry has added up. A reset of the simulation therefore cannot be treated as a fresh start for both odometries. [The figure of the `odom` frame](#where-the-odom-frame-sits) describes a fresh start only. These statements follow from the code and are not measured in a run: the functions `RosFilter::reset()` in [`ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp) and `FilterBase::reset()` in [`filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp) of robot_localization 2.7.7, the class `Odometry` in [`odometry.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/odometry.cpp) of ros_controllers 0.22.0, and `GazeboRosControlPlugin::Reset()` in [`gazebo_ros_control_plugin.cpp`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp) of gazebo_ros_pkgs 2.9.3.
 - **Starting values:** the variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's time limits, are not measured yet. The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest. Measurements while driving still have to show the values that the EKF should use. In the simulation, the IMU's variance describes the Gaussian noise that the simulated sensor adds.
 - **Drift:** the pose drifts over time, as any odometry. The gyroscope helps with the heading, but no input measures the position independently of the wheels, so the position's drift remains. A map-based localization such as amcl corrects the drift in the `map` frame.
 
