@@ -170,7 +170,7 @@ def closed_loop() -> Figure:
 
 def write_include(path: str, figure: Figure, caption: str, style: str = '') -> None:
     """Write a figure with its caption to an include, after the style element if one is given."""
-    with open(path, 'w') as include:
+    with open(path, 'w', encoding='utf-8') as include:
         include.write(f'{style}<figure class="cs-figure">\n{figure.svg()}\n'
                       f'<figcaption>{caption}</figcaption>\n</figure>\n')
 
