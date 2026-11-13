@@ -833,7 +833,40 @@ The issue [EKF: evaluate outlier rejection on recorded drives (diffbot#205)](htt
 
 ### The validator's diagnostics
 
-The validator publishes its counts on the topic `/diagnostics`, next to the EKF's own status there: how many samples it forwarded, and how many it dropped for which reason. The function `health()` sets the status. The status is an error in three cases: before the validator has forwarded its first sample, after the ROS time went back until the validator forwards a sample again, and when the validator forwarded no sample for more than `SILENCE_LIMIT`, 1 s. The status is a warning when the validator dropped samples since its last report. `rosrun rqt_robot_monitor rqt_robot_monitor` shows the status and the counts.
+The validator publishes its counts on the topic `/diagnostics`, next to the EKF's own status there: how many samples it forwarded, and how many it dropped for which reason. The function `health()` sets the status. The status is an error in three cases: before the validator has forwarded its first sample, after the ROS time went back until the validator forwards a sample again, and when the validator forwarded no sample for more than `SILENCE_LIMIT`, 1 s. The status is a warning when the validator dropped samples since its last report.
+
+`rostopic echo /diagnostics` prints the reports as text. `rosrun rqt_runtime_monitor rqt_runtime_monitor` shows them in a window, sorted into errors, warnings and OK, with the values of the entry that you click. rqt_robot_monitor shows nothing here, because it reads the topic `/diagnostics_agg` of a diagnostic aggregator, which the launch files don't start.
+
+The example comes from the simulation, at the commit `ead3402` of the diffbot repository, with Remo and `ekf:=true`. Five IMU samples stamped 0.5 s before the ROS time were sent by hand on the topic `/diffbot/imu/data_raw`, next to the simulated IMU's own samples. The validator dropped four of them before its report at the ROS time 16 s, and the fifth before its next report. The report at 16 s, as `rostopic echo /diagnostics` prints it:
+
+```yaml title="The validator's report at 16 s, in the simulation"
+header:
+  seq: 8
+  stamp:
+    secs: 16
+    nsecs:         0
+  frame_id: ''
+status:
+  -
+    level: 1
+    name: "diffbot/imu_validator: IMU sample validator (imu/data_raw to imu/data_validated)"
+    message: "dropped 4 samples since the last report"
+    hardware_id: "imu"
+    values:
+      -
+        key: "Samples forwarded"
+        value: "792"
+      -
+        key: "Dropped, too old"
+        value: "4"
+```
+
+The level 1 is a warning. The picture shows the same report in rqt_runtime_monitor, next to the two entries of robot_localization's node:
+
+<figure markdown="span">
+![rqt_runtime_monitor with the entry of the IMU sample validator under Warnings and two entries of the EKF under Ok. The validator's entry is selected, and its values are 792 samples forwarded and 4 dropped as too old.](images/localization-runtime-monitor.png){ width="600" }
+<figcaption>rqt_runtime_monitor's view in the same run. The robot's diagnostics are not recorded yet.</figcaption>
+</figure>
 
 ## How it's tested
 
