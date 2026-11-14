@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -217,7 +217,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ros-driver-for-adafruit-imu-bosch-bno055" class="md-skip">
+        <a href="#imu-bosch-bno055" class="md-skip">
           Skip to content
         </a>
       
@@ -1999,10 +1999,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#high-level-driver-i2c" class="md-nav__link">
+  <a href="#wiring-to-the-teensy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        High level Driver (I2C)
+        Wiring to the Teensy
       
     </span>
   </a>
@@ -2010,10 +2010,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#low-level-driver" class="md-nav__link">
+  <a href="#what-the-firmware-publishes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Low Level Driver
+        What the firmware publishes
       
     </span>
   </a>
@@ -2021,147 +2021,24 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pinout" class="md-nav__link">
+  <a href="#how-the-firmware-reads-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pinout
+        How the firmware reads it
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Pinout">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#power-pins" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Power Pins
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#i2c-pins" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        I2C Pins
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#other-pins" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Other Pins
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#wiring" class="md-nav__link">
+  <a href="#bench-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wiring
+        Bench checks
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Wiring">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#single-board-computer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Single Board Computer
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Single Board Computer">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#wiring_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Wiring
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Software
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#microcontroller" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Microcontroller
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Microcontroller">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#wiring_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Wiring
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#software_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Software
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -4463,10 +4340,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#high-level-driver-i2c" class="md-nav__link">
+  <a href="#wiring-to-the-teensy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        High level Driver (I2C)
+        Wiring to the Teensy
       
     </span>
   </a>
@@ -4474,10 +4351,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#low-level-driver" class="md-nav__link">
+  <a href="#what-the-firmware-publishes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Low Level Driver
+        What the firmware publishes
       
     </span>
   </a>
@@ -4485,147 +4362,24 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pinout" class="md-nav__link">
+  <a href="#how-the-firmware-reads-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pinout
+        How the firmware reads it
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Pinout">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#power-pins" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Power Pins
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#i2c-pins" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        I2C Pins
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#other-pins" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Other Pins
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#wiring" class="md-nav__link">
+  <a href="#bench-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wiring
+        Bench checks
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Wiring">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#single-board-computer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Single Board Computer
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Single Board Computer">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#wiring_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Wiring
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Software
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#microcontroller" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Microcontroller
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Microcontroller">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#wiring_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Wiring
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#software_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Software
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -4723,171 +4477,205 @@
   
 
 
-<h1 id="ros-driver-for-adafruit-imu-bosch-bno055">ROS Driver for Adafruit <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Bosch BNO055</h1>
-<p>The <a href="https://www.adafruit.com/product/2472">Adafruit 9-<abbr title="Degrees of freedom. The number of independent ways something can move; a pose on the ground has three, x, y and the heading.">DOF</abbr> Absolute Orientation <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Fusion Breakout - BNO055</a> is based on
-the <a href="https://www.bosch-sensortec.com/products/smart-sensors/bno055/">BNO055 from Bosch</a>. This is system in package solution which features a MEMS accelerometer,
-magnetometer and gyroscope and putting them on a single die with a high speed ARM Cortex-M0 based processor to digest all the sensor data,
-abstract the sensor fusion and real time requirements away, and spit out data you can use in quaternions, Euler angles or vectors.</p>
+<h1 id="imu-bosch-bno055"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Bosch BNO055</h1>
+<p>An inertial measurement unit (<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>) measures how the robot turns and accelerates: its gyroscope measures the <strong>angular velocity</strong> about three axes, its accelerometer the <strong>specific force</strong>, the acceleration minus gravity, which at rest reads about +9.8 m/s² upwards. DiffBot and Remo use the <a href="https://www.adafruit.com/product/2472">Adafruit 9-<abbr title="Degrees of freedom. The number of independent ways something can move; a pose on the ground has three, x, y and the heading.">DOF</abbr> Absolute Orientation <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Fusion Breakout</a> with Bosch's <a href="https://www.bosch-sensortec.com/en/products/smart-sensor-systems/bno055">BNO055</a>: an accelerometer, a gyroscope and a magnetometer in one package, with a processor that fuses them. Both robots use the same board, which is moved from one robot to the other.</p>
+<details class="info">
+<summary>Why the accelerometer reads +9.8 m/s² upward at rest</summary>
+<p>The accelerometer contains a tiny suspended mass. When the robot rests on the floor, the floor supports the robot, and the sensor's suspension supports that mass against gravity. It's like the upward force you feel from the floor on your feet.</p>
+<p>The reading is the <strong>specific force</strong>, also called <strong>proper acceleration</strong>: the acceleration relative to free fall. With z pointing upward, gravity is −9.81 m/s². So the resting sensor reads 0 − (−9.81) = +9.81 m/s², although the robot's velocity doesn't change. In ideal free fall, the sensor and its mass fall together, and the reading is zero.</p>
+<p><a href="https://www.analog.com/en/resources/technical-articles/accelerometer-and-gyroscopes-sensors-operation-sensing-and-applications.html">Analog Devices</a> explains the mass on its springs and how its movement is measured. <a href="https://github.com/ros-infrastructure/rep/blob/master/rep-0145.rst#data-sources"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145</a>, the ROS convention for <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> data, specifies +g on an upward axis at rest.</p>
+</details>
 <figure>
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Adafruit Bosch BNO055 IMU" src="../../../resources/components/bno055.jpg"></a>
   </p>
 <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
-<h2 id="high-level-driver-i2c">High level Driver (<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>)</h2>
-<p>When connecting the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> directly via i2c to the single board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>), which is referred to as the high level approach, we can make use of
-<a href="https://github.com/dheera/ros-imu-bno055"><code>ros-imu-bno055</code></a> ROS package.</p>
-<h2 id="low-level-driver">Low Level Driver</h2>
-<p>In case we connect the Bosch <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> to the low level microcontroller board (e.g. Teensy or Arduino) there is
-<a href="https://github.com/adafruit/Adafruit_BNO055">Adafruit BNO055</a> library which can be used.</p>
-<h2 id="pinout">Pinout</h2>
-<p>The following sections are found at <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts">learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts</a>. For the robot the power pins as well as the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins are important.</p>
-<h3 id="power-pins">Power Pins</h3>
-<ul>
-<li>VIN: 3.3-5.0V power supply input</li>
-<li>3VO: 3.3V output from the on-board linear voltage regulator, you can grab up to about 50mA as necessary</li>
-<li>GND: The common/GND pin for power and logic</li>
-</ul>
-<h3 id="i2c-pins"><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Pins</h3>
-<ul>
-<li>SCL - <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock pin, connect to your microcontrollers <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.</li>
-<li>SDA - <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data pin, connect to your microcontrollers <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data line. This pin can be used with 3V or 5V logic, and there's a 10K pullup on this pin.</li>
-</ul>
-<h3 id="other-pins">Other Pins</h3>
-<ul>
-<li>RST: Hardware reset pin. Set this pin low then high to cause a reset on the sensor. This pin is 5V safe.</li>
-<li>INT: The HW interrupt output pin, which can be configured to generate an interrupt signal when certain events occur like movement detected by the accelerometer, etc. (not currently supported in the Adafruit library, but the chip and HW is capable of generating this signal). The voltage level out is 3V</li>
-<li>ADR: Set this pin high to change the default <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> address for the BNO055 if you need to connect two ICs on the same <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus. The default address is 0x28. If this pin is connected to 3V, the address will be 0x29</li>
-<li>PS0 and PS1: These pins can be used to change the mode of the device (it can also do HID-<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> and <abbr title="Universal asynchronous receiver-transmitter. A serial interface with a transmit and a receive line and no clock, such as the serial port of a microcontroller.">UART</abbr>) and also are provided in case Bosch provides a firmware update at some point for the ARM Cortex M0 <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> inside the sensor. They should normally be left unconnected.</li>
-</ul>
-<h2 id="wiring">Wiring</h2>
-<p>You can easily wire this breakout to a microcontroller or single board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>). 
-The following sections will show both options using Teensy as a microcontroller and
-Raspberry Pi 4 B as <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>. For another kind of microcontroller or <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>, just make sure it has <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> capability and port the code.</p>
-<h3 id="single-board-computer">Single Board Computer</h3>
-<p>The following sections show how to wire and use the BNO055 with the Raspberry Pi 4 B <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>.</p>
-<h4 id="wiring_1">Wiring</h4>
-<p>To connect the assembled BNO055 breakout to a Raspberry Pi 4 B, follow the wiring diagram.</p>
-<p>TODO Fritzing wiring diagram
-<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> to hub or one of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins (SCL and SDA) of the Raspberry Pi 
-Power (Vin) to 3.3V or 5V of the Raspberry Pi
-GND to GND</p>
-<figure>
-    <a href="/resources/hardware/i2c-rpi-pinout.png"><img src="/resources/hardware/i2c-rpi-pinout.png"></a>
-    <figcaption><a href="https://pinout.xyz/pinout/i2c" title="I2C Pinout">I2C Pinout</a> on Raspberry Pi 4 B.</figcaption>
-</figure>
-
-<ul>
-<li>Connect Vin (red wire) to the power supply, 3-5V is fine.</li>
-<li>Connect the SCL (yellow wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock SCL pin on your <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> or an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub that is connected to the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>.</li>
-<li>Connect the SDA (blue wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data SDA pin on your <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr> or an <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub that is connected to the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>.</li>
-</ul>
-<h4 id="software">Software</h4>
-<p>Refer to <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython</a>
-as well as to the <a href="https://learn.adafruit.com/circuitpython-essentials/circuitpython-essentials">CircuitPython Guide</a></p>
-<ol>
-<li>
-<p>Make sure you have python3-venv installed:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">sudo apt install python3.8-venv</span>
-</code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p>Create a virtual environment:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">$ </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
-</code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p>Activate the venv</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
-<span class="gp gp-VirtualEnv">(venv)</span> <span class="gp">fjp@remo:~/test_imu$</span>
-</code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p>Install the CircuitPython driver for the BNO055:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">pip install adafruit-circuitpython-bno055</span>
-</code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p>Create a simple test program or copy the <a href="https://github.com/adafruit/Adafruit_CircuitPython_BNO055/tree/main/examples">example programs</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">$ </span>vim<span class="w"> </span>imu.py
-</code></pre></div></td></tr></tbody></table></div>
-<p>and copy the following content:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">adafruit_bno055</span>
-
-<span class="c1"># This driver takes an instantiated and active I2C object as an argument to its constructor.</span>
-<span class="c1"># The way to create an I2C object depends on the board you are using.</span>
-<span class="c1"># For boards with labeled SCL and SDA pins, you can:</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">board</span>
-
-<span class="n">i2c</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">I2C</span><span class="p">()</span>
-
-<span class="c1"># Once you have the I2C object, you can create the sensor object:</span>
-<span class="n">sensor</span> <span class="o">=</span> <span class="n">adafruit_bno055</span><span class="o">.</span><span class="n">BNO055_I2C</span><span class="p">(</span><span class="n">i2c</span><span class="p">)</span>
-
-<span class="c1"># And then you can start reading the measurements:</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">euler</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">gravity</span><span class="p">)</span>
-</code></pre></div></td></tr></tbody></table></div>
-</li>
-<li>
-<p>TODO i2c permissions to execute with non-admin user or use sudo</p>
-</li>
-<li>
-<p>Execute the python script:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">python imu.py</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>This should result in an output similar to:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp gp-VirtualEnv">(venv)</span> <span class="gp">root@remo:/home/fjp/test_imu# </span>python<span class="w"> </span>imu.py
-<span class="go">29</span>
-<span class="gp gp-VirtualEnv">(8.0, 0.0, 0.0)</span>
-<span class="gp gp-VirtualEnv">(0.0, 0.0, 0.0)</span>
-</code></pre></div></td></tr></tbody></table></div>
-</li>
-</ol>
-<h3 id="microcontroller">Microcontroller</h3>
-<p>The following sections show how to wire and use the BNO055 with the Teensy microcontroller board using 
-the <a href="https://platformio.org/">PlatformIO</a> plugin of Visual Studio Code.</p>
+<p>The robot uses one value from it: the <strong>yaw rate</strong>, the angular velocity about the upward axis. The <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, and the Teensy's firmware publishes its measurements over rosserial.</p>
 <div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>Instructions to connect the BNO055 with an Arduino microcontroller are found at 
-<a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code">learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code</a>.</p>
+<p class="admonition-title">Checked on Remo</p>
+<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard. On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
 </div>
-<h4 id="wiring_2">Wiring</h4>
-<p>To connect the assembled BNO055 breakout to a Raspberry Pi 4 B, follow the wiring diagram.</p>
-<p>TODO Fritzing wiring diagram</p>
+<h2 id="wiring-to-the-teensy">Wiring to the Teensy</h2>
+<p>The BNO055 shares the Teensy's first <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, <code>Wire</code>, with the motor driver (<a href="../../../components/">Adafruit Motor FeatherWing</a>). On the Teensy 4.0 and 3.2, <code>Wire</code> uses pin 18 for SDA and pin 19 for SCL (<a href="https://www.pjrc.com/teensy/td_libs_Wire.html">PJRC: Wire library</a>):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">BNO055 breakout</th>
+<th style="text-align: left;">Teensy</th>
+<th style="text-align: left;">Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">VIN</td>
+<td style="text-align: left;">3.3V</td>
+<td style="text-align: left;">The breakout takes 3.3 to 5 V. 3.3 V is the Teensy's logic level</td>
+</tr>
+<tr>
+<td style="text-align: left;">GND</td>
+<td style="text-align: left;">GND</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SDA</td>
+<td style="text-align: left;">18 (SDA)</td>
+<td style="text-align: left;">The breakout has a 10 kΩ pull-up resistor on SDA and SCL</td>
+</tr>
+<tr>
+<td style="text-align: left;">SCL</td>
+<td style="text-align: left;">19 (SCL)</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">ADR</td>
+<td style="text-align: left;">not connected</td>
+<td style="text-align: left;"><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> address 0x28. Connected to 3.3 V: 0x29, then set <code>IMU_BNO055_ADDRESS</code></td>
+</tr>
+</tbody>
+</table>
+<p>The other pins (3Vo, RST, INT, PS0, PS1) stay unconnected. 3Vo is the breakout's 3.3 V output. Adafruit's <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts">pinouts page</a> describes all of them. The motor driver's address is 0x60, so the two don't collide.</p>
+<h2 id="what-the-firmware-publishes">What the firmware publishes</h2>
+<p>The firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> reads the BNO055 in its <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> fusion mode (accelerometer and gyroscope, without the magnetometer, called IMUPLUS in Bosch's and Adafruit's libraries) and publishes <code>/diffbot/imu/data_raw</code>, a <a href="http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html"><code>sensor_msgs/Imu</code></a> message, at 50 Hz:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>header.frame_id</code></td>
+<td style="text-align: left;"><code>imu_link</code>: the sensor's own axes. The robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> places this frame where the board sits</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>header.stamp</code></td>
+<td style="text-align: left;">ROS time before the read</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>angular_velocity</code></td>
+<td style="text-align: left;">rad/s, from the gyroscope</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>linear_acceleration</code></td>
+<td style="text-align: left;">m/s², the specific force, including gravity</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>orientation</code></td>
+<td style="text-align: left;">not provided: <code>orientation_covariance[0]</code> is −1, which <a href="https://www.ros.org/reps/rep-0145.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145</a> defines as "no data" for a field</td>
+</tr>
+<tr>
+<td style="text-align: left;">covariances</td>
+<td style="text-align: left;">diagonal starting values: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)². At rest, the <a href="#bench-checks">bench checks</a> measured much less, but driving adds vibration and drift</td>
+</tr>
+</tbody>
+</table>
+<p>The chip's own orientation estimate isn't read: the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> uses only the angular velocity. The topic's name is <abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 145's for accelerometer and gyroscope data without an orientation.</p>
+<p>The settings are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/config/diffbot_base_config.h"><code>diffbot_base_config.h</code></a>: <code>IMU_BNO055_ADDRESS</code> and <code>IMU_PUBLISHER_CONFIG</code>. The second is one value of the type <code>ImuPublisherConfig</code> from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/imu/imu_config.h"><code>imu_config.h</code></a>, with these fields:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Robot's value</th>
+<th style="text-align: left;">What it's for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>enabled</code></td>
+<td style="text-align: left;"><code>true</code></td>
+<td style="text-align: left;"><code>false</code> for a robot without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: no topic, no <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> traffic</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>period_ms</code></td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">The sampling period, 50 Hz</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>retry_ms</code></td>
+<td style="text-align: left;">10000</td>
+<td style="text-align: left;">Look for a missing or failed <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> again after 10 s</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>read_budget_us</code></td>
+<td style="text-align: left;">10000</td>
+<td style="text-align: left;">Drop a sample whose read took longer than 10 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>frame_id</code></td>
+<td style="text-align: left;"><code>"imu_link"</code></td>
+<td style="text-align: left;"><code>header.frame_id</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>angular_velocity_variance</code></td>
+<td style="text-align: left;">4.0e-4</td>
+<td style="text-align: left;">(rad/s)², on the covariance's diagonal</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>linear_acceleration_variance</code></td>
+<td style="text-align: left;">1.0e-2</td>
+<td style="text-align: left;">(m/s²)², on the covariance's diagonal</td>
+</tr>
+</tbody>
+</table>
+<p>The compiler checks the field types. A build-time check (<code>static_assert</code>) rejects invalid values, such as a read budget as long as the sampling period. The unit tests pass settings of their own. The comment in the configuration header explains the covariances' starting values with the datasheet's noise and offsets.</p>
+<h2 id="how-the-firmware-reads-it">How the firmware reads it</h2>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/imu/README.md"><code>lib/imu</code></a> has a small driver of its own for the BNO055, instead of <a href="https://github.com/adafruit/Adafruit_BNO055">Adafruit's library</a>, so that every <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> transfer is checked and the start-up's waits don't hold up the firmware's loop:</p>
 <ul>
-<li>Connect Vin (red wire) to the power supply, 3-5V is fine. Use the same voltage that the microcontroller logic is based off of. For most Arduinos, that is 5V</li>
-<li>Connect GND (black wire) to common power/data ground</li>
-<li>Connect the SCL (yellow wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock SCL pin on your microcontoller.</li>
-<li>Connect the SDA (blue wire) pin to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> data SDA pin on your microcontoller.</li>
+<li><strong>The start-up doesn't block the motor control.</strong> A reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's <a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf">datasheet</a>). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does it. Most steps take one or two transfers. The step that writes the settings and reads them back takes 14, about 4 ms, once per start-up. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>'s standard clock of 100 kHz. The waits for the chip to finish resetting and start its fusion have deadlines. If either wait reaches its deadline, the driver fails the start-up on the next loop pass. The firmware tries again after <code>retry_ms</code>. On Remo, the control loop kept its 20 Hz while the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> was unplugged (<a href="#bench-checks">bench checks</a>).</li>
+<li><strong>A sample is published only if it's good:</strong> the read succeeded and took at most <code>read_budget_us</code> (10 ms: a later result is dropped, but the budget can't cut a transfer short), the chip still is in <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode with the right units and its fusion runs. A stalled or unplugged <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again. A missing <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is looked for again every <code>retry_ms</code> (10 s). The robot drives without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, too.</li>
+<li><strong>Stamps are ROS time,</strong> which rosserial takes from the robot's computer: the Teensy's clock is synchronized with it every few seconds. Until the first synchronization after a connection, the firmware publishes nothing, because a stamp would carry the Teensy's uptime instead of ROS time.</li>
+<li><strong>The 50 Hz rate counts on the Teensy's own clock</strong> (<code>millis()</code>), so it doesn't change when ROS time jumps, for example when the Teensy connects to a computer whose clock is earlier.</li>
 </ul>
-<h4 id="software_1">Software</h4>
-<p>The <a href="https://github.com/adafruit/Adafruit_BNO055">Adafruit_BNO055 driver</a> supports reading raw sensor data,
-or you can use the <a href="https://learn.adafruit.com/using-the-adafruit-unified-sensor-driver/introduction">Adafruit Unified Sensor</a> system to retrieve orientation data in a standard data format.</p>
-<p>In the Arduino library manager you can install both, the Adafruit_BNO055 driver and the Adafruit Unified Sensor.</p>
-<div class="admonition note">
-<p class="admonition-title">TODO</p>
-<p>Add PlatformIO instructions</p>
-</div>
+<p><strong>Unit tests on the PC:</strong> <code>.docker/firmware/run.sh pio test -e native</code>, from the root folder of the diffbot repository, runs the tests in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test"><code>diffbot_firmware/test</code></a> in the firmware container (<a href="../../../development/ci/#running-the-checks-locally">Running the checks locally</a>). They run the driver, the bus code, the time-sync check and the publisher with a fake sensor, <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, serial port and clock, and with rosserial's own message parser. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs them in the firmware workflow (<a href="../../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>). They check the logic, not the hardware.</p>
+<h2 id="bench-checks">Bench checks</h2>
+<p>With the bringup running on the robot and its wheels off the ground:</p>
+<ol>
+<li><strong>Rate and stamps:</strong> <code>rostopic hz /diffbot/imu/data_raw</code> shows about 50 Hz, and the stamps in <code>rostopic echo /diffbot/imu/data_raw</code> are the current ROS time.</li>
+<li><strong>Axes and signs:</strong> with the robot level and still, the accelerometer's upward axis reads about +9.8 m/s². Turning the robot counterclockwise by hand, seen from above, gives a positive angular velocity about that axis (<a href="https://www.ros.org/reps/rep-0103.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>). These checks identify the upward axis and its sign. To check the horizontal axes, lift the robot's front slightly and hold the robot still while reading the acceleration. Return the robot to level, then lift the left side and hold still again. For sensor axes aligned with the robot's directions, a horizontal axis pointing toward the raised side reads positive. An axis pointing the opposite way reads negative. On Remo, raising the front gives positive y and raising the left side gives negative x. These checks establish the orientation of <code>imu_link</code> in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. The mounting position must be checked separately.</li>
+<li><strong>Noise and bias:</strong> a stationary recording of a few minutes (<code>rosbag record /diffbot/imu/data_raw</code>) gives the gyroscope's bias and variance at 50 Hz, to replace the covariances' starting values.</li>
+<li><strong>Faults:</strong> unplugging the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic and logs a warning. While it stays missing, each retry logs another warning. The wheels keep following commands. Plugged back in, it's found at the next try, at most <code>retry_ms</code> (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The firmware's command timeout keeps working: after 1 s without a wheel command, it stops driving the motors and resets the wheels' PIDs (<a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/config/diffbot_base_config.h#L35-L39"><code>COMMAND_TIMEOUT_MS</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L564-L575"><code>eStop()</code></a>).</li>
+<li><strong>Timing:</strong> the control loop keeps its rate with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running, for example <code>rostopic hz /diffbot/measured_joint_states</code>.</li>
+</ol>
+<p>Remo was checked on 2026-10-31 with firmware <code>1a3b547</code> built for the Teensy 3.2, and the ROS commands ran in the <a href="../../../processing_units/robot-container/usage/">robot container</a>. The BNO055 used SDA 18 and SCL 19, with VIN supplied by the Raspberry Pi's 3.3 V (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a>, checklist <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a>). The bias is the average reading at rest. The standard deviation is the spread of the readings around that average.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Check</th>
+<th style="text-align: left;">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Rate and stamps</td>
+<td style="text-align: left;">50.0 Hz. 180 s at rest: 8,986 messages, gaps between 14 and 27 ms. Stamps in current ROS time, also after rosserial reconnected</td>
+</tr>
+<tr>
+<td style="text-align: left;">Axes and signs</td>
+<td style="text-align: left;">At rest in this recording, z reads about +9.7 m/s². Turning left, <code>angular_velocity.z</code> is positive. How the board is turned about z came from a later tilt test, below</td>
+</tr>
+<tr>
+<td style="text-align: left;">Noise and bias at rest</td>
+<td style="text-align: left;">Gyroscope: bias below 0.0001 rad/s, variance 2 to 6 · 10⁻⁷ (rad/s)². The standard deviation is 0.0005 to 0.0008 rad/s, below the output step of 1/900 rad/s. Accelerometer: variance 4 to 8 · 10⁻⁴ (m/s²)²</td>
+</tr>
+<tr>
+<td style="text-align: left;">Faults</td>
+<td style="text-align: left;">Unplugged while the wheels turned at 9 rad/s: a warning after ten failed reads (0.2 s), and the wheels kept their speed. Plugged back in: found again within 10 s. With SDA and SCL swapped, it stayed "not found", without blocking the firmware</td>
+</tr>
+<tr>
+<td style="text-align: left;">Timing</td>
+<td style="text-align: left;"><code>measured_joint_states</code> at 20.0 Hz with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running</td>
+</tr>
+</tbody>
+</table>
+<p>A <a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6684760031">tilt test</a> on 2026-11-05 checked the BNO055's axes on Remo using the Teensy 4.0. With the front held raised, the average y acceleration was +3.21 m/s². With the left side held raised, the average x acceleration was −7.24 m/s². The z acceleration remained positive during both tilts and was close to +9.8 m/s² with the robot level. These readings show that the board's y axis points forward, its x axis points right, and its z axis points up when Remo is level. The corresponding <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> orientation is <code>imu_rpy="0 0 -1.5707963"</code>, a −90° rotation about <code>chassis_link</code>'s z axis. The chip's pin-1 dot sits at the board's front right corner, which with the datasheet's default axes, placement P1 (<a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=27">BNO055 datasheet, page 27</a>) gives the same. Remo's model has this orientation and the checked position on Remo's Raspberry Pi deck (<a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L12-L27"><code>remo.urdf.xacro</code>, lines 12–27</a> in remo_description 2.5.0). The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s header pins sit in the breadboard, and <code>imu_link</code> lies about 7.6 cm behind the wheel axle and 2.34 cm left of the robot's center line.</p>
+<p>The covariances stay at their starting values for now: driving adds vibration and drift, which a recording at rest doesn't show. The <a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a> has the numbers and log excerpts, <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a> the full checklist.</p>
+<p>To try the breakout separately with an Arduino, see <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code">Adafruit's Arduino guide</a> for wiring, library installation and example programs.</p>
+<details class="info">
+<summary>Trying the breakout on the Raspberry Pi</summary>
+<p>To check a breakout on its own, it can also be connected to the Raspberry Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins (<a href="https://pinout.xyz/pinout/i2c">pinout</a>): VIN to 3.3 V, GND to GND, SDA to SDA, SCL to SCL. Adafruit's guide reads it with Python and its CircuitPython library: first <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi">prepare the Pi for it</a> (<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> on, the Blinka library), then <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching">slow down the Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock</a>, which the BNO055 needs because it stretches the clock, and then run the <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">BNO055 example</a>.</p>
+<p><a href="https://github.com/dheera/ros-imu-bno055">ros-imu-bno055</a> is a C++ driver for ROS 1 and ROS 2 that reads the BNO055 over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>. The project's README says the driver should work on a Raspberry Pi 5, or on an older Pi using software <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>. The author has not tested the slower-clock workaround with this driver. DiffBot and Remo read the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> on the Teensy. ros-imu-bno055 has not been tested with either robot.</p>
+</details>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->
@@ -5050,7 +4838,7 @@ or you can use the <a href="https://learn.adafruit.com/using-the-adafruit-unifie
     
     
     
-      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>
