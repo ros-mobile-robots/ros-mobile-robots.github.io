@@ -1,0 +1,122 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .true-turn path{stroke:var(--md-default-fg-color);stroke-width:2.2;fill:none}
+.lv-fig .true-turn polygon{fill:var(--md-default-fg-color)}
+.lv-fig .ekf-turn path{stroke:var(--lv-estimate);stroke-width:2.2;fill:none}
+.lv-fig .ekf-turn polygon{fill:var(--lv-estimate)}
+.lv-fig .odometry-turn path{stroke:var(--lv-wheels);stroke-width:2.2;fill:none}
+.lv-fig .odometry-turn polygon{fill:var(--lv-wheels)}
+.lv-fig .start-heading{stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3;fill:none}
+.lv-fig .tolerance{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:.8}
+.lv-fig .body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.lv-fig .nose{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.lv-fig .wheel{fill:var(--md-default-fg-color--light)}
+.lv-fig .flow{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-fig .flow-head{fill:var(--md-default-fg-color)}
+.lv-fig .flow-skipped{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:3 3}
+.lv-fig .flow-head-skipped{fill:var(--md-default-fg-color--light)}
+.lv-fig .active{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .inactive{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-grids .lv-pair .lv-case{width:250px;max-width:100%}
+.lv-grids .lv-pair .lv-case .lv-fig{width:100%}
+.lv-legend .lv-swatch.lv-inactive{border-style:dashed}
+.lv-legend .lv-arc{display:inline-block;box-sizing:border-box;width:1.6em;height:0;vertical-align:.3em;border-top:3px solid var(--md-default-fg-color);text-indent:0;margin-right:.4em}
+.lv-legend .lv-arc.lv-ekf{border-top-color:var(--lv-estimate)}
+.lv-legend .lv-arc.lv-odometry{border-top-color:var(--lv-wheels)}
+.md-typeset .lv-note{margin:0 0 .4em;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend.lv-results li{padding-left:1.4em;text-indent:-1.4em}
+.lv-legend .lv-sign{display:inline-block;width:1.4em;text-indent:0;font-weight:700}
+</style>
+<figure class="lv-figure lv-grids">
+<div class="lv-pair">
+<div class="lv-case">
+<p class="lv-band">DiffBot</p>
+<p class="lv-note">Wheel separation: <i>b</i> = 0.138&nbsp;m on the simulated robot, <i>b</i><sub>c</sub> = 0.1725&nbsp;m in the drive controller</p>
+<svg class="lv-fig" viewBox="0 0 208 126" role="img" aria-labelledby="lv-turn-diffbot-title"><title id="lv-turn-diffbot-title">The left turn of the simulated DiffBot from above: the robot turned 1.849 rad, the EKF's estimate 1.844 rad and the wheel odometry 1.479 rad</title>
+<path class="start-heading" d="M120,104 H206"/>
+<text class="note" x="206.0" y="118.0" text-anchor="end">start</text>
+<path class="tolerance" d="M108.0,52.4 L104.8,38.7 A67,67 0 0 0 98.4,40.6 L102.9,53.8 A53,53 0 0 1 108.0,52.4 Z"><title>DiffBot: the EKF's turn has to end between 1.799 rad and 1.899 rad, 0.05 rad to each side of the true turn</title></path>
+<g transform="rotate(-105.9 120 104)"><rect class="wheel" x="113.0" y="88.0" width="14" height="4" rx="1.5"/><rect class="wheel" x="113.0" y="116.0" width="14" height="4" rx="1.5"/><circle class="body" cx="120" cy="104" r="14"/><path class="nose" d="M124,104 H134"/></g>
+<g class="true-turn"><title>DiffBot: the robot turned 1.849 rad in Gazebo</title><path d="M160,104 A40,40 0 0 0 117.9,64.1"/><polygon points="109.0,65.5 117.7,60.3 118.1,67.9"/></g>
+<g class="ekf-turn"><title>DiffBot: the EKF's estimate turned 1.844 rad</title><path d="M180,104 A60,60 0 0 0 112.6,44.5"/><polygon points="103.8,46.2 112.2,40.7 113.1,48.2"/></g>
+<g class="odometry-turn"><title>DiffBot: the wheel odometry turned 1.479 rad</title><path d="M200,104 A80,80 0 0 0 136.2,25.7"/><polygon points="127.3,24.3 137.0,21.9 135.5,29.4"/></g>
+<text x="100.0" y="70.5" text-anchor="end">true 1.849 rad</text>
+<text x="90.8" y="50.2" text-anchor="end">EKF 1.844 rad</text>
+<text x="127.3" y="15.3" text-anchor="middle">odometry 1.479 rad</text>
+</svg>
+<ul class="lv-legend lv-results">
+<li><span class="lv-sign">✓</span><strong>The EKF follows:</strong> its turn is 0.005&nbsp;rad from the true turn. Allowed: 0.05&nbsp;rad</li>
+<li><span class="lv-sign">✓</span><strong>The wheel odometry falls behind:</strong> by 0.370&nbsp;rad. Required: more than 0.15&nbsp;rad</li>
+</ul>
+</div>
+<div class="lv-case">
+<p class="lv-band">Remo</p>
+<p class="lv-note">Wheel separation: <i>b</i> = 0.144&nbsp;m on the simulated robot, <i>b</i><sub>c</sub> = 0.18&nbsp;m in the drive controller</p>
+<svg class="lv-fig" viewBox="0 0 208 126" role="img" aria-labelledby="lv-turn-remo-title"><title id="lv-turn-remo-title">The left turn of the simulated Remo from above: the robot turned 1.873 rad, the EKF's estimate 1.870 rad and the wheel odometry 1.499 rad</title>
+<path class="start-heading" d="M120,104 H206"/>
+<text class="note" x="206.0" y="118.0" text-anchor="end">start</text>
+<path class="tolerance" d="M106.8,52.7 L103.3,39.1 A67,67 0 0 0 96.9,41.1 L101.7,54.3 A53,53 0 0 1 106.8,52.7 Z"><title>Remo: the EKF's turn has to end between 1.823 rad and 1.923 rad, 0.05 rad to each side of the true turn</title></path>
+<g transform="rotate(-107.3 120 104)"><rect class="wheel" x="113.0" y="88.0" width="14" height="4" rx="1.5"/><rect class="wheel" x="113.0" y="116.0" width="14" height="4" rx="1.5"/><circle class="body" cx="120" cy="104" r="14"/><path class="nose" d="M124,104 H134"/></g>
+<g class="true-turn"><title>Remo: the robot turned 1.873 rad in Gazebo</title><path d="M160,104 A40,40 0 0 0 116.9,64.1"/><polygon points="108.1,65.8 116.6,60.3 117.2,67.9"/></g>
+<g class="ekf-turn"><title>Remo: the EKF's estimate turned 1.870 rad</title><path d="M180,104 A60,60 0 0 0 111.1,44.7"/><polygon points="102.3,46.7 110.5,40.9 111.6,48.4"/></g>
+<g class="odometry-turn"><title>Remo: the wheel odometry turned 1.499 rad</title><path d="M200,104 A80,80 0 0 0 134.7,25.4"/><polygon points="125.7,24.2 135.4,21.6 134.0,29.1"/></g>
+<text x="99.1" y="70.8" text-anchor="end">true 1.873 rad</text>
+<text x="89.3" y="50.7" text-anchor="end">EKF 1.870 rad</text>
+<text x="125.7" y="15.2" text-anchor="middle">odometry 1.499 rad</text>
+</svg>
+<ul class="lv-legend lv-results">
+<li><span class="lv-sign">✓</span><strong>The EKF follows:</strong> its turn is 0.003&nbsp;rad from the true turn. Allowed: 0.05&nbsp;rad</li>
+<li><span class="lv-sign">✓</span><strong>The wheel odometry falls behind:</strong> by 0.374&nbsp;rad. Required: more than 0.15&nbsp;rad</li>
+</ul>
+</div>
+</div>
+<ul class="lv-legend">
+<li><span class="lv-arc"></span><strong>true:</strong> the robot's turn in Gazebo, Δ<i>θ</i><sub>true</sub></li>
+<li><span class="lv-arc lv-ekf"></span><strong>EKF:</strong> the turn of the EKF's estimate, Δ<i>θ</i><sub>EKF</sub></li>
+<li><span class="lv-arc lv-odometry"></span><strong>odometry:</strong> the turn of the wheel odometry, Δ<i>θ</i><sub>odom</sub></li>
+<li><span class="lv-swatch lv-fused"></span>where the EKF's arc has to end: <code>EKF_TOLERANCE</code>, 0.05&nbsp;rad, to each side of the true turn</li>
+</ul>
+<figcaption>The left turn of <code>test_ekf.py</code> from above, in a run at the commit <code>3ef4a91</code>. Each arc is one turn, from the dashed start heading.</figcaption>
+</figure>

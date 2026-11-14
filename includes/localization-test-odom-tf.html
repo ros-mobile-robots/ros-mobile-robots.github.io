@@ -1,0 +1,128 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .true-turn path{stroke:var(--md-default-fg-color);stroke-width:2.2;fill:none}
+.lv-fig .true-turn polygon{fill:var(--md-default-fg-color)}
+.lv-fig .ekf-turn path{stroke:var(--lv-estimate);stroke-width:2.2;fill:none}
+.lv-fig .ekf-turn polygon{fill:var(--lv-estimate)}
+.lv-fig .odometry-turn path{stroke:var(--lv-wheels);stroke-width:2.2;fill:none}
+.lv-fig .odometry-turn polygon{fill:var(--lv-wheels)}
+.lv-fig .start-heading{stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3;fill:none}
+.lv-fig .tolerance{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:.8}
+.lv-fig .body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.lv-fig .nose{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2}
+.lv-fig .wheel{fill:var(--md-default-fg-color--light)}
+.lv-fig .flow{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-fig .flow-head{fill:var(--md-default-fg-color)}
+.lv-fig .flow-skipped{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:3 3}
+.lv-fig .flow-head-skipped{fill:var(--md-default-fg-color--light)}
+.lv-fig .active{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .inactive{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-grids .lv-pair .lv-case{width:250px;max-width:100%}
+.lv-grids .lv-pair .lv-case .lv-fig{width:100%}
+.lv-legend .lv-swatch.lv-inactive{border-style:dashed}
+.lv-legend .lv-arc{display:inline-block;box-sizing:border-box;width:1.6em;height:0;vertical-align:.3em;border-top:3px solid var(--md-default-fg-color);text-indent:0;margin-right:.4em}
+.lv-legend .lv-arc.lv-ekf{border-top-color:var(--lv-estimate)}
+.lv-legend .lv-arc.lv-odometry{border-top-color:var(--lv-wheels)}
+.md-typeset .lv-note{margin:0 0 .4em;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend.lv-results li{padding-left:1.4em;text-indent:-1.4em}
+.lv-legend .lv-sign{display:inline-block;width:1.4em;text-indent:0;font-weight:700}
+</style>
+<figure class="lv-figure lv-large">
+<p class="lv-band">Without the EKF, checked by <code>test_odom_tf.py</code></p>
+<svg class="lv-fig" viewBox="0 0 300 102" role="img" aria-labelledby="lv-tf-without-ekf-title"><title id="lv-tf-without-ekf-title">Without the EKF, only the drive controller publishes the transform odom → base_footprint on the topic /tf, from the node /gazebo. The observer counts the transforms by publishing node</title>
+<g><title>The drive controller runs in the node /gazebo and publishes the transform: enable_odom_tf is true</title>
+<rect class="active" x="2.0" y="2.0" width="186.0" height="52.0" rx="4"/>
+<text class="strong" x="10.0" y="17.5" text-anchor="start">✓ drive controller</text>
+<text class="mono" x="10.0" y="31.5" text-anchor="start">/gazebo</text>
+<text class="mono" x="10.0" y="45.5" text-anchor="start">enable_odom_tf: true</text>
+</g>
+<path class="flow" d="M188,28.0 L218,28.0"/>
+<polygon class="flow-head" points="226,28.0 217,24.2 217,31.8"/>
+<text class="mono" x="205.0" y="22.0" text-anchor="middle">/tf</text>
+<g><title>The EKF is not started and publishes nothing</title>
+<rect class="inactive" x="2.0" y="62.0" width="186.0" height="38.0" rx="4"/>
+<text x="10.0" y="77.5" text-anchor="start">EKF</text>
+<text class="note" x="10.0" y="91.5" text-anchor="start">not started</text>
+</g>
+<rect class="item" x="226.0" y="2.0" width="72.0" height="98.0" rx="5"/>
+<text class="name" x="262.0" y="40.5" text-anchor="middle">observer</text>
+<text class="note" x="262.0" y="54.5" text-anchor="middle">counts</text>
+<text class="note" x="262.0" y="68.5" text-anchor="middle">by node</text>
+</svg>
+<ul class="lv-legend lv-results">
+<li><span class="lv-sign"></span><strong>Expected:</strong> only <code>/gazebo</code> publishes the transform</li>
+<li><span class="lv-sign">✓</span><strong>Saved run:</strong> the observer counted 155 transforms for DiffBot and 151 for Remo, all from <code>/gazebo</code></li>
+</ul>
+<p class="lv-band">With the EKF, checked by <code>test_ekf.py</code></p>
+<svg class="lv-fig" viewBox="0 0 300 102" role="img" aria-labelledby="lv-tf-with-ekf-title"><title id="lv-tf-with-ekf-title">With the EKF, only the EKF publishes the transform odom → base_footprint on the topic /tf, from the node /diffbot/ekf_localization. The observer counts the transforms by publishing node</title>
+<g><title>The drive controller runs in the node /gazebo and does not publish the transform: enable_odom_tf is false</title>
+<rect class="inactive" x="2.0" y="2.0" width="186.0" height="52.0" rx="4"/>
+<text x="10.0" y="17.5" text-anchor="start">drive controller</text>
+<text class="mono" x="10.0" y="31.5" text-anchor="start">/gazebo</text>
+<text class="mono" x="10.0" y="45.5" text-anchor="start">enable_odom_tf: false</text>
+</g>
+<g><title>The EKF runs in the node /diffbot/ekf_localization and publishes the transform</title>
+<rect class="active" x="2.0" y="62.0" width="186.0" height="38.0" rx="4"/>
+<text class="strong" x="10.0" y="77.5" text-anchor="start">✓ EKF</text>
+<text class="mono" x="10.0" y="91.5" text-anchor="start">/diffbot/ekf_localization</text>
+</g>
+<path class="flow" d="M188,81.0 L218,81.0"/>
+<polygon class="flow-head" points="226,81.0 217,77.2 217,84.8"/>
+<text class="mono" x="205.0" y="75.0" text-anchor="middle">/tf</text>
+<rect class="item" x="226.0" y="2.0" width="72.0" height="98.0" rx="5"/>
+<text class="name" x="262.0" y="40.5" text-anchor="middle">observer</text>
+<text class="note" x="262.0" y="54.5" text-anchor="middle">counts</text>
+<text class="note" x="262.0" y="68.5" text-anchor="middle">by node</text>
+</svg>
+<ul class="lv-legend lv-results">
+<li><span class="lv-sign"></span><strong>Expected:</strong> only <code>/diffbot/ekf_localization</code> publishes the transform</li>
+<li><span class="lv-sign">✓</span><strong>Saved run:</strong> the observer counted 375 transforms for DiffBot and 371 for Remo, all from <code>/diffbot/ekf_localization</code></li>
+</ul>
+<ul class="lv-legend">
+<li><span class="lv-swatch lv-fused">✓</span>publishes the transform <code>odom → base_footprint</code> on the topic <code>/tf</code></li>
+<li><span class="lv-swatch lv-inactive"></span>doesn't publish the transform</li>
+</ul>
+<figcaption>Who publishes the transform <code>odom → base_footprint</code>. The observer is <code>OdomTfObserver</code> in the test node. The counts are from a run at the commit <code>3ef4a91</code>.</figcaption>
+</figure>
