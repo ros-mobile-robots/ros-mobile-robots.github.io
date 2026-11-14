@@ -1,0 +1,93 @@
+<style>
+.md-typeset figure.imu-figure{margin:1em auto;width:100%;max-width:none}
+.imu-figure .imu-panels{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8rem 1.6rem}
+.imu-figure .imu-fig{flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)}
+.md-typeset .imu-figure figcaption{max-width:36rem}
+.imu-fig{width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;--imu-z:#1565c0;--imu-board:#9db9e6;--imu-gravity:#546e7a;--imu-acceleration:#e65100;--imu-reading:#7b1fa2;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .imu-fig{--imu-x:#ff7b72;--imu-y:#6fcf73;--imu-z:#6cb2ff;--imu-board:#3d5a8c;--imu-gravity:#a7b6be;--imu-acceleration:#ffa94d;--imu-reading:#d79bea}
+.imu-fig text{fill:var(--md-default-fg-color);font-size:12px}
+.imu-fig .title{font-size:13px;font-weight:700}
+.imu-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
+.imu-fig .note{font-size:11.5px;fill:var(--md-default-fg-color--light)}
+.imu-fig .strong{font-weight:700}
+.imu-fig .sub{font-size:9px}
+.imu-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3.5px;stroke-linejoin:round}
+.imu-fig .body{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.imu-fig .wheel{fill:var(--md-default-fg-color--lighter);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .part{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.imu-fig .board{fill:var(--imu-board);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .floor{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.imu-fig .joint{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:5 3}
+.imu-fig .guide{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.imu-fig .lens{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .inset{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.imu-fig .dot{fill:var(--md-default-fg-color)}
+.imu-fig .x{stroke:var(--imu-x);fill:var(--imu-x)}
+.imu-fig .y{stroke:var(--imu-y);fill:var(--imu-y)}
+.imu-fig .z{stroke:var(--imu-z);fill:var(--imu-z)}
+.imu-fig .gravity{stroke:var(--imu-gravity);fill:var(--imu-gravity)}
+.imu-fig .acceleration{stroke:var(--imu-acceleration);fill:var(--imu-acceleration)}
+.imu-fig .reading{stroke:var(--imu-reading);fill:var(--imu-reading)}
+.imu-fig .motion{stroke:var(--md-default-fg-color--light);fill:var(--md-default-fg-color--light)}
+.imu-fig .context{opacity:.62}
+.imu-fig .shaft{fill:none;stroke-width:2.4;stroke-linecap:round}
+.imu-fig .turn{stroke-width:2}
+.imu-fig .thin{stroke-width:1.5}
+.imu-fig .dashed{stroke-dasharray:4 3}
+.imu-fig .head{stroke:none}
+.imu-fig .ring{fill:var(--md-default-bg-color);stroke-width:1.8}
+.imu-fig text.x,.imu-fig text.y,.imu-fig text.z,.imu-fig text.gravity,.imu-fig text.acceleration,.imu-fig text.reading{stroke:none;font-weight:700}
+.imu-fig text.halo{stroke:var(--md-default-bg-color)}
+</style>
+<figure class="imu-figure" markdown="block" style="--imu-basis:300px;--imu-max:480px">
+<div class="imu-panels">
+<svg class="imu-fig" viewBox="0 0 360 330" role="img" aria-labelledby="imu-angular-velocity-title imu-angular-velocity-description"><title id="imu-angular-velocity-title">The angular velocity about imu_link’s three axes</title><desc id="imu-angular-velocity-description">Remo from behind and above. At the IMU board, imu_link’s three axes: x in red to the robot’s right, y in green forward and z in blue up. A curved arrow turns about each axis in the direction that counts as positive: counterclockwise when the axis points at the viewer. The arrow about z is the yaw rate, which is positive in a left turn. The EKF fuses this value.</desc>
+<g class="context">
+<polygon class="wheel" points="72.82,170.34 73.14,163.91 74.11,157.04 75.69,149.91 77.84,142.77 80.48,135.81 83.54,129.25 86.93,123.30 90.54,118.12 94.27,113.89 97.99,110.72 101.60,108.72 104.99,107.94 108.05,108.41 136.20,117.73 138.84,119.44 140.99,122.32 142.57,126.31 143.54,131.26 143.86,137.04 143.54,143.47 142.57,150.34 140.99,157.47 138.84,164.61 136.20,171.57 133.14,178.13 129.75,184.08 126.14,189.26 122.41,193.49 118.69,196.66 115.08,198.66 111.69,199.44 108.63,198.97 80.48,189.65 77.84,187.94 75.69,185.06 74.11,181.07 73.14,176.12"/>
+<polygon class="wheel" points="143.86,137.04 143.54,131.26 142.57,126.31 140.99,122.32 138.84,119.44 136.20,117.73 133.14,117.26 129.75,118.04 126.14,120.04 122.41,123.21 118.69,127.44 115.08,132.62 111.69,138.57 108.63,145.13 105.98,152.09 103.84,159.23 102.26,166.36 101.29,173.23 100.96,179.66 101.29,185.44 102.26,190.39 103.84,194.38 105.98,197.26 108.63,198.97 111.69,199.44 115.08,198.66 118.69,196.66 122.41,193.49 126.14,189.26 129.75,184.08 133.14,178.13 136.20,171.57 138.84,164.61 140.99,157.47 142.57,150.34 143.54,143.47"/>
+<polygon class="body" points="128.85,151.96 128.75,150.22 128.46,148.74 127.99,147.54 127.34,146.68 126.55,146.17 125.63,146.02 124.61,146.26 123.53,146.86 122.41,147.81 121.30,149.08 120.21,150.63 119.20,152.42 118.28,154.38 117.48,156.47 116.84,158.62 116.37,160.75 116.08,162.82 115.98,164.74 116.08,166.48 116.37,167.96 116.84,169.16 117.48,170.02 118.28,170.54 119.20,170.68 120.21,170.44 121.30,169.84 122.41,168.89 123.53,167.62 124.61,166.07 125.63,164.28 126.55,162.32 127.34,160.23 127.99,158.09 128.46,155.95 128.75,153.89"/>
+<circle class="wheel" cx="132.9" cy="259.1" r="15.6"/>
+<polygon class="body" points="165.53,260.06 75.47,230.24 75.47,198.29 165.53,228.12"/>
+<polygon class="body" points="165.53,260.06 256.53,169.66 256.53,137.71 165.53,228.12"/>
+<polygon class="body" points="165.53,228.12 256.53,137.71 166.47,107.88 75.47,198.29"/>
+<polygon class="body" points="171.16,229.98 69.84,196.43 69.84,194.30 171.16,227.85"/>
+<polygon class="body" points="171.16,229.98 262.16,139.57 262.16,137.44 171.16,227.85"/>
+<polygon class="body" points="171.16,227.85 262.16,137.44 160.84,103.89 69.84,194.30"/>
+<polygon class="part" points="167.16,224.37 77.09,194.55 77.09,183.90 167.16,213.72"/>
+<polygon class="part" points="167.16,224.37 202.91,188.86 202.91,178.21 167.16,213.72"/>
+<polygon class="part" points="167.16,213.72 202.91,178.21 112.84,148.38 77.09,183.90"/>
+<polygon class="board" points="122.29,184.95 91.89,174.88 91.89,170.62 122.29,180.69"/>
+<polygon class="board" points="122.29,184.95 135.29,172.03 135.29,167.77 122.29,180.69"/>
+<polygon class="board" points="122.29,180.69 135.29,167.77 104.89,157.71 91.89,170.62"/>
+<polygon class="wheel" points="234.94,224.03 235.26,217.60 236.23,210.72 237.81,203.60 239.96,196.45 242.60,189.49 245.66,182.94 249.05,176.98 252.66,171.81 256.39,167.57 260.11,164.41 263.72,162.41 267.11,161.63 270.17,162.10 298.32,171.42 300.96,173.12 303.11,176.01 304.69,179.99 305.66,184.95 305.98,190.73 305.66,197.15 304.69,204.03 303.11,211.15 300.96,218.30 298.32,225.26 295.26,231.82 291.87,237.77 288.26,242.94 284.53,247.18 280.81,250.35 277.20,252.35 273.81,253.13 270.75,252.65 242.60,243.33 239.96,241.63 237.81,238.74 236.23,234.76 235.26,229.80"/>
+<polygon class="wheel" points="305.98,190.73 305.66,184.95 304.69,179.99 303.11,176.01 300.96,173.12 298.32,171.42 295.26,170.95 291.87,171.73 288.26,173.73 284.53,176.90 280.81,181.13 277.20,186.30 273.81,192.26 270.75,198.81 268.10,205.77 265.96,212.92 264.38,220.04 263.41,226.92 263.08,233.35 263.41,239.13 264.38,244.08 265.96,248.06 268.10,250.95 270.75,252.65 273.81,253.13 277.20,252.35 280.81,250.35 284.53,247.18 288.26,242.94 291.87,237.77 295.26,231.82 298.32,225.26 300.96,218.30 303.11,211.15 304.69,204.03 305.66,197.15"/>
+<polygon class="body" points="290.97,205.64 290.87,203.91 290.58,202.42 290.11,201.23 289.46,200.36 288.67,199.85 287.75,199.71 286.73,199.94 285.65,200.54 284.53,201.49 283.42,202.76 282.33,204.32 281.32,206.10 280.40,208.07 279.60,210.16 278.96,212.30 278.49,214.44 278.20,216.50 278.10,218.43 278.20,220.16 278.49,221.65 278.96,222.84 279.60,223.71 280.40,224.22 281.32,224.36 282.33,224.13 283.42,223.53 284.53,222.58 285.65,221.31 286.73,219.76 287.75,217.97 288.67,216.00 289.46,213.92 290.11,211.77 290.58,209.64 290.87,207.57"/>
+</g>
+<text class="note" x="272.6" y="129.2" text-anchor="middle">front</text>
+<polyline class="shaft x" points="113.59,171.33 208.95,202.90"/>
+<polygon class="head x" points="215.78,205.17 206.05,205.93 208.43,198.75"/>
+<text class="x halo" x="225.3" y="212.3" text-anchor="middle">x</text>
+<polyline class="shaft turn x" points="192.12,197.78 193.30,193.85 194.17,189.93 194.70,186.15 194.88,182.62 194.70,179.44 194.17,176.71 193.30,174.52 192.12,172.93 190.67,171.99 188.98,171.74 187.12,172.16 185.13,173.26 183.08,175.01 181.03,177.34 179.04,180.18 177.18,183.46 175.50,187.06 174.04,190.89 172.86,194.83 171.99,198.74 171.46,202.53 171.28,206.06 171.46,209.24 171.99,211.97 172.86,214.16 174.04,215.75 175.50,216.68 177.18,216.94"/>
+<polygon class="head turn x" points="179.04,216.51 171.21,220.25 170.89,213.54"/>
+<polyline class="shaft y" points="113.59,171.33 167.48,117.79"/>
+<polygon class="head y" points="172.59,112.71 168.87,121.74 163.54,116.37"/>
+<text class="y halo" x="179.7" y="109.7" text-anchor="middle">y</text>
+<polyline class="shaft turn y" points="163.93,151.60 160.70,151.95 157.26,151.68 153.71,150.80 150.16,149.33 146.72,147.32 143.49,144.83 140.57,141.93 138.05,138.71 136.01,135.27 134.50,131.72 133.58,128.16 133.27,124.70 133.58,121.45 134.50,118.50 136.01,115.94 138.05,113.86 140.57,112.31 143.49,111.34 146.72,110.99 150.16,111.26 153.71,112.14 157.26,113.61 160.70,115.62 163.93,118.11 166.85,121.01 169.37,124.23 171.41,127.66 172.92,131.22"/>
+<polygon class="head turn y" points="173.84,134.78 168.07,128.29 174.43,126.12"/>
+<polyline class="shaft z" points="113.59,171.33 113.59,81.87"/>
+<polygon class="head z" points="113.59,74.67 117.37,83.67 109.81,83.67"/>
+<text class="z halo" x="113.6" y="68.7" text-anchor="middle">z</text>
+<polyline class="shaft turn z" points="135.77,110.23 136.83,107.95 137.19,105.60 136.83,103.25 135.77,100.97 134.03,98.83 131.67,96.90 128.76,95.23 125.39,93.88 121.66,92.88 117.69,92.27 113.59,92.06 109.49,92.27 105.52,92.88 101.79,93.88 98.42,95.23 95.51,96.90 93.15,98.83 91.41,100.97 90.35,103.25 89.99,105.60 90.35,107.95 91.41,110.23 93.15,112.37 95.51,114.30 98.42,115.97 101.79,117.32 105.52,118.32 109.49,118.93"/>
+<polygon class="head turn z" points="113.59,119.13 105.29,121.67 105.97,114.99"/>
+<circle class="dot" cx="113.6" cy="171.3" r="3.0"/>
+<text class="z" x="70.0" y="28.0" text-anchor="end">ω<tspan class="sub" dy="3">z</tspan></text>
+<text x="78.0" y="28.0" text-anchor="start">yaw rate: positive in a left turn.</text>
+<text x="78.0" y="44.0" text-anchor="start">The EKF fuses this value.</text>
+<text class="y halo" x="186.0" y="150.0" text-anchor="start">ω<tspan class="sub" dy="3">y</tspan></text>
+<text class="x halo" x="199.0" y="246.0" text-anchor="start">ω<tspan class="sub" dy="3">x</tspan></text>
+<text class="note" x="180.0" y="306.0" text-anchor="middle">Each curved arrow shows the direction that counts</text>
+<text class="note" x="180.0" y="321.0" text-anchor="middle">as positive for the angular velocity about its axis</text>
+</svg>
+</div>
+<figcaption markdown="span">`angular_velocity` on Remo: one number per axis of `imu_link`, in rad/s. Red is x, green is y and blue is z. Point your right thumb along an axis: your fingers curl in the positive direction. On Remo, `imu_link`’s y axis points forward and its x axis to the robot’s right, because the board is mounted turned by −90° about z, as the [figure of Remo’s frames](position-and-axes.md) shows.</figcaption>
+</figure>

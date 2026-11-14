@@ -14,7 +14,7 @@ After this page, you can:
 - use three measurements, the wheel speeds, the odometry compared with Gazebo's motion, and the wheels' height at rest, to narrow down a simulation problem;
 - change one setting at a time, and estimate how a wheel's inertia and the physics time step affect the stability of a simple motor loop.
 
-The page uses DiffBot and Remo as worked examples. Their current settings, the reasons for them and a tuning procedure are on the Simulation page, in [Tuning the simulated robot](../../diffbot_gazebo.md#tuning-the-simulated-robot).
+The page uses DiffBot and Remo as worked examples. Their current settings, the reasons for them and a tuning procedure are on the Gazebo Package page, in [Tuning the simulated robot](../../diffbot_gazebo.md#tuning-the-simulated-robot).
 
 ??? info "About the experiments E1 to E3"
     The measurements on this page come from three controlled experiments in Gazebo Classic, run for this page in the [dev container](../../development/dev-container.md) with the [diffbot repository](https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2) at `b896a3a` and [remo_description](https://github.com/ros-mobile-robots/remo_description/tree/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462) at `ba0b2c5`:
@@ -215,7 +215,7 @@ For example, this is the collision of Remo's front left wheel in the output of `
 </collision>
 ```
 
-To see your own model's output, expand its xacro file to a URDF and convert it, as in [Troubleshooting](../../diffbot_gazebo.md#troubleshooting) on the Simulation page.
+To see your own model's output, expand its xacro file to a URDF and convert it, as in [Troubleshooting](../../diffbot_gazebo.md#troubleshooting) on the Gazebo Package page.
 
 ## Turning a wheel-speed command into torque
 

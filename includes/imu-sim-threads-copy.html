@@ -1,0 +1,77 @@
+<style>
+.md-typeset figure.th-figure{margin:1em auto;width:100%;max-width:480px}
+.th-fig{width:100%;height:auto;--th-request:#1e63c4;--th-stuck:#c62828;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .th-fig{--th-request:#82b1ff;--th-stuck:#ef6a6a}
+.th-fig text{fill:var(--md-default-fg-color);font-size:12px}
+.th-fig .lane-name{font-weight:700;fill:var(--md-default-fg-color--light)}
+.th-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
+.th-fig .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.th-fig .stuck-text{fill:var(--th-stuck)}
+.th-fig .strong{font-weight:700}
+.th-fig .lane{fill:var(--md-default-fg-color--lightest);stroke:none}
+.th-fig .box{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.th-fig .queue{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3}
+.th-fig .callback{fill:var(--md-default-bg-color);stroke:var(--th-request);stroke-width:1.8}
+.th-fig .idle{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.th-fig .stuck{fill:none;stroke:var(--th-stuck);stroke-width:1.6;stroke-dasharray:5 3}
+.th-fig .open{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.th-fig .flow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.th-fig .flow-head{fill:var(--md-default-fg-color--light)}
+.th-fig .request{fill:none;stroke:var(--th-request);stroke-width:1.8}
+.th-fig .request-head{fill:var(--th-request)}
+.th-fig .step-disc{fill:var(--md-default-fg-color)}
+.th-fig .step{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+</style>
+<figure class="th-figure" markdown="block">
+<div class="th-panel">
+<svg class="th-fig" viewBox="0 0 360 322" role="img" aria-labelledby="th-copy-title th-copy-description"><title id="th-copy-title">The request with the robots’ copy of the IMU plugin</title><desc id="th-copy-description">Step 1: the controller spawner sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and returns. Step 3: a ROS spinner thread takes the request and runs the callback, which notes the change and waits for update(). Step 4: the physics thread goes on and calls update(), which takes the change. Step 5: the callback returns, and the spawner gets its answer.</desc><defs><marker id="th-copy-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="th-copy-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="box" x="18" y="8" width="152" height="38" rx="4"/>
+<text x="94.0" y="24" text-anchor="middle">controller spawner</text>
+<text class="note" x="94.0" y="38" text-anchor="middle">another ROS node</text>
+<rect class="queue" x="200" y="8" width="152" height="38" rx="4"/>
+<text x="276.0" y="24" text-anchor="middle">global callback queue</text>
+<text class="note" x="276.0" y="38" text-anchor="middle">a waiting list</text>
+<path class="request" d="M170,27.0 H199" marker-end="url(#th-copy-request)"/>
+<circle class="step-disc" cx="185.0" cy="15.0" r="8"/>
+<text class="step" x="185.0" y="19.0" text-anchor="middle">1</text>
+<rect class="lane" x="18" y="62" width="160" height="256" rx="6"/>
+<text class="lane-name" x="98.0" y="79" text-anchor="middle">physics thread</text>
+<rect class="lane" x="186" y="62" width="166" height="256" rx="6"/>
+<text class="lane-name" x="269.0" y="79" text-anchor="middle">ROS spinner thread</text>
+<text class="note" transform="translate(13,66) rotate(-90)" text-anchor="end">time</text>
+<path class="flow" d="M9,96 V312" marker-end="url(#th-copy-flow)"/>
+<rect class="box" x="22" y="88" width="152" height="52" rx="4"/>
+<text class="mono" x="98.0" y="105" text-anchor="middle">UpdateChild()</text>
+<text class="note" x="98.0" y="119" text-anchor="middle">publishes the IMU message</text>
+<text class="note" x="98.0" y="133" text-anchor="middle">and returns</text>
+<circle class="step-disc" cx="22" cy="88" r="8"/>
+<text class="step" x="22" y="92" text-anchor="middle">2</text>
+<rect class="box" x="22" y="150" width="152" height="38" rx="4"/>
+<text class="mono" x="98.0" y="167" text-anchor="middle">update()</text>
+<text class="note" x="98.0" y="181" text-anchor="middle">runs the controllers</text>
+<rect class="callback" x="22" y="222" width="152" height="38" rx="4"/>
+<text class="mono" x="98.0" y="239" text-anchor="middle">update()</text>
+<text class="note" x="98.0" y="253" text-anchor="middle">takes the change</text>
+<circle class="step-disc" cx="22" cy="222" r="8"/>
+<text class="step" x="22" y="226" text-anchor="middle">4</text>
+<text class="note" x="98.0" y="282" text-anchor="middle">next steps: the clock</text>
+<text class="note" x="98.0" y="296" text-anchor="middle">runs on</text>
+<path class="request" d="M338,46 V87" marker-end="url(#th-copy-request)"/>
+<rect class="callback" x="190" y="88" width="158" height="172" rx="4"/>
+<text class="mono" x="269.0" y="105" text-anchor="middle">switch_controller</text>
+<text class="note" x="269.0" y="119" text-anchor="middle">callback</text>
+<text x="269.0" y="133" text-anchor="middle">notes the change,</text>
+<text x="269.0" y="147" text-anchor="middle">waits for update()</text>
+<circle class="step-disc" cx="190" cy="88" r="8"/>
+<text class="step" x="190" y="92" text-anchor="middle">3</text>
+<path class="request" d="M174,241 H189" marker-end="url(#th-copy-request)"/>
+<text class="note" x="269.0" y="245" text-anchor="middle">the change is taken</text>
+<path class="flow" d="M269.0,260 V280" marker-end="url(#th-copy-flow)"/>
+<circle class="step-disc" cx="207.0" cy="296" r="8"/>
+<text class="step" x="207.0" y="300" text-anchor="middle">5</text>
+<text class="note" x="277.0" y="294" text-anchor="middle">returns: the spawner</text>
+<text class="note" x="277.0" y="308" text-anchor="middle">gets its answer</text>
+</svg>
+</div>
+<figcaption markdown="span">With the robots’ copy of the plugin. A ROS spinner thread runs the callback and waits. The physics thread goes on and calls `update()`.</figcaption>
+</figure>
