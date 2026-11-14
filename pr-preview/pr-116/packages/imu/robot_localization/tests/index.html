@@ -4714,7 +4714,7 @@
 </tbody>
 </table>
 <h2 id="how-the-tests-run">How the tests run</h2>
-<p>catkin runs the five test files with the workspace's other tests. The packages register them in their <code>CMakeLists.txt</code>: <code>catkin_add_nosetests()</code> for the two files without ROS nodes, <code>add_rostest()</code> for the three that start nodes through a <code>.test</code> launch file.</p>
+<p>catkin runs the five test files with the workspace's other tests. The packages register them in their <code>CMakeLists.txt</code>: <code>catkin_add_nosetests()</code> for the two files without ROS nodes, <code>add_rostest()</code> for the three that start nodes through a <code>.test</code> launch file. catkin's guides <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> and <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst">Configuring rostest</a> explain the two macros.</p>
 <ul>
 <li><strong>All tests:</strong> <code>catkin build --catkin-make-args run_tests</code> in the <a href="../../../../development/ci/#dev-container-workflow">dev container</a> builds the workspace and runs every test. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same tests on every pull request, as <a href="../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> explains.</li>
 <li>
