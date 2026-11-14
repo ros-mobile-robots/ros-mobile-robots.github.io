@@ -17,7 +17,7 @@ The file has four test classes, one for each part of [`imu_validator.py`]({{ dif
 
 ## How the tests run
 
-catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how `diffbot_control` registers its two EKF tests, from [`CMakeLists.txt`, lines 226–232]({{ ekf_src_url }}/diffbot_control/CMakeLists.txt#L226-L232). `catkin_add_nosetests()` registers this file, and `add_rostest()` registers the [stepped-clock test](stepped-clock.md):
+catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how `diffbot_control` registers its two EKF tests, from [`CMakeLists.txt`, lines 226–232]({{ ekf_src_url }}/diffbot_control/CMakeLists.txt#L226-L232). [`catkin_add_nosetests()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) registers this file, and [`add_rostest()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) registers the [stepped-clock test](stepped-clock.md):
 
 ```cmake title="diffbot_control/CMakeLists.txt: the package's tests" linenums="226"
 --8<-- "{{ ekf_src_raw }}/diffbot_control/CMakeLists.txt:226:232"

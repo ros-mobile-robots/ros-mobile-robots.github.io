@@ -20,7 +20,7 @@ rostest reads [`ekf_synthetic.test`]({{ diffbot_repo_url }}/diffbot_control/test
 - **`ekf.launch`:** starts the nodes `/diffbot/imu_validator` and `/diffbot/ekf_localization` with the parameters of the robot: the validator's `max_age` and `max_future`, and [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) for the filter.
 - **The `<test>` tag:** runs `test_ekf_synthetic.py` as the test node. `time-limit` gives the test 120 s of wall time, the computer's clock.
 
-`diffbot_control` registers the file with `add_rostest()` in its [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_control/CMakeLists.txt), so CI runs it with the workspace's other tests, as [Testing and CI](../../../../development/ci.md#ekf-tests) describes. To run only this test, open a shell in which the workspace is sourced:
+`diffbot_control` registers the file with [`add_rostest()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) in its [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_control/CMakeLists.txt), so CI runs it with the workspace's other tests, as [Testing and CI](../../../../development/ci.md#ekf-tests) describes. To run only this test, open a shell in which the workspace is sourced:
 
 ```console
 rostest diffbot_control ekf_synthetic.test

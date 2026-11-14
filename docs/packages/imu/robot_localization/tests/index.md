@@ -12,7 +12,7 @@ Five test files check the EKF and the IMU sample validator of the [Localization 
 
 ## How the tests run
 
-catkin runs the five test files with the workspace's other tests. The packages register them in their `CMakeLists.txt`: `catkin_add_nosetests()` for the two files without ROS nodes, `add_rostest()` for the three that start nodes through a `.test` launch file.
+catkin runs the five test files with the workspace's other tests. The packages register them in their `CMakeLists.txt`: `catkin_add_nosetests()` for the two files without ROS nodes, `add_rostest()` for the three that start nodes through a `.test` launch file. catkin's guides [Configuring Python nose tests](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) and [Configuring rostest](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) explain the two macros.
 
 - **All tests:** `catkin build --catkin-make-args run_tests` in the [dev container](../../../../development/ci.md#dev-container-workflow) builds the workspace and runs every test. CI runs the same tests on every pull request, as [Testing and CI](../../../../development/ci.md#ekf-tests) explains.
 - **One test with ROS nodes:** `rostest` starts the test's launch file and the test, for example the stepped-clock test and Remo's test in Gazebo:
