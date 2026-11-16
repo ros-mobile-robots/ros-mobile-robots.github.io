@@ -115,7 +115,7 @@ The method works in four steps:
 3. **The checks:** the loop calls the checks in the tuple `sample_checks`, one after the other. The first check that returns a reason ends the loop, and the method returns that reason. The later checks don't run.
 4. **A valid sample:** when every check has returned `None`, the method records the sample's stamp $t_s$ as `last_valid_stamp`, the stamp $t_\text{last}$ that check 5 compares the next stamps with. The method records `now` as `last_valid_at`, from which `seconds_since_last_valid_sample()` counts. Then the method returns `None`.
 
-For a sample that a check drops, the method records only the ROS time of the call, in step 2. So a dropped sample doesn't change $t_\text{last}$. A sample that arrives at the ROS time 0 leaves no trace at all, because step 1 returns before step 2.
+For a sample that a check drops, the method records only the ROS time of the call, in step 2. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator forget the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 leaves no trace at all, because step 1 returns before step 2.
 
 The constructor `__init__()` fills `sample_checks` in the order in which the checks run. The excerpt shows the tuple, from [`imu_validator.py`, lines 221–229]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L221-L229):
 
@@ -189,7 +189,7 @@ Every test builds its samples with the helper `make_imu_sample()`. The excerpt s
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:50:71"
 ```
 
-- **`make_imu_sample()`:** returns a `sensor_msgs/Imu` message like the firmware's. With the defaults of its three arguments, the sample is valid at the ROS time `NOW` for a new validator, one that has seen no sample yet. A validator that has seen a sample with the same stamp drops a second one in check 5. With the defaults, the sample's stamp $t_s$ is `NOW`, its frame is `imu_link` and its yaw rate $\omega_z$ is `YAW_RATE`, 0.5 rad/s. The accelerometer's reading on the upward axis, $f_z$, is `GRAVITY`, 9.81 m/s², as for an IMU at rest. `orientation_covariance[0]` is −1, which marks the orientation as unavailable, as in the firmware's message.
+- **`make_imu_sample()`:** returns a `sensor_msgs/Imu` message like the firmware's. With the defaults of its three arguments, the sample is valid at the ROS time `NOW` for a new validator, one that has seen no sample yet. If the last valid sample has the same stamp, check 5 drops the new sample. With the defaults, the sample's stamp $t_s$ is `NOW`, its frame is `imu_link` and its yaw rate $\omega_z$ is `YAW_RATE`, 0.5 rad/s. The accelerometer's reading on the upward axis, $f_z$, is `GRAVITY`, 9.81 m/s², as for an IMU at rest. `orientation_covariance[0]` is −1, which marks the orientation as unavailable, as in the firmware's message.
 - **The variances:** each variance on the diagonal of the angular velocity's covariance $\boldsymbol\Sigma_{\boldsymbol\omega}$, such as $\sigma^2_{\omega_z}$, is `ANGULAR_VELOCITY_VARIANCE`, 4 · 10⁻⁴ (rad/s)². Each variance on the diagonal of `linear_acceleration_covariance` is `LINEAR_ACCELERATION_VARIANCE`, 10⁻² (m/s²)². Both have the size of the firmware's variances.
 - **Valid and invalid samples:** the tests override the defaults of `stamp`, `frame_id` or `yaw_rate`, or change a field of the returned message, to build the samples that they need. A later stamp gives the next valid sample, for example. An invalid sample differs from the valid one in one property, so that the sample aims at one check. A sample can fail a later check too, as sample A of the time limits does.
 - **`seconds()`:** turns a number of seconds into a `rospy.Duration`, which a test adds to `NOW` or subtracts from it.
@@ -298,10 +298,7 @@ Two samples that lie only 1 µs or 1 ns apart would share one spot at the figure
 
 --8<-- "includes/localization-test-validator-limits.html"
 
-- **Sample B:** its stamp is exactly `MAX_AGE`, 0.1 s, older than `NOW`. The validator forwards the sample, so the limit itself is still valid.
-- **Sample A:** its stamp is `JUST_TOO_OLD`, 0.100001 s, older than `NOW`. The validator drops the sample with `DropReason.TOO_OLD`.
-- **Sample D:** its stamp is `JUST_TOO_FAR_AHEAD`, 0.020001 s, ahead of `NOW`. The validator drops the sample with `DropReason.FROM_THE_FUTURE`.
-- **Sample C:** its stamp is exactly `MAX_FUTURE`, 0.02 s, ahead of `NOW`. The validator forwards the sample.
+The first test sends B and then A, the second test D and then C, all at the ROS time `NOW`. The tests build the four stamps from the constants: B is `NOW - seconds(MAX_AGE)`, A is `NOW - seconds(JUST_TOO_OLD)`, D is `NOW + seconds(JUST_TOO_FAR_AHEAD)` and C is `NOW + seconds(MAX_FUTURE)`. The validator has to forward B and C, so each limit itself is still valid. The validator has to drop A with `DropReason.TOO_OLD` and D with `DropReason.FROM_THE_FUTURE`.
 
 In the first test, sample A is also older than the valid sample B before it. The validator reports `DropReason.TOO_OLD` and not `DropReason.NOT_NEWER`, because the checks run [in their order](#validate_and_record-the-decision-about-a-sample) and check 4 comes before check 5. The second test sends the dropped sample D first. For a dropped sample, the validator records only the ROS time of the call, so D doesn't change what the validator decides for C.
 
@@ -380,7 +377,7 @@ After a valid sample at 100 s, the ROS time is `restart`, 50 s. The validator dr
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:248:269"
 ```
 
-| Silence $t - t_\text{valid}$ | New drops | Level that the test expects |
+| Silence | New drops | Level that the test expects |
 |:--|:--|:--|
 | `None`: no valid sample yet | 0 | `ERROR` |
 | `SILENCE_LIMIT`, 1 s | 0 | `OK` |
