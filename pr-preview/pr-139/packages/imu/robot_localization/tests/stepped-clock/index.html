@@ -7060,12 +7060,14 @@
 <span class="w">  </span><span class="n">correct</span><span class="p">(</span><span class="n">measurement</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The same function moves the last measurement time only for a <code>delta</code> that isn't negative, as <a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L260-L263">lines 260–263 of <code>filter_base.cpp</code></a> show:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">filter_base.cpp: the last measurement time</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">delta</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span>
+<p>The same function moves the last measurement time only for a <code>delta</code> that isn't negative, as <a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L261-L264">lines 261–264 of <code>filter_base.cpp</code></a> show:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">filter_base.cpp: the last measurement time</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">delta</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="n">lastMeasurementTime_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">measurement</span><span class="p">.</span><span class="n">time_</span><span class="p">;</span>
+<span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
 </details>
 <p>So, with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stopped, the filter publishes nothing between two wheel messages. In the updates 40, 60 and 80 ms after a wheel message's stamp, the filter has nothing to fuse, and its last measurement is less than 0.1 s old. In the test, the filter's update at the stamp <span class="arithmatex">\(t_\text{w}\)</span> of the next wheel message runs when the clock reaches <span class="arithmatex">\(t_\text{w}\)</span>, before the test publishes the message. That update decides between two cases:</p>
