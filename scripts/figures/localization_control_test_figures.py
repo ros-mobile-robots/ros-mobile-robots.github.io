@@ -30,9 +30,10 @@ can't import the tests. What runs of the stepped-clock test printed or recorded 
 data. It is read from scripts/figures/data/localization-stepped-clock-test-runs.jsonl, one line
 per run, with the run's scenario, the commit of the diffbot repository, the date and the
 environment. A line without a scenario is a run of invalid_imu_samples from before the test
-had a second scenario. A line of robot_rates also holds what rosbag recorded in the run: every
-EKF output with its stamp, the ROS time at which the recorder received it and its yaw rate. The
-figures show the file's last run of each scenario.
+had a second scenario. A line of robot_rates also holds every EKF output of a recording run:
+its stamp, yaw rate and forward speed, which rosbag recorded, and the ROS time of the filter's
+update that published it, with whether a prediction at the sensor timeout set its stamp, from
+robot_localization's own debug trace. The figures show the file's last run of each scenario.
 
 Run from the repository root after changing a figure:
 
@@ -863,19 +864,12 @@ def write_one_step() -> None:
 
 
 class Output(NamedTuple):
-    """An EKF output that a recording run received, times in s of ROS time."""
+    """An EKF output of a recording run, times in s of ROS time."""
 
     stamp: float
-    received: float  # the ROS time at which rosbag's recorder received the output
+    published: float  # the ROS time of the filter's update that published the output
+    predicted: bool  # whether that update's prediction at the sensor timeout set the stamp
     yaw_rate: float  # rad/s
-
-    def published_at_its_stamp(self) -> bool:
-        """Return whether the filter published the output at the ROS time of its stamp.
-
-        Such an output is the prediction to that time, without a measurement: the filter fuses
-        a measurement in the update after the measurement's stamp.
-        """
-        return self.received - self.stamp < STEP_S / 2
 
 
 class RobotRatesRun(NamedTuple):
@@ -908,10 +902,16 @@ class RobotRatesRun(NamedTuple):
 def load_robot_rates_run() -> RobotRatesRun:
     """Return the last recorded run of robot_rates in RUNS_FILE, checked against its printout."""
     run = last_run_of(ROBOT_RATES)
-    outputs = tuple(Output(stamp, received, yaw_rate)
-                    for stamp, received, yaw_rate, _ in run['outputs'])
+    outputs = tuple(Output(stamp, published, set_by == 'timeout', yaw_rate)
+                    for stamp, published, set_by, yaw_rate, _ in run['outputs'])
+    for output in outputs:
+        # The drawings place an output at the update that published it. The filter publishes
+        # a fused measurement in the update after its stamp, a prediction in the update at it
+        expected = 0 if output.predicted else STEP_S
+        assert abs(output.published - output.stamp - expected) < 1e-6, (
+            f'the output stamped {output.stamp} s, published at {output.published} s')
     loaded = RobotRatesRun(run['commit'][:COMMIT_LENGTH], run['imu_stamps_s'][1],
-                           tuple(stamp for stamp, _ in run['wheel_messages']), outputs,
+                           tuple(run['wheel_stamps_s']), outputs,
                            run['phase_1']['last_estimate_rad_s'],
                            run['phase_2']['last_estimate_rad_s'])
     phase_2 = loaded.phase_2()
@@ -1095,12 +1095,12 @@ def write_robot_rates_test() -> None:
         RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
 
 
-def first_window(outputs: Sequence[Output], published_at_the_stamp: Sequence[bool]) -> int:
-    """Return the index of the first of len(published_at_the_stamp) outputs in that pattern."""
-    pattern = list(published_at_the_stamp)
+def first_window(outputs: Sequence[Output], predicted: Sequence[bool]) -> int:
+    """Return the index of the first of len(predicted) outputs in that pattern."""
+    pattern = list(predicted)
     for index in range(len(outputs) - len(pattern) + 1):
         window = outputs[index:index + len(pattern)]
-        if [output.published_at_its_stamp() for output in window] == pattern:
+        if [output.predicted for output in window] == pattern:
             return index
     raise ValueError(f'no outputs in the pattern {pattern}')
 
@@ -1150,21 +1150,21 @@ def draw_between_wheels_rows(figure: Figure, axis: TimeAxis, rows: RowLayout,
 def draw_between_wheels_outputs(figure: Figure, axis: TimeAxis, rows: RowLayout,
                                 first_wheel_stamp: float, outputs: Sequence[Output],
                                 labelled: bool) -> None:
-    """Add the outputs at the ROS time when the recorder received them.
+    """Add the outputs at the ROS time of the filter's update that published them.
 
     labelled adds under each output whether the filter fused a wheel message or predicted.
     """
     for output in outputs:
-        offset_ms = (output.received - first_wheel_stamp) * 1000
+        offset_ms = (output.published - first_wheel_stamp) * 1000
         if not axis.start_ms <= offset_ms <= axis.end_ms:
             continue
         x = axis.at(offset_ms)
         add_with_title(figure, f'{output.yaw_rate} rad/s, stamped {output.stamp:g} s, '
-                       f'published at {output.received:g} s',
+                       f'published at {output.published:g} s',
                        f'<circle class="estimate-dot" cx="{x:.1f}" cy="{rows.outputs}" '
                        f'r="{OUTPUT_DOT_RADIUS}"/>')
         if labelled:
-            label = 'predicted' if output.published_at_its_stamp() else 'fused'
+            label = 'predicted' if output.predicted else 'fused'
             figure.text(x, rows.outputs + 18, label, '', 'middle')
 
 
@@ -1217,13 +1217,15 @@ def between_wheels_legend(run: RobotRatesRun) -> str:
         key(f'<circle class="imu-dot" cx="12" cy="6" r="{SMALL_DOT_RADIUS + 0.6}"/>')
         + f'a valid IMU sample, every {round(1000 * STEP_S)} ms, published at its stamp',
         key(f'<circle class="estimate-dot" cx="12" cy="6" r="{OUTPUT_DOT_RADIUS}"/>')
-        + 'an EKF output, at the ROS time when the filter published it. The filter fuses the '
-        f'inputs of one step in its update {round(1000 * STEP_S)} ms later',
+        + "an EKF output, at the ROS time of the filter's update that published it, from "
+        "robot_localization's debug trace. The filter fuses the inputs of one step in its "
+        f'update {round(1000 * STEP_S)} ms later',
         key('<path class="tick" d="M12,3 v7"/>', 'lv-key lv-narrow')
         + "a tick on the axis: one of the filter's updates, 50 per second of ROS time",
-        sign_key('') + '<strong>fused:</strong> the filter fused the wheel message and '
-        "published the result, stamped with the message's time",
-        sign_key('') + '<strong>predicted:</strong> the filter predicted to the time of the '
+        sign_key('') + '<strong>fused:</strong> in the trace, the filter fused the wheel '
+        "message and published the result, stamped with the message's time",
+        sign_key('') + '<strong>predicted:</strong> in the trace, the filter predicted to the '
+        'time of the '
         'wheel message, without a measurement, because the ROS time was 0.1 s or more, its '
         'sensor_timeout, past its last measurement. It published the prediction, stamped with '
         'that time. It fuses the wheel message in the next update, but publishes no second '
@@ -1240,8 +1242,8 @@ def write_between_wheels() -> None:
         [band('Phase 1: the IMU running'), between_wheels_running(run).svg(),
          band('Phase 2: the IMU stopped'), between_wheels_stopped(run).svg(),
          between_wheels_legend(run)],
-        f'Three wheel periods of each phase of robot_rates in a recorded run at the diffbot '
-        f'commit {run.commit}, ROS time to the right.',
+        'Three wheel periods of each phase of robot_rates in a recorded run at the diffbot '
+        f"commit {run.commit}, with robot_localization's debug trace, ROS time to the right.",
         RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
 
 

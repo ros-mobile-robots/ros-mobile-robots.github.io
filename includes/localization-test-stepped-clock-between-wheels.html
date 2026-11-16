@@ -169,10 +169,10 @@
 <ul class="lv-legend lv-keys">
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="wheels-dot" cx="12" cy="6" r="4.6"/></svg>a wheel message, every 100 ms of ROS time, published at its stamp. The axis labels its stamps in s</li>
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="imu-dot" cx="12" cy="6" r="3.2"/></svg>a valid IMU sample, every 20 ms, published at its stamp</li>
-<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="4.6"/></svg>an EKF output, at the ROS time when the filter published it. The filter fuses the inputs of one step in its update 20 ms later</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="4.6"/></svg>an EKF output, at the ROS time of the filter's update that published it, from robot_localization's debug trace. The filter fuses the inputs of one step in its update 20 ms later</li>
 <li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="tick" d="M12,3 v7"/></svg>a tick on the axis: one of the filter's updates, 50 per second of ROS time</li>
-<li><span class="lv-sign"></span><strong>fused:</strong> the filter fused the wheel message and published the result, stamped with the message's time</li>
-<li><span class="lv-sign"></span><strong>predicted:</strong> the filter predicted to the time of the wheel message, without a measurement, because the ROS time was 0.1 s or more, its sensor_timeout, past its last measurement. It published the prediction, stamped with that time. It fuses the wheel message in the next update, but publishes no second output with the same stamp. The next output contains the message</li>
+<li><span class="lv-sign"></span><strong>fused:</strong> in the trace, the filter fused the wheel message and published the result, stamped with the message's time</li>
+<li><span class="lv-sign"></span><strong>predicted:</strong> in the trace, the filter predicted to the time of the wheel message, without a measurement, because the ROS time was 0.1 s or more, its sensor_timeout, past its last measurement. It published the prediction, stamped with that time. It fuses the wheel message in the next update, but publishes no second output with the same stamp. The next output contains the message</li>
 </ul>
-<figcaption>Three wheel periods of each phase of robot_rates in a recorded run at the diffbot commit 0b2f5a1, ROS time to the right.</figcaption>
+<figcaption>Three wheel periods of each phase of robot_rates in a recorded run at the diffbot commit 0b2f5a1, with robot_localization's debug trace, ROS time to the right.</figcaption>
 </figure>
