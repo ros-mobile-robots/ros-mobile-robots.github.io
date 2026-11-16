@@ -376,10 +376,10 @@ robot_localization decides in each update what to publish, in four places of its
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:214:235"
     ```
 
-    The same function moves the last measurement time only for a `delta` that isn't negative, as [lines 260–263 of `filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L260-L263) show:
+    The same function moves the last measurement time only for a `delta` that isn't negative, as [lines 261–264 of `filter_base.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L261-L264) show:
 
-    ```cpp title="filter_base.cpp: the last measurement time" linenums="260"
-    --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:260:263"
+    ```cpp title="filter_base.cpp: the last measurement time" linenums="261"
+    --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp:261:264"
     ```
 
 So, with the IMU stopped, the filter publishes nothing between two wheel messages. In the updates 40, 60 and 80 ms after a wheel message's stamp, the filter has nothing to fuse, and its last measurement is less than 0.1 s old. In the test, the filter's update at the stamp $t_\text{w}$ of the next wheel message runs when the clock reaches $t_\text{w}$, before the test publishes the message. That update decides between two cases:
