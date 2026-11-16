@@ -4714,9 +4714,14 @@
 </tbody>
 </table>
 <h2 id="how-the-tests-run">How the tests run</h2>
-<p>catkin runs the five test files with the workspace's other tests. The packages register them in their <code>CMakeLists.txt</code>: <code>catkin_add_nosetests()</code> for the two files without ROS nodes, <code>add_rostest()</code> for the three that start nodes through a <code>.test</code> launch file. catkin's guides <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> and <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst">Configuring rostest</a> explain the two macros.</p>
+<p>The five test files are Python tests, written with Python's <a href="https://docs.python.org/3/library/unittest.html"><code>unittest</code></a> module: each file defines its tests as methods of a <code>unittest.TestCase</code> class. catkin runs the five files with the workspace's other tests. The packages register them in their <code>CMakeLists.txt</code> with two macros:</p>
 <ul>
-<li><strong>All tests:</strong> <code>catkin build --catkin-make-args run_tests</code> in the <a href="../../../../development/ci/#dev-container-workflow">dev container</a> builds the workspace and runs every test. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same tests on every pull request, as <a href="../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> explains.</li>
+<li><strong><code>catkin_add_nosetests()</code>:</strong> for the two files without ROS nodes. The test runner <a href="https://nose.readthedocs.io/en/latest/">nose</a> finds the <code>TestCase</code> classes in the file and runs their tests.</li>
+<li><strong><code>add_rostest()</code>:</strong> for the three files that start nodes. rostest starts the nodes of the test's <code>.test</code> launch file, then the test file.</li>
+</ul>
+<p>catkin's guides <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> and <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst">Configuring rostest</a> explain the two macros. There are three ways to run the tests:</p>
+<ul>
+<li><strong>All tests:</strong> <code>catkin build --catkin-make-args run_tests</code> in the <a href="../../../../development/ci/#dev-container-workflow">dev container</a> builds the workspace and runs every test, the five files included. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same tests on every pull request, as <a href="../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> explains.</li>
 <li>
 <p><strong>One test with ROS nodes:</strong> <code>rostest</code> starts the test's launch file and the test, for example the stepped-clock test and Remo's test in Gazebo:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4725,7 +4730,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </li>
 <li>
-<p><strong>One test file without ROS nodes:</strong> Python's <code>unittest</code> runs the file from its folder:</p>
+<p><strong>One test file without ROS nodes:</strong> the command for all tests runs the two files without ROS nodes with nose. To run only one of them, for example while you change the validator, Python's <code>unittest</code> runs the file from its folder:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_control/test</span>
 <span class="go">python3 -m unittest -v test_imu_validator</span>
@@ -4733,7 +4738,13 @@
 </li>
 </ul>
 <h2 id="what-the-tests-dont-show">What the tests don't show</h2>
-<p>The tests run without the robot. They don't show how the real gyroscope behaves, with its noise, its bias and its mounting. They don't show the delays on the robot, or the filter with the robot's slower wheel odometry: in these tests, both inputs arrive at 50 Hz. They don't show whether the filter helps on the floor. The <a href="https://github.com/ros-mobile-robots/diffbot/issues/138">floor odometry test</a> will measure that on Remo.</p>
+<p>The tests run without the robot. They don't show four things:</p>
+<ul>
+<li><strong>The real gyroscope while the robot drives:</strong> its noise, its bias and its mounting. The tests use the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples, or samples that the stepped-clock test publishes itself.</li>
+<li><strong>How long the samples take to arrive on the robot:</strong> the issue <a href="https://github.com/ros-mobile-robots/diffbot/issues/219"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#219)</a> measures it.</li>
+<li><strong>The robot's slower wheel odometry:</strong> in these tests, both inputs arrive at 50 Hz, the simulation's rates. On the robot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is configured to publish at 50 Hz too. The wheel odometry arrives at a nominal 10 Hz there, because the control loop of the node <code>diffbot_base</code> runs the drive controller 10 times per second. The box under <a href="../#the-other-settings"><code>frequency</code></a> on the Localization page explains this. The issue <a href="https://github.com/ros-mobile-robots/diffbot/issues/187"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> tests: wheel odometry at 10 Hz with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> at 50 Hz (diffbot#187)</a> adds a test at the robot's rates. The issue <a href="https://github.com/ros-mobile-robots/diffbot/issues/218">Base: measure the control loop's rate on the robot, then decide (diffbot#218)</a> measures the rates on the robot and decides whether the control loop runs faster.</li>
+<li><strong>Whether the filter improves the odometry on the floor:</strong> the <a href="https://github.com/ros-mobile-robots/diffbot/issues/138">floor odometry test (diffbot#138)</a> will measure this on Remo.</li>
+</ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->
