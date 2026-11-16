@@ -68,79 +68,6 @@
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
 </style>
 <figure class="lv-figure lv-large">
-<p class="lv-band">Check 4 at the ROS time t = 100 s: the two limits</p>
-<svg class="lv-fig" viewBox="0 0 300 108" role="img" aria-labelledby="lv-test-limits-title"><title id="lv-test-limits-title">Check 4 in the tests, at the ROS time t = 100 s: a sample stamped exactly MAX_AGE, 0.1 s, before t or exactly MAX_FUTURE, 0.02 s, after t is forwarded, and a sample 1 µs beyond each limit is dropped</title>
-<rect class="drop-zone" x="14.0" y="38.0" width="59.0" height="46.0" rx="0"/>
-<rect class="drop-zone" x="214.6" y="38.0" width="71.4" height="46.0" rx="0"/>
-<rect class="pass-zone" x="73.0" y="38.0" width="141.6" height="46.0" rx="0"/>
-<text class="strong" x="17.0" y="51.0" text-anchor="start">too old</text>
-<text class="strong" x="283.0" y="51.0" text-anchor="end">too far</text>
-<text class="strong" x="283.0" y="63.0" text-anchor="end">ahead</text>
-<text class="mono" x="293.0" y="12.0" text-anchor="end">MAX_FUTURE = 0.02 s</text>
-<text class="mono" x="132.0" y="25.0" text-anchor="middle">MAX_AGE = 0.1 s</text>
-<path class="dimension" d="M73.0,31 H191.0 M73.0,28 V34 M191.0,28 V34"/>
-<path class="dimension" d="M191.0,31 H214.6 M191.0,28 V34 M214.6,28 V34"/>
-<path class="dimension" d="M202.8,28 V16"/>
-<path class="axis" d="M14,84 H293"/>
-<path class="axis" d="M293,84 l-6,-3.5 M293,84 l-6,3.5"/>
-<path class="tick" d="M25.8,84 v4"/>
-<path class="tick" d="M49.4,84 v4"/>
-<path class="tick" d="M73.0,84 v4"/>
-<path class="tick" d="M96.6,84 v4"/>
-<path class="tick" d="M120.2,84 v4"/>
-<path class="tick" d="M143.8,84 v4"/>
-<path class="tick" d="M167.4,84 v4"/>
-<path class="tick" d="M191.0,84 v4"/>
-<path class="tick" d="M214.6,84 v4"/>
-<path class="tick" d="M238.2,84 v4"/>
-<path class="tick" d="M261.8,84 v4"/>
-<path class="tick" d="M285.4,84 v4"/>
-<path class="now" d="M191.0,34 V90"/>
-<text class="name" x="191.0" y="102.0" text-anchor="middle">now: t</text>
-<text class="note" x="73.0" y="102.0" text-anchor="middle">t − 0.1 s</text>
-<text class="note" x="220.6" y="102.0" text-anchor="start">t + 0.02 s</text>
-<g><title>Sample A: dropped. stamped t − 0.100001 s, 1 µs older than MAX_AGE allows</title><circle class="drop-mark" cx="63.5" cy="74.0" r="7.5"/><text class="letter" x="63.5" y="77.8" text-anchor="middle">A</text></g>
-<g><title>Sample B: forwarded. stamped t − 0.1 s, exactly MAX_AGE old</title><circle class="pass-mark" cx="82.5" cy="74.0" r="7.5"/><text class="letter" x="82.5" y="77.8" text-anchor="middle">B</text></g>
-<g><title>Sample C: forwarded. stamped t + 0.02 s, exactly MAX_FUTURE ahead</title><circle class="pass-mark" cx="205.1" cy="74.0" r="7.5"/><text class="letter" x="205.1" y="77.8" text-anchor="middle">C</text></g>
-<g><title>Sample D: dropped. stamped t + 0.020001 s, 1 µs further ahead than MAX_FUTURE allows</title><circle class="drop-mark" cx="224.1" cy="74.0" r="7.5"/><text class="letter" x="224.1" y="77.8" text-anchor="middle">D</text></g>
-</svg>
-<ul class="lv-legend">
-<li><span class="lv-mark lv-drop">A</span><strong>✕ dropped:</strong> stamped t − 0.100001 s, 1 µs older than MAX_AGE allows</li>
-<li><span class="lv-mark">B</span><strong>✓ forwarded:</strong> stamped t − 0.1 s, exactly MAX_AGE old</li>
-<li><span class="lv-mark">C</span><strong>✓ forwarded:</strong> stamped t + 0.02 s, exactly MAX_FUTURE ahead</li>
-<li><span class="lv-mark lv-drop">D</span><strong>✕ dropped:</strong> stamped t + 0.020001 s, 1 µs further ahead than MAX_FUTURE allows</li>
-</ul>
-<p class="lv-band">Check 5 after a valid sample stamped 100 s</p>
-<svg class="lv-fig" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-order-title"><title id="lv-test-order-title">Check 5 in the tests, after a valid sample stamped 100 s: a sample with an older stamp or the same stamp is dropped, a sample stamped 1 ns later is forwarded, and so is a later sample that follows a dropped sample stamped 5 s ahead</title>
-<rect class="drop-zone" x="14.0" y="6.0" width="96.0" height="46.0" rx="0"/>
-<rect class="pass-zone" x="110.0" y="6.0" width="176.0" height="46.0" rx="0"/>
-<text class="strong" x="17.0" y="19.0" text-anchor="start">not later</text>
-<text class="strong" x="283.0" y="19.0" text-anchor="end">later</text>
-<path class="axis" d="M14,52 H293"/>
-<path class="axis" d="M293,52 l-6,-3.5 M293,52 l-6,3.5"/>
-<path class="tick" d="M30.0,52 v4"/>
-<path class="tick" d="M70.0,52 v4"/>
-<path class="tick" d="M110.0,52 v4"/>
-<path class="tick" d="M150.0,52 v4"/>
-<path class="tick" d="M190.0,52 v4"/>
-<rect class="cut-gap" x="214.5" y="51.0" width="7.0" height="2.0" rx="0"/>
-<path class="cut" d="M212.5,57 l4,-10 M219.5,57 l4,-10"/>
-<path class="now" d="M110.0,2 V58"/>
-<text class="name" x="110.0" y="70.0" text-anchor="middle">100 s: the last valid stamp</text>
-<text class="note" x="254.0" y="70.0" text-anchor="middle">105 s</text>
-<g><title>Sample E: dropped. stamped 0.01 s before 100 s. The sample arrived out of order</title><circle class="drop-mark" cx="90.0" cy="42.0" r="7.5"/><text class="letter" x="90.0" y="45.8" text-anchor="middle">E</text></g>
-<g><title>Sample F: dropped. stamped 100 s again. The sample came twice</title><circle class="drop-mark" cx="110.0" cy="42.0" r="7.5"/><text class="letter" x="110.0" y="45.8" text-anchor="middle">F</text></g>
-<g><title>Sample G: forwarded. stamped 1 ns after 100 s, the smallest step of a stamp</title><circle class="pass-mark" cx="128.0" cy="42.0" r="7.5"/><text class="letter" x="128.0" y="45.8" text-anchor="middle">G</text></g>
-<g><title>Sample H: dropped. stamped 105 s. Check 4 drops it as too far ahead</title><circle class="drop-mark" cx="254.0" cy="42.0" r="7.5"/><text class="letter" x="254.0" y="45.8" text-anchor="middle">H</text></g>
-<g><title>Sample I: forwarded. sent after H, stamped 100.02 s. The validator compares the stamp with 100 s, not with the stamp of H</title><circle class="pass-mark" cx="150.0" cy="42.0" r="7.5"/><text class="letter" x="150.0" y="45.8" text-anchor="middle">I</text></g>
-</svg>
-<ul class="lv-legend">
-<li><span class="lv-mark lv-drop">E</span><strong>✕ dropped:</strong> stamped 0.01 s before 100 s. The sample arrived out of order</li>
-<li><span class="lv-mark lv-drop">F</span><strong>✕ dropped:</strong> stamped 100 s again. The sample came twice</li>
-<li><span class="lv-mark">G</span><strong>✓ forwarded:</strong> stamped 1 ns after 100 s, the smallest step of a stamp</li>
-<li><span class="lv-mark lv-drop">H</span><strong>✕ dropped:</strong> stamped 105 s. Check 4 drops it as too far ahead</li>
-<li><span class="lv-mark">I</span><strong>✓ forwarded:</strong> sent after H, stamped 100.02 s. The validator compares the stamp with 100 s, not with the stamp of H</li>
-</ul>
 <p class="lv-band">The clock goes back from 100 s to 0.02 s: check 5 starts over</p>
 <svg class="lv-fig" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-early-title"><title id="lv-test-clock-early-title">After the ROS time went back from 100 s to 0.02 s, check 5 starts over: a sample stamped 0.02 s is forwarded, although the last valid stamp was 100 s, and a second sample with the same stamp is dropped</title>
 <rect class="drop-zone" x="108.0" y="6.0" width="178.0" height="46.0" rx="0"/>
@@ -202,5 +129,5 @@
 <li><span class="lv-mark lv-drop">L</span><strong>✕ dropped:</strong> stamped 49 s, 1 s older than the new ROS time</li>
 <li><span class="lv-mark lv-drop">M</span><strong>✕ dropped:</strong> stamped 100.02 s, 50.02 s ahead of the new ROS time. At the ROS time 100 s, this stamp was valid</li>
 </ul>
-<figcaption>The samples that the unit tests give the validator, on four time axes. Time runs to the right, and one tick is 0.02 s, the IMU's sample period at 50 Hz. A solid green mark is a sample that the validator has to forward, a dashed red mark one that it has to drop. Samples that are 1 µs or 1 ns apart are drawn apart. Two slanted strokes show where an axis leaves out a stretch of time.</figcaption>
+<figcaption>Two tests in which the ROS time goes back from 100 s. The bands on each axis are those of check 4 at the new ROS time.</figcaption>
 </figure>

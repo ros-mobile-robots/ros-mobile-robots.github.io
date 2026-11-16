@@ -1,12 +1,16 @@
 """Generate the figures of the two test pages of diffbot_control's EKF tests as inline SVG.
 
 The pages are docs/packages/imu/robot_localization/tests/validator.md and stepped-clock.md. The
-script writes three includes that follow the site's light and dark colors:
+script writes seven includes that follow the site's light and dark colors. The first three show
+the samples that the unit tests in diffbot_control/test/test_imu_validator.py of the diffbot
+repository give the validator, on time axes, one include for each section of validator.md that
+has a figure. The samples' letters A to M run through the three includes:
 
-- includes/localization-test-validator.html: the samples that the unit tests in
-  diffbot_control/test/test_imu_validator.py of the diffbot repository give the validator, on
-  four time axes: at the two time limits, around the last valid sample's stamp, after the
-  clock went back to 0.02 s, and after the clock went back to 50 s.
+- includes/localization-test-validator-limits.html: check 4, the two time limits, A to D.
+- includes/localization-test-validator-order.html: check 5, around the last valid sample's
+  stamp, E to I.
+- includes/localization-test-validator-clock-back.html: the clock goes back, to 0.02 s with J
+  and K, and to 50 s with L and M.
 - includes/localization-test-stepped-clock-step.html: the messages of one step of
   diffbot_control/test/test_ekf_synthetic.py between the test, the validator and the EKF,
   numbered as the docstring of the test's step() numbers what one step does.
@@ -76,16 +80,16 @@ ONE_MICROSECOND_S = 1e-6  # ONE_MICROSECOND
 JUST_TOO_OLD_S = MAX_AGE_S + ONE_MICROSECOND_S  # JUST_TOO_OLD
 JUST_TOO_FAR_AHEAD_S = MAX_FUTURE_S + ONE_MICROSECOND_S  # JUST_TOO_FAR_AHEAD
 # test_validator_drops_a_sample_not_later_than_the_last_valid_one
-ORDER_OLDER_S = 0.01  # sample(NOW - seconds(0.01))
-ORDER_LATER_NS = 1  # sample(NOW + rospy.Duration(0, 1))
+ORDER_OLDER_S = 0.01  # make_imu_sample(NOW - seconds(0.01))
+ORDER_LATER_NS = 1  # make_imu_sample(NOW + rospy.Duration(0, 1))
 # test_validator_forwards_a_new_sample_after_dropping_a_future_one
-FAR_AHEAD_S = 5  # sample(NOW + seconds(5))
+FAR_AHEAD_S = 5  # make_imu_sample(NOW + seconds(5))
 # test_validator_forwards_new_samples_after_the_clock_goes_back
 EARLY_RESTART_S = 0.02  # restart = rospy.Time(0, 20000000)
 REPEAT_DELAY_MS = 1  # restart + seconds(0.001), the ROS time of the second sample
 # test_validator_still_drops_old_and_future_samples_after_the_clock_goes_back
 RESTART_S = 50  # restart = rospy.Time(50, 0)
-OLD_AFTER_RESTART_S = 1  # sample(restart - seconds(1))
+OLD_AFTER_RESTART_S = 1  # make_imu_sample(restart - seconds(1))
 
 # The four time axes of the validator figure. Above each axis is a band, ZONE_HEIGHT high,
 # that holds the samples' marks
@@ -557,22 +561,36 @@ def clock_back_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
     return figure, samples
 
 
-def write_validator_tests() -> None:
-    """Write the include with the samples that the validator's unit tests use."""
-    limits_figure, limits_samples = limit_tests()
-    order_figure, order_samples = order_tests()
+def write_validator_limits() -> None:
+    """Write the include of the section on check 4: the samples A to D at the two limits."""
+    figure, samples = limit_tests()
+    write_parts(
+        'includes/localization-test-validator-limits.html',
+        [figure.svg(), legend([sample_line(sample) for sample in samples])],
+        f'Check 4 in two tests, at the ROS time t = {NOW_S} s. A lies 1 µs before B, and D 1 µs '
+        'after C. The figure draws them apart.',
+        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+
+
+def write_validator_order() -> None:
+    """Write the include of the section on check 5: the samples E to I."""
+    figure, samples = order_tests()
+    write_parts(
+        'includes/localization-test-validator-order.html',
+        [figure.svg(), legend([sample_line(sample) for sample in samples])],
+        f'Check 5 in two tests, after a valid sample stamped {NOW_S} s. G lies {ORDER_LATER_NS} '
+        'ns after F. The figure draws them apart.',
+        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+
+
+def write_validator_clock_back() -> None:
+    """Write the include of the section on a clock that goes back: the samples J to M."""
     early_figure, early_samples = early_clock_tests()
     back_figure, back_samples = clock_back_tests()
     former_stamp_line = (
         key('<path class="former-stamp" d="M12,-3 V15"/>', 'lv-key lv-narrow')
         + f'{NOW_S} s, the stamp of the last valid sample before the clock went back')
     parts = [
-        band(f'Check 4 at the ROS time t = {NOW_S} s: the two limits'),
-        limits_figure.svg(),
-        legend([sample_line(sample) for sample in limits_samples]),
-        band(f'Check 5 after a valid sample stamped {NOW_S} s'),
-        order_figure.svg(),
-        legend([sample_line(sample) for sample in order_samples]),
         band(f'The clock goes back from {NOW_S} s to {EARLY_RESTART_S} s: check 5 starts over'),
         early_figure.svg(),
         legend([sample_line(sample) for sample in early_samples] + [former_stamp_line]),
@@ -581,13 +599,17 @@ def write_validator_tests() -> None:
         legend([sample_line(sample) for sample in back_samples]),
     ]
     write_parts(
-        'includes/localization-test-validator.html', parts,
-        'The samples that the unit tests give the validator, on four time axes. Time runs to '
-        f"the right, and one tick is {SAMPLE_PERIOD_MS / 1000:.2f} s, the IMU's sample period "
-        'at 50 Hz. A solid green mark is a sample that the validator has to forward, a dashed '
-        'red mark one that it has to drop. Samples that are 1 µs or 1 ns apart are drawn '
-        'apart. Two slanted strokes show where an axis leaves out a stretch of time.',
+        'includes/localization-test-validator-clock-back.html', parts,
+        f'Two tests in which the ROS time goes back from {NOW_S} s. The bands on each axis are '
+        'those of check 4 at the new ROS time.',
         RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+
+
+def write_validator_tests() -> None:
+    """Write the three includes with the samples that the validator's unit tests use."""
+    write_validator_limits()
+    write_validator_order()
+    write_validator_clock_back()
 
 
 def rate_y(rate: float) -> float:
@@ -1248,7 +1270,7 @@ def write_between_wheels() -> None:
 
 
 def main() -> None:
-    """Write the five includes of the test pages."""
+    """Write the seven includes of the test pages."""
     write_validator_tests()
     write_one_step()
     write_stepped_clock_test()
