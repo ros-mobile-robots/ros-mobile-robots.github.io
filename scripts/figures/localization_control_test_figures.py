@@ -892,9 +892,17 @@ class RobotRatesRun(NamedTuple):
         """Return the outputs while the IMU ran."""
         return tuple(output for output in self.outputs if output.stamp <= self.last_imu_stamp)
 
+    def end(self) -> float:
+        """Return the end of the last wheel period, where the test's clock ends."""
+        return self.wheel_stamps[-1] + WHEEL_PERIOD_S
+
     def phase_2(self) -> Tuple[Output, ...]:
-        """Return the outputs after the IMU stopped."""
-        return tuple(output for output in self.outputs if output.stamp > self.last_imu_stamp)
+        """Return the outputs after the IMU stopped that the test checks.
+
+        As in the test, these are the outputs stamped before the end of the last wheel period.
+        """
+        return tuple(output for output in self.outputs
+                     if self.last_imu_stamp < output.stamp < self.end() - STEP_S / 2)
 
 
 def load_robot_rates_run() -> RobotRatesRun:
@@ -918,9 +926,8 @@ def load_robot_rates_run() -> RobotRatesRun:
 
 def robot_rates_x(stamp: float, run: RobotRatesRun) -> float:
     """Return the x position of a ROS time in the chart of robot_rates."""
-    end = run.wheel_stamps[-1] + STEP_S
     return (ROBOT_RATES_PLOT_LEFT
-            + (stamp - START_S) * (PLOT_RIGHT - ROBOT_RATES_PLOT_LEFT) / (end - START_S))
+            + (stamp - START_S) * (PLOT_RIGHT - ROBOT_RATES_PLOT_LEFT) / (run.end() - START_S))
 
 
 def draw_robot_rates_rows(figure: Figure, run: RobotRatesRun) -> None:
@@ -956,12 +963,11 @@ def draw_robot_rates_axes(figure: Figure, run: RobotRatesRun) -> None:
     label_y = PLOT_BOTTOM + 15
     phase_2_start = run.last_imu_stamp + STEP_S
     figure.text(left, label_y, f'{START_S:g}', 'note')
-    for stamp in (phase_2_start, run.wheel_stamps[-1]):
+    for stamp in (phase_2_start, run.end()):
         figure.path(f'M{robot_rates_x(stamp, run):.1f},{PLOT_BOTTOM} v4', 'tick')
     figure.text(robot_rates_x(phase_2_start, run), label_y, f'{phase_2_start:g}', 'note',
                 'middle')
-    figure.text(robot_rates_x(run.wheel_stamps[-1], run), label_y,
-                f'{run.wheel_stamps[-1]:g}', 'note', 'end')
+    figure.text(robot_rates_x(run.end(), run), label_y, f'{run.end():g}', 'note', 'end')
     figure.text(left, label_y + 14, 'ROS time t in s', 'note')
 
 
@@ -1055,8 +1061,8 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
         key('<path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"/>')
         + f'the range for the last output of a phase: {IMU_RATE} ± {YAW_RATE_TOLERANCE} rad/s '
         f'in phase 1, {WHEEL_RATE} ± {WHEEL_RATE_TOLERANCE} rad/s in phase 2',
-        sign_key('=') + 'in phase 2: one output per wheel message, stamped with the '
-        "message's time, and no output between two wheel messages",
+        sign_key('=') + 'in phase 2: one output per wheel period, the '
+        f'{round(1000 * WHEEL_PERIOD_S)} ms from one wheel message to the next',
     )
     results = (
         key('<path class="estimate-trace" d="M1,6 H23"/>')

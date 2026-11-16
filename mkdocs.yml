@@ -90,8 +90,8 @@ extra:
   # The diffbot commit that the excerpts on EKF on a Stepped Clock show: the head of the code pull
   # request of diffbot #187 until it merges. Move both to the merge commit before this page's pull
   # request merges, and check the excerpts' line ranges against it
-  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/780514968df819ecbd2b8d539604d8124409388a
-  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/780514968df819ecbd2b8d539604d8124409388a
+  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/0b2f5a1d6527fbe7fac0bf5911836928423e4351
+  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/0b2f5a1d6527fbe7fac0bf5911836928423e4351
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
