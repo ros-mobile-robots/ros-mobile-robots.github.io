@@ -1,0 +1,147 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .cut{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .cut-gap{fill:var(--md-default-bg-color);stroke:none}
+.lv-fig .former-stamp,.lv-key .former-stamp{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:3.5 2.5}
+.lv-fig .wheels-line,.lv-key .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:2.4}
+.lv-fig .imu-line,.lv-key .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-fig .estimate-dot,.lv-key .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:2}
+.lv-fig .estimate-range,.lv-key .estimate-range{fill:none;stroke:var(--lv-estimate);stroke-width:2}
+.lv-fig .estimate-path,.lv-key .estimate-path{fill:none;stroke:var(--lv-estimate);stroke-width:1.6;stroke-dasharray:2 2.5}
+.lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
+.lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
+.lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-large .lv-fig .letter{font-size:11px}
+.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large .lv-fig .index{font-size:9.8px}
+.lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
+.lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-fig .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
+.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
+.lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
+.md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
+.md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.lv-fig .wheels-tick,.lv-key .wheels-tick{fill:none;stroke:var(--lv-wheels);stroke-width:1.6}
+.lv-fig .imu-tick,.lv-key .imu-tick{fill:none;stroke:var(--lv-imu);stroke-width:.8}
+.lv-fig .wheels-dot,.lv-key .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-fig .imu-dot,.lv-key .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:.8}
+.lv-fig .estimate-trace,.lv-key .estimate-trace{fill:none;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-key .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+</style>
+<figure class="lv-figure lv-large">
+<svg class="lv-fig" viewBox="0 0 300 247" role="img" aria-labelledby="lv-test-robot-rates-title"><title id="lv-test-robot-rates-title">The two phases of the scenario robot_rates from left to right: the wheel messages and the IMU samples, the yaw rate that they report, the ranges that the test accepts for the filter's estimate, and the estimate in the filter's outputs in a recorded run</title>
+<text class="note" x="2.0" y="14.0" text-anchor="start">Phase</text>
+<text class="strong" x="123.8" y="14.0" text-anchor="middle">1</text>
+<text class="strong" x="244.8" y="14.0" text-anchor="middle">2</text>
+<text class="note" x="2.0" y="31.0" text-anchor="start">wheels</text>
+<text class="note" x="2.0" y="47.0" text-anchor="start">IMU</text>
+<g><title>A wheel message every 100 ms</title><path class="wheels-tick" d="M50.0,23 v9 M54.9,23 v9 M59.8,23 v9 M64.8,23 v9 M69.7,23 v9 M74.6,23 v9 M79.5,23 v9 M84.4,23 v9 M89.3,23 v9 M94.3,23 v9 M99.2,23 v9 M104.1,23 v9 M109.0,23 v9 M113.9,23 v9 M118.9,23 v9 M123.8,23 v9 M128.7,23 v9 M133.6,23 v9 M138.5,23 v9 M143.5,23 v9 M148.4,23 v9 M153.3,23 v9 M158.2,23 v9 M163.1,23 v9 M168.0,23 v9 M173.0,23 v9 M177.9,23 v9 M182.8,23 v9 M187.7,23 v9 M192.6,23 v9 M197.6,23 v9 M202.5,23 v9 M207.4,23 v9 M212.3,23 v9 M217.2,23 v9 M222.2,23 v9 M227.1,23 v9 M232.0,23 v9 M236.9,23 v9 M241.8,23 v9 M246.7,23 v9 M251.7,23 v9 M256.6,23 v9 M261.5,23 v9 M266.4,23 v9 M271.3,23 v9 M276.3,23 v9 M281.2,23 v9 M286.1,23 v9 M291.0,23 v9"/></g>
+<g><title>Phase 1: a valid IMU sample every 20 ms</title><path class="imu-tick" d="M50.0,39 v9 M51.0,39 v9 M52.0,39 v9 M53.0,39 v9 M53.9,39 v9 M54.9,39 v9 M55.9,39 v9 M56.9,39 v9 M57.9,39 v9 M58.9,39 v9 M59.8,39 v9 M60.8,39 v9 M61.8,39 v9 M62.8,39 v9 M63.8,39 v9 M64.8,39 v9 M65.7,39 v9 M66.7,39 v9 M67.7,39 v9 M68.7,39 v9 M69.7,39 v9 M70.7,39 v9 M71.6,39 v9 M72.6,39 v9 M73.6,39 v9 M74.6,39 v9 M75.6,39 v9 M76.6,39 v9 M77.5,39 v9 M78.5,39 v9 M79.5,39 v9 M80.5,39 v9 M81.5,39 v9 M82.5,39 v9 M83.4,39 v9 M84.4,39 v9 M85.4,39 v9 M86.4,39 v9 M87.4,39 v9 M88.4,39 v9 M89.3,39 v9 M90.3,39 v9 M91.3,39 v9 M92.3,39 v9 M93.3,39 v9 M94.3,39 v9 M95.3,39 v9 M96.2,39 v9 M97.2,39 v9 M98.2,39 v9 M99.2,39 v9 M100.2,39 v9 M101.2,39 v9 M102.1,39 v9 M103.1,39 v9 M104.1,39 v9 M105.1,39 v9 M106.1,39 v9 M107.1,39 v9 M108.0,39 v9 M109.0,39 v9 M110.0,39 v9 M111.0,39 v9 M112.0,39 v9 M113.0,39 v9 M113.9,39 v9 M114.9,39 v9 M115.9,39 v9 M116.9,39 v9 M117.9,39 v9 M118.9,39 v9 M119.8,39 v9 M120.8,39 v9 M121.8,39 v9 M122.8,39 v9 M123.8,39 v9 M124.8,39 v9 M125.7,39 v9 M126.7,39 v9 M127.7,39 v9 M128.7,39 v9 M129.7,39 v9 M130.7,39 v9 M131.7,39 v9 M132.6,39 v9 M133.6,39 v9 M134.6,39 v9 M135.6,39 v9 M136.6,39 v9 M137.6,39 v9 M138.5,39 v9 M139.5,39 v9 M140.5,39 v9 M141.5,39 v9 M142.5,39 v9 M143.5,39 v9 M144.4,39 v9 M145.4,39 v9 M146.4,39 v9 M147.4,39 v9 M148.4,39 v9 M149.4,39 v9 M150.3,39 v9 M151.3,39 v9 M152.3,39 v9 M153.3,39 v9 M154.3,39 v9 M155.3,39 v9 M156.2,39 v9 M157.2,39 v9 M158.2,39 v9 M159.2,39 v9 M160.2,39 v9 M161.2,39 v9 M162.1,39 v9 M163.1,39 v9 M164.1,39 v9 M165.1,39 v9 M166.1,39 v9 M167.1,39 v9 M168.0,39 v9 M169.0,39 v9 M170.0,39 v9 M171.0,39 v9 M172.0,39 v9 M173.0,39 v9 M174.0,39 v9 M174.9,39 v9 M175.9,39 v9 M176.9,39 v9 M177.9,39 v9 M178.9,39 v9 M179.9,39 v9 M180.8,39 v9 M181.8,39 v9 M182.8,39 v9 M183.8,39 v9 M184.8,39 v9 M185.8,39 v9 M186.7,39 v9 M187.7,39 v9 M188.7,39 v9 M189.7,39 v9 M190.7,39 v9 M191.7,39 v9 M192.6,39 v9 M193.6,39 v9 M194.6,39 v9 M195.6,39 v9 M196.6,39 v9"/></g>
+<text class="note" x="244.8" y="47.0" text-anchor="middle">stopped</text>
+<path class="phase-edge" d="M197.6,3 V211"/>
+<text class="note" x="2" y="69">Yaw rate ω<tspan class="index" dy="2.5">z</tspan><tspan dy="-2.5"> in rad/s</tspan></text>
+<path class="axis" d="M50,74 V211 H292"/>
+<path class="tick" d="M46,183.0 h4"/>
+<text class="note" x="44.0" y="187.0" text-anchor="end">0.4</text>
+<path class="tick" d="M46,113.0 h4"/>
+<text class="note" x="44.0" y="117.0" text-anchor="end">0.5</text>
+<text class="note" x="50.0" y="226.0" text-anchor="start">100</text>
+<path class="tick" d="M197.6,211 v4"/>
+<path class="tick" d="M291.0,211 v4"/>
+<text class="note" x="197.6" y="226.0" text-anchor="middle">103</text>
+<text class="note" x="291.0" y="226.0" text-anchor="end">104.9</text>
+<text class="note" x="50.0" y="240.0" text-anchor="start">ROS time t in s</text>
+<g><title>Wheel odometry: 0.4 rad/s in every message</title><path class="wheels-line" d="M50,183.0 H292"/></g>
+<text class="strong" x="55.0" y="199.0" text-anchor="start">wheels</text>
+<g><title>Phase 1: the IMU samples report 0.5 rad/s</title><path class="imu-line" d="M50,113.0 H197.6"/></g>
+<text class="strong" x="55.0" y="107.0" text-anchor="start">IMU</text>
+<g><title>Phase 1: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M196.6,106.0 V120.0 M193.1,106.0 h7 M193.1,120.0 h7"/></g>
+<g><title>Phase 2: the last output has to be 0.4 ± 0.02 rad/s</title><path class="estimate-range" d="M296.0,169.0 V197.0 M292.5,169.0 h7 M292.5,197.0 h7"/></g>
+<g><title>Phase 1: the filter's estimate in each of its 150 outputs, one per step</title><path class="estimate-trace" d="M50.0,113.9 L51.0,113.3 L52.0,113.1 L53.0,113.1 L53.9,113.0 L54.9,113.6 L55.9,113.2 L56.9,113.1 L57.9,113.0 L58.9,113.0 L59.8,113.6 L60.8,113.2 L61.8,113.1 L62.8,113.0 L63.8,113.0 L64.8,113.6 L65.7,113.2 L66.7,113.1 L67.7,113.0 L68.7,113.0 L69.7,113.6 L70.7,113.2 L71.6,113.1 L72.6,113.0 L73.6,113.0 L74.6,113.6 L75.6,113.2 L76.6,113.1 L77.5,113.0 L78.5,113.0 L79.5,113.6 L80.5,113.2 L81.5,113.1 L82.5,113.0 L83.4,113.0 L84.4,113.6 L85.4,113.2 L86.4,113.1 L87.4,113.0 L88.4,113.0 L89.3,113.6 L90.3,113.2 L91.3,113.1 L92.3,113.0 L93.3,113.0 L94.3,113.6 L95.3,113.2 L96.2,113.1 L97.2,113.0 L98.2,113.0 L99.2,113.6 L100.2,113.2 L101.2,113.1 L102.1,113.0 L103.1,113.0 L104.1,113.6 L105.1,113.2 L106.1,113.1 L107.1,113.0 L108.0,113.0 L109.0,113.6 L110.0,113.2 L111.0,113.1 L112.0,113.0 L113.0,113.0 L113.9,113.6 L114.9,113.2 L115.9,113.1 L116.9,113.0 L117.9,113.0 L118.9,113.6 L119.8,113.2 L120.8,113.1 L121.8,113.0 L122.8,113.0 L123.8,113.6 L124.8,113.2 L125.7,113.1 L126.7,113.0 L127.7,113.0 L128.7,113.6 L129.7,113.2 L130.7,113.1 L131.7,113.0 L132.6,113.0 L133.6,113.6 L134.6,113.2 L135.6,113.1 L136.6,113.0 L137.6,113.0 L138.5,113.6 L139.5,113.2 L140.5,113.1 L141.5,113.0 L142.5,113.0 L143.5,113.6 L144.4,113.2 L145.4,113.1 L146.4,113.0 L147.4,113.0 L148.4,113.6 L149.4,113.2 L150.3,113.1 L151.3,113.0 L152.3,113.0 L153.3,113.6 L154.3,113.2 L155.3,113.1 L156.2,113.0 L157.2,113.0 L158.2,113.6 L159.2,113.2 L160.2,113.1 L161.2,113.0 L162.1,113.0 L163.1,113.6 L164.1,113.2 L165.1,113.1 L166.1,113.0 L167.1,113.0 L168.0,113.6 L169.0,113.2 L170.0,113.1 L171.0,113.0 L172.0,113.0 L173.0,113.6 L174.0,113.2 L174.9,113.1 L175.9,113.0 L176.9,113.0 L177.9,113.6 L178.9,113.2 L179.9,113.1 L180.8,113.0 L181.8,113.0 L182.8,113.6 L183.8,113.2 L184.8,113.1 L185.8,113.0 L186.7,113.0 L187.7,113.6 L188.7,113.2 L189.7,113.1 L190.7,113.0 L191.7,113.0 L192.6,113.6 L193.6,113.2 L194.6,113.1 L195.6,113.0 L196.6,113.0"/></g>
+<path class="estimate-trace" d="M197.6,114.5 L202.5,114.5 L202.5,120.0 L207.4,120.0 L207.4,120.0 L212.3,120.0 L212.3,137.1 L217.2,137.1 L217.2,137.1 L222.2,137.1 L222.2,153.2 L227.1,153.2 L227.1,159.5 L232.0,159.5 L232.0,159.5 L236.9,159.5 L236.9,168.7 L241.8,168.7 L241.8,168.7 L246.7,168.7 L246.7,174.4 L251.7,174.4 L251.7,176.4 L256.6,176.4 L256.6,176.4 L261.5,176.4 L261.5,179.0 L266.4,179.0 L266.4,179.0 L271.3,179.0 L271.3,180.6 L276.3,180.6 L276.3,181.2 L281.2,181.2 L281.2,181.2 L286.1,181.2 L286.1,181.9 L291.0,181.9 L291.0,181.9"/>
+<g><title>0.4979 rad/s, the output stamped 103 s</title><circle class="estimate-dot" cx="197.6" cy="114.5" r="2.6"/></g>
+<g><title>0.49 rad/s, the output stamped 103.1 s</title><circle class="estimate-dot" cx="202.5" cy="120.0" r="2.6"/></g>
+<g><title>0.49 rad/s, the output stamped 103.2 s</title><circle class="estimate-dot" cx="207.4" cy="120.0" r="2.6"/></g>
+<g><title>0.4656 rad/s, the output stamped 103.3 s</title><circle class="estimate-dot" cx="212.3" cy="137.1" r="2.6"/></g>
+<g><title>0.4656 rad/s, the output stamped 103.4 s</title><circle class="estimate-dot" cx="217.2" cy="137.1" r="2.6"/></g>
+<g><title>0.4426 rad/s, the output stamped 103.5 s</title><circle class="estimate-dot" cx="222.2" cy="153.2" r="2.6"/></g>
+<g><title>0.4335 rad/s, the output stamped 103.6 s</title><circle class="estimate-dot" cx="227.1" cy="159.5" r="2.6"/></g>
+<g><title>0.4335 rad/s, the output stamped 103.7 s</title><circle class="estimate-dot" cx="232.0" cy="159.5" r="2.6"/></g>
+<g><title>0.4204 rad/s, the output stamped 103.8 s</title><circle class="estimate-dot" cx="236.9" cy="168.7" r="2.6"/></g>
+<g><title>0.4204 rad/s, the output stamped 103.9 s</title><circle class="estimate-dot" cx="241.8" cy="168.7" r="2.6"/></g>
+<g><title>0.4123 rad/s, the output stamped 104 s</title><circle class="estimate-dot" cx="246.7" cy="174.4" r="2.6"/></g>
+<g><title>0.4095 rad/s, the output stamped 104.1 s</title><circle class="estimate-dot" cx="251.7" cy="176.4" r="2.6"/></g>
+<g><title>0.4095 rad/s, the output stamped 104.2 s</title><circle class="estimate-dot" cx="256.6" cy="176.4" r="2.6"/></g>
+<g><title>0.4057 rad/s, the output stamped 104.3 s</title><circle class="estimate-dot" cx="261.5" cy="179.0" r="2.6"/></g>
+<g><title>0.4057 rad/s, the output stamped 104.4 s</title><circle class="estimate-dot" cx="266.4" cy="179.0" r="2.6"/></g>
+<g><title>0.4034 rad/s, the output stamped 104.5 s</title><circle class="estimate-dot" cx="271.3" cy="180.6" r="2.6"/></g>
+<g><title>0.4026 rad/s, the output stamped 104.6 s</title><circle class="estimate-dot" cx="276.3" cy="181.2" r="2.6"/></g>
+<g><title>0.4026 rad/s, the output stamped 104.7 s</title><circle class="estimate-dot" cx="281.2" cy="181.2" r="2.6"/></g>
+<g><title>0.4016 rad/s, the output stamped 104.8 s</title><circle class="estimate-dot" cx="286.1" cy="181.9" r="2.6"/></g>
+<g><title>0.4016 rad/s, the output stamped 104.9 s</title><circle class="estimate-dot" cx="291.0" cy="181.9" r="2.6"/></g>
+<text class="strong" x="193.6" y="129.0" text-anchor="end">0.5000</text>
+<text class="strong" x="211.6" y="116.5" text-anchor="start">estimate</text>
+<text class="strong halo" x="291.0" y="173.0" text-anchor="end">0.4016</text>
+</svg>
+<p class="lv-band">What the steps send</p>
+<ul class="lv-legend lv-keys">
+<li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="wheels-tick" d="M12,1 v10"/></svg>a wheel message in every fifth step, 100 ms of ROS time, in both phases. It reports 0.4 rad/s, the blue line</li>
+<li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="imu-tick" d="M12,1 v10"/></svg>a valid IMU sample in every step of phase 1, 20 ms. It reports 0.5 rad/s, the orange line. In phase 2, the IMU sends nothing</li>
+</ul>
+<p class="lv-band">What the test asserts</p>
+<ul class="lv-legend lv-keys">
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"/></svg>the range for the last output of a phase: 0.5 ± 0.01 rad/s in phase 1, 0.4 ± 0.02 rad/s in phase 2</li>
+<li><span class="lv-sign">=</span>in phase 2: one output per wheel message, stamped with the message's time, and no output between two wheel messages</li>
+</ul>
+<p class="lv-band">What the filter published in a recorded run at the diffbot commit 7805149</p>
+<ul class="lv-legend lv-keys">
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-trace" d="M1,6 H23"/></svg>phase 1: the filter's estimate in each of its 150 outputs, one per step. It stays between 0.4987 and 0.5000 rad/s, and the last output has 0.5000 rad/s</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="2.6"/></svg>phase 2: the filter's 20 outputs, one per wheel message. The estimate goes from 0.4979 to 0.4016 rad/s</li>
+</ul>
+<figcaption>The scenario robot_rates from left to right, one step every 20 ms of ROS time. At the dotted vertical line, the IMU stops.</figcaption>
+</figure>

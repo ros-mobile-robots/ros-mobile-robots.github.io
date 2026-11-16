@@ -10,19 +10,29 @@ script writes three includes that follow the site's light and dark colors:
 - includes/localization-test-stepped-clock-step.html: the messages of one step of
   diffbot_control/test/test_ekf_synthetic.py between the test, the validator and the EKF,
   numbered as the docstring of the test's step() numbers what one step does.
-- includes/localization-test-stepped-clock.html: the seven phases of that test, with the yaw
-  rate that the wheel odometry and the IMU report in each step, what the test asserts about
-  the filter's estimate, and the estimates that a run of the test printed.
+- includes/localization-test-stepped-clock.html: the seven phases of that test's scenario
+  invalid_imu_samples, with the yaw rate that the wheel odometry and the IMU report in each
+  step, what the test asserts about the filter's estimate, and the estimates that a run of the
+  test printed.
+- includes/localization-test-stepped-clock-robot-rates.html: the two phases of the scenario
+  robot_rates, the IMU in every step and the wheel odometry in every fifth, then the IMU
+  stopped, with what the test asserts and the filter's outputs in a recorded run.
+- includes/localization-test-stepped-clock-between-wheels.html: what the filter publishes
+  between two wheel messages in that scenario, with the IMU running and with the IMU stopped,
+  from the same recorded run.
 
 Every drawing is 300 units wide and carries short labels only, so that its text is readable on
 a phone. Headings, legends and results are HTML text around the drawings. Figure, Sample, the
 CSS rules and the HTML helpers come from localization_figures.py.
 
 The tests' constants are copied here, each with the constant's name, because this repository
-can't import the tests. What a run of the stepped-clock test printed is measured data. It is
-read from scripts/figures/data/localization-stepped-clock-test-runs.jsonl, one line per run of
-rostest diffbot_control ekf_synthetic.test, with the run's commit of the diffbot repository,
-its date and its environment. The figure shows the file's last run.
+can't import the tests. What runs of the stepped-clock test printed or recorded is measured
+data. It is read from scripts/figures/data/localization-stepped-clock-test-runs.jsonl, one line
+per run, with the run's scenario, the commit of the diffbot repository, the date and the
+environment. A line without a scenario is a run of invalid_imu_samples from before the test
+had a second scenario. A line of robot_rates also holds what rosbag recorded in the run: every
+EKF output with its stamp, the ROS time at which the recorder received it and its yaw rate. The
+figures show the file's last run of each scenario.
 
 Run from the repository root after changing a figure:
 
@@ -30,6 +40,8 @@ Run from the repository root after changing a figure:
 """
 
 import json
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
@@ -119,6 +131,8 @@ FUSION_STEPS = 150  # FUSION_STEPS
 PHASE_STEPS = 50  # PHASE_STEPS
 AFTER_RESET_STEPS = 100  # AFTER_RESET_STEPS
 DIAGNOSTICS_WAIT_S = 1.5  # DIAGNOSTICS_WAIT
+STEPS_PER_WHEEL_MESSAGE = 5  # STEPS_PER_WHEEL_MESSAGE, the robot's wheel odometry period
+IMU_STOPPED_WHEEL_MESSAGES = 20  # IMU_STOPPED_WHEEL_MESSAGES
 DELIVERY_MS = 20  # DELIVERY, wall time
 WHEEL_RATE = 0.4  # WHEEL_RATE, rad/s
 IMU_RATE = 0.5  # IMU_RATE, rad/s
@@ -129,9 +143,12 @@ OLDER_OFFSET_S = -0.01  # OLDER_OFFSET, of phase 5's second sample
 YAW_RATE_TOLERANCE = 0.01  # YAW_RATE_TOLERANCE, rad/s
 WHEEL_RATE_TOLERANCE = 0.02  # WHEEL_RATE_TOLERANCE, rad/s
 
-# What runs of the test printed: measured data, one line per run
+# What runs of the test printed or recorded: measured data, one line per run
 RUNS_FILE = 'scripts/figures/data/localization-stepped-clock-test-runs.jsonl'
 COMMIT_LENGTH = 7  # characters of the run's commit that the figure shows
+# The scenarios' names, as the test's argument --scenario and the data file name them
+INVALID_IMU_SAMPLES = 'invalid_imu_samples'
+ROBOT_RATES = 'robot_rates'
 
 # Phase 7 advances the clock by DIAGNOSTICS_WAIT without IMU samples
 DIAGNOSTICS_STEPS = round(DIAGNOSTICS_WAIT_S / STEP_S)
@@ -161,7 +178,20 @@ VALID_ROW_Y = 32  # baseline of the signs of the valid IMU samples
 DROP_ROW_Y = 48  # baseline of the signs of the IMU samples to drop
 ROWS_BOTTOM = 54
 DOT_RADIUS = 4
+SMALL_DOT_RADIUS = 2.6
 CHART_HEIGHT = PLOT_BOTTOM + 36
+
+# robot_rates: the wheel odometry's period, and ekf.yaml's sensor_timeout, in s
+WHEEL_PERIOD_S = STEPS_PER_WHEEL_MESSAGE * STEP_S
+SENSOR_TIMEOUT_S = 0.1
+# The drawings of three wheel periods: an axis in ms from the first wheel message's stamp
+BETWEEN_WHEELS_MESSAGES = 3
+BETWEEN_WHEELS_END_MS = 1000 * ((BETWEEN_WHEELS_MESSAGES - 1) * WHEEL_PERIOD_S + 2 * STEP_S)
+BETWEEN_WHEELS_AXIS_X = 50
+BETWEEN_WHEELS_PIXELS_PER_MS = 0.9
+OUTPUT_DOT_RADIUS = 4.6
+# The chart of robot_rates leaves room for the rows' names left of the plot
+ROBOT_RATES_PLOT_LEFT = 50
 
 # The drawing of one step: three nodes side by side, their messages from top to bottom. The
 # numbers are those of the list in the docstring of step(), with the code that does each
@@ -218,6 +248,20 @@ EXTRA_RULES = (
 )
 
 
+# The marks of the two figures of robot_rates only
+ROBOT_RATES_RULES = (
+    ('.lv-fig .wheels-tick,.lv-key .wheels-tick',
+     'fill:none;stroke:var(--lv-wheels);stroke-width:1.6'),
+    ('.lv-fig .imu-tick,.lv-key .imu-tick', 'fill:none;stroke:var(--lv-imu);stroke-width:.8'),
+    ('.lv-fig .wheels-dot,.lv-key .wheels-dot', f'fill:var(--lv-wheels);stroke:{BG};'
+                                                'stroke-width:1'),
+    ('.lv-fig .imu-dot,.lv-key .imu-dot', f'fill:var(--lv-imu);stroke:{BG};stroke-width:.8'),
+    ('.lv-fig .estimate-trace,.lv-key .estimate-trace',
+     'fill:none;stroke:var(--lv-estimate);stroke-width:1.6'),
+    ('.lv-key .tick', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.4'),
+)
+
+
 class Run(NamedTuple):
     """What the stepped-clock test printed in a run of RUNS_FILE, yaw rates in rad/s."""
 
@@ -257,10 +301,16 @@ class Phases(NamedTuple):
         return self.start_time(phase) + self.step_counts[phase - 1] * STEP_S
 
 
-def load_run() -> Run:
-    """Return what the stepped-clock test printed in the last run of RUNS_FILE."""
+def last_run_of(scenario: str) -> Dict[str, Any]:
+    """Return the last line of RUNS_FILE for a scenario, as a dictionary."""
     with open(RUNS_FILE) as runs_file:
-        run = [json.loads(line) for line in runs_file if line.strip()][-1]
+        runs = [json.loads(line) for line in runs_file if line.strip()]
+    return [run for run in runs if run.get('scenario', INVALID_IMU_SAMPLES) == scenario][-1]
+
+
+def load_run() -> Run:
+    """Return what the stepped-clock test printed in the last run of invalid_imu_samples."""
+    run = last_run_of(INVALID_IMU_SAMPLES)
     # The last output of phase 6 is stamped with the time of the phase's last step
     last_stamp = run['phase_6']['last_stamp_s']
     phase_6_steps = round((last_stamp - SYNTHETIC_RESTART_S) / STEP_S) + 1
@@ -812,11 +862,390 @@ def write_one_step() -> None:
         RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
 
 
+class Output(NamedTuple):
+    """An EKF output that a recording run received, times in s of ROS time."""
+
+    stamp: float
+    received: float  # the ROS time at which rosbag's recorder received the output
+    yaw_rate: float  # rad/s
+
+    def published_at_its_stamp(self) -> bool:
+        """Return whether the filter published the output at the ROS time of its stamp.
+
+        Such an output is the prediction to that time, without a measurement: the filter fuses
+        a measurement in the update after the measurement's stamp.
+        """
+        return self.received - self.stamp < STEP_S / 2
+
+
+class RobotRatesRun(NamedTuple):
+    """A recorded run of the scenario robot_rates, times in s of ROS time, yaw rates in rad/s."""
+
+    commit: str  # of the diffbot repository, abbreviated
+    last_imu_stamp: float
+    wheel_stamps: Tuple[float, ...]
+    outputs: Tuple[Output, ...]
+    end_of_phase_1: float  # printed: the estimate in the last output of phase 1
+    end_of_phase_2: float  # printed: the estimate in the last output of phase 2
+
+    def phase_1(self) -> Tuple[Output, ...]:
+        """Return the outputs while the IMU ran."""
+        return tuple(output for output in self.outputs if output.stamp <= self.last_imu_stamp)
+
+    def phase_2(self) -> Tuple[Output, ...]:
+        """Return the outputs after the IMU stopped."""
+        return tuple(output for output in self.outputs if output.stamp > self.last_imu_stamp)
+
+
+def load_robot_rates_run() -> RobotRatesRun:
+    """Return the last recorded run of robot_rates in RUNS_FILE, checked against its printout."""
+    run = last_run_of(ROBOT_RATES)
+    outputs = tuple(Output(stamp, received, yaw_rate)
+                    for stamp, received, yaw_rate, _ in run['outputs'])
+    loaded = RobotRatesRun(run['commit'][:COMMIT_LENGTH], run['imu_stamps_s'][1],
+                           tuple(stamp for stamp, _ in run['wheel_messages']), outputs,
+                           run['phase_1']['last_estimate_rad_s'],
+                           run['phase_2']['last_estimate_rad_s'])
+    phase_2 = loaded.phase_2()
+    assert len(loaded.phase_1()) == FUSION_STEPS, 'phase 1 has one output per step'
+    assert len(phase_2) == IMU_STOPPED_WHEEL_MESSAGES == run['phase_2']['output_count']
+    assert [output.stamp for output in phase_2] == list(loaded.wheel_stamps[-len(phase_2):]), (
+        'phase 2 has one output per wheel message, stamped with its time')
+    assert round(loaded.phase_1()[-1].yaw_rate, 4) == loaded.end_of_phase_1
+    assert round(phase_2[-1].yaw_rate, 4) == loaded.end_of_phase_2
+    return loaded
+
+
+def robot_rates_x(stamp: float, run: RobotRatesRun) -> float:
+    """Return the x position of a ROS time in the chart of robot_rates."""
+    end = run.wheel_stamps[-1] + STEP_S
+    return (ROBOT_RATES_PLOT_LEFT
+            + (stamp - START_S) * (PLOT_RIGHT - ROBOT_RATES_PLOT_LEFT) / (end - START_S))
+
+
+def draw_robot_rates_rows(figure: Figure, run: RobotRatesRun) -> None:
+    """Add the rows above the plot: the phases, the wheel messages and the IMU samples."""
+    phase_2_x = robot_rates_x(run.last_imu_stamp + STEP_S, run)
+    figure.text(2, PHASE_ROW_Y, 'Phase', 'note')
+    figure.text((ROBOT_RATES_PLOT_LEFT + phase_2_x) / 2, PHASE_ROW_Y, '1', 'strong', 'middle')
+    figure.text((phase_2_x + PLOT_RIGHT) / 2, PHASE_ROW_Y, '2', 'strong', 'middle')
+    figure.text(2, VALID_ROW_Y - 1, 'wheels', 'note')
+    figure.text(2, DROP_ROW_Y - 1, 'IMU', 'note')
+    wheel_ticks = ' '.join(f'M{robot_rates_x(stamp, run):.1f},{VALID_ROW_Y - 9} v9'
+                           for stamp in run.wheel_stamps)
+    add_with_title(figure, f'A wheel message every {round(1000 * WHEEL_PERIOD_S)} ms',
+                   f'<path class="wheels-tick" d="{wheel_ticks}"/>')
+    imu_ticks = ' '.join(f'M{robot_rates_x(output.stamp, run):.1f},{DROP_ROW_Y - 9} v9'
+                         for output in run.phase_1())
+    add_with_title(figure, f'Phase 1: a valid IMU sample every {round(1000 * STEP_S)} ms',
+                   f'<path class="imu-tick" d="{imu_ticks}"/>')
+    figure.text((phase_2_x + PLOT_RIGHT) / 2, DROP_ROW_Y - 1, 'stopped', 'note', 'middle')
+    figure.path(f'M{phase_2_x:.1f},3 V{PLOT_BOTTOM}', 'phase-edge')
+
+
+def draw_robot_rates_axes(figure: Figure, run: RobotRatesRun) -> None:
+    """Add the plot's two axes: the yaw rate, and the ROS time at the phases' edges."""
+    figure.elements.append(
+        f'<text class="note" x="2" y="{PLOT_TOP - 9}">Yaw rate ω<tspan class="index" dy="2.5">z'
+        '</tspan><tspan dy="-2.5"> in rad/s</tspan></text>')
+    left = ROBOT_RATES_PLOT_LEFT
+    figure.path(f'M{left},{PLOT_TOP - 4} V{PLOT_BOTTOM} H{PLOT_RIGHT}', 'axis')
+    for rate in (WHEEL_RATE, IMU_RATE):
+        figure.path(f'M{left - 4},{rate_y(rate):.1f} h4', 'tick')
+        figure.text(left - 6, rate_y(rate) + 4, f'{rate}', 'note', 'end')
+    label_y = PLOT_BOTTOM + 15
+    phase_2_start = run.last_imu_stamp + STEP_S
+    figure.text(left, label_y, f'{START_S:g}', 'note')
+    for stamp in (phase_2_start, run.wheel_stamps[-1]):
+        figure.path(f'M{robot_rates_x(stamp, run):.1f},{PLOT_BOTTOM} v4', 'tick')
+    figure.text(robot_rates_x(phase_2_start, run), label_y, f'{phase_2_start:g}', 'note',
+                'middle')
+    figure.text(robot_rates_x(run.wheel_stamps[-1], run), label_y,
+                f'{run.wheel_stamps[-1]:g}', 'note', 'end')
+    figure.text(left, label_y + 14, 'ROS time t in s', 'note')
+
+
+def draw_robot_rates_inputs(figure: Figure, run: RobotRatesRun) -> None:
+    """Add the yaw rates that the wheel odometry and the IMU report."""
+    wheels_y = rate_y(WHEEL_RATE)
+    imu_y = rate_y(IMU_RATE)
+    phase_2_x = robot_rates_x(run.last_imu_stamp + STEP_S, run)
+    left = ROBOT_RATES_PLOT_LEFT
+    add_with_title(figure, f'Wheel odometry: {WHEEL_RATE} rad/s in every message',
+                   f'<path class="wheels-line" d="M{left},{wheels_y:.1f} H{PLOT_RIGHT}"/>')
+    figure.text(left + 5, wheels_y + 16, 'wheels', 'strong')
+    add_with_title(figure, f'Phase 1: the IMU samples report {IMU_RATE} rad/s',
+                   f'<path class="imu-line" d="M{left},{imu_y:.1f} H{phase_2_x:.1f}"/>')
+    figure.text(left + 5, imu_y - 6, 'IMU', 'strong')
+
+
+def draw_robot_rates_assertions(figure: Figure, run: RobotRatesRun) -> None:
+    """Add the range that the test accepts for the last output of each phase."""
+    ends = ((1, robot_rates_x(run.last_imu_stamp, run), IMU_RATE, YAW_RATE_TOLERANCE),
+            (2, robot_rates_x(run.wheel_stamps[-1], run) + 5, WHEEL_RATE, WHEEL_RATE_TOLERANCE))
+    for phase, x, rate, tolerance in ends:
+        top = rate_y(rate + tolerance)
+        bottom = rate_y(rate - tolerance)
+        add_with_title(
+            figure, f'Phase {phase}: the last output has to be {rate} ± {tolerance} rad/s',
+            f'<path class="estimate-range" d="M{x:.1f},{top:.1f} V{bottom:.1f} '
+            f'M{x - 3.5:.1f},{top:.1f} h7 M{x - 3.5:.1f},{bottom:.1f} h7"/>')
+
+
+def draw_robot_rates_run(figure: Figure, run: RobotRatesRun) -> None:
+    """Add the filter's outputs of the recorded run.
+
+    Phase 1 is a line through one output per step. Phase 2 has a dot per output, and the
+    estimate holds from one output to the next.
+    """
+    phase_1_points = ' L'.join(f'{robot_rates_x(output.stamp, run):.1f},'
+                               f'{rate_y(output.yaw_rate):.1f}' for output in run.phase_1())
+    add_with_title(figure, "Phase 1: the filter's estimate in each of its "
+                   f'{len(run.phase_1())} outputs, one per step',
+                   f'<path class="estimate-trace" d="M{phase_1_points}"/>')
+    phase_2 = run.phase_2()
+    corners = []
+    for output, following in zip(phase_2, phase_2[1:] + (None,)):
+        x = robot_rates_x(output.stamp, run)
+        corners.append(f'{x:.1f},{rate_y(output.yaw_rate):.1f}')
+        if following is not None:
+            corners.append(f'{robot_rates_x(following.stamp, run):.1f},'
+                           f'{rate_y(output.yaw_rate):.1f}')
+    figure.path('M' + ' L'.join(corners), 'estimate-trace')
+    for output in phase_2:
+        add_with_title(figure, f'{output.yaw_rate} rad/s, the output stamped {output.stamp:g} s',
+                       f'<circle class="estimate-dot" cx="{robot_rates_x(output.stamp, run):.1f}" '
+                       f'cy="{rate_y(output.yaw_rate):.1f}" r="{SMALL_DOT_RADIUS}"/>')
+    phase_2_x = robot_rates_x(run.last_imu_stamp + STEP_S, run)
+    figure.text(phase_2_x - 4, rate_y(IMU_RATE) + 16, f'{run.end_of_phase_1:.4f}', 'strong',
+                'end')
+    figure.text(phase_2_x + 14, rate_y(phase_2[0].yaw_rate) + 2, 'estimate', 'strong')
+    figure.text(robot_rates_x(run.wheel_stamps[-1], run), rate_y(WHEEL_RATE) - 10,
+                f'{run.end_of_phase_2:.4f}', 'strong halo', 'end')
+
+
+def robot_rates_chart(run: RobotRatesRun) -> Figure:
+    """Return the chart of the two phases of robot_rates."""
+    figure = Figure('lv-test-robot-rates',
+                    'The two phases of the scenario robot_rates from left to right: the wheel '
+                    'messages and the IMU samples, the yaw rate that they report, the ranges '
+                    "that the test accepts for the filter's estimate, and the estimate in the "
+                    "filter's outputs in a recorded run", CHART_HEIGHT, DRAWING_WIDTH)
+    draw_robot_rates_rows(figure, run)
+    draw_robot_rates_axes(figure, run)
+    draw_robot_rates_inputs(figure, run)
+    draw_robot_rates_assertions(figure, run)
+    draw_robot_rates_run(figure, run)
+    return figure
+
+
+def robot_rates_legends(run: RobotRatesRun) -> List[str]:
+    """Return the HTML parts below the chart of robot_rates."""
+    phase_2 = run.phase_2()
+    inputs = (
+        key('<path class="wheels-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
+        + 'a wheel message in every fifth step, '
+        f'{round(1000 * WHEEL_PERIOD_S)} ms of ROS time, in both phases. It reports '
+        f'{WHEEL_RATE} rad/s, the blue line',
+        key('<path class="imu-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
+        + f'a valid IMU sample in every step of phase 1, {round(1000 * STEP_S)} ms. It reports '
+        f'{IMU_RATE} rad/s, the orange line. In phase 2, the IMU sends nothing',
+    )
+    assertions = (
+        key('<path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"/>')
+        + f'the range for the last output of a phase: {IMU_RATE} ± {YAW_RATE_TOLERANCE} rad/s '
+        f'in phase 1, {WHEEL_RATE} ± {WHEEL_RATE_TOLERANCE} rad/s in phase 2',
+        sign_key('=') + 'in phase 2: one output per wheel message, stamped with the '
+        "message's time, and no output between two wheel messages",
+    )
+    results = (
+        key('<path class="estimate-trace" d="M1,6 H23"/>')
+        + f"phase 1: the filter's estimate in each of its {len(run.phase_1())} outputs, one per "
+        f'step. It stays between {min(output.yaw_rate for output in run.phase_1()):.4f} and '
+        f'{max(output.yaw_rate for output in run.phase_1()):.4f} rad/s, and the last output '
+        f'has {run.end_of_phase_1:.4f} rad/s',
+        key(f'<circle class="estimate-dot" cx="12" cy="6" r="{SMALL_DOT_RADIUS}"/>')
+        + f"phase 2: the filter's {len(phase_2)} outputs, one per wheel message. The estimate "
+        f'goes from {phase_2[0].yaw_rate:.4f} to {run.end_of_phase_2:.4f} rad/s',
+    )
+    return [
+        band('What the steps send'),
+        legend(inputs, 'lv-legend lv-keys'),
+        band('What the test asserts'),
+        legend(assertions, 'lv-legend lv-keys'),
+        band(f'What the filter published in a recorded run at the diffbot commit {run.commit}'),
+        legend(results, 'lv-legend lv-keys'),
+    ]
+
+
+def write_robot_rates_test() -> None:
+    """Write the include with the two phases of robot_rates."""
+    run = load_robot_rates_run()
+    write_parts(
+        'includes/localization-test-stepped-clock-robot-rates.html',
+        [robot_rates_chart(run).svg()] + robot_rates_legends(run),
+        'The scenario robot_rates from left to right, one step every '
+        f'{round(1000 * STEP_S)} ms of ROS time. At the dotted vertical line, the IMU stops.',
+        RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
+
+
+def first_window(outputs: Sequence[Output], published_at_the_stamp: Sequence[bool]) -> int:
+    """Return the index of the first of len(published_at_the_stamp) outputs in that pattern."""
+    pattern = list(published_at_the_stamp)
+    for index in range(len(outputs) - len(pattern) + 1):
+        window = outputs[index:index + len(pattern)]
+        if [output.published_at_its_stamp() for output in window] == pattern:
+            return index
+    raise ValueError(f'no outputs in the pattern {pattern}')
+
+
+class RowLayout(NamedTuple):
+    """The heights in a drawing of three wheel periods, from the top."""
+
+    timeout: float  # the dimension line of sensor_timeout, 0 for none
+    wheels: float
+    imu: float
+    outputs: float
+    axis: float
+    height: int
+
+
+RUNNING_ROWS = RowLayout(timeout=0, wheels=16, imu=36, outputs=56, axis=78, height=102)
+STOPPED_ROWS = RowLayout(timeout=20, wheels=38, imu=58, outputs=78, axis=112, height=136)
+
+
+def between_wheels_axis(rows: RowLayout) -> TimeAxis:
+    """Return the time axis of a drawing between wheel messages, in ms from the first one."""
+    return TimeAxis(-STEP_S * 1000, BETWEEN_WHEELS_END_MS, BETWEEN_WHEELS_AXIS_X, rows.axis,
+                    BETWEEN_WHEELS_PIXELS_PER_MS)
+
+
+def draw_between_wheels_rows(figure: Figure, axis: TimeAxis, rows: RowLayout,
+                             first_wheel_stamp: float, imu_running: bool) -> None:
+    """Add the rows' names, the axis with a tick per update of the filter, and the inputs."""
+    figure.text(2, rows.wheels + 4, 'wheels', 'note')
+    figure.text(2, rows.imu + 4, 'IMU', 'note')
+    figure.text(2, rows.outputs + 4, 'EKF', 'note')
+    figure.time_axis(axis, axis.start_ms)
+    for index in range(BETWEEN_WHEELS_MESSAGES):
+        x = axis.at(index * WHEEL_PERIOD_S * 1000)
+        figure.circle(x, rows.wheels, OUTPUT_DOT_RADIUS, 'wheels-dot')
+        figure.text(x, axis.y + 16, f'{first_wheel_stamp + index * WHEEL_PERIOD_S:.1f}', 'note',
+                    'middle')
+    if imu_running:
+        offset_ms = axis.start_ms
+        while offset_ms <= axis.end_ms - STEP_S * 1000:
+            figure.circle(axis.at(offset_ms), rows.imu, SMALL_DOT_RADIUS + 0.6, 'imu-dot')
+            offset_ms += STEP_S * 1000
+    else:
+        figure.text(axis.at(axis.start_ms) + 4, rows.imu + 4, 'stopped', 'note')
+
+
+def draw_between_wheels_outputs(figure: Figure, axis: TimeAxis, rows: RowLayout,
+                                first_wheel_stamp: float, outputs: Sequence[Output],
+                                labelled: bool) -> None:
+    """Add the outputs at the ROS time when the recorder received them.
+
+    labelled adds under each output whether the filter fused a wheel message or predicted.
+    """
+    for output in outputs:
+        offset_ms = (output.received - first_wheel_stamp) * 1000
+        if not axis.start_ms <= offset_ms <= axis.end_ms:
+            continue
+        x = axis.at(offset_ms)
+        add_with_title(figure, f'{output.yaw_rate} rad/s, stamped {output.stamp:g} s, '
+                       f'published at {output.received:g} s',
+                       f'<circle class="estimate-dot" cx="{x:.1f}" cy="{rows.outputs}" '
+                       f'r="{OUTPUT_DOT_RADIUS}"/>')
+        if labelled:
+            label = 'predicted' if output.published_at_its_stamp() else 'fused'
+            figure.text(x, rows.outputs + 18, label, '', 'middle')
+
+
+def between_wheels_running(run: RobotRatesRun) -> Figure:
+    """Return the drawing of the last three wheel periods of phase 1, with the IMU running."""
+    wheel_stamps = [stamp for stamp in run.wheel_stamps if stamp <= run.last_imu_stamp]
+    first_wheel_stamp = wheel_stamps[-BETWEEN_WHEELS_MESSAGES]
+    axis = between_wheels_axis(RUNNING_ROWS)
+    figure = Figure('lv-test-between-wheels-running',
+                    'Phase 1, IMU running: an IMU sample in every step, a wheel message in '
+                    'every fifth, and an EKF output in every step', RUNNING_ROWS.height,
+                    DRAWING_WIDTH)
+    draw_between_wheels_rows(figure, axis, RUNNING_ROWS, first_wheel_stamp, True)
+    draw_between_wheels_outputs(figure, axis, RUNNING_ROWS, first_wheel_stamp, run.phase_1(),
+                                False)
+    return figure
+
+
+def between_wheels_stopped(run: RobotRatesRun) -> Figure:
+    """Return the drawing of the first three wheel periods of phase 2 that show both cases.
+
+    The three outputs are fused, predicted and fused.
+    """
+    phase_2 = run.phase_2()
+    first_wheel_stamp = phase_2[first_window(phase_2, (False, True, False))].stamp
+    axis = between_wheels_axis(STOPPED_ROWS)
+    figure = Figure('lv-test-between-wheels-stopped',
+                    'Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF '
+                    "output per wheel message, stamped with the message's time: fused in the "
+                    'next update, or predicted at the time of the message', STOPPED_ROWS.height,
+                    DRAWING_WIDTH)
+    draw_between_wheels_rows(figure, axis, STOPPED_ROWS, first_wheel_stamp, False)
+    draw_between_wheels_outputs(figure, axis, STOPPED_ROWS, first_wheel_stamp, phase_2, True)
+    # From the stamp of the fused wheel message, the filter's last measurement, to the update
+    # that predicts
+    start_x = axis.at(0)
+    end_x = axis.at(SENSOR_TIMEOUT_S * 1000)
+    figure.dimension(start_x, end_x, STOPPED_ROWS.timeout)
+    figure.text((start_x + end_x) / 2, STOPPED_ROWS.timeout - 5, 'sensor_timeout 0.1 s',
+                'note', 'middle')
+    return figure
+
+
+def between_wheels_legend(run: RobotRatesRun) -> str:
+    """Return the HTML key below the two drawings between wheel messages."""
+    lines = (
+        key(f'<circle class="wheels-dot" cx="12" cy="6" r="{OUTPUT_DOT_RADIUS}"/>')
+        + f'a wheel message, every {round(1000 * WHEEL_PERIOD_S)} ms of ROS time, published '
+        'at its stamp. The axis labels its stamps in s',
+        key(f'<circle class="imu-dot" cx="12" cy="6" r="{SMALL_DOT_RADIUS + 0.6}"/>')
+        + f'a valid IMU sample, every {round(1000 * STEP_S)} ms, published at its stamp',
+        key(f'<circle class="estimate-dot" cx="12" cy="6" r="{OUTPUT_DOT_RADIUS}"/>')
+        + 'an EKF output, at the ROS time when the filter published it. The filter fuses the '
+        f'inputs of one step in its update {round(1000 * STEP_S)} ms later',
+        key('<path class="tick" d="M12,3 v7"/>', 'lv-key lv-narrow')
+        + "a tick on the axis: one of the filter's updates, 50 per second of ROS time",
+        sign_key('') + '<strong>fused:</strong> the filter fused the wheel message and '
+        "published the result, stamped with the message's time",
+        sign_key('') + '<strong>predicted:</strong> the filter predicted to the time of the '
+        'wheel message, without a measurement, because the ROS time was 0.1 s or more, its '
+        'sensor_timeout, past its last measurement. It published the prediction, stamped with '
+        'that time. It fuses the wheel message in the next update, but publishes no second '
+        'output with the same stamp. The next output contains the message',
+    )
+    return legend(lines, 'lv-legend lv-keys')
+
+
+def write_between_wheels() -> None:
+    """Write the include with what the filter publishes between wheel messages."""
+    run = load_robot_rates_run()
+    write_parts(
+        'includes/localization-test-stepped-clock-between-wheels.html',
+        [band('Phase 1: the IMU running'), between_wheels_running(run).svg(),
+         band('Phase 2: the IMU stopped'), between_wheels_stopped(run).svg(),
+         between_wheels_legend(run)],
+        f'Three wheel periods of each phase of robot_rates in a recorded run at the diffbot '
+        f'commit {run.commit}, ROS time to the right.',
+        RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
+
+
 def main() -> None:
-    """Write the three includes of the test pages."""
+    """Write the five includes of the test pages."""
     write_validator_tests()
     write_one_step()
     write_stepped_clock_test()
+    write_robot_rates_test()
+    write_between_wheels()
 
 
 if __name__ == '__main__':
