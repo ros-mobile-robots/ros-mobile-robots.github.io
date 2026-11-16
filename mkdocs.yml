@@ -87,9 +87,9 @@ extra:
   # diffbot #154. Update both when that code changes, and check the excerpts' line ranges
   ekf_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/ead34027a9507c65d7415f93817177340d60d549
   ekf_src_url: https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549
-  # The diffbot commit that the excerpts on EKF on a Stepped Clock show: the head of the code pull
-  # request of diffbot #187 until it merges. Move both to the merge commit before this page's pull
-  # request merges, and check the excerpts' line ranges against it
+  # The diffbot commit that the excerpts on EKF on a Stepped Clock show: the head of diffbot #220
+  # until it merges. Move both to its merge commit before this page's pull request merges, and
+  # check the excerpts' line ranges against it
   ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/0b2f5a1d6527fbe7fac0bf5911836928423e4351
   ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/0b2f5a1d6527fbe7fac0bf5911836928423e4351
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
