@@ -12,9 +12,14 @@ Five test files check the EKF and the IMU sample validator of the [Localization 
 
 ## How the tests run
 
-catkin runs the five test files with the workspace's other tests. The packages register them in their `CMakeLists.txt`: `catkin_add_nosetests()` for the two files without ROS nodes, `add_rostest()` for the three that start nodes through a `.test` launch file. catkin's guides [Configuring Python nose tests](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) and [Configuring rostest](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) explain the two macros.
+The five test files are Python tests, written with Python's [`unittest`](https://docs.python.org/3/library/unittest.html) module: each file defines its tests as methods of a `unittest.TestCase` class. catkin runs the five files with the workspace's other tests. The packages register them in their `CMakeLists.txt` with two macros:
 
-- **All tests:** `catkin build --catkin-make-args run_tests` in the [dev container](../../../../development/ci.md#dev-container-workflow) builds the workspace and runs every test. CI runs the same tests on every pull request, as [Testing and CI](../../../../development/ci.md#ekf-tests) explains.
+- **`catkin_add_nosetests()`:** for the two files without ROS nodes. The test runner [nose](https://nose.readthedocs.io/en/latest/) finds the `TestCase` classes in the file and runs their tests.
+- **`add_rostest()`:** for the three files that start nodes. rostest starts the nodes of the test's `.test` launch file, then the test file.
+
+catkin's guides [Configuring Python nose tests](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) and [Configuring rostest](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) explain the two macros. There are three ways to run the tests:
+
+- **All tests:** `catkin build --catkin-make-args run_tests` in the [dev container](../../../../development/ci.md#dev-container-workflow) builds the workspace and runs every test, the five files included. CI runs the same tests on every pull request, as [Testing and CI](../../../../development/ci.md#ekf-tests) explains.
 - **One test with ROS nodes:** `rostest` starts the test's launch file and the test, for example the stepped-clock test and Remo's test in Gazebo:
 
     ```console
@@ -22,7 +27,7 @@ catkin runs the five test files with the workspace's other tests. The packages r
     rostest diffbot_gazebo sim_ekf_remo.test
     ```
 
-- **One test file without ROS nodes:** Python's `unittest` runs the file from its folder:
+- **One test file without ROS nodes:** the command for all tests runs the two files without ROS nodes with nose. To run only one of them, for example while you change the validator, Python's `unittest` runs the file from its folder:
 
     ```console
     roscd diffbot_control/test
@@ -31,4 +36,9 @@ catkin runs the five test files with the workspace's other tests. The packages r
 
 ## What the tests don't show
 
-The tests run without the robot. They don't show how the real gyroscope behaves, with its noise, its bias and its mounting. They don't show the delays on the robot, or the filter with the robot's slower wheel odometry: in these tests, both inputs arrive at 50 Hz. They don't show whether the filter helps on the floor. The [floor odometry test](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure that on Remo.
+The tests run without the robot. They don't show four things:
+
+- **The real gyroscope while the robot drives:** its noise, its bias and its mounting. The tests use the simulated IMU's samples, or samples that the stepped-clock test publishes itself.
+- **How long the samples take to arrive on the robot:** the issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#219)](https://github.com/ros-mobile-robots/diffbot/issues/219) measures it.
+- **The robot's slower wheel odometry:** in these tests, both inputs arrive at 50 Hz, the simulation's rates. The IMU sends 50 samples per second on the robot too. The wheel odometry arrives at a nominal 50 Hz only in the simulation, where `gazebo_ros_control` runs the drive controller in every step of the simulation and the controller publishes at its [`publish_rate`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L25) of 50 Hz. On the robot, the control loop of the node `diffbot_base` runs the drive controller at a nominal 10 Hz, with [`ros::Rate rate(10.0)` in `diffbot_base.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_base.cpp#L27). So the wheel odometry arrives at most 10 times per second, as the box under [`frequency`](../../robot_localization.md#the-other-settings) on the Localization page explains. The issue [EKF tests: wheel odometry at 10 Hz with the IMU at 50 Hz (diffbot#187)](https://github.com/ros-mobile-robots/diffbot/issues/187) adds a test at the robot's rates. The issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures the rates on the robot and decides whether the control loop runs faster.
+- **Whether the filter improves the odometry on the floor:** the [floor odometry test (diffbot#138)](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure this on Remo.
