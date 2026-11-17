@@ -10,8 +10,8 @@ The file holds the 27 tests in four test classes, one for each part of [`imu_val
 |:--|:--|:--|:--|
 | [`TestImuValidator`](#testimuvalidator-which-samples-are-valid) | 11 | [`ImuValidator.drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) | Which samples the validator forwards, and the reason for each sample that it drops |
 | [`TestSecondsSinceLastValidSample`](#testsecondssincelastvalidsample-the-silence) | 7 | [`ImuValidator.seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) | The time since the last valid sample, which the diagnostics report, also when the clock goes back |
-| [`TestHealth`](#testhealth-the-status) | 5 | `health()` | The level of the diagnostics status: OK, warning or error |
-| [`TestSampleCounts`](#testsamplecounts-the-numbers-of-a-report) | 4 | `SampleCounts` | The counts of forwarded and dropped samples in a diagnostics report |
+| [`TestHealth`](#testhealth-the-status) | 5 | [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143) | The level of the diagnostics status: OK, warning or error |
+| [`TestSampleCounts`](#testsamplecounts-the-numbers-of-a-report) | 4 | [`SampleCounts`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L163) | The counts of forwarded and dropped samples in a diagnostics report |
 
 A fifth class, [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-assertions), holds no tests. It gives the first two test classes a new validator for each test and two assertions about the validator's decision on a sample.
 
@@ -73,14 +73,14 @@ The collapsed box shows the whole output of a run at the commit [`d896358`](http
 
 ## What the tests call
 
-Most tests call the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which holds the validator's checks without the ROS node around them. This section explains the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns. [The five checks](../../robot_localization.md#the-five-checks) on the Localization page explain the checks themselves. `health()` and `SampleCounts` have their own sections, next to their tests.
+Most tests call the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which holds the validator's checks without the ROS node around them. This section explains the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns. [The five checks](../../robot_localization.md#the-five-checks) on the Localization page explain the checks themselves. [`health()`](#testhealth-the-status) and [`SampleCounts`](#testsamplecounts-the-numbers-of-a-report) have their own sections, next to their tests.
 
 ### Where the ROS time comes from
 
-`ImuValidator` never reads the ROS clock itself. Its methods `drop_reason_or_record()` and `seconds_since_last_valid_sample()` get the ROS time $t$ as their argument `now`. The caller decides which time that is:
+`ImuValidator` never reads the ROS clock itself. Its methods [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) and [`seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) get the ROS time $t$ as their argument `now`. The caller decides which time that is:
 
 - **On the robot and in the simulation:** the node's class [`ImuValidatorNode`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L341) calls the two methods. For each sample, rospy calls the node's callback `on_sample()`, which reads the ROS time with `rospy.Time.now()` and passes it to `drop_reason_or_record()` as `now`. For each diagnostics report, the node's method [`take_snapshot()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L397) reads the ROS time in the same way and passes it to `seconds_since_last_valid_sample()`.
-- **In the tests:** each test passes a ROS time that it chooses, most often `NOW`, 100 s. So a test can put any ROS time next to any stamp $t_s$, and needs no clock and no waiting.
+- **In the tests:** each test passes a ROS time that it chooses, most often [`NOW`](#the-constants-and-the-helpers), 100 s. So a test can put any ROS time next to any stamp $t_s$, and needs no clock and no waiting.
 
 The excerpt shows `on_sample()`, from [`imu_validator.py`, lines 365–380]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L365-L380). Line 368 reads the ROS time, and line 369 passes the time with the sample to `drop_reason_or_record()`:
 
@@ -122,7 +122,7 @@ The method runs two steps, each in a method of its own:
 1. **The decision:** `drop_reason()` returns the first reason to drop the sample, or `None` when the sample passes every check.
 2. **A valid sample:** only when the reason is `None`, `record_valid_sample()` records the sample as the last valid one: the validator keeps two times of the sample, its stamp $t_s$ in `last_valid_stamp`, which [check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) compares the next stamps with, and the ROS time of its arrival, `now`, in `last_valid_at`, from which `seconds_since_last_valid_sample()` counts the silence. Each valid sample replaces these two times, so the validator keeps no history of samples.
 
-Two places in the code call `drop_reason_or_record()`: the node's callback `on_sample()`, once for each sample that arrives, and the tests, through `assert_accepted()` and `assert_rejected()`. Neither calls `drop_reason()` and `record_valid_sample()` itself. So neither can get the two steps wrong in one of two ways:
+Two places in the code call `drop_reason_or_record()`: the node's callback `on_sample()`, once for each sample that arrives, and the tests, through [`assert_accepted()` and `assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions). Neither calls `drop_reason()` and `record_valid_sample()` itself. So neither can get the two steps wrong in one of two ways:
 
 - **Recording a dropped sample:** check 5 would compare later stamps with the stamp of a sample that the checks dropped. If a caller recorded a sample from the future, otherwise valid samples with stamps no later than that stored stamp would be dropped as `NOT_NEWER`.
 - **Not recording a valid sample:** check 5 would still let the same stamp through, and the silence would keep counting from the last recorded sample. If no valid sample had been recorded, the silence would stay `None`. Such omissions could make the diagnostics report an error while valid samples arrive.
