@@ -91,7 +91,7 @@ The next excerpt shows the type `Headings` and how a `HeadingObserver` starts, f
 - **`true_heading`, `odometry_heading` and `ekf_heading`:** the observer's latest heading of each source. Each is `None` until the first message of its source arrives.
 - **`sample_count`:** the number of samples that the IMU sample validator forwarded since the observer was created.
 - **The four subscribers:** they read the drive controller's wheel odometry (`WHEEL_ODOMETRY_TOPIC`), the EKF's estimate (`FILTERED_TOPIC`), Gazebo's model states (`MODEL_STATES_TOPIC`), which carry the robot's true pose, and the validator's output (`VALIDATED_IMU_TOPIC`). The subscriber of the model states keeps one message, `MODEL_STATES_QUEUE_SIZE`, because only the latest true pose matters. The subscriber of the validated samples keeps up to 100 messages, `IMU_QUEUE_SIZE`, because the test counts every sample.
-- **`lock`:** rospy calls each callback in a thread of its own, and the test reads the observer in another thread. The lock lets one thread at a time read or change the observer's values. So the test gets the three headings as one consistent copy, and no callback changes a heading while the test copies them. The three headings are the latest of each source, not headings of the same instant.
+- **`lock`:** several threads use the observer's four values, the three headings and `sample_count`. rospy receives the messages of each publisher in a thread of its own and calls the subscriber's callback in that thread. Each of the four topics has one publisher, so the four callbacks run in four threads. The test itself runs in another thread, which calls `setUpClass()` and the tests and reads the observer. The lock lets one thread at a time read or change the four values. So the test gets the three headings as one copy, and no callback changes a heading while the test copies them. The three headings are the latest of each source, not headings of the same instant.
 
 Each callback stores what the test needs from one message. The excerpt shows the four callbacks, from [`test_ekf.py`, lines 136–155]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L136-L155):
 
@@ -102,9 +102,9 @@ Each callback stores what the test needs from one message. The excerpt shows the
 - **`on_wheel_odometry()` and `on_filtered_odometry()`:** both topics carry `nav_msgs/Odometry` messages. Each callback stores the heading of the message's pose, `yaw(message.pose.pose)`.
 - **`on_model_states()`:** Gazebo publishes the poses of all models in one message. The callback takes the pose of the model named `MODEL_NAME`. Gazebo's model of the robot is named `diffbot` for DiffBot and for Remo.
 - **`on_validated_imu()`:** counts a sample that the IMU sample validator forwarded.
-- **`with self.lock`:** each callback holds the lock while it changes its value.
+- **`with self.lock`:** each callback takes the lock before it changes its value and gives the lock back at the end of the `with` block. While another thread holds the lock, the callback waits.
 
-The test reads the observer through three methods. The excerpt shows them, from [`test_ekf.py`, lines 157–175]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L157-L175):
+The test reads the observer through three methods, and each holds the lock while it reads. The excerpt shows them, from [`test_ekf.py`, lines 157–175]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L157-L175):
 
 ```python title="test_ekf.py: latest(), silent_sources() and validated_sample_count()" linenums="157"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:157:175"
