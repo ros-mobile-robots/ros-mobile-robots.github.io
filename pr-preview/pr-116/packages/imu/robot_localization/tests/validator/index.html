@@ -5243,13 +5243,13 @@
 <tr>
 <td style="text-align: left;"><a href="#testhealth-the-status"><code>TestHealth</code></a></td>
 <td style="text-align: left;">5</td>
-<td style="text-align: left;"><code>health()</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L143"><code>health()</code></a></td>
 <td style="text-align: left;">The level of the diagnostics status: OK, warning or error</td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="#testsamplecounts-the-numbers-of-a-report"><code>TestSampleCounts</code></a></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;"><code>SampleCounts</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L163"><code>SampleCounts</code></a></td>
 <td style="text-align: left;">The counts of forwarded and dropped samples in a diagnostics report</td>
 </tr>
 </tbody>
@@ -5350,12 +5350,12 @@ OK
 </code></pre></div></td></tr></tbody></table></div>
 </details>
 <h2 id="what-the-tests-call">What the tests call</h2>
-<p>Most tests call the class <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L203"><code>ImuValidator</code></a>, which holds the validator's checks without the ROS node around them. This section explains the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns. <a href="../../#the-five-checks">The five checks</a> on the Localization page explain the checks themselves. <code>health()</code> and <code>SampleCounts</code> have their own sections, next to their tests.</p>
+<p>Most tests call the class <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L203"><code>ImuValidator</code></a>, which holds the validator's checks without the ROS node around them. This section explains the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns. <a href="../../#the-five-checks">The five checks</a> on the Localization page explain the checks themselves. <a href="#testhealth-the-status"><code>health()</code></a> and <a href="#testsamplecounts-the-numbers-of-a-report"><code>SampleCounts</code></a> have their own sections, next to their tests.</p>
 <h3 id="where-the-ros-time-comes-from">Where the ROS time comes from</h3>
-<p><code>ImuValidator</code> never reads the ROS clock itself. Its methods <code>drop_reason_or_record()</code> and <code>seconds_since_last_valid_sample()</code> get the ROS time <span class="arithmatex">\(t\)</span> as their argument <code>now</code>. The caller decides which time that is:</p>
+<p><code>ImuValidator</code> never reads the ROS clock itself. Its methods <a href="#drop_reason_or_record-the-decision-about-a-sample"><code>drop_reason_or_record()</code></a> and <a href="#seconds_since_last_valid_sample-the-silence"><code>seconds_since_last_valid_sample()</code></a> get the ROS time <span class="arithmatex">\(t\)</span> as their argument <code>now</code>. The caller decides which time that is:</p>
 <ul>
 <li><strong>On the robot and in the simulation:</strong> the node's class <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L341"><code>ImuValidatorNode</code></a> calls the two methods. For each sample, rospy calls the node's callback <code>on_sample()</code>, which reads the ROS time with <code>rospy.Time.now()</code> and passes it to <code>drop_reason_or_record()</code> as <code>now</code>. For each diagnostics report, the node's method <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L397"><code>take_snapshot()</code></a> reads the ROS time in the same way and passes it to <code>seconds_since_last_valid_sample()</code>.</li>
-<li><strong>In the tests:</strong> each test passes a ROS time that it chooses, most often <code>NOW</code>, 100 s. So a test can put any ROS time next to any stamp <span class="arithmatex">\(t_s\)</span>, and needs no clock and no waiting.</li>
+<li><strong>In the tests:</strong> each test passes a ROS time that it chooses, most often <a href="#the-constants-and-the-helpers"><code>NOW</code></a>, 100 s. So a test can put any ROS time next to any stamp <span class="arithmatex">\(t_s\)</span>, and needs no clock and no waiting.</li>
 </ul>
 <p>The excerpt shows <code>on_sample()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L365-L380"><code>imu_validator.py</code>, lines 365–380</a>. Line 368 reads the ROS time, and line 369 passes the time with the sample to <code>drop_reason_or_record()</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: the node reads the ROS time and passes it on</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">365</span>
@@ -5441,7 +5441,7 @@ OK
 <li><strong>The decision:</strong> <code>drop_reason()</code> returns the first reason to drop the sample, or <code>None</code> when the sample passes every check.</li>
 <li><strong>A valid sample:</strong> only when the reason is <code>None</code>, <code>record_valid_sample()</code> records the sample as the last valid one: the validator keeps two times of the sample, its stamp <span class="arithmatex">\(t_s\)</span> in <code>last_valid_stamp</code>, which <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">check 5</a> compares the next stamps with, and the ROS time of its arrival, <code>now</code>, in <code>last_valid_at</code>, from which <code>seconds_since_last_valid_sample()</code> counts the silence. Each valid sample replaces these two times, so the validator keeps no history of samples.</li>
 </ol>
-<p>Two places in the code call <code>drop_reason_or_record()</code>: the node's callback <code>on_sample()</code>, once for each sample that arrives, and the tests, through <code>assert_accepted()</code> and <code>assert_rejected()</code>. Neither calls <code>drop_reason()</code> and <code>record_valid_sample()</code> itself. So neither can get the two steps wrong in one of two ways:</p>
+<p>Two places in the code call <code>drop_reason_or_record()</code>: the node's callback <code>on_sample()</code>, once for each sample that arrives, and the tests, through <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_accepted()</code> and <code>assert_rejected()</code></a>. Neither calls <code>drop_reason()</code> and <code>record_valid_sample()</code> itself. So neither can get the two steps wrong in one of two ways:</p>
 <ul>
 <li><strong>Recording a dropped sample:</strong> check 5 would compare later stamps with the stamp of a sample that the checks dropped. If a caller recorded a sample from the future, otherwise valid samples with stamps no later than that stored stamp would be dropped as <code>NOT_NEWER</code>.</li>
 <li><strong>Not recording a valid sample:</strong> check 5 would still let the same stamp through, and the silence would keep counting from the last recorded sample. If no valid sample had been recorded, the silence would stay <code>None</code>. Such omissions could make the diagnostics report an error while valid samples arrive.</li>
