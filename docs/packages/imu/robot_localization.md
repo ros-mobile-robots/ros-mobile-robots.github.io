@@ -744,7 +744,7 @@ Neither setting looks at a sample's age, its frame or a repeated stamp.
 
 ### The five checks
 
-A sample is valid only if it passes all five checks. For each sample, the node calls [`drop_reason_or_record()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L244) of the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails. For a valid sample, the method records the sample as the last valid one and returns `None`, which stands for "no reason to drop". In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
+A sample is valid only if it passes all five checks. For each sample, the node calls [`drop_reason_or_record()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L252) of the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails. For a valid sample, the method records the sample's stamp and arrival ROS time as the last valid sample's and returns `None`, which stands for "no reason to drop". In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
 
 Before the first check, the node drops every sample while the ROS time is zero, because it can't judge a stamp without a clock. In the simulation, the parameter `/use_sim_time` is true, and the ROS time is the time of the last message on Gazebo's topic `/clock`. Until the node has received the first message there, the ROS time is zero. On the robot, the ROS time is the SBC's system clock, which doesn't read zero. The validator's tests page explains this in [Where the ROS time comes from](robot_localization/tests/validator.md#where-the-ros-time-comes-from). [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33) are the node's parameters, which [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) sets.
 
@@ -752,21 +752,21 @@ Before the first check, the node drops every sample while the ROS time is zero, 
 
 The first three checks look at the sample's frame, values and variances, fields of its [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message. Each of the three figures shows the fields that its check reads, for a sample that passes and for one that the node drops.
 
-**1. The frame:** [`check_frame()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L279) checks that the sample's `header.frame_id` is the node's parameter [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
+**1. The frame:** [`check_frame()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L289) checks that the sample's `header.frame_id` is the node's parameter [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
 
 --8<-- "includes/localization-validator-frame.html"
 
-**2. The values:** [`check_finite_values()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L283) checks that the three components of the angular velocity $\boldsymbol\omega$ and of the accelerometer's reading $\mathbf f$, the field `linear_acceleration`, are finite numbers, so that none is NaN or infinite.
+**2. The values:** [`check_finite_values()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L293) checks that the three components of the angular velocity $\boldsymbol\omega$ and of the accelerometer's reading $\mathbf f$, the field `linear_acceleration`, are finite numbers, so that none is NaN or infinite.
 
 --8<-- "includes/localization-validator-values.html"
 
-**3. The variances:** [`check_angular_velocity_covariance()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L290) checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances $\sigma^2$, is positive. The figure lays the covariance out as [the figure of the covariances](#the-variances) does.
+**3. The variances:** [`check_angular_velocity_covariance()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L300) checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances $\sigma^2$, is positive. The figure lays the covariance out as [the figure of the covariances](#the-variances) does.
 
 --8<-- "includes/localization-validator-variances.html"
 
 #### Check 4: the stamp against the ROS time
 
-[`check_not_too_old()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L304) and [`check_not_from_the_future()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L300) check that the sample's stamp lies in this interval:
+[`check_not_too_old()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L314) and [`check_not_from_the_future()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L310) check that the sample's stamp lies in this interval:
 
 $$
 t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
@@ -783,7 +783,7 @@ The values of `max_age` and `max_future` are initial policy values, not standard
 
 #### Check 5: the stamp against the last forwarded sample
 
-[`check_newer_than_the_last()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L308) checks that the sample's stamp is later than the stamp of the last forwarded sample: $t_s > t_\text{last}$. A sample with an older stamp arrived out of order, as sample E. A sample with the same stamp came twice, as sample F:
+[`check_newer_than_the_last()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L318) checks that the sample's stamp is later than the stamp of the last forwarded sample: $t_s > t_\text{last}$. A sample with an older stamp arrived out of order, as sample E. A sample with the same stamp came twice, as sample F:
 
 --8<-- "includes/localization-validator-order.html"
 
