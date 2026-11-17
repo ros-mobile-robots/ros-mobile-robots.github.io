@@ -88,11 +88,12 @@ extra:
   ekf_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/ead34027a9507c65d7415f93817177340d60d549
   ekf_src_url: https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549
   # The diffbot commit that the excerpts on the test pages EKF on a Stepped Clock and IMU Sample
-  # Validator (robot_localization/tests/stepped-clock.md and validator.md) show: the head of
-  # diffbot #220 until it merges. Move both to its merge commit before these pages' pull request
-  # merges, and check the excerpts' line ranges on both pages against it
-  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7dbb11bbacce12faf44c2e454ff0081eb83da785
-  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7dbb11bbacce12faf44c2e454ff0081eb83da785
+  # Validator (robot_localization/tests/stepped-clock.md and validator.md) and the Localization
+  # page's links into imu_validator.py show: the head of diffbot #220 until it merges. Move both
+  # to its merge commit before these pages' pull request merges, and check the excerpts' line
+  # ranges and the links' lines on the three pages against it
+  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/12c803c24764705d0e41c7437db8e4942ae07af5
+  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/12c803c24764705d0e41c7437db8e4942ae07af5
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots

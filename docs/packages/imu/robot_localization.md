@@ -744,7 +744,7 @@ Neither setting looks at a sample's age, its frame or a repeated stamp.
 
 ### The five checks
 
-A sample is valid only if it passes all five checks. For each sample, the node calls [`validate_and_record()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L244) of the class [`ImuValidator`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails. In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
+A sample is valid only if it passes all five checks. For each sample, the node calls [`record_if_valid()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L244) of the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails, or `None` for a valid sample. In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
 
 Before the first check, the node drops every sample while the ROS time is zero, because it can't judge a stamp without a clock. In the simulation, the parameter `/use_sim_time` is true, and the ROS time is the time of the last message on Gazebo's topic `/clock`. Until the node has received the first message there, the ROS time is zero. On the robot, the ROS time is the SBC's system clock, which doesn't read zero. The validator's tests page explains this in [Where the ROS time comes from](robot_localization/tests/validator.md#where-the-ros-time-comes-from). [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33) are the node's parameters, which [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) sets.
 
@@ -752,21 +752,21 @@ Before the first check, the node drops every sample while the ROS time is zero, 
 
 The first three checks look at the sample's frame, values and variances, fields of its [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message. Each of the three figures shows the fields that its check reads, for a sample that passes and for one that the node drops.
 
-**1. The frame:** [`check_frame()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L264) checks that the sample's `header.frame_id` is the node's parameter [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
+**1. The frame:** [`check_frame()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L278) checks that the sample's `header.frame_id` is the node's parameter [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
 
 --8<-- "includes/localization-validator-frame.html"
 
-**2. The values:** [`check_finite_values()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L268) checks that the three components of the angular velocity $\boldsymbol\omega$ and of the accelerometer's reading $\mathbf f$, the field `linear_acceleration`, are finite numbers, so that none is NaN or infinite.
+**2. The values:** [`check_finite_values()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L282) checks that the three components of the angular velocity $\boldsymbol\omega$ and of the accelerometer's reading $\mathbf f$, the field `linear_acceleration`, are finite numbers, so that none is NaN or infinite.
 
 --8<-- "includes/localization-validator-values.html"
 
-**3. The variances:** [`check_angular_velocity_covariance()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L275) checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances $\sigma^2$, is positive. The figure lays the covariance out as [the figure of the covariances](#the-variances) does.
+**3. The variances:** [`check_angular_velocity_covariance()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L289) checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances $\sigma^2$, is positive. The figure lays the covariance out as [the figure of the covariances](#the-variances) does.
 
 --8<-- "includes/localization-validator-variances.html"
 
 #### Check 4: the stamp against the ROS time
 
-[`check_not_too_old()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L289) and [`check_not_from_the_future()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L285) check that the sample's stamp lies in this interval:
+[`check_not_too_old()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L303) and [`check_not_from_the_future()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L299) check that the sample's stamp lies in this interval:
 
 $$
 t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
@@ -783,7 +783,7 @@ The values of `max_age` and `max_future` are initial policy values, not standard
 
 #### Check 5: the stamp against the last forwarded sample
 
-[`check_newer_than_the_last()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L293) checks that the sample's stamp is later than the stamp of the last forwarded sample: $t_s > t_\text{last}$. A sample with an older stamp arrived out of order, as sample E. A sample with the same stamp came twice, as sample F:
+[`check_newer_than_the_last()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L307) checks that the sample's stamp is later than the stamp of the last forwarded sample: $t_s > t_\text{last}$. A sample with an older stamp arrived out of order, as sample E. A sample with the same stamp came twice, as sample F:
 
 --8<-- "includes/localization-validator-order.html"
 
@@ -862,7 +862,7 @@ The issue [EKF: evaluate outlier rejection on recorded drives (diffbot#205)](htt
 
 ### The validator's diagnostics
 
-The validator publishes its counts on the topic `/diagnostics`, next to the EKF's own status there: how many samples it forwarded, and how many it dropped for which reason. The function [`health()`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L143) sets the status. The status is an error in three cases: before the validator has forwarded its first sample, after the ROS time went back until the validator forwards a sample again, and when the validator forwarded no sample for more than [`SILENCE_LIMIT`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py#L101), 1 s. The status is a warning when the validator dropped samples since its last report.
+The validator publishes its counts on the topic `/diagnostics`, next to the EKF's own status there: how many samples it forwarded, and how many it dropped for which reason. The function [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143) sets the status. The status is an error in three cases: before the validator has forwarded its first sample, after the ROS time went back until the validator forwards a sample again, and when the validator forwarded no sample for more than [`SILENCE_LIMIT`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L101), 1 s. The status is a warning when the validator dropped samples since its last report.
 
 `rostopic echo /diagnostics` prints the reports as text. `rosrun rqt_runtime_monitor rqt_runtime_monitor` shows them in a window, sorted into errors, warnings and OK, with the values of the entry that you click. rqt_robot_monitor shows nothing here, because it reads the topic `/diagnostics_agg` of a diagnostic aggregator, which the launch files don't start.
 
