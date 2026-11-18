@@ -157,7 +157,7 @@ The simplest approach is for the user to send a predetermined sequence of comman
     Add open loop image
 
 !!! note "Open Loop Pros"
-    - it is stable
+    - it can't make a stable process unstable, because no measurement is fed back (an unstable process stays unstable, too)
     - it is convenient
     - works when the model of the system is good
 
@@ -172,19 +172,21 @@ In open loop control, information flows only in one direction, from the controll
 To enable the controller to take into account the actual execution, 
 it is possible to close the loop by feeding the sensor measurements back to the controller, creating a feedback loop.
 
-The figure shows a closed loop around the system of the [first figure](#introduction-to-control-systems), with the wheel's speed as the example again.
+The figure shows a closed loop around the system of the [first figure](#system-figure), with the wheel's speed as the example again.
 
 --8<-- "includes/control-systems-closed-loop.html"
 
 1. The **reference** is the value that the output should have. In the example, it is the target speed of the wheel.
 2. The comparison subtracts the observation from the reference. The result is the **error**: how far the wheel's speed is from its target.
-3. The **controller** computes the **commands** from the error. In the example, a PID controller in the robot's firmware computes a motor command.
+3. The **controller** computes the **commands** from the error. In the example, a PID controller in the robot's firmware computes a motor command. When the measured wheel speed falls below the target, the error grows, and the controller raises the motor command.
 4. The **actuators** turn the commands into **inputs** of the process. The motor driver and the motor put a torque on the wheel.
 5. The process reacts with its **outputs**. The wheel turns at a speed that also depends on the robot's weight and on the ground.
 6. The **sensors** measure the outputs. The wheel encoder gives the measured wheel speed. This **observation** goes back to the comparison.
 
-Without the path of the observations (6), the figure shows open loop control.
-The controller then can't notice whether the wheel reaches its target speed.
+Without the path of the observations (6), the loop is open, and the controller has no measured speed to subtract.
+An open loop controller for the same wheel could apply a fixed motor command for a fixed time.
+If the wheel slows down under a load, for example on a carpet, that command stays the same, and the wheel turns less far than planned.
+The closed loop measures the slowdown, and the controller raises the motor command until the wheel reaches its target speed again.
 [PID Controllers](../../packages/diffbot_base/pid.md) describes this controller for the robots.
 
 !!! note "Closed Feedback Loop Pros"
@@ -210,21 +212,12 @@ directly into commands to the wheels to keep the robot following a desired plan.
 
 Traditionally, agents are designed with three main components, perception,
 planning, and control: to see, to plan, and to act.
-In the diagram, the agent is everything between the observations and the commands.
-In the [closed loop figure](#controller-structure), that is the comparison and the controller, and the reference comes from outside.
+In the figure, the agent is everything between the observations and the commands.
+In the [closed loop figure](#closed-loop-figure), that is the comparison and the controller, and the reference comes from outside.
 In the agent, the planner supplies the reference.
 The agent's controller compares the reference with the estimate that perception computes from the observations.
 
-``` mermaid
-graph TB
-  S[Sensors] -->|observations| P[Perception]
-  subgraph AG [Agent]
-    P -->|estimate| PL[Planner]
-    PL -->|reference path| C[Controller]
-    P -->|estimate| C
-  end
-  C -->|commands| A[Actuators]
-```
+--8<-- "includes/control-systems-agent.html"
 
 #### Perception
 
