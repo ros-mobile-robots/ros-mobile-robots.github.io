@@ -203,7 +203,7 @@ The tests import the module `imu_validator` and not its names. So a test writes 
 
 ## The constants and the helpers
 
-The tests share a few constants, two helper functions that build samples and durations, and a base class with two assertions.
+The tests share a few constants, two helper functions that build samples and durations, and a base class with two assertions, [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-assertions).
 
 ??? example "The constants of `test_imu_validator.py`, lines 23–48"
 
