@@ -1,6 +1,6 @@
 # Test: The EKF in Gazebo
 
-This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). It walks through [`test_ekf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf.py), the test that turns the simulated robot with the EKF on.
+This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_ekf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf.py), the test that turns the simulated robot with the EKF on.
 
 The test proves one thing in the simulation: when the wheel odometry reports a wrong turn, the EKF's heading $\theta$ still follows the robot's true turn, because the filter takes the yaw rate $\omega_z$ from the IMU. The test makes the wheel odometry wrong on purpose. It gives the drive controller a wheel separation $b_c$ that is 25 % larger than the simulated robot's wheel separation $b$. The same simulation also checks that only the EKF publishes the transform `odom → base_footprint`. Both simulated robots run the test, DiffBot and Remo. The test doesn't show how the filter behaves on the real robot. [What the test doesn't show](#what-the-test-doesnt-show) lists the differences.
 
@@ -13,9 +13,27 @@ The test proves one thing in the simulation: when the wheel odometry reports a w
 
 ## The turn from above
 
-The figure shows the turn test from above, with the values of a saved run and one drawing for each simulated robot. In a drawing, the robot starts with its heading along the dashed line to the right and turns left, counterclockwise. Each arc is one turn from this start: the robot's true turn $\Delta\theta_\text{true}$ from Gazebo, the turn $\Delta\theta_\text{EKF}$ of the EKF's estimate and the turn $\Delta\theta_\text{odom}$ of the wheel odometry. The label at the end of an arc is the arc's name in the line that the test prints, `true`, `EKF` or `odometry`, with the measured turn. The robot is drawn as it stands after the turn, and the line on its body points forward. The small green sector at the end of the EKF's arc is where this arc has to end. The line above a drawing gives the robot's two wheel separations $b$ and $b_c$, and the list under the drawing gives the results of the two checks on the turn.
+The figure shows the turn test from above, with the values of a saved run and one drawing for each simulated robot. In a drawing, the robot starts with its heading along the dashed line to the right and turns left, counterclockwise. Each arc is one turn from this start: the robot's true turn $\Delta\theta_\text{true}$ from Gazebo, the turn $\Delta\theta_\text{EKF}$ of the EKF's estimate and the turn $\Delta\theta_\text{odom}$ of the wheel odometry. The label at the end of an arc is the arc's name in the line that the test prints, `true`, `EKF` or `odometry`, with the measured turn. The robot is drawn as it stands after the turn, and the line on its body points forward. The small green sector at the end of the EKF's arc is where this arc has to end: 0.05 rad to each side of the true turn, as the label "allowed ±0.05 rad" in the drawing's upper left says. The line above a drawing gives the robot's two wheel separations $b$ and $b_c$, and the list under the drawing gives the results of the two checks on the turn.
 
 --8<-- "includes/localization-test-gazebo.html"
+
+The table lists the values of the figure, one column for each simulated robot. The run was in the dev container's image, at the commit `3ef4a91` of [diffbot#154](https://github.com/ros-mobile-robots/diffbot/pull/154):
+
+| Measurement | DiffBot | Remo |
+|:--|--:|--:|
+| Wheel separation $b$ of the simulated robot | 0.138 m | 0.144 m |
+| Controller's wheel separation $b_c$ | 0.1725 m | 0.18 m |
+| True turn $\Delta\theta_\text{true}$ | 1.849 rad | 1.873 rad |
+| Wheel odometry's turn $\Delta\theta_\text{odom}$ | 1.479 rad | 1.499 rad |
+| EKF's turn $\Delta\theta_\text{EKF}$ | 1.844 rad | 1.870 rad |
+| Rate of the validated IMU samples | 49.7 Hz | 50.0 Hz |
+
+The two checks on the turn compare these turns. For DiffBot, they work out as follows:
+
+- **The EKF follows the true turn:** $|\Delta\theta_\text{EKF} - \Delta\theta_\text{true}| = |1.844\ \text{rad} - 1.849\ \text{rad}| = 0.005\ \text{rad}$. The test allows at most 0.05 rad, the green sector.
+- **The wheel odometry falls behind:** $\Delta\theta_\text{true} - \Delta\theta_\text{odom} = 1.849\ \text{rad} - 1.479\ \text{rad} = 0.370\ \text{rad}$. The test requires more than 0.15 rad.
+
+The same calculation for Remo gives 0.003 rad and 0.374 rad. [The checks on the turn](#the-checks-on-the-turn) shows the code of both checks.
 
 ## What the simulation starts
 
@@ -180,14 +198,7 @@ In the list, $\Delta\theta_\text{true}$ is the robot's true turn, $\Delta\theta_
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:97:103"
 ```
 
-The table lists what the test measured in a run in the dev container's image, at the commit `3ef4a91` of [diffbot#154](https://github.com/ros-mobile-robots/diffbot/pull/154):
-
-| Simulated robot | Controller's wheel separation | True turn | Wheel odometry's turn | EKF's turn | Validated IMU |
-|:--|:--|:--|:--|:--|:--|
-| DiffBot | 0.1725 m | 1.849 rad | 1.479 rad | 1.844 rad | 49.7 Hz |
-| Remo | 0.18 m | 1.873 rad | 1.499 rad | 1.870 rad | 50.0 Hz |
-
-In this run, the wheel odometry fell behind the true turn by 0.370 rad for DiffBot and 0.374 rad for Remo. The EKF's turn differed from the true turn by 0.005 rad for DiffBot and 0.003 rad for Remo.
+[The turn from above](#the-turn-from-above) lists what the test measured in a run, and works out checks 3 and 4 with these values.
 
 ## Who publishes the transform
 

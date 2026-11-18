@@ -1,6 +1,6 @@
 # Test: Who Publishes the Transform
 
-This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). It walks through [`test_odom_tf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_odom_tf.py) and its helper [`odom_tf_observer.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/odom_tf_observer.py).
+This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_odom_tf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_odom_tf.py) and its helper [`odom_tf_observer.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/odom_tf_observer.py).
 
 The transform `odom → base_footprint` says where the robot is in the `odom` frame. Exactly one node may publish it on the topic `/tf`. With two publishers, the robot's pose would jump between their two estimates. Without the EKF, the drive controller publishes the transform. With the EKF, the EKF publishes it and the drive controller doesn't, as [How it fits together](../../robot_localization.md#how-it-fits-together) explains. The test proves in the simulation that exactly the expected node publishes the transform while the test watches. It doesn't check the transform's values, and it doesn't run on the real robot. [What the test doesn't show](#what-the-test-doesnt-show) lists the limits.
 
@@ -11,7 +11,7 @@ The check runs in two simulations:
 | Without the EKF: `sim_drive_diffbot.test`, `sim_drive_remo.test` | `test_expected_node_is_the_only_odom_tf_publisher` in `test_odom_tf.py` | `/gazebo`, the node that runs the drive controller in the simulation |
 | With the EKF: `sim_ekf_diffbot.test`, `sim_ekf_remo.test` | `test_ekf_is_the_only_odom_tf_publisher` in `test_ekf.py` | `/diffbot/ekf_localization` |
 
-The figure shows both simulations, each in a drawing of its own. On the left of a drawing are the two possible publishers of the transform, the drive controller and the EKF. A solid green box with a ✓ publishes the transform, and a dashed box doesn't. On the right is the observer in the test node, which reads the topic `/tf` and counts the transforms `odom → base_footprint` by the node that published them. The list under a drawing names the node that the test expects and gives the observer's counts in a saved run.
+The figure shows both simulations, each in a drawing of its own. On the left of a drawing are the two possible publishers of the transform, the drive controller and the EKF. In the simulation, the drive controller runs in Gazebo's node `/gazebo`, which the drawing names in the controller's box. A solid green box with a ✓ publishes the transform, and a dashed box doesn't. On the right is the observer in the test node, which reads the topic `/tf` and counts the transforms `odom → base_footprint` by their `callerid`, the name of the node that published them. [The observer](#the-observer) explains `callerid`. The list under a drawing names the node that the test expects and gives the observer's counts in a saved run, as an example of a passing run.
 
 --8<-- "includes/localization-test-odom-tf.html"
 

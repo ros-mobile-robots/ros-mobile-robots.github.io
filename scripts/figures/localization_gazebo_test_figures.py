@@ -77,6 +77,8 @@ EKF_RADIUS = 60
 ODOMETRY_RADIUS = 80
 TOLERANCE_HALF_WIDTH = 7  # of the sector around the EKF's arc that shows EKF_TOLERANCE
 START_RADIUS = 86
+TOLERANCE_LABEL_Y = 12  # the baseline of the first of the tolerance label's two lines
+TOLERANCE_LEADER_X = 62  # where the line from the label to the sector starts
 
 # The transform figure: two publishers on the left, the observer on the right
 TF_WIDTH = 300
@@ -176,7 +178,8 @@ TF_CASES = (
     TfCase('lv-tf-without-ekf', 'Without the EKF, checked by <code>test_odom_tf.py</code>',
            False, CONTROLLER_NODE,
            (Publisher('drive controller',
-                      ((CONTROLLER_NODE, 'mono'), ('enable_odom_tf: true', 'mono')), True,
+                      (('runs in the node', 'note'), (CONTROLLER_NODE, 'mono'),
+                       ('enable_odom_tf: true', 'mono')), True,
                       f'The drive controller runs in the node {CONTROLLER_NODE} and '
                       'publishes the transform: enable_odom_tf is true'),
             Publisher('EKF', (('not started', 'note'),), False,
@@ -184,7 +187,8 @@ TF_CASES = (
     TfCase('lv-tf-with-ekf', 'With the EKF, checked by <code>test_ekf.py</code>',
            True, EKF_NODE,
            (Publisher('drive controller',
-                      ((CONTROLLER_NODE, 'mono'), ('enable_odom_tf: false', 'mono')), False,
+                      (('runs in the node', 'note'), (CONTROLLER_NODE, 'mono'),
+                       ('enable_odom_tf: false', 'mono')), False,
                       f'The drive controller runs in the node {CONTROLLER_NODE} and does '
                       'not publish the transform: enable_odom_tf is false'),
             Publisher('EKF', ((EKF_NODE, 'mono'),), True,
@@ -332,7 +336,21 @@ def turn_drawing(turn: Turn) -> Figure:
     odometry_x, odometry_y = point(center_x, center_y, turn.odometry_turn, ODOMETRY_RADIUS)
     figure.text(odometry_x, odometry_y - 9, f'odometry {turn.odometry_turn:.3f} rad', '',
                 'middle')
+    draw_tolerance_label(figure, turn)
     return figure
+
+
+def draw_tolerance_label(figure: Figure, turn: Turn) -> None:
+    """Add the label of the tolerance's sector in the free corner above the arcs' labels.
+
+    A thin line leads from the label to the sector's outer edge on the side of the start.
+    """
+    figure.text(2, TOLERANCE_LABEL_Y, 'allowed', 'note')
+    figure.text(2, TOLERANCE_LABEL_Y + 13, f'±{EKF_TOLERANCE} rad', 'note')
+    edge_x, edge_y = point(TURN_CENTER_X, TURN_CENTER_Y, turn.true_turn + EKF_TOLERANCE,
+                           EKF_RADIUS + TOLERANCE_HALF_WIDTH)
+    figure.path(f'M{TOLERANCE_LEADER_X},{TOLERANCE_LABEL_Y + 6} '
+                f'L{edge_x - 1:.1f},{edge_y - 1:.1f}', 'dimension')
 
 
 def turn_setup(turn: Turn) -> str:
@@ -469,7 +487,8 @@ def tf_drawing(case: TfCase) -> Figure:
         y += height + PUBLISHER_GAP
     bottom = y - PUBLISHER_GAP
     figure.rect(OBSERVER_X, 2, TF_WIDTH - 2 - OBSERVER_X, bottom - 2, 'item', corner_radius=5)
-    observer_lines = (('observer', 'name'), ('counts', 'note'), ('by node', 'note'))
+    # The observer counts by the callerid of each message's connection header
+    observer_lines = (('observer', 'name'), ('counts by', 'note'), ('callerid', 'mono'))
     draw_lines(figure, (OBSERVER_X + TF_WIDTH - 2) / 2,
                (2 + bottom) / 2 - box_height(len(observer_lines)) / 2, observer_lines,
                'middle')
