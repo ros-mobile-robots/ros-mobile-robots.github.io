@@ -1094,7 +1094,7 @@ class RobotRatesRun(NamedTuple):
         return tuple(output for output in self.outputs if output.stamp <= self.last_imu_stamp)
 
     def end(self) -> float:
-        """Return the end of the last wheel period, where the test's clock ends."""
+        """Return the end of the last measured wheel period of phase 2, where the chart ends."""
         return self.wheel_stamps[-1] + WHEEL_PERIOD_S
 
     def phase_2(self) -> Tuple[Output, ...]:
@@ -1317,7 +1317,8 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
     inputs = (
         key('<path class="wheels-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
         + 'a wheel message in every fifth step, '
-        f'{round(1000 * WHEEL_PERIOD_S)} ms of ROS time, in both phases. It reports '
+        f'{round(1000 * WHEEL_PERIOD_S)} ms of ROS time, in both phases, up to the end of the '
+        f'{IMU_STOPPED_WHEEL_PERIODS} measured wheel periods. It reports '
         f'{WHEEL_RATE} rad/s, the blue line, and a forward speed of {SPEED} m/s in the first '
         f'{wheel_messages_before_the_change} wheel messages of phase 1, {CHANGED_SPEED} m/s in '
         f'its last {wheel_messages_of_phase_1 - wheel_messages_before_the_change}, and {SPEED} '
