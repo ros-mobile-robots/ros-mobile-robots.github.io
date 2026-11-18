@@ -91,7 +91,7 @@ parts:
   battery-holder-aa:
     name: Battery holder for six AA cells
   nimh-aa-2000mah:
-    name: NiMH AA cell, 1.2 V, 2000 mAh (Amazon Basics)
+    name: NiMH AA cell, 1.2 V, 2000 mAh (Amazon Basics), six per robot from one 8-pack
     offers:
       - label: Amazon.com (8-pack)
         ref: amazon_nimh_aa_2000mah_8x_us
@@ -184,10 +184,10 @@ configurations:
         note: For the motors, see [Power Supply](/power-supply.md)
       - part: nimh-aa-2000mah
         quantity: 6
-        note: One 8-pack covers the six cells, see [Power Supply](/power-supply.md)
+        note: Six cells go into the robot and two are spare, see [Power Supply](/power-supply.md)
       - part: nitecore-ums4
         quantity: 1
-        note: Charges four NiMH cells at a time
+        note: Charges four NiMH cells at a time, see [Charging Remo's NiMH cells](/power-supply.md#charging-remos-nimh-cells)
       - part: usb-c-cable
         quantity: 1
         legacy_price: "$6.99"
