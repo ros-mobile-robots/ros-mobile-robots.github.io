@@ -4533,9 +4533,9 @@ motors into account.</p>
 </div>
 <h2 id="the-feedback-loop-of-one-wheel">The feedback loop of one wheel</h2>
 <p>A feedback loop measures the value that it controls and corrects the difference to the value that is wanted.
-Here, the controlled value is a wheel's angular velocity, in rad/s.
-Each wheel has its own loop. Both loops run in the firmware on the Teensy, 20 times per second (<code>UPDATE_RATE_CONTROL</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/config/diffbot_base_config.h"><code>diffbot_base_config.h</code></a>).
-In each of these control steps, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/wheel_control/wheel_control.h"><code>WheelControl::step()</code></a> calls two functions of <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/base_controller/base_controller.h"><code>BaseController</code></a>:</p>
+Here, the controlled value is a wheel's angular velocity <span class="arithmatex">\(\dot{\phi}\)</span>, in rad/s.
+Each wheel has its own loop. Both loops run in the firmware on the Teensy, 20 times per second (<code>UPDATE_RATE_CONTROL</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h"><code>diffbot_base_config.h</code></a>).
+In each of these control steps, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h"><code>WheelControl::step()</code></a> calls two functions of <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h"><code>BaseController</code></a>:</p>
 <ol>
 <li><code>read()</code> measures both wheel speeds with the encoders.</li>
 <li><code>write()</code> computes a new motor command for each wheel with its <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> and sends the command to the motor driver. After one second without a wheel command from the Raspberry Pi (<code>COMMAND_TIMEOUT_MS</code>), the firmware stops the motors and skips <code>write()</code> until the next command arrives.</li>
@@ -4545,180 +4545,358 @@ In each of these control steps, <a href="https://github.com/ros-mobile-robots/di
 .md-typeset figure.pid-loop-figure{margin:1em auto;width:100%;max-width:480px}
 .pid-loop{width:100%;height:auto;--pid-value:#1e63c4;font-family:var(--md-text-font-family,Roboto),sans-serif}
 [data-md-color-scheme=slate] .pid-loop{--pid-value:#82b1ff}
-.pid-loop text{fill:var(--md-default-fg-color);font-size:10px}
+.pid-loop text{fill:var(--md-default-fg-color);font-size:12px}
 .pid-loop .firmware{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
 .pid-loop .code{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
 .pid-loop .hardware{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
 .pid-loop .arrow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
 .pid-loop .arrow-head{fill:var(--md-default-fg-color--light)}
 .pid-loop .number-disc{fill:var(--md-default-fg-color)}
-.pid-loop .number{fill:var(--md-default-bg-color);font-size:9.5px;font-weight:700}
-.pid-loop .name{font-size:11px}
-.pid-loop .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
-.pid-loop .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.pid-loop .number{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+.pid-loop .name{font-size:13px}
+.pid-loop .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.pid-loop .symbol{font-style:italic}
 .pid-loop .container-name{font-weight:700}
-.pid-loop .sign{font-size:13px;font-weight:700}
+.pid-loop .sign{font-size:15px;font-weight:700}
 .pid-loop .value{fill:var(--pid-value);font-weight:700}
+.pid-loop .time-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.pid-loop .time-step{fill:none;stroke:var(--md-default-fg-color);stroke-width:2.5}
 </style>
 <figure class="pid-loop-figure">
-<svg class="pid-loop" viewBox="0 0 360 480" role="img" aria-labelledby="pid-loop-title"><title id="pid-loop-title">One wheel's speed control loop in the Teensy firmware, with the motor driver, the motor, the wheel and the encoder</title><defs><marker id="pid-loop-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
-<rect class="code" x="30" y="6" width="150" height="34" rx="5"></rect>
-<text class="name" x="105.0" y="20.5" text-anchor="middle">Raspberry Pi</text>
-<text class="mono" x="105.0" y="33.5" text-anchor="middle">wheel_cmd_velocities</text>
-<path class="arrow" d="M105,40 V112" marker-end="url(#pid-loop-head)"></path>
-<circle class="number-disc" cx="120" cy="52.5" r="7"></circle>
-<text class="number" x="120" y="55.7" text-anchor="middle">1</text>
-<text x="131" y="56" text-anchor="start">target wheel speed</text>
-<text class="value" x="131" y="68" text-anchor="start">6.06 rad/s</text>
-<rect class="firmware" x="4" y="74" width="352" height="176" rx="5"></rect>
-<text class="container-name" x="348" y="89" text-anchor="end">Teensy firmware, every 50 ms</text>
-<circle class="code" cx="105" cy="126" r="13"></circle>
-<text class="sign" x="92" y="114" text-anchor="end">+</text>
-<text class="sign" x="122" y="141" text-anchor="start">−</text>
-<path class="arrow" d="M265,180 V126 H119" marker-end="url(#pid-loop-head)"></path>
-<circle class="number-disc" cx="136" cy="104.5" r="7"></circle>
-<text class="number" x="136" y="107.7" text-anchor="middle">7</text>
-<text x="147" y="108" text-anchor="start">measured wheel speed</text>
-<text class="value" x="147" y="120" text-anchor="start">5.56 rad/s</text>
-<path class="arrow" d="M105,139 V179" marker-end="url(#pid-loop-head)"></path>
-<circle class="number-disc" cx="120" cy="152.5" r="7"></circle>
-<text class="number" x="120" y="155.7" text-anchor="middle">2</text>
-<text x="131" y="156" text-anchor="start">error</text>
-<text class="value" x="131" y="168" text-anchor="start">0.50 rad/s</text>
-<rect class="code" x="30" y="180" width="150" height="52" rx="5"></rect>
-<text class="name" x="105.0" y="197.0" text-anchor="middle">PID controller</text>
-<text class="mono" x="105.0" y="210.0" text-anchor="middle">PID::compute()</text>
-<text class="note" x="105.0" y="223.0" text-anchor="middle">K_P 0.6, K_I 0.3, K_D 0.5</text>
-<rect class="code" x="200" y="180" width="130" height="52" rx="5"></rect>
-<text class="name" x="265.0" y="203.5" text-anchor="middle">speed from ticks</text>
-<text class="mono" x="265.0" y="216.5" text-anchor="middle">Encoder::jointState()</text>
-<path class="arrow" d="M105,232 V303" marker-end="url(#pid-loop-head)"></path>
-<circle class="number-disc" cx="120" cy="266.5" r="7"></circle>
-<text class="number" x="120" y="269.7" text-anchor="middle">3</text>
-<text x="131" y="270" text-anchor="start">motor command</text>
-<text class="value" x="131" y="282" text-anchor="start">96 (−255 to 255)</text>
-<rect class="hardware" x="30" y="304" width="150" height="40" rx="5"></rect>
-<text class="name" x="105.0" y="321.5" text-anchor="middle">Motor driver</text>
-<text class="note" x="105.0" y="334.5" text-anchor="middle">Adafruit FeatherWing</text>
-<path class="arrow" d="M105,344 V397" marker-end="url(#pid-loop-head)"></path>
-<circle class="number-disc" cx="120" cy="360.5" r="7"></circle>
-<text class="number" x="120" y="363.7" text-anchor="middle">4</text>
-<text x="131" y="364" text-anchor="start">PWM voltage to the motor</text>
-<text class="value" x="131" y="376" text-anchor="start">on 37.5 % of the time</text>
-<rect class="hardware" x="30" y="398" width="150" height="40" rx="5"></rect>
-<text class="name" x="105.0" y="415.5" text-anchor="middle">Motor and wheel</text>
-<text class="note" x="105.0" y="428.5" text-anchor="middle">DG01D-E gear motor</text>
-<path class="arrow" d="M180,418 H265 V345" marker-end="url(#pid-loop-head)"></path>
-<circle class="number-disc" cx="193" cy="408.5" r="7"></circle>
-<text class="number" x="193" y="411.7" text-anchor="middle">5</text>
-<text x="204" y="412" text-anchor="start">rotation</text>
-<rect class="hardware" x="200" y="304" width="130" height="40" rx="5"></rect>
-<text class="name" x="265.0" y="321.5" text-anchor="middle">Encoder</text>
-<text class="note" x="265.0" y="334.5" text-anchor="middle">542 ticks per wheel turn</text>
-<path class="arrow" d="M265,304 V233" marker-end="url(#pid-loop-head)"></path>
-<circle class="number-disc" cx="278" cy="266.5" r="7"></circle>
-<text class="number" x="278" y="269.7" text-anchor="middle">6</text>
-<text x="289" y="270" text-anchor="start">ticks</text>
-<text class="value" x="289" y="282" text-anchor="start">24 in 50 ms</text>
-<text class="value" x="180.0" y="458" text-anchor="middle">Blue: one control step of Remo's left wheel</text>
-<text class="value" x="180.0" y="471" text-anchor="middle">The ticks (6) are calculated from the measured speed (7)</text>
+<svg class="pid-loop" viewBox="0 0 360 538" role="img" aria-labelledby="pid-loop-title"><title id="pid-loop-title">One wheel's speed control loop in the Teensy firmware, with the motor driver, the motor, the wheel and the encoder, and a time line of one control step</title><defs><marker id="pid-loop-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="code" x="15" y="6" width="150" height="32" rx="5"></rect>
+<text class="name" x="90.0" y="26.0" text-anchor="middle">Raspberry Pi</text>
+<path class="arrow" d="M90,38 V126" marker-end="url(#pid-loop-head)"></path>
+<circle class="number-disc" cx="104" cy="52" r="8"></circle>
+<text class="number" x="104" y="55.8" text-anchor="middle">1</text>
+<text x="116" y="56" text-anchor="start">target wheel speed</text>
+<text class="value" x="116" y="70" text-anchor="start">6.06 rad/s</text>
+<rect class="firmware" x="4" y="78" width="352" height="186" rx="5"></rect>
+<text class="container-name" x="348" y="94" text-anchor="end">Teensy firmware, about every 50 ms</text>
+<circle class="code" cx="90" cy="140" r="13"></circle>
+<text class="sign" x="77" y="128" text-anchor="end">+</text>
+<text class="sign" x="107" y="156" text-anchor="start">−</text>
+<path class="arrow" d="M270,198 V140 H104" marker-end="url(#pid-loop-head)"></path>
+<circle class="number-disc" cx="118" cy="112" r="8"></circle>
+<text class="number" x="118" y="115.8" text-anchor="middle">7</text>
+<text x="130" y="116" text-anchor="start">measured wheel speed</text>
+<text class="value" x="130" y="130" text-anchor="start">5.56 rad/s</text>
+<path class="arrow" d="M90,153 V197" marker-end="url(#pid-loop-head)"></path>
+<circle class="number-disc" cx="104" cy="168" r="8"></circle>
+<text class="number" x="104" y="171.8" text-anchor="middle">2</text>
+<text x="116" y="172" text-anchor="start">error <tspan class="symbol">e</tspan></text>
+<text class="value" x="116" y="186" text-anchor="start">0.50 rad/s</text>
+<rect class="code" x="15" y="198" width="150" height="56" rx="5"></rect>
+<text class="name" x="90.0" y="216.0" text-anchor="middle">PID controller</text>
+<text class="note" x="90.0" y="230.0" text-anchor="middle">K_P 0.6, K_I 0.3, K_D 0.5</text>
+<text class="note" x="90.0" y="244.0" text-anchor="middle">output limited to ±255</text>
+<rect class="code" x="205" y="198" width="130" height="56" rx="5"></rect>
+<text class="name" x="270.0" y="223.0" text-anchor="middle">speed from ticks</text>
+<text class="note" x="270.0" y="237.0" text-anchor="middle">angle ÷ time</text>
+<path class="arrow" d="M90,254 V321" marker-end="url(#pid-loop-head)"></path>
+<circle class="number-disc" cx="104" cy="282" r="8"></circle>
+<text class="number" x="104" y="285.8" text-anchor="middle">3</text>
+<text x="116" y="286" text-anchor="start">motor command <tspan class="symbol">u</tspan></text>
+<text class="value" x="116" y="300" text-anchor="start">96</text>
+<rect class="hardware" x="15" y="322" width="150" height="42" rx="5"></rect>
+<text class="name" x="90.0" y="340.0" text-anchor="middle">Motor driver</text>
+<text class="note" x="90.0" y="354.0" text-anchor="middle">Adafruit FeatherWing</text>
+<path class="arrow" d="M90,364 V419" marker-end="url(#pid-loop-head)"></path>
+<circle class="number-disc" cx="104" cy="384" r="8"></circle>
+<text class="number" x="104" y="387.8" text-anchor="middle">4</text>
+<text x="116" y="388" text-anchor="start">PWM duty cycle</text>
+<text class="value" x="116" y="402" text-anchor="start">37.5 %</text>
+<rect class="hardware" x="15" y="420" width="150" height="42" rx="5"></rect>
+<text class="name" x="90.0" y="438.0" text-anchor="middle">Motor and wheel</text>
+<text class="note" x="90.0" y="452.0" text-anchor="middle">DG01D-E gear motor</text>
+<path class="arrow" d="M165,441 H270 V365" marker-end="url(#pid-loop-head)"></path>
+<circle class="number-disc" cx="177" cy="430" r="8"></circle>
+<text class="number" x="177" y="433.8" text-anchor="middle">5</text>
+<text x="189" y="434" text-anchor="start">rotation</text>
+<rect class="hardware" x="205" y="322" width="130" height="42" rx="5"></rect>
+<text class="name" x="270.0" y="340.0" text-anchor="middle">Encoder</text>
+<text class="note" x="270.0" y="354.0" text-anchor="middle">542 ticks per wheel turn</text>
+<path class="arrow" d="M270,321 V255" marker-end="url(#pid-loop-head)"></path>
+<circle class="number-disc" cx="282" cy="276" r="8"></circle>
+<text class="number" x="282" y="279.8" text-anchor="middle">6</text>
+<text x="294" y="280" text-anchor="start">ticks since</text>
+<text x="294" y="294" text-anchor="start">last step</text>
+<text class="value" x="294" y="308" text-anchor="start">24</text>
+<path class="time-line" d="M20,498 H340" marker-end="url(#pid-loop-head)"></path>
+<path class="time-line" d="M20,493 V503"></path>
+<path class="time-line" d="M180.0,493 V503"></path>
+<path class="time-step" d="M180.0,489 V507"></path>
+<text class="container-name" x="180.0" y="484" text-anchor="middle">control step</text>
+<text class="note" x="88.0" y="492" text-anchor="middle">previous interval</text>
+<text class="note" x="272.0" y="492" text-anchor="middle">next interval</text>
+<circle class="number-disc" cx="32" cy="518" r="8"></circle>
+<text class="number" x="32" y="521.8" text-anchor="middle">7</text>
+<text x="44" y="522" text-anchor="start">measured over this time</text>
+<circle class="number-disc" cx="196.0" cy="518" r="8"></circle>
+<text class="number" x="196.0" y="521.8" text-anchor="middle">3</text>
+<text x="208.0" y="522" text-anchor="start">acts during this time</text>
 </svg>
-<figcaption>One wheel's speed control loop. Start at the target wheel speed (1) and follow the numbers around the loop, back to the comparison in the circle. The boxes inside the Teensy firmware are code. The motor driver, the motor with the wheel and the encoder are hardware.</figcaption>
+<figcaption>One wheel's speed control loop. Start at the target wheel speed (1) and follow the numbers around the loop, back to the comparison in the circle. The boxes inside the Teensy firmware are code. The motor driver, the motor with the wheel and the encoder are hardware. The blue values are one control step of Remo's left wheel. The firmware doesn't log the ticks (6). They are calculated from the measured speed (7). The time line shows that a control step measures the speed over the previous interval and sets the motor command for the next one. The example takes each interval as the nominal 50 ms.</figcaption>
 </figure>
 
-<p>Each signal has a unit and, where the firmware stores it, a name in the code:</p>
+<p>Each signal has a unit. The signals that the formulas below use also have a symbol:</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: right;"></th>
 <th>Signal</th>
 <th>Unit</th>
-<th>In the firmware</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: right;">1</td>
-<td>Target wheel speed</td>
+<td>Target wheel speed <span class="arithmatex">\(\dot{\phi}_\text{target}\)</span></td>
 <td>rad/s</td>
-<td><code>wheel_cmd_velocity_left_</code></td>
 </tr>
 <tr>
 <td style="text-align: right;">2</td>
-<td>Error</td>
+<td>Error <span class="arithmatex">\(e\)</span></td>
 <td>rad/s</td>
-<td><code>error</code> in <code>PID::compute()</code></td>
 </tr>
 <tr>
 <td style="text-align: right;">3</td>
-<td>Motor command</td>
-<td>a number from −255 to 255</td>
-<td><code>motor_cmd_left_</code></td>
+<td>Motor command <span class="arithmatex">\(u\)</span></td>
+<td>a whole number from −255 to 255</td>
 </tr>
 <tr>
 <td style="text-align: right;">4</td>
-<td><abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> voltage to the motor</td>
-<td>percent of the time that the voltage is on</td>
-<td>set by <code>setSpeed()</code></td>
+<td><abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> duty cycle</td>
+<td>%</td>
 </tr>
 <tr>
 <td style="text-align: right;">5</td>
 <td>Rotation of the motor and the wheel</td>
 <td>rad</td>
-<td></td>
 </tr>
 <tr>
 <td style="text-align: right;">6</td>
-<td>Encoder ticks</td>
+<td>Ticks since the previous control step</td>
 <td>ticks</td>
-<td><code>encoder_left_.read()</code></td>
 </tr>
 <tr>
 <td style="text-align: right;">7</td>
-<td>Measured wheel speed</td>
+<td>Measured wheel speed <span class="arithmatex">\(\dot{\phi}_\text{measured}\)</span></td>
 <td>rad/s</td>
-<td><code>joint_state_left_.angular_velocity_</code></td>
 </tr>
 </tbody>
 </table>
 <p>The blue values in the figure are one control step of Remo's left wheel.
 In that run, Remo was commanded to drive at 0.2 m/s with its wheels off the ground (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6661807745">bench record</a>).
 The firmware logged the target, the measured speed, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>'s three terms and the motor command of this step.
-The <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr>'s on-time (4) and the ticks (6) are calculated from the logged values.</p>
+The <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> duty cycle (4) and the ticks (6) are calculated from the logged values.</p>
 <p>A control step measures first and commands second.
-<code>read()</code> measures the wheel's speed over the time since the previous step.
-<code>write()</code> then sets the motor command that acts until the next step.
+The firmware's main loop calls <code>step()</code> on every pass, and <code>step()</code> returns early until the next control step is due, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L86-L95">lines 86–95</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">wheel_control.h: step()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">stopWhenCommandExpires</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_control_ms_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">control_period_ms_</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="n">controller_</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
+</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">timeout_</span><span class="p">.</span><span class="n">timedOut</span><span class="p">())</span>
+<span class="hll"><span class="w">        </span><span class="n">controller_</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
+</span><span class="w">    </span><span class="n">last_control_ms_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now_ms</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>stopWhenCommandExpires()</code> stops the motors once the last wheel command is <code>COMMAND_TIMEOUT_MS</code> old.
+<code>control_period_ms_</code> is 50 ms. The control step runs on the first pass of the main loop at which the Teensy's millisecond counter has advanced by at least 50 since the last control step. The encoder measures the actual time between two reads.
+<code>controller_.read()</code> measures the wheel's speed over the interval since the previous step.
+<code>controller_.write()</code> then sets the motor command, which normally acts until the next step's <code>write()</code>.
 So the measured 5.56 rad/s (7) is the result of the previous motor command, and the 96 (3) is the new one.
+The example takes each interval as the nominal 50 ms.
 Follow the values around the loop:</p>
 <ol>
 <li>
-<p><strong>Target wheel speed.</strong> On the Raspberry Pi, <code>diff_drive_controller</code> converts the commanded robot velocity into a target angular velocity for each wheel. With Remo's wheel radius of 0.033 m, 0.2 m/s is 0.2 / 0.033 = 6.06 rad/s. The hardware interface publishes both targets on the topic <code>wheel_cmd_velocities</code>. The firmware stores the left one in <code>wheel_cmd_velocity_left_</code>.</p>
+<p><strong>Target wheel speed:</strong> On the Raspberry Pi, <code>diff_drive_controller</code> converts the commanded robot velocity into a target angular velocity for each wheel. With Remo's wheel radius of 0.033 m, 0.2 m/s is <span class="arithmatex">\(\dot{\phi}_\text{target}\)</span> = 0.2 m/s / 0.033 m = 6.06 rad/s. The hardware interface publishes both targets on the topic <code>wheel_cmd_velocities</code>. The firmware stores the left one in <code>wheel_cmd_velocity_left_</code>.</p>
 </li>
 <li>
-<p><strong>Error.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/pid/pid.cpp"><code>PID::compute()</code></a> starts with the comparison. The error is the target minus the measured speed: 6.06 − 5.56 = 0.50 rad/s. The error is positive, so the wheel is too slow.</p>
-</li>
-<li>
-<p><strong>Motor command.</strong> The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> turns the error into the motor command <span class="arithmatex">\(u\)</span>, a number from −255 to 255. The sign is the direction, and 255 is the largest amount that the motor driver takes. The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> adds three terms:</p>
+<p><strong>Error:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.cpp#L16-L43"><code>PID::compute()</code></a> starts with the comparison. Its variable <code>error</code> is the error <span class="arithmatex">\(e\)</span>, the target minus the measured speed:</p>
 <div class="arithmatex">\[
-u = K_P \cdot e + K_I \cdot \sum e + K_D \cdot (e - e_\text{previous})
+\begin{aligned}
+e &amp;= \dot{\phi}_\text{target} - \dot{\phi}_\text{measured} \\
+  &amp;= 6.06\,\tfrac{\text{rad}}{\text{s}} - 5.56\,\tfrac{\text{rad}}{\text{s}} = 0.50\,\tfrac{\text{rad}}{\text{s}}
+\end{aligned}
 \]</div>
-<p><span class="arithmatex">\(e\)</span> is the error, <span class="arithmatex">\(\sum e\)</span> is the sum of the errors of the control steps so far, and <span class="arithmatex">\(e - e_\text{previous}\)</span> is the change of the error since the previous step. The gains are <span class="arithmatex">\(K_P = 0.6\)</span>, <span class="arithmatex">\(K_I = 0.3\)</span> and <span class="arithmatex">\(K_D = 0.5\)</span> (<code>K_P</code>, <code>K_I</code> and <code>K_D</code> in <code>diffbot_base_config.h</code>). In the example, the sum is 322.20 rad/s, and the error is the same as in the previous step:</p>
+<p>The error is positive, so the wheel is too slow.</p>
+</li>
+<li>
+<p><strong>Motor command:</strong> <code>PID::compute()</code> turns the error into the motor command <span class="arithmatex">\(u\)</span> in two parts. First, it adds three terms. Their sum is the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>'s raw output <span class="arithmatex">\(u_\text{raw}\)</span>:</p>
 <div class="arithmatex">\[
-u = 0.6 \cdot 0.50 + 0.3 \cdot 322.20 + 0.5 \cdot 0.00 = 96.96
+\begin{aligned}
+u_\text{raw} = {} &amp; K_P \cdot e + K_I \cdot \sum e \\
+                 &amp; + K_D \cdot (e - e_\text{previous})
+\end{aligned}
 \]</div>
-<p>The firmware keeps the whole number 96 as the motor command.</p>
+<p><span class="arithmatex">\(\sum e\)</span> is the sum of the errors of the control steps so far, and <span class="arithmatex">\(e - e_\text{previous}\)</span> is the change of the error since the previous step. The gains are <span class="arithmatex">\(K_P = 0.6\)</span>, <span class="arithmatex">\(K_I = 0.3\)</span> and <span class="arithmatex">\(K_D = 0.5\)</span> (<code>K_P</code>, <code>K_I</code> and <code>K_D</code> in <code>diffbot_base_config.h</code>). In the example, the sum is 322.20 rad/s, and the error is the same as in the previous step:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+u_\text{raw} = {} &amp; 0.6 \cdot 0.50 + 0.3 \cdot 322.20 \\
+                 &amp; + 0.5 \cdot 0.00 = 96.96
+\end{aligned}
+\]</div>
+<p>Second, the raw output becomes a whole number within the motor driver's range. <code>PID::compute()</code> returns −255 for a raw output below −255, and 255 for a raw output above 255 (<code>PWM_MIN</code> and <code>PWM_MAX</code>). <code>write()</code> stores the returned value in the integer <code>motor_cmd_left_</code>, which drops the fractional part. The result is the motor command <span class="arithmatex">\(u\)</span>, a whole number from −255 to 255. The sign is the direction, and 255 is the largest amount that the motor driver takes. Here, 96.96 lies within the range, so only the fraction is dropped, and <span class="arithmatex">\(u\)</span> = 96. A raw output of 300 would give <span class="arithmatex">\(u\)</span> = 255.</p>
+<details class="example">
+<summary>The firmware's code of the error, the raw output and the motor command</summary>
+<p><code>PID::compute()</code> computes the error, the three terms and their sum, and limits the sum to the range from <code>min_val_</code> to <code>max_val_</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.cpp#L16-L43">lines 16–43</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">pid.cpp: compute()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">double</span><span class="w"> </span><span class="nf">diffbot::PID::compute</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">setpoint</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">measured_value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">pid</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setpoint</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">measured_value</span><span class="p">;</span>
+<span class="w">    </span><span class="n">proportional_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<span class="w">    </span><span class="n">integral_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<span class="w">    </span><span class="n">derivative_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_error_</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">setpoint</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">integral_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">kp_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">proportional_</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">ki_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">integral_</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">kd_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">derivative_</span><span class="p">);</span>
+<span class="w">    </span><span class="n">prev_error_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Limit the output to the motor driver's range</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pid</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min_val_</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">min_val_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pid</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max_val_</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">max_val_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pid</span><span class="p">;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>proportional_</code> is <span class="arithmatex">\(e\)</span>, <code>integral_</code> is <span class="arithmatex">\(\sum e\)</span>, and <code>derivative_</code> is <span class="arithmatex">\(e - e_\text{previous}\)</span>. <code>kp_</code>, <code>ki_</code> and <code>kd_</code> are the gains. When the target and the error are both zero, the function clears the sum.</p>
+<p><code>write()</code> calls <code>compute()</code> for each wheel with the target and the measured speed, and stores the result in the integers <code>motor_cmd_left_</code> and <code>motor_cmd_right_</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L481-L488">lines 481–488</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: write()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Compute each motor output from target minus measured angular velocity.</span>
+<span class="c1">// PID::compute() limits the output to PWM_MIN through PWM_MAX. The integral can still grow</span>
+<span class="c1">// while the output is limited, so eStop() resets the stored PID state</span>
+<span class="n">motor_cmd_left_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">motor_pid_left_</span><span class="p">.</span><span class="n">compute</span><span class="p">(</span><span class="n">wheel_cmd_velocity_left_</span><span class="p">,</span><span class="w"> </span><span class="n">joint_state_left_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="p">);</span>
+<span class="n">motor_cmd_right_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">motor_pid_right_</span><span class="p">.</span><span class="n">compute</span><span class="p">(</span><span class="n">wheel_cmd_velocity_right_</span><span class="p">,</span><span class="w"> </span><span class="n">joint_state_right_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="p">);</span>
+
+<span class="n">p_motor_controller_left_</span><span class="o">-&gt;</span><span class="n">setSpeed</span><span class="p">(</span><span class="n">motor_cmd_left_</span><span class="p">);</span>
+<span class="n">p_motor_controller_right_</span><span class="o">-&gt;</span><span class="n">setSpeed</span><span class="p">(</span><span class="n">motor_cmd_right_</span><span class="p">);</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The PIDs get <code>PWM_MIN</code> and <code>PWM_MAX</code> as their limits, −255 and 255 (<code>PWM_BITS</code> is 8 in <code>diffbot_base_config.h</code>).</p>
+</details>
 </li>
 <li>
-<p><strong><abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> voltage to the motor.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp"><code>AdafruitMotorController::setSpeed()</code></a> sends the direction and the amount 96 to the motor driver, the Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor + Stepper FeatherWing. The driver switches the motor's supply voltage on and off many times per second, which is called pulse-width modulation (<abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr>). For the amount 96, the voltage is on for 96 × 16 of the 4096 steps of each <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> period, or 37.5 % of the time (<a href="https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256"><code>Adafruit_DCMotor::setSpeed()</code></a>). The longer the voltage is on, the faster the motor turns.</p>
+<p><strong><abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> duty cycle:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp"><code>AdafruitMotorController::setSpeed()</code></a> sends the direction and the amount 96 to the motor driver, the Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor + Stepper FeatherWing. The driver switches the motor's supply voltage on and off many times per second, which is called pulse-width modulation (<abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr>). The duty cycle is the share of each <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> period during which the voltage is on. For the amount 96, the voltage is on for 96 × 16 of the 4096 steps of each <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> period, a duty cycle of 37.5 % (<a href="https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256"><code>Adafruit_DCMotor::setSpeed()</code></a>). The higher the duty cycle, the faster the motor turns.</p>
 </li>
 <li>
-<p><strong>Rotation.</strong> The motor turns the wheel through its gearbox.</p>
+<p><strong>Rotation:</strong> The motor turns the wheel through its gearbox.</p>
 </li>
 <li>
-<p><strong>Encoder ticks.</strong> The encoder in the motor has two Hall sensors. The Teensy counts the edges of their two signals as ticks, 542 for one turn of the wheel (<code>encoder_resolution</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_base/config/base.yaml"><code>base.yaml</code></a>). The debug output doesn't show the ticks of a single step. With 50 ms between two steps, the measured speed corresponds to 24 ticks.</p>
+<p><strong>Ticks since the previous control step:</strong> The encoder in the motor has two Hall sensors. The Teensy counts the edges of their two signals as ticks, 542 for one turn of the wheel (<code>encoder_resolution</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_base/config/base.yaml"><code>base.yaml</code></a>). The count runs on from one step to the next. <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39"><code>Encoder::jointState()</code></a> reads it and subtracts the count of the previous step. The difference, <code>delta_ticks</code>, is the ticks since the previous step. The debug output doesn't show <code>delta_ticks</code>. With the nominal 50 ms between two steps, the measured speed corresponds to 24 ticks, so the figure shows this calculated count. The count is an estimate: 25 ticks in an interval of 52.1 ms give the same rounded 5.56 rad/s.</p>
 </li>
 <li>
-<p><strong>Measured wheel speed.</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/encoder/encoder_diffbot.cpp"><code>Encoder::jointState()</code></a> converts the ticks to an angle and divides the angle by the time since the previous step, which it measures. With 24 ticks in 50 ms: 24 · 2π / 542 = 0.278 rad, and 0.278 rad / 0.05 s = 5.56 rad/s. This value goes back to the comparison. <code>read()</code> also publishes it to the Raspberry Pi on the topic <code>measured_joint_states</code>.</p>
+<p><strong>Measured wheel speed:</strong> <code>Encoder::jointState()</code> converts <code>delta_ticks</code> to an angle and divides the angle by <code>dts</code>, the time since the previous step, which it measures with the Teensy's clock. With 24 ticks in 50 ms: 24 · 2π / 542 = 0.278 rad, and 0.278 rad / 0.05 s = 5.56 rad/s. <code>read()</code> stores this value as <code>joint_state_left_.angular_velocity_</code> and publishes it to the Raspberry Pi on the topic <code>measured_joint_states</code>. <code>write()</code> then compares it with the target (2).</p>
+<details class="example">
+<summary>The firmware's code of the ticks and the measured speed</summary>
+<p><code>Encoder::jointState()</code> computes <code>delta_ticks</code> and the angular velocity, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39">lines 14–39</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">encoder_diffbot.cpp: jointState()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">diffbot</span><span class="o">::</span><span class="n">JointState</span><span class="w"> </span><span class="nf">diffbot::Encoder::jointState</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
+</span><span class="w">    </span><span class="c1">// This function calculates the motor's rotational (angular) velocity based on encoder ticks and delta time.</span>
+<span class="w">    </span><span class="c1">// The Teensy's local microsecond counter, which ROS time synchronization doesn't change (see</span>
+<span class="w">    </span><span class="c1">// BaseController::LastUpdateTime). It returns to zero after about 71.6 minutes. Unsigned</span>
+<span class="w">    </span><span class="c1">// subtraction still gives the elapsed time if two calls are less than one cycle apart.</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">current_us</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Convert the delta time to seconds</span>
+<span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_us</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_update_us_</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">;</span>
+</span>
+<span class="w">    </span><span class="c1">//calculate wheel's speed (RPM)</span>
+<span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_encoder_ticks_</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticksToAngle</span><span class="p">(</span><span class="n">delta_ticks</span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_position_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_angle</span><span class="p">;</span>
+
+
+<span class="hll"><span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dts</span><span class="p">;</span>
+</span>
+<span class="w">    </span><span class="n">prev_update_us_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_us</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prev_encoder_ticks_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">joint_state_</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>encoder.read()</code> returns the running count. <code>prev_encoder_ticks_</code> and <code>prev_update_us_</code> keep the count and the time of the previous call, so <code>delta_ticks</code> and <code>dts</code> cover the time since then. <code>ticksToAngle()</code> multiplies the ticks by 2π / 542.</p>
+</details>
 </li>
 </ol>
 <details class="example">
@@ -4728,7 +4906,7 @@ u = 0.6 \cdot 0.50 + 0.3 \cdot 322.20 + 0.5 \cdot 0.00 = 96.96
 <li><code>wheel_cmd_velocity_left_</code> is the target wheel speed (1), and <code>measured_ang_vel_left</code> is the measured wheel speed (7).</li>
 <li><code>motor_cmd_left_</code> is the motor command (3).</li>
 <li>The three values after <code>(p, i, d)</code> are the error (2), the sum of the errors and the change of the error.</li>
-<li><code>ticks_left_</code> is the encoder's running count since its last reset, not the ticks of one control step (6).</li>
+<li><code>ticks_left_</code> is the encoder's running count since its last reset. It isn't <code>delta_ticks</code>, the ticks since the previous step (6).</li>
 </ul>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
@@ -4755,10 +4933,11 @@ u = 0.6 \cdot 0.50 + 0.3 \cdot 322.20 + 0.5 \cdot 0.00 = 96.96
 <span class="go">pid_right_error (p, i, d): 0.50 309.91 0.23</span>
 </code></pre></div></td></tr></tbody></table></div>
 </details>
-<p>The example shows two properties of this <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> that matter for tuning:</p>
+<p>The example shows three properties of this <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> that matter for tuning:</p>
 <ul>
-<li><strong>The sum of the errors holds the motor command.</strong> It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.</li>
-<li><strong>The gains belong to the control rate.</strong> The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the 50 ms between two steps. With another <code>UPDATE_RATE_CONTROL</code>, the same <span class="arithmatex">\(K_I\)</span> and <span class="arithmatex">\(K_D\)</span> have another effect.</li>
+<li><strong>The sum of the errors holds the motor command:</strong> It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.</li>
+<li><strong>The limit doesn't stop the sum:</strong> While the wheel stays slower than its target, each control step adds a positive error to the sum, also while the raw output is above 255 and the motor command stays at 255. This is called integral windup. The stored sum can keep the drive high as the wheel reaches its target. If the wheel overshoots, the error turns negative and starts reducing the sum. After a command timeout, the firmware resets both PIDs and clears their sums.</li>
+<li><strong>The gains belong to the control rate:</strong> The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the elapsed time between two steps. With another <code>UPDATE_RATE_CONTROL</code>, the same <span class="arithmatex">\(K_I\)</span> and <span class="arithmatex">\(K_D\)</span> have another effect.</li>
 </ul>
 <h2 id="driving-straight">Driving straight</h2>
 <p><code>diff_drive_controller</code> doesn't use the measured wheel speeds to correct its wheel-speed commands.
