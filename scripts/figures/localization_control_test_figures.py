@@ -79,15 +79,15 @@ MAX_FUTURE_S = 0.02  # MAX_FUTURE
 ONE_MICROSECOND_S = 1e-6  # ONE_MICROSECOND
 JUST_TOO_OLD_S = MAX_AGE_S + ONE_MICROSECOND_S  # JUST_TOO_OLD
 JUST_TOO_FAR_AHEAD_S = MAX_FUTURE_S + ONE_MICROSECOND_S  # JUST_TOO_FAR_AHEAD
-# test_validator_drops_a_sample_not_later_than_the_last_valid_one
+# test_validator_rejects_a_sample_not_later_than_the_last_valid_one
 ORDER_OLDER_S = 0.01  # make_imu_sample(NOW - seconds(0.01))
 ORDER_LATER_NS = 1  # make_imu_sample(NOW + rospy.Duration(0, 1))
-# test_validator_forwards_a_new_sample_after_dropping_a_future_one
+# test_validator_accepts_a_new_sample_after_rejecting_a_future_one
 FAR_AHEAD_S = 5  # make_imu_sample(NOW + seconds(5))
-# test_validator_forwards_new_samples_after_the_clock_goes_back
+# test_validator_accepts_a_stamp_once_after_the_clock_goes_back
 EARLY_RESTART_S = 0.02  # restart = rospy.Time(0, 20000000)
 REPEAT_DELAY_MS = 1  # restart + seconds(0.001), the ROS time of the second sample
-# test_validator_still_drops_old_and_future_samples_after_the_clock_goes_back
+# test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back
 RESTART_S = 50  # restart = rospy.Time(50, 0)
 OLD_AFTER_RESTART_S = 1  # make_imu_sample(restart - seconds(1))
 
@@ -228,6 +228,7 @@ VALIDATOR_X = 156
 EKF_X = 270
 NODE_BOX_TOP = 6
 NODE_BOX_HEIGHT = 24
+NUMBER_WIDTH = 13  # from the start of a step's number to the start of its label
 LABEL_ABOVE_ARROW = 6  # from an arrow up to the baseline of its label
 NOTE_BELOW_ARROW = 13  # from an arrow down to the baseline of its note
 STEP_HEIGHT = 330
@@ -306,14 +307,15 @@ class DecisionStep(NamedTuple):
 # drop_reason() and the six functions of sample_checks in imu_validator.py, in their order
 DECISION_STEPS = (
     DecisionStep('', ('ROS time t ≠ 0',), ('NO_CLOCK',)),
-    DecisionStep('', ('if the clock went back:', 'clear the last valid one'), ()),
+    DecisionStep('', ('if the clock went back:', 'clear the last valid', "sample's stamp and",
+                      'arrival time'), ()),
     DecisionStep('1', ('frame is imu_link',), ('WRONG_FRAME',)),
     DecisionStep('2', ('values are finite',), ('NOT_FINITE',)),
     DecisionStep('3', ('covariance is valid',),
                  ('INVALID_ANGULAR_', 'VELOCITY_', 'COVARIANCE')),
     DecisionStep('4', ('not too far ahead',), ('FROM_THE_FUTURE',)),
     DecisionStep('4', ('not too old',), ('TOO_OLD',)),
-    DecisionStep('5', ('newer than the last',), ('NOT_NEWER',)),
+    DecisionStep('5', ('no last valid stamp,', 'or this stamp is later'), ('NOT_NEWER',)),
 )
 
 
@@ -582,7 +584,7 @@ def early_clock_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
     samples = (
         Sample('J', now_x, True,
                f'stamped {EARLY_RESTART_S} s, the new ROS time. The stamp is far older than '
-               f'the last valid stamp, {NOW_S} s. The validator forgot that stamp when the '
+               f'the last valid stamp, {NOW_S} s. The validator cleared that stamp when the '
                'clock went back'),
         Sample('K', now_x, False,
                f'stamped {EARLY_RESTART_S} s again, sent {REPEAT_DELAY_MS} ms later. The stamp '
@@ -649,8 +651,10 @@ def draw_decision_step(figure: Figure, top: float, step: DecisionStep) -> float:
     text_top = top + height / 2 - (len(step.lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4
     first_line, *other_lines = step.lines
     draw_label(figure, DECISION_LEFT_X + 7, text_top, step.number, first_line)
+    # The other lines start below the first line's text, which stands right of the number
+    other_lines_x = DECISION_LEFT_X + 7 + (NUMBER_WIDTH if step.number else 0)
     for index, line in enumerate(other_lines, start=1):
-        figure.text(DECISION_LEFT_X + 7, text_top + index * DECISION_LINE_HEIGHT, line, 'note')
+        figure.text(other_lines_x, text_top + index * DECISION_LINE_HEIGHT, line)
     if step.reason_lines:
         middle_y = top + height / 2
         figure.path(f'M{DECISION_LEFT_X + DECISION_LEFT_WIDTH},{middle_y:.1f} '
@@ -685,9 +689,9 @@ def validator_decision() -> Figure:
                     "The validator's decision about a sample that arrives at the ROS time t, "
                     'from top to bottom: the clock, the clock check, and checks 1 to 5. A '
                     'sample that fails a step is dropped with the reason to the right of the '
-                    'step, and the node counts the reason. A sample that passes every step is '
-                    'recorded as the last valid sample, and the node forwards it', 0,
-                    DRAWING_WIDTH)
+                    'step, and the node counts the reason. For a sample that passes every '
+                    "step, the validator records the sample's stamp and arrival time, and the "
+                    'node forwards the sample', 0, DRAWING_WIDTH)
     left_middle = DECISION_LEFT_X + DECISION_LEFT_WIDTH / 2
     figure.rect(DECISION_LEFT_X, 2, DRAWING_WIDTH - 2 * DECISION_LEFT_X, DECISION_START_HEIGHT,
                 'item', corner_radius=4)
@@ -1002,7 +1006,7 @@ def draw_label(figure: Figure, x: float, y: float, number: str, label: str) -> N
     """Add a label that starts at x: the number of the step in bold, then the text."""
     if number:
         figure.text(x, y, number, 'strong')
-        x += 13
+        x += NUMBER_WIDTH
     figure.text(x, y, label)
 
 
@@ -1021,7 +1025,8 @@ def draw_message(figure: Figure, y: float, x_from: float, x_to: float, number: s
     draw_label(figure, label_x, y - LABEL_ABOVE_ARROW, number, label)
     if note:
         # A long note can cross a node's line: the halo keeps it readable
-        figure.text(label_x + (13 if number else 0), y + NOTE_BELOW_ARROW, note, 'note halo')
+        figure.text(label_x + (NUMBER_WIDTH if number else 0), y + NOTE_BELOW_ARROW, note,
+                    'note halo')
 
 
 def one_step() -> Figure:

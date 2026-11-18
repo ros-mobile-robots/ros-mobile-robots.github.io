@@ -195,14 +195,14 @@ The five things of one step, as the docstring of `step()` numbers them:
 - **`output_count_before`:** the number of EKF outputs that the test had before the step, from `self.ekf_outputs.count()`.
 - **`outputs_since()`:** takes the `StepStart` and returns the EKF's outputs that arrived after the first `output_count_before` and are stamped from the step's time up to the ROS time that the test has published, `self.now`. So an output of an earlier step doesn't count for this step, with its earlier stamp. Neither does an output from before the clock went back that arrives late: its stamp lies after the new clock.
 
-`advance()` calls three helpers, and `publish_inputs()` calls a fourth, `expect()`. The excerpt shows the four helpers, from [`test_ekf_synthetic.py`, lines 307–341]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L307-L341):
+`advance()` calls three helpers, and `publish_inputs()` calls a fourth, `count_expected_outcome()`. The excerpt shows the four helpers, from [`test_ekf_synthetic.py`, lines 307–341]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L307-L341):
 
-```python title="test_ekf_synthetic.py: publish_inputs(), expect(), wait_for_forwarded() and advance_clock()" linenums="307"
+```python title="test_ekf_synthetic.py: publish_inputs(), count_expected_outcome(), wait_for_forwarded() and advance_clock()" linenums="307"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:307:341"
 ```
 
-- **`publish_inputs()`:** publishes the wheel odometry for `wheel_input`, stamped with the step's time `stamp`, unless `wheel_input` is `None`. For each `ImuInput` of the step, it publishes an IMU sample stamped `stamp` plus the sample's `offset`, and passes the `ImuInput` to `expect()`. It returns `valid_stamp_keys`, the stamps of the samples that the validator has to forward.
-- **`expect()`:** counts what the validator has to do with the sample. A sample without a `drop_reason` adds one to `self.expected_forward_count`. A sample with a `drop_reason` adds one to that reason in `self.expected_drops`.
+- **`publish_inputs()`:** publishes the wheel odometry for `wheel_input`, stamped with the step's time `stamp`, unless `wheel_input` is `None`. For each `ImuInput` of the step, it publishes an IMU sample stamped `stamp` plus the sample's `offset`, and passes the `ImuInput` to `count_expected_outcome()`. It returns `valid_stamp_keys`, the stamps of the samples that the validator has to forward.
+- **`count_expected_outcome()`:** counts what the validator has to do with the sample, the outcome that the test expects. A sample without a `drop_reason` adds one to `self.expected_forward_count`. A sample with a `drop_reason` adds one to that reason in `self.expected_drops`.
 - **`wait_for_forwarded()`:** waits with `wait_for()` until `self.forwarded_stamp_keys` contains every stamp of `stamp_keys`. `on_validated()` appends to this log the stamp of each sample that arrives on the topic `/diffbot/imu/data_validated`.
 - **`advance_clock()`:** adds `STEP` to `self.now` and publishes the new time on the topic `/clock`.
 
@@ -312,7 +312,7 @@ The test sets the clock back from 107 s to `RESTART`, 50 s, as a call of the ser
 
 ### Phase 7: the validator's counts
 
-The validator counts every sample that it forwards and every sample that it drops, by reason, and reports the counts on the topic `/diagnostics` once per second of ROS time. The test kept its own counts in `expect()`. Phase 7 compares the two. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 530–570]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L530-L570):
+The validator counts every sample that it forwards and every sample that it drops, by reason, and reports the counts on the topic `/diagnostics` once per second of ROS time. The test kept its own counts with `count_expected_outcome()`. Phase 7 compares the two. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 530–570]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L530-L570):
 
 ```python title="test_ekf_synthetic.py: phase 7" linenums="530"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:530:570"
@@ -508,7 +508,7 @@ The phase checks these things, in this order:
 
 ## Runs
 
-The runs on this page are runs of the commit [`3cfbcd3`](https://github.com/ros-mobile-robots/diffbot/commit/3cfbcd3b710fd41935e2b558956974a98dd12bdd) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for `invalid_imu_samples` and 31 s for `robot_rates`.
+The runs on this page are runs of the commit [`2fa558d`](https://github.com/ros-mobile-robots/diffbot/commit/2fa558dbdc9f5a702a29250984a279ea97a9e895) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for `invalid_imu_samples` and 31 s for `robot_rates`.
 
 ### `invalid_imu_samples`
 
