@@ -1517,8 +1517,9 @@ def write_between_wheels() -> None:
         [band('Phase 1: the IMU running'), between_wheels_running(run).svg(),
          band('Phase 2: the IMU stopped'), between_wheels_stopped(run).svg(),
          between_wheels_legend(run)],
-        f'{BETWEEN_WHEELS_MESSAGES} wheel messages of each phase of robot_rates, about '
-        f'{round(BETWEEN_WHEELS_END_MS + 1000 * STEP_S)} ms, in a recorded run at the diffbot '
+        f'Each drawing spans {BETWEEN_WHEELS_MESSAGES} wheel messages of a phase of '
+        f'robot_rates, about {round(BETWEEN_WHEELS_END_MS + 1000 * STEP_S)} ms, in a recorded '
+        'run at the diffbot '
         f"commit {run.commit}, with robot_localization's debug trace, ROS time to the right.",
         RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
 
