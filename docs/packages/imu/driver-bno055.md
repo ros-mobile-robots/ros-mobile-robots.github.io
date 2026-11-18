@@ -210,15 +210,16 @@ Then run the tool where the recording is, with the name that the recorder printe
 
     ```console
     BAG=imu_still_2026-11-18-13-18-16.bag
-    FROM=<user>@<robot-ip>:robot-data
-    scp $FROM/$BAG .
+    FROM='robot@remo.local:robot-data'
+    scp "$FROM/$BAG" .
     ```
 
-    The first two lines hold what differs from one recording to the next, and the third line copies:
+    The first two lines hold what differs from one robot and one recording to the next, and the third line copies. Replace the values in the first two lines with yours:
 
     - **`BAG`:** the name of your recording.
-    - **`FROM`:** the Raspberry Pi's user name and address in place of `<user>` and `<robot-ip>`, and after the colon the folder of the recording on the Raspberry Pi. `robot-data` is the robot container's folder. If you set `ROBOT_DATA`, it is the folder that the variable names. If you recorded with a native ROS installation, it is the folder in which you ran `rosbag record`.
-    - **The `.` at the end:** the folder to copy to, the current one.
+    - **`FROM`:** the user and the name or address of the Raspberry Pi, as you use them for `ssh`, and after the colon the folder of the recording on the Raspberry Pi. `robot@remo.local` is the example of [Set Up the Raspberry Pi](../../processing_units/robot-container/setup.md#2-first-login-and-updates). `robot-data` is the robot container's folder. If you set `ROBOT_DATA`, use the folder that the variable names. If you recorded with a native ROS installation, use the folder in which you ran `rosbag record`.
+    - **The quotes** keep a folder's name with a space in it in one piece.
+    - **The `.` at the end** is the folder to copy to: the current one.
 
     **2. Run the tool in the dev container.** A terminal of the dev container starts in `/home/ros/catkin_ws/src/diffbot`, the same folder, with the built workspace sourced:
 
@@ -244,7 +245,7 @@ The example's bias is about 30 times Remo's, so that the figure can show it. Wit
 
 ### Read the report
 
-A recording in which every message has both the angular velocity and the acceleration gets a report of 18 lines. The example is the whole report for a small bag: three messages 20 ms apart, with the yaw rates 0, 1/900 and 2/900 rad/s and a robot that stands level. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) calculates its row `z` by hand.
+After the checks of the input, the report has 18 lines when each of the two fields, the angular velocity and the acceleration, has at least two readings. The example is the whole report for a small bag: three messages 20 ms apart, with the yaw rates 0, 1/900 and 2/900 rad/s and a robot that stands level. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) calculates its row `z` by hand.
 
 ??? example "The whole report for three messages"
     The tool's test [`test_tool_prints_the_report_of_three_readings_one_output_step_apart`](noise-at-rest-tests.md#the-whole-report-for-three-messages) writes this bag and compares every line of the report:
@@ -292,7 +293,7 @@ Each table has one row for each axis and these columns:
 
 A report can be shorter. An IMU can leave a field out, and each field needs two readings for its table:
 
-- **A field with fewer than two readings:** instead of the table, the report has the field's number of readings and the reason, for example `angular_velocity: 0 readings, the statistics need at least two`. The other field's table stays, and the tool ends with status 0, as for a full report.
+- **A field with fewer than two readings:** instead of the table, the report has the field's number of readings and the reason, for example `angular_velocity: 0 readings, the statistics need at least two`. If the other field has at least two readings, its table stays, and the tool ends with status 0, as for a full report.
 - **Fewer than two readings of the acceleration:** the report has no line about gravity.
 - **No field with two readings:** the tool prints one line with the reason and ends with status 1.
 
@@ -352,7 +353,7 @@ The excerpt shows the two functions of the tool that do this calculation, [lines
 
 Two readings are enough to calculate a variance, and the tool asks for no more. A recording is longer for a reason: 180 s at 50 Hz give about 9,000 readings, which describe that run far better than three. Three limits remain:
 
-- **Only this run:** the numbers describe one pose on one day. A robot that stands tilted has other shares of gravity on its axes, so the acceleration's means differ from one pose to the next, and its variances don't. A tilt that changes during the recording, a table that shakes or a wheel that still turns adds to the variances like the sensor's own noise.
+- **Only this run:** the numbers describe one pose on one day. A robot that stands tilted has other shares of gravity on its axes, so the acceleration's means differ from one pose to the next. A share that stays the same during a recording adds no spread to that recording. A tilt that changes during the recording, a table that shakes or a wheel that still turns adds to the variances like the sensor's own noise.
 - **Readings that follow each other can depend on each other:** a bias that drifts slowly, for example with the temperature, moves many readings in the same direction. Then 9,000 readings say less than 9,000 independent ones would.
 - **At rest only:** driving adds vibration from the motors and the floor, which a recording at rest doesn't contain.
 
