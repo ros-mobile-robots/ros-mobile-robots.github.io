@@ -1,0 +1,164 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .cut{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .cut-gap{fill:var(--md-default-bg-color);stroke:none}
+.lv-fig .former-stamp,.lv-key .former-stamp{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:3.5 2.5}
+.lv-fig .wheels-line,.lv-key .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:2.4}
+.lv-fig .imu-line,.lv-key .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-fig .estimate-dot,.lv-key .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:2}
+.lv-fig .estimate-range,.lv-key .estimate-range{fill:none;stroke:var(--lv-estimate);stroke-width:2}
+.lv-fig .estimate-path,.lv-key .estimate-path{fill:none;stroke:var(--lv-estimate);stroke-width:1.6;stroke-dasharray:2 2.5}
+.lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
+.lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
+.lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-large .lv-fig .letter{font-size:11px}
+.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large .lv-fig .index{font-size:9.8px}
+.lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
+.lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-fig .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
+.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
+.lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
+.md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
+.md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+</style>
+<figure class="lv-figure lv-large">
+<svg class="lv-fig" viewBox="0 0 300 397" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. A sample that passes every step is recorded as the last valid sample, and the node forwards it</title>
+<rect class="item" x="2.0" y="2.0" width="296.0" height="22.0" rx="4"/>
+<text class="strong" x="150.0" y="17.0" text-anchor="middle">a sample arrives at the ROS time t</text>
+<path class="message" d="M235.0,47.0 V346.0"/>
+<path class="message-head" d="M235.0,347.0 l-4,-8 h8 z"/>
+<path class="message" d="M79.0,24.0 V35.0"/>
+<path class="message-head" d="M79.0,36.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="36.0" width="154.0" height="22.0" rx="4"/>
+<text x="9.0" y="51.0" text-anchor="start">the clock runs: t ≠ 0</text>
+<path class="message" d="M156,47.0 H171"/>
+<path class="message-head" d="M172,47.0 l-8,-4 v8 z"/>
+<text class="note" x="163.0" y="42.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="36.0" width="126.0" height="22.0" rx="4"/>
+<text class="mono" x="235.0" y="51.0" text-anchor="middle">NO_CLOCK</text>
+<path class="message" d="M79.0,58.0 V69.0"/>
+<path class="message-head" d="M79.0,70.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="70.0" width="154.0" height="35.0" rx="4"/>
+<text x="9.0" y="85.0" text-anchor="start">if the clock went back:</text>
+<text class="note" x="9.0" y="98.0" text-anchor="start">forget the last valid one</text>
+<path class="message" d="M79.0,105.0 V116.0"/>
+<path class="message-head" d="M79.0,117.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="117.0" width="154.0" height="22.0" rx="4"/>
+<text class="strong" x="9.0" y="132.0" text-anchor="start">1</text>
+<text x="22.0" y="132.0" text-anchor="start">frame is imu_link</text>
+<path class="message" d="M156,128.0 H171"/>
+<path class="message-head" d="M172,128.0 l-8,-4 v8 z"/>
+<text class="note" x="163.0" y="123.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="117.0" width="126.0" height="22.0" rx="4"/>
+<text class="mono" x="235.0" y="132.0" text-anchor="middle">WRONG_FRAME</text>
+<path class="message" d="M79.0,139.0 V150.0"/>
+<path class="message-head" d="M79.0,151.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="151.0" width="154.0" height="22.0" rx="4"/>
+<text class="strong" x="9.0" y="166.0" text-anchor="start">2</text>
+<text x="22.0" y="166.0" text-anchor="start">values are finite</text>
+<path class="message" d="M156,162.0 H171"/>
+<path class="message-head" d="M172,162.0 l-8,-4 v8 z"/>
+<text class="note" x="163.0" y="157.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="151.0" width="126.0" height="22.0" rx="4"/>
+<text class="mono" x="235.0" y="166.0" text-anchor="middle">NOT_FINITE</text>
+<path class="message" d="M79.0,173.0 V184.0"/>
+<path class="message-head" d="M79.0,185.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="185.0" width="154.0" height="48.0" rx="4"/>
+<text class="strong" x="9.0" y="213.0" text-anchor="start">3</text>
+<text x="22.0" y="213.0" text-anchor="start">covariance is valid</text>
+<path class="message" d="M156,209.0 H171"/>
+<path class="message-head" d="M172,209.0 l-8,-4 v8 z"/>
+<text class="note" x="163.0" y="204.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="185.0" width="126.0" height="48.0" rx="4"/>
+<text class="mono" x="235.0" y="200.0" text-anchor="middle">INVALID_ANGULAR_</text>
+<text class="mono" x="235.0" y="213.0" text-anchor="middle">VELOCITY_</text>
+<text class="mono" x="235.0" y="226.0" text-anchor="middle">COVARIANCE</text>
+<path class="message" d="M79.0,233.0 V244.0"/>
+<path class="message-head" d="M79.0,245.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="245.0" width="154.0" height="22.0" rx="4"/>
+<text class="strong" x="9.0" y="260.0" text-anchor="start">4</text>
+<text x="22.0" y="260.0" text-anchor="start">not too far ahead</text>
+<path class="message" d="M156,256.0 H171"/>
+<path class="message-head" d="M172,256.0 l-8,-4 v8 z"/>
+<text class="note" x="163.0" y="251.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="245.0" width="126.0" height="22.0" rx="4"/>
+<text class="mono" x="235.0" y="260.0" text-anchor="middle">FROM_THE_FUTURE</text>
+<path class="message" d="M79.0,267.0 V278.0"/>
+<path class="message-head" d="M79.0,279.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="279.0" width="154.0" height="22.0" rx="4"/>
+<text class="strong" x="9.0" y="294.0" text-anchor="start">4</text>
+<text x="22.0" y="294.0" text-anchor="start">not too old</text>
+<path class="message" d="M156,290.0 H171"/>
+<path class="message-head" d="M172,290.0 l-8,-4 v8 z"/>
+<text class="note" x="163.0" y="285.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="279.0" width="126.0" height="22.0" rx="4"/>
+<text class="mono" x="235.0" y="294.0" text-anchor="middle">TOO_OLD</text>
+<path class="message" d="M79.0,301.0 V312.0"/>
+<path class="message-head" d="M79.0,313.0 l-4,-8 h8 z"/>
+<rect class="item" x="2.0" y="313.0" width="154.0" height="22.0" rx="4"/>
+<text class="strong" x="9.0" y="328.0" text-anchor="start">5</text>
+<text x="22.0" y="328.0" text-anchor="start">newer than the last</text>
+<path class="message" d="M156,324.0 H171"/>
+<path class="message-head" d="M172,324.0 l-8,-4 v8 z"/>
+<text class="note" x="163.0" y="319.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="313.0" width="126.0" height="22.0" rx="4"/>
+<text class="mono" x="235.0" y="328.0" text-anchor="middle">NOT_NEWER</text>
+<path class="message" d="M79.0,335.0 V346.0"/>
+<path class="message-head" d="M79.0,347.0 l-4,-8 h8 z"/>
+<rect class="pass-mark" x="2.0" y="347.0" width="154.0" height="48.0" rx="4"/>
+<text class="strong" x="79.0" y="362.0" text-anchor="middle">valid: returns None</text>
+<text class="note" x="79.0" y="375.0" text-anchor="middle">records the stamp and t</text>
+<text class="note" x="79.0" y="388.0" text-anchor="middle">node forwards the sample</text>
+<rect class="drop-mark" x="172.0" y="347.0" width="126.0" height="48.0" rx="4"/>
+<text class="strong" x="235.0" y="362.0" text-anchor="middle">returns the reason</text>
+<text class="note" x="235.0" y="375.0" text-anchor="middle">node counts the drop</text>
+<text class="note" x="235.0" y="388.0" text-anchor="middle">and logs a warning</text>
+</svg>
+<figcaption>The decision of <code>drop_reason_or_record()</code> about one sample. Each step lets the sample go down only if its condition holds. Otherwise the arrow "no" leads to the drop reason.</figcaption>
+</figure>

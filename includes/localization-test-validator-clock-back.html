@@ -89,6 +89,8 @@
 <text class="note" x="246.0" y="70.0" text-anchor="middle">100 s</text>
 <g><title>Sample J: forwarded. stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator forgot that stamp when the clock went back</title><circle class="pass-mark" cx="72.0" cy="42.0" r="7.5"/><text class="letter" x="72.0" y="45.8" text-anchor="middle">J</text></g>
 <g><title>Sample K: dropped. stamped 0.02 s again, sent 1 ms later. The stamp is not later than the stamp of J</title><circle class="drop-mark" cx="72.0" cy="24.0" r="7.5"/><text class="letter" x="72.0" y="27.8" text-anchor="middle">K</text></g>
+<text class="note halo" x="84.5" y="46.0" text-anchor="start">1st arrival</text>
+<text class="note halo" x="84.5" y="28.0" text-anchor="start">repeat, 1 ms later</text>
 </svg>
 <ul class="lv-legend">
 <li><span class="lv-mark">J</span><strong>✓ forwarded:</strong> stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator forgot that stamp when the clock went back</li>

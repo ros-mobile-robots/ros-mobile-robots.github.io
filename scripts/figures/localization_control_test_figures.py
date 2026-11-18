@@ -198,6 +198,18 @@ OUTPUT_DOT_RADIUS = 4.6
 # The chart of robot_rates leaves room for the rows' names left of the plot
 ROBOT_RATES_PLOT_LEFT = 50
 
+# The drawing of the validator's decision about one sample: the steps of drop_reason() from top
+# to bottom in the left column, each drop reason to the right of its step, and the two ends at
+# the bottom
+DECISION_LEFT_X = 2
+DECISION_LEFT_WIDTH = 154
+DECISION_RIGHT_X = 172
+DECISION_RIGHT_WIDTH = 126
+DECISION_LINE_HEIGHT = 13  # between the baselines of a box's lines
+DECISION_GAP = 12  # between two boxes, for an arrow
+DECISION_START_HEIGHT = 22  # of the box of the arriving sample
+DECISION_END_LINES = 3  # of each of the two boxes at the bottom
+
 # The drawing of one step: three nodes side by side, their messages from top to bottom. The
 # numbers are those of the list in the docstring of step(), with the code that does each
 STEP_CODE = (
@@ -264,6 +276,28 @@ ROBOT_RATES_RULES = (
     ('.lv-fig .estimate-trace,.lv-key .estimate-trace',
      'fill:none;stroke:var(--lv-estimate);stroke-width:1.6'),
     ('.lv-key .tick', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.4'),
+)
+
+
+class DecisionStep(NamedTuple):
+    """One step of the validator's decision about a sample, as the drawing shows it."""
+
+    number: str  # the check's number on the Localization page, '' for a step that isn't one
+    lines: Tuple[str, ...]  # the step's text: what lets the sample go on
+    reason_lines: Tuple[str, ...]  # the DropReason member in lines, () for a step that drops none
+
+
+# drop_reason() and the six functions of sample_checks in imu_validator.py, in their order
+DECISION_STEPS = (
+    DecisionStep('', ('the clock runs: t ≠ 0',), ('NO_CLOCK',)),
+    DecisionStep('', ('if the clock went back:', 'forget the last valid one'), ()),
+    DecisionStep('1', ('frame is imu_link',), ('WRONG_FRAME',)),
+    DecisionStep('2', ('values are finite',), ('NOT_FINITE',)),
+    DecisionStep('3', ('covariance is valid',),
+                 ('INVALID_ANGULAR_', 'VELOCITY_', 'COVARIANCE')),
+    DecisionStep('4', ('not too far ahead',), ('FROM_THE_FUTURE',)),
+    DecisionStep('4', ('not too old',), ('TOO_OLD',)),
+    DecisionStep('5', ('newer than the last',), ('NOT_NEWER',)),
 )
 
 
@@ -417,6 +451,11 @@ def draw_marks(figure: Figure, samples: Sequence[Sample], axis_y: float) -> None
         last_x = sample.x
 
 
+def draw_gap_label(figure: Figure, x: float, axis_y: float, gap: str) -> None:
+    """Add the true gap between two marks that the drawing sets apart, above their middle x."""
+    figure.text(x, axis_y - MARK_ABOVE_AXIS - LARGE_MARK_RADIUS - 4, gap, 'note halo', 'middle')
+
+
 def limit_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
     """Return the drawing of the two tests at the limits of check 4, and their samples."""
     axis = TimeAxis(LIMITS_START_MS, LIMITS_END_MS, AXIS_START_X, LIMITS_AXIS_Y,
@@ -454,6 +493,8 @@ def limit_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
                'allows'),
     )
     draw_marks(figure, samples, axis.y)
+    for limit_x in (oldest_x, newest_x):
+        draw_gap_label(figure, limit_x, axis.y, '1 µs')
     return figure, samples
 
 
@@ -487,6 +528,10 @@ def order_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
                f'stamp with {NOW_S} s, not with the stamp of H'),
     )
     draw_marks(figure, samples, AXIS_Y)
+    draw_gap_label(figure, ORDER_LAST_X + ORDER_APART / 2, AXIS_Y, f'{ORDER_LATER_NS} ns')
+    # H lies in the band of check 5's later stamps, but check 4 drops H before check 5 runs
+    figure.text(AXIS_END_X, AXIS_Y - MARK_ABOVE_AXIS - LARGE_MARK_RADIUS - 4,
+                'check 4: too far ahead', 'note halo', 'end')
     return figure, samples
 
 
@@ -525,6 +570,11 @@ def early_clock_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
                'is not later than the stamp of J'),
     )
     draw_marks(figure, samples, AXIS_Y)
+    # The marks of J and K stand on top of each other: their order is written beside them
+    label_x = now_x + LARGE_MARK_RADIUS + 5
+    figure.text(label_x, AXIS_Y - MARK_ABOVE_AXIS + 4, '1st arrival', 'note halo')
+    figure.text(label_x, AXIS_Y - MARK_ABOVE_AXIS - STACK_PITCH + 4,
+                f'repeat, {REPEAT_DELAY_MS} ms later', 'note halo')
     return figure, samples
 
 
@@ -559,6 +609,100 @@ def clock_back_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
     )
     draw_marks(figure, samples, AXIS_Y)
     return figure, samples
+
+
+def decision_box_height(line_count: int) -> float:
+    """Return the height of a box of the decision drawing with line_count lines of text."""
+    return line_count * DECISION_LINE_HEIGHT + 9
+
+
+def draw_down_arrow(figure: Figure, x: float, top: float, bottom: float) -> None:
+    """Add an arrow from top down to bottom at x."""
+    figure.path(f'M{x:.1f},{top:.1f} V{bottom - 1:.1f}', 'message')
+    figure.path(f'M{x:.1f},{bottom:.1f} l-4,-8 h8 z', 'message-head')
+
+
+def draw_decision_step(figure: Figure, top: float, step: DecisionStep) -> float:
+    """Add one step of the decision with its drop reason, and return the step's height."""
+    line_count = max(len(step.lines), len(step.reason_lines))
+    height = decision_box_height(line_count)
+    figure.rect(DECISION_LEFT_X, top, DECISION_LEFT_WIDTH, height, 'item', corner_radius=4)
+    text_top = top + height / 2 - (len(step.lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4
+    first_line, *other_lines = step.lines
+    draw_label(figure, DECISION_LEFT_X + 7, text_top, step.number, first_line)
+    for index, line in enumerate(other_lines, start=1):
+        figure.text(DECISION_LEFT_X + 7, text_top + index * DECISION_LINE_HEIGHT, line, 'note')
+    if step.reason_lines:
+        middle_y = top + height / 2
+        figure.path(f'M{DECISION_LEFT_X + DECISION_LEFT_WIDTH},{middle_y:.1f} '
+                    f'H{DECISION_RIGHT_X - 1}', 'message')
+        figure.path(f'M{DECISION_RIGHT_X},{middle_y:.1f} l-8,-4 v8 z', 'message-head')
+        figure.text((DECISION_LEFT_X + DECISION_LEFT_WIDTH + DECISION_RIGHT_X) / 2 - 1,
+                    middle_y - 5, 'no', 'note', 'middle')
+        figure.rect(DECISION_RIGHT_X, top, DECISION_RIGHT_WIDTH, height, 'drop-mark',
+                    corner_radius=4)
+        reason_top = (middle_y - (len(step.reason_lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4)
+        for index, line in enumerate(step.reason_lines):
+            figure.text(DECISION_RIGHT_X + DECISION_RIGHT_WIDTH / 2,
+                        reason_top + index * DECISION_LINE_HEIGHT, line, 'mono', 'middle')
+    return height
+
+
+def draw_decision_end(figure: Figure, x: float, top: float, width: float, css_class: str,
+                      lines: Sequence[Tuple[str, str]]) -> None:
+    """Add one of the two ends of the decision: a box with centered lines of text."""
+    figure.rect(x, top, width, decision_box_height(len(lines)), css_class, corner_radius=4)
+    for index, (line, line_class) in enumerate(lines):
+        figure.text(x + width / 2, top + 15 + index * DECISION_LINE_HEIGHT, line, line_class,
+                    'middle')
+
+
+def validator_decision() -> Figure:
+    """Return the drawing of the validator's decision about one sample, from top to bottom."""
+    figure = Figure('lv-test-decision',
+                    "The validator's decision about a sample that arrives at the ROS time t, "
+                    'from top to bottom: the clock, the clock check, and checks 1 to 5. A '
+                    'sample that fails a step is dropped with the reason to the right of the '
+                    'step, and the node counts the reason. A sample that passes every step is '
+                    'recorded as the last valid sample, and the node forwards it', 0,
+                    DRAWING_WIDTH)
+    left_middle = DECISION_LEFT_X + DECISION_LEFT_WIDTH / 2
+    right_middle = DECISION_RIGHT_X + DECISION_RIGHT_WIDTH / 2
+    figure.rect(DECISION_LEFT_X, 2, DRAWING_WIDTH - 2 * DECISION_LEFT_X, DECISION_START_HEIGHT,
+                'item', corner_radius=4)
+    figure.text(DRAWING_WIDTH / 2, 17, 'a sample arrives at the ROS time t', 'strong', 'middle')
+    top: float = 2 + DECISION_START_HEIGHT + DECISION_GAP
+    heights = [decision_box_height(max(len(step.lines), len(step.reason_lines)))
+               for step in DECISION_STEPS]
+    end_top = top + sum(heights) + DECISION_GAP * len(DECISION_STEPS)
+    # The line that collects the drop reasons runs behind their boxes down to the end box
+    first_reason_y = top + heights[0] / 2
+    figure.path(f'M{right_middle},{first_reason_y:.1f} V{end_top - 1:.1f}', 'message')
+    figure.path(f'M{right_middle},{end_top:.1f} l-4,-8 h8 z', 'message-head')
+    draw_down_arrow(figure, left_middle, top - DECISION_GAP, top)
+    for step in DECISION_STEPS:
+        height = draw_decision_step(figure, top, step)
+        draw_down_arrow(figure, left_middle, top + height, top + height + DECISION_GAP)
+        top += height + DECISION_GAP
+    draw_decision_end(figure, DECISION_LEFT_X, end_top, DECISION_LEFT_WIDTH, 'pass-mark',
+                      (('valid: returns None', 'strong'), ('records the stamp and t', 'note'),
+                       ('node forwards the sample', 'note')))
+    draw_decision_end(figure, DECISION_RIGHT_X, end_top, DECISION_RIGHT_WIDTH, 'drop-mark',
+                      (('returns the reason', 'strong'), ('node counts the drop', 'note'),
+                       ('and logs a warning', 'note')))
+    figure.height = round(end_top + decision_box_height(DECISION_END_LINES) + 2)
+    return figure
+
+
+def write_validator_decision() -> None:
+    """Write the include of the validator's decision about one sample."""
+    write_parts(
+        'includes/localization-test-validator-decision.html',
+        [validator_decision().svg()],
+        'The decision of <code>drop_reason_or_record()</code> about one sample. Each step lets '
+        'the sample go down only if its condition holds. Otherwise the arrow "no" leads to the '
+        'drop reason.',
+        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
 
 
 def write_validator_limits() -> None:
@@ -606,7 +750,8 @@ def write_validator_clock_back() -> None:
 
 
 def write_validator_tests() -> None:
-    """Write the three includes with the samples that the validator's unit tests use."""
+    """Write the four includes of the validator's page: its decision, and the tests' samples."""
+    write_validator_decision()
     write_validator_limits()
     write_validator_order()
     write_validator_clock_back()

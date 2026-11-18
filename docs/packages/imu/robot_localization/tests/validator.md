@@ -1,8 +1,28 @@
 # Tests: The IMU Sample Validator
 
-What the unit tests of the IMU sample validator check, and how they do it. This page belongs to the [tests of the Localization](index.md).
+What the unit tests of the IMU sample validator check, and how they do it. This page belongs to the [tests of the Localization](index.md), which list the five tests by the question that each answers.
 
 [`test_imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_imu_validator.py) tests the [IMU sample validator](../../robot_localization.md#the-imu-sample-validator) one decision at a time. Its 27 unit tests call the validator's Python class and functions directly. No ROS master runs, no node starts and no message travels over a topic. The tests prove what the validator decides for a given IMU sample at a given ROS time $t$, and what its diagnostics report. They don't prove that the node forwards the samples on its topic or that the EKF handles them. For that, the [stepped-clock test](stepped-clock.md) runs the node together with the EKF.
+
+## One sample through the validator
+
+Two examples show the validator's decision before the code. Each example gives one sample to a new validator, one that has seen no sample yet, at the ROS time $t$ = 100 s. Both samples are in the frame `imu_link`, with finite values and positive variances, as the firmware sends them. They differ only in their stamp $t_s$:
+
+- **Sample B, stamped $t_s$ = 99.900000 s:** its age $t - t_s$ is 0.100000 s, exactly `max_age`. The validator accepts B, and the node forwards the sample.
+- **Sample A, stamped $t_s$ = 99.899999 s:** its age $t - t_s$ is 0.100001 s, 1 µs more than `max_age`. The validator rejects A as `TOO_OLD`, and the node drops the sample.
+
+[Check 4](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) lets a sample through that is at most `max_age`, 0.1 s, old: $t - t_s \le \texttt{max\_age}$. B is exactly that old and passes. [Check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) has no earlier valid sample to compare B with, so B passes check 5 too, and the validator accepts B. A is 1 µs older than B and fails check 4. The same two samples appear in the test of [Check 4: the two time limits](#check-4-the-two-time-limits), which gives both to one validator.
+
+The figure shows every step of the decision, from top to bottom. Each box on the left is a condition. A sample that meets the condition goes down to the next box. A sample that doesn't meet the condition takes the arrow "no" to the right, to the reason with which the validator drops the sample. The second box drops no sample: after the ROS time went back, the validator forgets the last valid sample and goes on, as [a clock that goes back](#clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back) explains. The numbers 1 to 5 are those of [the five checks](../../robot_localization.md#the-five-checks) on the Localization page.
+
+--8<-- "includes/localization-test-validator-decision.html"
+
+The decision has two ends:
+
+- **Accepted:** [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) records the sample's stamp $t_s$ and its arrival time $t$ as the last valid sample's and returns `None`. The node counts the sample as forwarded and publishes the sample for the EKF. The tests check this end with [`assert_accepted()`](#validatortestcase-a-new-validator-and-two-assertions).
+- **Rejected:** `drop_reason_or_record()` returns the reason and doesn't record the sample. The node counts the sample under this reason, which the [diagnostics](#testsamplecounts-the-numbers-of-a-report) report, and logs a warning, at most one every 5 s. The tests check this end with [`assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions).
+
+## The test classes
 
 The file holds the 27 tests in four test classes, one for each part of [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py) that works without ROS communication:
 
@@ -15,61 +35,7 @@ The file holds the 27 tests in four test classes, one for each part of [`imu_val
 
 A fifth class, [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-assertions), holds no tests. It gives the first two test classes a new validator for each test and two assertions about the validator's decision on a sample.
 
-[What the tests call](#what-the-tests-call) explains the validator's methods and its reasons to drop a sample before the tests use them. [The constants and the helpers](#the-constants-and-the-helpers) explains what the tests share. [What the tests don't show](#what-the-tests-dont-show) lists what a pass doesn't prove.
-
-## How the tests run
-
-catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how `diffbot_control` registers its three EKF tests, from [`CMakeLists.txt`, lines 226–234]({{ ekf_test_src_url }}/diffbot_control/CMakeLists.txt#L226-L234). [`catkin_add_nosetests()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) registers this file. [`add_rostest()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) registers the two scenarios of the [stepped-clock test](stepped-clock.md), one `.test` file each:
-
-```cmake title="diffbot_control/CMakeLists.txt: the package's tests" linenums="226"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/CMakeLists.txt:226:234"
-```
-
-CI runs all three with the workspace's other tests, as [Testing and CI](../../../../development/ci.md#ekf-tests) describes. To run only this file, open a shell in which the workspace is sourced and start the file with Python's `unittest` from its folder:
-
-```console
-roscd diffbot_control/test
-python3 -m unittest -v test_imu_validator
-```
-
-The collapsed box shows the whole output of a run at the commit [`d896358`](https://github.com/ros-mobile-robots/diffbot/commit/d89635881ff860159ef20af42c4cd97c179dcf96) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the [dev container](../../../../development/dev-container.md)'s image with ROS Noetic and Python 3.8.10. The run started `python3 -m unittest -v test_imu_validator` in the folder `diffbot_control/test`, the folder that `roscd` changes to. With the option `-v`, unittest prints one line for each test: the test's name, its class in parentheses, and `ok` for a test that passed. unittest runs the classes, and the tests in each class, in the alphabetical order of their names, so the output's order differs from the file's. `ValidatorTestCase` has no tests, so the output has no line for this class. The last lines give the number of tests and the time that they took, and `OK` when every test passed:
-
-??? example "The output of `python3 -m unittest -v test_imu_validator`"
-
-    ```text
-    test_health_is_a_warning_with_new_drops (test_imu_validator.TestHealth) ... ok
-    test_health_is_an_error_before_the_first_valid_sample (test_imu_validator.TestHealth) ... ok
-    test_health_is_an_error_for_silence_also_with_new_drops (test_imu_validator.TestHealth) ... ok
-    test_health_is_ok_at_the_silence_limit_and_an_error_beyond_it (test_imu_validator.TestHealth) ... ok
-    test_health_is_ok_without_new_drops (test_imu_validator.TestHealth) ... ok
-    test_validator_drops_a_sample_at_ros_time_zero (test_imu_validator.TestImuValidator) ... ok
-    test_validator_drops_a_sample_not_later_than_the_last_valid_one (test_imu_validator.TestImuValidator) ... ok
-    test_validator_drops_a_sample_with_a_nan_or_infinite_value (test_imu_validator.TestImuValidator) ... ok
-    test_validator_drops_a_sample_with_a_wrong_or_empty_frame (test_imu_validator.TestImuValidator) ... ok
-    test_validator_drops_a_sample_with_an_invalid_angular_velocity_covariance (test_imu_validator.TestImuValidator) ... ok
-    test_validator_forwards_a_new_sample_after_dropping_a_future_one (test_imu_validator.TestImuValidator) ... ok
-    test_validator_forwards_a_sample_max_age_old_and_drops_an_older_one (test_imu_validator.TestImuValidator) ... ok
-    test_validator_forwards_a_sample_max_future_ahead_and_drops_a_later_one (test_imu_validator.TestImuValidator) ... ok
-    test_validator_forwards_new_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
-    test_validator_forwards_valid_samples (test_imu_validator.TestImuValidator) ... ok
-    test_validator_still_drops_old_and_future_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
-    test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report (test_imu_validator.TestSampleCounts) ... ok
-    test_snapshot_counts_a_dropped_sample_as_new_only_once (test_imu_validator.TestSampleCounts) ... ok
-    test_snapshot_has_the_forwarded_count_and_the_drops_by_reason (test_imu_validator.TestSampleCounts) ... ok
-    test_snapshot_keeps_its_numbers_when_more_samples_arrive (test_imu_validator.TestSampleCounts) ... ok
-    test_silence_is_none_after_the_clock_goes_back_a_little (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-    test_silence_is_none_after_the_clock_goes_back_without_samples (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-    test_silence_is_none_before_the_first_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-    test_silence_is_none_when_a_dropped_sample_shows_the_clock_went_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-    test_silence_is_the_time_since_the_last_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-    test_silence_keeps_growing_while_samples_are_dropped (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-    test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-
-    ----------------------------------------------------------------------
-    Ran 27 tests in 0.002s
-
-    OK
-    ```
+[What the tests call](#what-the-tests-call) explains the validator's methods and its reasons to drop a sample before the tests use them. [The constants and the helpers](#the-constants-and-the-helpers) explains what the tests share. [Run the tests](#run-the-tests) shows how to run the file and its output. [What the tests don't show](#what-the-tests-dont-show) lists what a pass doesn't prove.
 
 ## What the tests call
 
@@ -141,7 +107,7 @@ And the tests run the same two steps as the node. The excerpt shows the two meth
 
 `record_valid_sample()` sets these two numbers in lines 286 and 287. `last_valid_stamp` is the stamp $t_\text{last}$ of check 5.
 
-For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of `drop_reason()`. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator clear the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 leaves no trace at all, because step 1 returns before step 2.
+For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of `drop_reason()`. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator clear the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under `NO_CLOCK` and logs a warning, as for every dropped sample.
 
 The constructor `__init__()` fills `sample_checks` in the order in which the checks run. The excerpt shows the tuple, from [`imu_validator.py`, lines 221–229]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L221-L229):
 
@@ -461,7 +427,7 @@ After a valid sample at 100 s, the ROS time is `restart`, 50 s. The validator dr
 ```
 
 - **The counts:** after two forwarded samples, two samples dropped as too old and one dropped for its frame, the snapshot has `forwarded_count` 2 and `drops_by_reason` with 2 and 1. The snapshot also carries the silence that the test passed to `take_snapshot()`.
-- **New drops:** `new_drop_count` is the number of samples dropped since the snapshot before. One dropped sample makes this number 1 in the next snapshot and 0 in the one after. Two more dropped samples, for two different reasons, make the number 2. The warning of `health()` depends on this number, so a dropped sample causes one warning, not a warning in every report from then on.
+- **New drops:** `new_drop_count` is the number of samples dropped since the snapshot before. One dropped sample makes this number 1 in the next snapshot and 0 in the one after. Two more dropped samples, for two different reasons, make the number 2. `health()` reports a warning when this number isn't 0. So a new drop can raise the next report to `WARN` when the IMU is otherwise healthy, and the report after it is `OK` again if no further sample was dropped. A silence that is too long takes priority: the report is then `ERROR`, as the last row of the table in [`TestHealth`](#testhealth-the-status) shows.
 
 The other two tests cover two cases in which this count could go wrong. The excerpt shows them, from [`test_imu_validator.py`, lines 286–302]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L286-L302):
 
@@ -471,6 +437,60 @@ The other two tests cover two cases in which this count could go wrong. The exce
 
 - **In an error report:** a sample is dropped before any sample was valid. The first snapshot gets the silence `None`, so `health()` reports an error, not the warning. The dropped sample counts as new in this snapshot all the same, and not again in the next one.
 - **A snapshot stays as it is:** after `take_snapshot()`, the test counts one more forwarded sample and one more dropped sample. The snapshot from before still has its numbers. A report is built from one snapshot, so its numbers all come from one moment.
+
+## Run the tests
+
+catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how `diffbot_control` registers its three EKF tests, from [`CMakeLists.txt`, lines 226–234]({{ ekf_test_src_url }}/diffbot_control/CMakeLists.txt#L226-L234). [`catkin_add_nosetests()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) registers this file. [`add_rostest()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) registers the two scenarios of the [stepped-clock test](stepped-clock.md), one `.test` file each:
+
+```cmake title="diffbot_control/CMakeLists.txt: the package's tests" linenums="226"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/CMakeLists.txt:226:234"
+```
+
+CI runs all three with the workspace's other tests, as [Testing and CI](../../../../development/ci.md#ekf-tests) describes. To run only this file, open a shell in which the workspace is sourced and start the file with Python's `unittest` from its folder:
+
+```console
+roscd diffbot_control/test
+python3 -m unittest -v test_imu_validator
+```
+
+The collapsed box shows the whole output of a run at the commit [`d896358`](https://github.com/ros-mobile-robots/diffbot/commit/d89635881ff860159ef20af42c4cd97c179dcf96) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the [dev container](../../../../development/dev-container.md)'s image with ROS Noetic and Python 3.8.10. The run started `python3 -m unittest -v test_imu_validator` in the folder `diffbot_control/test`, the folder that `roscd` changes to. With the option `-v`, unittest prints one line for each test: the test's name, its class in parentheses, and `ok` for a test that passed. unittest runs the classes, and the tests in each class, in the alphabetical order of their names, so the output's order differs from the file's. `ValidatorTestCase` has no tests, so the output has no line for this class. The last lines give the number of tests and the time that they took, and `OK` when every test passed:
+
+??? example "The output of `python3 -m unittest -v test_imu_validator`"
+
+    ```text
+    test_health_is_a_warning_with_new_drops (test_imu_validator.TestHealth) ... ok
+    test_health_is_an_error_before_the_first_valid_sample (test_imu_validator.TestHealth) ... ok
+    test_health_is_an_error_for_silence_also_with_new_drops (test_imu_validator.TestHealth) ... ok
+    test_health_is_ok_at_the_silence_limit_and_an_error_beyond_it (test_imu_validator.TestHealth) ... ok
+    test_health_is_ok_without_new_drops (test_imu_validator.TestHealth) ... ok
+    test_validator_drops_a_sample_at_ros_time_zero (test_imu_validator.TestImuValidator) ... ok
+    test_validator_drops_a_sample_not_later_than_the_last_valid_one (test_imu_validator.TestImuValidator) ... ok
+    test_validator_drops_a_sample_with_a_nan_or_infinite_value (test_imu_validator.TestImuValidator) ... ok
+    test_validator_drops_a_sample_with_a_wrong_or_empty_frame (test_imu_validator.TestImuValidator) ... ok
+    test_validator_drops_a_sample_with_an_invalid_angular_velocity_covariance (test_imu_validator.TestImuValidator) ... ok
+    test_validator_forwards_a_new_sample_after_dropping_a_future_one (test_imu_validator.TestImuValidator) ... ok
+    test_validator_forwards_a_sample_max_age_old_and_drops_an_older_one (test_imu_validator.TestImuValidator) ... ok
+    test_validator_forwards_a_sample_max_future_ahead_and_drops_a_later_one (test_imu_validator.TestImuValidator) ... ok
+    test_validator_forwards_new_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
+    test_validator_forwards_valid_samples (test_imu_validator.TestImuValidator) ... ok
+    test_validator_still_drops_old_and_future_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
+    test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report (test_imu_validator.TestSampleCounts) ... ok
+    test_snapshot_counts_a_dropped_sample_as_new_only_once (test_imu_validator.TestSampleCounts) ... ok
+    test_snapshot_has_the_forwarded_count_and_the_drops_by_reason (test_imu_validator.TestSampleCounts) ... ok
+    test_snapshot_keeps_its_numbers_when_more_samples_arrive (test_imu_validator.TestSampleCounts) ... ok
+    test_silence_is_none_after_the_clock_goes_back_a_little (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+    test_silence_is_none_after_the_clock_goes_back_without_samples (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+    test_silence_is_none_before_the_first_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+    test_silence_is_none_when_a_dropped_sample_shows_the_clock_went_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+    test_silence_is_the_time_since_the_last_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+    test_silence_keeps_growing_while_samples_are_dropped (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+    test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+
+    ----------------------------------------------------------------------
+    Ran 27 tests in 0.002s
+
+    OK
+    ```
 
 ## What the tests don't show
 
