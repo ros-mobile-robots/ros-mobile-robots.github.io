@@ -2,15 +2,108 @@
 
 Where the simulated IMU sits on each robot, and which way its axes point. This page belongs to [IMU: Simulation](index.md), which shows the IMU's message.
 
+Three names of the robot's URDF model describe the mounting. `imu_link` is the IMU's frame, `chassis_link` is the frame at the center of the robot's base plate, and `imu_joint` is the fixed joint that puts `imu_link` on `chassis_link`. This page first shows [the mounting on each robot](#the-mounting-on-each-robot), then explains [the three frames](#the-three-frames) and [the lines of the robot's URDF model that make them](#the-link-and-the-joint-in-the-robots-urdf-model).
+
+## The mounting on each robot
+
+Choose your robot. The figure's tabs and the tabs of the text below switch together:
+
 --8<-- "includes/imu-sim-frames.html"
 
-The figure shows Remo. DiffBot has the same three parts, with other values. Their names come from the robot's URDF model:
+=== "Remo"
+
+    - **Position:** `imu_link` lies 4.01 cm behind `chassis_link`, 2.34 cm to its left and 1.3 cm above it. That is 7.6 cm behind the wheel axle and 8 cm above the floor.
+    - **Rotation:** −90° about z. The board lies flat on the breadboard.
+    - **Axes:** `imu_link`'s x axis points to the robot's right, its y axis forward and its z axis up.
+    - **For example:** when Remo speeds up forward with 0.5 m/s², the +0.5 m/s² appear in $f_y$, the message's `linear_acceleration.y`. A left turn reads as a positive yaw rate $\omega_z$.
+    - **Measured on the robot:** yes. A tilt test on Remo showed the axes, as the [bench checks](../driver-bno055.md#bench-checks) describe, and the position on the breadboard was checked on the robot.
+
+    The two pictures show the mounting on a rendering of Remo:
+
+    ![Remo seen from the rear left, with the lidar platform hidden. A ring marks the blue BNO055 board on the breadboard, beside the Teensy and behind the Raspberry Pi](../images/remo-imu-overview.webp){ width="340" }
+
+    *Remo from the rear left, rendered with its mesh files installed and with the lidar platform hidden, which would cover the breadboard. The ring marks the IMU board on the breadboard, at the rear.*
+
+    ![Remo from above, front up. The IMU's center lies 7.6 cm behind the wheel axle and 2.34 cm left of the center line. Its x axis points to the robot's right, its y axis forward](../images/remo-imu-top.webp){ width="340" }
+
+    *Remo from above, front up, rendered with its mesh files installed. The IMU's y axis points forward and its x axis to the right. Its z axis points up, toward you. Select the picture to see the dimensions at full size.*
+
+    The public remo_description repository has empty placeholders for the mesh files, as [STL files](../../remo_description.md#stl-files) on the Remo Description page explains. With the placeholders, RViz and Gazebo show Remo without its meshes. The simulated IMU works the same: Gazebo's IMU sensor needs `imu_link`, not the board's mesh.
+
+    Remo's URDF model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's URDF model at remo_description 2.5.0, the version that [`diffbot_dev.repos`]({{ imu_sim_src_url }}/diffbot_dev.repos) names. The call of the macro puts the IMU on `chassis_link`. [The link and the joint in the robot's URDF model](#the-link-and-the-joint-in-the-robots-urdf-model) explains what a macro and its call are. The excerpt shows the call, from [`remo.urdf.xacro`, lines 211–216](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216):
+
+    ```xml title="remo.urdf.xacro: the call of imu_sensor" linenums="211" hl_lines="2 5"
+    --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:211:216"
+    ```
+
+    `imu_xyz` and `imu_rpy` are xacro arguments, declared at the top of the file with their defaults. The excerpt shows the two arguments, from [`remo.urdf.xacro`, lines 26–27](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27):
+
+    ```xml title="remo.urdf.xacro: the IMU's mounting" linenums="26"
+    --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:26:27"
+    ```
+
+    Xacro turns the call into this joint in Remo's URDF model. The lines are xacro's output for `remo.urdf.xacro` at 2.5.0, with the arguments' defaults. They aren't a file in a repository:
+
+    ```xml title="Remo's URDF, expanded by xacro: imu_joint"
+    <joint name="imu_joint" type="fixed">
+      <parent link="chassis_link"/>
+      <child link="imu_link"/>
+      <origin rpy="0 0 -1.5707963" xyz="-0.0401 0.0234 0.013"/>
+    </joint>
+    ```
+
+    How the joint's numbers give the mounting:
+
+    - **Position:** −4.01 cm, +2.34 cm and +1.3 cm from `chassis_link`. `chassis_link` lies 3.6 cm behind the wheel axle, as the comment in [lines 71–74 of `remo.urdf.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L71-L74) explains. So the chip's center lies 7.6 cm behind the wheel axle, 2.34 cm left of the robot's center line, and 8 cm above the floor. The board's header pins sit in the breadboard.
+    - **Rotation:** $-\pi/2$ rad, −90°, about z. Both z axes point up, so a left turn is positive for the IMU as for the robot. The yaw of −90° turns `imu_link`'s y axis forward, so a forward acceleration appears in $f_y$ and not in $f_x$. The comment above the arguments in `remo.urdf.xacro` says how each value was found.
+
+=== "DiffBot"
+
+    - **Position:** `imu_link` lies 1 cm straight above `chassis_link`.
+    - **Rotation:** none.
+    - **Axes:** `imu_link`'s axes point the same way as the robot's: x forward, y to the left and z up.
+    - **For example:** when DiffBot speeds up forward with 0.5 m/s², the +0.5 m/s² appear in $f_x$, the message's `linear_acceleration.x`. A left turn reads as a positive yaw rate $\omega_z$.
+    - **Measured on the robot:** no. These values are placeholders. DiffBot uses the same BNO055 board as Remo, moved from one robot to the other, and its mounting on DiffBot isn't measured yet.
+
+    The excerpt shows the two arguments of DiffBot's xacro file with their comment, from [`diffbot.urdf.xacro`, lines 4–10]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10):
+
+    ```xml title="diffbot.urdf.xacro: the IMU's mounting" linenums="4"
+    --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:4:10"
+    ```
+
+    The call of the macro passes the two arguments to the joint. The excerpt shows the call, from [`diffbot.urdf.xacro`, lines 80–82]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82):
+
+    ```xml title="diffbot.urdf.xacro: the call of imu_sensor" linenums="80"
+    --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:80:82"
+    ```
+
+    In DiffBot's URDF model, the joint's origin is `<origin rpy="0 0 0" xyz="0 0 0.01"/>`, on `chassis_link`, as the expanded joint in [the link and the joint in the robot's URDF model](#the-link-and-the-joint-in-the-robots-urdf-model) shows. To try another mounting, override the arguments when you run xacro, for example `xacro diffbot.urdf.xacro imu_xyz:='0 0 0.02'`.
+
+    Seen from above, the two frames lie on top of each other. So the figure shows DiffBot from the side.
+
+## The three frames
+
+[The figure of the mounting](#the-mounting-on-each-robot) shows three parts. Both robots have them, with other values. Their names come from the robot's URDF model:
 
 - **`imu_link`** is the IMU's frame: a point on the robot with three axes. Every value in the IMU's message is along these axes.
-- **`chassis_link`** is the frame at the center of the robot's base plate. Its x axis points forward, its y axis to the left and its z axis up, as [REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation), ROS's convention for coordinate frames, asks for a robot's body. The robots' URDF models declare `chassis_link` in their [base macro]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207).
+- **`chassis_link`** is the frame at the center of the robot's base plate. Its x axis points forward, its y axis to the left and its z axis up, as [REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation), ROS's convention for coordinate frames, asks for a robot's body. Each robot's URDF model declares `chassis_link` in its base macro: DiffBot's in [`common_macros.urdf.xacro`, lines 197–207]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207), and Remo's in [`remo_base_macro.urdf.xacro`, lines 20–30](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/remo_base_macro.urdf.xacro#L20-L30).
 - **`imu_joint`** is a fixed joint that puts `imu_link` on `chassis_link`. The joint's origin says where the IMU sensor sits and how the IMU sensor is turned:
     - `xyz` is the position in m, along `chassis_link`'s x, y and z axes.
     - `rpy` is the rotation in rad: roll about x, pitch about y and yaw about z.
+
+??? example "Where the two base macros declare `chassis_link`"
+
+    The excerpt shows the lines of DiffBot's base macro that declare `base_link`, `chassis_link` and the joint between them, from [`common_macros.urdf.xacro`, lines 197–207]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207):
+
+    ```xml title="common_macros.urdf.xacro (DiffBot): chassis_link" linenums="197"
+    --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/include/common_macros.urdf.xacro:197:207"
+    ```
+
+    The next excerpt shows the same lines of Remo's base macro, from [`remo_base_macro.urdf.xacro`, lines 20–30](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/remo_base_macro.urdf.xacro#L20-L30):
+
+    ```xml title="remo_base_macro.urdf.xacro (Remo): chassis_link" linenums="20"
+    --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/include/remo_base_macro.urdf.xacro:20:30"
+    ```
 
 The EKF needs the yaw rate $\omega_z$ along the robot's axes, not along the IMU's. The EKF converts the IMU's values with this joint's transform. [`robot_state_publisher`](http://wiki.ros.org/robot_state_publisher) publishes the transform: this ROS node reads the robot's URDF model and publishes the position of every link to tf, ROS's system for transforms between frames. In the simulation, [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L28-L30) starts `robot_state_publisher`.
 
@@ -82,66 +175,3 @@ The excerpt shows the entry, from [`sensors.yaml`, lines 16–26]({{ imu_sim_src
 ```
 
 DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and `box_inertia` gives the link the board's mass, 3 g. Remo's entry names a mesh of the BNO055 board, in [lines 38–51 of Remo's `sensors.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/config/remo/sensors.yaml#L38-L51).
-
-## The mounting on each robot
-
-Each robot's xacro file sets where its call puts the IMU. Choose your robot:
-
-=== "Remo"
-
-    ![Remo seen from the rear left, with the lidar platform hidden. A ring marks the blue BNO055 board on the breadboard, beside the Teensy and behind the Raspberry Pi](../images/remo-imu-overview.webp){ width="340" }
-    ![Remo from above, front up. The IMU's center lies 7.6 cm behind the wheel axle and 2.34 cm left of the center line. Its x axis points to the robot's right, its y axis forward](../images/remo-imu-top.webp){ width="340" }
-
-    The first picture shows Remo with the lidar platform hidden. The IMU board sits on the breadboard, at the rear. The second picture shows Remo from above. The IMU's x axis points to the right, its y axis forward, and its z axis up, toward you.
-
-    Remo's URDF model describes the BNO055 board on the breadboard on the Raspberry Pi deck. The diffbot repository uses Remo's URDF model at remo_description 2.5.0, the version that [`diffbot_dev.repos`]({{ imu_sim_src_url }}/diffbot_dev.repos) names. The call of the macro puts the IMU on `chassis_link`. The excerpt shows the call, from [`remo.urdf.xacro`, lines 211–216](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L211-L216):
-
-    ```xml title="remo.urdf.xacro: the call of imu_sensor" linenums="211" hl_lines="2 5"
-    --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:211:216"
-    ```
-
-    `imu_xyz` and `imu_rpy` are xacro arguments, declared at the top of the file with their defaults. The excerpt shows the two arguments, from [`remo.urdf.xacro`, lines 26–27](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27):
-
-    ```xml title="remo.urdf.xacro: the IMU's mounting" linenums="26"
-    --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:26:27"
-    ```
-
-    Xacro turns the call into this joint in Remo's URDF model. The lines are xacro's output for `remo.urdf.xacro` at 2.5.0, with the arguments' defaults. They aren't a file in a repository:
-
-    ```xml title="Remo's URDF, expanded by xacro: imu_joint"
-    <joint name="imu_joint" type="fixed">
-      <parent link="chassis_link"/>
-      <child link="imu_link"/>
-      <origin rpy="0 0 -1.5707963" xyz="-0.0401 0.0234 0.013"/>
-    </joint>
-    ```
-
-    - **Position:** −4.01 cm, +2.34 cm and +1.3 cm from `chassis_link`. `chassis_link` lies 3.6 cm behind the wheel axle, as the comment in [lines 71–74 of `remo.urdf.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L71-L74) explains. So the chip's center lies 7.6 cm behind the wheel axle, 2.34 cm left of the robot's center line, and 8 cm above the floor. The board's header pins sit in the breadboard.
-    - **Rotation:** $-\pi/2$ rad, −90°, about z. The board lies flat. Its z axis points up, its y axis forward and its x axis to the robot's right. A tilt test on Remo showed these axes, as the [bench checks](../driver-bno055.md#bench-checks) describe. The comment above the arguments in `remo.urdf.xacro` says how each value was found.
-
-    What follows for the message's values on Remo:
-
-    - Both z axes point up. So a left turn reads as a positive yaw rate $\omega_z$, for the IMU as for the robot.
-    - Forward is `imu_link`'s y axis. So a forward acceleration appears in $f_y$, the message's `linear_acceleration.y`, not in $f_x$, its `linear_acceleration.x`.
-
-=== "DiffBot"
-
-    DiffBot uses the same BNO055 board as Remo, moved from one robot to the other. Its mounting on DiffBot isn't measured yet. So DiffBot's URDF model uses placeholders: 1 cm above `chassis_link`'s origin, with the board's axes along the robot's. The excerpt shows the two arguments with their comment, from [`diffbot.urdf.xacro`, lines 4–10]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10):
-
-    ```xml title="diffbot.urdf.xacro: the IMU's mounting" linenums="4"
-    --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:4:10"
-    ```
-
-    The call of the macro passes the two arguments to the joint. The excerpt shows the call, from [`diffbot.urdf.xacro`, lines 80–82]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82):
-
-    ```xml title="diffbot.urdf.xacro: the call of imu_sensor" linenums="80"
-    --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:80:82"
-    ```
-
-    In DiffBot's URDF model, the joint's origin is `<origin rpy="0 0 0" xyz="0 0 0.01"/>`, on `chassis_link`, as [the expanded joint above](#the-link-and-the-joint-in-the-robots-urdf-model) shows. To try another mounting, override the arguments when you run xacro, for example `xacro diffbot.urdf.xacro imu_xyz:='0 0 0.02'`.
-
-    What follows for the message's values in DiffBot's URDF model:
-
-    - `imu_link` lies straight above `chassis_link`, with the same directions. Seen from above, the two frames lie on top of each other, so this page has no figure of them.
-    - Both z axes point up. So a left turn reads as a positive yaw rate $\omega_z$.
-    - Forward is `imu_link`'s x axis. So a forward acceleration appears in $f_x$, the message's `linear_acceleration.x`.

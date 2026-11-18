@@ -1,17 +1,26 @@
-"""Generate the figures of the IMU Simulation pages that show Remo.
+"""Generate the figures of the IMU Simulation pages that show a robot.
 
 It writes three includes, as inline SVG that follows the site's light and dark colors:
 
 - includes/imu-sim-frames.html, for docs/packages/imu/simulation/position-and-axes.md:
-  chassis_link, imu_joint and imu_link on Remo, from above and from the side.
+  chassis_link, imu_joint and imu_link, in one tab per robot. Remo from above and from the
+  side, and DiffBot from the side, with the placeholder mounting of DiffBot's URDF model. The
+  tabs are written as HTML, in the markup that pymdownx.tabbed produces with alternate_style,
+  as scripts/figures/simulation_test_figures.py does. Their labels (ROBOT_TAB_LABELS) are those
+  of the page's Markdown tabs, and the theme's content.tabs.link switches all tabs with one
+  label together. So change the labels here and on the page together.
 - includes/imu-sim-angular-velocity.html, for docs/packages/imu/simulation/index.md: the angular
   velocity about each of imu_link's axes, with the direction that counts as positive.
 - includes/imu-sim-specific-force.html, for the same page: gravity, the acceleration and what the
-  sensor reads, at rest, while the robot speeds up and in a turn.
+  sensor reads, at rest, while the robot speeds up and in a turn. The three drawings are a
+  level, noise-free example: the floor is level, the motion is exactly the named one, and the
+  readings have no noise. They don't show a recorded run.
 
 Remo is a schematic, drawn to scale from the numbers of its public model, remo_description 2.5.0
-(urdf/remo.urdf.xacro and config/remo/*.yaml). The axes have ROS's colors: x red, y green and
-z blue. The pages' text repeats the numbers, so change them together.
+(urdf/remo.urdf.xacro and config/remo/*.yaml). DiffBot is a schematic from the numbers of
+diffbot_description (urdf/diffbot.urdf.xacro and config/diffbot/*.yaml) at the commit that
+mkdocs.yml pins as imu_sim_src_raw. The axes have ROS's colors: x red, y green and z blue. The
+pages' text repeats the numbers, so change them together.
 
 Each caption is Markdown, so a link in it is relative to the page that includes the figure.
 
@@ -81,12 +90,32 @@ IMU_YAW = -math.pi / 2
 # The BNO055 board along imu_link's x, y and z axes: diffbot's config/diffbot/sensors.yaml
 IMU_BOARD_SIZE: Vector = (0.027, 0.020, 0.004)
 
+# DiffBot at the pinned commit of diffbot_description, in chassis_link's axes, in m.
+# config/diffbot/base.yaml, base: 0.195 x 0.08 x 0.005, with chassis_link at its center
+DIFFBOT_PLATE = Box(-0.0975, 0.0975, -0.04, 0.04, -0.0025, 0.0025)
+# config/diffbot/front_wheel.yaml: x_offset, the wheels' distance from the plate's front edge.
+# diffbot.urdf.xacro, axle_x: the wheel axle lies this far in front of chassis_link
+DIFFBOT_AXLE_X = 0.195 / 2 - 0.079
+# front_wheel.yaml: z_offset and radius
+DIFFBOT_AXLE_Z = -0.017
+DIFFBOT_WHEEL_RADIUS = 0.0333
+DIFFBOT_FLOOR_Z = DIFFBOT_AXLE_Z - DIFFBOT_WHEEL_RADIUS
+# config/diffbot/caster_wheel.yaml: the caster wheel's center, which is the hub's dx and dz plus
+# the wheel's dx and dz, and the wheel's radius
+DIFFBOT_CASTER_X = -0.077 - 0.016
+DIFFBOT_CASTER_Z = 0.0045 - 0.04
+DIFFBOT_CASTER_RADIUS = 0.015
+# diffbot.urdf.xacro, imu_xyz and imu_rpy: placeholders, the mounting on DiffBot isn't measured
+DIFFBOT_IMU_POSITION: Vector = (0.0, 0.0, 0.01)
+
 CHASSIS_AXES: Tuple[Vector, Vector, Vector] = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
 IMU_AXES: Tuple[Vector, Vector, Vector] = (
     (math.cos(IMU_YAW), math.sin(IMU_YAW), 0.0),
     (-math.sin(IMU_YAW), math.cos(IMU_YAW), 0.0),
     (0.0, 0.0, 1.0))
 AXIS_NAMES = ('x', 'y', 'z')
+# The labels of the frames' tabs, the same as those of the Markdown tabs on the page
+ROBOT_TAB_LABELS = ('Remo', 'DiffBot')
 # An axis whose arrow on the drawing would be shorter than this share of its length points along
 # the viewer's line of sight. The drawing shows it as a ring
 RING_SHARE = 0.2
@@ -104,13 +133,16 @@ FG_LIGHTEST = 'var(--md-default-fg-color--lightest)'
 BG = 'var(--md-default-bg-color)'
 RULES = (
     ('.md-typeset figure.imu-figure', 'margin:1em auto;width:100%;max-width:none'),
+    ('.md-typeset .imu-tabs figure.imu-figure', 'margin:.6em auto 0'),
     ('.imu-figure .imu-panels', 'display:flex;flex-wrap:wrap;justify-content:center;'
                                 'align-items:flex-start;gap:.8rem 1.6rem'),
-    ('.imu-figure .imu-fig', 'flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)'),
+    ('.imu-figure .imu-panel', 'flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)'),
+    ('.md-typeset .imu-figure .imu-panel p', 'margin:.3em 0 0;font-size:.7rem;text-align:left'),
     ('.md-typeset .imu-figure figcaption', 'max-width:36rem'),
-    ('.imu-fig', 'width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;--imu-z:#1565c0;'
-                 '--imu-board:#9db9e6;--imu-gravity:#546e7a;--imu-acceleration:#e65100;'
-                 '--imu-reading:#7b1fa2;font-family:var(--md-text-font-family,Roboto),sans-serif'),
+    ('.imu-fig', 'display:block;width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;'
+                 '--imu-z:#1565c0;--imu-board:#9db9e6;--imu-gravity:#546e7a;'
+                 '--imu-acceleration:#e65100;--imu-reading:#7b1fa2;'
+                 'font-family:var(--md-text-font-family,Roboto),sans-serif'),
     ('[data-md-color-scheme=slate] .imu-fig',
      '--imu-x:#ff7b72;--imu-y:#6fcf73;--imu-z:#6cb2ff;--imu-board:#3d5a8c;'
      '--imu-gravity:#a7b6be;--imu-acceleration:#ffa94d;--imu-reading:#d79bea'),
@@ -120,7 +152,7 @@ RULES = (
                        'font-size:11.5px'),
     ('.imu-fig .note', f'font-size:11.5px;fill:{FG_LIGHT}'),
     ('.imu-fig .strong', 'font-weight:700'),
-    ('.imu-fig .sub', 'font-size:9px'),
+    ('.imu-fig .sub', 'font-size:10px'),
     ('.imu-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:3.5px;'
                        'stroke-linejoin:round'),
     ('.imu-fig .body', f'fill:{FG_LIGHTEST};stroke:{FG_LIGHTER};stroke-width:1'),
@@ -367,9 +399,13 @@ def draw_remo_from_the_side(figure: Figure, view: View) -> None:
     figure.circle(view.project(wheel_center(-1)), HUB_RADIUS * view.scale, 'body')
 
 
-def draw_floor(figure: Figure, view: View, left: float, right: float) -> None:
-    """Add the floor as a line under the wheels, between two x positions on the drawing."""
-    height = view.project((0.0, 0.0, FLOOR_Z))[1]
+def draw_floor(figure: Figure, view: View, left: float, right: float,
+               floor_z: float = FLOOR_Z) -> None:
+    """Add the floor as a line under the wheels, between two x positions on the drawing.
+
+    floor_z is the floor's height in chassis_link's axes, in m. The default is Remo's.
+    """
+    height = view.project((0.0, 0.0, floor_z))[1]
     figure.polyline([(left, height), (right, height)], 'floor')
 
 
@@ -511,9 +547,13 @@ def draw_frame(figure: Figure, view: View, origin: Vector, axes: Tuple[Vector, V
         draw_axis_ring(figure, view, axis, offsets.get(axis.name))
 
 
-def draw_joint(figure: Figure, view: View) -> None:
-    """Add imu_joint as a dashed line from chassis_link's origin to imu_link's origin."""
-    figure.polyline([view.project((0.0, 0.0, 0.0)), view.project(IMU_POSITION)], 'joint')
+def draw_joint(figure: Figure, view: View, imu_position: Optional[Vector] = None) -> None:
+    """Add imu_joint as a dashed line from chassis_link's origin to imu_link's origin.
+
+    imu_position is imu_link's origin in chassis_link's axes, in m. The default is Remo's.
+    """
+    end = IMU_POSITION if imu_position is None else imu_position
+    figure.polyline([view.project((0.0, 0.0, 0.0)), view.project(end)], 'joint')
 
 
 def number(value: float) -> str:
@@ -537,14 +577,15 @@ def frames_from_above_figure() -> Figure:
     back, left, up = centimeters(-x), centimeters(y), centimeters(z)
     figure = Figure('imu-frames-above', 340, 306, 'chassis_link, imu_joint and imu_link on Remo, '
                     'from above',
-                    'Remo from above, with its front at the top. chassis_link is at the center '
+                    'Remo with the Raspberry Pi deck, from above, with its front at the top. '
+                    'chassis_link is at the center '
                     'of the base plate, with its x axis forward and its y axis to the left. '
                     f'imu_link is at the IMU board on the breadboard, {back} cm behind and '
                     f'{left} cm left of chassis_link. Its x axis points to the right and its y '
                     'axis forward. The z axes of both point up, out of the drawing. A dashed '
-                    'line, imu_joint, connects the two origins.')
+                    'line, the fixed joint imu_joint, connects the two origins.')
     view = view_from_above(1500, (170, 152))
-    figure.text((10, 18), 'From above', 'title')
+    figure.text((10, 18), 'Remo with the Raspberry Pi deck, from above', 'title')
     figure.text((170, 38), 'front', 'note', 'middle')
     draw_remo_from_above(figure, view)
     draw_joint(figure, view)
@@ -553,6 +594,7 @@ def frames_from_above_figure() -> Figure:
     figure.text((184, 164), 'chassis_link', 'mono halo')
     figure.text((98, 216), 'imu_link', 'mono halo', 'end')
     figure.text((162, 191), 'imu_joint', 'mono halo')
+    figure.text((162, 204), 'a fixed joint', 'note halo')
     figure.text((226, 248), 'breadboard', 'note', 'end')
     figure.text((170, 279), f'imu_joint puts imu_link {back} cm back, {left} cm left', 'note',
                 'middle')
@@ -566,13 +608,14 @@ def frames_from_the_side_figure() -> Figure:
     up = centimeters(IMU_POSITION[2])
     figure = Figure('imu-frames-side', 340, 270, 'chassis_link, imu_joint and imu_link on Remo, '
                     'from the right side',
-                    'Remo from its right side, with its front on the right. chassis_link is on '
+                    'Remo with the Raspberry Pi deck, from its right side, with its front on '
+                    'the right. chassis_link is on '
                     'top of the base plate, with its x axis forward and its z axis up. imu_link '
                     f'is {up} cm higher, on the breadboard. Its y axis points forward and its z '
                     'axis up. chassis_link’s y axis points into the drawing, and '
                     'imu_link’s x axis out of it.')
     view = view_from_the_side(1500, (190, 128))
-    figure.text((10, 18), 'From the right side', 'title')
+    figure.text((10, 18), 'Remo with the Raspberry Pi deck, from the right side', 'title')
     figure.text((318, 114), 'front', 'note', 'end')
     draw_floor(figure, view, 24, 330)
     figure.text((30, 240), 'floor', 'note')
@@ -585,6 +628,100 @@ def frames_from_the_side_figure() -> Figure:
     figure.text((121, 88), 'imu_link', 'mono halo', 'end')
     figure.text((146, 150), 'imu_joint', 'mono halo', 'middle')
     figure.text((170, 262), f'imu_link lies {up} cm above chassis_link, on the breadboard',
+                'note', 'middle')
+    return figure
+
+
+def diffbot_imu_board() -> Box:
+    """Return the BNO055 board on DiffBot as a box in chassis_link's axes.
+
+    DiffBot's placeholder mounting has no rotation, so the board's edges lie along the robot's.
+    """
+    length, width, height = IMU_BOARD_SIZE
+    x, y, z = DIFFBOT_IMU_POSITION
+    return Box(x - length / 2, x + length / 2, y - width / 2, y + width / 2,
+               z - height / 2, z + height / 2)
+
+
+def draw_diffbot_from_the_side(figure: Figure, view: View) -> None:
+    """Add DiffBot as the view from its right side shows it, standing on the floor."""
+    caster = view.project((DIFFBOT_CASTER_X, 0.0, DIFFBOT_CASTER_Z))
+    figure.circle(caster, DIFFBOT_CASTER_RADIUS * view.scale, 'wheel')
+    wheel = view.project((DIFFBOT_AXLE_X, 0.0, DIFFBOT_AXLE_Z))
+    figure.circle(wheel, DIFFBOT_WHEEL_RADIUS * view.scale, 'wheel')
+    figure.circle(wheel, 0.3 * DIFFBOT_WHEEL_RADIUS * view.scale, 'body')
+    outline(figure, view, DIFFBOT_PLATE, 'body', 1)
+    outline(figure, view, diffbot_imu_board(), 'board', 1)
+
+
+# DiffBot's drawing shows the two frames again in a box, DIFFBOT_MAGNIFICATION times larger: at the
+# robot's scale, the 1 cm between them is too short to tell them apart
+DIFFBOT_SCALE = 1500  # SVG units per m
+DIFFBOT_MAGNIFICATION = 4
+
+
+def draw_magnified_diffbot_frames(figure: Figure, left: float, top: float, right: float,
+                                  bottom: float) -> None:
+    """Add a box with DiffBot's base plate, IMU board and the two frames, magnified.
+
+    The box lies between left, top, right and bottom on the drawing. The plate and the board
+    are bands across the box, cut off at its edges.
+    """
+    view = view_from_the_side(DIFFBOT_SCALE * DIFFBOT_MAGNIFICATION, (left + 65, bottom - 15))
+    board = diffbot_imu_board()
+    figure.rectangle((left, top), (right, bottom), 'inset', 4)
+    figure.elements.append('<g class="context">')
+    for box, css_class in ((DIFFBOT_PLATE, 'body'), (board, 'board')):
+        figure.rectangle((left + 1, view.project((0.0, 0.0, box.z_max))[1]),
+                         (min(right - 1, view.project((box.x_max, 0.0, 0.0))[0]),
+                          min(bottom - 1, view.project((0.0, 0.0, box.z_min))[1])), css_class)
+    figure.elements.append('</g>')
+    draw_joint(figure, view, DIFFBOT_IMU_POSITION)
+    draw_frame(figure, view, DIFFBOT_IMU_POSITION, CHASSIS_AXES, 40,
+               {'x': (4, -8), 'y': (-12, -9), 'z': (10, 6)})
+    chassis = view.project((0.0, 0.0, 0.0))
+    imu = view.project(DIFFBOT_IMU_POSITION)
+    figure.circle(chassis, 3, 'dot')
+    up = centimeters(DIFFBOT_IMU_POSITION[2])
+    figure.text((left + 8, top + 15), f'{DIFFBOT_MAGNIFICATION}\u00d7 larger', 'note')
+    figure.text((right - 8, imu[1] - 17), 'imu_link', 'mono halo', 'end')
+    figure.text((chassis[0] + 9, (chassis[1] + imu[1]) / 2 - 3), 'imu_joint', 'mono halo')
+    figure.text((chassis[0] + 9, (chassis[1] + imu[1]) / 2 + 11), f'{up} cm up, not turned',
+                'note halo')
+    figure.text((right - 8, chassis[1] + 4), 'chassis_link', 'mono halo', 'end')
+
+
+def frames_on_diffbot_figure() -> Figure:
+    """Return the drawing of the three frames on DiffBot, from the robot's right side.
+
+    imu_link has chassis_link's directions and lies straight above it. So the drawing shows
+    imu_link's axes and marks chassis_link's origin with a dot, in a magnified box.
+    """
+    up = centimeters(DIFFBOT_IMU_POSITION[2])
+    figure = Figure('imu-frames-diffbot', 340, 318, 'chassis_link, imu_joint and imu_link on '
+                    'DiffBot, from the right side',
+                    'DiffBot from its right side, with its front on the right. chassis_link is '
+                    'at the center of the base plate. imu_link lies '
+                    f'{up} cm straight above it, and its axes point the same way as '
+                    'chassis_link’s: x forward, z up, and y into the drawing. A dashed line, the '
+                    'fixed joint imu_joint, connects the two origins. A box shows the two '
+                    f'frames {DIFFBOT_MAGNIFICATION} times larger. This mounting is a '
+                    'placeholder of DiffBot’s URDF model. It is not measured on the robot.')
+    view = view_from_the_side(DIFFBOT_SCALE, (165, 196))
+    figure.text((10, 18), 'DiffBot’s placeholder mounting, from the right side', 'title')
+    figure.text((326, 184), 'front', 'note', 'end')
+    draw_floor(figure, view, 4, 336, DIFFBOT_FLOOR_Z)
+    figure.text((60, 288), 'floor', 'note')
+    figure.elements.append('<g class="context">')
+    draw_diffbot_from_the_side(figure, view)
+    figure.elements.append('</g>')
+    # A ring around the two frames on the robot, and a line from it to the magnified box
+    frames = view.project((0.0, 0.0, DIFFBOT_IMU_POSITION[2] / 2))
+    figure.circle(frames, 13, 'lens')
+    box_left, box_top, box_right, box_bottom = 150.0, 30.0, 330.0, 150.0
+    figure.polyline([(frames[0] + 3, frames[1] - 13), (box_left + 24, box_bottom)], 'lens')
+    draw_magnified_diffbot_frames(figure, box_left, box_top, box_right, box_bottom)
+    figure.text((170, 308), f'Placeholder: imu_link {up} cm above chassis_link, not turned',
                 'note', 'middle')
     return figure
 
@@ -619,8 +756,9 @@ def angular_velocity_figure() -> Figure:
                     'in red to the robot’s right, y in green forward and z in blue up. A '
                     'curved arrow turns about each axis in the direction that counts as '
                     'positive: counterclockwise when the axis points at the viewer. The arrow '
-                    'about z is the yaw rate, which is positive in a left turn. The EKF fuses '
-                    'this value.')
+                    'about z is the yaw rate, which is positive in a left turn: a left turn at '
+                    f'{TURN_RATE} rad/s reads {signed(TURN_RATE)} rad/s. The EKF fuses this '
+                    'value.')
     view = view_from_behind(1300, (166, 168), 30, 35)
     figure.elements.append('<g class="context">')
     draw_remo_from_behind(figure, view)
@@ -641,7 +779,7 @@ def angular_velocity_figure() -> Figure:
                                            0.2 * length, first_angles[name]), f'turn {name}', 8)
     figure.circle(start, 3, 'dot')
     figure.text((70, 28), subscript('ω', 'z'), 'z', 'end', markup=True)
-    figure.text((78, 28), 'yaw rate: positive in a left turn.')
+    figure.text((78, 28), f'yaw rate. Left turn at {TURN_RATE} rad/s: {signed(TURN_RATE)} rad/s.')
     figure.text((78, 44), 'The EKF fuses this value.')
     figure.text((186, 150), subscript('ω', 'y'), 'y halo', markup=True)
     figure.text((199, 246), subscript('ω', 'x'), 'x halo', markup=True)
@@ -655,7 +793,7 @@ def angular_velocity_figure() -> Figure:
 # and in their true directions. A forward acceleration of 0.5 m/s² is 2 units long at that scale,
 # so a circle shows the tip of f TIP_MAGNIFICATION times larger
 FORCE_WIDTH = 216
-FORCE_HEIGHT = 310
+FORCE_HEIGHT = 326
 GRAVITY_LENGTH = 46.0
 FORCE_SCALE = GRAVITY_LENGTH / GAZEBO_GRAVITY  # SVG units per m/s²
 TIP_MAGNIFICATION = 10
@@ -677,7 +815,7 @@ def factor_in_words(factor: int) -> str:
 
 
 def signed(value: float) -> str:
-    """Return a value in m/s² with at most two decimals and its sign. Zero has none."""
+    """Return a value with at most two decimals and its sign, without a unit. Zero has no sign."""
     return '0' if abs(value) < 0.005 else f'{value:+.2f}'.rstrip('0').rstrip('.')
 
 
@@ -691,18 +829,27 @@ def tilt_from_vertical(reading: Vector) -> float:
     return math.degrees(math.atan2(math.hypot(reading[0], reading[1]), reading[2]))
 
 
+# What the three numbers of a specific force drawing are: a level floor, the named motion and no
+# noise, along imu_link's axes on Remo. A recorded message differs a little
+EXAMPLE_IN_A_SENTENCE = ('In this level, noise-free example, the reading along imu_link’s x, y '
+                         'and z axes on Remo is')
+
+
 def message_numbers(reading: Vector) -> List[str]:
-    """Return a reading as the message's x, y and z on Remo, along imu_link's axes."""
+    """Return an ideal reading as x, y and z on Remo, along imu_link's axes.
+
+    These are the message's three numbers when the floor is level and the reading has no noise.
+    """
     return [signed(dot(reading, axis)) for axis in IMU_AXES]
 
 
 def message_values(reading: Vector) -> str:
-    """Return the message's x, y and z on Remo as a drawing shows them: (x, y, z)."""
+    """Return an ideal reading's x, y and z on Remo as a drawing shows them: (x, y, z)."""
     return '(' + ', '.join(message_numbers(reading)) + ')'
 
 
 def message_values_in_a_sentence(reading: Vector) -> str:
-    """Return the message's x, y and z on Remo as a sentence names them: x, y and z."""
+    """Return an ideal reading's x, y and z on Remo as a sentence names them: x, y and z."""
     x, y, z = message_numbers(reading)
     return f'{x}, {y} and {z}'
 
@@ -711,14 +858,15 @@ def reading_lines(figure: Figure, first: str, second: str, reading: Vector) -> N
     """Add what the sensor reads at the bottom of a specific force drawing.
 
     first and second say it in the robot's directions. reading, in chassis_link's axes, becomes
-    the message's three numbers on Remo.
+    three numbers along imu_link's axes on Remo, labeled as a level, noise-free example.
     """
     center = FORCE_WIDTH / 2
     figure.text((center, 232), 'The sensor reads', 'note', 'middle')
     figure.text((center, 249), first, 'reading', 'middle')
     figure.text((center, 265), second, 'reading', 'middle')
-    figure.text((center, 284), 'On Remo, the message’s x, y, z', 'note', 'middle')
-    figure.text((center, 301), message_values(reading), 'reading', 'middle')
+    figure.text((center, 284), 'Level, noise-free example', 'note', 'middle')
+    figure.text((center, 299), 'in Remo’s IMU axes x, y, z', 'note', 'middle')
+    figure.text((center, 316), message_values(reading), 'reading', 'middle')
 
 
 def draw_magnified_tip(figure: Figure, tip: Point, acceleration: float) -> None:
@@ -788,8 +936,8 @@ def specific_force_at_rest_figure() -> Figure:
         'imu-force-rest', 'At rest',
         'Remo stands still on the floor, seen from its right side. At the IMU, gravity g points '
         f'down with {GAZEBO_GRAVITY} m/s². The acceleration a is zero. The sensor reads '
-        f'f = a − g, which points up with {GAZEBO_GRAVITY} m/s². On Remo, the message’s x, y and '
-        f'z are {message_values_in_a_sentence(reading)}.', 0.0)
+        f'f = a − g, which points up with {GAZEBO_GRAVITY} m/s². {EXAMPLE_IN_A_SENTENCE} '
+        f'{message_values_in_a_sentence(reading)}.', 0.0)
     reading_lines(figure, 'forward 0,', f'up +{GAZEBO_GRAVITY} m/s²', reading)
     return figure
 
@@ -805,9 +953,9 @@ def specific_force_speeding_up_figure() -> Figure:
         f'forward with {forward} m/s². The sensor reads f = a − g: {forward} m/s² forward and '
         f'{GAZEBO_GRAVITY} m/s² up, so f leans forward by {tilt_from_vertical(reading):.0f} '
         f'degrees. A circle shows the tip of f {factor_in_words(TIP_MAGNIFICATION)} times '
-        f'larger: f ends {forward} m/s² in front of the point straight above the sensor. On '
-        'Remo, the message’s x, y and z are '
-        f'{message_values_in_a_sentence(reading)}.', FORWARD_ACCELERATION)
+        f'larger: f ends {forward} m/s² in front of the point straight above the sensor. '
+        f'{EXAMPLE_IN_A_SENTENCE} {message_values_in_a_sentence(reading)}.',
+        FORWARD_ACCELERATION)
     figure.arrow((132, 46), (178, 46), 'motion thin', 7)
     figure.text((155, 39), 'speeds up', 'note', 'middle')
     reading_lines(figure, f'forward {signed(FORWARD_ACCELERATION)},',
@@ -848,8 +996,8 @@ def specific_force_in_a_turn_figure() -> Figure:
                     f'is {centripetal} m/s², tiny next to gravity. Its arrow shows only its '
                     f'direction. The sensor reads this {centripetal} m/s² toward the center '
                     f'and {GAZEBO_GRAVITY} m/s² up, out of the drawing, so f leans toward the '
-                    f'center by {tilt_from_vertical(reading):.1f} degrees. On Remo, the '
-                    f'message’s x, y and z are {message_values_in_a_sentence(reading)}.')
+                    f'center by {tilt_from_vertical(reading):.1f} degrees. '
+                    f'{EXAMPLE_IN_A_SENTENCE} {message_values_in_a_sentence(reading)}.')
     view = view_from_above(900, (FORCE_WIDTH / 2, 142))
     figure.text((6, 18), 'Turning left, from above', 'title')
     figure.elements.append('<g class="context">')
@@ -875,30 +1023,74 @@ def specific_force_in_a_turn_figure() -> Figure:
     return figure
 
 
-def figure_html(drawings: Sequence[Figure], caption: str, basis: int, widest: int) -> str:
+def figure_element(drawings: Sequence[Figure], caption: str, basis: int, widest: int,
+                   explanations: Sequence[str] = (), caption_is_html: bool = False) -> str:
     """Return a figure element with the drawings side by side and one caption.
 
     The drawings wrap below each other on a narrow screen. basis and widest are the width in
-    px from which a drawing wraps and its largest width. caption is Markdown. The drawings
-    stand in a div without the markdown attribute, so that Markdown leaves the SVG's text as it
-    is and the glossary doesn't wrap a term such as IMU in an abbr element.
+    px from which a drawing wraps and its largest width. explanations has one text per drawing,
+    as HTML, which stands below its drawing. Without it, the drawings have no text of their
+    own. caption is Markdown, or HTML with caption_is_html, for a figure inside raw HTML. The
+    drawings stand in a div without the markdown attribute, so that Markdown leaves the SVG's
+    text as it is and the glossary doesn't wrap a term such as IMU in an abbr element.
     """
-    panels = '\n'.join(drawing.svg() for drawing in drawings)
-    return (f'{style_element(RULES)}\n<figure class="imu-figure" markdown="block" '
+    panels = []
+    for index, drawing in enumerate(drawings):
+        explanation = f'\n<p>{explanations[index]}</p>' if explanations else ''
+        panels.append(f'<div class="imu-panel">\n{drawing.svg()}{explanation}\n</div>')
+    figure_markdown, caption_markdown = ('', '') if caption_is_html else (
+        ' markdown="block"', ' markdown="span"')
+    return (f'<figure class="imu-figure"{figure_markdown} '
             f'style="--imu-basis:{basis}px;--imu-max:{widest}px">\n'
-            f'<div class="imu-panels">\n{panels}\n</div>\n'
-            f'<figcaption markdown="span">{caption}</figcaption>\n</figure>\n')
+            '<div class="imu-panels">\n' + '\n'.join(panels) + '\n</div>\n'
+            f'<figcaption{caption_markdown}>{caption}</figcaption>\n</figure>\n')
+
+
+def figure_html(drawings: Sequence[Figure], caption: str, basis: int, widest: int,
+                explanations: Sequence[str] = ()) -> str:
+    """Return an include: the drawings' style and a figure element with a Markdown caption."""
+    return (f'{style_element(RULES)}\n'
+            + figure_element(drawings, caption, basis, widest, explanations))
+
+
+def tabs_html(name: str, labels: Sequence[str], figures: Sequence[str]) -> str:
+    """Return an include: the drawings' style and a set of tabs with one figure element each.
+
+    name makes the tabs' ids, and labels are the tabs' labels. The tab set is raw HTML, so the
+    figure elements need HTML captions.
+    """
+    inputs = ''.join(
+        f'<input{" checked" if index == 0 else ""} id="__tabbed_{name}_{index + 1}" '
+        f'name="__tabbed_{name}" type="radio">' for index in range(len(figures)))
+    tab_labels = ''.join(f'<label for="__tabbed_{name}_{index + 1}">{escape(label)}</label>'
+                         for index, label in enumerate(labels))
+    blocks = ''.join(f'<div class="tabbed-block">\n{figure}</div>\n' for figure in figures)
+    return (f'{style_element(RULES)}\n<div class="tabbed-set tabbed-alternate imu-tabs" '
+            f'data-tabs="{name}:{len(figures)}">{inputs}'
+            f'<div class="tabbed-labels">{tab_labels}</div>\n'
+            f'<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
 
 
 def write_frames() -> None:
-    """Write the include with the frames on Remo."""
-    caption = ('Remo’s frames, to scale. `chassis_link` is at the center of the base plate’s '
-               'top. `imu_joint`, the dashed line, puts `imu_link` on it, at the IMU’s board '
-               '(blue) on the breadboard. Red is x, green is y and blue is z. A ring with a dot '
-               'is an axis that points at you, a ring with a cross one that points away.')
+    """Write the include with the frames on Remo and on DiffBot, one tab per robot."""
+    up = centimeters(DIFFBOT_IMU_POSITION[2])
+    remo = ('Remo’s frames, to scale. <code>chassis_link</code> is at the center of the base '
+            'plate’s top. <code>imu_joint</code>, the dashed line, is a fixed joint. It puts '
+            '<code>imu_link</code> on <code>chassis_link</code>, at the IMU’s board (blue) on '
+            'the breadboard. Red is x, green is y and blue is z. A ring with a dot is an axis '
+            'that points at you, a ring with a cross one that points away.')
+    diffbot = ('DiffBot’s frames in its URDF model, to scale. <code>imu_joint</code>, the '
+               f'dashed line, puts <code>imu_link</code> {up} cm straight above '
+               '<code>chassis_link</code>, the dot, without a rotation. So '
+               '<code>imu_link</code>’s axes point the same way as <code>chassis_link</code>’s: '
+               'x forward (red), z up (blue), and y to the left, away from you (the ring with '
+               'a cross). The mounting is a placeholder. It isn’t measured on the robot.')
+    figures = [
+        figure_element([frames_from_above_figure(), frames_from_the_side_figure()], remo, 300,
+                       400, caption_is_html=True),
+        figure_element([frames_on_diffbot_figure()], diffbot, 300, 400, caption_is_html=True)]
     with open('includes/imu-sim-frames.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html([frames_from_above_figure(), frames_from_the_side_figure()],
-                                  caption, 300, 400))
+        include.write(tabs_html('imuframes', ROBOT_TAB_LABELS, figures))
 
 
 def write_angular_velocity() -> None:
@@ -913,27 +1105,37 @@ def write_angular_velocity() -> None:
         include.write(figure_html([angular_velocity_figure()], caption, 300, 480))
 
 
-def write_specific_force() -> None:
-    """Write the include with the specific force in three situations."""
+def specific_force_explanations() -> List[str]:
+    """Return the text below each specific force drawing, as HTML, in the drawings' order."""
+    forward = number(FORWARD_ACCELERATION)
     forward_tilt = tilt_from_vertical(specific_force((FORWARD_ACCELERATION, 0.0, 0.0)))
     turn_tilt = tilt_from_vertical(specific_force(turn_acceleration()))
+    a, f, g = '<strong>a</strong>', '<strong>f</strong>', '<strong>g</strong>'
+    return [
+        f'{a} is zero, so the sensor reads {f} = \u2212{g}: {GAZEBO_GRAVITY} m/s² straight up. '
+        f'{g} and {f} are drawn to one scale.',
+        f'{f} leans forward by only {forward_tilt:.0f}°. So the circle shows the tip of {f} '
+        f'{TIP_MAGNIFICATION} times larger: {f} ends {forward} m/s² in front of the dotted '
+        'line, which points straight up from the sensor.',
+        f'The dotted circle is the sensor’s path. {f} points up, at you, and leans toward the '
+        f'center by {turn_tilt:.1f}°. The arrow of {a} shows only its direction: at the scale '
+        f'of {g}, its {centripetal_acceleration():.2f} m/s² would be too short to see.',
+    ]
+
+
+def write_specific_force() -> None:
+    """Write the include with the specific force in three situations."""
     caption = ('`linear_acceleration` is the specific force **f** = **a** − **g**: the '
-               'acceleration **a** of the sensor minus gravity **g**, in m/s². **g** and '
-               '**f** are drawn to one scale and in their true directions. While the robot '
-               f'speeds up with {number(FORWARD_ACCELERATION)} m/s², **f** leans forward by only '
-               f'{forward_tilt:.0f}°. So the circle shows the tip of **f** '
-               f'{TIP_MAGNIFICATION} times larger: **f** ends {number(FORWARD_ACCELERATION)} m/s² '
-               'in front of the dotted line, which points straight up from the sensor. The last '
-               'line of each drawing gives the message’s x, y and z on Remo, where `imu_link`’s '
-               'y axis points forward. In the turn, the dotted circle is the sensor’s path. '
-               f'**f** points up, at you, and leans toward the center by {turn_tilt:.1f}°. The '
-               f'arrow of **a** shows only its direction: its {centripetal_acceleration():.2f} '
-               f'm/s² is tiny next to gravity’s {GAZEBO_GRAVITY} m/s², and at the scale of '
-               '**g** it would be too short to see.')
+               'acceleration **a** of the sensor minus gravity **g**, in m/s². The three '
+               'drawings are a level, noise-free example: the floor is level, the robot moves '
+               'exactly as named, and the readings have no noise. The last line of each drawing '
+               'gives the reading along `imu_link`’s x, y and z axes on Remo, where the y axis '
+               'points forward. A message of the simulation differs a little, as the text '
+               'below the figure explains.')
     drawings = [specific_force_at_rest_figure(), specific_force_speeding_up_figure(),
                 specific_force_in_a_turn_figure()]
     with open('includes/imu-sim-specific-force.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html(drawings, caption, 200, 290))
+        include.write(figure_html(drawings, caption, 200, 290, specific_force_explanations()))
 
 
 def main() -> None:
