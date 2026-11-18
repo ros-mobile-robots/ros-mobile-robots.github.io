@@ -5268,7 +5268,7 @@
 <li><strong>Sample A, stamped <span class="arithmatex">\(t_s\)</span> = 99.899999 s:</strong> its age <span class="arithmatex">\(t - t_s\)</span> is 0.100001 s, 1 µs more than <code>max_age</code>. The validator rejects A as <code>TOO_OLD</code>, and the node drops the sample.</li>
 </ul>
 <p><a href="../../#check-4-the-stamp-against-the-ros-time">Check 4</a> lets a sample through that is at most <code>max_age</code>, 0.1 s, old: <span class="arithmatex">\(t - t_s \le \texttt{max\_age}\)</span>. B is exactly that old and passes. <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">Check 5</a> has no earlier valid sample to compare B with, so B passes check 5 too, and the validator accepts B. A is 1 µs older than B and fails check 4. The same two samples appear in the test of <a href="#check-4-the-two-time-limits">Check 4: the two time limits</a>, which gives both to one validator.</p>
-<p>The figure shows every step of the decision, from top to bottom. Each box on the left is a condition. A sample that meets the condition goes down to the next box. A sample that doesn't meet the condition takes the arrow "no" to the right, to the reason with which the validator drops the sample. The second box drops no sample: after the ROS time went back, the validator forgets the last valid sample and goes on, as <a href="#clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back">a clock that goes back</a> explains. The numbers 1 to 5 are those of <a href="../../#the-five-checks">the five checks</a> on the Localization page.</p>
+<p>The figure shows every step of the decision, from top to bottom. Each box on the left is a condition. A sample that meets the condition goes down to the next box. A sample that doesn't meet the condition takes the arrow "no" to the right, to the reason with which the validator drops the sample. The second box drops no sample: after the ROS time went back, the validator clears the last valid sample and goes on, as <a href="#clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back">a clock that goes back</a> explains. The numbers 1 to 5 are those of <a href="../../#the-five-checks">the five checks</a> on the Localization page.</p>
 <style>
 .md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
@@ -5358,7 +5358,7 @@
 <path class="message-head" d="M79.0,70.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="70.0" width="154.0" height="35.0" rx="4"></rect>
 <text x="9.0" y="85.0" text-anchor="start">if the clock went back:</text>
-<text class="note" x="9.0" y="98.0" text-anchor="start">forget the last valid one</text>
+<text class="note" x="9.0" y="98.0" text-anchor="start">clear the last valid one</text>
 <path class="message" d="M79.0,105.0 V116.0"></path>
 <path class="message-head" d="M79.0,117.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="117.0" width="154.0" height="22.0" rx="4"></rect>
