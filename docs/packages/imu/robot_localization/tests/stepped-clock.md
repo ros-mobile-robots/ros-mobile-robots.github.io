@@ -65,12 +65,12 @@ The first `.test` file runs the scenario [`invalid_imu_samples`](#the-seven-phas
 
 The test node picks the scenario's class by this argument, as the collapsed box shows:
 
-??? example "How the test node picks its scenario: lines 800–821"
+??? example "How the test node picks its scenario: lines 801–822"
 
-    The excerpt shows the table of the scenarios and the start of the node, from [`test_ekf_synthetic.py`, lines 800–821]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L800-L821):
+    The excerpt shows the table of the scenarios and the start of the node, from [`test_ekf_synthetic.py`, lines 801–822]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L801-L822):
 
-    ```python title="test_ekf_synthetic.py: SCENARIOS, scenario_from_arguments() and the start" linenums="800"
-    --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:800:821"
+    ```python title="test_ekf_synthetic.py: SCENARIOS, scenario_from_arguments() and the start" linenums="801"
+    --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:801:822"
     ```
 
     1. `rospy.myargv()` returns the node's arguments without ROS's remapping arguments, such as the node's name.
@@ -284,13 +284,13 @@ Each step sends one IMU sample that is stamped `STALE_OFFSET`, 0.5 s, before the
 
 ### Phases 3 to 5: a valid sample and one to drop
 
-In these phases, each step sends [`VALID_SAMPLE`](#the-inputs) first and then a second sample that reports 2.0 rad/s. The excerpt shows the three phases, from [`test_ekf_synthetic.py`, lines 479–503]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L479-L503):
+In these phases, each step sends [`VALID_SAMPLE`](#the-inputs) first and then a second sample that reports 2.0 rad/s. The excerpt shows the three phases, from [`test_ekf_synthetic.py`, lines 479–504]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L479-L504):
 
 ```python title="test_ekf_synthetic.py: phases 3 to 5" linenums="479"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:479:503"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:479:504"
 ```
 
-- **Phase 3, a repeated stamp:** the second sample has the stamp of the valid one, offset 0. The validator has to drop it as not newer than the last valid sample, check 5 of the [five checks](../../robot_localization.md#the-five-checks).
+- **Phase 3, a repeated stamp:** the second sample has the stamp of the valid one: its offset is the valid sample's, `VALID_SAMPLE.offset`, 0 s. The validator has to drop it as not newer than the last valid sample, check 5 of the [five checks](../../robot_localization.md#the-five-checks).
 - **Phase 4, from the future:** the second sample is stamped `FUTURE_OFFSET`, 0.5 s, after the step's time, 25 times the validator's `max_future`. Check 4 has to drop it.
 - **Phase 5, out of order:** the second sample is stamped `OLDER_OFFSET`, 0.01 s, before the step's time. This stamp is well within `max_age`, so check 4 passes. Check 5 has to drop the sample, because its stamp is older than the valid sample's of the same step.
 
@@ -298,10 +298,10 @@ The assertions are the same in the three phases. No kept output is above 0.51 ra
 
 ### Phase 6: the clock goes back
 
-The test sets the clock back from 107 s to `RESTART`, 50 s, as a call of the service `/gazebo/reset_simulation` does in the simulation. The validator starts its order check over, as [a clock that goes back](validator.md#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back) on the validator's tests page explains, and the EKF starts over from the new time, because [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets `reset_on_time_jump`. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 505–528]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L505-L528):
+The test sets the clock back from 107 s to `RESTART`, 50 s, as a call of the service `/gazebo/reset_simulation` does in the simulation. The validator starts its order check over, as [a clock that goes back](validator.md#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back) on the validator's tests page explains, and the EKF starts over from the new time, because [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets `reset_on_time_jump`. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 506–529]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L506-L529):
 
-```python title="test_ekf_synthetic.py: phase 6" linenums="505"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:505:528"
+```python title="test_ekf_synthetic.py: phase 6" linenums="506"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:506:529"
 ```
 
 1. The phase sets `self.now` to `RESTART`, publishes the clock and sleeps `RESET_DELIVERY`, 0.5 s of wall time, so that the jump reaches the nodes.
@@ -312,10 +312,10 @@ The test sets the clock back from 107 s to `RESTART`, 50 s, as a call of the ser
 
 ### Phase 7: the validator's counts
 
-The validator counts every sample that it forwards and every sample that it drops, by reason, and reports the counts on the topic `/diagnostics` once per second of ROS time, as [the validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) on the Localization page show. The test kept its own counts with [`count_expected_outcome()`](#the-code-of-one-step). Phase 7 compares the two. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 530–570]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L530-L570):
+The validator counts every sample that it forwards and every sample that it drops, by reason, and reports the counts on the topic `/diagnostics` once per second of ROS time, as [the validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) on the Localization page show. The test kept its own counts with [`count_expected_outcome()`](#the-code-of-one-step). Phase 7 compares the two. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 531–571]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L531-L571):
 
-```python title="test_ekf_synthetic.py: phase 7" linenums="530"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:530:570"
+```python title="test_ekf_synthetic.py: phase 7" linenums="531"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:531:571"
 ```
 
 - **`wait_for_validator_diagnostics()`:** notes in `array_count_before` how many messages of the topic `/diagnostics` the test has so far. Then it runs steps without IMU samples until the clock is `DIAGNOSTICS_WAIT`, 1.5 s, further. That is longer than the 1 s between two reports, so a report from after the last IMU sample arrives. The method returns the keys and values of the validator's latest status.
@@ -326,10 +326,10 @@ The validator counts every sample that it forwards and every sample that it drop
 
 On the robot, the inputs arrive at different rates. The IMU is configured to publish at 50 Hz. The wheel odometry arrives at most 10 times per second, because the control loop of the node `diffbot_base` runs the drive controller at a nominal 10 Hz, as the box under [`frequency`](../../robot_localization.md#the-other-settings) on the Localization page explains. The scenario `robot_rates` feeds the filter at these rates: an IMU sample in every step, every 20 ms of ROS time, and a wheel message in every fifth step, every 100 ms. Then the IMU stops, and the wheel messages go on.
 
-The scenario is the class `TestEkfAtTheRobotRates`. The excerpt shows the class with its docstring, its `setUp()` and the test method, from [`test_ekf_synthetic.py`, lines 573–603]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L573-L603). [Phase 2](#phase-2-of-robot_rates-the-imu-stops) needs a filter that fused the IMU's samples before, so the two phases are one test:
+The scenario is the class `TestEkfAtTheRobotRates`. The excerpt shows the class with its docstring, its `setUp()` and the test method, from [`test_ekf_synthetic.py`, lines 574–604]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L574-L604). [Phase 2](#phase-2-of-robot_rates-the-imu-stops) needs a filter that fused the IMU's samples before, so the two phases are one test:
 
-```python title="test_ekf_synthetic.py: the class, setUp() and the test method of robot_rates" linenums="573"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:573:603"
+```python title="test_ekf_synthetic.py: the class, setUp() and the test method of robot_rates" linenums="574"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:574:604"
 ```
 
 `setUp()` first runs the `setUp()` of [`SteppedClockTestCase`](#before-the-first-step), through `super()`. Then `setUp()` subscribes to the wheel odometry's topic itself, with the callback `on_wheel_odometry()`, which notes the stamp of each wheel message in `self.wheel_message_stamps`. So phase 2 counts the wheel messages that the topic carried, not only those that the test meant to send.
@@ -347,22 +347,22 @@ The IMU samples report `IMU_RATE`, 0.5 rad/s, as in [`invalid_imu_samples`](#the
 
 ### Phase 1 of `robot_rates`: the estimate follows the IMU and the wheels' speed
 
-The phase runs 150 steps, 3 s of ROS time, with a valid IMU sample in each step and a wheel message in every fifth step. With the wheel message of step 100, 2 s into the phase, the wheels' forward speed changes from `SPEED`, 0.1 m/s, to `CHANGED_SPEED`, 0.12 m/s. Only the wheel odometry carries a forward speed. So the estimate's forward speed $v_x$ reaches 0.12 m/s only if the filter fuses the wheel messages after the change. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 605–623]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L605-L623):
+The phase runs 150 steps, 3 s of ROS time, with a valid IMU sample in each step and a wheel message in every fifth step. With the wheel message of step 100, 2 s into the phase, the wheels' forward speed changes from `SPEED`, 0.1 m/s, to `CHANGED_SPEED`, 0.12 m/s. Only the wheel odometry carries a forward speed. So the estimate's forward speed $v_x$ reaches 0.12 m/s only if the filter fuses the wheel messages after the change. The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 606–624]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L606-L624):
 
-```python title="test_ekf_synthetic.py: phase 1 of robot_rates" linenums="605"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:605:623"
+```python title="test_ekf_synthetic.py: phase 1 of robot_rates" linenums="606"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:606:624"
 ```
 
-The phase runs its steps with `run_steps_at_the_robot_rates()`, which asks `wheel_input_at_the_robot_rates()` for each step's wheel odometry. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 667–675]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L667-L675):
+The phase runs its steps with `run_steps_at_the_robot_rates()`, which asks `wheel_input_at_the_robot_rates()` for each step's wheel odometry. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 668–676]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L668-L676):
 
-```python title="test_ekf_synthetic.py: run_steps_at_the_robot_rates()" linenums="667"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:667:675"
+```python title="test_ekf_synthetic.py: run_steps_at_the_robot_rates()" linenums="668"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:668:676"
 ```
 
-The next excerpt shows the function that decides each step's wheel odometry, from [`test_ekf_synthetic.py`, lines 776–784]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L776-L784). The step with the `step_index` 0 publishes a wheel message, and so does every step whose `step_index` is a multiple of `STEPS_PER_WHEEL_MESSAGE`, 5. The other steps get `None` and publish no wheel odometry:
+The next excerpt shows the function that decides each step's wheel odometry, from [`test_ekf_synthetic.py`, lines 777–785]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L777-L785). The step with the `step_index` 0 publishes a wheel message, and so does every step whose `step_index` is a multiple of `STEPS_PER_WHEEL_MESSAGE`, 5. The other steps get `None` and publish no wheel odometry:
 
-```python title="test_ekf_synthetic.py: wheel_input_at_the_robot_rates()" linenums="776"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:776:784"
+```python title="test_ekf_synthetic.py: wheel_input_at_the_robot_rates()" linenums="777"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:777:785"
 ```
 
 The phase checks four things:
@@ -372,10 +372,10 @@ The phase checks four things:
 - **After the change:** `assert_forward_speeds()` checks the output that the test keeps for each step, the last one that `step()` returns, from the step with the `index` 106 on, `SPEED_CHANGE_STEP + SPEED_CHANGE_WINDOW`, against `CHANGED_SPEED`, 0.12 m/s, within 0.002 m/s. `SPEED_CHANGE_WINDOW`, 6 steps, gives the estimate time for two wheel messages, in the steps 100 and 105, and one more step for a message that arrives late. The constants' comments say why the change is 0.02 m/s: the filter estimates an acceleration from the change, which moves the estimate between two wheel messages, by less than the tolerance for this small change.
 - **The last output:** `assert_fused_estimate()` checks the output of the step with the `index` 149, again the fourth after a wheel message, against `CHANGED_SPEED` and `IMU_RATE`.
 
-The excerpt shows the helper of the check after the change, from [`test_ekf_synthetic.py`, lines 723–728]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L723-L728):
+The excerpt shows the helper of the check after the change, from [`test_ekf_synthetic.py`, lines 724–729]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L724-L729):
 
-```python title="test_ekf_synthetic.py: assert_forward_speeds()" linenums="723"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:723:728"
+```python title="test_ekf_synthetic.py: assert_forward_speeds()" linenums="724"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:724:729"
 ```
 
 ### Phase 2 of `robot_rates`: the IMU stops
@@ -399,16 +399,16 @@ What the test asserts and what the recorded run shows, side by side:
 - **The test asserts:** the header stamp of one output in each wheel period, at any time within the period. So a wheel message that reaches the filter late can still pass. The test doesn't look at the times at which the outputs are published.
 - **The recorded run shows:** each of the 20 outputs is stamped exactly with its wheel message's time. 12 of them were published 20 ms after their stamp, by the update that fused the wheel message. 8 were published at their stamp, by a prediction at the sensor timeout. So a fused output is published between two wheel messages, while its header stamp lies at the start of its period.
 
-The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 625–665]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L625-L665). Its docstring says what the filter does between two wheel messages:
+The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 626–666]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L626-L666). Its docstring says what the filter does between two wheel messages:
 
-```python title="test_ekf_synthetic.py: phase 2 of robot_rates" linenums="625"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:625:665"
+```python title="test_ekf_synthetic.py: phase 2 of robot_rates" linenums="626"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:626:666"
 ```
 
-The phase runs its steps with `run_wheel_periods_without_imu()`. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 677–691]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L677-L691):
+The phase runs its steps with `run_wheel_periods_without_imu()`. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 678–692]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L678-L692):
 
-```python title="test_ekf_synthetic.py: run_wheel_periods_without_imu()" linenums="677"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:677:691"
+```python title="test_ekf_synthetic.py: run_wheel_periods_without_imu()" linenums="678"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:678:692"
 ```
 
 1. A wheel period is `STEPS_PER_WHEEL_MESSAGE`, 5, steps. The first step of a period notes the clock `self.now` in `period_starts` and publishes a wheel message stamped with this time, which reports [`WHEEL_INPUT`](#the-inputs).
@@ -470,28 +470,28 @@ The three recordings have their wheel messages on time. In them, with the IMU st
 
 Which of the two happens depends on the last digits of the difference between two stamps. The filter computes with times in seconds as double-precision floating-point numbers, and the difference of two stamps 0.1 s apart comes out a little above or a little below 0.1. For example, 103.2 s minus 103.1 s gives 0.1000000000000085, and the filter predicts. 103.3 s minus 103.2 s gives 0.0999999999999943, and the filter waits for the message. In each of three recorded runs, robot_localization's debug trace shows 8 of the 20 outputs of phase 2 as predicted and 12 as fused, at the same wheel messages: those where the difference of two stamps comes out at 0.1 or above. In both cases, the output is stamped with the wheel message's time.
 
-A wheel message can also reach the filter late, for example on a busy computer. The test doesn't wait for an output in the measured periods, so the clock moves on, and the filter fuses the message in a later update of its period. That late update either publishes the message, stamped with its time, or an earlier update of the period has already predicted and published, stamped with that update's time. Then the late message is older than the filter's time: the filter corrects with it but publishes no output for it. So each period still gets one output stamp, as long as its wheel message reaches the filter, and the filter's updates run, before the clock reaches the next wheel message's stamp. The steps' sleeps give a message about 0.9 s of wall time for that, five times `DELIVERY` and four times `NO_OUTPUT_WAIT`, but they don't prove that the filter's updates ran. The check of the outputs allows any stamp within a wheel period. Two functions put stamps into wheel periods. The excerpt shows them, from [`test_ekf_synthetic.py`, lines 787–797]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L787-L797):
+A wheel message can also reach the filter late, for example on a busy computer. The test doesn't wait for an output in the measured periods, so the clock moves on, and the filter fuses the message in a later update of its period. That late update either publishes the message, stamped with its time, or an earlier update of the period has already predicted and published, stamped with that update's time. Then the late message is older than the filter's time: the filter corrects with it but publishes no output for it. So each period still gets one output stamp, as long as its wheel message reaches the filter, and the filter's updates run, before the clock reaches the next wheel message's stamp. The steps' sleeps give a message about 0.9 s of wall time for that, five times `DELIVERY` and four times `NO_OUTPUT_WAIT`, but they don't prove that the filter's updates ran. The check of the outputs allows any stamp within a wheel period. Two functions put stamps into wheel periods. The excerpt shows them, from [`test_ekf_synthetic.py`, lines 788–798]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L788-L798):
 
-```python title="test_ekf_synthetic.py: within_wheel_periods() and wheel_period_index()" linenums="787"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:787:797"
+```python title="test_ekf_synthetic.py: within_wheel_periods() and wheel_period_index()" linenums="788"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:788:798"
 ```
 
 - **`within_wheel_periods()`:** returns whether a stamp lies from the first period's start to before the end of the last period. The phase takes the outputs and the wheel messages by their stamps with this function, from all that the test has received after one more wheel period, which the next excerpt shows. So the stamps, not the order of arrival, decide the period of each message.
 - **`wheel_period_index()`:** returns for a stamp the index of its wheel period, the number of periods that started at or before the stamp, minus one. A period starts at a wheel message's stamp and ends at the next one's.
 
-The phase reads the outputs and the wheel messages only after one more wheel period, which it doesn't measure. `run_wheel_periods_without_imu(1)` runs this period like the others, from the end of the last measured period at 105.00 s, and returns its start. Then `wait_for_messages_from()` waits for the messages of this extra period. The excerpt shows this method and the two methods that take the outputs and the wheel messages of the measured periods, from [`test_ekf_synthetic.py`, lines 693–721]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L693-L721):
+The phase reads the outputs and the wheel messages only after one more wheel period, which it doesn't measure. `run_wheel_periods_without_imu(1)` runs this period like the others, from the end of the last measured period at 105.00 s, and returns its start. Then `wait_for_messages_from()` waits for the messages of this extra period. The excerpt shows this method and the two methods that take the outputs and the wheel messages of the measured periods, from [`test_ekf_synthetic.py`, lines 694–722]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L694-L722):
 
-```python title="test_ekf_synthetic.py: the wait after the measured periods, and what the phase reads" linenums="693"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:693:721"
+```python title="test_ekf_synthetic.py: the wait after the measured periods, and what the phase reads" linenums="694"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:694:722"
 ```
 
 - **`wait_for_messages_from()`:** waits with [`wait_until()`](#before-the-first-step), at most `WAIT`, until the test's subscriber has the extra period's wheel message, stamped at its start, and an output stamped at that start or later. Each subscription receives the messages of its one publisher in their order and runs their callbacks in that order. So when these two messages have arrived, the callbacks of all earlier wheel messages and outputs have run. The extra period moves the clock on by a whole wheel period first, so that the filter publishes an output even when the extra wheel message reaches the filter late. The method doesn't fail. It returns the names of the messages that didn't arrive.
 - **`outputs_within_the_periods()` and `wheel_message_stamps_within_the_periods()`:** take the outputs and the wheel messages' stamps that lie within the measured periods, by `within_wheel_periods()`, from all that the test received, in the order of arrival. The extra period's messages lie after the last measured period, so they don't count.
 
-The excerpt shows the two assertions of the periods, from [`test_ekf_synthetic.py`, lines 730–746]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L730-L746):
+The excerpt shows the two assertions of the periods, from [`test_ekf_synthetic.py`, lines 731–747]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L731-L747):
 
-```python title="test_ekf_synthetic.py: the two assertions of the wheel periods" linenums="730"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:730:746"
+```python title="test_ekf_synthetic.py: the two assertions of the wheel periods" linenums="731"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:731:747"
 ```
 
 - **`assert_one_wheel_message_per_period()`:** the stamps of the received wheel messages have to be exactly the periods' starts, in their order, one message at the start of each period. A failure names the starts without a wheel message.
@@ -508,7 +508,7 @@ The phase checks these things, in this order:
 
 ## Runs
 
-The runs on this page are runs of the commit [`2fa558d`](https://github.com/ros-mobile-robots/diffbot/commit/2fa558dbdc9f5a702a29250984a279ea97a9e895) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples) and 31 s for [`robot_rates`](#the-robots-rates-robot_rates).
+The runs on this page are runs of the commit [`666652a`](https://github.com/ros-mobile-robots/diffbot/commit/666652a9a09dec41946fb76926215b91ed8f5613) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples) and 31 s for [`robot_rates`](#the-robots-rates-robot_rates).
 
 ### `invalid_imu_samples`
 

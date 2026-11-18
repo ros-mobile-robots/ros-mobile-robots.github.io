@@ -96,16 +96,16 @@ ONE_MICROSECOND_S = 1e-6  # ONE_MICROSECOND
 JUST_TOO_OLD_S = MAX_AGE_S + ONE_MICROSECOND_S  # JUST_TOO_OLD
 JUST_TOO_FAR_AHEAD_S = MAX_FUTURE_S + ONE_MICROSECOND_S  # JUST_TOO_FAR_AHEAD
 # test_validator_rejects_a_sample_not_later_than_the_last_valid_one
-ORDER_OLDER_S = 0.01  # make_imu_sample(NOW - seconds(0.01))
-ORDER_LATER_NS = 1  # make_imu_sample(NOW + rospy.Duration(0, 1))
+SHORTLY_BEFORE_S = MAX_AGE_S / 10  # SHORTLY_BEFORE, how much earlier sample E is stamped
+ORDER_LATER_NS = 1  # ONE_NANOSECOND, how much later sample G is stamped
 # test_validator_accepts_a_new_sample_after_rejecting_a_future_one
-FAR_AHEAD_S = 5  # make_imu_sample(NOW + seconds(5))
+FAR_AHEAD_S = 5  # FAR_AHEAD
 # test_validator_accepts_a_stamp_once_after_the_clock_goes_back
-EARLY_RESTART_S = 0.02  # restart = rospy.Time(0, 20000000)
-REPEAT_DELAY_MS = 1  # restart + seconds(0.001), the ROS time of the second sample
+RESTART_NEAR_ZERO_S = 0.02  # RESTART_NEAR_ZERO
+REPEAT_DELAY_MS = 1  # ONE_MILLISECOND, from the arrival of the first sample to the second's
 # test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back
-RESTART_S = 50  # restart = rospy.Time(50, 0)
-OLD_AFTER_RESTART_S = 1  # make_imu_sample(restart - seconds(1))
+RESTART_S = 50  # RESTART
+OLD_AFTER_RESTART_S = 1  # ONE_SECOND, how much earlier than RESTART sample L is stamped
 
 # The four time axes of the validator figure. Above each axis is a band, ZONE_HEIGHT high,
 # that holds the samples' marks
@@ -659,8 +659,8 @@ def order_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
                 'middle')
 
     samples = (
-        Sample('E', ORDER_LAST_X - 1000 * ORDER_OLDER_S * ORDER_PIXELS_PER_MS, False,
-               f'stamped {ORDER_OLDER_S} s before {NOW_S} s. The sample arrived out of order'),
+        Sample('E', ORDER_LAST_X - 1000 * SHORTLY_BEFORE_S * ORDER_PIXELS_PER_MS, False,
+               f'stamped {SHORTLY_BEFORE_S} s before {NOW_S} s. The sample arrived out of order'),
         Sample('F', ORDER_LAST_X, False, f'stamped {NOW_S} s again. The sample came twice'),
         Sample('G', ORDER_LAST_X + figure.fixed(ORDER_APART), True,
                f'stamped {ORDER_LATER_NS} ns after {NOW_S} s, the smallest step of a stamp'),
@@ -680,18 +680,18 @@ def order_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
 
 
 def early_clock_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
-    """Return the drawing of the test whose clock goes back to EARLY_RESTART_S, and its samples.
+    """Return the drawing of the test whose clock goes back near zero, and its samples.
 
-    The axis starts at the ROS time zero.
+    The clock goes back to RESTART_NEAR_ZERO_S. The axis starts at the ROS time zero.
     """
     figure = layout_figure(
         'lv-test-clock-early', layout,
-        f'After the ROS time went back from {NOW_S} s to {EARLY_RESTART_S} s, '
-        f'check 5 starts over: a sample stamped {EARLY_RESTART_S} s is forwarded, '
+        f'After the ROS time went back from {NOW_S} s to {RESTART_NEAR_ZERO_S} s, '
+        f'check 5 starts over: a sample stamped {RESTART_NEAR_ZERO_S} s is forwarded, '
         f'although the last valid stamp was {NOW_S} s, and a second sample with the '
         'same stamp is dropped', AXIS_HEIGHT)
     period = SAMPLE_PERIOD_MS * EARLY_PIXELS_PER_MS
-    now_x = EARLY_ZERO_X + 1000 * EARLY_RESTART_S * EARLY_PIXELS_PER_MS
+    now_x = EARLY_ZERO_X + 1000 * RESTART_NEAR_ZERO_S * EARLY_PIXELS_PER_MS
     newest_x = now_x + 1000 * MAX_FUTURE_S * EARLY_PIXELS_PER_MS
     draw_zones(figure, ZONE_TOP, EARLY_ZERO_X, EARLY_ZERO_X, newest_x, (), ('too far ahead',))
     draw_axis(figure, EARLY_ZERO_X, AXIS_Y,
@@ -699,7 +699,7 @@ def early_clock_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
     figure.path(f'M{EARLY_ZERO_X},{AXIS_Y - 5} v10', 'axis')
     figure.text(EARLY_ZERO_X - figure.fixed(5), AXIS_Y + 4, '0 s', 'note', 'end')
     draw_cut(figure, EARLY_CUT_X, AXIS_Y)
-    draw_reference(figure, now_x, AXIS_Y, f'now: t = {EARLY_RESTART_S} s')
+    draw_reference(figure, now_x, AXIS_Y, f'now: t = {RESTART_NEAR_ZERO_S} s')
     add_with_title(
         figure, f'{NOW_S} s: the stamp of the last valid sample before the clock went back',
         f'<path class="former-stamp" d="M{EARLY_FORMER_X},{AXIS_Y - 26} V{AXIS_Y + 6}"/>')
@@ -707,12 +707,12 @@ def early_clock_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
 
     samples = (
         Sample('J', now_x, True,
-               f'stamped {EARLY_RESTART_S} s, the new ROS time. The stamp is far older '
+               f'stamped {RESTART_NEAR_ZERO_S} s, the new ROS time. The stamp is far older '
                f'than the last valid stamp, {NOW_S} s. When the clock went back, the validator '
                'set its attribute last_valid_stamp to None'),
         Sample('K', now_x, False,
-               f'stamped {EARLY_RESTART_S} s again, sent {REPEAT_DELAY_MS} ms later. The stamp '
-               'is not later than the stamp of J'),
+               f'stamped {RESTART_NEAR_ZERO_S} s again, sent {REPEAT_DELAY_MS} ms later. The '
+               'stamp is not later than the stamp of J'),
     )
     draw_marks(figure, samples, AXIS_Y)
     # The marks of J and K stand on top of each other: their order is written beside them
@@ -1023,7 +1023,8 @@ def write_validator_clock_back() -> None:
         key('<path class="former-stamp" d="M12,-3 V15"/>', 'lv-key lv-narrow')
         + f'{NOW_S} s, the stamp of the last valid sample before the clock went back')
     parts = [
-        band(f'The clock goes back from {NOW_S} s to {EARLY_RESTART_S} s: check 5 starts over'),
+        band(f'The clock goes back from {NOW_S} s to {RESTART_NEAR_ZERO_S} s: check 5 starts '
+             'over'),
         early_drawings,
         legend([sample_line(sample) for sample in early_samples] + [former_stamp_line]),
         band(f'The clock goes back from {NOW_S} s to {RESTART_S} s: check 4 uses the new time'),

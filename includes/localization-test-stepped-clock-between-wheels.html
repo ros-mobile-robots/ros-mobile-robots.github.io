@@ -286,6 +286,6 @@
 <li><span class="lv-sign"></span><strong>fused:</strong> in the trace, the filter fused the wheel message and published the result, stamped with the message's time</li>
 <li><span class="lv-sign"></span><strong>predicted:</strong> in the trace, the filter predicted to the time of the wheel message, without a measurement, because the ROS time was 0.1 s or more, its sensor_timeout, past its last measurement. It published the prediction, stamped with that time. It fuses the wheel message in the next update, but publishes no second output with the same stamp. The next output contains the message</li>
 </ul>
-<figcaption>Each drawing spans 3 wheel messages of a phase of robot_rates, about 260 ms, in a recorded run at the diffbot commit 2fa558d, with robot_localization's debug trace, ROS time to the right.</figcaption>
+<figcaption>Each drawing spans 3 wheel messages of a phase of robot_rates, about 260 ms, in a recorded run at the diffbot commit 666652a, with robot_localization's debug trace, ROS time to the right.</figcaption>
 </figure>
 </div>
