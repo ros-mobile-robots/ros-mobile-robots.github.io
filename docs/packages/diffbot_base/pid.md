@@ -129,11 +129,11 @@ various nuisances of the physical robot, including differences in motors,
 wheels, and the asymmetry of the robot. It's simple and easily interpretable,
 too.
 
-The two PIDs make each wheel turn at its target angular velocity $\dot{\phi}_{l/r}$.
+The two PIDs make each wheel turn at its target angular velocity $\dot{\phi}_{l/r}$, the rate at which the wheel turns about its axle.
 They don't make sure that the robot drives the commanded path.
 One reason is that the two wheel radii $R_{l/r}$ differ slightly.
-A wheel with the radius $R_{l/r}$ that turns with $\dot{\phi}_{l/r}$ rolls over the ground with the speed $v_{l/r} = R_{l/r} \cdot \dot{\phi}_{l/r}$.
-In the time $\Delta t$, it travels the distance $d_{l/r}$:
+Take a wheel with the radius $R_{l/r}$ that rolls without slipping and turns with a constant $\dot{\phi}_{l/r}$ for the time $\Delta t$.
+It moves over the ground with the speed $v_{l/r} = R_{l/r} \cdot \dot{\phi}_{l/r}$ and travels the distance $d_{l/r}$:
 
 $$
 d_{l/r} = v_{l/r} \cdot \Delta t = R_{l/r} \cdot \dot{\phi}_{l/r} \cdot \Delta t
@@ -150,6 +150,7 @@ An angle in radians is the ratio of two lengths, so the result is in metres.
 Remo's two wheels measure 65.5 mm and 66.5 mm in diameter, as the comment in the same file says.
 With radii of 0.03275 m and 0.03325 m, the same 2 rad/s for 3 s give 0.1965 m and 0.1995 m.
 One wheel travels 3 mm further, although both wheels turn equally fast.
+So the robot turns toward the wheel with the smaller radius, which travels the shorter distance.
 
 These mechanical variations "can't be seen" by the encoders alone. For example
 assume you want the robot to go straight, you would set the two desired
@@ -174,7 +175,7 @@ $$
 d_{l/r} = R_{l/r} \cdot \Delta \phi_{l/r}
 $$
 
-where $\Delta \phi_{l/r}$ are the rotations of each wheel (more accurately, of each motor), and $R_{l/r}$ is the radius of each wheel. If the radii are exactly the same, then $R_l = R_r = R$ and the approach using only two PID controllers would work because controlling $\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}$ is equivalent to controlling $\Delta \phi_{l/r,k}$, as the time interval we can assume known.
+where $\Delta \phi_{l/r}$ is the angle that each wheel turns about its axle in $\Delta t$, and $R_{l/r}$ is the radius of each wheel. The equation assumes again that the wheels roll without slipping. The angle is the wheel's, not the motor's. The motor's shaft turns faster than the wheel, by the ratio of the gearbox between them, so the motor's angle times the wheel radius would give too long a distance. If the radii are exactly the same, then $R_l = R_r = R$ and the approach using only two PID controllers would work because controlling $\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}$ is equivalent to controlling $\Delta \phi_{l/r,k}$, as the time interval we can assume known.
 
 In practice, $R_l = R_r = R$ does not hold because of manufacturing tolerances, deformable material of the wheels generating different surfaces of contact with the ground depending on their assembly and robot mass distribution, etc.
 
