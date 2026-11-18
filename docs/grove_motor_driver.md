@@ -43,15 +43,21 @@ Two things matter for this connection: the voltage of the two signals and a comm
 - **Signal voltage:** The motor driver's I2C bus works with 5 V ([Seeed's specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications)). The Raspberry Pi's GPIO pins work with 3.3 V and aren't 5 V tolerant ([Raspberry Pi's documentation of the 40-pin GPIO header](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)). So the data line SDA and the clock line SCL go through a bidirectional I2C level shifter, for example [Adafruit's BSS138 level converter](https://www.adafruit.com/product/757). The level shifter connects the 3.3 V signals on its low side with the 5 V signals on its high side.
 - **Common ground:** Each board measures the voltages on SDA and SCL against its own ground. On DiffBot, the two boards have separate supplies: a power bank for the Raspberry Pi and four AA batteries for the motor driver ([Power Supply](power-supply.md)). So the grounds of the Raspberry Pi, the level shifter and the motor driver have to be connected.
 
-With the Raspberry Pi's 40-pin header ([I2C pinout](https://pinout.xyz/pinout/i2c)), the wires are:
+Switch off both supplies before you connect the wires: shut down the Raspberry Pi and unplug its power bank, and take the batteries out of the motor driver's holder.
+With Adafruit's converter as the example, each row is one wire. The pins of the Raspberry Pi are those of its 40-pin header ([I2C pinout](https://pinout.xyz/pinout/i2c)), and the level shifter's pins are named as printed on its board:
 
-| Raspberry Pi | Level shifter, low side | Level shifter, high side | Motor driver's I2C connector |
-| --- | --- | --- | --- |
-| Pin 3, SDA | Channel 1 | Channel 1 | SDA |
-| Pin 5, SCL | Channel 2 | Channel 2 | SCL |
-| Pin 1, 3.3 V | Reference voltage | | |
-| Pin 2, 5 V | | Reference voltage | |
-| Pin 6, GND | GND | GND | GND |
+| From | To |
+| --- | --- |
+| Raspberry Pi pin 1, 3.3 V | Level shifter `LV` |
+| Raspberry Pi pin 2, 5 V | Level shifter `HV` |
+| Raspberry Pi pin 6, GND | Level shifter `GND`, on the `LV` side |
+| Level shifter `GND`, on the `HV` side | Motor driver's I2C connector, GND |
+| Raspberry Pi pin 3, SDA | Level shifter `A1` |
+| Level shifter `B1` | Motor driver's I2C connector, SDA |
+| Raspberry Pi pin 5, SCL | Level shifter `A2` |
+| Level shifter `B2` | Motor driver's I2C connector, SCL |
+
+The level shifter connects `A1` with `B1` and `A2` with `B2` itself. Don't connect these pins with a wire.
 
 The VCC pin of the motor driver's I2C connector stays unconnected, because the motor driver makes its own 5 V from the batteries.
 Remove the jumper J4 on the motor driver board.
@@ -59,6 +65,11 @@ The jumper connects the board's 5 V regulator to the VCC pin of the I2C connecto
 Seeed asks to remove it when the board gets power both from its screw terminals and over the I2C connector ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
 Without the jumper, the regulator stays off the VCC pin, even when a four-wire Grove cable connects VCC to another board.
 The jumper switches only this 5 V line. The GND pin of the I2C connector stays connected to the board's ground either way.
+
+Keep the motor driver powered whenever the Raspberry Pi runs.
+The level shifter's 5 V side gets its supply from the Raspberry Pi.
+Without its batteries, the motor driver would get current through the SDA and SCL wires instead. These wires end at the board's microcontroller, an ATmega8 ([Seeed's schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)), and each of its pins has a protection diode to its supply line ([ATmega8 datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf), I/O Ports).
+So put the batteries in before you switch on the Raspberry Pi, and shut down the Raspberry Pi before you change the batteries.
 
 This wiring follows the specifications of the two boards. It isn't tested on a DiffBot yet.
 
