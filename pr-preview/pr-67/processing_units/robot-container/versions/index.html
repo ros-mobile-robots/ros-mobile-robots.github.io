@@ -1609,10 +1609,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-newest-version" class="md-nav__link">
+  <a href="#update-to-the-newest-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The newest version
+        Update to the newest version
       
     </span>
   </a>
@@ -1620,10 +1620,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#one-fixed-version" class="md-nav__link">
+  <a href="#run-one-fixed-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One fixed version
+        Run one fixed version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-version-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which version runs
       
     </span>
   </a>
@@ -1635,6 +1646,17 @@
     <span class="md-ellipsis">
       
         What a version covers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-clones-commit-and-its-local-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A clone's commit and its local changes
       
     </span>
   </a>
@@ -4451,10 +4473,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-newest-version" class="md-nav__link">
+  <a href="#update-to-the-newest-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The newest version
+        Update to the newest version
       
     </span>
   </a>
@@ -4462,10 +4484,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#one-fixed-version" class="md-nav__link">
+  <a href="#run-one-fixed-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One fixed version
+        Run one fixed version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-version-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which version runs
       
     </span>
   </a>
@@ -4477,6 +4510,17 @@
     <span class="md-ellipsis">
       
         What a version covers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-clones-commit-and-its-local-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A clone's commit and its local changes
       
     </span>
   </a>
@@ -4665,38 +4709,105 @@
 <p>This page is about the robot's Docker image: which version runs, how to update the image or stay on one version, what a test report notes, and how to build the image yourself. You don't need this page to start the robot. <a href="../usage/">Start, Check and Stop</a> covers that.</p>
 <p>The commands run on the Raspberry Pi, in the folder <code>~/diffbot/.docker/robot</code>, unless a step names your PC.</p>
 <h2 id="versions">Versions</h2>
-<p>A version is one build of the robot's Docker image. The setting <code>ROBOT_IMAGE</code> in <code>.env</code> chooses the version that runs (<a href="../setup/#all-settings">All settings</a>).</p>
-<h3 id="the-newest-version">The newest version</h3>
-<p>Without <code>ROBOT_IMAGE</code>, the robot runs <code>noetic</code>. That's the newest Docker image that <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> published from the <code>noetic-devel</code> branch. To update, on the Raspberry Pi:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git pull</span>
-<span class="go">docker compose pull --policy always</span>
-<span class="go">docker compose up -d --no-build</span>
+<p>A version is one build of the robot's Docker image, from one commit of the diffbot repository. The image's full name says where the image is stored and which version is meant:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>ghcr.io/ros-mobile-robots/diffbot-robot:noetic
+</code></pre></div></td></tr></tbody></table></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Part of the name</th>
+<th style="text-align: left;">What the part is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ghcr.io</code></td>
+<td style="text-align: left;">The registry: the server that stores the image. This one is GitHub's</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ros-mobile-robots/diffbot-robot</code></td>
+<td style="text-align: left;">The image, in the organization ros-mobile-robots. The <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot">package's page</a> lists its versions</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>noetic</code>, after the colon</td>
+<td style="text-align: left;">The tag: a label that chooses one version. The table below has the two kinds of tags</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tag</th>
+<th style="text-align: left;">Which version the tag chooses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>noetic</code></td>
+<td style="text-align: left;">The newest version that <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> published from the branch <code>noetic-devel</code>. This tag moves to each new version</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>noetic-&lt;commit&gt;</code></td>
+<td style="text-align: left;">The version that was built from that commit, with the commit's full 40 characters. This tag never moves</td>
+</tr>
+</tbody>
+</table>
+<p>The registry only stores the versions. A version runs on the robot after a pull: Docker downloads the version from the registry and keeps it on the Raspberry Pi. The setting <code>ROBOT_IMAGE</code> in <code>.env</code> holds the name that Compose pulls and starts (<a href="../setup/#all-settings">All settings</a>). Without this setting, the name is the one above, with the tag <code>noetic</code>.</p>
+<p>That gives three choices, from the most frequent to the rarest:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">What you want</th>
+<th style="text-align: left;">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Start the robot with the version that is on the Raspberry Pi</td>
+<td style="text-align: left;"><code>docker compose up -d</code>, as in <a href="../usage/#start">Start</a>. The command doesn't ask the registry again once a version is downloaded</td>
+</tr>
+<tr>
+<td style="text-align: left;">Get the newest version</td>
+<td style="text-align: left;"><a href="#update-to-the-newest-version">Update to the newest version</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">Run one exact version, for example to repeat a test</td>
+<td style="text-align: left;"><a href="#run-one-fixed-version">Run one fixed version</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="update-to-the-newest-version">Update to the newest version</h3>
+<p>Without <code>ROBOT_IMAGE</code>, the robot runs the tag <code>noetic</code>. To update, on the Raspberry Pi:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git pull &amp;&amp; docker compose pull --policy always &amp;&amp; docker compose up -d</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ol>
 <li><code>git pull</code> updates your clone of the repository, with <code>compose.yaml</code> and the udev rules.</li>
 <li><code>docker compose pull --policy always</code> asks the registry for <code>noetic</code> again, and downloads the image if there's a newer one.</li>
-<li><code>docker compose up -d --no-build</code> recreates the containers with the downloaded image.</li>
+<li><code>docker compose up -d</code> recreates the containers with the downloaded image.</li>
 </ol>
-<h3 id="one-fixed-version">One fixed version</h3>
-<p>Each published Docker image also has a name with the full commit it was built from: <code>noetic-&lt;commit&gt;</code>. This name never moves to another image. The <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot">package's page</a> lists the names. To stay on one version, or to go back to an earlier one, set that version in <code>.env</code>:</p>
+<p><code>&amp;&amp;</code> runs the next command only if the command before it succeeded. So a failed download stops the update. Without <code>&amp;&amp;</code>, the last command would run anyway and start the version that was on the Raspberry Pi before, and the update would look finished. <a href="#which-version-runs">Which version runs</a> shows how to check the result.</p>
+<h3 id="run-one-fixed-version">Run one fixed version</h3>
+<p>Each published version also has a tag with the full commit it was built from: <code>noetic-&lt;commit&gt;</code>. The <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot">package's page</a> lists these tags. The page also lists two tags per version that end in <code>-amd64</code> and <code>-arm64</code>. They are the version's two builds, one per processor architecture. Use the tag without such an ending: Docker then picks the build for the Raspberry Pi by itself.</p>
+<p>To stay on one version, or to go back to an earlier one, copy that version's whole tag from the package's page and set the name in <code>.env</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">.docker/robot/.env</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">ROBOT_IMAGE</span><span class="o">=</span>ghcr.io/ros-mobile-robots/diffbot-robot:noetic-&lt;commit&gt;
 </code></pre></div></td></tr></tbody></table></div>
 <p>Then download that version and restart the containers. On the Raspberry Pi:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose pull --policy always</span>
-<span class="go">docker compose up -d --no-build</span>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose pull --policy always &amp;&amp; docker compose up -d</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>To go back to the newest version, remove the line from <code>.env</code> and run both commands again. Removing the line alone changes nothing that runs.</p>
+<p>To go back to the newest version, remove the line from <code>.env</code> and run the same command again. Removing the line alone changes nothing that runs.</p>
 <details class="info">
 <summary>Even more exact: the digest</summary>
 <p>A digest is a checksum of a Docker image's content: <code>sha256:</code> followed by 64 characters. If one byte of the image changes, the digest changes. So a digest names exactly one content, whatever names point to it (<a href="https://docs.docker.com/reference/cli/docker/image/pull/#pull-an-image-by-digest-immutable-identifier">Docker's reference on pulling by digest</a>).</p>
-<p><code>noetic-&lt;commit&gt;</code> is enough to stay on one version, because a published version is never replaced (<a href="../image/#how-its-tested">How it's tested</a>). The digest is for a record that has to be exact. The package's page shows the digest of each version. In <code>.env</code>, <code>@</code> and the digest replace <code>:</code> and the name:</p>
+<p><code>noetic-&lt;commit&gt;</code> is enough to stay on one version, because a published version is never replaced (<a href="../image/#how-its-published">How it's published</a>). The digest is for a record that has to be exact. The package's page shows the digest of each version. In <code>.env</code>, <code>@</code> and the digest replace <code>:</code> and the tag:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">.docker/robot/.env</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">ROBOT_IMAGE</span><span class="o">=</span>ghcr.io/ros-mobile-robots/diffbot-robot@sha256:&lt;digest&gt;
 </code></pre></div></td></tr></tbody></table></div>
 <p>Use the digest that the package's page shows for <code>noetic-&lt;commit&gt;</code> itself, not the digest of one architecture's image. On the Raspberry Pi, <code>docker images --digests ghcr.io/ros-mobile-robots/diffbot-robot</code> lists the downloaded versions with their digests, in the column <code>DIGEST</code>.</p>
 </details>
+<h3 id="which-version-runs">Which version runs</h3>
+<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> writes the commit that a version was built from into the image, as a label. This command prints the label of the image that the running bringup container uses. On the Raspberry Pi, while the robot runs:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' $(docker compose ps -q bringup)</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The command prints the commit's 40 characters. After an update, that's the commit of the newest published version, which the package's page shows in the tag <code>noetic-&lt;commit&gt;</code>. With a fixed version, it's the commit in the tag that you set. For your own build, the command prints an empty line, because only <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> writes this label. <a href="#what-to-note-about-your-own-build">What to note about your own build</a> says what identifies your own build instead.</p>
 <h3 id="what-a-version-covers">What a version covers</h3>
 <p>A version covers the Docker image, and nothing else. Three more parts decide what the robot does, and each has a state of its own:</p>
 <table>
@@ -4711,12 +4822,12 @@
 <tr>
 <td style="text-align: left;"><strong>The Docker image:</strong> ROS Noetic, the robot's compiled packages and the entrypoint script</td>
 <td style="text-align: left;">The registry, in the version that <code>ROBOT_IMAGE</code> names</td>
-<td style="text-align: left;">The first command of <a href="#what-a-test-report-needs">the test report</a> prints the image's commit</td>
+<td style="text-align: left;"><a href="#which-version-runs">Which version runs</a> prints the image's commit</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Your clone, <code>~/diffbot</code>:</strong> <code>compose.yaml</code> and the udev rules</td>
 <td style="text-align: left;"><code>git clone</code>, updated by <code>git pull</code></td>
-<td style="text-align: left;"><code>git -C ~/diffbot log -1</code></td>
+<td style="text-align: left;"><a href="#a-clones-commit-and-its-local-changes">A clone's commit and its local changes</a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><code>.env</code>:</strong> your settings</td>
@@ -4731,19 +4842,33 @@
 </tbody>
 </table>
 <p>udev uses the copy of the rules that <a href="../setup/#7-stable-device-names">step 7</a> of the setup installed, not the file in your clone. After a <code>git pull</code> that changed the rules, install them again.</p>
+<h3 id="a-clones-commit-and-its-local-changes">A clone's commit and its local changes</h3>
+<p>Two of the parts above come from a Git clone: <code>compose.yaml</code> from the clone on the Raspberry Pi, and the firmware from the clone on your PC. A commit describes a clone only if no file in the clone differs from that commit. So note two things. Run these two commands in the clone:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git rev-parse HEAD</span>
+<span class="go">git status --short</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ul>
+<li><strong><code>git rev-parse HEAD</code>:</strong> prints the commit that the clone is at. The command prints the same commit after you changed a file without committing the change.</li>
+<li><strong><code>git status --short</code>:</strong> lists the files that differ from that commit. No output means that no file that Git tracks differs from the commit. Git ignores <code>.env</code>, your settings, on purpose. The test report records them on their own.</li>
+</ul>
+<p>If <code>git status --short</code> lists files, keep the changes with your notes. This command writes them to a file:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git diff --binary HEAD &gt; local-changes.patch</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The file doesn't hold new files that Git doesn't track yet. <code>git status --short</code> marks them with <code>??</code>. Keep a copy of each of them too. The simple way around all this is to commit your changes first.</p>
 <h3 id="what-a-test-report-needs">What a test report needs</h3>
-<p>A test report, for example for the robot test in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>, says what ran, so that someone else can repeat the test. That takes four notes, one for each part in the table above. The first three commands run on the Raspberry Pi, in <code>~/diffbot/.docker/robot</code>, while the robot runs.</p>
+<p>A test report, for example for the robot test in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>, says what ran, so that someone else can repeat the test. That takes four notes, one for each part in <a href="#what-a-version-covers">the table above</a>. The first three are taken on the Raspberry Pi, in <code>~/diffbot/.docker/robot</code>, while the robot runs.</p>
 <ol>
 <li>
-<p><strong>The Docker image's commit:</strong> this commit says which code the containers run. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> writes the commit into each published image, as a label. This command prints the label of the running bringup container's image:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' $(docker compose ps -q bringup)</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>For your own build, the command prints an empty line, because only <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> writes this label. <a href="#what-to-note-about-your-own-build">What to note about your own build</a> says what identifies your own build instead.</p>
+<p><strong>The Docker image's commit:</strong> this commit says which code the containers run. <a href="#which-version-runs">Which version runs</a> has the command that prints it.</p>
 </li>
 <li>
-<p><strong>The clone's commit:</strong> this commit says which <code>compose.yaml</code> was used. The same holds for the udev rules, if the installed rules are the clone's (<a href="#what-a-version-covers">What a version covers</a>). This command prints the commit:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git -C ~/diffbot rev-parse HEAD</span>
+<p><strong>The clone's commit and local changes:</strong> they say which <code>compose.yaml</code> was used. The same holds for the udev rules, if the installed rules are the clone's (<a href="#what-a-version-covers">What a version covers</a>). These commands print the commit and list the changed files of the clone in <code>~/diffbot</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git -C ~/diffbot rev-parse HEAD</span>
+<span class="go">git -C ~/diffbot status --short</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>If the second command lists files, save the changes with the report, as <a href="#a-clones-commit-and-its-local-changes">A clone's commit and its local changes</a> shows.</p>
 </li>
 <li>
 <p><strong>The settings:</strong> what Compose made of them. <code>docker compose config</code> prints <code>compose.yaml</code> with every setting filled in, from <code>.env</code>, from variables in the shell and from the defaults. Run <code>docker compose config</code> right after the start, in the same shell. The output then shows what the containers were started with. This command saves the output for the report:</p>
@@ -4751,9 +4876,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 </li>
 <li>
-<p><strong>The firmware's commit:</strong> this commit says which firmware the Teensy runs. Note the commit when you flash. On your PC, in the clone that you flash from:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git rev-parse HEAD</span>
-</code></pre></div></td></tr></tbody></table></div>
+<p><strong>The firmware's commit and local changes:</strong> they say which firmware the Teensy runs. The Teensy can't report them later, so note them when you flash. Run the two commands of <a href="#a-clones-commit-and-its-local-changes">A clone's commit and its local changes</a> on your PC, in the clone that you flash from, and save the changes if there are any.</p>
 </li>
 </ol>
 <h2 id="your-own-build">Your own build</h2>
@@ -4771,7 +4894,7 @@
 <tr>
 <td style="text-align: left;"><a href="#on-the-raspberry-pi">On the Raspberry Pi</a></td>
 <td style="text-align: left;">Natively. The Raspberry Pi is an arm64 computer</td>
-<td style="text-align: left;">Not run on a Raspberry Pi yet, so the build time on a Raspberry Pi isn't measured. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same Dockerfile on an arm64 computer of GitHub</td>
+<td style="text-align: left;">Remo's Raspberry Pi 4 B built the image in 14 min 20 s, at the diffbot repository's commit <code>3541965</code> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">the bench record</a>). The build command on this page, with the file <code>compose.build.yaml</code>, hasn't run on a Raspberry Pi yet</td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="#on-your-pc-for-the-raspberry-pi">On your PC</a></td>
@@ -4782,17 +4905,47 @@
 </table>
 <p>For comparison: <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the published image natively, on an arm64 computer of GitHub, in about two minutes (<a href="../image/#how-its-tested">How it's tested</a>).</p>
 <h3 id="on-the-raspberry-pi">On the Raspberry Pi</h3>
-<p>Give your build a name of its own in <code>.env</code>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">.docker/robot/.env</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">ROBOT_IMAGE</span><span class="o">=</span>diffbot-robot:local
-</code></pre></div></td></tr></tbody></table></div>
-<p>Then build the Docker image from your clone and start the containers. On the Raspberry Pi:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose up -d --build --pull never</span>
+<p><code>compose.yaml</code>, the file that runs the robot, never builds an image. A second file next to it, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.build.yaml"><code>compose.build.yaml</code></a>, holds the build. These lines of the file define the build's one service (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.build.yaml#L11-L17">lines 11–17</a>):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">compose.build.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">robot-image</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">diffbot-robot:local</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># The repository's root folder, whose files the Dockerfile copies into the image</span>
+<span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../..</span>
+<span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.docker/robot/Dockerfile</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>--build</code>:</strong> builds the image before the start, with the <a href="../image/#how-the-image-is-built">Dockerfile</a> and the packages in your clone.</li>
-<li><strong><code>--pull never</code>:</strong> keeps Compose from looking for <code>diffbot-robot:local</code> in a registry.</li>
+<li><strong><code>robot-image</code></strong> (line 12): the service's name. The build has a service of its own, apart from <code>bringup</code> and <code>lidar</code> in <code>compose.yaml</code>.</li>
+<li><strong><code>image</code></strong> (line 13): the build's name, <code>diffbot-robot:local</code>. The name is fixed in this file, and <code>ROBOT_IMAGE</code> doesn't change it. So your build never gets the name of the published image, and a later start can't take your build for a published version.</li>
+<li><strong><code>build</code></strong> (lines 14–17): tells Compose how to build the image, from the <a href="../image/#how-the-image-is-built">Dockerfile</a> in <code>.docker/robot</code>. Its <code>context</code> is the whole repository, the folder whose files the Dockerfile can copy into the image.</li>
 </ul>
-<p>The first build downloads the official ROS Docker image and compiles the robot's packages. Later builds reuse the steps whose input didn't change, so they're usually much faster. The name <code>diffbot-robot:local</code> keeps your build apart from the published versions. To go back to them, remove the line from <code>.env</code> and run <code>docker compose pull --policy always</code> and <code>docker compose up -d --no-build</code>.</p>
+<p>Three steps build the image and run it:</p>
+<ol>
+<li>
+<p><strong>Build the image from your clone:</strong> <code>-f</code> names the Compose file to read, here the file with the build alone. On the Raspberry Pi:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose -f compose.build.yaml build</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The first build downloads the official ROS Docker image and compiles the robot's packages. Later builds reuse the steps whose input didn't change, so they're usually much faster.</p>
+</li>
+<li>
+<p><strong>Choose your build in <code>.env</code>:</strong></p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">.docker/robot/.env</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">ROBOT_IMAGE</span><span class="o">=</span>diffbot-robot:local
+</code></pre></div></td></tr></tbody></table></div>
+</li>
+<li>
+<p><strong>Start the containers with your build:</strong> on the Raspberry Pi, run this command.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose up -d --pull never</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>--pull never</code> keeps Compose from looking for <code>diffbot-robot:local</code> in a registry.</p>
+</li>
+</ol>
+<p>After another change of the code, repeat steps 1 and 3. To go back to the published versions, remove the line from <code>.env</code> and run <code>docker compose pull --policy always &amp;&amp; docker compose up -d</code>.</p>
 <h3 id="on-your-pc-for-the-raspberry-pi">On your PC, for the Raspberry Pi</h3>
 <div class="admonition warning">
 <p class="admonition-title">Not tested yet</p>
@@ -4825,24 +4978,12 @@
 </li>
 <li>
 <p><strong>Start the copied image:</strong> set <code>ROBOT_IMAGE=diffbot-robot:local</code> in <code>.env</code>. Then start the containers with the copied image. On the Raspberry Pi, in <code>~/diffbot/.docker/robot</code>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose up -d --no-build --pull never</span>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose up -d --pull never</span>
 </code></pre></div></td></tr></tbody></table></div>
 </li>
 </ol>
 <h3 id="what-to-note-about-your-own-build">What to note about your own build</h3>
-<p>Your own build has no commit written into the image. So note where the build comes from, at the time of the build and on the computer that builds. Run these two commands in the clone that you build from:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git rev-parse HEAD</span>
-<span class="go">git status --short</span>
-</code></pre></div></td></tr></tbody></table></div>
-<ul>
-<li><strong><code>git rev-parse HEAD</code>:</strong> prints the commit that the clone is at.</li>
-<li><strong><code>git status --short</code>:</strong> lists the files that differ from that commit. If the command lists any files, the commit alone doesn't describe the build.</li>
-</ul>
-<p>The simple way is to commit your changes before you build. Otherwise keep the changes with your notes. This command writes them to a file:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">git diff --binary HEAD &gt; own-build.patch</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>The file doesn't hold new files that Git doesn't track yet. <code>git status --short</code> marks them with <code>??</code>. Keep a copy of each of them too.</p>
+<p>Your own build has no commit written into the image. So note where the build comes from, at the time of the build and on the computer that builds: the commit and the local changes of the clone that you build from. <a href="#a-clones-commit-and-its-local-changes">A clone's commit and its local changes</a> has the commands.</p>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->

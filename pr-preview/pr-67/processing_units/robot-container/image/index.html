@@ -47,6 +47,25 @@
         <script src="../../../js/katex-0.19.0/katex.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../../../js/katex-0.19.0/katex.min.css">
         
+        <script src="../../../js/mermaid-8.8.0/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <style>
+          /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
+             give the diagrams dark fills with light lines and text, in the light theme's hues. Being
+             CSS, they also apply when visitors switch the scheme without reloading. */
+          [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          /* Nodes that a diagram highlights with "class A,B view;", in both schemes */
+          .mermaid .node.view rect { fill: #fff3e0 !important; stroke: #e65100 !important; stroke-width: 3px !important; }
+          [data-md-color-scheme="slate"] .mermaid .node.view rect { fill: #3d2a12 !important; stroke: #ffb74d !important; }
+          [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel { background-color: #3a3c48 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
+        </style>
+        
 
     
       
@@ -1661,6 +1680,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="How the image is built">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-same-inputs-for-both-builds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The same inputs for both builds
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1682,6 +1718,73 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="How it's tested">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-check-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One check, step by step
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-its-published" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it's published
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How it's published">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-script-asks-the-registry-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the script asks the registry first
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-first-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The first publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-scripts-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The script's tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -4369,6 +4472,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="How the image is built">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-same-inputs-for-both-builds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The same inputs for both builds
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4390,6 +4510,73 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="How it's tested">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-check-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One check, step by step
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-its-published" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it's published
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How it's published">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-script-asks-the-registry-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the script asks the registry first
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-first-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The first publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-scripts-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The script's tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -4507,19 +4694,20 @@
 
 <h1 id="image-and-tests">Image and Tests</h1>
 <p>How the <a href="../">robot container's</a> Docker image is built, what takes its space, and how <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> tests and publishes it. You don't need this page to use the robot container. It's for changing the image, or for understanding it.</p>
+<p>The page follows the image's way: <a href="#how-the-image-is-built">how it's built</a>, <a href="#what-takes-the-space">what takes the space</a>, <a href="#how-its-tested">how it's tested</a> and <a href="#how-its-published">how it's published</a>.</p>
 <h2 id="how-the-image-is-built">How the image is built</h2>
-<p>The robot's Docker image is defined in the diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot"><code>.docker/robot</code></a> folder. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/Dockerfile"><code>Dockerfile</code></a> starts from the official ROS image <a href="https://hub.docker.com/_/ros"><code>ros:noetic-ros-base</code></a>, which exists for arm64 and amd64. It then adds the robot's packages in three steps, with the same tools as a native workspace:</p>
+<p>The robot's Docker image is defined in the diffbot repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot"><code>.docker/robot</code></a> folder. Its <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/Dockerfile"><code>Dockerfile</code></a> starts from the official ROS image <a href="https://hub.docker.com/_/ros"><code>ros:noetic-ros-base</code></a>, which exists for arm64 and amd64. It then adds the robot's packages in three steps, with the same tools as a native workspace:</p>
 <ol>
-<li><strong>vcstool</strong> fetches the repositories listed in <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/remo_robot.repos"><code>remo_robot.repos</code></a>: Remo's model <code>remo_description</code> and the lidar driver <code>rplidar_ros</code>.</li>
+<li><strong>vcstool</strong> fetches the repositories listed in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/remo_robot.repos"><code>remo_robot.repos</code></a>: Remo's model <code>remo_description</code> and the lidar driver <code>rplidar_ros</code>.</li>
 <li><strong>rosdep</strong> installs the Ubuntu and ROS packages that the packages' <code>package.xml</code> files declare as dependencies.</li>
 <li><strong>catkin</strong> builds the packages, in the workspace <code>/home/ros/catkin_ws</code>.</li>
 </ol>
 <p>A <a href="https://wiki.ros.org/catkin/workspaces">catkin workspace</a> is a folder whose <code>src</code> folder holds the source code of ROS packages, which catkin builds together. The image has one, with the diffbot repository and the two fetched repositories in <code>src</code> (<a href="../setup/#6-the-diffbot-repository">folders in the container</a>). The dev container on your PC has its own.</p>
-<p>Which packages are built is a list in the Dockerfile (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/Dockerfile#L49-L52">lines 49–52</a>): the packages that the bringup and the lidar need, for both robots.</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Dockerfile</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># The packages to build: the ones that the bringup and the lidar need, for both robots (the image</span>
+<p>Which packages are built is a list in the Dockerfile (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/Dockerfile#L58-L61">lines 58–61</a>): the packages that the bringup and the lidar need, for both robots.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Dockerfile</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># The packages to build: the ones that the bringup and the lidar need, for both robots (the image</span>
 <span class="c"># has DiffBot's and Remo's models); diffbot_gazebo, the navigation and SLAM packages stay out.</span>
 <span class="k">ARG</span><span class="w"> </span><span class="nv">PACKAGES</span><span class="o">=</span><span class="s2">"diffbot_bringup diffbot_base diffbot_control diffbot_description diffbot_msgs remo_description rplidar_ros"</span>
 <span class="k">ENV</span><span class="w"> </span><span class="nv">DIFFBOT_PACKAGES</span><span class="o">=</span><span class="nv">$PACKAGES</span>
@@ -4529,7 +4717,107 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>With this line, rosdep would recognize <code>diffbot_base</code> as a package of the workspace. But it wouldn't read <code>diffbot_base</code>'s own <code>package.xml</code>, so it wouldn't install what <code>diffbot_base</code> needs, such as rosserial (our test with rosdep 0.25.1 in the ROS image). That's why rosdep gets the <code>package.xml</code> of each package to build.</p>
 <p>catkin does follow these lines: <code>catkin build diffbot_bringup</code> would first build the workspace packages that <code>diffbot_bringup</code> declares. But today <code>diffbot_bringup</code> declares only <code>teleop_twist_keyboard</code>, not the packages its launch files start. Adding them is the first step of <a href="https://github.com/ros-mobile-robots/diffbot/issues/131">diffbot#131</a>. Gazebo, navigation and <abbr title="Simultaneous localization and mapping. Building a map of an unknown environment while estimating the robot's pose in it.">SLAM</abbr> aren't in the image: they run on the PC.</p>
-<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the image and publishes it (<a href="#how-its-tested">How it's tested</a>). Docker builds it on the Raspberry Pi only for <a href="../versions/#your-own-build">your own build</a>. The container runs as the user <code>ros</code> with UID 1000, not as root. The image also sets <code>PYTHONUNBUFFERED</code> and <code>ROSCONSOLE_STDOUT_LINE_BUFFERED</code>, so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and <code>docker compose logs</code> would show it late.</p>
+<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the image and publishes it (<a href="#how-its-published">How it's published</a>). Docker builds it on the Raspberry Pi only for <a href="../versions/#your-own-build">your own build</a>. The container runs as the user <code>ros</code> with UID 1000, not as root. The image also sets <code>PYTHONUNBUFFERED</code> and <code>ROSCONSOLE_STDOUT_LINE_BUFFERED</code>, so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and <code>docker compose logs</code> would show it late.</p>
+<h3 id="the-same-inputs-for-both-builds">The same inputs for both builds</h3>
+<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the image twice, once per processor architecture, on two computers (<a href="#how-its-tested">How it's tested</a>). Three inputs of the build come from outside the diffbot repository. Two of them are named by their content, so both builds get the same files, also when one of the two builds runs again later. The third is named by a release tag:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Input</th>
+<th style="text-align: left;">How the build names it</th>
+<th style="text-align: left;">Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">The two base images, <code>ubuntu:20.04</code> and <code>ros:noetic-ros-base</code></td>
+<td style="text-align: left;">By tag and digest. A digest is a checksum of an image's content, so it names exactly one content, whatever the tag points to by now</td>
+<td style="text-align: left;">The Dockerfile's two <code>FROM</code> lines</td>
+</tr>
+<tr>
+<td style="text-align: left;">The lidar driver <code>rplidar_ros</code></td>
+<td style="text-align: left;">By one commit of its branch <code>noetic-devel</code>. A commit names exactly one state of the code</td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/remo_robot.repos"><code>remo_robot.repos</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;">Remo's model <code>remo_description</code></td>
+<td style="text-align: left;">By the release tag <code>2.5.0</code>. A tag is a name for a commit. It selects one version, but it isn't a checksum of the content</td>
+<td style="text-align: left;"><code>remo_robot.repos</code></td>
+</tr>
+</tbody>
+</table>
+<p>These lines of the Dockerfile explain the digests and name the first base image (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/Dockerfile#L12-L24">lines 12–24</a>). The second <code>FROM</code> line, in line 31, names the ROS image the same way:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Dockerfile</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># The two base images: each FROM line names a tag and, after the @, a digest, which is a</span>
+<span class="c"># checksum of the image's content. Docker then downloads exactly that content, whatever the tag</span>
+<span class="c"># points to by now. So CI's two builds, one per architecture, start from the same Ubuntu and ROS</span>
+<span class="c"># files, also when one of them runs again later. Each digest is the one of the image's index,</span>
+<span class="c"># the list with the image of each architecture, from which Docker picks its own. To move to</span>
+<span class="c"># newer base images, replace each digest with the one that this command prints as "Digest":</span>
+<span class="c">#   docker buildx imagetools inspect ubuntu:20.04</span>
+<span class="c">#   docker buildx imagetools inspect ros:noetic-ros-base</span>
+
+<span class="c"># Stage 1, named manifests (ROS calls a package.xml the package manifest): copy only the</span>
+<span class="c"># package.xml files out of the repository, as the dev container does. The step that installs</span>
+<span class="c"># the dependencies then reruns only when a package.xml changes, not on every code change.</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">ubuntu:20.04@sha256:8feb4d8ca5354def3d8fce243717141ce31e2c428701f6682bd2fafe15388214</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">manifests</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Each digest is the one of the image's index. An index is the list that holds one image per processor architecture. Docker reads the index and picks the image for the computer that builds, so the same line works on the arm64 and on the amd64 computer.</p>
+<p><code>remo_robot.repos</code> lists the two repositories that vcstool fetches, with the lidar driver's commit and the model's release tag in the <code>version</code> fields:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">remo_robot.repos</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">src/rplidar_ros</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">git</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/ros-mobile-robots/rplidar_ros</span>
+<span class="w">    </span><span class="c1"># One commit of the lidar driver's branch noetic-devel instead of the branch itself. The</span>
+<span class="w">    </span><span class="c1"># robot image is built twice, once per processor architecture, and both builds fetch this</span>
+<span class="w">    </span><span class="c1"># repository. With the commit, both get the same driver, also when one build runs later.</span>
+<span class="w">    </span><span class="c1"># To move to a newer driver, write the new commit here: git ls-remote &lt;url&gt; noetic-devel</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0c474e311f925f81ffba97313745f80a2de02e68</span>
+<span class="c1">#  src/raspicam_node:</span>
+<span class="c1">#    type: git</span>
+<span class="c1">#    url: https://github.com/UbiquityRobotics/raspicam_node</span>
+<span class="c1">#    version: kinetic</span>
+<span class="w">  </span><span class="nt">src/remo_description</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">git</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/ros-mobile-robots/remo_description</span>
+<span class="w">    </span><span class="c1"># Pinned to one version of Remo's model instead of main. A new version reaches this workspace</span>
+<span class="w">    </span><span class="c1"># and the diffbot repository's CI only through a pull request in the diffbot repository that</span>
+<span class="w">    </span><span class="c1"># moves the pin, so the diffbot packages are tested with it first. diffbot_dev.repos and</span>
+<span class="w">    </span><span class="c1"># remo_robot.repos pin the same version. 2.5.0 has the xacro argument imu_plugin.</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"2.5.0"</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>One more input isn't fixed at all: the Ubuntu and ROS packages that apt and rosdep install during the build. They come from the package servers at the time of the build, so two builds at different times can get different package versions.</p>
 <h2 id="what-takes-the-space">What takes the space</h2>
 <p>Unpacked, the image takes about 3.2 GB on an amd64 PC, and about 0.7 GB compressed. On that PC, <code>docker images</code> shows about 3.9 GB, because Docker's containerd image store keeps both (<a href="https://docs.docker.com/engine/storage/containerd/#disk-space-usage">disk space usage</a>). That's the default for Docker Engine 29 and later on a fresh installation. Installations with the legacy image store keep only the unpacked files. It hasn't been measured on the Raspberry Pi yet. What takes the space, measured with <code>du</code> and <code>dpkg-query</code> in the image:</p>
 <ul>
@@ -4537,40 +4825,39 @@
 <li><strong>The robot's part, about 0.7 GB of the unpacked 3.2 GB:</strong> almost all of it comes with RViz, which the robot models declare (<a href="../#limitations-and-planned-work">Limitations</a>): graphics drivers (Mesa), the window toolkit Qt and the 3D engine OGRE. The built workspace itself is about 70 MB.</li>
 </ul>
 <h2 id="how-its-tested">How it's tested</h2>
-<p>The workflow <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.github/workflows/robot_container.yml"><code>robot_container.yml</code></a> runs for every pull request and push that changes the image or its packages. GitHub provides the computers it runs on, called runners. It runs twice: on an arm64 runner (<code>ubuntu-24.04-arm</code>, free for public repositories) and on an amd64 runner. So each builds the image natively, for its own architecture, without emulation, in about two minutes. The build step's times in seven runs:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Runner</th>
-<th style="text-align: left;">Shortest build</th>
-<th style="text-align: left;">Longest build</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">arm64, <code>ubuntu-24.04-arm</code></td>
-<td style="text-align: left;">1 min 42 s</td>
-<td style="text-align: left;">1 min 55 s</td>
-</tr>
-<tr>
-<td style="text-align: left;">amd64, <code>ubuntu-24.04</code></td>
-<td style="text-align: left;">1 min 42 s</td>
-<td style="text-align: left;">2 min 21 s</td>
-</tr>
-</tbody>
-</table>
-<p>These lines of the workflow name the two runners:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">robot_container.yml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
+<p>The workflow <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.github/workflows/robot_container.yml"><code>robot_container.yml</code></a> runs in three cases:</p>
+<ul>
+<li><strong>For a pull request:</strong> when the pull request changes the image or its packages.</li>
+<li><strong>For a push to the branch <code>noetic-devel</code>:</strong> when the push changes them. A merged pull request is such a push.</li>
+<li><strong>By hand:</strong> from the repository's Actions tab.</li>
+</ul>
+<p>The figure shows what a run does, and where a pull request's run ends:</p>
+<div class="mermaid">graph TB
+  subgraph BUILD [Job build, once per architecture]
+    PRE[Checks before the build:&lt;br/&gt;settings, local build name,&lt;br/&gt;publish script]
+    IMG[Build the image]
+    SMOKE[Smoke test, directly&lt;br/&gt;and through Compose]
+    PRE --&gt; IMG
+    IMG --&gt; SMOKE
+  end
+  PR[Pull request:&lt;br/&gt;passed or failed,&lt;br/&gt;nothing is kept]
+  SAVE[noetic-devel:&lt;br/&gt;save the tested&lt;br/&gt;image as an archive]
+  PUB[Job publish:&lt;br/&gt;copy both archives&lt;br/&gt;to the registry]
+  SMOKE --&gt; PR
+  SMOKE --&gt; SAVE
+  SAVE --&gt; PUB</div>
+<p>GitHub provides the computers that the workflow runs on, called runners. The job <code>build</code> runs twice: on an arm64 runner (<code>ubuntu-24.04-arm</code>, free for public repositories) and on an amd64 runner. These lines of the workflow name the two runners (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.github/workflows/robot_container.yml#L62-L72">lines 62–72</a>):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">robot_container.yml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
-<span class="normal">67</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">build</span><span class="p">:</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">build</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">strategy</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">fail-fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">    </span><span class="nt">matrix</span><span class="p">:</span>
@@ -4582,27 +4869,185 @@
 <span class="w">          </span><span class="nt">arch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">amd64</span>
 <span class="w">  </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.runner }}</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Each run checks that <code>env.example</code> gives a valid configuration, builds the image, and runs <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/smoke_test.sh"><code>smoke_test.sh</code></a> in it twice: directly in the image, and through <code>compose.yaml</code> with its mounts and groups. The test checks, without hardware, that:</p>
+<p>So each runner builds the image natively, for its own architecture, without emulation, in about two minutes. The build step's times in seven runs, and one build on a Raspberry Pi for comparison:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Where</th>
+<th style="text-align: left;">Shortest build</th>
+<th style="text-align: left;">Longest build</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">arm64 runner, <code>ubuntu-24.04-arm</code></td>
+<td style="text-align: left;">1 min 42 s</td>
+<td style="text-align: left;">1 min 55 s</td>
+</tr>
+<tr>
+<td style="text-align: left;">amd64 runner, <code>ubuntu-24.04</code></td>
+<td style="text-align: left;">1 min 42 s</td>
+<td style="text-align: left;">2 min 21 s</td>
+</tr>
+<tr>
+<td style="text-align: left;">Raspberry Pi 4 B in Remo, one build</td>
+<td style="text-align: left;">14 min 20 s</td>
+<td style="text-align: left;">14 min 20 s</td>
+</tr>
+</tbody>
+</table>
+<p>The Raspberry Pi's build was measured on 31 October 2026, at the diffbot repository's commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/3541965496d50ce629e00054e8d3acd12e4beed5"><code>3541965</code></a> (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">the bench record</a>).</p>
+<p>Each run of the job <code>build</code> does five things, in this order:</p>
+<ol>
+<li><strong>It checks the settings template:</strong> <code>env.example</code> has to give a valid configuration with <code>compose.yaml</code>.</li>
+<li><strong>It checks the name of a local build:</strong> with <code>ROBOT_IMAGE</code> set to the published image's name and every service switched on, <code>compose.yaml</code> alone must build nothing, and <a href="../versions/#on-the-raspberry-pi"><code>compose.build.yaml</code></a> must build only <code>diffbot-robot:local</code>, alone and combined with <code>compose.yaml</code> in both orders.</li>
+<li><strong>It tests the publish script</strong> without a registry (<a href="#the-scripts-tests">The script's tests</a>).</li>
+<li><strong>It builds the image:</strong> with <code>docker build</code>, for the runner's own architecture.</li>
+<li><strong>It runs <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/smoke_test.sh"><code>smoke_test.sh</code></a> in the image, twice:</strong> directly in a container of the image, and through <code>compose.yaml</code> with its mounts and groups.</li>
+</ol>
+<p>The smoke test checks four things, without hardware:</p>
 <ul>
-<li>the packages and the programs that talk to the hardware are there,</li>
-<li>both robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models expand with xacro,</li>
-<li>the launch files parse, and the lidar driver runs in the robot's namespace, so its scans are on <code>/diffbot/scan</code>,</li>
-<li>Remo's bringup starts: its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model loads and both controllers run.</li>
+<li><strong>The packages and programs:</strong> ROS finds the packages, and the programs that talk to the hardware exist.</li>
+<li><strong>The robot models:</strong> both robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models expand with xacro.</li>
+<li><strong>The launch files:</strong> the bringup's and the lidar's launch files parse. The lidar's launch file names the driver's node <code>/diffbot/rplidarNode</code>, in the robot's namespace, so a connected lidar's scans are on <code>/diffbot/scan</code>.</li>
+<li><strong>Remo's bringup:</strong> the bringup starts, its <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model loads, and both controllers run.</li>
 </ul>
-<p>For a pull request, the result is the workflow's check, passed or failed, and the image is deleted with the runner. After a change is merged into <code>noetic-devel</code>, both runs save the image they tested, and a third job publishes them if both passed:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">robot_container.yml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
+<p>The test doesn't start the lidar driver, and no check talks to a device. Without a Teensy, rosserial can't open its port and the hardware interface gets no wheel feedback, so the test can't show that the robot drives. That needs the real robot: <a href="../">the robot container's status</a> says what ran on Remo and what is still open in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>.</p>
+<h3 id="one-check-step-by-step">One check, step by step</h3>
+<p>The last check of the smoke test starts Remo's bringup as the robot would, only without the Teensy. These lines of <code>smoke_test.sh</code> are the check (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/smoke_test.sh#L45-L58">lines 45–58</a>):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">smoke_test.sh</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s2">"== Remo's bringup starts without hardware: the model loads and both controllers run"</span>
+<span class="c1"># Without the Teensy, rosserial can't open its port and the hardware interface gets no wheel</span>
+<span class="c1"># feedback ("No measured joint states publishers"); the controllers start anyway.</span>
+roslaunch<span class="w"> </span>diffbot_bringup<span class="w"> </span>bringup.launch<span class="w"> </span>model:<span class="o">=</span>remo<span class="w"> </span>&gt;<span class="w"> </span>/tmp/bringup.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="nv">running</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">60</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">running</span><span class="o">=</span><span class="k">$(</span>rosservice<span class="w"> </span>call<span class="w"> </span>/diffbot/controller_manager/list_controllers<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">'state: "running"'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span><span class="k">)</span>
+<span class="w">    </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$running</span><span class="s2">"</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">1</span>
+<span class="k">done</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"running controllers: </span><span class="nv">$running</span><span class="s2">"</span>
+<span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$running</span><span class="s2">"</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span><span class="w"> </span>cat<span class="w"> </span>/tmp/bringup.log<span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+rostopic<span class="w"> </span>list<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-x<span class="w"> </span>/diffbot/mobile_base_controller/odom
+rosparam<span class="w"> </span>get<span class="w"> </span>/diffbot/robot_description<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">'&lt;link '</span><span class="w"> </span>&gt;<span class="w"> </span>/dev/null
+</code></pre></div></td></tr></tbody></table></div>
+<ol>
+<li><strong>What the check sets up</strong> (line 48): <code>roslaunch</code> starts <code>bringup.launch</code> for Remo in the background, with its output in the file <code>/tmp/bringup.log</code>. A ROS master runs already, from an earlier step of the script.</li>
+<li><strong>What the check waits for</strong> (lines 49–54): once per second, for at most 60 s, the script asks the controller manager for its controllers with the service <code>/diffbot/controller_manager/list_controllers</code>. It counts the controllers in the state <code>running</code> in the variable <code>running</code>.</li>
+<li><strong>What has to hold</strong> (lines 55–58): <code>running</code> is 2, for <code>joint_state_controller</code> and <code>mobile_base_controller</code>. The odometry topic <code>/diffbot/mobile_base_controller/odom</code> is listed. The parameter <code>/diffbot/robot_description</code> holds the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model. If <code>running</code> isn't 2 after 60 s, the script prints the bringup's output and fails.</li>
+</ol>
+<p>To run the whole smoke test on your PC, build the image and start the script in a container of the image. Run this command in the root folder of your clone of the diffbot repository:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker build -f .docker/robot/Dockerfile -t diffbot-robot:noetic . &amp;&amp;</span>
+<span class="go">  docker run --rm -v "$PWD/.docker/robot/smoke_test.sh:/smoke_test.sh:ro" diffbot-robot:noetic bash /smoke_test.sh</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>&amp;&amp;</code> starts the test only if the build succeeded. Without it, a failed build would leave an image from an earlier build under the same name, and the test would run in that older image.</p>
+<p>The output has one heading per check, starting with <code>==</code>. Recorded on an amd64 PC, it ends like this:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>== Remo's bringup starts without hardware: the model loads and both controllers run
+running controllers: 2
+/diffbot/mobile_base_controller/odom
+Smoke test passed
+</code></pre></div></td></tr></tbody></table></div>
+<h2 id="how-its-published">How it's published</h2>
+<p>For a pull request, the run ends after the smoke tests. The result is the workflow's check, passed or failed, and the image is deleted with the runner. Nothing is published, because a pull request's code isn't reviewed yet.</p>
+<p>After a change is merged into <code>noetic-devel</code>, each run of the job <code>build</code> also saves the image that it tested, as an archive. A third job, <code>publish</code>, then copies both archives to the registry. It doesn't build the image again. So the published image is the very image that passed the smoke test, not a second build that could differ from it. These steps of the job <code>build</code> save the image and hand it over (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.github/workflows/robot_container.yml#L125-L145">lines 125–145</a>):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">robot_container.yml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
-<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Publishes the images that passed both smoke tests, on noetic-devel only, never for a pull</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># On noetic-devel, hand the tested image to the publish job, which runs on another runner</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Save the tested image</span>
+<span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">    </span><span class="no">github.repository == 'ros-mobile-robots/diffbot' &amp;&amp;</span>
+<span class="w">    </span><span class="no">github.ref == 'refs/heads/noetic-devel' &amp;&amp;</span>
+<span class="w">    </span><span class="no">(github.event_name == 'push' || github.event_name == 'workflow_dispatch')</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker save diffbot-robot:noetic | gzip -1 &gt; "$RUNNER_TEMP/robot-image.tar.gz"</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload the tested image</span>
+<span class="w">  </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">    </span><span class="no">github.repository == 'ros-mobile-robots/diffbot' &amp;&amp;</span>
+<span class="w">    </span><span class="no">github.ref == 'refs/heads/noetic-devel' &amp;&amp;</span>
+<span class="w">    </span><span class="no">(github.event_name == 'push' || github.event_name == 'workflow_dispatch')</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9</span><span class="w"> </span><span class="c1"># v7.0.2</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">robot-image-${{ matrix.arch }}</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ runner.temp }}/robot-image.tar.gz</span>
+<span class="w">    </span><span class="c1"># Compressed already. A rerun of this job replaces its archive.</span>
+<span class="w">    </span><span class="nt">compression-level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">overwrite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">if-no-files-found</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">error</span>
+<span class="w">    </span><span class="nt">retention-days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The three conditions under <code>if</code> are the same for both steps and for the job <code>publish</code>: the repository is <code>ros-mobile-robots/diffbot</code>, not a fork, the branch is <code>noetic-devel</code>, and the run was started by a push or by hand. A pull request never meets them.</p>
+<p>The job <code>publish</code> starts only if both runs of <code>build</code> passed (<code>needs: build</code>). These lines define the job and its steps (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.github/workflows/robot_container.yml#L147-L184">lines 147–184</a>):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">robot_container.yml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Publishes the images that passed both smoke tests, on noetic-devel only, never for a pull</span>
 <span class="c1"># request: .docker/robot/publish_image.sh explains the tags. If it fails, rerun it while the</span>
 <span class="c1"># archives exist (one day), or else the whole workflow.</span>
 <span class="nt">publish</span><span class="p">:</span>
@@ -4615,11 +5060,266 @@
 <span class="w">  </span><span class="nt">permissions</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
 <span class="w">    </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">  </span><span class="c1"># One publication at a time. Up to 100 more wait for their turn, and none of those is</span>
+<span class="w">  </span><span class="c1"># cancelled. GitHub cancels a publication only if it arrives while 100 are waiting already.</span>
+<span class="w">  </span><span class="nt">concurrency</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">robot-image-publish</span>
+<span class="w">    </span><span class="nt">queue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">max</span>
+<span class="w">  </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># The whole history, so that noetic only moves forward</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1</span><span class="w"> </span><span class="c1"># v7.0.1</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">fetch-depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333</span><span class="w"> </span><span class="c1"># v8.0.2</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">robot-image-*</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ runner.temp }}/robot-images</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550</span><span class="w"> </span><span class="c1"># v4.8.0</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">registry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io</span>
+<span class="w">        </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.actor }}</span>
+<span class="w">        </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Publish the tested images</span>
+<span class="w">      </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">FIRST_PUBLICATION</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ inputs.first_publication }}</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">        </span><span class="no">.docker/robot/publish_image.sh ghcr.io/ros-mobile-robots/diffbot-robot</span>
+<span class="w">        </span><span class="no">"$GITHUB_SHA" "$RUNNER_TEMP/robot-images"</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The job's script, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/publish_image.sh"><code>publish_image.sh</code></a>, copies both images to the registry and combines them under one name. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version <code>noetic-&lt;commit&gt;</code> is published once and never replaced, and <code>noetic</code> only moves to a later commit.</p>
-<p>The publication is protected in several ways. Only this job may write packages, and it runs nothing from the images. The script checks that an archive holds the right architecture and commit before it copies that archive's image. Before the script writes the version or <code>noetic</code>, the registry has to say for both names whether they exist. If the registry doesn't give a clear yes or no for one of them, the script stops. A version that exists is reused and never replaced.</p>
-<p>The first publication is the one exception to "stops". The package doesn't exist yet then, and the registry may refuse to say whether a name exists. A run that is started for this case creates the package: the script copies the checked amd64 image under the name <code>first-publication</code>, which nothing else uses, and asks about both names again. If the registry still gives no clear answer, the script stops. So an image can be in the registry under <code>first-publication</code> although the run failed later, for example at the check of the arm64 archive. The version and <code>noetic</code> are not written in that case.</p>
-<p>Without a Teensy, rosserial can't open its port and the hardware interface gets no wheel feedback, so the test can't show that the robot drives. That needs the real robot: teleop and lidar scans on a Raspberry Pi in Remo, the open test in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>.</p>
+<ul>
+<li><strong><code>permissions</code></strong> (lines 157–159): only this job may write packages. The rest of the workflow can only read.</li>
+<li><strong><code>concurrency</code></strong> (lines 162–164): one publication runs at a time, and later ones wait for their turn.</li>
+<li><strong><code>uses</code></strong> (lines 167, 170 and 174): each action is named by the full commit of one of its releases, with the release in the comment. A commit can't be moved to other code later, as a tag such as <code>v4</code> can. That matters here, because these actions run in the job that may write packages.</li>
+<li><strong>The last step</strong> (lines 179–184): runs the script <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/publish_image.sh"><code>publish_image.sh</code></a> with the image's name, the commit and the folder with the two archives. The job runs nothing from the images.</li>
+</ul>
+<p>The script copies both images to the registry and combines them under one name. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version <code>noetic-&lt;commit&gt;</code> is published once and never replaced, and <code>noetic</code> only moves to a later commit (<a href="../versions/#versions">Versions</a>).</p>
+<h3 id="what-the-script-asks-the-registry-first">What the script asks the registry first</h3>
+<p>Before the script writes the version or <code>noetic</code>, it asks the registry about both names. For each name, the function <code>state</code> gives one of three answers, with the tool <a href="https://github.com/containers/skopeo">skopeo</a>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Answer of <code>state</code> for one name</th>
+<th style="text-align: left;">What the registry said about that name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>present</code></td>
+<td style="text-align: left;">It returned the name's manifest, the description of an image. The name exists</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>missing</code></td>
+<td style="text-align: left;"><em>manifest unknown</em>, the registry's own error code for a name that it doesn't have. The name is free</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>unreadable</code></td>
+<td style="text-align: left;">The registry itself refuses: it denies the request for the name, it doesn't know the repository at all, or its token service answers 403</td>
+</tr>
+<tr>
+<td style="text-align: left;">No answer</td>
+<td style="text-align: left;">Anything else, after three tries: a failed login, a login file that can't be read, another error of the token service, no connection. The script stops and prints the error</td>
+</tr>
+</tbody>
+</table>
+<p>The script then decides from the two answers together:</p>
+<ol>
+<li><strong>Both names are <code>present</code> or <code>missing</code>:</strong> the script publishes. It writes a name that is missing. A version that is present is checked and reused, never written again. A <code>noetic</code> that is present moves only to a later commit.</li>
+<li><strong>One of the two names is <code>unreadable</code>:</strong> the script stops and writes nothing.</li>
+<li><strong>Both names are <code>unreadable</code>, in a run for the first publication:</strong> the script copies one image under a name of its own and asks about both names again (<a href="#the-first-publication">The first publication</a>). The version and <code>noetic</code> are still written only by rule 1.</li>
+</ol>
+<p>Only <em>manifest unknown</em> counts as "the name is free", because other failures read alike. A login helper that isn't installed and a token service that answers 404 both print <em>not found</em>, and neither says anything about the name. If the script took them for a free name, it could write a version that exists already. The same holds for <code>unreadable</code>: a login file that the job can't read prints <em>permission denied</em>, which is no answer of the registry.</p>
+<p>These lines of <code>publish_image.sh</code> are the function <code>state</code> and its comment (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/publish_image.sh#L36-L84">lines 36–84</a>):</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">publish_image.sh</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># What the registry says about a tag, &lt;image&gt;:&lt;tag&gt;:</span>
+<span class="c1">#   present      The registry returned the tag's manifest.</span>
+<span class="c1">#   missing      The registry answered the request for this tag's manifest with its error code</span>
+<span class="c1">#                MANIFEST_UNKNOWN, which skopeo prints as "manifest unknown". Only this answer</span>
+<span class="c1">#                counts. Other failures can read alike: a login helper that isn't installed and a</span>
+<span class="c1">#                token service that answers 404 both print "not found", and neither says anything</span>
+<span class="c1">#                about the tag.</span>
+<span class="c1">#   unreadable   The registry itself refuses: it denies the request for this tag's manifest</span>
+<span class="c1">#                (DENIED, UNAUTHORIZED), it doesn't know the repository (NAME_UNKNOWN), or its</span>
+<span class="c1">#                token service answers 403. Each means that this job can't see the package,</span>
+<span class="c1">#                which only the first publication may answer with a write (see below).</span>
+<span class="c1"># Each answer is recognized by the text that skopeo prints for it, with this tag and repository</span>
+<span class="c1"># in it. A text that skopeo words differently one day is none of them, and the job stops.</span>
+<span class="c1"># A read that gives neither present nor missing is tried three times. After that, an error that</span>
+<span class="c1"># is not unreadable stops the job: a failed login, a file that can't be read, an error of the</span>
+<span class="c1"># token service or of the connection. The version and noetic are written only after both read</span>
+<span class="c1"># as present or missing.</span>
+state<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="nb">local</span><span class="w"> </span><span class="nv">reference</span><span class="o">=</span><span class="nv">$1</span><span class="w"> </span><span class="nv">error</span><span class="o">=</span><span class="s2">""</span><span class="w"> </span>refusal
+<span class="w">  </span><span class="nb">local</span><span class="w"> </span><span class="nv">repository</span><span class="o">=</span><span class="si">${</span><span class="nv">reference</span><span class="p">%:*</span><span class="si">}</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span><span class="si">${</span><span class="nv">reference</span><span class="p">##*:</span><span class="si">}</span>
+<span class="w">  </span><span class="nb">local</span><span class="w"> </span><span class="nv">manifest_request</span><span class="o">=</span><span class="s2">"reading manifest </span><span class="nv">$tag</span><span class="s2"> in </span><span class="nv">$repository</span><span class="s2">"</span>
+<span class="w">  </span><span class="nb">local</span><span class="w"> </span><span class="nv">refusals</span><span class="o">=(</span>
+<span class="w">    </span><span class="s2">"</span><span class="nv">$manifest_request</span><span class="s2">: denied"</span>
+<span class="w">    </span><span class="s2">"</span><span class="nv">$manifest_request</span><span class="s2">: unauthorized"</span>
+<span class="w">    </span><span class="s2">"</span><span class="nv">$manifest_request</span><span class="s2">: name unknown"</span>
+<span class="w">    </span><span class="s2">"Requesting bearer token: invalid status code from registry 403 (Forbidden)"</span>
+<span class="w">  </span><span class="o">)</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>try<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$try</span><span class="s2">"</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span>sleep<span class="w"> </span><span class="m">15</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nv">error</span><span class="o">=</span><span class="k">$(</span>skopeo<span class="w"> </span>inspect<span class="w"> </span>--raw<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">read_options</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="s2">"docker://</span><span class="nv">$reference</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span>&gt;/dev/null<span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span>present
+<span class="w">      </span><span class="k">return</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span>-F<span class="w"> </span><span class="s2">"</span><span class="nv">$manifest_request</span><span class="s2">: manifest unknown"</span><span class="w"> </span><span class="o">&lt;&lt;&lt;</span><span class="s2">"</span><span class="nv">$error</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span>missing
+<span class="w">      </span><span class="k">return</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>refusal<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">refusals</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span>-F<span class="w"> </span><span class="s2">"</span><span class="nv">$refusal</span><span class="s2">"</span><span class="w"> </span><span class="o">&lt;&lt;&lt;</span><span class="s2">"</span><span class="nv">$error</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span>unreadable
+<span class="w">      </span><span class="k">return</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$error</span><span class="s2">"</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="o">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The function recognizes each answer by the text that skopeo prints for it, with the name's tag and repository in the text. The variable <code>manifest_request</code> holds the start of these texts, and the list <code>refusals</code> holds the registry's refusals.</p>
+<p>The script also checks that an archive holds the right architecture and commit before it copies that archive's image.</p>
+<h3 id="the-first-publication">The first publication</h3>
+<p>The first publication is the one exception to "stops". The package doesn't exist yet then, and the registry may deny the read or say that it doesn't know the repository. A run for this case is one that a maintainer starts by hand, in the repository's Actions tab, with the box <strong>First publication</strong> ticked. If both names are <code>unreadable</code> in such a run, the script creates the package: it copies the checked amd64 image under the name <code>first-publication</code>, which nothing else uses, and asks about both names again. If the two answers still aren't <code>present</code> or <code>missing</code>, the script stops. So an image can be in the registry under <code>first-publication</code> although the run failed later, for example at the check of the arm64 archive. The version and <code>noetic</code> are not written in that case.</p>
+<h3 id="the-scripts-tests">The script's tests</h3>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/test_publish_image.sh"><code>test_publish_image.sh</code></a> runs <code>publish_image.sh</code> without a registry and without images. Stand-ins take the place of <code>skopeo</code> and <code>docker</code>. They answer the script's reads with texts recorded from skopeo, and they note each write that the script attempts instead of doing it. Each test chooses the registry's answer, runs the script, and compares the script's exit code and its writes with the expected ones:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">The registry's answer in the test</th>
+<th style="text-align: left;">Expected writes</th>
+<th style="text-align: left;">Expected result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><em>manifest unknown</em> for both names</td>
+<td style="text-align: left;">Both images, the version and <code>noetic</code></td>
+<td style="text-align: left;">The script succeeds</td>
+</tr>
+<tr>
+<td style="text-align: left;">A login helper that isn't installed</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">The token service answers 404</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">A 404 page without the registry's error code</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">The registry can't be reached</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">The read is denied</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">The repository is unknown</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">The read is denied, in a first publication</td>
+<td style="text-align: left;">Only <code>first-publication</code></td>
+<td style="text-align: left;">The script fails, because the read stays denied</td>
+</tr>
+<tr>
+<td style="text-align: left;">The repository is unknown, in a first publication</td>
+<td style="text-align: left;">Only <code>first-publication</code></td>
+<td style="text-align: left;">The script fails, because the repository stays unknown</td>
+</tr>
+<tr>
+<td style="text-align: left;">The login file can't be read, in a first publication</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">One name is free and the read of the other is denied, in a first publication</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">The version and <code>noetic</code> exist</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script succeeds</td>
+</tr>
+<tr>
+<td style="text-align: left;">They exist, but one image is from another commit</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+<tr>
+<td style="text-align: left;">They exist, but <code>noetic</code> has another digest</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">The script fails</td>
+</tr>
+</tbody>
+</table>
+<p>Run the script from the root folder of your clone, with the tool <code>jq</code> installed:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/robot/test_publish_image.sh</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The script prints one line per test, starting with <code>ok</code> or <code>FAILED</code>, and ends with the count:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>14 tests, 0 failed
+</code></pre></div></td></tr></tbody></table></div>
 <p><a href="../../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> describes all workflows of the diffbot repository, what each one checks, and how to run the checks on your PC.</p>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->

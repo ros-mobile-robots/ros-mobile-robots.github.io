@@ -4300,6 +4300,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#where-the-robots-software-comes-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the robot's software comes from
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-it-fits-together" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4445,33 +4456,65 @@
 
 
 <h1 id="robot-container">Robot Container</h1>
-<p>The robot's computer, a Raspberry Pi 4 B, can run ROS Noetic in a <a href="https://docs.docker.com/get-started/docker-overview/">Docker</a> container instead of a native installation. ROS Noetic needs Ubuntu 20.04, whose standard support ended in May 2025 (<a href="../ros-setup/">ROS Setup</a>). With the container, the Raspberry Pi runs a current operating system, Ubuntu Server 24.04, and the container brings Ubuntu 20.04 and ROS Noetic along. Ubuntu 24.04 is also the OS of ROS 2 Jazzy, the planned next ROS version for the robots (<a href="https://github.com/ros-mobile-robots/diffbot/issues/136">diffbot#136</a>), so the SD card doesn't have to be set up again for it.</p>
+<p>The robot's computer, a Raspberry Pi 4 B, can run ROS Noetic in a <a href="https://docs.docker.com/get-started/docker-overview/">Docker</a> container instead of a native installation. The robot's software comes ready-made: <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds and tests the container's Docker image, and the Raspberry Pi downloads the image. Nothing is compiled on the robot.</p>
+<ul>
+<li><strong>To set up a new Raspberry Pi:</strong> <a href="setup/">Set Up the Raspberry Pi</a>, once, from the empty microSD card to the settings.</li>
+<li><strong>To start a Raspberry Pi that is set up:</strong> <a href="usage/">Start, Check and Stop</a>, each time you use the robot.</li>
+</ul>
+<p>ROS Noetic needs Ubuntu 20.04, whose standard support ended in May 2025 (<a href="../ros-setup/">ROS Setup</a>). With the container, the Raspberry Pi runs a current operating system, Ubuntu Server 24.04, and the container brings Ubuntu 20.04 and ROS Noetic along. Ubuntu 24.04 is also the OS of ROS 2 Jazzy, the planned next ROS version for the robots (<a href="https://github.com/ros-mobile-robots/diffbot/issues/136">diffbot#136</a>), so the SD card doesn't have to be set up again for it.</p>
 <div class="admonition note">
 <p class="admonition-title">ROS Noetic itself gets no more updates</p>
 <p>The container doesn't make ROS Noetic supported again. Noetic reached its end of life on 31 May 2025, and its packages get no more updates. What gets updates is the operating system around it, Ubuntu Server 24.04 on the Raspberry Pi.</p>
 </div>
 <div class="admonition warning">
-<p class="admonition-title">Experimental: not tested on a robot yet</p>
-<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the robot's Docker image for arm64, the Raspberry Pi's processor architecture, and tests it without hardware (<a href="image/#how-its-tested">How it's tested</a>). It hasn't driven a robot yet. The test with teleop and the lidar on a Raspberry Pi in Remo is open in <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>. The setup steps follow Ubuntu's and Docker's documentation. They haven't been run on that Raspberry Pi either. The native setup, <a href="../rpi-setup/">Raspberry Pi Setup</a> and <a href="../ros-setup/">ROS Setup</a>, stays documented as the alternative.</p>
+<p class="admonition-title">Experimental: checked on a bench, not driven on the floor yet</p>
+<ul>
+<li><strong>What <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> checks:</strong> <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the robot's Docker image for arm64, the Raspberry Pi's processor architecture, and tests the image without hardware (<a href="image/#how-its-tested">How it's tested</a>).</li>
+<li><strong>What ran on a robot:</strong> on 31 October 2026, Remo's Raspberry Pi 4 B built the image itself, from the diffbot repository's commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/3541965496d50ce629e00054e8d3acd12e4beed5"><code>3541965</code></a>, in 14 min 20 s. The bringup then connected to the Teensy, with the ROS master on the Raspberry Pi. With the robot on a stand, teleop turned the wheels in the commanded directions (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">the bench record</a>).</li>
+<li><strong>What is still open:</strong> the download of the published image on a Raspberry Pi, an SD card written with Raspberry Pi Imager, the lidar's scans, and a drive on the floor. The robot test with teleop and the lidar is <a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>.</li>
+</ul>
+<p>The native setup, <a href="../rpi-setup/">Raspberry Pi Setup</a> and <a href="../ros-setup/">ROS Setup</a>, stays documented as the alternative.</p>
 </div>
+<h2 id="where-the-robots-software-comes-from">Where the robot's software comes from</h2>
+<p>The figure follows the robot's software from the top to the bottom: from a change in the diffbot repository, through GitHub's registry, to the containers on the Raspberry Pi.</p>
+<div class="mermaid">graph TB
+  subgraph GH [GitHub]
+    BUILD[CI builds the image twice:&lt;br/&gt;for arm64 and for amd64]
+    TEST[Smoke test of each build,&lt;br/&gt;without hardware]
+    BUILD --&gt; TEST
+  end
+  REG[GitHub's registry:&lt;br/&gt;both builds under&lt;br/&gt;one image name]
+  PULL[Raspberry Pi, at the start:&lt;br/&gt;docker compose up&lt;br/&gt;downloads the arm64 build]
+  B[bringup&lt;br/&gt;container]
+  L[lidar container,&lt;br/&gt;optional]
+  TEST --&gt;|on noetic-devel,&lt;br/&gt;if both passed| REG
+  REG --&gt;|download| PULL
+  PULL --&gt;|starts| B
+  PULL --&gt;|starts| L</div>
+<p>The five steps of the figure:</p>
+<ol>
+<li><strong><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the image twice:</strong> <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs when a change touches the image or the packages in it. A Docker image is a package with a program and everything the program needs to run: here Ubuntu 20.04, ROS Noetic and the robot's compiled packages. A Raspberry Pi and a PC have different processor architectures, arm64 and amd64, and each needs its own build of the image. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> is the set of automated checks that GitHub runs for the diffbot repository (<a href="../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>).</li>
+<li><strong><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> tests each build without hardware:</strong> the smoke test starts the bringup in the image and checks that both controllers run (<a href="image/#how-its-tested">How it's tested</a>).</li>
+<li><strong><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> publishes both builds under one name:</strong> that happens only on the branch <code>noetic-devel</code>, for a change that is merged into it or for a run that a maintainer starts by hand, and only when both builds passed. The name is <code>ghcr.io/ros-mobile-robots/diffbot-robot</code>. A registry is a server that stores Docker images, and <code>ghcr.io</code> is GitHub's registry.</li>
+<li><strong>The Raspberry Pi downloads its build:</strong> at the first start, <code>docker compose up</code> asks the registry for the image, and Docker picks the arm64 build by itself. Later starts use the downloaded image (<a href="usage/#start">Start</a>).</li>
+<li><strong>Docker starts the containers:</strong> a container is a running copy of the image. The bringup container runs the robot's nodes. The lidar container runs the lidar driver, if the robot has a lidar.</li>
+</ol>
 <h2 id="how-it-fits-together">How it fits together</h2>
-<div class="mermaid">graph LR
+<p>The second figure shows what is connected to what while the robot runs: your PC, the two containers on the Raspberry Pi, the Teensy and the lidar.</p>
+<div class="mermaid">graph TB
   subgraph PC [Your PC]
     DEV[Dev container:&lt;br/&gt;roscore, RViz,&lt;br/&gt;teleop, navigation]
   end
-  subgraph ROBOT [The robot: Remo or DiffBot]
-    subgraph PI [Raspberry Pi]
-      B[bringup container:&lt;br/&gt;hardware interface,&lt;br/&gt;controllers, rosserial]
-      L[lidar container:&lt;br/&gt;rplidar_ros, optional]
-    end
-    T[Teensy:&lt;br/&gt;motors, encoders]
-    S[Lidar]
+  subgraph PI [Raspberry Pi in the robot]
+    B[bringup container:&lt;br/&gt;hardware interface,&lt;br/&gt;controllers, rosserial]
+    L[lidar container:&lt;br/&gt;rplidar_ros,&lt;br/&gt;optional]
   end
-  DEV ---|ROS over Wi-Fi or LAN,&lt;br/&gt;both directions| B
+  T[Teensy:&lt;br/&gt;motors, encoders]
+  S[Lidar]
+  DEV ---|ROS over&lt;br/&gt;Wi-Fi or LAN| B
   DEV ---|ROS| L
-  B ---|USB serial| T
-  L ---|USB serial| S
-  DEV -.-&gt;|firmware, flashed&lt;br/&gt;from the PC| T</div>
+  B ---|USB| T
+  L ---|USB| S</div>
 <p>The robot is Remo or DiffBot, with its Raspberry Pi, its Teensy and, if it has one, its lidar. The Raspberry Pi runs Ubuntu Server 24.04 and Docker, and two containers, both from the same Docker image: the bringup and the lidar. They talk ROS with your PC over the network, in both directions, and to the Teensy and the lidar over USB. The Teensy's firmware isn't part of the container: you flash it from the PC.</p>
 <p>What runs where, and which page explains it:</p>
 <table>
@@ -4495,7 +4538,7 @@
 </tr>
 <tr>
 <td style="text-align: left;">The robot containers, on the Raspberry Pi</td>
-<td style="text-align: left;">ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models and the lidar driver. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds and tests their Docker image and publishes it, and Docker downloads it to the Raspberry Pi</td>
+<td style="text-align: left;">ROS Noetic and the robot's packages: the bringup with the hardware interface, the controllers and rosserial, the robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models and the lidar driver</td>
 <td style="text-align: left;"><a href="usage/">Start, Check and Stop</a>, <a href="versions/">Versions and Your Own Build</a>, <a href="image/">Image and Tests</a></td>
 </tr>
 <tr>
@@ -4517,7 +4560,7 @@
 <ul>
 <li><strong>The camera:</strong> the Raspberry Pi camera driver, <code>raspicam_node</code>, needs the Raspberry Pi's legacy camera stack, which current operating systems no longer have. A driver for libcamera is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/111">diffbot#111</a>.</li>
 <li><strong><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> and <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> on the Raspberry Pi</strong> aren't passed into the containers yet. The current robots don't need them: the motor driver and the optional <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> connect to the Teensy, which reaches the Raspberry Pi over USB (<a href="../">Processing Units</a>). Parts on the Raspberry Pi's own pins wouldn't work in the containers yet, such as the Grove motor driver of earlier DiffBot versions or the ultrasonic ranger (<a href="../hardware-interfaces/">Hardware Interfaces</a>).</li>
-<li><strong>Starting at boot:</strong> for now, start the robot with the command in <a href="usage/#start">Start, Check and Stop</a> after logging in. An automatic start needs the Teensy, the network, the synchronized clock and the PC's ROS master when the Raspberry Pi boots. Docker's restart policy alone can't handle a missing device, so this needs its own tests.</li>
+<li><strong>Starting at boot:</strong> for now, start the robot with the commands in <a href="usage/#start">Start, Check and Stop</a> after logging in. An automatic start needs the Teensy, the network, the synchronized clock and the PC's ROS master when the Raspberry Pi boots. Docker's restart policy alone can't handle a missing device, so this needs its own tests.</li>
 <li><strong>A smaller Docker image:</strong> <code>diffbot_description</code> and <code>remo_description</code> declare RViz as a dependency, because they have launch files that open RViz. So the image contains RViz with its graphics libraries, about 0.7 GB, which the robot never shows (<a href="image/#what-takes-the-space">What takes the space</a>). Husky, for example, keeps its RViz launch files in a package of their own, <a href="https://github.com/husky/husky/blob/noetic-devel/husky_viz/package.xml"><code>husky_viz</code></a>, and its description package doesn't declare RViz. The same split here would leave RViz out of the image.</li>
 </ul>
 <!-- Mechanical parts and tools -->

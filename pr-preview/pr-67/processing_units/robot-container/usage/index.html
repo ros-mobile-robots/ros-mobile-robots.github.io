@@ -1588,6 +1588,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-start-command-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the start command does
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-clone-from-before-the-published-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A clone from before the published image
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#where-the-commands-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1612,17 +1651,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#start" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Start
-      
-    </span>
-  </a>
   
 </li>
       
@@ -4575,6 +4603,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-start-command-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the start command does
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-clone-from-before-the-published-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A clone from before the published image
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#where-the-commands-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4599,17 +4666,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#start" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Start
-      
-    </span>
-  </a>
   
 </li>
       
@@ -4915,11 +4971,49 @@
 
 
 <h1 id="start-check-and-stop">Start, Check and Stop</h1>
-<p>Once the Raspberry Pi is <a href="../setup/">set up</a>, the commands on this page start the robot, check it, drive it and stop it. The page ends with the ROS tools on the robot alone, and with the places of the robot's logs. The next page, <a href="../versions/">Versions and Your Own Build</a>, explains how to update the robot's Docker image, how to stay on one version, and how to build the image yourself.</p>
-<div class="admonition note">
-<p class="admonition-title">Where the example outputs come from</p>
-<p>The outputs on this page were recorded on a PC, with the robot's Docker image and without a Teensy or a lidar. They show what to look for. Names, addresses and numbers differ on your robot. What only a connected Teensy prints is described in words. Outputs from the real robot follow with the robot test (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>).</p>
-</div>
+<p>Once the Raspberry Pi is <a href="../setup/">set up</a>, two commands start the robot: one on your PC, then one on the Raspberry Pi. The robot's nodes then run on the Raspberry Pi, and the ROS tools on your PC see the robot's topics.</p>
+<h2 id="start">Start</h2>
+<p>Before the first start, flash the Teensy's firmware from your PC (<a href="../../teensy-mcu/">Microcontroller</a>). Connect the Teensy to one of the Raspberry Pi's USB ports, and the lidar too if your robot has one.</p>
+<ol>
+<li>
+<p><strong>On your PC:</strong> in the <a href="../../../development/dev-container/">dev container</a>, start the ROS master.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscore</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Leave <code>roscore</code> running in its terminal. <a href="#the-ros-master">The ROS master</a> explains what this program does. Without a running <code>roscore</code>, the robot's containers stop with <em>unable to contact ROS master</em>.</p>
+</li>
+<li>
+<p><strong>On the Raspberry Pi:</strong> in an SSH session, start the robot's containers. If this Raspberry Pi was set up before the published image, check first which image its clone starts (<a href="#a-clone-from-before-the-published-image">A clone from before the published image</a>).</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/diffbot/.docker/robot</span>
+<span class="go">docker compose up -d</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The first start downloads the robot's Docker image, so the first start takes a while. Later starts use the downloaded image.</p>
+</li>
+<li>
+<p><strong>On the Raspberry Pi:</strong> list the containers.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose ps -a</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The bringup runs when the line of the service <code>bringup</code> shows <code>Up</code> under <code>STATUS</code>. With the lidar switched on in the settings, a second line shows <code>Up</code> for the service <code>lidar</code>. <a href="#1-the-containers-run">The containers run</a> shows the list and what a stopped container looks like.</p>
+</li>
+</ol>
+<p>Without a PC, the robot starts alone, with the ROS master on the Raspberry Pi: <a href="#without-any-pc">Without any PC</a>.</p>
+<h3 id="what-the-start-command-does">What the start command does</h3>
+<p>The parts of <code>docker compose up -d</code>:</p>
+<ul>
+<li><strong><code>docker compose</code>:</strong> Docker's tool for containers that belong together. The tool reads which containers to run, with which devices and settings, from the file <code>compose.yaml</code> in the current folder. That's why the command runs in <code>~/diffbot/.docker/robot</code>.</li>
+<li><strong><code>up</code>:</strong> creates and starts the containers that <code>compose.yaml</code> describes. That's the bringup, and the lidar if <code>COMPOSE_PROFILES=lidar</code> is set (<a href="../setup/#9-settings">Settings</a>).</li>
+<li><strong><code>-d</code>:</strong> short for <code>--detach</code>. The containers run in the background, and you get the prompt back.</li>
+</ul>
+<p>The command never builds anything. The command downloads the robot's Docker image, <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot"><code>ghcr.io/ros-mobile-robots/diffbot-robot</code></a>, which <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> built and tested, with the robot's packages already compiled (<a href="../#where-the-robots-software-comes-from">Where the robot's software comes from</a>). If the download fails, the command stops with the registry's error (<a href="../troubleshooting/#the-download-fails">Troubleshooting</a>).</p>
+<p>The amd64 image, the one for PCs, is a download of about 0.7 GB. The arm64 image, which the Raspberry Pi downloads, isn't measured yet.</p>
+<h3 id="a-clone-from-before-the-published-image">A clone from before the published image</h3>
+<p>A clone of the diffbot repository from before the published image has a <code>compose.yaml</code> that starts an image built on the Raspberry Pi. This command prints which image your clone starts. On the Raspberry Pi, in <code>~/diffbot/.docker/robot</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose config --images</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ul>
+<li><strong><code>ghcr.io/ros-mobile-robots/diffbot-robot:noetic</code>:</strong> the clone starts the published image. Nothing to do.</li>
+<li><strong><code>diffbot-robot:noetic</code>:</strong> the clone starts an image that was built on this Raspberry Pi. <a href="../versions/#update-to-the-newest-version">Update to the newest version</a> gets the current <code>compose.yaml</code> and the published image.</li>
+</ul>
 <h2 id="where-the-commands-run">Where the commands run</h2>
 <p>The commands run in two places: in an SSH session on the Raspberry Pi, and in the <a href="../../../development/dev-container/">dev container</a> on your PC.</p>
 <div class="mermaid">graph TB
@@ -4988,37 +5082,15 @@
 </tr>
 </tbody>
 </table>
-<p>This page uses the first row, the ROS master on the PC. The second row is for <a href="#on-the-robot-alone">the robot alone</a>.</p>
-<h2 id="start">Start</h2>
-<p>Before the first start, flash the Teensy's firmware from your PC (<a href="../../teensy-mcu/">Microcontroller</a>), and connect the Teensy and the lidar to the Raspberry Pi's USB ports.</p>
-<p>First start the ROS master. On your PC, in the dev container:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscore</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>Leave <code>roscore</code> running in its terminal. Without a ROS master at the address in <code>ROS_MASTER_URI</code>, the robot's containers stop with <em>unable to contact ROS master</em>.</p>
-<p>Then start the robot's containers. On the Raspberry Pi:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/diffbot/.docker/robot</span>
-<span class="go">docker compose up -d --no-build</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>The parts of the command:</p>
-<ul>
-<li><strong><code>up</code>:</strong> creates and starts the containers that <code>compose.yaml</code> describes. That's the bringup, and the lidar if <code>COMPOSE_PROFILES=lidar</code> is set.</li>
-<li><strong><code>-d</code>:</strong> short for <code>--detach</code>. The containers run in the background, and you get the prompt back.</li>
-<li><strong><code>--no-build</code>:</strong> Compose only downloads the Docker image and never builds the image.</li>
-</ul>
-<p>The first start downloads the robot's Docker image, <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot"><code>ghcr.io/ros-mobile-robots/diffbot-robot</code></a>. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> built and tested this image, with the robot's packages already compiled (<a href="../image/">Image and Tests</a>). The download is about 0.7 GB. That number is measured for the amd64 image, the one for PCs. The arm64 image, which the Raspberry Pi downloads, isn't measured yet. Later starts use the downloaded image.</p>
-<p>Why the command has <code>--no-build</code>, and how long a build would take:</p>
-<ul>
-<li><strong>Without <code>--no-build</code>:</strong> Compose would answer a failed download by building the Docker image on the Raspberry Pi, from your clone. With <code>--no-build</code>, a failed download is an error that you see at once.</li>
-<li><strong>No build is needed to use the robot:</strong> <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> builds the published image for arm64, the Raspberry Pi's processor architecture, on an arm64 computer of GitHub.</li>
-<li><strong>How long the build takes in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>:</strong> about two minutes, on that arm64 computer and without emulation. In seven runs, the build took between 1 min 42 s and 1 min 55 s.</li>
-<li><strong>How long the build takes on a Raspberry Pi 4:</strong> not measured yet. The Raspberry Pi 4's processor and SD card are slower than that computer's, so expect a longer build.</li>
-<li><strong>When you do need a build:</strong> <a href="../versions/#your-own-build">Your own build</a> says when, and how to build on the Raspberry Pi or on your PC.</li>
-</ul>
+<p>This page uses the first row, the ROS master on the PC. Only this arrangement can run the lidar too, with <code>COMPOSE_PROFILES=lidar</code>. The second row is for <a href="#on-the-robot-alone">the robot alone</a>, with the bringup and without the lidar (<a href="#without-any-pc">Without any PC</a> says why).</p>
 <h2 id="check">Check</h2>
 <p>Check three things, in this order: the containers run, their output shows no error, and the robot's topics carry data.</p>
+<div class="admonition note">
+<p class="admonition-title">Where the example outputs come from</p>
+<p>The outputs in this section were recorded on a PC, with the robot's Docker image and without a Teensy or a lidar. They show what to look for. Names, addresses and numbers differ on your robot. What only a connected Teensy prints is described in words. Outputs from the real robot follow with the robot test (<a href="https://github.com/ros-mobile-robots/diffbot/issues/109">diffbot#109</a>).</p>
+</div>
 <h3 id="1-the-containers-run">1. The containers run</h3>
-<p>On the Raspberry Pi, list the containers of the project:</p>
+<p>The third step of <a href="#start">Start</a> lists the containers of the project. On the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose ps -a</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>On a robot without a lidar, the list has one container, the bringup, with the status <code>Up</code>:</p>
@@ -5083,24 +5155,48 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 </ul>
 <p>With a Teensy connected, rosserial then prints <em>Requesting topics...</em>, and a line <em>Setup publisher on …</em> or <em>Setup subscriber on …</em> for each topic of the firmware. The controller spawner ends with <em>Started controllers: joint_state_controller, mobile_base_controller</em>.</p>
 <h3 id="3-the-topics-carry-data">3. The topics carry data</h3>
-<p>A topic that's listed but has no messages isn't enough. So check that messages arrive. On your PC, in the dev container:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostopic hz /diffbot/measured_joint_states</span>
-<span class="go">rostopic echo -n 1 /diffbot/mobile_base_controller/odom</span>
-<span class="go">rostopic hz /diffbot/scan</span>
+<p>A topic that's listed but has no messages isn't enough. So check that messages arrive. Each of these checks is one command on your PC, in the dev container.</p>
+<ol>
+<li>
+<p><strong>The wheel encoders:</strong> the topic <code>/diffbot/measured_joint_states</code> comes from the Teensy. This command prints how many messages per second arrive:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostopic hz /diffbot/measured_joint_states</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>rostopic hz</code>:</strong> prints how many messages per second arrive on a topic. <code>Ctrl+C</code> ends the command.</li>
-<li><strong><code>rostopic echo -n 1</code>:</strong> prints one message and ends.</li>
-<li><strong><code>/diffbot/measured_joint_states</code>:</strong> comes from the Teensy. Messages at a steady rate mean that rosserial talks with the firmware and the encoders are read.</li>
-<li><strong><code>/diffbot/mobile_base_controller/odom</code>:</strong> the controller's odometry.</li>
-<li><strong><code>/diffbot/scan</code>:</strong> comes from the lidar, if the lidar runs.</li>
+<li><strong>It works when:</strong> a line with <code>average rate:</code> appears every second, with a steady rate. On Remo's bench check, the rate was 20 Hz (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">the bench record</a>). Then rosserial talks with the firmware, and the encoders are read.</li>
+<li><strong>It doesn't work when:</strong> the command prints <em>does not appear to be published yet</em> and waits, or it prints <em>no new messages</em>. Both mean that no message arrives. <a href="../troubleshooting/#rostopic-hz-prints-no-new-messages-or-does-not-appear-to-be-published-yet">Troubleshooting</a> shows how to find out whether a node publishes the topic at all.</li>
+<li><strong>To end the command:</strong> press <code>Ctrl+C</code>.</li>
 </ul>
+</li>
+<li>
+<p><strong>The odometry:</strong> the topic <code>/diffbot/mobile_base_controller/odom</code> comes from the controller. This command prints one message:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostopic echo -n 1 /diffbot/mobile_base_controller/odom</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ul>
+<li><strong>It works when:</strong> the command prints one message, with the robot's <code>pose</code> and <code>twist</code>, and ends by itself.</li>
+<li><strong>It doesn't work when:</strong> nothing is printed. Then press <code>Ctrl+C</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>The lidar, only if your robot runs it:</strong> the topic <code>/diffbot/scan</code> comes from the lidar container. Skip this check on a robot without a lidar, and when the bringup runs alone, as it does with the ROS master on the Raspberry Pi. This command prints how many scans per second arrive:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostopic hz /diffbot/scan</span>
+</code></pre></div></td></tr></tbody></table></div>
+<ul>
+<li><strong>It works when:</strong> a line with <code>average rate:</code> appears every second.</li>
+<li><strong>It doesn't work when:</strong> the command prints <em>does not appear to be published yet</em> and waits, or it prints <em>no new messages</em>. <a href="../troubleshooting/#no-diffbotscan">Troubleshooting</a> has the next steps.</li>
+<li><strong>To end the command:</strong> press <code>Ctrl+C</code>.</li>
+</ul>
+</li>
+</ol>
 <h2 id="drive">Drive</h2>
 <div class="admonition warning">
 <p class="admonition-title">Wheels off the ground first</p>
 <p>Before the first drive command, put the robot on a block, so that both wheels turn freely. Check that the wheels turn in the commanded direction, and that they stop when the command stops. Only then put the robot on the floor, with free space around the robot. Stay next to the robot. If the robot doesn't stop, lift the robot off its wheels.</p>
+<p>The wheels don't follow a command at once: they start late, and they run on after a stop. Two measurements on Remo show how much, both with the wheels off the ground (<a href="https://github.com/ros-mobile-robots/diffbot/issues/168">diffbot#168</a>, with <a href="https://github.com/ros-mobile-robots/diffbot/issues/168#issuecomment-6658892348">the second measurement</a> in a comment):</p>
+<ul>
+<li><strong>A Teensy 3.2 with the firmware at commit <code>1a3b547</code>, a command of 0.3 m/s:</strong> the wheels started 1 s to 1.5 s after the command. After the command went back to zero, the wheels kept turning for about 2 s.</li>
+<li><strong>Remo's own Teensy 4.0 with the firmware at commit <code>58cf789</code>, a command of 0.2 m/s or a turn with 2.5 rad/s:</strong> 3 s after the command went back to zero, the wheels still turned with about 1.4 rad/s. The motor output, the power that the firmware gives the motors, reached zero after 4.6 s to 4.8 s, in three runs.</li>
+</ul>
+<p>The commands on this page ask for 0.1 m/s, which neither measurement covers. So hold a key for a few seconds to see the wheels turn. After each stop, watch the wheels until they stand still, and note how long that takes. How far the robot rolls on the floor after a stop isn't measured yet.</p>
 </div>
 <p>The robot drives when a node publishes velocity commands on the topic <code>/diffbot/mobile_base_controller/cmd_vel</code>. A command is a message of the type <a href="https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html"><code>geometry_msgs/Twist</code></a>. The robot's controller, <code>mobile_base_controller</code>, uses two fields of this message:</p>
 <ul>
@@ -5109,7 +5205,7 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 </ul>
 <details class="info">
 <summary>The controller's limits in <code>diffbot_control.yaml</code></summary>
-<p>These lines of <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/diffbot_control/config/diffbot_control.yaml#L42-L54"><code>diffbot_control.yaml</code></a> limit the speeds and the accelerations that the controller passes on to the wheels:</p>
+<p>These lines of <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/diffbot_control/config/diffbot_control.yaml#L42-L54"><code>diffbot_control.yaml</code></a> limit the speeds and the accelerations that the controller passes on to the wheels:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
@@ -5137,7 +5233,8 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 <span class="w">    </span><span class="nt">max_acceleration       </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6.0</span><span class="w">   </span><span class="c1"># rad/s^2</span>
 </code></pre></div></td></tr></tbody></table></div>
 </details>
-<p>When no command arrives for 0.5 s, the controller sets the speed it aims for to zero. That's the default of the controller's parameter <code>cmd_vel_timeout</code> (<a href="https://wiki.ros.org/diff_drive_controller#Parameters">the parameters of diff_drive_controller</a>). The robot then slows down within the controller's acceleration limit and stops. So a command has to be repeated, more than twice per second, for as long as the robot should move. Both ways below send the command 10 times per second. Both run on your PC, in the dev container.</p>
+<p>When no command arrives for 0.5 s, the controller sets the speed it aims for to zero. That's the default of the controller's parameter <code>cmd_vel_timeout</code> (<a href="https://wiki.ros.org/diff_drive_controller#Parameters">the parameters of diff_drive_controller</a>). The controller then lowers the wheel speeds that it commands, within its acceleration limit, down to zero. So a command has to be repeated, more than twice per second, for as long as the robot should move. Both ways below send the command 10 times per second. Both run on your PC, in the dev container.</p>
+<p>The controller only commands wheel speeds. The Teensy's firmware turns them into motor power, and that takes time: <a href="#drive">the box at the top of this section</a> has the times measured on Remo.</p>
 <h3 id="with-the-keyboard">With the keyboard</h3>
 <p><code>teleop_twist_keyboard</code> turns key presses into velocity commands (<a href="https://github.com/ros-teleop/teleop_twist_keyboard">the tool's repository, with all keys and parameters</a>). This command starts the tool for a slow first drive:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -5156,9 +5253,13 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 </ul>
 <p>What a key press does with these parameters:</p>
 <ul>
-<li><strong>One tap also drives the robot:</strong> the tool repeats the command until no key press has arrived for 0.6 s. Then the tool sends the stop command, and the controller slows the robot down. In the simulation, one tap of <code>i</code> moved Remo 6 cm, and Remo came to a stop about 0.85 s after the tap.</li>
-<li><strong>A held key drives until you release the key:</strong> the repeated key presses come from the keyboard's key repeat. So the key repeat has to be on, and the delay before the first repeat has to be shorter than the key timeout. The tool's README recommends a key timeout that is longer than this delay, and names 0.5 s as the delay's default on Ubuntu (<a href="https://github.com/ros-teleop/teleop_twist_keyboard#key-timeout">the README's section on the key timeout</a>).</li>
-<li><strong>After you release the key:</strong> the robot slows down and stops. In the simulation, Remo stood still 0.74 s after the release.</li>
+<li><strong>One tap sends the command for about 0.6 s:</strong> the tool repeats the command until no key press has arrived for 0.6 s, the key timeout. Then the tool sends the stop command. What the wheels do in that time depends on where the robot runs:<ul>
+<li><strong>In the simulation:</strong> one tap of <code>i</code> moved Remo 6 cm, and Remo came to a stop about 0.85 s after the tap.</li>
+<li><strong>On the real Remo, with the wheels off the ground:</strong> a short tap can leave the wheels still, because the wheels start late (<a href="#drive">the measurements at the top of this section</a>).</li>
+</ul>
+</li>
+<li><strong>A held key sends the command until you release the key:</strong> the repeated key presses come from the keyboard's key repeat. So the key repeat has to be on, and the delay before the first repeat has to be shorter than the key timeout. The tool's README recommends a key timeout that is longer than this delay, and names 0.5 s as the delay's default on Ubuntu (<a href="https://github.com/ros-teleop/teleop_twist_keyboard#key-timeout">the README's section on the key timeout</a>).</li>
+<li><strong>After you release the key:</strong> the tool sends the stop command about 0.6 s later, and the wheels slow down and stop. In the simulation, Remo stood still 0.74 s after the release. The real Remo's wheels ran on for several seconds in <a href="#drive">the measurements at the top of this section</a>. Watch the wheels until they stand still.</li>
 </ul>
 <p>The keys are:</p>
 <table>
@@ -5205,7 +5306,7 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 <span class="go">  geometry_msgs/Twist '{angular: {z: 0.5}}'</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The fields that a command leaves out are zero. So the first command doesn't turn, and the second one doesn't drive forward.</p>
-<p>To stop, press <code>Ctrl+C</code>. <code>rostopic pub</code> ends, and no more commands arrive. After 0.5 s without a command, the controller slows the robot down to a stop. In the simulation, with these two commands, DiffBot and Remo drove with 0.10 m/s and turned with 0.50 rad/s. They stood still 0.65 s to 0.70 s after the last command. On the real robot, these times aren't measured yet.</p>
+<p>To stop, press <code>Ctrl+C</code>. <code>rostopic pub</code> ends, and no more commands arrive. After 0.5 s without a command, the controller lowers the commanded wheel speeds to zero. In the simulation, with these two commands, DiffBot and Remo drove with 0.10 m/s and turned with 0.50 rad/s. They stood still 0.65 s to 0.70 s after the last command. The real Remo's wheels ran on for several seconds in <a href="#drive">the measurements at the top of this section</a>. Watch the wheels until they stand still. How far the real robot rolls on the floor after the last command isn't measured yet.</p>
 <h2 id="stop">Stop</h2>
 <p>On the Raspberry Pi, stop and remove the containers:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose down</span>
@@ -5228,7 +5329,7 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 <tbody>
 <tr>
 <td style="text-align: left;">Start, or restart after a change of <code>.env</code></td>
-<td style="text-align: left;"><code>docker compose up -d --no-build</code></td>
+<td style="text-align: left;"><code>docker compose up -d</code></td>
 </tr>
 <tr>
 <td style="text-align: left;">Do the containers run?</td>
@@ -5244,7 +5345,7 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 </tr>
 <tr>
 <td style="text-align: left;">Update</td>
-<td style="text-align: left;"><code>git pull</code>, <code>docker compose pull --policy always</code>, then <code>docker compose up -d --no-build</code></td>
+<td style="text-align: left;"><code>git pull &amp;&amp; docker compose pull --policy always &amp;&amp; docker compose up -d</code></td>
 </tr>
 <tr>
 <td style="text-align: left;">Switch off</td>
@@ -5252,10 +5353,10 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 </tr>
 </tbody>
 </table>
-<p><a href="../versions/#the-newest-version">The newest version</a> explains the three commands of the update.</p>
+<p><a href="../versions/#update-to-the-newest-version">Update to the newest version</a> explains the three parts of the update, and why <code>&amp;&amp;</code> joins them.</p>
 <div class="admonition warning">
 <p class="admonition-title">After the Teensy was reset, reflashed or unplugged</p>
-<p>Stop the containers and start them again: <code>docker compose down</code>, then <code>docker compose up -d --no-build</code>. A container gets its devices when it starts, and a reconnected Teensy is a new device for the kernel, which the running container doesn't see. A new start also starts a new odometry, so a measurement run ends there.</p>
+<p>Stop the containers and start them again: <code>docker compose down</code>, then <code>docker compose up -d</code>. A container gets its devices when it starts, and a reconnected Teensy is a new device for the kernel, which the running container doesn't see. A new start also starts a new odometry, so a measurement run ends there.</p>
 </div>
 <h2 id="on-the-robot-alone">On the robot alone</h2>
 <p>ROS's command-line tools also run on the Raspberry Pi, inside the bringup container. That helps when no PC is at hand, or to rule out the network between the PC and the robot.</p>
@@ -5289,7 +5390,7 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 <tr>
 <td style="text-align: left;"><code>/entrypoint.sh</code></td>
 <td style="text-align: left;">The diffbot repository</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/entrypoint.sh">The entrypoint script</a>. The script loads ROS and the workspace, then runs the rest of the line</td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/entrypoint.sh">The entrypoint script</a>. The script loads ROS and the workspace, then runs the rest of the line</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>rostopic list</code></td>
@@ -5322,13 +5423,14 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 <li><strong>Without <code>ROS_MASTER_URI</code>:</strong> roslaunch starts a ROS master in the bringup container when the bringup starts (<a href="#the-ros-master">The ROS master</a>).</li>
 <li><strong>Without the lidar, for now:</strong> started together, the bringup and the lidar container can each start a ROS master, and one of the two containers can then stop. In our test without hardware, one container stopped in each of three starts.</li>
 <li><strong>Variables of the shell:</strong> a variable with one of these two names in the Raspberry Pi's shell still wins over <code>.env</code> (<a href="../setup/#when-compose-reads-env">When Compose reads <code>.env</code></a>). Remove such a variable too.</li>
-<li><strong>Without a network:</strong> if the Raspberry Pi isn't connected to your network, remove <code>ROS_IP</code> as well. The Raspberry Pi doesn't have that address then, and roslaunch stops with <em>Unable to contact my own server</em>.</li>
+<li><strong>Without a network:</strong> if the Raspberry Pi isn't connected to your network, remove <code>ROS_IP</code> as well. The Raspberry Pi doesn't have that address then, and roslaunch stops with <em>Unable to contact my own server</em>. Download the robot's Docker image while the Raspberry Pi still has its internet connection: <code>docker compose pull</code>. Without the image, the start stops, because it can't reach the registry.</li>
 </ul>
 </li>
 <li>
 <p>Start the bringup:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose up -d --no-build</span>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose up -d</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p><code>docker compose ps -a</code> then lists the bringup as <code>Up</code>. The bringup's output shows <code>ROS_MASTER_URI=http://localhost:11311</code>: the ROS master runs in the bringup container.</p>
 </li>
 </ol>
 <h2 id="logs">Logs</h2>
@@ -5364,15 +5466,15 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose logs bringup</span>
 </code></pre></div></td></tr></tbody></table></div>
 <h3 id="ross-log-files">ROS's log files</h3>
-<p>roslaunch and each node also write a log file. Inside a container, ROS writes them to the folder <code>/home/ros/.ros/log</code>. The folder <code>/home/ros/.ros</code> isn't the container's own. Docker mounts the Raspberry Pi's folder <code>~/robot-data</code> there: that folder appears inside the container at the path <code>/home/ros/.ros</code> (<a href="https://docs.docker.com/engine/storage/bind-mounts/">Docker's page on bind mounts</a>). So what a container writes there is written into <code>~/robot-data</code>, on the Raspberry Pi's SD card. These lines of <a href="https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3/.docker/robot/compose.yaml#L36-L43"><code>compose.yaml</code></a> mount the folder:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">compose.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
+<p>roslaunch and each node also write a log file. Inside a container, ROS writes them to the folder <code>/home/ros/.ros/log</code>. The folder <code>/home/ros/.ros</code> isn't the container's own. Docker mounts the Raspberry Pi's folder <code>~/robot-data</code> there: that folder appears inside the container at the path <code>/home/ros/.ros</code> (<a href="https://docs.docker.com/engine/storage/bind-mounts/">Docker's page on bind mounts</a>). So what a container writes there is written into <code>~/robot-data</code>, on the Raspberry Pi's SD card. These lines of <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L39-L46"><code>compose.yaml</code></a> mount the folder:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">compose.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
-<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># ROS logs and bags in a host folder. The long syntax doesn't create a missing folder: Docker</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># ROS logs and bags in a host folder. The long syntax doesn't create a missing folder: Docker</span>
 <span class="c1"># would create it for root, and the user ros couldn't write its logs.</span>
 <span class="nt">volumes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bind</span>
@@ -5382,9 +5484,9 @@ bringup-1  | [INFO] [1793227441.364928]: Connecting to /dev/ttyACM0 at 115200 ba
 <span class="w">      </span><span class="nt">create_host_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>source</code></strong> (line 40): the folder on the Raspberry Pi. The folder is <code>~/robot-data</code>, unless <code>ROBOT_DATA</code> in <code>.env</code> names another one.</li>
-<li><strong><code>target</code></strong> (line 41): the path inside the container. The path is the folder <code>.ros</code> in the home folder of the container's user <code>ros</code>. ROS writes its log files into the folder <code>log</code> below <code>.ros</code>.</li>
-<li><strong><code>create_host_path: false</code></strong> (line 43): Docker doesn't create a missing folder, for the reason in the comment. <a href="../setup/#8-the-folder-for-logs">Step 8</a> of the setup creates the folder.</li>
+<li><strong><code>source</code></strong> (line 43): the folder on the Raspberry Pi. The folder is <code>~/robot-data</code>, unless <code>ROBOT_DATA</code> in <code>.env</code> names another one.</li>
+<li><strong><code>target</code></strong> (line 44): the path inside the container. The path is the folder <code>.ros</code> in the home folder of the container's user <code>ros</code>. ROS writes its log files into the folder <code>log</code> below <code>.ros</code>.</li>
+<li><strong><code>create_host_path: false</code></strong> (line 46): Docker doesn't create a missing folder, for the reason in the comment. <a href="../setup/#8-the-folder-for-logs">Step 8</a> of the setup creates the folder.</li>
 </ul>
 <p>So the log files are in <code>~/robot-data/log</code> on the Raspberry Pi. A container's own files are deleted with the container, at <code>docker compose down</code>. The files in the mounted folder stay.</p>
 <p>The files of one run are in one folder. ROS names the folder after the run's ID, which is set when the ROS master starts. So all starts of the robot under one <code>roscore</code> write into the same folder. To find the newest folder, on the Raspberry Pi:</p>
