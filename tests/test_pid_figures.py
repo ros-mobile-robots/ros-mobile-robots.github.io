@@ -103,6 +103,29 @@ class TestChecks(unittest.TestCase):
         self.assertIn('does not give the logged motor command 97', message)
 
 
+class TestMotorCommand(unittest.TestCase):
+    """motor_command() limits a raw output as PID::compute() does and drops its fraction."""
+
+    def test_motor_command_drops_the_fraction_of_a_raw_output_within_the_range(self) -> None:
+        self.assertEqual(pid_figures.motor_command(96.96), 96)
+
+    def test_motor_command_drops_the_fraction_towards_zero_for_a_negative_raw_output(
+            self) -> None:
+        self.assertEqual(pid_figures.motor_command(-96.96), -96)
+
+    def test_motor_command_is_the_largest_command_for_a_raw_output_above_the_range(
+            self) -> None:
+        raw_output = 300.0
+        self.assertGreater(raw_output, pid_figures.PWM_MAX)
+        self.assertEqual(pid_figures.motor_command(raw_output), pid_figures.PWM_MAX)
+
+    def test_motor_command_is_the_smallest_command_for_a_raw_output_below_the_range(
+            self) -> None:
+        raw_output = -300.0
+        self.assertLess(raw_output, -pid_figures.PWM_MAX)
+        self.assertEqual(pid_figures.motor_command(raw_output), -pid_figures.PWM_MAX)
+
+
 class TestMain(unittest.TestCase):
     """main() checks the logged step before it writes anything."""
 
