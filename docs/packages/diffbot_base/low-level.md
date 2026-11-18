@@ -190,11 +190,13 @@ graph TB
    coast to a stop. A new valid command lets the next control step drive again.
 
 On the robot, the hardware interface sends a command every 100 ms, also while
-the robot stands still, with zero speeds. Each valid command starts the timeout
-again, one with zero speeds too. So the timeout tells whether the robot's
-computer still sends commands, not whether the robot should move. The timeout
-expires only when the commands stop, for example when the `diffbot_base` node
-stops. The following sections follow the same path through the code:
+the robot stands still, with zero speeds. A valid command, two finite speeds and
+zero speeds included, starts the timeout again when the Teensy processes it. A
+message that the subscriber drops, for example one with a single speed, doesn't.
+The motors are released at the first check at which the last processed valid
+command is at least 1000 ms old. So the timeout tells whether valid commands
+still reach the Teensy, not whether the robot should move. On the robot, it
+expires when the commands stop, for example when the `diffbot_base` node stops. The following sections follow the same path through the code:
 [how `main.cpp` connects the parts](#connecting-the-firmware-in-maincpp),
 [the command timeout](#the-command-timeout) and
 [the timing with the Teensy's clock](#timing-with-the-teensys-clock).
@@ -373,9 +375,9 @@ the other:
 
 1. `loop()` reads the Teensy's clock, `millis()`, as `now_ms` and hands it to
    `wheel_control.step()`.
-2. `imu_publisher.update()` takes no time from `loop()`. It reads `millis()`
-   itself, a second reading in the same pass, after `wheel_control.step()` has
-   returned.
+2. `imu_publisher.update()` takes no time from `loop()`. With the IMU enabled,
+   it reads `millis()` itself, a second reading in the same pass, after
+   `wheel_control.step()` has returned.
 3. `publishDebugIfDue()` gets the same `now_ms` as the wheel control's step.
 4. `nh.spinOnce()` handles the messages that have arrived over USB.
 
@@ -577,9 +579,9 @@ next scheduled control step only if that command is still less than 1000 ms old
 when `step()` checks the timeout. The PIDs start from the state cleared by
 `eStop()`.
 
-So 1000 ms is the age of the last valid command that the Teensy has processed
-at which this command may expire. This age isn't the time at which the wheels
-stand still. The motors are released at the first check after that moment.
+So the motors are released at the first check at which the last valid command
+that the Teensy has processed is at least 1000 ms old. This age isn't the time
+at which the wheels stand still.
 `loop()` runs its parts one after the other, and each part has to return before
 the next one runs. A part that blocks, for example a log message that waits for
 the USB connection, delays the next check. After the release, the wheels coast
