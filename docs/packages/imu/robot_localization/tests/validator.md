@@ -83,20 +83,14 @@ The name lists the method's two outcomes in their order: the caller gets the dro
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:252:264"
 ```
 
-The method runs two steps, each in a method of its own:
+The method runs two steps, each in a method of its own: first `drop_reason()`, then, only when the reason is `None`, `record_valid_sample()`.
 
-1. **The decision:** `drop_reason()` returns the first reason to drop the sample, or `None` when the sample passes every check.
-2. **A valid sample:** only when the reason is `None`, `record_valid_sample()` records the sample as the last valid one: the validator keeps two times of the sample, its stamp $t_s$ in `last_valid_stamp`, which [check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) compares the next stamps with, and the ROS time of its arrival, `now`, in `last_valid_at`, from which `seconds_since_last_valid_sample()` counts the silence. Each valid sample replaces these two times, so the validator keeps no history of samples.
+#### Step 1: `drop_reason()`, the decision
 
-Two places in the code call `drop_reason_or_record()`: the node's callback `on_sample()`, once for each sample that arrives, and the tests, through [`assert_accepted()` and `assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions). Neither calls `drop_reason()` and `record_valid_sample()` itself. So neither can get the two steps wrong in one of two ways:
+`drop_reason()` returns the first reason to drop the sample, or `None` when the sample passes every check. The excerpt shows the method, from [`imu_validator.py`, lines 266–282]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L266-L282):
 
-- **Recording a dropped sample:** check 5 would compare later stamps with the stamp of a sample that the checks dropped. If a caller recorded a sample from the future, otherwise valid samples with stamps no later than that stored stamp would be dropped as `NOT_NEWER`.
-- **Not recording a valid sample:** check 5 would still let the same stamp through, and the silence would keep counting from the last recorded sample. If no valid sample had been recorded, the silence would stay `None`. Such omissions could make the diagnostics report an error while valid samples arrive.
-
-And the tests run the same two steps as the node. The excerpt shows the two methods, from [`imu_validator.py`, lines 266–287]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L266-L287):
-
-```python title="imu_validator.py: drop_reason() and record_valid_sample()" linenums="266"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:266:287"
+```python title="imu_validator.py: drop_reason()" linenums="266"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:266:282"
 ```
 
 `drop_reason()` works in three steps:
@@ -105,10 +99,6 @@ And the tests run the same two steps as the node. The excerpt shows the two meth
 2. **A clock that went back:** [`clear_last_valid_sample_if_clock_went_back(now)`](#clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back) clears the last valid sample if `now` is earlier than the ROS time of the last clock check. The method then keeps `now` for the next clock check.
 3. **The checks:** the loop calls the checks in the tuple `sample_checks`, one after the other. The first check that returns a reason ends the loop, and the method returns that reason. The later checks don't run. When every check has returned `None`, the method returns `None`.
 
-`record_valid_sample()` sets these two numbers in lines 286 and 287. `last_valid_stamp` is the stamp $t_\text{last}$ of check 5.
-
-For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of `drop_reason()`. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator clear the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under `NO_CLOCK`, as the node counts every dropped sample, and passes a warning to `rospy.logwarn_throttle()` with the period `WARNING_PERIOD`, 5 s.
-
 The constructor `__init__()` fills `sample_checks` in the order in which the checks run. The excerpt shows the tuple, from [`imu_validator.py`, lines 221–229]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L221-L229):
 
 ```python title="imu_validator.py: the checks in their order" linenums="221"
@@ -116,6 +106,27 @@ The constructor `__init__()` fills `sample_checks` in the order in which the che
 ```
 
 The six functions are the five checks of the Localization page. Check 4 has two functions, one for each time limit: `check_not_from_the_future()` and `check_not_too_old()`. A sample that would fail two checks gets the reason of the earlier one, as sample A in [Check 4: the two time limits](#check-4-the-two-time-limits) shows.
+
+For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of `drop_reason()`. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator clear the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under `NO_CLOCK`, as the node counts every dropped sample, and passes a warning to `rospy.logwarn_throttle()` with the period `WARNING_PERIOD`, 5 s.
+
+#### Step 2: `record_valid_sample()`, a valid sample
+
+Only when `drop_reason()` has returned `None`, `record_valid_sample()` records the sample as the last valid one. The excerpt shows the method, from [`imu_validator.py`, lines 284–287]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L284-L287):
+
+```python title="imu_validator.py: record_valid_sample()" linenums="284"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:284:287"
+```
+
+Lines 286 and 287 keep two times of the sample: its stamp $t_s$ in `last_valid_stamp`, the stamp $t_\text{last}$ that [check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) compares the next stamps with, and the ROS time of its arrival, `now`, in `last_valid_at`, from which `seconds_since_last_valid_sample()` counts the silence. Each valid sample replaces these two times, so the validator keeps no history of samples.
+
+#### Why one method runs both steps
+
+Two places in the code call `drop_reason_or_record()`: the node's callback `on_sample()`, once for each sample that arrives, and the tests, through [`assert_accepted()` and `assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions). Neither calls `drop_reason()` and `record_valid_sample()` itself. So neither can get the two steps wrong in one of two ways:
+
+- **Recording a dropped sample:** check 5 would compare later stamps with the stamp of a sample that the checks dropped. If a caller recorded a sample from the future, otherwise valid samples with stamps no later than that stored stamp would be dropped as `NOT_NEWER`.
+- **Not recording a valid sample:** check 5 would still let the same stamp through, and the silence would keep counting from the last recorded sample. If no valid sample had been recorded, the silence would stay `None`. Such omissions could make the diagnostics report an error while valid samples arrive.
+
+The tests therefore run the same two steps as the node.
 
 ### `clear_last_valid_sample_if_clock_went_back()`: a clock that goes back
 
