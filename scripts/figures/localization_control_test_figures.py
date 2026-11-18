@@ -1342,7 +1342,8 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
         f'{max(output.yaw_rate for output in run.phase_1()):.4f} rad/s, and the last output '
         f'has {run.end_of_phase_1:.4f} rad/s',
         key(f'<circle class="estimate-dot" cx="12" cy="6" r="{SMALL_DOT_RADIUS}"/>')
-        + f"phase 2: the filter's {len(phase_2)} outputs, each stamped with a wheel message's "
+        + f"phase 2: the filter's {len(phase_2)} outputs in the measured periods, each stamped "
+        "with a wheel message's "
         f'time. The estimate goes from {phase_2[0].yaw_rate:.4f} to {run.end_of_phase_2:.4f} '
         'rad/s',
     )
