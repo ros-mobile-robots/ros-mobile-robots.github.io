@@ -58,7 +58,7 @@
 .lv-large .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
 .lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
@@ -66,9 +66,14 @@
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 436" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. For a sample that passes every step, the validator records the sample's stamp and arrival time, and the node forwards the sample</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 436" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. For a sample that passes every step, the validator records the sample's stamp and arrival time, and the node forwards the sample</title>
 <rect class="item" x="2.0" y="2.0" width="296.0" height="22.0" rx="4"/>
 <text class="strong" x="150.0" y="17.0" text-anchor="middle">a sample arrives at the ROS time t</text>
 <path class="message" d="M291,47.0 V385.0"/>
@@ -81,8 +86,8 @@
 <path class="message-head" d="M172,47.0 l-8,-4 v8 z"/>
 <text class="note" x="163.0" y="42.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="36.0" width="112.0" height="22.0" rx="4"/>
-<path class="message" d="M284,47.0 H291"/>
 <text class="mono" x="228.0" y="51.0" text-anchor="middle">NO_CLOCK</text>
+<path class="message" d="M284,47.0 H291"/>
 <path class="message" d="M79.0,58.0 V69.0"/>
 <path class="message-head" d="M79.0,70.0 l-4,-8 h8 z"/>
 <rect class="item" x="2.0" y="70.0" width="154.0" height="61.0" rx="4"/>
@@ -99,8 +104,8 @@
 <path class="message-head" d="M172,154.0 l-8,-4 v8 z"/>
 <text class="note" x="163.0" y="149.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="143.0" width="112.0" height="22.0" rx="4"/>
-<path class="message" d="M284,154.0 H291"/>
 <text class="mono" x="228.0" y="158.0" text-anchor="middle">WRONG_FRAME</text>
+<path class="message" d="M284,154.0 H291"/>
 <path class="message" d="M79.0,165.0 V176.0"/>
 <path class="message-head" d="M79.0,177.0 l-4,-8 h8 z"/>
 <rect class="item" x="2.0" y="177.0" width="154.0" height="22.0" rx="4"/>
@@ -110,8 +115,8 @@
 <path class="message-head" d="M172,188.0 l-8,-4 v8 z"/>
 <text class="note" x="163.0" y="183.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="177.0" width="112.0" height="22.0" rx="4"/>
-<path class="message" d="M284,188.0 H291"/>
 <text class="mono" x="228.0" y="192.0" text-anchor="middle">NOT_FINITE</text>
+<path class="message" d="M284,188.0 H291"/>
 <path class="message" d="M79.0,199.0 V210.0"/>
 <path class="message-head" d="M79.0,211.0 l-4,-8 h8 z"/>
 <rect class="item" x="2.0" y="211.0" width="154.0" height="48.0" rx="4"/>
@@ -121,10 +126,10 @@
 <path class="message-head" d="M172,235.0 l-8,-4 v8 z"/>
 <text class="note" x="163.0" y="230.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="211.0" width="112.0" height="48.0" rx="4"/>
-<path class="message" d="M284,235.0 H291"/>
 <text class="mono" x="228.0" y="226.0" text-anchor="middle">INVALID_ANGULAR_</text>
 <text class="mono" x="228.0" y="239.0" text-anchor="middle">VELOCITY_</text>
 <text class="mono" x="228.0" y="252.0" text-anchor="middle">COVARIANCE</text>
+<path class="message" d="M284,235.0 H291"/>
 <path class="message" d="M79.0,259.0 V270.0"/>
 <path class="message-head" d="M79.0,271.0 l-4,-8 h8 z"/>
 <rect class="item" x="2.0" y="271.0" width="154.0" height="22.0" rx="4"/>
@@ -134,8 +139,8 @@
 <path class="message-head" d="M172,282.0 l-8,-4 v8 z"/>
 <text class="note" x="163.0" y="277.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="271.0" width="112.0" height="22.0" rx="4"/>
-<path class="message" d="M284,282.0 H291"/>
 <text class="mono" x="228.0" y="286.0" text-anchor="middle">FROM_THE_FUTURE</text>
+<path class="message" d="M284,282.0 H291"/>
 <path class="message" d="M79.0,293.0 V304.0"/>
 <path class="message-head" d="M79.0,305.0 l-4,-8 h8 z"/>
 <rect class="item" x="2.0" y="305.0" width="154.0" height="22.0" rx="4"/>
@@ -145,8 +150,8 @@
 <path class="message-head" d="M172,316.0 l-8,-4 v8 z"/>
 <text class="note" x="163.0" y="311.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="305.0" width="112.0" height="22.0" rx="4"/>
-<path class="message" d="M284,316.0 H291"/>
 <text class="mono" x="228.0" y="320.0" text-anchor="middle">TOO_OLD</text>
+<path class="message" d="M284,316.0 H291"/>
 <path class="message" d="M79.0,327.0 V338.0"/>
 <path class="message-head" d="M79.0,339.0 l-4,-8 h8 z"/>
 <rect class="item" x="2.0" y="339.0" width="154.0" height="35.0" rx="4"/>
@@ -157,8 +162,8 @@
 <path class="message-head" d="M172,356.5 l-8,-4 v8 z"/>
 <text class="note" x="163.0" y="351.5" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="339.0" width="112.0" height="35.0" rx="4"/>
-<path class="message" d="M284,356.5 H291"/>
 <text class="mono" x="228.0" y="360.5" text-anchor="middle">NOT_NEWER</text>
+<path class="message" d="M284,356.5 H291"/>
 <path class="message" d="M79.0,374.0 V385.0"/>
 <path class="message-head" d="M79.0,386.0 l-4,-8 h8 z"/>
 <rect class="pass-mark" x="2.0" y="386.0" width="154.0" height="48.0" rx="4"/>
@@ -170,5 +175,114 @@
 <text class="note" x="235.0" y="414.0" text-anchor="middle">node counts the drop</text>
 <text class="note" x="235.0" y="427.0" text-anchor="middle">and throttles warnings</text>
 </svg>
-<figcaption>The decision of <code>drop_reason_or_record()</code> about one sample, from top to bottom. A check lets the sample go down only if its condition holds. Otherwise the arrow "no" leads to the drop reason, and the decision ends with this reason. The clock step drops no sample: the decision always goes on after it.</figcaption>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 307" role="img" aria-labelledby="lv-test-decision-wide-title"><title id="lv-test-decision-wide-title">The validator's decision about a sample that arrives at the ROS time t, from left to right in 2 rows: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason below the step, and the node counts the reason. For a sample that passes every step, the validator records the sample's stamp and arrival time, and the node forwards the sample</title>
+<rect class="item" x="12.0" y="2.0" width="200.0" height="22.0" rx="4"/>
+<text class="strong" x="112.0" y="17.0" text-anchor="middle">a sample arrives at the ROS time t</text>
+<path class="message-line" d="M62.0,24.0 L62.0,31.0"/>
+<path class="message-head" d="M62.0,36.0 L57.8,29.0 L66.2,29.0 z"/>
+<rect class="item" x="12.0" y="36.0" width="100.0" height="61.0" rx="4"/>
+<text x="19.0" y="70.5" text-anchor="start">ROS time t ≠ 0</text>
+<path class="message-line" d="M62.0,97.0 L62.0,108.0"/>
+<path class="message-head" d="M62.0,113.0 L57.8,106.0 L66.2,106.0 z"/>
+<text class="note" x="67.0" y="107.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="12.0" y="113.0" width="100.0" height="22.0" rx="4"/>
+<text class="mono" x="62.0" y="128.0" text-anchor="middle">NO_CLOCK</text>
+<path class="message" d="M62.0,135.0 V145.0"/>
+<rect class="item" x="122.0" y="36.0" width="152.0" height="61.0" rx="4"/>
+<text x="129.0" y="51.0" text-anchor="start">if the clock went back:</text>
+<text x="129.0" y="64.0" text-anchor="start">clear the last valid</text>
+<text x="129.0" y="77.0" text-anchor="start">sample's stamp and</text>
+<text x="129.0" y="90.0" text-anchor="start">arrival time</text>
+<path class="message-line" d="M112.0,66.5 L117.0,66.5"/>
+<path class="message-head" d="M122.0,66.5 L115.0,70.7 L115.0,62.3 z"/>
+<rect class="item" x="284.0" y="36.0" width="118.0" height="61.0" rx="4"/>
+<text class="strong" x="291.0" y="70.5" text-anchor="start">1</text>
+<text x="304.0" y="70.5" text-anchor="start">frame is imu_link</text>
+<path class="message-line" d="M274.0,66.5 L279.0,66.5"/>
+<path class="message-head" d="M284.0,66.5 L277.0,70.7 L277.0,62.3 z"/>
+<path class="message-line" d="M343.0,97.0 L343.0,108.0"/>
+<path class="message-head" d="M343.0,113.0 L338.8,106.0 L347.2,106.0 z"/>
+<text class="note" x="348.0" y="107.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="284.0" y="113.0" width="118.0" height="22.0" rx="4"/>
+<text class="mono" x="343.0" y="128.0" text-anchor="middle">WRONG_FRAME</text>
+<path class="message" d="M343.0,135.0 V145.0"/>
+<rect class="item" x="412.0" y="36.0" width="118.0" height="61.0" rx="4"/>
+<text class="strong" x="419.0" y="70.5" text-anchor="start">2</text>
+<text x="432.0" y="70.5" text-anchor="start">values are finite</text>
+<path class="message-line" d="M402.0,66.5 L407.0,66.5"/>
+<path class="message-head" d="M412.0,66.5 L405.0,70.7 L405.0,62.3 z"/>
+<path class="message-line" d="M471.0,97.0 L471.0,108.0"/>
+<path class="message-head" d="M471.0,113.0 L466.8,106.0 L475.2,106.0 z"/>
+<text class="note" x="476.0" y="107.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="412.0" y="113.0" width="118.0" height="22.0" rx="4"/>
+<text class="mono" x="471.0" y="128.0" text-anchor="middle">NOT_FINITE</text>
+<path class="message" d="M471.0,135.0 V145.0"/>
+<path class="message" d="M471.0,145.0 H4 V302.0"/>
+<path class="message-line" d="M530.0,66.5 L538.0,66.5 L538.0,155.0 L12.0,155.0 L12.0,191.0 L17.0,191.0"/>
+<path class="message-head" d="M22.0,191.0 L15.0,195.2 L15.0,186.8 z"/>
+<rect class="item" x="22.0" y="167.0" width="82.0" height="48.0" rx="4"/>
+<text class="strong" x="29.0" y="188.5" text-anchor="start">3</text>
+<text x="42.0" y="188.5" text-anchor="start">covariance</text>
+<text x="42.0" y="201.5" text-anchor="start">is valid</text>
+<path class="message-line" d="M63.0,215.0 L63.0,226.0"/>
+<path class="message-head" d="M63.0,231.0 L58.8,224.0 L67.2,224.0 z"/>
+<text class="note" x="68.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="22.0" y="231.0" width="82.0" height="61.0" rx="4"/>
+<text class="mono" x="63.0" y="246.0" text-anchor="middle">INVALID_</text>
+<text class="mono" x="63.0" y="259.0" text-anchor="middle">ANGULAR_</text>
+<text class="mono" x="63.0" y="272.0" text-anchor="middle">VELOCITY_</text>
+<text class="mono" x="63.0" y="285.0" text-anchor="middle">COVARIANCE</text>
+<path class="message" d="M63.0,292.0 V302.0"/>
+<rect class="item" x="114.0" y="167.0" width="80.0" height="48.0" rx="4"/>
+<text class="strong" x="121.0" y="188.5" text-anchor="start">4</text>
+<text x="134.0" y="188.5" text-anchor="start">not too far</text>
+<text x="134.0" y="201.5" text-anchor="start">ahead</text>
+<path class="message-line" d="M104.0,191.0 L109.0,191.0"/>
+<path class="message-head" d="M114.0,191.0 L107.0,195.2 L107.0,186.8 z"/>
+<path class="message-line" d="M154.0,215.0 L154.0,226.0"/>
+<path class="message-head" d="M154.0,231.0 L149.8,224.0 L158.2,224.0 z"/>
+<text class="note" x="159.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="114.0" y="231.0" width="80.0" height="35.0" rx="4"/>
+<text class="mono" x="154.0" y="246.0" text-anchor="middle">FROM_THE_</text>
+<text class="mono" x="154.0" y="259.0" text-anchor="middle">FUTURE</text>
+<path class="message" d="M154.0,266.0 V302.0"/>
+<rect class="item" x="204.0" y="167.0" width="82.0" height="48.0" rx="4"/>
+<text class="strong" x="211.0" y="195.0" text-anchor="start">4</text>
+<text x="224.0" y="195.0" text-anchor="start">not too old</text>
+<path class="message-line" d="M194.0,191.0 L199.0,191.0"/>
+<path class="message-head" d="M204.0,191.0 L197.0,195.2 L197.0,186.8 z"/>
+<path class="message-line" d="M245.0,215.0 L245.0,226.0"/>
+<path class="message-head" d="M245.0,231.0 L240.8,224.0 L249.2,224.0 z"/>
+<text class="note" x="250.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="204.0" y="231.0" width="82.0" height="22.0" rx="4"/>
+<text class="mono" x="245.0" y="246.0" text-anchor="middle">TOO_OLD</text>
+<path class="message" d="M245.0,253.0 V302.0"/>
+<rect class="item" x="296.0" y="167.0" width="96.0" height="48.0" rx="4"/>
+<text class="strong" x="303.0" y="182.0" text-anchor="start">5</text>
+<text x="316.0" y="182.0" text-anchor="start">no last valid</text>
+<text x="316.0" y="195.0" text-anchor="start">stamp, or this</text>
+<text x="316.0" y="208.0" text-anchor="start">stamp is later</text>
+<path class="message-line" d="M286.0,191.0 L291.0,191.0"/>
+<path class="message-head" d="M296.0,191.0 L289.0,195.2 L289.0,186.8 z"/>
+<path class="message-line" d="M344.0,215.0 L344.0,226.0"/>
+<path class="message-head" d="M344.0,231.0 L339.8,224.0 L348.2,224.0 z"/>
+<text class="note" x="349.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="296.0" y="231.0" width="96.0" height="22.0" rx="4"/>
+<text class="mono" x="344.0" y="246.0" text-anchor="middle">NOT_NEWER</text>
+<path class="message" d="M344.0,253.0 V302.0"/>
+<path class="message-line" d="M392.0,191.0 L397.0,191.0"/>
+<path class="message-head" d="M402.0,191.0 L395.0,195.2 L395.0,186.8 z"/>
+<rect class="pass-mark" x="402.0" y="167.0" width="136.0" height="48.0" rx="4"/>
+<text class="strong" x="470.0" y="182.0" text-anchor="middle">valid: returns None</text>
+<text class="note" x="470.0" y="195.0" text-anchor="middle">records the stamp and t</text>
+<text class="note" x="470.0" y="208.0" text-anchor="middle">node forwards the sample</text>
+<rect class="drop-mark" x="402.0" y="231.0" width="136.0" height="48.0" rx="4"/>
+<text class="strong" x="470.0" y="246.0" text-anchor="middle">returns the reason</text>
+<text class="note" x="470.0" y="259.0" text-anchor="middle">node counts the drop</text>
+<text class="note" x="470.0" y="272.0" text-anchor="middle">and throttles warnings</text>
+<path class="message-line" d="M4.0,302.0 L470.0,302.0 L470.0,284.0"/>
+<path class="message-head" d="M470.0,279.0 L474.2,286.0 L465.8,286.0 z"/>
+</svg>
+<figcaption>The decision of <code>drop_reason_or_record()</code> about one sample, along the arrows from the box of the arriving sample. A check lets the sample go on to the next box only if its condition holds. Otherwise the arrow "no" leads to the drop reason, and the decision ends with this reason. The clock step drops no sample: the decision always goes on after it.</figcaption>
 </figure>
+</div>

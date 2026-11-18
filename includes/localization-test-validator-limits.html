@@ -58,7 +58,7 @@
 .lv-large .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
 .lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
@@ -66,9 +66,14 @@
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 108" role="img" aria-labelledby="lv-test-limits-title"><title id="lv-test-limits-title">Check 4 in the tests, at the ROS time t = 100 s: a sample stamped exactly MAX_AGE, 0.1 s, before t or exactly MAX_FUTURE, 0.02 s, after t is forwarded, and a sample 1 µs beyond each limit is dropped</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 108" role="img" aria-labelledby="lv-test-limits-title"><title id="lv-test-limits-title">Check 4 in the tests, at the ROS time t = 100 s: a sample stamped exactly MAX_AGE, 0.1 s, before t or exactly MAX_FUTURE, 0.02 s, after t is forwarded, and a sample 1 µs beyond each limit is dropped</title>
 <rect class="drop-zone" x="14.0" y="38.0" width="59.0" height="46.0" rx="0"/>
 <rect class="drop-zone" x="214.6" y="38.0" width="71.4" height="46.0" rx="0"/>
 <rect class="pass-zone" x="73.0" y="38.0" width="141.6" height="46.0" rx="0"/>
@@ -105,6 +110,43 @@
 <text class="note halo" x="73.0" y="62.5" text-anchor="middle">1 µs, enlarged</text>
 <text class="note halo" x="231.6" y="62.5" text-anchor="end">1 µs, enlarged</text>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 108" role="img" aria-labelledby="lv-test-limits-wide-title"><title id="lv-test-limits-wide-title">Check 4 in the tests, at the ROS time t = 100 s: a sample stamped exactly MAX_AGE, 0.1 s, before t or exactly MAX_FUTURE, 0.02 s, after t is forwarded, and a sample 1 µs beyond each limit is dropped</title>
+<rect class="drop-zone" x="25.2" y="38.0" width="106.2" height="46.0" rx="0"/>
+<rect class="drop-zone" x="386.3" y="38.0" width="128.5" height="46.0" rx="0"/>
+<rect class="pass-zone" x="131.4" y="38.0" width="254.9" height="46.0" rx="0"/>
+<text class="strong" x="28.3" y="51.0" text-anchor="start">too old</text>
+<text class="strong" x="511.7" y="51.0" text-anchor="end">too far</text>
+<text class="strong" x="511.7" y="63.0" text-anchor="end">ahead</text>
+<text class="mono" x="455.2" y="12.0" text-anchor="end">MAX_FUTURE = 0.02 s</text>
+<text class="mono" x="237.6" y="25.0" text-anchor="middle">MAX_AGE = 0.1 s</text>
+<path class="dimension" d="M131.4,31 H343.8 M131.4,28 V34 M343.8,28 V34"/>
+<path class="dimension" d="M343.8,31 H386.3 M343.8,28 V34 M386.3,28 V34"/>
+<path class="dimension" d="M365.0,28 V16"/>
+<path class="axis" d="M25.2,84 H527.4"/>
+<path class="axis" d="M527.4,84 l-6,-3.5 M527.4,84 l-6,3.5"/>
+<path class="tick" d="M46.4,84 v4"/>
+<path class="tick" d="M88.9,84 v4"/>
+<path class="tick" d="M131.4,84 v4"/>
+<path class="tick" d="M173.9,84 v4"/>
+<path class="tick" d="M216.4,84 v4"/>
+<path class="tick" d="M258.8,84 v4"/>
+<path class="tick" d="M301.3,84 v4"/>
+<path class="tick" d="M343.8,84 v4"/>
+<path class="tick" d="M386.3,84 v4"/>
+<path class="tick" d="M428.8,84 v4"/>
+<path class="tick" d="M471.2,84 v4"/>
+<path class="tick" d="M513.7,84 v4"/>
+<path class="now" d="M343.8,34 V90"/>
+<text class="name" x="343.8" y="102.0" text-anchor="middle">now: t</text>
+<text class="note" x="131.4" y="102.0" text-anchor="middle">t − 0.1 s</text>
+<text class="note" x="392.2" y="102.0" text-anchor="start">t + 0.02 s</text>
+<g><title>Sample A: dropped. stamped t − 0.100001 s, 1 µs older than MAX_AGE allows</title><circle class="drop-mark" cx="121.9" cy="74.0" r="7.5"/><text class="letter" x="121.9" y="77.8" text-anchor="middle">A</text></g>
+<g><title>Sample B: forwarded. stamped t − 0.1 s, exactly MAX_AGE old</title><circle class="pass-mark" cx="140.9" cy="74.0" r="7.5"/><text class="letter" x="140.9" y="77.8" text-anchor="middle">B</text></g>
+<g><title>Sample C: forwarded. stamped t + 0.02 s, exactly MAX_FUTURE ahead</title><circle class="pass-mark" cx="376.7" cy="74.0" r="7.5"/><text class="letter" x="376.7" y="77.8" text-anchor="middle">C</text></g>
+<g><title>Sample D: dropped. stamped t + 0.020001 s, 1 µs further ahead than MAX_FUTURE allows</title><circle class="drop-mark" cx="395.8" cy="74.0" r="7.5"/><text class="letter" x="395.8" y="77.8" text-anchor="middle">D</text></g>
+<text class="note halo" x="131.4" y="62.5" text-anchor="middle">1 µs, enlarged</text>
+<text class="note halo" x="403.2" y="62.5" text-anchor="end">1 µs, enlarged</text>
+</svg>
 <ul class="lv-legend">
 <li><span class="lv-mark lv-drop">A</span><strong>✕ dropped:</strong> stamped t − 0.100001 s, 1 µs older than MAX_AGE allows</li>
 <li><span class="lv-mark">B</span><strong>✓ forwarded:</strong> stamped t − 0.1 s, exactly MAX_AGE old</li>
@@ -113,3 +155,4 @@
 </ul>
 <figcaption>Check 4 in two tests, at the ROS time t = 100 s. A lies 1 µs before B, and D 1 µs after C. The figure draws them apart.</figcaption>
 </figure>
+</div>

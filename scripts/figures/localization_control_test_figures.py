@@ -1,11 +1,14 @@
 """Generate the figures of the two test pages of diffbot_control's EKF tests as inline SVG.
 
 The pages are docs/packages/imu/robot_localization/tests/validator.md and stepped-clock.md. The
-script writes seven includes that follow the site's light and dark colors. The first three show
-the samples that the unit tests in diffbot_control/test/test_imu_validator.py of the diffbot
-repository give the validator, on time axes, one include for each section of validator.md that
-has a figure. The samples' letters A to M run through the three includes:
+script writes eight includes that follow the site's light and dark colors. The first shows the
+validator's decision about one sample. The next three show the samples that the unit tests in
+diffbot_control/test/test_imu_validator.py of the diffbot repository give the validator, on time
+axes, one include for each section of validator.md that has such a figure. The samples' letters
+A to M run through these three includes:
 
+- includes/localization-test-validator-decision.html: the steps of the validator's
+  drop_reason_or_record() for one sample, with the drop reason of each step and the two ends.
 - includes/localization-test-validator-limits.html: check 4, the two time limits, A to D.
 - includes/localization-test-validator-order.html: check 5, around the last valid sample's
   stamp, E to I.
@@ -29,6 +32,13 @@ Every drawing is 300 units wide and carries short labels only, so that its text 
 a phone. Headings, legends and results are HTML text around the drawings. Figure, Sample, the
 CSS rules and the HTML helpers come from localization_figures.py.
 
+The decision drawing and the drawings with a time axis have a second, wide layout of 540 units
+for a place with room for it, such as the text column on a desktop. The CSS of LAYOUT_RULES in
+localization_figures.py shows one layout and hides the other one. The decision's wide layout
+runs from left to right in two rows. A time axis's wide layout is the narrow one with its x
+positions stretched: Layout and layout_figure().
+The drawing of one step keeps its one layout, because its three nodes need no more width.
+
 The tests' constants are copied here, each with the constant's name, because this repository
 can't import the tests. What runs of the stepped-clock test printed or recorded is measured
 data. It is read from scripts/figures/data/localization-stepped-clock-test-runs.jsonl, one line
@@ -46,6 +56,7 @@ Run from the repository root after changing a figure:
 
 import json
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
@@ -58,18 +69,23 @@ from localization_figures import escape
 from localization_figures import Figure
 from localization_figures import LARGE_MARK_RADIUS
 from localization_figures import LARGE_RULES
+from localization_figures import NARROW_LAYOUT
 from localization_figures import RULES
 from localization_figures import Sample
 from localization_figures import SAMPLE_PERIOD_MS
 from localization_figures import TimeAxis
+from localization_figures import WIDE_LAYOUT
+from localization_figures import WIDE_WIDTH
+from localization_figures import write_layout_parts
 from localization_figures import write_parts
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
 BG = 'var(--md-default-bg-color)'
 
-# The width of every drawing in view box units. The figure class lv-large shows a drawing at
-# up to 20rem, 400 px on a phone, and the text sizes of LARGE_RULES are made for this width
+# The width of every drawing in view box units, in the narrow layout. The figure class lv-large
+# shows a drawing at up to 20rem, 400 px on a phone, and the text sizes of LARGE_RULES are made
+# for this width
 DRAWING_WIDTH = CHECKS_WIDTH
 
 # test_imu_validator.py's constants
@@ -203,9 +219,9 @@ ROBOT_RATES_PLOT_LEFT = 50
 BRACKET_ROW = 20  # the height of the row above the chart of robot_rates with the bracket
 BRACKET_Y = 9  # of the bracket's line in that row
 
-# The drawing of the validator's decision about one sample: the steps of drop_reason() from top
-# to bottom in the left column, each drop reason to the right of its step, and the two ends at
-# the bottom
+# The drawing of the validator's decision about one sample, in two layouts. Narrow: the steps
+# of drop_reason() from top to bottom in the left column, each drop reason to the right of its
+# step, and the two ends at the bottom
 DECISION_LEFT_X = 2
 DECISION_LEFT_WIDTH = 154
 DECISION_RIGHT_X = 172
@@ -216,6 +232,20 @@ DECISION_LINE_HEIGHT = 13  # between the baselines of a box's lines
 DECISION_GAP = 12  # between two boxes, for an arrow
 DECISION_START_HEIGHT = 22  # of the box of the arriving sample
 DECISION_END_LINES = 3  # of each of the two boxes at the bottom
+DECISION_REASON_CHARACTERS = 16  # the most in a line of a reason's name
+# Wide: the steps from left to right in rows of STEPS_PER_WIDE_ROW, each drop reason below its
+# step, and the two ends at the right of the last row. The line that collects the reasons runs
+# below each row, down the left edge and below the last row
+STEPS_PER_WIDE_ROW = 4
+WIDE_LANE_X = 4  # of the collecting line down the left edge
+WIDE_ROW_X = 12  # of the first row's first box
+WIDE_ROW_INDENT = 10  # of the later rows, for the arrow into their first box
+WIDE_GAP = 10  # between two boxes of a row, for an arrow
+WIDE_START_WIDTH = 200  # of the box of the arriving sample, above the first step
+WIDE_END_WIDTH = 136  # of each of the two ends
+WIDE_NO_HEIGHT = 16  # of the arrow "no" from a step down to its reason
+WIDE_LANE_GAP = 10  # from a row's reasons to the collecting line, and on to the next lane
+WIDE_REASON_CHARACTERS = 11  # the most in a line of a reason's name
 
 # The drawing of one step: three nodes side by side, their messages from top to bottom. The
 # numbers are those of the list in the docstring of step(), with the code that does each
@@ -258,7 +288,8 @@ EXTRA_RULES = (
     # A label that lies on a line: the page's background around the letters keeps it readable
     ('.lv-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:4px;stroke-linejoin:round'),
     ('.lv-fig .lifeline', f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:3 3'),
-    ('.lv-fig .message,.lv-key .message', f'fill:none;stroke:{FG};stroke-width:1.3'),
+    ('.lv-fig .message,.lv-fig .message-line,.lv-key .message',
+     f'fill:none;stroke:{FG};stroke-width:1.3'),
     ('.lv-fig .message-head,.lv-key .message-head', f'fill:{FG};stroke:none'),
     # The keys of the HTML legends: a small drawing or a sign in front of each line
     ('.lv-legend .lv-key', 'display:inline-block;width:2em;height:1em;vertical-align:-.12em;'
@@ -273,12 +304,18 @@ EXTRA_RULES = (
 )
 
 
+# The rules and the class of a figure whose drawings have two layouts. write_layout_parts() adds
+# the rules that show one layout
+LAYOUT_FIGURE_RULES = RULES + LARGE_RULES + EXTRA_RULES
+LAYOUT_FIGURE_CLASSES = 'lv-large'
+
 # The marker of the first estimate of phase 2, in the chart of the seven phases only
 PHASES_RULES = (
     ('.lv-fig .estimate-first,.lv-key .estimate-first',
      f'fill:{BG};stroke:var(--lv-estimate);stroke-width:1.8'),
 )
 FIRST_MARKER_OFFSET = 7.5  # from the start of phase 2 to the diamond's center
+ESTIMATE_LABEL_WIDTH = 39  # of a printed estimate in the chart, such as 0.4987 in bold
 FIRST_MARKER_HALF_WIDTH = 3.5
 
 
@@ -296,27 +333,75 @@ ROBOT_RATES_RULES = (
 )
 
 
+class Layout(NamedTuple):
+    """One of the two layouts of a drawing with a time axis.
+
+    The wide layout has the narrow one's elements with their x positions stretched: a longer
+    time axis, with the marks, the letters and the heights of the narrow layout.
+    """
+
+    css_class: str  # NARROW_LAYOUT or WIDE_LAYOUT, by which the CSS shows one layout
+    name_end: str  # added to the drawing's name
+    stretch: float  # of the x positions
+
+
+NARROW = Layout(NARROW_LAYOUT, '', 1)
+WIDE = Layout(WIDE_LAYOUT, '-wide', WIDE_WIDTH / DRAWING_WIDTH)
+
+
 class DecisionStep(NamedTuple):
-    """One step of the validator's decision about a sample, as the drawing shows it."""
+    """One step of the validator's decision about a sample, as the two layouts show it."""
 
     number: str  # the check's number on the Localization page, '' for a step that isn't one
-    lines: Tuple[str, ...]  # the step's text: what lets the sample go on
-    reason_lines: Tuple[str, ...]  # the DropReason member in lines, () for a step that drops none
+    lines: Tuple[str, ...]  # the step's text in the narrow layout: what lets the sample go on
+    wide_lines: Tuple[str, ...]  # the same text in the lines of the wide layout
+    wide_width: float  # of the step's box in the wide layout
+    reason: str  # the DropReason member, '' for a step that drops none
 
 
+CLOCK_STEP_LINES = ('if the clock went back:', 'clear the last valid', "sample's stamp and",
+                    'arrival time')
 # drop_reason() and the six functions of sample_checks in imu_validator.py, in their order
 DECISION_STEPS = (
-    DecisionStep('', ('ROS time t ≠ 0',), ('NO_CLOCK',)),
-    DecisionStep('', ('if the clock went back:', 'clear the last valid', "sample's stamp and",
-                      'arrival time'), ()),
-    DecisionStep('1', ('frame is imu_link',), ('WRONG_FRAME',)),
-    DecisionStep('2', ('values are finite',), ('NOT_FINITE',)),
-    DecisionStep('3', ('covariance is valid',),
-                 ('INVALID_ANGULAR_', 'VELOCITY_', 'COVARIANCE')),
-    DecisionStep('4', ('not too far ahead',), ('FROM_THE_FUTURE',)),
-    DecisionStep('4', ('not too old',), ('TOO_OLD',)),
-    DecisionStep('5', ('no last valid stamp,', 'or this stamp is later'), ('NOT_NEWER',)),
+    DecisionStep('', ('ROS time t ≠ 0',), ('ROS time t ≠ 0',), 100, 'NO_CLOCK'),
+    DecisionStep('', CLOCK_STEP_LINES, CLOCK_STEP_LINES, 152, ''),
+    DecisionStep('1', ('frame is imu_link',), ('frame is imu_link',), 118, 'WRONG_FRAME'),
+    DecisionStep('2', ('values are finite',), ('values are finite',), 118, 'NOT_FINITE'),
+    DecisionStep('3', ('covariance is valid',), ('covariance', 'is valid'), 82,
+                 'INVALID_ANGULAR_VELOCITY_COVARIANCE'),
+    DecisionStep('4', ('not too far ahead',), ('not too far', 'ahead'), 80, 'FROM_THE_FUTURE'),
+    DecisionStep('4', ('not too old',), ('not too old',), 82, 'TOO_OLD'),
+    DecisionStep('5', ('no last valid stamp,', 'or this stamp is later'),
+                 ('no last valid', 'stamp, or this', 'stamp is later'), 96, 'NOT_NEWER'),
 )
+DECISION_START = 'a sample arrives at the ROS time t'
+VALID_END = (('valid: returns None', 'strong'), ('records the stamp and t', 'note'),
+             ('node forwards the sample', 'note'))
+DROP_END = (('returns the reason', 'strong'), ('node counts the drop', 'note'),
+            ('and throttles warnings', 'note'))
+
+
+class WideRow(NamedTuple):
+    """One row of steps in the wide layout of the decision, and where the row stands."""
+
+    steps: Tuple[DecisionStep, ...]
+    x: float  # of the row's first box
+    top: float  # of the steps' boxes
+    step_height: float  # of each step's box
+    reason_top: float  # of the reasons' boxes
+    collect_y: float  # of the collecting line below the row's reasons
+
+    def step_x(self, index: int) -> float:
+        """Return the x position of the box of the step with this index in the row."""
+        return self.x + sum(step.wide_width + WIDE_GAP for step in self.steps[:index])
+
+    def end_x(self) -> float:
+        """Return the x position of the right edge of the row's last step."""
+        return self.step_x(len(self.steps)) - WIDE_GAP
+
+    def middle_y(self) -> float:
+        """Return the y position of the arrows between the row's steps."""
+        return self.top + self.step_height / 2
 
 
 class Run(NamedTuple):
@@ -383,6 +468,29 @@ def load_run() -> Run:
                phase_6_steps)
 
 
+def layout_figure(name: str, layout: Layout, title: str, height: int) -> Figure:
+    """Return an empty drawing of a time axis in a layout, DRAWING_WIDTH wide before the stretch.
+
+    The wide layout's name ends in "-wide", so that the two layouts' ids differ on the page.
+    """
+    return Figure(name + layout.name_end, title, height, round(DRAWING_WIDTH * layout.stretch),
+                  layout.css_class, layout.stretch)
+
+
+def two_layouts(drawing: Callable[[Layout], Figure]) -> str:
+    """Return a drawing in both layouts. The CSS of write_layout_parts() shows one of them."""
+    return drawing(NARROW).svg() + '\n' + drawing(WIDE).svg()
+
+
+def two_layouts_with_samples(
+        tests: Callable[[Layout], Tuple[Figure, Tuple[Sample, ...]]]
+) -> Tuple[str, Tuple[Sample, ...]]:
+    """Return the drawing of some tests in both layouts, and the tests' samples."""
+    narrow, samples = tests(NARROW)
+    wide, _ = tests(WIDE)
+    return narrow.svg() + '\n' + wide.svg(), samples
+
+
 def add_with_title(figure: Figure, title: str, element: str) -> None:
     """Add an element that shows title when the reader points at it."""
     figure.elements.append(f'<g><title>{escape(title)}</title>{element}</g>')
@@ -429,8 +537,9 @@ def draw_axis(figure: Figure, x_start: float, y: float, tick_xs: Sequence[float]
 
 def draw_cut(figure: Figure, x: float, y: float) -> None:
     """Add two slanted strokes on an axis where the axis leaves out a stretch of time."""
-    figure.rect(x - 3.5, y - 1, 7, 2, 'cut-gap')
-    figure.path(f'M{x - 5.5:.1f},{y + 5} l4,-10 M{x + 1.5:.1f},{y + 5} l4,-10', 'cut')
+    figure.rect(x - figure.fixed(3.5), y - 1, figure.fixed(7), 2, 'cut-gap')
+    figure.path(f'M{x - figure.fixed(5.5):.1f},{y + 5} l4,-10 '
+                f'M{x + figure.fixed(1.5):.1f},{y + 5} l4,-10', 'cut')
 
 
 def draw_zones(figure: Figure, zone_top: float, x_start: float, pass_start: float,
@@ -445,9 +554,10 @@ def draw_zones(figure: Figure, zone_top: float, x_start: float, pass_start: floa
         figure.rect(pass_end, zone_top, AXIS_END_X - pass_end, ZONE_HEIGHT, 'drop-zone')
     figure.rect(pass_start, zone_top, pass_end - pass_start, ZONE_HEIGHT, 'pass-zone')
     for index, line in enumerate(left_label):
-        figure.text(x_start + 3, zone_top + 13 + index * 12, line, 'strong')
+        figure.text(x_start + figure.fixed(3), zone_top + 13 + index * 12, line, 'strong')
     for index, line in enumerate(right_label):
-        figure.text(AXIS_END_X - 3, zone_top + 13 + index * 12, line, 'strong', 'end')
+        figure.text(AXIS_END_X - figure.fixed(3), zone_top + 13 + index * 12, line, 'strong',
+                    'end')
 
 
 def draw_reference(figure: Figure, x: float, axis_y: float, label: str) -> None:
@@ -475,57 +585,64 @@ def draw_gap_label(figure: Figure, x: float, axis_y: float, gap: str,
     figure.text(x, axis_y - MARK_ABOVE_AXIS - LARGE_MARK_RADIUS - 4, gap, 'note halo', anchor)
 
 
-def limit_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
+def limit_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
     """Return the drawing of the two tests at the limits of check 4, and their samples."""
     axis = TimeAxis(LIMITS_START_MS, LIMITS_END_MS, AXIS_START_X, LIMITS_AXIS_Y,
                     LIMITS_PIXELS_PER_MS)
-    figure = Figure('lv-test-limits',
-                    f'Check 4 in the tests, at the ROS time t = {NOW_S} s: a sample stamped '
-                    f'exactly MAX_AGE, {MAX_AGE_S} s, before t or exactly MAX_FUTURE, '
-                    f'{MAX_FUTURE_S} s, after t is forwarded, and a sample 1 µs beyond each '
-                    'limit is dropped', LIMITS_AXIS_Y + LABEL_BELOW_AXIS + 6, DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-limits', layout,
+        f'Check 4 in the tests, at the ROS time t = {NOW_S} s: a sample stamped '
+        f'exactly MAX_AGE, {MAX_AGE_S} s, before t or exactly MAX_FUTURE, '
+        f'{MAX_FUTURE_S} s, after t is forwarded, and a sample 1 µs beyond each '
+        'limit is dropped', LIMITS_AXIS_Y + LABEL_BELOW_AXIS + 6)
     oldest_x = axis.at(-1000 * MAX_AGE_S)
     newest_x = axis.at(1000 * MAX_FUTURE_S)
     now_x = axis.at(0)
     draw_zones(figure, LIMITS_ZONE_TOP, axis.x, oldest_x, newest_x, ('too old',),
                ('too far', 'ahead'))
-    figure.text(AXIS_END_X + 7, 12, f'MAX_FUTURE = {MAX_FUTURE_S} s', 'mono', 'end')
+    # The label of MAX_FUTURE stands above the short dimension line, on the line up from it
+    future_middle_x = (now_x + newest_x) / 2
+    figure.text(future_middle_x + figure.fixed(AXIS_END_X + 7 - axis.at(1000 * MAX_FUTURE_S / 2)),
+                12, f'MAX_FUTURE = {MAX_FUTURE_S} s', 'mono', 'end')
     figure.text((oldest_x + now_x) / 2, 25, f'MAX_AGE = {MAX_AGE_S} s', 'mono', 'middle')
     figure.dimension(oldest_x, now_x, 31)
     figure.dimension(now_x, newest_x, 31)
-    figure.path(f'M{(now_x + newest_x) / 2:.1f},28 V16', 'dimension')
+    figure.path(f'M{future_middle_x:.1f},28 V16', 'dimension')
     draw_axis(figure, axis.x, axis.y,
               ticks_between(axis.at(-140), AXIS_END_X, SAMPLE_PERIOD_MS * axis.pixels_per_ms))
     draw_reference(figure, now_x, axis.y, 'now: t')
     figure.text(oldest_x, axis.y + LABEL_BELOW_AXIS, f't − {MAX_AGE_S} s', 'note', 'middle')
-    figure.text(newest_x + 6, axis.y + LABEL_BELOW_AXIS, f't + {MAX_FUTURE_S} s', 'note')
+    figure.text(newest_x + figure.fixed(6), axis.y + LABEL_BELOW_AXIS, f't + {MAX_FUTURE_S} s',
+                'note')
 
+    apart = figure.fixed(LIMITS_APART)
     samples = (
-        Sample('A', oldest_x - LIMITS_APART, False,
+        Sample('A', oldest_x - apart, False,
                f'stamped t − {JUST_TOO_OLD_S:.6f} s, 1 µs older than MAX_AGE allows'),
-        Sample('B', oldest_x + LIMITS_APART, True,
+        Sample('B', oldest_x + apart, True,
                f'stamped t − {MAX_AGE_S} s, exactly MAX_AGE old'),
-        Sample('C', newest_x - LIMITS_APART, True,
+        Sample('C', newest_x - apart, True,
                f'stamped t + {MAX_FUTURE_S} s, exactly MAX_FUTURE ahead'),
-        Sample('D', newest_x + LIMITS_APART, False,
+        Sample('D', newest_x + apart, False,
                f'stamped t + {JUST_TOO_FAR_AHEAD_S:.6f} s, 1 µs further ahead than MAX_FUTURE '
                'allows'),
     )
     draw_marks(figure, samples, axis.y)
     # The label at C and D ends at D's right edge, clear of the band's label "ahead"
     draw_gap_label(figure, oldest_x, axis.y, '1 µs, enlarged')
-    draw_gap_label(figure, newest_x + LIMITS_APART + LARGE_MARK_RADIUS, axis.y, '1 µs, enlarged',
-                   'end')
+    draw_gap_label(figure, newest_x + apart + figure.fixed(LARGE_MARK_RADIUS), axis.y,
+                   '1 µs, enlarged', 'end')
     return figure, samples
 
 
-def order_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
+def order_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
     """Return the drawing of the two tests of check 5, the order check, and their samples."""
-    figure = Figure('lv-test-order',
-                    f'Check 5 in the tests, after a valid sample stamped {NOW_S} s: a sample '
-                    'with an older stamp or the same stamp is dropped, a sample stamped 1 ns '
-                    'later is forwarded, and so is a later sample that follows a dropped sample '
-                    f'stamped {FAR_AHEAD_S} s ahead', AXIS_HEIGHT, DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-order', layout,
+        f'Check 5 in the tests, after a valid sample stamped {NOW_S} s: a sample '
+        'with an older stamp or the same stamp is dropped, a sample stamped 1 ns '
+        'later is forwarded, and so is a later sample that follows a dropped sample '
+        f'stamped {FAR_AHEAD_S} s ahead', AXIS_HEIGHT)
     period = SAMPLE_PERIOD_MS * ORDER_PIXELS_PER_MS
     draw_zones(figure, ZONE_TOP, AXIS_START_X, ORDER_LAST_X, AXIS_END_X, ('not later',),
                ('later',))
@@ -540,7 +657,7 @@ def order_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
         Sample('E', ORDER_LAST_X - 1000 * ORDER_OLDER_S * ORDER_PIXELS_PER_MS, False,
                f'stamped {ORDER_OLDER_S} s before {NOW_S} s. The sample arrived out of order'),
         Sample('F', ORDER_LAST_X, False, f'stamped {NOW_S} s again. The sample came twice'),
-        Sample('G', ORDER_LAST_X + ORDER_APART, True,
+        Sample('G', ORDER_LAST_X + figure.fixed(ORDER_APART), True,
                f'stamped {ORDER_LATER_NS} ns after {NOW_S} s, the smallest step of a stamp'),
         Sample('H', ORDER_FAR_AHEAD_X, False,
                f'stamped {NOW_S + FAR_AHEAD_S} s. Check 4 drops it as too far ahead'),
@@ -549,23 +666,25 @@ def order_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
                f'stamp with {NOW_S} s, not with the stamp of H'),
     )
     draw_marks(figure, samples, AXIS_Y)
-    draw_gap_label(figure, ORDER_LAST_X + ORDER_APART / 2, AXIS_Y, f'{ORDER_LATER_NS} ns')
+    draw_gap_label(figure, ORDER_LAST_X + figure.fixed(ORDER_APART / 2), AXIS_Y,
+                   f'{ORDER_LATER_NS} ns')
     # H lies in the band of check 5's later stamps, but check 4 drops H before check 5 runs
     figure.text(AXIS_END_X, AXIS_Y - MARK_ABOVE_AXIS - LARGE_MARK_RADIUS - 4,
                 'check 4: too far ahead', 'note halo', 'end')
     return figure, samples
 
 
-def early_clock_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
+def early_clock_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
     """Return the drawing of the test whose clock goes back to EARLY_RESTART_S, and its samples.
 
     The axis starts at the ROS time zero.
     """
-    figure = Figure('lv-test-clock-early',
-                    f'After the ROS time went back from {NOW_S} s to {EARLY_RESTART_S} s, '
-                    f'check 5 starts over: a sample stamped {EARLY_RESTART_S} s is forwarded, '
-                    f'although the last valid stamp was {NOW_S} s, and a second sample with the '
-                    'same stamp is dropped', AXIS_HEIGHT, DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-clock-early', layout,
+        f'After the ROS time went back from {NOW_S} s to {EARLY_RESTART_S} s, '
+        f'check 5 starts over: a sample stamped {EARLY_RESTART_S} s is forwarded, '
+        f'although the last valid stamp was {NOW_S} s, and a second sample with the '
+        'same stamp is dropped', AXIS_HEIGHT)
     period = SAMPLE_PERIOD_MS * EARLY_PIXELS_PER_MS
     now_x = EARLY_ZERO_X + 1000 * EARLY_RESTART_S * EARLY_PIXELS_PER_MS
     newest_x = now_x + 1000 * MAX_FUTURE_S * EARLY_PIXELS_PER_MS
@@ -573,7 +692,7 @@ def early_clock_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
     draw_axis(figure, EARLY_ZERO_X, AXIS_Y,
               ticks_between(EARLY_ZERO_X + period, EARLY_CUT_X - 8, period))
     figure.path(f'M{EARLY_ZERO_X},{AXIS_Y - 5} v10', 'axis')
-    figure.text(EARLY_ZERO_X - 5, AXIS_Y + 4, '0 s', 'note', 'end')
+    figure.text(EARLY_ZERO_X - figure.fixed(5), AXIS_Y + 4, '0 s', 'note', 'end')
     draw_cut(figure, EARLY_CUT_X, AXIS_Y)
     draw_reference(figure, now_x, AXIS_Y, f'now: t = {EARLY_RESTART_S} s')
     add_with_title(
@@ -592,20 +711,21 @@ def early_clock_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
     )
     draw_marks(figure, samples, AXIS_Y)
     # The marks of J and K stand on top of each other: their order is written beside them
-    label_x = now_x + LARGE_MARK_RADIUS + 5
+    label_x = now_x + figure.fixed(LARGE_MARK_RADIUS + 5)
     figure.text(label_x, AXIS_Y - MARK_ABOVE_AXIS + 4, '1st arrival', 'note halo')
     figure.text(label_x, AXIS_Y - MARK_ABOVE_AXIS - STACK_PITCH + 4,
                 f'repeat, {REPEAT_DELAY_MS} ms later', 'note halo')
     return figure, samples
 
 
-def clock_back_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
+def clock_back_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
     """Return the drawing of the test whose clock goes back to RESTART_S, and its samples."""
-    figure = Figure('lv-test-clock-back',
-                    f'After the ROS time went back from {NOW_S} s to {RESTART_S} s, check 4 '
-                    f'uses the new time: a sample stamped {RESTART_S - OLD_AFTER_RESTART_S} s '
-                    f'is too old, and a sample stamped {NOW_S + MAX_FUTURE_S} s is too far '
-                    'ahead', AXIS_HEIGHT, DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-clock-back', layout,
+        f'After the ROS time went back from {NOW_S} s to {RESTART_S} s, check 4 '
+        f'uses the new time: a sample stamped {RESTART_S - OLD_AFTER_RESTART_S} s '
+        f'is too old, and a sample stamped {NOW_S + MAX_FUTURE_S} s is too far '
+        'ahead', AXIS_HEIGHT)
     oldest_x = BACK_NOW_X - 1000 * MAX_AGE_S * BACK_PIXELS_PER_MS
     newest_x = BACK_NOW_X + 1000 * MAX_FUTURE_S * BACK_PIXELS_PER_MS
     period = SAMPLE_PERIOD_MS * BACK_PIXELS_PER_MS
@@ -637,40 +757,70 @@ def decision_box_height(line_count: int) -> float:
     return line_count * DECISION_LINE_HEIGHT + 9
 
 
+def reason_lines(reason: str, line_characters: int) -> Tuple[str, ...]:
+    """Return a DropReason member's name in lines of at most line_characters.
+
+    A line ends after an underscore. No reason gives no line.
+    """
+    if not reason:
+        return ()
+    words = [word + '_' for word in reason.split('_')]
+    words[-1] = words[-1].rstrip('_')
+    lines: List[str] = []
+    for word in words:
+        if lines and len(lines[-1]) + len(word) <= line_characters:
+            lines[-1] += word
+        else:
+            lines.append(word)
+    return tuple(lines)
+
+
 def draw_down_arrow(figure: Figure, x: float, top: float, bottom: float) -> None:
     """Add an arrow from top down to bottom at x."""
     figure.path(f'M{x:.1f},{top:.1f} V{bottom - 1:.1f}', 'message')
     figure.path(f'M{x:.1f},{bottom:.1f} l-4,-8 h8 z', 'message-head')
 
 
-def draw_decision_step(figure: Figure, top: float, step: DecisionStep) -> float:
-    """Add one step of the decision with its drop reason, and return the step's height."""
-    line_count = max(len(step.lines), len(step.reason_lines))
-    height = decision_box_height(line_count)
-    figure.rect(DECISION_LEFT_X, top, DECISION_LEFT_WIDTH, height, 'item', corner_radius=4)
-    text_top = top + height / 2 - (len(step.lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4
-    first_line, *other_lines = step.lines
-    draw_label(figure, DECISION_LEFT_X + 7, text_top, step.number, first_line)
+def draw_step_box(figure: Figure, x: float, top: float, width: float, height: float,
+                  number: str, lines: Sequence[str]) -> None:
+    """Add a step's box: the check's number, then the step's lines, centered in the height."""
+    figure.rect(x, top, width, height, 'item', corner_radius=4)
+    text_top = top + height / 2 - (len(lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4
+    first_line, *other_lines = lines
+    draw_label(figure, x + 7, text_top, number, first_line)
     # The other lines start below the first line's text, which stands right of the number
-    other_lines_x = DECISION_LEFT_X + 7 + (NUMBER_WIDTH if step.number else 0)
+    other_lines_x = x + 7 + (NUMBER_WIDTH if number else 0)
     for index, line in enumerate(other_lines, start=1):
         figure.text(other_lines_x, text_top + index * DECISION_LINE_HEIGHT, line)
-    if step.reason_lines:
+
+
+def draw_reason_box(figure: Figure, x: float, top: float, width: float, height: float,
+                    lines: Sequence[str]) -> None:
+    """Add a drop reason's box with the reason's name in centered lines."""
+    figure.rect(x, top, width, height, 'drop-mark', corner_radius=4)
+    text_top = top + height / 2 - (len(lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4
+    for index, line in enumerate(lines):
+        figure.text(x + width / 2, text_top + index * DECISION_LINE_HEIGHT, line, 'mono',
+                    'middle')
+
+
+def draw_decision_step(figure: Figure, top: float, step: DecisionStep) -> float:
+    """Add one step of the narrow layout with its drop reason, and return the step's height."""
+    reason = reason_lines(step.reason, DECISION_REASON_CHARACTERS)
+    height = decision_box_height(max(len(step.lines), len(reason)))
+    draw_step_box(figure, DECISION_LEFT_X, top, DECISION_LEFT_WIDTH, height, step.number,
+                  step.lines)
+    if reason:
         middle_y = top + height / 2
         figure.path(f'M{DECISION_LEFT_X + DECISION_LEFT_WIDTH},{middle_y:.1f} '
                     f'H{DECISION_RIGHT_X - 1}', 'message')
         figure.path(f'M{DECISION_RIGHT_X},{middle_y:.1f} l-8,-4 v8 z', 'message-head')
         figure.text((DECISION_LEFT_X + DECISION_LEFT_WIDTH + DECISION_RIGHT_X) / 2 - 1,
                     middle_y - 5, 'no', 'note', 'middle')
-        figure.rect(DECISION_RIGHT_X, top, DECISION_REASON_WIDTH, height, 'drop-mark',
-                    corner_radius=4)
+        draw_reason_box(figure, DECISION_RIGHT_X, top, DECISION_REASON_WIDTH, height, reason)
         # The decision ends with this reason: a short line joins the collecting line
         figure.path(f'M{DECISION_RIGHT_X + DECISION_REASON_WIDTH},{middle_y:.1f} '
                     f'H{DECISION_COLLECT_X}', 'message')
-        reason_top = (middle_y - (len(step.reason_lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4)
-        for index, line in enumerate(step.reason_lines):
-            figure.text(DECISION_RIGHT_X + DECISION_REASON_WIDTH / 2,
-                        reason_top + index * DECISION_LINE_HEIGHT, line, 'mono', 'middle')
     return height
 
 
@@ -683,21 +833,26 @@ def draw_decision_end(figure: Figure, x: float, top: float, width: float, css_cl
                     'middle')
 
 
+def decision_title(direction: str, reason_place: str) -> str:
+    """Return the accessible title of a layout of the decision drawing."""
+    return ("The validator's decision about a sample that arrives at the ROS time t, "
+            f'{direction}: the clock, the clock check, and checks 1 to 5. A sample that fails '
+            f'a step is dropped with the reason {reason_place} the step, and the node counts '
+            'the reason. For a sample that passes every step, the validator records the '
+            "sample's stamp and arrival time, and the node forwards the sample")
+
+
 def validator_decision() -> Figure:
-    """Return the drawing of the validator's decision about one sample, from top to bottom."""
-    figure = Figure('lv-test-decision',
-                    "The validator's decision about a sample that arrives at the ROS time t, "
-                    'from top to bottom: the clock, the clock check, and checks 1 to 5. A '
-                    'sample that fails a step is dropped with the reason to the right of the '
-                    'step, and the node counts the reason. For a sample that passes every '
-                    "step, the validator records the sample's stamp and arrival time, and the "
-                    'node forwards the sample', 0, DRAWING_WIDTH)
+    """Return the narrow layout of the validator's decision about one sample: top to bottom."""
+    figure = Figure('lv-test-decision', decision_title('from top to bottom', 'to the right of'),
+                    0, DRAWING_WIDTH, NARROW_LAYOUT)
     left_middle = DECISION_LEFT_X + DECISION_LEFT_WIDTH / 2
     figure.rect(DECISION_LEFT_X, 2, DRAWING_WIDTH - 2 * DECISION_LEFT_X, DECISION_START_HEIGHT,
                 'item', corner_radius=4)
-    figure.text(DRAWING_WIDTH / 2, 17, 'a sample arrives at the ROS time t', 'strong', 'middle')
+    figure.text(DRAWING_WIDTH / 2, 17, DECISION_START, 'strong', 'middle')
     top: float = 2 + DECISION_START_HEIGHT + DECISION_GAP
-    heights = [decision_box_height(max(len(step.lines), len(step.reason_lines)))
+    heights = [decision_box_height(max(len(step.lines),
+                                       len(reason_lines(step.reason, DECISION_REASON_CHARACTERS))))
                for step in DECISION_STEPS]
     end_top = top + sum(heights) + DECISION_GAP * len(DECISION_STEPS)
     # The line that collects the drop reasons runs beside their boxes down to the end box
@@ -710,69 +865,168 @@ def validator_decision() -> Figure:
         draw_down_arrow(figure, left_middle, top + height, top + height + DECISION_GAP)
         top += height + DECISION_GAP
     draw_decision_end(figure, DECISION_LEFT_X, end_top, DECISION_LEFT_WIDTH, 'pass-mark',
-                      (('valid: returns None', 'strong'), ('records the stamp and t', 'note'),
-                       ('node forwards the sample', 'note')))
+                      VALID_END)
     draw_decision_end(figure, DECISION_RIGHT_X, end_top, DECISION_RIGHT_WIDTH, 'drop-mark',
-                      (('returns the reason', 'strong'), ('node counts the drop', 'note'),
-                       ('and throttles warnings', 'note')))
+                      DROP_END)
     figure.height = round(end_top + decision_box_height(DECISION_END_LINES) + 2)
     return figure
 
 
+def wide_rows(steps: Sequence[DecisionStep], steps_per_row: int) -> List[WideRow]:
+    """Return the rows of the wide layout from the top, below the box of the arriving sample."""
+    rows: List[WideRow] = []
+    top: float = 2 + DECISION_START_HEIGHT + DECISION_GAP
+    for start in range(0, len(steps), steps_per_row):
+        row_steps = tuple(steps[start:start + steps_per_row])
+        step_height = decision_box_height(max(len(step.wide_lines) for step in row_steps))
+        reason_line_counts = [len(reason_lines(step.reason, WIDE_REASON_CHARACTERS))
+                              for step in row_steps]
+        if start + steps_per_row >= len(steps):
+            # The end box of the drop stands in the last row's line of reasons
+            reason_line_counts.append(DECISION_END_LINES)
+        reason_top = top + step_height + WIDE_NO_HEIGHT
+        collect_y = reason_top + decision_box_height(max(reason_line_counts)) + WIDE_LANE_GAP
+        x = WIDE_ROW_X + (WIDE_ROW_INDENT if rows else 0)
+        rows.append(WideRow(row_steps, x, top, step_height, reason_top, collect_y))
+        top = collect_y + WIDE_LANE_GAP + DECISION_GAP
+    return rows
+
+
+def draw_wide_row(figure: Figure, row: WideRow) -> float:
+    """Add a row's steps, the arrows between them and each drop reason below its step.
+
+    Return the x position of the middle of the row's last reason, where the row's collecting
+    line starts.
+    """
+    last_reason_x = row.x
+    for index, step in enumerate(row.steps):
+        x = row.step_x(index)
+        draw_step_box(figure, x, row.top, step.wide_width, row.step_height, step.number,
+                      step.wide_lines)
+        if index:
+            figure.route(((x - WIDE_GAP, row.middle_y()), (x, row.middle_y())), 'message')
+        reason = reason_lines(step.reason, WIDE_REASON_CHARACTERS)
+        if reason:
+            middle_x = x + step.wide_width / 2
+            step_bottom = row.top + row.step_height
+            reason_bottom = row.reason_top + decision_box_height(len(reason))
+            figure.route(((middle_x, step_bottom), (middle_x, row.reason_top)), 'message')
+            figure.text(middle_x + 5, step_bottom + 10, 'no', 'note')
+            draw_reason_box(figure, x, row.reason_top, step.wide_width,
+                            reason_bottom - row.reason_top, reason)
+            figure.path(f'M{middle_x:.1f},{reason_bottom:.1f} V{row.collect_y:.1f}', 'message')
+            last_reason_x = middle_x
+    return last_reason_x
+
+
+def draw_row_change(figure: Figure, row: WideRow, following: WideRow) -> None:
+    """Add the arrow from a row's last step around to the first step of the following row.
+
+    The arrow runs to the right of the row, between the two rows to the left, and into the
+    following row's first box, as a line of text goes on in the next line.
+    """
+    lane_x = row.end_x() + WIDE_LANE_GAP - 2
+    lane_y = row.collect_y + WIDE_LANE_GAP
+    figure.route(((row.end_x(), row.middle_y()), (lane_x, row.middle_y()), (lane_x, lane_y),
+                  (WIDE_ROW_X, lane_y), (WIDE_ROW_X, following.middle_y()),
+                  (following.x, following.middle_y())), 'message')
+
+
+def validator_decision_wide(steps_per_row: int = STEPS_PER_WIDE_ROW) -> Figure:
+    """Return the wide layout of the validator's decision about one sample: left to right."""
+    rows = wide_rows(DECISION_STEPS, steps_per_row)
+    row_count = 'one row' if len(rows) == 1 else f'{len(rows)} rows'
+    figure = Figure('lv-test-decision-wide',
+                    decision_title(f'from left to right in {row_count}', 'below'), 0, 0,
+                    WIDE_LAYOUT)
+    first, last = rows[0], rows[-1]
+    figure.rect(first.x, 2, WIDE_START_WIDTH, DECISION_START_HEIGHT, 'item', corner_radius=4)
+    figure.text(first.x + WIDE_START_WIDTH / 2, 17, DECISION_START, 'strong', 'middle')
+    first_step_x = first.x + first.steps[0].wide_width / 2
+    figure.route(((first_step_x, 2 + DECISION_START_HEIGHT), (first_step_x, first.top)),
+                 'message')
+    collect_start_x: float = WIDE_LANE_X
+    for row, following in zip(rows, rows[1:]):
+        last_reason_x = draw_wide_row(figure, row)
+        # The row's collecting line runs to the left edge and down to the last row's line
+        figure.path(f'M{last_reason_x:.1f},{row.collect_y:.1f} H{WIDE_LANE_X} '
+                    f'V{last.collect_y:.1f}', 'message')
+        draw_row_change(figure, row, following)
+    last_reason_x = draw_wide_row(figure, last)
+    if len(rows) == 1:
+        collect_start_x = first.step_x(0) + first.steps[0].wide_width / 2
+    # The two ends stand at the right of the last row: the valid end after the last step, the
+    # end of the drop below it, where the collecting line arrives from below
+    end_x = last.end_x() + WIDE_GAP
+    end_height = decision_box_height(DECISION_END_LINES)
+    figure.route(((last.end_x(), last.middle_y()), (end_x, last.middle_y())), 'message')
+    draw_decision_end(figure, end_x, last.middle_y() - end_height / 2, WIDE_END_WIDTH,
+                      'pass-mark', VALID_END)
+    draw_decision_end(figure, end_x, last.reason_top, WIDE_END_WIDTH, 'drop-mark', DROP_END)
+    end_middle_x = end_x + WIDE_END_WIDTH / 2
+    figure.route(((collect_start_x, last.collect_y), (end_middle_x, last.collect_y),
+                  (end_middle_x, last.reason_top + end_height)), 'message')
+    row_right = max(row.end_x() + WIDE_LANE_GAP - 2 for row in rows[:-1]) if rows[:-1] else 0
+    figure.width = round(max(end_x + WIDE_END_WIDTH, row_right) + 2)
+    figure.height = round(last.collect_y + 5)
+    return figure
+
+
 def write_validator_decision() -> None:
-    """Write the include of the validator's decision about one sample."""
-    write_parts(
+    """Write the include of the validator's decision about one sample, in its two layouts."""
+    write_layout_parts(
         'includes/localization-test-validator-decision.html',
-        [validator_decision().svg()],
-        'The decision of <code>drop_reason_or_record()</code> about one sample, from top to '
-        'bottom. A check lets the sample go down only if its condition holds. Otherwise the '
-        'arrow "no" leads to the drop reason, and the decision ends with this reason. The clock '
-        'step drops no sample: the decision always goes on after it.',
-        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+        [validator_decision().svg(), validator_decision_wide().svg()],
+        'The decision of <code>drop_reason_or_record()</code> about one sample, along the '
+        'arrows from the box of the arriving sample. A check lets the sample go on to the next '
+        'box only if its condition holds. Otherwise the arrow "no" leads to the drop reason, '
+        'and the decision ends with this reason. The clock step drops no sample: the decision '
+        'always goes on after it.',
+        LAYOUT_FIGURE_RULES, LAYOUT_FIGURE_CLASSES)
 
 
 def write_validator_limits() -> None:
     """Write the include of the section on check 4: the samples A to D at the two limits."""
-    figure, samples = limit_tests()
-    write_parts(
+    drawings, samples = two_layouts_with_samples(limit_tests)
+    write_layout_parts(
         'includes/localization-test-validator-limits.html',
-        [figure.svg(), legend([sample_line(sample) for sample in samples])],
+        [drawings, legend([sample_line(sample) for sample in samples])],
         f'Check 4 in two tests, at the ROS time t = {NOW_S} s. A lies 1 µs before B, and D 1 µs '
         'after C. The figure draws them apart.',
-        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+        LAYOUT_FIGURE_RULES, LAYOUT_FIGURE_CLASSES)
 
 
 def write_validator_order() -> None:
     """Write the include of the section on check 5: the samples E to I."""
-    figure, samples = order_tests()
-    write_parts(
+    drawings, samples = two_layouts_with_samples(order_tests)
+    write_layout_parts(
         'includes/localization-test-validator-order.html',
-        [figure.svg(), legend([sample_line(sample) for sample in samples])],
+        [drawings, legend([sample_line(sample) for sample in samples])],
         f'Check 5 in two tests, after a valid sample stamped {NOW_S} s. G lies {ORDER_LATER_NS} '
         'ns after F. The figure draws them apart.',
-        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+        LAYOUT_FIGURE_RULES, LAYOUT_FIGURE_CLASSES)
 
 
 def write_validator_clock_back() -> None:
     """Write the include of the section on a clock that goes back: the samples J to M."""
-    early_figure, early_samples = early_clock_tests()
-    back_figure, back_samples = clock_back_tests()
+    early_drawings, early_samples = two_layouts_with_samples(early_clock_tests)
+    back_drawings, back_samples = two_layouts_with_samples(clock_back_tests)
     former_stamp_line = (
         key('<path class="former-stamp" d="M12,-3 V15"/>', 'lv-key lv-narrow')
         + f'{NOW_S} s, the stamp of the last valid sample before the clock went back')
     parts = [
         band(f'The clock goes back from {NOW_S} s to {EARLY_RESTART_S} s: check 5 starts over'),
-        early_figure.svg(),
+        early_drawings,
         legend([sample_line(sample) for sample in early_samples] + [former_stamp_line]),
         band(f'The clock goes back from {NOW_S} s to {RESTART_S} s: check 4 uses the new time'),
-        back_figure.svg(),
+        back_drawings,
         legend([sample_line(sample) for sample in back_samples]),
     ]
-    write_parts(
+    write_layout_parts(
         'includes/localization-test-validator-clock-back.html', parts,
         f'Two tests in which the ROS time goes back from {NOW_S} s. The bands on each axis are '
         'those of check 4 at the new ROS time.',
-        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+        LAYOUT_FIGURE_RULES, LAYOUT_FIGURE_CLASSES)
 
 
 def write_validator_tests() -> None:
@@ -833,8 +1087,8 @@ def draw_rate_axes(figure: Figure, phases: Phases) -> None:
         '</tspan><tspan dy="-2.5"> in rad/s</tspan></text>')
     figure.path(f'M{PLOT_LEFT},{PLOT_TOP - 4} V{PLOT_BOTTOM} H{PLOT_RIGHT}', 'axis')
     for rate in (WHEEL_RATE, IMU_RATE):
-        figure.path(f'M{PLOT_LEFT - 4},{rate_y(rate):.1f} h4', 'tick')
-        figure.text(PLOT_LEFT - 6, rate_y(rate) + 4, f'{rate}', 'note', 'end')
+        figure.path(f'M{PLOT_LEFT},{rate_y(rate):.1f} h-4', 'tick')
+        figure.text(PLOT_LEFT - figure.fixed(6), rate_y(rate) + 4, f'{rate}', 'note', 'end')
     label_y = PLOT_BOTTOM + 15
     figure.text(PLOT_LEFT, label_y, f'{phases.start_time(1):g}', 'note')
     for phase in (2, 3, 4, 5, 7):
@@ -843,8 +1097,8 @@ def draw_rate_axes(figure: Figure, phases: Phases) -> None:
             figure.text(phases.start_x(phase), label_y, f'{phases.start_time(phase):g}',
                         'note', 'middle')
     jump_x = phases.start_x(6)
-    figure.text(jump_x - 4, label_y, f'{phases.end_time(5):g}', 'note', 'end')
-    figure.text(jump_x + 4, label_y, f'{phases.start_time(6):g}', 'strong')
+    figure.text(jump_x - figure.fixed(4), label_y, f'{phases.end_time(5):g}', 'note', 'end')
+    figure.text(jump_x + figure.fixed(4), label_y, f'{phases.start_time(6):g}', 'strong')
     figure.text(PLOT_LEFT, label_y + 14, 'ROS time t in s', 'note')
 
 
@@ -854,13 +1108,13 @@ def draw_inputs(figure: Figure, phases: Phases) -> None:
     imu_y = rate_y(IMU_RATE)
     add_with_title(figure, f'Wheel odometry: {WHEEL_RATE} rad/s in every step',
                    f'<path class="wheels-line" d="M{PLOT_LEFT},{wheels_y:.1f} H{PLOT_RIGHT}"/>')
-    figure.text(PLOT_LEFT + 5, wheels_y - 6, 'wheels', 'strong')
+    figure.text(PLOT_LEFT + figure.fixed(5), wheels_y - 6, 'wheels', 'strong')
     for phase in PHASES_WITH_VALID_SAMPLES:
         add_with_title(
             figure, f'Phase {phase}: the valid IMU samples report {IMU_RATE} rad/s',
             f'<path class="imu-line" d="M{phases.start_x(phase):.1f},{imu_y:.1f} '
             f'H{phases.end_x(phase):.1f}"/>')
-    figure.text(PLOT_LEFT + 5, imu_y - 6, 'IMU', 'strong')
+    figure.text(PLOT_LEFT + figure.fixed(5), imu_y - 6, 'IMU', 'strong')
 
 
 def draw_assertions(figure: Figure, phases: Phases) -> None:
@@ -876,25 +1130,22 @@ def draw_assertions(figure: Figure, phases: Phases) -> None:
     figure.text((start_x + end_x) / 2, limit_y - 18, 'kept outputs', '', 'middle')
     figure.text((start_x + end_x) / 2, limit_y - 5, f'at most {UPPER_LIMIT:g}', '', 'middle')
     for phase, rate, tolerance in ACCEPTED_AT_THE_END:
-        x = phases.end_x(phase) - 2.5
-        top = rate_y(rate + tolerance)
-        bottom = rate_y(rate - tolerance)
-        add_with_title(
-            figure, f'Phase {phase}: the last output has to be {rate} ± {tolerance} rad/s',
-            f'<path class="estimate-range" d="M{x:.1f},{top:.1f} V{bottom:.1f} '
-            f'M{x - 3.5:.1f},{top:.1f} h7 M{x - 3.5:.1f},{bottom:.1f} h7"/>')
+        x = phases.end_x(phase) - figure.fixed(2.5)
+        draw_accepted_range(figure, x, rate, tolerance,
+                            f'Phase {phase}: the last output has to be {rate} ± {tolerance} rad/s')
 
 
 def draw_run(figure: Figure, phases: Phases, run: Run) -> None:
     """Add the estimates that the test printed in the run."""
+    before_the_end = figure.fixed(2.5)
     dots = (
-        (phases.end_x(1) - 2.5, run.end_of_phase_1, 'the last output of phase 1'),
-        (phases.end_x(2) - 2.5, run.end_of_phase_2, 'the last output of phase 2'),
-        (phases.end_x(6) - 2.5, run.end_of_phase_6, 'the last output of phase 6'),
+        (phases.end_x(1) - before_the_end, run.end_of_phase_1, 'the last output of phase 1'),
+        (phases.end_x(2) - before_the_end, run.end_of_phase_2, 'the last output of phase 2'),
+        (phases.end_x(6) - before_the_end, run.end_of_phase_6, 'the last output of phase 6'),
     )
     # The first output of phase 2 is one step after the last of phase 1: its marker stands just
     # right of that dot. The run printed no estimate between the two of phase 2
-    first_x = phases.start_x(2) + FIRST_MARKER_OFFSET
+    first_x = phases.start_x(2) + figure.fixed(FIRST_MARKER_OFFSET)
     first_y = rate_y(run.start_of_phase_2)
     add_with_title(figure, f'{run.start_of_phase_2} rad/s, the first output of phase 2 in the '
                    f'run at the commit {run.commit}',
@@ -904,11 +1155,20 @@ def draw_run(figure: Figure, phases: Phases, run: Run) -> None:
                        f'<circle class="estimate-dot" cx="{x:.1f}" cy="{rate_y(rate):.1f}" '
                        f'r="{DOT_RADIUS}"/>')
     below_the_imu_line = rate_y(IMU_RATE) + 18
-    figure.text(dots[0][0] - 8, below_the_imu_line, 'estimate', 'strong', 'end')
-    figure.text(dots[0][0] - 8, below_the_imu_line + 13, f'{run.end_of_phase_1}', 'strong',
+    beside = figure.fixed(8)
+    figure.text(dots[0][0] - beside, below_the_imu_line, 'estimate', 'strong', 'end')
+    figure.text(dots[0][0] - beside, below_the_imu_line + 13, f'{run.end_of_phase_1}', 'strong',
                 'end')
-    figure.text(dots[1][0] + 8, rate_y(WHEEL_RATE) + 16, f'{run.end_of_phase_2}', 'strong halo')
-    figure.text(phases.start_x(6) + 5, below_the_imu_line, f'{run.end_of_phase_6}', 'strong')
+    figure.text(dots[1][0] + beside, rate_y(WHEEL_RATE) + 16, f'{run.end_of_phase_2}',
+                'strong halo')
+    # The value of phase 6 ends beside its dot where the phase has room for it after the line of
+    # the clock's jump, as in the wide layout. Else it starts right after that line
+    after_the_jump = phases.start_x(6) + figure.fixed(5)
+    beside_the_dot = dots[2][0] - beside
+    if beside_the_dot - figure.fixed(ESTIMATE_LABEL_WIDTH) >= after_the_jump:
+        figure.text(beside_the_dot, below_the_imu_line, f'{run.end_of_phase_6}', 'strong', 'end')
+    else:
+        figure.text(after_the_jump, below_the_imu_line, f'{run.end_of_phase_6}', 'strong')
 
 
 def diamond(x: float, y: float) -> str:
@@ -917,14 +1177,26 @@ def diamond(x: float, y: float) -> str:
     return f'M{x:.1f},{y - half:.1f} l{half},{half} l{-half},{half} l{-half},{-half} z'
 
 
-def phases_chart(phases: Phases, run: Run) -> Figure:
+def draw_accepted_range(figure: Figure, x: float, rate: float, tolerance: float,
+                        title: str) -> None:
+    """Add the range that the test accepts for an output: a bar from rate − to + tolerance."""
+    top = rate_y(rate + tolerance)
+    bottom = rate_y(rate - tolerance)
+    cap_x = x - figure.fixed(3.5)
+    add_with_title(
+        figure, title,
+        f'<path class="estimate-range" d="M{x:.1f},{top:.1f} V{bottom:.1f} '
+        f'M{cap_x:.1f},{top:.1f} h7 M{cap_x:.1f},{bottom:.1f} h7"/>')
+
+
+def phases_chart(phases: Phases, run: Run, layout: Layout) -> Figure:
     """Return the chart of the seven phases of the stepped-clock test."""
-    figure = Figure('lv-test-stepped-clock',
-                    'The seven phases of the stepped-clock test from left to right: the yaw '
-                    'rate that the wheel odometry and the valid IMU samples report, the samples '
-                    'that the validator has to drop, the ranges that the test accepts for the '
-                    "filter's estimate, and the estimates that a run printed", CHART_HEIGHT,
-                    DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-stepped-clock', layout,
+        'The seven phases of the stepped-clock test from left to right: the yaw '
+        'rate that the wheel odometry and the valid IMU samples report, the samples '
+        'that the validator has to drop, the ranges that the test accepts for the '
+        "filter's estimate, and the estimates that a run printed", CHART_HEIGHT)
     draw_phase_rows(figure, phases)
     draw_rate_axes(figure, phases)
     draw_inputs(figure, phases)
@@ -983,15 +1255,15 @@ def write_stepped_clock_test() -> None:
     run = load_run()
     phases = Phases((FUSION_STEPS, PHASE_STEPS, PHASE_STEPS, PHASE_STEPS, PHASE_STEPS,
                      run.phase_6_steps, DIAGNOSTICS_STEPS))
-    write_parts(
+    write_layout_parts(
         'includes/localization-test-stepped-clock.html',
-        [phases_chart(phases, run).svg()] + chart_legends(run),
+        [two_layouts(lambda layout: phases_chart(phases, run, layout))] + chart_legends(run),
         'The stepped-clock test from left to right, one step every '
         f'{round(1000 * STEP_S)} ms of ROS time. The rows "IMU valid" and "IMU to drop" '
         'show the samples of one step of each phase. At the solid vertical line, the clock '
         'goes back from '
         f'{phases.end_time(5):g} s to {SYNTHETIC_RESTART_S} s.',
-        RULES + LARGE_RULES + EXTRA_RULES + PHASES_RULES, 'lv-large')
+        LAYOUT_FIGURE_RULES + PHASES_RULES, LAYOUT_FIGURE_CLASSES)
 
 
 def draw_node(figure: Figure, x: float, width: float, name: str, title: str) -> None:
@@ -1203,8 +1475,8 @@ def draw_robot_rates_axes(figure: Figure, run: RobotRatesRun) -> None:
     left = ROBOT_RATES_PLOT_LEFT
     figure.path(f'M{left},{PLOT_TOP - 4} V{PLOT_BOTTOM} H{PLOT_RIGHT}', 'axis')
     for rate in (WHEEL_RATE, IMU_RATE):
-        figure.path(f'M{left - 4},{rate_y(rate):.1f} h4', 'tick')
-        figure.text(left - 6, rate_y(rate) + 4, f'{rate}', 'note', 'end')
+        figure.path(f'M{left},{rate_y(rate):.1f} h-4', 'tick')
+        figure.text(left - figure.fixed(6), rate_y(rate) + 4, f'{rate}', 'note', 'end')
     label_y = PLOT_BOTTOM + 15
     phase_2_start = run.last_imu_stamp + STEP_S
     figure.text(left, label_y, f'{START_S:g}', 'note')
@@ -1224,23 +1496,20 @@ def draw_robot_rates_inputs(figure: Figure, run: RobotRatesRun) -> None:
     left = ROBOT_RATES_PLOT_LEFT
     add_with_title(figure, f'Wheel odometry: {WHEEL_RATE} rad/s in every message',
                    f'<path class="wheels-line" d="M{left},{wheels_y:.1f} H{PLOT_RIGHT}"/>')
-    figure.text(left + 5, wheels_y + 16, 'wheels', 'strong')
+    figure.text(left + figure.fixed(5), wheels_y + 16, 'wheels', 'strong')
     add_with_title(figure, f'Phase 1: the IMU samples report {IMU_RATE} rad/s',
                    f'<path class="imu-line" d="M{left},{imu_y:.1f} H{phase_2_x:.1f}"/>')
-    figure.text(left + 5, imu_y - 6, 'IMU', 'strong')
+    figure.text(left + figure.fixed(5), imu_y - 6, 'IMU', 'strong')
 
 
 def draw_robot_rates_assertions(figure: Figure, run: RobotRatesRun) -> None:
     """Add the range that the test accepts for the last output of each phase."""
     ends = ((1, robot_rates_x(run.last_imu_stamp, run), IMU_RATE, YAW_RATE_TOLERANCE),
-            (2, robot_rates_x(run.wheel_stamps[-1], run) + 5, WHEEL_RATE, WHEEL_RATE_TOLERANCE))
+            (2, robot_rates_x(run.wheel_stamps[-1], run) + figure.fixed(5), WHEEL_RATE,
+             WHEEL_RATE_TOLERANCE))
     for phase, x, rate, tolerance in ends:
-        top = rate_y(rate + tolerance)
-        bottom = rate_y(rate - tolerance)
-        add_with_title(
-            figure, f'Phase {phase}: the last output has to be {rate} ± {tolerance} rad/s',
-            f'<path class="estimate-range" d="M{x:.1f},{top:.1f} V{bottom:.1f} '
-            f'M{x - 3.5:.1f},{top:.1f} h7 M{x - 3.5:.1f},{bottom:.1f} h7"/>')
+        draw_accepted_range(figure, x, rate, tolerance,
+                            f'Phase {phase}: the last output has to be {rate} ± {tolerance} rad/s')
 
 
 def draw_robot_rates_run(figure: Figure, run: RobotRatesRun) -> None:
@@ -1268,9 +1537,10 @@ def draw_robot_rates_run(figure: Figure, run: RobotRatesRun) -> None:
                        f'<circle class="estimate-dot" cx="{robot_rates_x(output.stamp, run):.1f}" '
                        f'cy="{rate_y(output.yaw_rate):.1f}" r="{SMALL_DOT_RADIUS}"/>')
     phase_2_x = robot_rates_x(run.last_imu_stamp + STEP_S, run)
-    figure.text(phase_2_x - 4, rate_y(IMU_RATE) + 16, f'{run.end_of_phase_1:.4f}', 'strong',
-                'end')
-    figure.text(phase_2_x + 14, rate_y(phase_2[0].yaw_rate) + 2, 'estimate', 'strong')
+    figure.text(phase_2_x - figure.fixed(4), rate_y(IMU_RATE) + 16, f'{run.end_of_phase_1:.4f}',
+                'strong', 'end')
+    figure.text(phase_2_x + figure.fixed(14), rate_y(phase_2[0].yaw_rate) + 2, 'estimate',
+                'strong')
     figure.text(robot_rates_x(run.wheel_stamps[-1], run), rate_y(WHEEL_RATE) - 10,
                 f'{run.end_of_phase_2:.4f}', 'strong halo', 'end')
 
@@ -1289,7 +1559,7 @@ def add_wheel_period_bracket(figure: Figure, run: RobotRatesRun) -> None:
     figure.dimension(start_x, end_x, BRACKET_Y)
     figure.path(f'M{start_x:.1f},{BRACKET_Y} V{BRACKET_ROW + DROP_ROW_Y + 2} '
                 f'M{end_x:.1f},{BRACKET_Y} V{BRACKET_ROW + DROP_ROW_Y + 2}', 'dimension')
-    figure.text(end_x + 5, BRACKET_Y + 4,
+    figure.text(end_x + figure.fixed(5), BRACKET_Y + 4,
                 f'{round(1000 * WHEEL_PERIOD_S)} ms: {STEPS_PER_WHEEL_MESSAGE} IMU samples, '
                 '1 wheel message', 'note')
     figure.elements.append(f'<g transform="translate(0,{BRACKET_ROW})">')
@@ -1298,13 +1568,14 @@ def add_wheel_period_bracket(figure: Figure, run: RobotRatesRun) -> None:
     figure.height += BRACKET_ROW
 
 
-def robot_rates_chart(run: RobotRatesRun) -> Figure:
+def robot_rates_chart(run: RobotRatesRun, layout: Layout) -> Figure:
     """Return the chart of the two phases of robot_rates."""
-    figure = Figure('lv-test-robot-rates',
-                    'The two phases of the scenario robot_rates from left to right: the wheel '
-                    'messages and the IMU samples, the yaw rate that they report, the ranges '
-                    "that the test accepts for the filter's estimate, and the estimate in the "
-                    "filter's outputs in a recorded run", CHART_HEIGHT, DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-robot-rates', layout,
+        'The two phases of the scenario robot_rates from left to right: the wheel '
+        'messages and the IMU samples, the yaw rate that they report, the ranges '
+        "that the test accepts for the filter's estimate, and the estimate in the "
+        "filter's outputs in a recorded run", CHART_HEIGHT)
     draw_robot_rates_rows(figure, run)
     draw_robot_rates_axes(figure, run)
     draw_robot_rates_inputs(figure, run)
@@ -1365,12 +1636,12 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
 def write_robot_rates_test() -> None:
     """Write the include with the two phases of robot_rates."""
     run = load_robot_rates_run()
-    write_parts(
+    write_layout_parts(
         'includes/localization-test-stepped-clock-robot-rates.html',
-        [robot_rates_chart(run).svg()] + robot_rates_legends(run),
+        [two_layouts(lambda layout: robot_rates_chart(run, layout))] + robot_rates_legends(run),
         'The scenario robot_rates from left to right, one step every '
         f'{round(1000 * STEP_S)} ms of ROS time. At the dotted vertical line, the IMU stops.',
-        RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
+        LAYOUT_FIGURE_RULES + ROBOT_RATES_RULES, LAYOUT_FIGURE_CLASSES)
 
 
 def first_window(outputs: Sequence[Output], predicted: Sequence[bool]) -> int:
@@ -1463,27 +1734,27 @@ def draw_stamp_to_publication(figure: Figure, axis: TimeAxis, rows: RowLayout,
     figure.path(f'M{stamp_x:.1f},{rows.wheels + OUTPUT_DOT_RADIUS} V{rows.outputs}',
                 'dimension')
     if published_x - stamp_x > OUTPUT_DOT_RADIUS:
-        tip_x = published_x - OUTPUT_DOT_RADIUS - 0.5
-        figure.path(f'M{stamp_x:.1f},{rows.outputs} H{tip_x - 4:.1f}', 'message')
+        tip_x = published_x - figure.fixed(OUTPUT_DOT_RADIUS + 0.5)
+        figure.path(f'M{stamp_x:.1f},{rows.outputs} H{tip_x - figure.fixed(4):.1f}', 'message')
         figure.path(f'M{tip_x:.1f},{rows.outputs} l-5,-3 v6 z', 'message-head')
 
 
-def between_wheels_running(run: RobotRatesRun) -> Figure:
+def between_wheels_running(run: RobotRatesRun, layout: Layout) -> Figure:
     """Return the drawing of the last three wheel periods of phase 1, with the IMU running."""
     wheel_stamps = [stamp for stamp in run.wheel_stamps if stamp <= run.last_imu_stamp]
     first_wheel_stamp = wheel_stamps[-BETWEEN_WHEELS_MESSAGES]
     axis = between_wheels_axis(RUNNING_ROWS)
-    figure = Figure('lv-test-between-wheels-running',
-                    'Phase 1, IMU running: an IMU sample in every step, a wheel message in '
-                    'every fifth, and an EKF output in every step', RUNNING_ROWS.height,
-                    DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-between-wheels-running', layout,
+        'Phase 1, IMU running: an IMU sample in every step, a wheel message in '
+        'every fifth, and an EKF output in every step', RUNNING_ROWS.height)
     draw_between_wheels_rows(figure, axis, RUNNING_ROWS, first_wheel_stamp, run.imu_stamps)
     draw_between_wheels_outputs(figure, axis, RUNNING_ROWS, first_wheel_stamp, run.phase_1(),
                                 False)
     return figure
 
 
-def between_wheels_stopped(run: RobotRatesRun) -> Figure:
+def between_wheels_stopped(run: RobotRatesRun, layout: Layout) -> Figure:
     """Return the drawing of the first three wheel periods of phase 2 that show both cases.
 
     The three outputs are fused, predicted and fused.
@@ -1491,11 +1762,12 @@ def between_wheels_stopped(run: RobotRatesRun) -> Figure:
     phase_2 = run.phase_2()
     first_wheel_stamp = phase_2[first_window(phase_2, (False, True, False))].stamp
     axis = between_wheels_axis(STOPPED_ROWS)
-    figure = Figure('lv-test-between-wheels-stopped',
-                    'Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF '
-                    "output per wheel message, stamped with the message's time: fused in the "
-                    'next update, or predicted at the time of the message', STOPPED_ROWS.height,
-                    DRAWING_WIDTH)
+    figure = layout_figure(
+        'lv-test-between-wheels-stopped', layout,
+        'Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF '
+        "output per wheel message, stamped with the message's time: fused in the "
+        'next update, or predicted at the time of the message',
+        STOPPED_ROWS.height)
     draw_between_wheels_rows(figure, axis, STOPPED_ROWS, first_wheel_stamp, ())
     draw_between_wheels_outputs(figure, axis, STOPPED_ROWS, first_wheel_stamp, phase_2, True)
     # From the stamp of the fused wheel message, the filter's last measurement, to the update
@@ -1542,20 +1814,22 @@ def between_wheels_legend(run: RobotRatesRun) -> str:
 def write_between_wheels() -> None:
     """Write the include with what the filter publishes between wheel messages."""
     run = load_robot_rates_run()
-    write_parts(
+    write_layout_parts(
         'includes/localization-test-stepped-clock-between-wheels.html',
-        [band('Phase 1: the IMU running'), between_wheels_running(run).svg(),
-         band('Phase 2: the IMU stopped'), between_wheels_stopped(run).svg(),
+        [band('Phase 1: the IMU running'),
+         two_layouts(lambda layout: between_wheels_running(run, layout)),
+         band('Phase 2: the IMU stopped'),
+         two_layouts(lambda layout: between_wheels_stopped(run, layout)),
          between_wheels_legend(run)],
         f'Each drawing spans {BETWEEN_WHEELS_MESSAGES} wheel messages of a phase of '
         f'robot_rates, about {round(BETWEEN_WHEELS_END_MS + 1000 * STEP_S)} ms, in a recorded '
         'run at the diffbot '
         f"commit {run.commit}, with robot_localization's debug trace, ROS time to the right.",
-        RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
+        LAYOUT_FIGURE_RULES + ROBOT_RATES_RULES, LAYOUT_FIGURE_CLASSES)
 
 
 def main() -> None:
-    """Write the seven includes of the test pages."""
+    """Write the eight includes of the test pages."""
     write_validator_tests()
     write_one_step()
     write_stepped_clock_test()

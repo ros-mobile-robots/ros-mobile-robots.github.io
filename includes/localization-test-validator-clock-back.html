@@ -58,7 +58,7 @@
 .lv-large .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
 .lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
@@ -66,10 +66,15 @@
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
 <p class="lv-band">The clock goes back from 100 s to 0.02 s: check 5 starts over</p>
-<svg class="lv-fig" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-early-title"><title id="lv-test-clock-early-title">After the ROS time went back from 100 s to 0.02 s, check 5 starts over: a sample stamped 0.02 s is forwarded, although the last valid stamp was 100 s, and a second sample with the same stamp is dropped</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-early-title"><title id="lv-test-clock-early-title">After the ROS time went back from 100 s to 0.02 s, check 5 starts over: a sample stamped 0.02 s is forwarded, although the last valid stamp was 100 s, and a second sample with the same stamp is dropped</title>
 <rect class="drop-zone" x="108.0" y="6.0" width="178.0" height="46.0" rx="0"/>
 <rect class="pass-zone" x="36.0" y="6.0" width="72.0" height="46.0" rx="0"/>
 <text class="strong" x="283.0" y="19.0" text-anchor="end">too far ahead</text>
@@ -92,13 +97,36 @@
 <text class="note halo" x="84.5" y="46.0" text-anchor="start">1st arrival</text>
 <text class="note halo" x="84.5" y="28.0" text-anchor="start">repeat, 1 ms later</text>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 76" role="img" aria-labelledby="lv-test-clock-early-wide-title"><title id="lv-test-clock-early-wide-title">After the ROS time went back from 100 s to 0.02 s, check 5 starts over: a sample stamped 0.02 s is forwarded, although the last valid stamp was 100 s, and a second sample with the same stamp is dropped</title>
+<rect class="drop-zone" x="194.4" y="6.0" width="320.4" height="46.0" rx="0"/>
+<rect class="pass-zone" x="64.8" y="6.0" width="129.6" height="46.0" rx="0"/>
+<text class="strong" x="511.7" y="19.0" text-anchor="end">too far ahead</text>
+<path class="axis" d="M64.8,52 H527.4"/>
+<path class="axis" d="M527.4,52 l-6,-3.5 M527.4,52 l-6,3.5"/>
+<path class="tick" d="M129.6,52 v4"/>
+<path class="tick" d="M194.4,52 v4"/>
+<path class="tick" d="M259.2,52 v4"/>
+<path class="tick" d="M324.0,52 v4"/>
+<path class="axis" d="M64.8,47 v10"/>
+<text class="note" x="59.8" y="56.0" text-anchor="end">0 s</text>
+<rect class="cut-gap" x="371.0" y="51.0" width="7.0" height="2.0" rx="0"/>
+<path class="cut" d="M368.8,57 l4,-10 M375.8,57 l4,-10"/>
+<path class="now" d="M129.6,2 V58"/>
+<text class="name" x="129.6" y="70.0" text-anchor="middle">now: t = 0.02 s</text>
+<g><title>100 s: the stamp of the last valid sample before the clock went back</title><path class="former-stamp" d="M442.8,26 V58"/></g>
+<text class="note" x="442.8" y="70.0" text-anchor="middle">100 s</text>
+<g><title>Sample J: forwarded. stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator cleared that stamp when the clock went back</title><circle class="pass-mark" cx="129.6" cy="42.0" r="7.5"/><text class="letter" x="129.6" y="45.8" text-anchor="middle">J</text></g>
+<g><title>Sample K: dropped. stamped 0.02 s again, sent 1 ms later. The stamp is not later than the stamp of J</title><circle class="drop-mark" cx="129.6" cy="24.0" r="7.5"/><text class="letter" x="129.6" y="27.8" text-anchor="middle">K</text></g>
+<text class="note halo" x="142.0" y="46.0" text-anchor="start">1st arrival</text>
+<text class="note halo" x="142.0" y="28.0" text-anchor="start">repeat, 1 ms later</text>
+</svg>
 <ul class="lv-legend">
 <li><span class="lv-mark">J</span><strong>✓ forwarded:</strong> stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator cleared that stamp when the clock went back</li>
 <li><span class="lv-mark lv-drop">K</span><strong>✕ dropped:</strong> stamped 0.02 s again, sent 1 ms later. The stamp is not later than the stamp of J</li>
 <li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="former-stamp" d="M12,-3 V15"/></svg>100 s, the stamp of the last valid sample before the clock went back</li>
 </ul>
 <p class="lv-band">The clock goes back from 100 s to 50 s: check 4 uses the new time</p>
-<svg class="lv-fig" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-back-title"><title id="lv-test-clock-back-title">After the ROS time went back from 100 s to 50 s, check 4 uses the new time: a sample stamped 49 s is too old, and a sample stamped 100.02 s is too far ahead</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-back-title"><title id="lv-test-clock-back-title">After the ROS time went back from 100 s to 50 s, check 4 uses the new time: a sample stamped 49 s is too old, and a sample stamped 100.02 s is too far ahead</title>
 <rect class="drop-zone" x="14.0" y="6.0" width="66.0" height="46.0" rx="0"/>
 <rect class="drop-zone" x="176.0" y="6.0" width="110.0" height="46.0" rx="0"/>
 <rect class="pass-zone" x="80.0" y="6.0" width="96.0" height="46.0" rx="0"/>
@@ -127,9 +155,39 @@
 <g><title>Sample L: dropped. stamped 49 s, 1 s older than the new ROS time</title><circle class="drop-mark" cx="32.0" cy="42.0" r="7.5"/><text class="letter" x="32.0" y="45.8" text-anchor="middle">L</text></g>
 <g><title>Sample M: dropped. stamped 100.02 s, 50.02 s ahead of the new ROS time. At the ROS time 100 s, this stamp was valid</title><circle class="drop-mark" cx="254.0" cy="42.0" r="7.5"/><text class="letter" x="254.0" y="45.8" text-anchor="middle">M</text></g>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 76" role="img" aria-labelledby="lv-test-clock-back-wide-title"><title id="lv-test-clock-back-wide-title">After the ROS time went back from 100 s to 50 s, check 4 uses the new time: a sample stamped 49 s is too old, and a sample stamped 100.02 s is too far ahead</title>
+<rect class="drop-zone" x="25.2" y="6.0" width="118.8" height="46.0" rx="0"/>
+<rect class="drop-zone" x="316.8" y="6.0" width="198.0" height="46.0" rx="0"/>
+<rect class="pass-zone" x="144.0" y="6.0" width="172.8" height="46.0" rx="0"/>
+<text class="strong" x="28.3" y="19.0" text-anchor="start">too old</text>
+<text class="strong" x="511.7" y="19.0" text-anchor="end">too far ahead</text>
+<path class="axis" d="M25.2,52 H527.4"/>
+<path class="axis" d="M527.4,52 l-6,-3.5 M527.4,52 l-6,3.5"/>
+<path class="tick" d="M115.2,52 v4"/>
+<path class="tick" d="M144.0,52 v4"/>
+<path class="tick" d="M172.8,52 v4"/>
+<path class="tick" d="M201.6,52 v4"/>
+<path class="tick" d="M230.4,52 v4"/>
+<path class="tick" d="M259.2,52 v4"/>
+<path class="tick" d="M288.0,52 v4"/>
+<path class="tick" d="M316.8,52 v4"/>
+<path class="tick" d="M345.6,52 v4"/>
+<path class="tick" d="M374.4,52 v4"/>
+<rect class="cut-gap" x="93.8" y="51.0" width="7.0" height="2.0" rx="0"/>
+<path class="cut" d="M91.6,57 l4,-10 M98.6,57 l4,-10"/>
+<rect class="cut-gap" x="396.2" y="51.0" width="7.0" height="2.0" rx="0"/>
+<path class="cut" d="M394.0,57 l4,-10 M401.0,57 l4,-10"/>
+<path class="now" d="M288.0,2 V58"/>
+<text class="name" x="288.0" y="70.0" text-anchor="middle">now: t = 50 s</text>
+<text class="note" x="57.6" y="70.0" text-anchor="middle">49 s</text>
+<text class="note" x="457.2" y="70.0" text-anchor="middle">100.02 s</text>
+<g><title>Sample L: dropped. stamped 49 s, 1 s older than the new ROS time</title><circle class="drop-mark" cx="57.6" cy="42.0" r="7.5"/><text class="letter" x="57.6" y="45.8" text-anchor="middle">L</text></g>
+<g><title>Sample M: dropped. stamped 100.02 s, 50.02 s ahead of the new ROS time. At the ROS time 100 s, this stamp was valid</title><circle class="drop-mark" cx="457.2" cy="42.0" r="7.5"/><text class="letter" x="457.2" y="45.8" text-anchor="middle">M</text></g>
+</svg>
 <ul class="lv-legend">
 <li><span class="lv-mark lv-drop">L</span><strong>✕ dropped:</strong> stamped 49 s, 1 s older than the new ROS time</li>
 <li><span class="lv-mark lv-drop">M</span><strong>✕ dropped:</strong> stamped 100.02 s, 50.02 s ahead of the new ROS time. At the ROS time 100 s, this stamp was valid</li>
 </ul>
 <figcaption>Two tests in which the ROS time goes back from 100 s. The bands on each axis are those of check 4 at the new ROS time.</figcaption>
 </figure>
+</div>

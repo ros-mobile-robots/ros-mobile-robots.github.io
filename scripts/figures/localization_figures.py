@@ -43,6 +43,7 @@ Run from the repository root after changing a figure:
 """
 
 import math
+import re
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
@@ -272,6 +273,33 @@ LARGE_RULES = (
     ('.lv-legend .lv-swatch.lv-zero', 'border-style:dashed;background:repeating-linear-gradient('
                                       '45deg,transparent 0 3px,'
                                       'var(--md-default-fg-color--lighter) 3px 4px)'),
+)
+
+# A figure with two layouts of a drawing: the narrow one, as wide as the other figures, and the
+# wide one for a place that has room for it. write_layout_parts() puts such a figure into a
+# block of the class LAYOUT_SPACE, and the CSS measures this block with a container query. The
+# wide layout shows where the block is WIDE_FROM wide or wider: in the page's text column from
+# a window width of about 700 px on (the column is 34.4rem wide next to the two sidebars), but
+# not in a narrower place such as the preview of a section that the theme shows over a link.
+# The narrow layout is also what a browser without container queries shows. A wide drawing is
+# WIDE_WIDTH units wide, 1.8 times a narrow one, and its figure may be 1.8 times as wide, so
+# its text is as large as the narrow layout's at that layout's largest width
+WIDE_FROM = '33.5rem'
+WIDE_WIDTH = 540
+NARROW_LAYOUT = 'lv-layout-narrow'  # the class of a drawing in its narrow layout
+WIDE_LAYOUT = 'lv-layout-wide'
+LAYOUT_SPACE = 'lv-space'  # the class of the block around a figure with two layouts
+LAYOUT_RULES = (
+    # The block takes the figure's margins, which don't collapse through a measured block
+    (f'.md-typeset .{LAYOUT_SPACE}', 'container-type:inline-size;margin:1em 0'),
+    (f'.md-typeset .{LAYOUT_SPACE} figure.lv-figure', 'margin-top:0;margin-bottom:0'),
+    (f'.lv-fig.{WIDE_LAYOUT}', 'display:none'),
+    # More classes than the rule above and than the caps of the one-layout figures: the theme
+    # adds a previewed section's style element after the page's own, with the same rules
+    (f'@container (min-width:{WIDE_FROM})',
+     f'.{LAYOUT_SPACE} .lv-fig.{NARROW_LAYOUT}{{display:none}}'
+     f'.{LAYOUT_SPACE} .lv-fig.{WIDE_LAYOUT}{{display:inline}}'
+     f'.md-typeset .{LAYOUT_SPACE} figure.lv-figure.lv-layouts{{max-width:36rem}}'),
 )
 
 # The drawings with symbols and a robot from above. The symbols are set in the fonts of the page's
@@ -512,17 +540,84 @@ def arrow_head(x: float, y: float, direction_x: float, direction_y: float,
             f'{back_y - unit_x * half_width:.1f} z')
 
 
+# A position or a length as the drawings write it, also with a leading or a trailing decimal point
+NUMBER = r'-?(?:\d+\.?\d*|\.\d+)'
+
+
+def stretched_path(commands: str, stretch: float) -> str:
+    """Return SVG path commands with the x positions of M, L and H multiplied by stretch.
+
+    The relative commands and V keep their numbers, so an arrowhead or a tick that is drawn
+    with relative commands from an absolute point keeps its shape.
+    """
+    command = ''
+    position = 0  # of a number among the numbers of its command
+
+    def scaled(token: 're.Match[str]') -> str:
+        nonlocal command, position
+        text = token.group(0)
+        if text.isalpha():
+            if text not in 'MLHVlhvz':
+                raise ValueError(f'a stretched drawing has no path command {text}')
+            command, position = text, 0
+            return text
+        is_x = command == 'H' or (command in 'ML' and position % 2 == 0)
+        position += 1
+        return f'{float(text) * stretch:.1f}' if is_x else text
+
+    return re.sub(r'[A-Za-z]|' + NUMBER, scaled, commands)
+
+
+def stretched(element: str, stretch: float) -> str:
+    """Return an SVG element with its x positions multiplied by stretch.
+
+    Multiplied are the attributes x and cx, the width of a rectangle and the absolute x
+    positions of a path, also inside a group. Radii, heights, text sizes and the relative
+    parts of a path keep their size. So a drawing gets a longer time axis, and its marks and
+    letters stay as they are. An element with a position that the function doesn't multiply
+    raises a ValueError: points, x1, x2, or a transform other than a vertical shift.
+    """
+    unsupported = re.search(r'(?<![\w-])(?:points|x1|x2)=', element)
+    if unsupported:
+        raise ValueError(f'a stretched drawing has no {unsupported.group(0)} ({element[:60]})')
+    for transform in re.findall(r'(?<![\w-])transform="([^"]*)"', element):
+        if not re.fullmatch(f'translate\\(0,{NUMBER}\\)', transform):
+            raise ValueError(f'a stretched drawing shifts only vertically, not by {transform}')
+
+    def scaled(attribute: 're.Match[str]') -> str:
+        return f'{attribute.group(1)}="{float(attribute.group(2)) * stretch:.1f}"'
+
+    def scaled_rectangle(rectangle: 're.Match[str]') -> str:
+        return re.sub(f'(?<![\\w-])(width)="({NUMBER})"', scaled, rectangle.group(0))
+
+    element = re.sub(f'(?<![\\w-])(c?x)="({NUMBER})"', scaled, element)
+    element = re.sub(r'<rect [^>]*>', scaled_rectangle, element)
+    return re.sub(r'(?<= d=")[^"]+', lambda path: stretched_path(path.group(0), stretch),
+                  element)
+
+
 class Figure:
     """The elements of one SVG drawing, in drawing order."""
 
     def __init__(self, name: str, title: str, height: int, width: int = WIDTH,
-                 css_class: str = '') -> None:
+                 css_class: str = '', stretch: float = 1) -> None:
         self.name = name  # unique on the page: the id of the drawing's title starts with it
         self.title = title
         self.width = width
         self.height = height
         self.css_class = css_class  # added to the SVG element's class lv-fig
+        # The factor by which svg() multiplies the elements' x positions. A drawing function
+        # places its elements as for a stretch of 1. width is the width after the stretch
+        self.stretch = stretch
         self.elements: List[str] = []
+
+    def fixed(self, length: float) -> float:
+        """Return a horizontal length that has this size in the drawing after the stretch.
+
+        For an offset from a stretched position that must keep its size, such as the distance
+        from a mark to the label beside it.
+        """
+        return length / self.stretch
 
     def text(self, x: float, y: float, content: str, css_class: str = '',
              anchor: str = 'start', subscript: str = '') -> None:
@@ -635,9 +730,12 @@ class Figure:
         """Return the drawing as an SVG element."""
         title_id = f'{self.name}-title'
         classes = f'lv-fig {self.css_class}'.strip()
+        elements = self.elements
+        if self.stretch != 1:
+            elements = [stretched(element, self.stretch) for element in elements]
         return (f'<svg class="{classes}" viewBox="0 0 {self.width} {self.height}" role="img" '
                 f'aria-labelledby="{title_id}"><title id="{title_id}">{escape(self.title)}'
-                '</title>\n' + '\n'.join(self.elements) + '\n</svg>')
+                '</title>\n' + '\n'.join(elements) + '\n</svg>')
 
 
 def write_include(path: str, figure: Figure, caption: str,
@@ -646,14 +744,31 @@ def write_include(path: str, figure: Figure, caption: str,
     write_parts(path, [figure.svg()], caption, rules)
 
 
+def figure_element(parts: Sequence[str], caption: str, css_class: str) -> str:
+    """Return a figure element of SVG and HTML parts with its caption."""
+    classes = f'lv-figure {css_class}'.strip()
+    return (f'<figure class="{classes}">\n' + '\n'.join(parts)
+            + f'\n<figcaption>{caption}</figcaption>\n</figure>')
+
+
 def write_parts(path: str, parts: Sequence[str], caption: str,
                 rules: Sequence[Tuple[str, str]] = RULES, css_class: str = '') -> None:
     """Write an include with the CSS rules, a figure of SVG and HTML parts, and its caption."""
-    classes = f'lv-figure {css_class}'.strip()
     with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{style_element(rules)}\n<figure class="{classes}">\n'
-                      + '\n'.join(parts)
-                      + f'\n<figcaption>{caption}</figcaption>\n</figure>\n')
+        include.write(f'{style_element(rules)}\n{figure_element(parts, caption, css_class)}\n')
+
+
+def write_layout_parts(path: str, parts: Sequence[str], caption: str,
+                       rules: Sequence[Tuple[str, str]], css_class: str) -> None:
+    """Write an include of a figure whose drawings each have a narrow and a wide layout.
+
+    The figure stands in a block of the class LAYOUT_SPACE, whose width decides which layout
+    shows (LAYOUT_RULES, which the function adds to rules).
+    """
+    figure = figure_element(parts, caption, f'{css_class} lv-layouts')
+    with open(path, 'w', encoding='utf-8') as include:
+        include.write(f'{style_element(tuple(rules) + LAYOUT_RULES)}\n'
+                      f'<div class="{LAYOUT_SPACE}">\n{figure}\n</div>\n')
 
 
 def band(title: str) -> str:
