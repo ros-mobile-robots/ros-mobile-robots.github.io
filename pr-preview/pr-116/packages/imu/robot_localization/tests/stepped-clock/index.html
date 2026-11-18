@@ -5282,7 +5282,7 @@
 <p>Both <code>.test</code> files include the same nodes from <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/ekf_synthetic.launch"><code>ekf_synthetic.launch</code></a>. The collapsed box shows this launch file:</p>
 <details class="example">
 <summary>The nodes of both scenarios: <code>ekf_synthetic.launch</code>, lines 1–12</summary>
-<p>The excerpt shows the whole file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/ekf_synthetic.launch#L1-L12"><code>ekf_synthetic.launch</code>, lines 1–12</a>:</p>
+<p>The excerpt shows the whole file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/ekf_synthetic.launch#L1-L12"><code>ekf_synthetic.launch</code>, lines 1–12</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf_synthetic.launch</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -5317,7 +5317,7 @@
 <p>The first <code>.test</code> file runs the scenario <a href="#the-seven-phases-of-invalid_imu_samples"><code>invalid_imu_samples</code></a>, the second the scenario <a href="#the-robots-rates-robot_rates"><code>robot_rates</code></a>. The collapsed box shows both files:</p>
 <details class="example">
 <summary>The two <code>.test</code> files, lines 1–9 each</summary>
-<p>The first excerpt shows the whole file of <code>invalid_imu_samples</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/ekf_synthetic.test#L1-L9"><code>ekf_synthetic.test</code>, lines 1–9</a>:</p>
+<p>The first excerpt shows the whole file of <code>invalid_imu_samples</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/ekf_synthetic.test#L1-L9"><code>ekf_synthetic.test</code>, lines 1–9</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf_synthetic.test</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -5336,7 +5336,7 @@
 <span class="w">          </span><span class="na">args=</span><span class="s">"--scenario invalid_imu_samples"</span><span class="w"> </span><span class="na">time-limit=</span><span class="s">"120"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/launch&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The second excerpt shows the whole file of <code>robot_rates</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/ekf_synthetic_robot_rates.test#L1-L9"><code>ekf_synthetic_robot_rates.test</code>, lines 1–9</a>:</p>
+<p>The second excerpt shows the whole file of <code>robot_rates</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/ekf_synthetic_robot_rates.test#L1-L9"><code>ekf_synthetic_robot_rates.test</code>, lines 1–9</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">ekf_synthetic_robot_rates.test</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -5362,10 +5362,9 @@
 </ul>
 <p>The test node picks the scenario's class by this argument, as the collapsed box shows:</p>
 <details class="example">
-<summary>How the test node picks its scenario: lines 800–821</summary>
-<p>The excerpt shows the table of the scenarios and the start of the node, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L800-L821"><code>test_ekf_synthetic.py</code>, lines 800–821</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: SCENARIOS, scenario_from_arguments() and the start</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">800</span>
-<span class="normal">801</span>
+<summary>How the test node picks its scenario: lines 801–822</summary>
+<p>The excerpt shows the table of the scenarios and the start of the node, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L801-L822"><code>test_ekf_synthetic.py</code>, lines 801–822</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: SCENARIOS, scenario_from_arguments() and the start</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">801</span>
 <span class="normal">802</span>
 <span class="normal">803</span>
 <span class="normal">804</span>
@@ -5385,7 +5384,8 @@
 <span class="normal">818</span>
 <span class="normal">819</span>
 <span class="normal">820</span>
-<span class="normal">821</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># The scenarios, by the name that a .test file gives the test node with --scenario</span>
+<span class="normal">821</span>
+<span class="normal">822</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># The scenarios, by the name that a .test file gives the test node with --scenario</span>
 <span class="n">SCENARIOS</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">SteppedClockTestCase</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">'invalid_imu_samples'</span><span class="p">:</span> <span class="n">TestEkfWithInvalidImuSamples</span><span class="p">,</span>
     <span class="s1">'robot_rates'</span><span class="p">:</span> <span class="n">TestEkfAtTheRobotRates</span><span class="p">,</span>
@@ -5423,7 +5423,7 @@
 <p>The test publishes on the two topics that the nodes read on the robot. The wheel odometry goes to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on the topic <code>/diffbot/mobile_base_controller/odom</code>. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples go to the validator on the topic <code>/diffbot/imu/data_raw</code>. The test subscribes to the validator's output, the topic <code>/diffbot/imu/data_validated</code>, to the filter's output, the topic <code>/diffbot/odometry/filtered</code>, and to the topic <code>/diagnostics</code>.</p>
 <details class="example">
 <summary>The constants of <code>test_ekf_synthetic.py</code>, lines 49–132</summary>
-<p>The excerpt shows the timing, topic and test constants of the file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L49-L132"><code>test_ekf_synthetic.py</code>, lines 49–132</a>. <code>START</code> and <code>RESTART</code> are readings of the ROS clock, which the test sets. <code>STEP</code>, <code>ROBOT_WHEEL_ODOMETRY_PERIOD</code> and <code>DIAGNOSTICS_WAIT</code> are durations of ROS time. <code>WAIT</code>, <code>DELIVERY</code>, <code>POLL_INTERVAL</code>, <code>NO_OUTPUT_WAIT</code>, <code>TF_DELIVERY</code> and <code>RESET_DELIVERY</code> are seconds of wall time. <code>STEPS_PER_WHEEL_MESSAGE</code> is the number of steps from one wheel message to the next in the scenario <a href="#the-robots-rates-robot_rates"><code>robot_rates</code></a>, 100 ms divided by 20 ms. <code>SPEED_CHANGE_STEP</code>, <code>CHANGED_SPEED</code> and <code>SPEED_CHANGE_WINDOW</code> belong to <a href="#phase-1-of-robot_rates-the-estimate-follows-the-imu-and-the-wheels-speed">phase 1 of <code>robot_rates</code></a>.</p>
+<p>The excerpt shows the timing, topic and test constants of the file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L49-L132"><code>test_ekf_synthetic.py</code>, lines 49–132</a>. <code>START</code> and <code>RESTART</code> are readings of the ROS clock, which the test sets. <code>STEP</code>, <code>ROBOT_WHEEL_ODOMETRY_PERIOD</code> and <code>DIAGNOSTICS_WAIT</code> are durations of ROS time. <code>WAIT</code>, <code>DELIVERY</code>, <code>POLL_INTERVAL</code>, <code>NO_OUTPUT_WAIT</code>, <code>TF_DELIVERY</code> and <code>RESET_DELIVERY</code> are seconds of wall time. <code>STEPS_PER_WHEEL_MESSAGE</code> is the number of steps from one wheel message to the next in the scenario <a href="#the-robots-rates-robot_rates"><code>robot_rates</code></a>, 100 ms divided by 20 ms. <code>SPEED_CHANGE_STEP</code>, <code>CHANGED_SPEED</code> and <code>SPEED_CHANGE_WINDOW</code> belong to <a href="#phase-1-of-robot_rates-the-estimate-follows-the-imu-and-the-wheels-speed">phase 1 of <code>robot_rates</code></a>.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 49</span>
 <span class="normal"> 50</span>
 <span class="normal"> 51</span>
@@ -5593,7 +5593,7 @@
 <span class="n">FROM_THE_FUTURE</span> <span class="o">=</span> <span class="s1">'from the future'</span>
 </code></pre></div></td></tr></tbody></table></div>
 </details>
-<p>What the wheels report in a wheel message is one value of the type <code>WheelInput</code>. The excerpt shows the type and its two values, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L149-L158"><code>test_ekf_synthetic.py</code>, lines 149–158</a>:</p>
+<p>What the wheels report in a wheel message is one value of the type <code>WheelInput</code>. The excerpt shows the type and its two values, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L149-L158"><code>test_ekf_synthetic.py</code>, lines 149–158</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: WheelInput, WHEEL_INPUT and CHANGED_SPEED_WHEEL_INPUT</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">149</span>
 <span class="normal">150</span>
 <span class="normal">151</span>
@@ -5620,7 +5620,7 @@
 <li><strong><code>WHEEL_INPUT</code>:</strong> <code>SPEED</code>, 0.1 m/s, and <code>WHEEL_RATE</code>, 0.4 rad/s. Every wheel message of the test reports these two values, apart from the second part of phase 1 of <code>robot_rates</code>.</li>
 <li><strong><code>CHANGED_SPEED_WHEEL_INPUT</code>:</strong> <code>CHANGED_SPEED</code>, 0.12 m/s, and <code>WHEEL_RATE</code>. Phase 1 of <code>robot_rates</code> sends this value from its 21st wheel message on.</li>
 </ul>
-<p>Two functions build the messages. The excerpt shows both, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L209-L238"><code>test_ekf_synthetic.py</code>, lines 209–238</a>:</p>
+<p>Two functions build the messages. The excerpt shows both, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L209-L238"><code>test_ekf_synthetic.py</code>, lines 209–238</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: wheel_odometry() and imu_sample()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">209</span>
 <span class="normal">210</span>
 <span class="normal">211</span>
@@ -5686,7 +5686,7 @@
 <li><strong><code>imu_sample()</code>:</strong> a <code>sensor_msgs/Imu</code> message as the firmware publishes it, in the frame <code>imu_link</code>. The orientation is marked unavailable, the yaw rate <span class="arithmatex">\(\omega_z\)</span> is the function's argument, and the upward acceleration <span class="arithmatex">\(f_z\)</span> is <code>GRAVITY</code>. The variance of the angular velocity is <code>IMU_ANGULAR_VELOCITY_VARIANCE</code>, 4 · 10⁻⁴ (rad/s)², the firmware's number, written out in the test too.</li>
 <li><strong>No noise:</strong> the test sets every value of both messages itself, the same in every step of a phase apart from the speed change of <code>robot_rates</code>, and without noise. So what the test sees in the estimate comes from the filter and the validator, not from chance.</li>
 </ul>
-<p>A step can publish several <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples. The class <code>ImuInput</code> describes one of them. The excerpt shows the class and the sample that most steps use, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L137-L146"><code>test_ekf_synthetic.py</code>, lines 137–146</a>:</p>
+<p>A step can publish several <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples. The class <code>ImuInput</code> describes one of them. The excerpt shows the class and the sample that most steps use, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L137-L146"><code>test_ekf_synthetic.py</code>, lines 137–146</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: ImuInput and VALID_SAMPLE</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
@@ -5717,7 +5717,7 @@
 <p>The class <code>SteppedClockTestCase</code> holds what both scenarios share: the topics, the steps of the clock and the comparisons. Each scenario is a subclass with one test method. unittest calls <code>setUp()</code> before the test method. In short, <code>setUp()</code> sets the test's ROS time to 100 s, creates the topics' publishers and subscribers, publishes the first clock message, and waits until the validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> are connected and TF has the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s transform. The collapsed box shows the code:</p>
 <details class="example">
 <summary><code>setUp()</code>, <code>on_validated()</code> and <code>all_connected()</code>: lines 266–305</summary>
-<p>The excerpt shows <code>setUp()</code> and its two helpers <code>on_validated()</code> and <code>all_connected()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L266-L305"><code>test_ekf_synthetic.py</code>, lines 266–305</a>:</p>
+<p>The excerpt shows <code>setUp()</code> and its two helpers <code>on_validated()</code> and <code>all_connected()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L266-L305"><code>test_ekf_synthetic.py</code>, lines 266–305</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: setUp(), on_validated() and all_connected()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">266</span>
 <span class="normal">267</span>
 <span class="normal">268</span>
@@ -5808,7 +5808,7 @@
 <p>The three logs are objects of the class <code>ArrivalLog</code>. rospy calls a subscriber's callback in a thread of its own, while the test's thread reads what arrived. A lock guards every access, so the test's thread never reads a log while a callback changes it. The collapsed box shows the class:</p>
 <details class="example">
 <summary><code>ArrivalLog</code>: lines 164–194</summary>
-<p>The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L164-L194"><code>test_ekf_synthetic.py</code>, lines 164–194</a>:</p>
+<p>The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L164-L194"><code>test_ekf_synthetic.py</code>, lines 164–194</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: ArrivalLog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
 <span class="normal">165</span>
 <span class="normal">166</span>
@@ -5878,7 +5878,7 @@
 <li><strong><code>contains_all()</code>:</strong> returns whether each of the given items has arrived.</li>
 </ul>
 </details>
-<p>The clock stands still during <code>setUp()</code>. A wait on the ROS time would never end, so the test waits on the wall clock with <code>wait_for()</code>. The excerpt shows <code>wait_for()</code> and the function <code>wait_until()</code> that it calls, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L241-L254"><code>test_ekf_synthetic.py</code>, lines 241–254</a>:</p>
+<p>The clock stands still during <code>setUp()</code>. A wait on the ROS time would never end, so the test waits on the wall clock with <code>wait_for()</code>. The excerpt shows <code>wait_for()</code> and the function <code>wait_until()</code> that it calls, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L241-L254"><code>test_ekf_synthetic.py</code>, lines 241–254</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: wait_until() and wait_for()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">241</span>
 <span class="normal">242</span>
 <span class="normal">243</span>
@@ -5912,7 +5912,7 @@
 <li><strong><code>wait_for()</code>:</strong> fails the test with the text <code>failure</code> when <code>wait_until()</code> returns <code>False</code>.</li>
 </ul>
 <h2 id="the-code-of-one-step">The code of one step</h2>
-<p>Every phase is a number of steps, as <a href="#one-step-of-the-clock">One step of the clock</a> describes them. 20 ms is the period of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> at 50 Hz. The excerpt shows <code>advance()</code>, <code>outputs_since()</code> and <code>step()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L343-L384"><code>test_ekf_synthetic.py</code>, lines 343–384</a>. The docstring of <code>step()</code> lists the five things that one step does, and <code>advance()</code> does the first four:</p>
+<p>Every phase is a number of steps, as <a href="#one-step-of-the-clock">One step of the clock</a> describes them. 20 ms is the period of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> at 50 Hz. The excerpt shows <code>advance()</code>, <code>outputs_since()</code> and <code>step()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L343-L384"><code>test_ekf_synthetic.py</code>, lines 343–384</a>. The docstring of <code>step()</code> lists the five things that one step does, and <code>advance()</code> does the first four:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: advance(), outputs_since() and step()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">343</span>
 <span class="normal">344</span>
 <span class="normal">345</span>
@@ -6005,7 +6005,7 @@
 <li><strong>Advance the clock:</strong> <code>advance_clock()</code> adds <code>STEP</code> to <code>self.now</code> and publishes the new clock. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s update runs 50 times per second of ROS time, so the new clock lets the filter process the step's inputs.</li>
 <li><strong>Wait for the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>:</strong> <code>step()</code> waits until the filter published an output that belongs to the step, at most <code>WAIT</code>, 5 s of wall time. <code>step()</code> returns the last such output.</li>
 </ol>
-<p><code>advance()</code> returns a <code>StepStart</code>, which says where the step started. The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L197-L201"><code>test_ekf_synthetic.py</code>, lines 197–201</a>:</p>
+<p><code>advance()</code> returns a <code>StepStart</code>, which says where the step started. The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L197-L201"><code>test_ekf_synthetic.py</code>, lines 197–201</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: StepStart</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
 <span class="normal">198</span>
 <span class="normal">199</span>
@@ -6021,7 +6021,7 @@
 <li><strong><code>output_count_before</code>:</strong> the number of <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> outputs that the test had before the step, from <code>self.ekf_outputs.count()</code>.</li>
 <li><strong><code>outputs_since()</code>:</strong> takes the <code>StepStart</code> and returns the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s outputs that arrived after the first <code>output_count_before</code> and are stamped from the step's time up to the ROS time that the test has published, <code>self.now</code>. So an output of an earlier step doesn't count for this step, with its earlier stamp. Neither does an output from before the clock went back that arrives late: its stamp lies after the new clock.</li>
 </ul>
-<p><code>advance()</code> calls three helpers, and <code>publish_inputs()</code> calls a fourth, <code>count_expected_outcome()</code>. The excerpt shows the four helpers, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L307-L341"><code>test_ekf_synthetic.py</code>, lines 307–341</a>:</p>
+<p><code>advance()</code> calls three helpers, and <code>publish_inputs()</code> calls a fourth, <code>count_expected_outcome()</code>. The excerpt shows the four helpers, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L307-L341"><code>test_ekf_synthetic.py</code>, lines 307–341</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: publish_inputs(), count_expected_outcome(), wait_for_forwarded() and advance_clock()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">307</span>
 <span class="normal">308</span>
 <span class="normal">309</span>
@@ -6098,7 +6098,7 @@
 <li><strong><code>wait_for_forwarded()</code>:</strong> waits with <a href="#before-the-first-step"><code>wait_for()</code></a> until <code>self.forwarded_stamp_keys</code> contains every stamp of <code>stamp_keys</code>. <code>on_validated()</code> appends to this log the stamp of each sample that arrives on the topic <code>/diffbot/imu/data_validated</code>.</li>
 <li><strong><code>advance_clock()</code>:</strong> adds <code>STEP</code> to <code>self.now</code> and publishes the new time on the topic <code>/clock</code>.</li>
 </ul>
-<p>Two more methods run steps. The excerpt shows <code>step_allowing_no_output()</code> and <code>run_steps()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L386-L397"><code>test_ekf_synthetic.py</code>, lines 386–397</a>:</p>
+<p>Two more methods run steps. The excerpt shows <code>step_allowing_no_output()</code> and <code>run_steps()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L386-L397"><code>test_ekf_synthetic.py</code>, lines 386–397</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: step_allowing_no_output() and run_steps()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">386</span>
 <span class="normal">387</span>
 <span class="normal">388</span>
@@ -6128,7 +6128,7 @@
 <li><strong><code>run_steps()</code>:</strong> runs <code>count</code> steps with the same inputs and returns one output for each step.</li>
 </ul>
 <p>The steps use <code>wait_for()</code> for the messages that they need, and <code>wait_for()</code> fails the test if a message is still missing after <code>WAIT</code>, 5 s of wall time. The wait after the measured periods of phase 2 returns what is missing instead, as <a href="#phase-2-of-robot_rates-the-imu-stops">phase 2</a> explains. The waits reduce how much the result depends on the computer's speed. They don't prove that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> received each input before the clock moved. The checks allow for a late input. In a phase that waits for an output in every step, the filter fuses an input that arrives late one step later, and the checks look at the last output of a phase and at the highest of the outputs that the test keeps in a phase. <a href="#phase-2-of-robot_rates-the-imu-stops">Phase 2 of <code>robot_rates</code></a> moves the clock on in every step of its measured wheel periods without waiting for an output, and its check of the outputs allows a late wheel message within its wheel period.</p>
-<p>Three helpers hold the checks of the fusion, which both scenarios use in their phase 1. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L412-L432"><code>test_ekf_synthetic.py</code>, lines 412–432</a>:</p>
+<p>Three helpers hold the checks of the fusion, which both scenarios use in their phase 1. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L412-L432"><code>test_ekf_synthetic.py</code>, lines 412–432</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: assert_forward_speed(), assert_fused_estimate() and print_fusion()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">412</span>
 <span class="normal">413</span>
 <span class="normal">414</span>
@@ -6177,7 +6177,7 @@
 <li><strong><code>print_fusion()</code>:</strong> prints the inputs' yaw rates and the output's estimate, a line that the test's result file keeps.</li>
 </ul>
 <h2 id="the-seven-phases-of-invalid_imu_samples">The seven phases of <code>invalid_imu_samples</code></h2>
-<p>The scenario <code>invalid_imu_samples</code> is the class <code>TestEkfWithInvalidImuSamples</code>, one test on one filter. The excerpt shows the test method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L453-L460"><code>test_ekf_synthetic.py</code>, lines 453–460</a>. Each <code>check_...()</code> method is one phase, and each phase needs the state that the phases before it left. The method stops at the first phase that fails:</p>
+<p>The scenario <code>invalid_imu_samples</code> is the class <code>TestEkfWithInvalidImuSamples</code>, one test on one filter. The excerpt shows the test method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L453-L460"><code>test_ekf_synthetic.py</code>, lines 453–460</a>. Each <code>check_...()</code> method is one phase, and each phase needs the state that the phases before it left. The method stops at the first phase that fails:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the test method of invalid_imu_samples</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">453</span>
 <span class="normal">454</span>
 <span class="normal">455</span>
@@ -6340,10 +6340,10 @@
 <g><title>Phase 4: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M176.6,106.0 V120.0 M173.1,106.0 h7 M173.1,120.0 h7"></path></g>
 <g><title>Phase 5: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M201.5,106.0 V120.0 M198.0,106.0 h7 M198.0,120.0 h7"></path></g>
 <g><title>Phase 6: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M252.2,106.0 V120.0 M248.7,106.0 h7 M248.7,120.0 h7"></path></g>
-<g><title>0.4966 rad/s, the first output of phase 2 in the run at the commit 2fa558d</title><path class="estimate-first" d="M112.1,111.9 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"></path></g>
-<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="102.1" cy="113.9" r="4"></circle></g>
-<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="126.9" cy="182.6" r="4"></circle></g>
-<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="252.2" cy="113.9" r="4"></circle></g>
+<g><title>0.4966 rad/s, the first output of phase 2 in the run at the commit 666652a</title><path class="estimate-first" d="M112.1,111.9 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"></path></g>
+<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 666652a</title><circle class="estimate-dot" cx="102.1" cy="113.9" r="4"></circle></g>
+<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 666652a</title><circle class="estimate-dot" cx="126.9" cy="182.6" r="4"></circle></g>
+<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 666652a</title><circle class="estimate-dot" cx="252.2" cy="113.9" r="4"></circle></g>
 <text class="strong" x="94.1" y="131.0" text-anchor="end">estimate</text>
 <text class="strong" x="94.1" y="144.0" text-anchor="end">0.4987</text>
 <text class="strong halo" x="134.9" y="199.0" text-anchor="start">0.4005</text>
@@ -6418,10 +6418,10 @@
 <g><title>Phase 4: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M320.0,106.0 V120.0 M316.4,106.0 h7 M316.4,120.0 h7"></path></g>
 <g><title>Phase 5: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M364.7,106.0 V120.0 M361.3,106.0 h7 M361.3,120.0 h7"></path></g>
 <g><title>Phase 6: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M455.9,106.0 V120.0 M452.5,106.0 h7 M452.5,120.0 h7"></path></g>
-<g><title>0.4966 rad/s, the first output of phase 2 in the run at the commit 2fa558d</title><path class="estimate-first" d="M195.7,111.9 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"></path></g>
-<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="185.8" cy="113.9" r="4"></circle></g>
-<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="230.4" cy="182.6" r="4"></circle></g>
-<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="455.9" cy="113.9" r="4"></circle></g>
+<g><title>0.4966 rad/s, the first output of phase 2 in the run at the commit 666652a</title><path class="estimate-first" d="M195.7,111.9 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"></path></g>
+<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 666652a</title><circle class="estimate-dot" cx="185.8" cy="113.9" r="4"></circle></g>
+<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 666652a</title><circle class="estimate-dot" cx="230.4" cy="182.6" r="4"></circle></g>
+<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 666652a</title><circle class="estimate-dot" cx="455.9" cy="113.9" r="4"></circle></g>
 <text class="strong" x="177.7" y="131.0" text-anchor="end">estimate</text>
 <text class="strong" x="177.7" y="144.0" text-anchor="end">0.4987</text>
 <text class="strong halo" x="238.5" y="199.0" text-anchor="start">0.4005</text>
@@ -6439,7 +6439,7 @@
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"></path></svg>the range for the last output of a phase: 0.5 ± 0.01 rad/s, and 0.4 ± 0.02 rad/s in phase 2</li>
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="limit" d="M1,6 H23"></path></svg>the limit in phases 2 to 5: no output that the test keeps, one per step, may be above 0.51 rad/s</li>
 </ul>
-<p class="lv-band">What the test printed in a run at the diffbot commit 2fa558d</p>
+<p class="lv-band">What the test printed in a run at the diffbot commit 666652a</p>
 <ul class="lv-legend lv-keys">
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="4"></circle></svg>the filter's estimate in the last output of phase 1, 0.4987 rad/s, of phase 2, 0.4005 rad/s, and of phase 6, 0.4987 rad/s</li>
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-first" d="M12.0,2.5 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"></path></svg>the filter's estimate in the first output of phase 2, 0.4966 rad/s, drawn a little right of the start of phase 2, so that it doesn't hide the dot of phase 1. The run printed only the first and the last estimate of phase 2, so the chart has no line between them</li>
@@ -6495,7 +6495,7 @@
 </tr>
 </tbody>
 </table>
-<p>Two helpers hold the comparisons. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L399-L410"><code>test_ekf_synthetic.py</code>, lines 399–410</a>. <code>assert_yaw_rate()</code> checks one output against <code>expected</code> ± <code>delta</code>. <code>assert_stays_at_most()</code> checks that none of a phase's kept outputs is above <code>limit</code>. The test keeps one output per step, the last one that <a href="#the-code-of-one-step"><code>step()</code></a> finds when its wait ends:</p>
+<p>Two helpers hold the comparisons. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L399-L410"><code>test_ekf_synthetic.py</code>, lines 399–410</a>. <code>assert_yaw_rate()</code> checks one output against <code>expected</code> ± <code>delta</code>. <code>assert_stays_at_most()</code> checks that none of a phase's kept outputs is above <code>limit</code>. The test keeps one output per step, the last one that <a href="#the-code-of-one-step"><code>step()</code></a> finds when its wait ends:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the two comparisons</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">399</span>
 <span class="normal">400</span>
 <span class="normal">401</span>
@@ -6521,7 +6521,7 @@
                          <span class="s1">'</span><span class="si">{}</span><span class="s1">: the estimate went up to </span><span class="si">{:.4f}</span><span class="s1"> rad/s'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">what</span><span class="p">,</span> <span class="n">highest</span><span class="p">))</span>
 </code></pre></div></td></tr></tbody></table></div>
 <h3 id="phase-1-the-estimate-follows-the-imu">Phase 1: the estimate follows the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr></h3>
-<p>The wheels report 0.4 rad/s and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> 0.5 rad/s, for 150 steps, 3 s of ROS time. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L462-L466"><code>test_ekf_synthetic.py</code>, lines 462–466</a>:</p>
+<p>The wheels report 0.4 rad/s and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> 0.5 rad/s, for 150 steps, 3 s of ROS time. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L462-L466"><code>test_ekf_synthetic.py</code>, lines 462–466</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 1</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">462</span>
 <span class="normal">463</span>
 <span class="normal">464</span>
@@ -6539,7 +6539,7 @@
 <li><strong>The yaw rate <span class="arithmatex">\(\omega_z\)</span>:</strong> <code>IMU_RATE</code>, 0.5 rad/s, within <code>YAW_RATE_TOLERANCE</code>, 0.01 rad/s. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance is 75 times smaller than the wheels', so the estimate lies close to the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate. The wheels' 0.4 rad/s is ten tolerances away, so the check shows that the filter fuses the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples.</li>
 </ul>
 <h3 id="phase-2-only-samples-that-are-too-old">Phase 2: only samples that are too old</h3>
-<p>Each step sends one <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample that is stamped <code>STALE_OFFSET</code>, 0.5 s, before the step's time and reports <code>BAD_RATE</code>, 2.0 rad/s. 0.5 s is five times the validator's <code>max_age</code>, so the validator has to drop every one of these samples. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L468-L477"><code>test_ekf_synthetic.py</code>, lines 468–477</a>:</p>
+<p>Each step sends one <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample that is stamped <code>STALE_OFFSET</code>, 0.5 s, before the step's time and reports <code>BAD_RATE</code>, 2.0 rad/s. 0.5 s is five times the validator's <code>max_age</code>, so the validator has to drop every one of these samples. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L468-L477"><code>test_ekf_synthetic.py</code>, lines 468–477</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 2</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">468</span>
 <span class="normal">469</span>
 <span class="normal">470</span>
@@ -6565,7 +6565,7 @@
 <li><strong>The last output:</strong> <code>WHEEL_RATE</code>, 0.4 rad/s, within <code>WHEEL_RATE_TOLERANCE</code>, 0.02 rad/s. Without valid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples, the wheel odometry is the filter's only source for the yaw rate, as when the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops. The 50 steps, 1 s of ROS time, give the estimate the time to get there.</li>
 </ul>
 <h3 id="phases-3-to-5-a-valid-sample-and-one-to-drop">Phases 3 to 5: a valid sample and one to drop</h3>
-<p>In these phases, each step sends <a href="#the-inputs"><code>VALID_SAMPLE</code></a> first and then a second sample that reports 2.0 rad/s. The excerpt shows the three phases, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L479-L503"><code>test_ekf_synthetic.py</code>, lines 479–503</a>:</p>
+<p>In these phases, each step sends <a href="#the-inputs"><code>VALID_SAMPLE</code></a> first and then a second sample that reports 2.0 rad/s. The excerpt shows the three phases, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L479-L504"><code>test_ekf_synthetic.py</code>, lines 479–504</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phases 3 to 5</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">479</span>
 <span class="normal">480</span>
 <span class="normal">481</span>
@@ -6590,10 +6590,12 @@
 <span class="normal">500</span>
 <span class="normal">501</span>
 <span class="normal">502</span>
-<span class="normal">503</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_validator_drops_samples_with_a_repeated_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">503</span>
+<span class="normal">504</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_validator_drops_samples_with_a_repeated_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Check that the estimate stays at the valid samples' rate despite repeated stamps."""</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_steps</span><span class="p">(</span><span class="n">PHASE_STEPS</span><span class="p">,</span> <span class="n">WHEEL_INPUT</span><span class="p">,</span>
-                             <span class="p">[</span><span class="n">VALID_SAMPLE</span><span class="p">,</span> <span class="n">ImuInput</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">BAD_RATE</span><span class="p">,</span> <span class="n">NOT_NEWER</span><span class="p">)])</span>
+                             <span class="p">[</span><span class="n">VALID_SAMPLE</span><span class="p">,</span>
+                              <span class="n">ImuInput</span><span class="p">(</span><span class="n">VALID_SAMPLE</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="n">BAD_RATE</span><span class="p">,</span> <span class="n">NOT_NEWER</span><span class="p">)])</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_stays_at_most</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">IMU_RATE</span> <span class="o">+</span> <span class="n">YAW_RATE_TOLERANCE</span><span class="p">,</span>
                               <span class="s1">'phase 3: samples with a repeated stamp'</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_yaw_rate</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">IMU_RATE</span><span class="p">,</span> <span class="n">YAW_RATE_TOLERANCE</span><span class="p">,</span>
@@ -6617,15 +6619,14 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_yaw_rate</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">IMU_RATE</span><span class="p">,</span> <span class="n">YAW_RATE_TOLERANCE</span><span class="p">,</span> <span class="s1">'phase 5: valid samples'</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong>Phase 3, a repeated stamp:</strong> the second sample has the stamp of the valid one, offset 0. The validator has to drop it as not newer than the last valid sample, check 5 of the <a href="../../#the-five-checks">five checks</a>.</li>
+<li><strong>Phase 3, a repeated stamp:</strong> the second sample has the stamp of the valid one: its offset is the valid sample's, <code>VALID_SAMPLE.offset</code>, 0 s. The validator has to drop it as not newer than the last valid sample, check 5 of the <a href="../../#the-five-checks">five checks</a>.</li>
 <li><strong>Phase 4, from the future:</strong> the second sample is stamped <code>FUTURE_OFFSET</code>, 0.5 s, after the step's time, 25 times the validator's <code>max_future</code>. Check 4 has to drop it.</li>
 <li><strong>Phase 5, out of order:</strong> the second sample is stamped <code>OLDER_OFFSET</code>, 0.01 s, before the step's time. This stamp is well within <code>max_age</code>, so check 4 passes. Check 5 has to drop the sample, because its stamp is older than the valid sample's of the same step.</li>
 </ul>
 <p>The assertions are the same in the three phases. No kept output is above 0.51 rad/s, and the last output is 0.5 rad/s within 0.01 rad/s. So the valid samples keep reaching the filter. The validator's counts in <a href="#phase-7-the-validators-counts">phase 7</a> show that the validator dropped the 150 samples that report 2.0 rad/s.</p>
 <h3 id="phase-6-the-clock-goes-back">Phase 6: the clock goes back</h3>
-<p>The test sets the clock back from 107 s to <code>RESTART</code>, 50 s, as a call of the service <code>/gazebo/reset_simulation</code> does in the simulation. The validator starts its order check over, as <a href="../validator/#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back">a clock that goes back</a> on the validator's tests page explains, and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> starts over from the new time, because <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/ekf.yaml"><code>ekf.yaml</code></a> sets <code>reset_on_time_jump</code>. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L505-L528"><code>test_ekf_synthetic.py</code>, lines 505–528</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 6</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">505</span>
-<span class="normal">506</span>
+<p>The test sets the clock back from 107 s to <code>RESTART</code>, 50 s, as a call of the service <code>/gazebo/reset_simulation</code> does in the simulation. The validator starts its order check over, as <a href="../validator/#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back">a clock that goes back</a> on the validator's tests page explains, and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> starts over from the new time, because <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/ekf.yaml"><code>ekf.yaml</code></a> sets <code>reset_on_time_jump</code>. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L506-L529"><code>test_ekf_synthetic.py</code>, lines 506–529</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 6</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">506</span>
 <span class="normal">507</span>
 <span class="normal">508</span>
 <span class="normal">509</span>
@@ -6647,7 +6648,8 @@
 <span class="normal">525</span>
 <span class="normal">526</span>
 <span class="normal">527</span>
-<span class="normal">528</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_estimate_follows_the_imu_again_after_the_clock_goes_back</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">528</span>
+<span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_estimate_follows_the_imu_again_after_the_clock_goes_back</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Check that the estimate follows the IMU again after the clock goes back to RESTART."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">now</span> <span class="o">=</span> <span class="n">RESTART</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">clock_publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Clock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">now</span><span class="p">))</span>
@@ -6680,9 +6682,8 @@
 <li>The last output has to be 0.5 rad/s within 0.01 rad/s, as in <a href="#phase-1-the-estimate-follows-the-imu">phase 1</a>.</li>
 </ol>
 <h3 id="phase-7-the-validators-counts">Phase 7: the validator's counts</h3>
-<p>The validator counts every sample that it forwards and every sample that it drops, by reason, and reports the counts on the topic <code>/diagnostics</code> once per second of ROS time, as <a href="../../#the-validators-diagnostics">the validator's diagnostics</a> on the Localization page show. The test kept its own counts with <a href="#the-code-of-one-step"><code>count_expected_outcome()</code></a>. Phase 7 compares the two. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L530-L570"><code>test_ekf_synthetic.py</code>, lines 530–570</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 7</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">530</span>
-<span class="normal">531</span>
+<p>The validator counts every sample that it forwards and every sample that it drops, by reason, and reports the counts on the topic <code>/diagnostics</code> once per second of ROS time, as <a href="../../#the-validators-diagnostics">the validator's diagnostics</a> on the Localization page show. The test kept its own counts with <a href="#the-code-of-one-step"><code>count_expected_outcome()</code></a>. Phase 7 compares the two. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L531-L571"><code>test_ekf_synthetic.py</code>, lines 531–571</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 7</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">531</span>
 <span class="normal">532</span>
 <span class="normal">533</span>
 <span class="normal">534</span>
@@ -6721,7 +6722,8 @@
 <span class="normal">567</span>
 <span class="normal">568</span>
 <span class="normal">569</span>
-<span class="normal">570</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_validator_diagnostics_count_each_forwarded_and_dropped_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">570</span>
+<span class="normal">571</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_validator_diagnostics_count_each_forwarded_and_dropped_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Check that the validator's diagnostics count each sample that phases 1 to 6 sent."""</span>
     <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_validator_diagnostics</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">'validator diagnostics: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
@@ -6770,9 +6772,8 @@
 </ul>
 <h2 id="the-robots-rates-robot_rates">The robot's rates: <code>robot_rates</code></h2>
 <p>On the robot, the inputs arrive at different rates. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is configured to publish at 50 Hz. The wheel odometry arrives at most 10 times per second, because the control loop of the node <code>diffbot_base</code> runs the drive controller at a nominal 10 Hz, as the box under <a href="../../#the-other-settings"><code>frequency</code></a> on the Localization page explains. The scenario <code>robot_rates</code> feeds the filter at these rates: an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample in every step, every 20 ms of ROS time, and a wheel message in every fifth step, every 100 ms. Then the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops, and the wheel messages go on.</p>
-<p>The scenario is the class <code>TestEkfAtTheRobotRates</code>. The excerpt shows the class with its docstring, its <code>setUp()</code> and the test method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L573-L603"><code>test_ekf_synthetic.py</code>, lines 573–603</a>. <a href="#phase-2-of-robot_rates-the-imu-stops">Phase 2</a> needs a filter that fused the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples before, so the two phases are one test:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the class, setUp() and the test method of robot_rates</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">573</span>
-<span class="normal">574</span>
+<p>The scenario is the class <code>TestEkfAtTheRobotRates</code>. The excerpt shows the class with its docstring, its <code>setUp()</code> and the test method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L574-L604"><code>test_ekf_synthetic.py</code>, lines 574–604</a>. <a href="#phase-2-of-robot_rates-the-imu-stops">Phase 2</a> needs a filter that fused the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples before, so the two phases are one test:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the class, setUp() and the test method of robot_rates</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">574</span>
 <span class="normal">575</span>
 <span class="normal">576</span>
 <span class="normal">577</span>
@@ -6801,7 +6802,8 @@
 <span class="normal">600</span>
 <span class="normal">601</span>
 <span class="normal">602</span>
-<span class="normal">603</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestEkfAtTheRobotRates</span><span class="p">(</span><span class="n">SteppedClockTestCase</span><span class="p">):</span>
+<span class="normal">603</span>
+<span class="normal">604</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestEkfAtTheRobotRates</span><span class="p">(</span><span class="n">SteppedClockTestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""The scenario robot_rates: the IMU at 50 Hz and the wheel odometry at 10 Hz, as on the robot.</span>
 
 <span class="sd">    Its phases run in this order, and the second needs the state that the first left:</span>
@@ -7044,7 +7046,7 @@
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"></path></svg>the range for the last output of a phase: 0.5 ± 0.01 rad/s in phase 1, 0.4 ± 0.02 rad/s in phase 2</li>
 <li><span class="lv-sign">=</span>in phase 2: the header stamp of one output in each wheel period, the 100 ms from one wheel message to the next</li>
 </ul>
-<p class="lv-band">What the filter published in a recorded run at the diffbot commit 2fa558d</p>
+<p class="lv-band">What the filter published in a recorded run at the diffbot commit 666652a</p>
 <ul class="lv-legend lv-keys">
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-trace" d="M1,6 H23"></path></svg>phase 1: the filter's estimate in each of its 150 outputs, one per step. It stays between 0.4987 and 0.5000 rad/s, and the last output has 0.5000 rad/s</li>
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="2.6"></circle></svg>phase 2: the filter's 20 outputs in the measured periods, each stamped with a wheel message's time. The estimate goes from 0.4979 to 0.4016 rad/s</li>
@@ -7076,9 +7078,8 @@
 </tbody>
 </table>
 <h3 id="phase-1-of-robot_rates-the-estimate-follows-the-imu-and-the-wheels-speed">Phase 1 of <code>robot_rates</code>: the estimate follows the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the wheels' speed</h3>
-<p>The phase runs 150 steps, 3 s of ROS time, with a valid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample in each step and a wheel message in every fifth step. With the wheel message of step 100, 2 s into the phase, the wheels' forward speed changes from <code>SPEED</code>, 0.1 m/s, to <code>CHANGED_SPEED</code>, 0.12 m/s. Only the wheel odometry carries a forward speed. So the estimate's forward speed <span class="arithmatex">\(v_x\)</span> reaches 0.12 m/s only if the filter fuses the wheel messages after the change. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L605-L623"><code>test_ekf_synthetic.py</code>, lines 605–623</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 1 of robot_rates</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">605</span>
-<span class="normal">606</span>
+<p>The phase runs 150 steps, 3 s of ROS time, with a valid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample in each step and a wheel message in every fifth step. With the wheel message of step 100, 2 s into the phase, the wheels' forward speed changes from <code>SPEED</code>, 0.1 m/s, to <code>CHANGED_SPEED</code>, 0.12 m/s. Only the wheel odometry carries a forward speed. So the estimate's forward speed <span class="arithmatex">\(v_x\)</span> reaches 0.12 m/s only if the filter fuses the wheel messages after the change. The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L606-L624"><code>test_ekf_synthetic.py</code>, lines 606–624</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 1 of robot_rates</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">606</span>
 <span class="normal">607</span>
 <span class="normal">608</span>
 <span class="normal">609</span>
@@ -7095,7 +7096,8 @@
 <span class="normal">620</span>
 <span class="normal">621</span>
 <span class="normal">622</span>
-<span class="normal">623</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_estimate_follows_the_imu_and_a_wheel_speed_change_at_the_robot_rates</span><span class="p">(</span>
+<span class="normal">623</span>
+<span class="normal">624</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_estimate_follows_the_imu_and_a_wheel_speed_change_at_the_robot_rates</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Check that the estimate follows the IMU's yaw rate and the change of the wheels' speed.</span>
 
@@ -7115,16 +7117,16 @@
                                <span class="n">CHANGED_SPEED</span><span class="p">,</span> <span class="s1">'phase 1, after the speed change'</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_fused_estimate</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">CHANGED_SPEED</span><span class="p">,</span> <span class="s1">'phase 1'</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The phase runs its steps with <code>run_steps_at_the_robot_rates()</code>, which asks <code>wheel_input_at_the_robot_rates()</code> for each step's wheel odometry. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L667-L675"><code>test_ekf_synthetic.py</code>, lines 667–675</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: run_steps_at_the_robot_rates()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">667</span>
-<span class="normal">668</span>
+<p>The phase runs its steps with <code>run_steps_at_the_robot_rates()</code>, which asks <code>wheel_input_at_the_robot_rates()</code> for each step's wheel odometry. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L668-L676"><code>test_ekf_synthetic.py</code>, lines 668–676</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: run_steps_at_the_robot_rates()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">668</span>
 <span class="normal">669</span>
 <span class="normal">670</span>
 <span class="normal">671</span>
 <span class="normal">672</span>
 <span class="normal">673</span>
 <span class="normal">674</span>
-<span class="normal">675</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_steps_at_the_robot_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="normal">675</span>
+<span class="normal">676</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_steps_at_the_robot_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                                  <span class="n">imu_inputs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ImuInput</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Odometry</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Run count steps with the wheel odometry in every fifth and return each step's output.</span>
 
@@ -7134,16 +7136,16 @@
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">wheel_input_at_the_robot_rates</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">imu_inputs</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The next excerpt shows the function that decides each step's wheel odometry, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L776-L784"><code>test_ekf_synthetic.py</code>, lines 776–784</a>. The step with the <code>step_index</code> 0 publishes a wheel message, and so does every step whose <code>step_index</code> is a multiple of <code>STEPS_PER_WHEEL_MESSAGE</code>, 5. The other steps get <code>None</code> and publish no wheel odometry:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: wheel_input_at_the_robot_rates()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">776</span>
-<span class="normal">777</span>
+<p>The next excerpt shows the function that decides each step's wheel odometry, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L777-L785"><code>test_ekf_synthetic.py</code>, lines 777–785</a>. The step with the <code>step_index</code> 0 publishes a wheel message, and so does every step whose <code>step_index</code> is a multiple of <code>STEPS_PER_WHEEL_MESSAGE</code>, 5. The other steps get <code>None</code> and publish no wheel odometry:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: wheel_input_at_the_robot_rates()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">777</span>
 <span class="normal">778</span>
 <span class="normal">779</span>
 <span class="normal">780</span>
 <span class="normal">781</span>
 <span class="normal">782</span>
 <span class="normal">783</span>
-<span class="normal">784</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wheel_input_at_the_robot_rates</span><span class="p">(</span><span class="n">step_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">WheelInput</span><span class="p">]:</span>
+<span class="normal">784</span>
+<span class="normal">785</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wheel_input_at_the_robot_rates</span><span class="p">(</span><span class="n">step_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">WheelInput</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Return the wheel odometry of phase 1's step at step_index in robot_rates, None for none.</span>
 
 <span class="sd">    The first step publishes the wheel odometry, then every STEPS_PER_WHEEL_MESSAGE-th step:</span>
@@ -7160,13 +7162,13 @@
 <li><strong>After the change:</strong> <code>assert_forward_speeds()</code> checks the output that the test keeps for each step, the last one that <code>step()</code> returns, from the step with the <code>index</code> 106 on, <code>SPEED_CHANGE_STEP + SPEED_CHANGE_WINDOW</code>, against <code>CHANGED_SPEED</code>, 0.12 m/s, within 0.002 m/s. <code>SPEED_CHANGE_WINDOW</code>, 6 steps, gives the estimate time for two wheel messages, in the steps 100 and 105, and one more step for a message that arrives late. The constants' comments say why the change is 0.02 m/s: the filter estimates an acceleration from the change, which moves the estimate between two wheel messages, by less than the tolerance for this small change.</li>
 <li><strong>The last output:</strong> <code>assert_fused_estimate()</code> checks the output of the step with the <code>index</code> 149, again the fourth after a wheel message, against <code>CHANGED_SPEED</code> and <code>IMU_RATE</code>.</li>
 </ul>
-<p>The excerpt shows the helper of the check after the change, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L723-L728"><code>test_ekf_synthetic.py</code>, lines 723–728</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: assert_forward_speeds()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">723</span>
-<span class="normal">724</span>
+<p>The excerpt shows the helper of the check after the change, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L724-L729"><code>test_ekf_synthetic.py</code>, lines 724–729</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: assert_forward_speeds()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">724</span>
 <span class="normal">725</span>
 <span class="normal">726</span>
 <span class="normal">727</span>
-<span class="normal">728</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_forward_speeds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Odometry</span><span class="p">],</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="normal">728</span>
+<span class="normal">729</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_forward_speeds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Odometry</span><span class="p">],</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                           <span class="n">what</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Assert that each output's forward speed is the wheels' speed. what names the case."""</span>
     <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
@@ -7464,7 +7466,7 @@
 <li><span class="lv-sign"></span><strong>fused:</strong> in the trace, the filter fused the wheel message and published the result, stamped with the message's time</li>
 <li><span class="lv-sign"></span><strong>predicted:</strong> in the trace, the filter predicted to the time of the wheel message, without a measurement, because the ROS time was 0.1 s or more, its sensor_timeout, past its last measurement. It published the prediction, stamped with that time. It fuses the wheel message in the next update, but publishes no second output with the same stamp. The next output contains the message</li>
 </ul>
-<figcaption>Each drawing spans 3 wheel messages of a phase of robot_rates, about 260 ms, in a recorded run at the diffbot commit 2fa558d, with robot_localization's debug trace, ROS time to the right.</figcaption>
+<figcaption>Each drawing spans 3 wheel messages of a phase of robot_rates, about 260 ms, in a recorded run at the diffbot commit 666652a, with robot_localization's debug trace, ROS time to the right.</figcaption>
 </figure>
 </div>
 
@@ -7500,9 +7502,8 @@
 <li><strong>The test asserts:</strong> the header stamp of one output in each wheel period, at any time within the period. So a wheel message that reaches the filter late can still pass. The test doesn't look at the times at which the outputs are published.</li>
 <li><strong>The recorded run shows:</strong> each of the 20 outputs is stamped exactly with its wheel message's time. 12 of them were published 20 ms after their stamp, by the update that fused the wheel message. 8 were published at their stamp, by a prediction at the sensor timeout. So a fused output is published between two wheel messages, while its header stamp lies at the start of its period.</li>
 </ul>
-<p>The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L625-L665"><code>test_ekf_synthetic.py</code>, lines 625–665</a>. Its docstring says what the filter does between two wheel messages:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 2 of robot_rates</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">625</span>
-<span class="normal">626</span>
+<p>The excerpt shows the phase, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L626-L666"><code>test_ekf_synthetic.py</code>, lines 626–666</a>. Its docstring says what the filter does between two wheel messages:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: phase 2 of robot_rates</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">626</span>
 <span class="normal">627</span>
 <span class="normal">628</span>
 <span class="normal">629</span>
@@ -7541,7 +7542,8 @@
 <span class="normal">662</span>
 <span class="normal">663</span>
 <span class="normal">664</span>
-<span class="normal">665</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_ekf_publishes_at_the_wheel_rate_and_follows_the_wheels_when_the_imu_stops</span><span class="p">(</span>
+<span class="normal">665</span>
+<span class="normal">666</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_ekf_publishes_at_the_wheel_rate_and_follows_the_wheels_when_the_imu_stops</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Check that the EKF follows the wheels, one output per wheel period, once the IMU stops.</span>
 
@@ -7583,9 +7585,8 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_yaw_rate</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">WHEEL_RATE</span><span class="p">,</span> <span class="n">WHEEL_RATE_TOLERANCE</span><span class="p">,</span>
                          <span class="s1">'phase 2: without IMU samples, the estimate follows the wheels'</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The phase runs its steps with <code>run_wheel_periods_without_imu()</code>. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L677-L691"><code>test_ekf_synthetic.py</code>, lines 677–691</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: run_wheel_periods_without_imu()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">677</span>
-<span class="normal">678</span>
+<p>The phase runs its steps with <code>run_wheel_periods_without_imu()</code>. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L678-L692"><code>test_ekf_synthetic.py</code>, lines 678–692</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: run_wheel_periods_without_imu()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">678</span>
 <span class="normal">679</span>
 <span class="normal">680</span>
 <span class="normal">681</span>
@@ -7598,7 +7599,8 @@
 <span class="normal">688</span>
 <span class="normal">689</span>
 <span class="normal">690</span>
-<span class="normal">691</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_wheel_periods_without_imu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">]:</span>
+<span class="normal">691</span>
+<span class="normal">692</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_wheel_periods_without_imu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Run count wheel periods without IMU samples and return the times when they start.</span>
 
 <span class="sd">    A wheel period is STEPS_PER_WHEEL_MESSAGE steps. Its first step publishes a wheel</span>
@@ -7793,9 +7795,8 @@
 <li><strong>Predicted:</strong> the ROS time is 0.1 s or more past the filter's last measurement, so the update predicts to <span class="arithmatex">\(t_\text{w}\)</span> and publishes the prediction, stamped <span class="arithmatex">\(t_\text{w}\)</span>, at the ROS time <span class="arithmatex">\(t_\text{w}\)</span>, with the yaw rate <span class="arithmatex">\(\omega_z\)</span> of the output before. The update 20 ms later fuses the message, but its output has the same stamp and isn't published. The next output, stamped with the next wheel message's time, contains the message.</li>
 </ul>
 <p>Which of the two happens depends on the last digits of the difference between two stamps. The filter computes with times in seconds as double-precision floating-point numbers, and the difference of two stamps 0.1 s apart comes out a little above or a little below 0.1. For example, 103.2 s minus 103.1 s gives 0.1000000000000085, and the filter predicts. 103.3 s minus 103.2 s gives 0.0999999999999943, and the filter waits for the message. In each of three recorded runs, robot_localization's debug trace shows 8 of the 20 outputs of phase 2 as predicted and 12 as fused, at the same wheel messages: those where the difference of two stamps comes out at 0.1 or above. In both cases, the output is stamped with the wheel message's time.</p>
-<p>A wheel message can also reach the filter late, for example on a busy computer. The test doesn't wait for an output in the measured periods, so the clock moves on, and the filter fuses the message in a later update of its period. That late update either publishes the message, stamped with its time, or an earlier update of the period has already predicted and published, stamped with that update's time. Then the late message is older than the filter's time: the filter corrects with it but publishes no output for it. So each period still gets one output stamp, as long as its wheel message reaches the filter, and the filter's updates run, before the clock reaches the next wheel message's stamp. The steps' sleeps give a message about 0.9 s of wall time for that, five times <code>DELIVERY</code> and four times <code>NO_OUTPUT_WAIT</code>, but they don't prove that the filter's updates ran. The check of the outputs allows any stamp within a wheel period. Two functions put stamps into wheel periods. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L787-L797"><code>test_ekf_synthetic.py</code>, lines 787–797</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: within_wheel_periods() and wheel_period_index()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">787</span>
-<span class="normal">788</span>
+<p>A wheel message can also reach the filter late, for example on a busy computer. The test doesn't wait for an output in the measured periods, so the clock moves on, and the filter fuses the message in a later update of its period. That late update either publishes the message, stamped with its time, or an earlier update of the period has already predicted and published, stamped with that update's time. Then the late message is older than the filter's time: the filter corrects with it but publishes no output for it. So each period still gets one output stamp, as long as its wheel message reaches the filter, and the filter's updates run, before the clock reaches the next wheel message's stamp. The steps' sleeps give a message about 0.9 s of wall time for that, five times <code>DELIVERY</code> and four times <code>NO_OUTPUT_WAIT</code>, but they don't prove that the filter's updates ran. The check of the outputs allows any stamp within a wheel period. Two functions put stamps into wheel periods. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L788-L798"><code>test_ekf_synthetic.py</code>, lines 788–798</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: within_wheel_periods() and wheel_period_index()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">788</span>
 <span class="normal">789</span>
 <span class="normal">790</span>
 <span class="normal">791</span>
@@ -7804,7 +7805,8 @@
 <span class="normal">794</span>
 <span class="normal">795</span>
 <span class="normal">796</span>
-<span class="normal">797</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">within_wheel_periods</span><span class="p">(</span><span class="n">stamp</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">,</span> <span class="n">period_starts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">797</span>
+<span class="normal">798</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">within_wheel_periods</span><span class="p">(</span><span class="n">stamp</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">,</span> <span class="n">period_starts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return whether stamp lies from the first period's start to before the last period's end."""</span>
     <span class="k">return</span> <span class="n">period_starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">stamp</span> <span class="o">&lt;</span> <span class="n">period_starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ROBOT_WHEEL_ODOMETRY_PERIOD</span>
 
@@ -7820,9 +7822,8 @@
 <li><strong><code>within_wheel_periods()</code>:</strong> returns whether a stamp lies from the first period's start to before the end of the last period. The phase takes the outputs and the wheel messages by their stamps with this function, from all that the test has received after one more wheel period, which the next excerpt shows. So the stamps, not the order of arrival, decide the period of each message.</li>
 <li><strong><code>wheel_period_index()</code>:</strong> returns for a stamp the index of its wheel period, the number of periods that started at or before the stamp, minus one. A period starts at a wheel message's stamp and ends at the next one's.</li>
 </ul>
-<p>The phase reads the outputs and the wheel messages only after one more wheel period, which it doesn't measure. <code>run_wheel_periods_without_imu(1)</code> runs this period like the others, from the end of the last measured period at 105.00 s, and returns its start. Then <code>wait_for_messages_from()</code> waits for the messages of this extra period. The excerpt shows this method and the two methods that take the outputs and the wheel messages of the measured periods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L693-L721"><code>test_ekf_synthetic.py</code>, lines 693–721</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the wait after the measured periods, and what the phase reads</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">693</span>
-<span class="normal">694</span>
+<p>The phase reads the outputs and the wheel messages only after one more wheel period, which it doesn't measure. <code>run_wheel_periods_without_imu(1)</code> runs this period like the others, from the end of the last measured period at 105.00 s, and returns its start. Then <code>wait_for_messages_from()</code> waits for the messages of this extra period. The excerpt shows this method and the two methods that take the outputs and the wheel messages of the measured periods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L694-L722"><code>test_ekf_synthetic.py</code>, lines 694–722</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the wait after the measured periods, and what the phase reads</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">694</span>
 <span class="normal">695</span>
 <span class="normal">696</span>
 <span class="normal">697</span>
@@ -7849,7 +7850,8 @@
 <span class="normal">718</span>
 <span class="normal">719</span>
 <span class="normal">720</span>
-<span class="normal">721</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wait_for_messages_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stamp</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="normal">721</span>
+<span class="normal">722</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wait_for_messages_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stamp</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Wait for a wheel message stamped stamp and an output from stamp on, return the missing.</span>
 
 <span class="sd">    The wait lasts at most WAIT s and doesn't fail. Each subscription gets the messages of its</span>
@@ -7883,9 +7885,8 @@
 <li><strong><code>wait_for_messages_from()</code>:</strong> waits with <a href="#before-the-first-step"><code>wait_until()</code></a>, at most <code>WAIT</code>, until the test's subscriber has the extra period's wheel message, stamped at its start, and an output stamped at that start or later. Each subscription receives the messages of its one publisher in their order and runs their callbacks in that order. So when these two messages have arrived, the callbacks of all earlier wheel messages and outputs have run. The extra period moves the clock on by a whole wheel period first, so that the filter publishes an output even when the extra wheel message reaches the filter late. The method doesn't fail. It returns the names of the messages that didn't arrive.</li>
 <li><strong><code>outputs_within_the_periods()</code> and <code>wheel_message_stamps_within_the_periods()</code>:</strong> take the outputs and the wheel messages' stamps that lie within the measured periods, by <code>within_wheel_periods()</code>, from all that the test received, in the order of arrival. The extra period's messages lie after the last measured period, so they don't count.</li>
 </ul>
-<p>The excerpt shows the two assertions of the periods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/test/test_ekf_synthetic.py#L730-L746"><code>test_ekf_synthetic.py</code>, lines 730–746</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the two assertions of the wheel periods</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">730</span>
-<span class="normal">731</span>
+<p>The excerpt shows the two assertions of the periods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_ekf_synthetic.py#L731-L747"><code>test_ekf_synthetic.py</code>, lines 731–747</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_synthetic.py: the two assertions of the wheel periods</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">731</span>
 <span class="normal">732</span>
 <span class="normal">733</span>
 <span class="normal">734</span>
@@ -7900,7 +7901,8 @@
 <span class="normal">743</span>
 <span class="normal">744</span>
 <span class="normal">745</span>
-<span class="normal">746</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_one_wheel_message_per_period</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wheel_message_stamps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">],</span>
+<span class="normal">746</span>
+<span class="normal">747</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_one_wheel_message_per_period</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wheel_message_stamps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">],</span>
                                         <span class="n">period_starts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Assert that one wheel message arrived, stamped with each period's start, in order."""</span>
     <span class="n">received</span> <span class="o">=</span> <span class="p">[</span><span class="n">stamp</span><span class="o">.</span><span class="n">to_sec</span><span class="p">()</span> <span class="k">for</span> <span class="n">stamp</span> <span class="ow">in</span> <span class="n">wheel_message_stamps</span><span class="p">]</span>
@@ -7932,7 +7934,7 @@
 <li><strong>The yaw rate <span class="arithmatex">\(\omega_z\)</span>:</strong> the last output's, <code>WHEEL_RATE</code>, 0.4 rad/s, within <code>WHEEL_RATE_TOLERANCE</code>, 0.02 rad/s. The wheel odometry is the filter's only source of the yaw rate in this phase. In the recorded run, the estimate was within the tolerance from the eleventh output on, and 0.4016 rad/s at the end.</li>
 </ul>
 <h2 id="runs">Runs</h2>
-<p>The runs on this page are runs of the commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/2fa558dbdc9f5a702a29250984a279ea97a9e895"><code>2fa558d</code></a> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/220">diffbot#220</a>, in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for <a href="#the-seven-phases-of-invalid_imu_samples"><code>invalid_imu_samples</code></a> and 31 s for <a href="#the-robots-rates-robot_rates"><code>robot_rates</code></a>.</p>
+<p>The runs on this page are runs of the commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/666652a9a09dec41946fb76926215b91ed8f5613"><code>666652a</code></a> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/220">diffbot#220</a>, in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for <a href="#the-seven-phases-of-invalid_imu_samples"><code>invalid_imu_samples</code></a> and 31 s for <a href="#the-robots-rates-robot_rates"><code>robot_rates</code></a>.</p>
 <h3 id="invalid_imu_samples"><code>invalid_imu_samples</code></h3>
 <p>In a run, the scenario printed these lines:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -7965,12 +7967,11 @@ IMU stopped: 20 outputs for 20 wheel periods with 20 wheel messages, 20 of the o
 <h2 id="what-the-test-doesnt-show">What the test doesn't show</h2>
 <ul>
 <li><strong>The rates on the robot:</strong> the scenario <a href="#the-robots-rates-robot_rates"><code>robot_rates</code></a> uses the robot's nominal rates, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> at 50 Hz and the wheel odometry at 10 Hz. These rates are not measured on the robot yet. The issue <a href="https://github.com/ros-mobile-robots/diffbot/issues/218">Base: measure the control loop's rate on the robot, then decide (diffbot#218)</a> measures them.</li>
-<li><strong>Whether <code>sensor_timeout</code> fits the robot:</strong> the scenario runs with the robot's <code>sensor_timeout</code> of 0.1 s, the nominal wheel period. In 8 of the 20 periods of <a href="#phase-2-of-robot_rates-the-imu-stops">phase 2</a>, the filter publishes a prediction before it fuses the wheel message. A larger value lets the filter fuse a wheel message before it predicts, as long as the message reaches the filter before the first update that is <code>sensor_timeout</code> past the filter's last measurement. On the robot, the value has to allow for the wheel period and the delay of the wheel messages. A larger value also makes the filter wait longer before it predicts when all inputs stop. The issue <a href="https://github.com/ros-mobile-robots/diffbot/issues/218">Base: measure the control loop's rate on the robot, then decide (diffbot#218)</a> measures both and sets the value.</li>
+<li><strong>Whether <code>sensor_timeout</code> fits the robot:</strong> the scenario runs with the robot's <code>sensor_timeout</code> of 0.1 s, the nominal wheel period. The filter runs its update 50 times per second, <code>frequency</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/ekf.yaml"><code>ekf.yaml</code></a>. An update that finds no new measurement predicts without one, and publishes the prediction, when the ROS time is at least <code>sensor_timeout</code> past the filter's last measurement (<a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L680-L711"><code>ros_filter.cpp</code>, lines 680–711</a>). In <a href="#phase-2-of-robot_rates-the-imu-stops">phase 2</a>, only the wheels report, every 0.1 s. So the filter's wait for a measurement ends just when the next wheel message is due. In 8 of the 20 periods, the update at the wheel message's stamp comes first and publishes a prediction, and the filter fuses the wheel message in the next update, 20 ms later. With a larger value, for example 0.12 s, the update at the wheel message's stamp wouldn't predict yet, and the filter would fuse the wheel message first. The price: when all inputs stop, the filter starts to predict only 0.12 s after its last measurement. On the robot, the value has to cover the wheel period and the delay of the wheel messages. The issue <a href="https://github.com/ros-mobile-robots/diffbot/issues/218">Base: measure the control loop's rate on the robot, then decide (diffbot#218)</a> measures both and sets the value.</li>
 <li><strong>The two clocks of the robot's inputs:</strong> in the test, a wheel message and an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample of the same step have the same stamp. On the robot, the wheel odometry is stamped with the time of the control loop, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples with the time of the Teensy, which rosserial keeps in step with the robot's single-board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>). The test doesn't show how the filter handles a difference between the two.</li>
 <li><strong>Real sensors:</strong> the inputs have no noise, no bias and no delay. How the real gyroscope behaves is a measurement on the robot, as <a href="../../#limits">Limits</a> says.</li>
-<li><strong>The pose and the transform:</strong> the test checks the forward speed <span class="arithmatex">\(v_x\)</span> and the yaw rate <span class="arithmatex">\(\omega_z\)</span> of the filter's output, and its two frames. It doesn't check the position, the heading <span class="arithmatex">\(\theta\)</span> or the transform <code>odom → base_footprint</code> on the topic <code>/tf</code>. The <a href="../gazebo/">test in Gazebo</a> compares the heading with the simulated robot's true turn.</li>
-<li><strong>Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model:</strong> the test loads DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, whose <code>imu_link</code> has the axes of <code>base_footprint</code>. The test in Gazebo runs with both robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models.</li>
-<li><strong>The validator's limits themselves:</strong> the samples to drop lie far outside the limits, 0.5 s against 0.1 s and 0.02 s. The <a href="../validator/">validator's unit tests</a> probe the limits to the microsecond.</li>
+<li><strong>The pose and the transform:</strong> the test checks the forward speed <span class="arithmatex">\(v_x\)</span> and the yaw rate <span class="arithmatex">\(\omega_z\)</span> of the filter's output, and the two frame names in the output's message: <code>header.frame_id</code> has to be <code>odom</code> and <code>child_frame_id</code> <code>base_footprint</code>. <code>assert_fused_estimate()</code> checks them in lines 422 and 423 of <code>test_ekf_synthetic.py</code>, which the excerpt in <a href="#the-code-of-one-step">the code of one step</a> shows. It doesn't check the position, the heading <span class="arithmatex">\(\theta\)</span> or the transform <code>odom → base_footprint</code> on the topic <code>/tf</code>. The <a href="../gazebo/">test in Gazebo</a> compares the heading with the simulated robot's true turn.</li>
+<li><strong>Where the validator's limits lie:</strong> the samples that phases 2 and 4 send to be dropped are 0.5 s too old or 0.5 s ahead, far beyond <code>max_age</code>, 0.1 s, and <code>max_future</code>, 0.02 s. So the test shows that the running node drops clearly invalid samples, not where the boundary between valid and invalid lies. The validator's unit tests check the boundary: the validator accepts a sample exactly at a limit and rejects one 1 µs beyond it, as <a href="../validator/#check-4-the-two-time-limits">Check 4: the two time limits</a> shows.</li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
