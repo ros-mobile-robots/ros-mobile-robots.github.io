@@ -1237,11 +1237,14 @@ def write_distance() -> None:
 
 
 def covariance_grid(name: str, field: str, source: str, variables: Sequence[Tuple[str, str]],
-                    fused: Sequence[int], replaced: Sequence[int], css_class: str) -> Figure:
+                    fused: Sequence[int], replaced: Sequence[int], css_class: str,
+                    defines_hatch: bool) -> Figure:
     """Return a covariance as a grid: each cell holds its index in the message's array.
 
     The array stores the matrix row by row, so the element in row i and column j has the
-    index n i + j, with n rows and columns.
+    index n i + j, with n rows and columns. defines_hatch adds the hatching's pattern to the
+    drawing. One drawing of a page defines the pattern, and every grid on the page uses it, so
+    the pattern's id stands once on the page.
     """
     size = len(variables)
     grid_width = COVARIANCE_LABEL_WIDTH + size * COVARIANCE_CELL
@@ -1250,7 +1253,8 @@ def covariance_grid(name: str, field: str, source: str, variables: Sequence[Tupl
     figure = Figure(name, f'The covariance {field} of the {source} as a grid of {size} rows '
                     f'and {size} columns, with the index of each element in the array',
                     COVARIANCE_TOP + size * COVARIANCE_CELL + 4, int(width), css_class)
-    figure.elements.append(COVARIANCE_HATCH)
+    if defines_hatch:
+        figure.elements.append(COVARIANCE_HATCH)
     figure.text(width / 2, 13, field, 'mono', 'middle')
     figure.text(width / 2, 28, source, 'note', 'middle')
     for position, (letter, index) in enumerate(variables):
@@ -1280,10 +1284,10 @@ def write_covariances() -> None:
     grids = (
         covariance_grid('lv-twist-covariance', 'twist.covariance', 'wheel odometry, 6 × 6',
                         TWIST_VARIABLES, TWIST_FUSED_VARIANCES, TWIST_REPLACED_VARIANCES,
-                        'lv-twist'),
+                        'lv-twist', defines_hatch=True),
         covariance_grid('lv-angular-covariance', 'angular_velocity_covariance', 'IMU, 3 × 3',
                         ANGULAR_VELOCITY_VARIABLES, ANGULAR_VELOCITY_FUSED_VARIANCES,
-                        ANGULAR_VELOCITY_REPLACED_VARIANCES, 'lv-angular'),
+                        ANGULAR_VELOCITY_REPLACED_VARIANCES, 'lv-angular', defines_hatch=False),
     )
     legend = (
         '<ul class="lv-legend">\n'
