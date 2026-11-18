@@ -22,15 +22,15 @@ The figure shows what goes into the test, what the test compares, and what comes
     - One checks that the hardware interface's `joints` list holds the same joints, the left one first ([joint order](#the-hardware-interfaces-joint-order)).
 - **Out:** the test passes when both lengths agree within 0.1 mm and all joint checks pass. Otherwise one or more checks fail, and the test names each problem ([Run it](#run-it) shows such a message). For example, with Remo's radius of 0.033 m in the URDF, a `wheel_radius` of 0.03305 m passes, and 0.0332 m fails with a message for each wheel.
 
-For Remo, these are the values. The two values in each row must be the same:
+The table gives Remo's nominal values on both sides of each comparison:
 
 <div class="readable-table">
 <table>
 <thead><tr><th scope="col">Remo's URDF</th><td></td><th scope="col">Remo's <code>geometry.yaml</code></th></tr></thead>
 <tbody>
-<tr><td><code>front_left_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
-<tr><td><code>front_right_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033</td></tr>
-<tr><td>Wheel joints<br>0.144 m apart</td><td>⟷</td><td><code>wheel_separation</code><br>0.144</td></tr>
+<tr><td><code>front_left_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033 m</td></tr>
+<tr><td><code>front_right_wheel</code><br>radius 0.033 m</td><td>⟷</td><td><code>wheel_radius</code><br>0.033 m</td></tr>
+<tr><td>Wheel joints<br>0.144 m apart</td><td>⟷</td><td><code>wheel_separation</code><br>0.144 m</td></tr>
 </tbody>
 </table>
 </div>
