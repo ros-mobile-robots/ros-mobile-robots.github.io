@@ -137,7 +137,7 @@ PHASE_STEPS = 50  # PHASE_STEPS
 AFTER_RESET_STEPS = 100  # AFTER_RESET_STEPS
 DIAGNOSTICS_WAIT_S = 1.5  # DIAGNOSTICS_WAIT
 STEPS_PER_WHEEL_MESSAGE = 5  # STEPS_PER_WHEEL_MESSAGE, the robot's wheel odometry period
-IMU_STOPPED_WHEEL_MESSAGES = 20  # IMU_STOPPED_WHEEL_MESSAGES
+IMU_STOPPED_WHEEL_PERIODS = 20  # IMU_STOPPED_WHEEL_PERIODS
 DELIVERY_MS = 20  # DELIVERY, wall time
 WHEEL_RATE = 0.4  # WHEEL_RATE, rad/s
 IMU_RATE = 0.5  # IMU_RATE, rad/s
@@ -1084,7 +1084,7 @@ class RobotRatesRun(NamedTuple):
     commit: str  # of the diffbot repository, abbreviated
     last_imu_stamp: float
     imu_stamps: Tuple[float, ...]  # every IMU sample's stamp, one per step of phase 1
-    wheel_stamps: Tuple[float, ...]
+    wheel_stamps: Tuple[float, ...]  # the wheel messages of phase 1 and of phase 2's periods
     outputs: Tuple[Output, ...]
     end_of_phase_1: float  # printed: the estimate in the last output of phase 1
     end_of_phase_2: float  # printed: the estimate in the last output of phase 2
@@ -1119,6 +1119,22 @@ def imu_input_grid(first: float, last: float, count: int) -> Tuple[float, ...]:
     return stamps
 
 
+def wheel_stamps_of_the_periods(stamps: Sequence[float],
+                                last_imu_stamp: float) -> Tuple[float, ...]:
+    """Return the wheel messages' stamps of phase 1 and of the wheel periods of phase 2.
+
+    The test runs one more step after the periods, with the wheel message that would start the
+    next period. Its stamp is the end of the last period, and the figures leave it out.
+    """
+    phase_1_count = sum(1 for stamp in stamps if stamp <= last_imu_stamp)
+    periods = tuple(stamps[:phase_1_count + IMU_STOPPED_WHEEL_PERIODS])
+    after = stamps[len(periods):]
+    assert len(after) <= 1 and all(abs(stamp - periods[-1] - WHEEL_PERIOD_S) < 1e-6
+                                   for stamp in after), (
+        'at most one wheel message after the periods, at the end of the last one')
+    return periods
+
+
 def load_robot_rates_run() -> RobotRatesRun:
     """Return the last recorded run of robot_rates in RUNS_FILE, checked against its printout."""
     run = last_run_of(ROBOT_RATES)
@@ -1130,15 +1146,17 @@ def load_robot_rates_run() -> RobotRatesRun:
         expected = 0 if output.predicted else STEP_S
         assert abs(output.published - output.stamp - expected) < 1e-6, (
             f'the output stamped {output.stamp} s, published at {output.published} s')
-    loaded = RobotRatesRun(run['commit'][:COMMIT_LENGTH], run['imu_stamps_s'][1],
-                           imu_input_grid(*run['imu_stamps_s']), tuple(run['wheel_stamps_s']),
+    last_imu_stamp = run['imu_stamps_s'][1]
+    loaded = RobotRatesRun(run['commit'][:COMMIT_LENGTH], last_imu_stamp,
+                           imu_input_grid(*run['imu_stamps_s']),
+                           wheel_stamps_of_the_periods(run['wheel_stamps_s'], last_imu_stamp),
                            outputs,
                            run['phase_1']['last_estimate_rad_s'],
                            run['phase_2']['last_estimate_rad_s'])
     phase_2 = loaded.phase_2()
     assert len(loaded.phase_1()) == FUSION_STEPS == len(loaded.imu_stamps), (
         'phase 1 has one IMU sample and one output per step')
-    assert len(phase_2) == IMU_STOPPED_WHEEL_MESSAGES == run['phase_2']['output_count']
+    assert len(phase_2) == IMU_STOPPED_WHEEL_PERIODS == run['phase_2']['output_count']
     assert [output.stamp for output in phase_2] == list(loaded.wheel_stamps[-len(phase_2):]), (
         'phase 2 has one output per wheel message, stamped with its time')
     assert round(loaded.phase_1()[-1].yaw_rate, 4) == loaded.end_of_phase_1
@@ -1303,7 +1321,7 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
         f'{WHEEL_RATE} rad/s, the blue line, and a forward speed of {SPEED} m/s in the first '
         f'{wheel_messages_before_the_change} wheel messages of phase 1, {CHANGED_SPEED} m/s in '
         f'its last {wheel_messages_of_phase_1 - wheel_messages_before_the_change}, and {SPEED} '
-        f'm/s again in the {IMU_STOPPED_WHEEL_MESSAGES} of phase 2. The chart shows the yaw rates '
+        f'm/s again in the {IMU_STOPPED_WHEEL_PERIODS} of phase 2. The chart shows the yaw rates '
         'only',
         key('<path class="imu-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
         + f'a valid IMU sample in every step of phase 1, {round(1000 * STEP_S)} ms. It reports '
