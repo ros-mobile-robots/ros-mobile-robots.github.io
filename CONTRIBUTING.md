@@ -48,7 +48,7 @@ Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules)
 
 The figure scripts, the hooks and macros, the tests and the theme's JavaScript follow the same rules as the robots' code: one thing per function, names that say what a thing is, one type for values that belong together, type hints on every Python function, and test names that say what the test checks. [AGENTS.md](AGENTS.md#code-in-this-repository) has the list. New logic comes with a test that CI runs.
 
-The rules hold for the files you add and for the functions, classes and tests you add or change. Older scripts keep their form until they change. CI runs the unit tests, the strict build and the spelling check. It doesn't run flake8 or mypy, so check the style of your Python yourself, with the commands in [AGENTS.md](AGENTS.md#check-the-python-style).
+The rules hold for the files you add, for the lines you add or change at module level, and for the whole of each function, class and test you add or change. The rest of an older script keeps its form until it changes. CI runs the unit tests, the strict build and the spelling check. It doesn't run flake8 or mypy, so check the style of your Python yourself, with the commands in [AGENTS.md](AGENTS.md#check-the-python-style).
 
 ## Pull requests
 

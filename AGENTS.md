@@ -10,8 +10,8 @@ Find your change in this list. Each line says what to run or check, and links th
 - **A page:** every number, parameter, file name, command and link you write is checked against its source: the pinned code, the official documentation, or a measurement you can point to. Say in the pull request what you checked. Every code excerpt has a full sentence before it, and every line range the text points to has its excerpt. `grep -n ';'` on the changed pages finds no sentence that two short ones would say better ([Writing rules](#writing-rules)).
 - **A page with figures or wide tables:** look at the page in light and dark, on a narrow screen too.
 - **A page that explains a feature:** the page links the feature's tests page, or is that page ([A feature's tests](#a-features-tests)).
-- **A Python script, hook, macro or test:** the unit tests pass, new logic has a test, and flake8 and mypy report nothing in the functions, classes and tests that you added or changed ([Check the Python style](#check-the-python-style)). After a change to a figure script, regenerate the script's includes and commit them with the script.
-- **The theme's JavaScript:** the rules for functions and names hold ([Code in this repository](#code-in-this-repository)). No tool checks JavaScript here, so look at a page that uses the script, with `venv/bin/mkdocs serve`.
+- **A Python script, hook, macro or test:** the unit tests pass, new logic has a test, and flake8 and mypy report nothing in the code that you added or changed: a new file, a line at module level, and the whole of a function, a class or a test that you touched ([Check the Python style](#check-the-python-style)). After a change to a figure script, regenerate the script's includes and commit them with the script.
+- **The theme's JavaScript:** the rules for functions and names hold, and new logic comes with a test that CI runs, as in Python ([Code in this repository](#code-in-this-repository)). No tool checks the style of JavaScript here, so also look at a page that uses the script, with `venv/bin/mkdocs serve`.
 - **The commits and the pull request:** one topic, signed commits, and no attribution lines for AI tools ([Commits and pull requests](#commits-and-pull-requests)).
 
 ## What this is
@@ -114,7 +114,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 
 The scripts (`scripts/`, `hooks/`, `macros/`), the tests (`tests/`) and the theme's JavaScript (`docs/custom_theme/js/`) follow the same rules as the robots' code:
 
-- **Where the rules hold:** in every file you add, and in every function, class and test that you add or change in an older file. The rest of an older file keeps its form until it changes. `scripts/figures/localization_figures.py` and `tests/test_localization_figures.py` follow the rules. `scripts/figures/simulation_test_figures.py` and `wheel_dynamics_figures.py` are older: each has its own `esc()`, functions without type hints, and includes that are written without an encoding.
+- **Where the rules hold:** in every file you add. In an older file, in every line that you add or change at module level, such as an import or a constant, and in the whole of every function, class and test that you add or change. The rest of an older file keeps its form until it changes. `scripts/figures/localization_figures.py` and `tests/test_localization_figures.py` follow the rules. `scripts/figures/simulation_test_figures.py` and `wheel_dynamics_figures.py` are older: each has its own `esc()`, functions without type hints, and includes that are written without an encoding.
 - **What CI checks:** the unit tests, the strict build and the spelling. No workflow runs flake8 or mypy in this repository. Run both yourself on the Python files you changed, as [Check the Python style](#check-the-python-style) shows, and say in the pull request what they reported. Neither tool reads JavaScript.
 - **Functions:** one thing per function, named for it. A `main()` reads as the list of its steps, and a function that checks several things becomes one function per check and one that runs them.
 - **Names:** a name says what the thing is or does. A function that returns a figure is called `…_figure()`, not after the quantity it draws. One word for one thing. No one-letter names outside a formula that defines them.
@@ -141,7 +141,7 @@ venv/bin/mypy --python-version 3.12 --ignore-missing-imports --disallow-untyped-
   scripts/figures/localization_figures.py tests/test_localization_figures.py
 ```
 
-For these two files, flake8 prints nothing and mypy prints `Success: no issues found in 2 source files`. A file you add has to give the same result. In an older file, no finding may be left in a function, a class or a test that you added or changed. A change inside a function also brings the function's signature in line: the type hints belong to the function, although the changed line is another one. Findings in functions that you didn't touch may stay. Say in the pull request which files you checked and which findings remain.
+For these two files, flake8 prints nothing and mypy prints `Success: no issues found in 2 source files`. A file you add has to give the same result. In an older file, no finding may be left in a line that you added or changed, and none in the rest of a function, a class or a test that you touched. A change inside a function also brings the function's signature in line: the type hints belong to the function, although the changed line is another one. Findings in functions that you didn't touch, and in module-level lines that you didn't touch, may stay. Say in the pull request which files you checked and which findings remain.
 
 ### Examples
 
