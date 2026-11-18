@@ -144,7 +144,7 @@ The code blocks show the files at the diffbot commit that this page pins, with t
 
 ### 1. The test file
 
-A `.test` file is a launch file for rostest. [`sim_drive_diffbot.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test):
+A `.test` file is a launch file for rostest. [`sim_drive_diffbot.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test) includes the launch file that starts DiffBot in Gazebo, and has two `<test>` elements:
 
 ```xml title="sim_drive_diffbot.test"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/sim_drive_diffbot.test"
@@ -169,7 +169,7 @@ rostest turns each `<test>` element into a test of its own and runs them one aft
 
 ### 3. Connecting to the robot
 
-rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py) as a ROS node. Its last line, `rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)`, runs the [unittest](https://docs.python.org/3/library/unittest.html) class `TestDrive` and writes the results to a file that rostest reads. unittest calls `setUpClass()` once, then the test methods. [`test_drive.py`, lines 113–133]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L113-L133):
+rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py) as a ROS node. Its last line, `rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)`, runs the [unittest](https://docs.python.org/3/library/unittest.html) class `TestDrive` and writes the results to a file that rostest reads. unittest calls `setUpClass()` once, then the test methods. [Lines 113–133]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L113-L133) show the class with the values that all tests share, and `setUpClass()`, which connects the node to the robot:
 
 ```python title="test_drive.py: TestDrive.setUpClass()" linenums="113"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:113:133"
@@ -180,7 +180,7 @@ rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_
 - The two subscribers call `on_odom()` for each odometry message, and `on_model_states()` for each `model_states` message. Gazebo publishes `model_states` in every simulation step, so `queue_size=1` keeps only the newest message instead of falling behind.
 - `rospy.wait_for_message()` waits for the first message on a topic. If none comes within the timeout, it raises an exception and the tests fail, for example when the controller doesn't start because of a wrong joint name.
 
-The callbacks, [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L135-L145):
+The two callbacks `on_odom()` and `on_model_states()` in [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L135-L145) store the robot's pose from each message:
 
 ```python title="test_drive.py: the subscriber callbacks" linenums="135"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:135:145"
@@ -188,7 +188,7 @@ The callbacks, [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_
 
 rospy calls them in background threads whenever a message arrives, so `odom_pose` and `true_pose` always hold the latest pose. `msg.name.index(MODEL_NAME)` finds the robot's position in the list of model names, and its pose is at the same position in `msg.pose`.
 
-Both convert the ROS pose to a [`Pose2D`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L47-L52), a [named tuple](https://docs.python.org/3/library/typing.html#typing.NamedTuple) with $x$, $y$ and the heading $\theta$, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). [Lines 69–78]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L69-L78):
+Both convert the ROS pose to a [`Pose2D`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L47-L52), a [named tuple](https://docs.python.org/3/library/typing.html#typing.NamedTuple) with $x$, $y$ and the heading $\theta$, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). The function `to_pose2d()` in [lines 69–78]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L69-L78) does the conversion and takes the heading from the orientation's yaw:
 
 ```python title="test_drive.py: to_pose2d()" linenums="69"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:69:78"
@@ -204,7 +204,7 @@ The constants at the top of the file name the commands, [lines 36–44]({{ diffb
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:36:44"
 ```
 
-`test_forward()`, with the comment before the two tests, [lines 179–201]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L179-L201):
+[Lines 179–201]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L179-L201) show the comment before the two tests and `test_forward()`, which calls `measure_motion()` with the forward command and then checks the two motions that come back:
 
 ```python title="test_drive.py: test_forward()" linenums="179"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:179:201"
@@ -214,7 +214,7 @@ It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without
 
 #### `measure_motion()`
 
-[Lines 164–177]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L164-L177):
+Both tests call the method `measure_motion()` in [lines 164–177]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L164-L177), which drives the robot and returns the motion twice, from the odometry and from the true pose:
 
 ```python title="test_drive.py: measure_motion()" linenums="164"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:164:177"
@@ -224,7 +224,7 @@ It keeps the latest odometry pose and true pose as the start poses, drives ([`dr
 
 #### `drive()`
 
-[Lines 147–157]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L147-L157):
+The method `drive()` in [lines 147–157]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L147-L157) sends the velocity command at `COMMAND_RATE` until `duration` seconds of simulation time have passed:
 
 ```python title="test_drive.py: drive()" linenums="147"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:147:157"
@@ -235,7 +235,7 @@ It keeps the latest odometry pose and true pose as the start poses, drives ([`dr
 
 #### `stop()`
 
-[Lines 159–162]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L159-L162):
+The method `stop()` in [lines 159–162]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L159-L162) sends one command with all velocities 0 and then waits for one second:
 
 ```python title="test_drive.py: stop()" linenums="159"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:159:162"
@@ -296,7 +296,7 @@ A bigger mistake already fails the true pose's `forward` check: with a `wheel_ra
 
 ### 5. `test_turn()`
 
-[Lines 203–223]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L223). The highlighted lines are the ones that differ from `test_forward()`:
+[Lines 203–223]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L223) show `test_turn()`. The highlighted lines are the ones that differ from `test_forward()`:
 
 ```python title="test_drive.py: test_turn()" linenums="203" hl_lines="3 8 10 14 15 21"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:203:223"

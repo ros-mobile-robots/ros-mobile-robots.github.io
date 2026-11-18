@@ -127,14 +127,21 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 
 ### Writing tests and debugging
 
-- **Tests:** the repositories have three kinds of tests. Python unit tests need no ROS master, and `catkin_add_nosetests` registers them in a package's `CMakeLists.txt`, for example [`test_geometry_consistency.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_geometry_consistency.py). [rostest](http://wiki.ros.org/rostest) files start ROS nodes and then a test, registered with `add_rostest`, for example the [simulation test](simulation-test.md). The firmware's unit tests are [Unity](https://docs.platformio.org/en/latest/advanced/unit-testing/frameworks/unity.html) tests that PlatformIO builds for the PC, in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test). A test's name says what the test checks, as a sentence, and a test checks one behavior: [diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md) has the rules. catkin-tools explains [building and running tests](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html#building-and-running-tests).
-- **Debugging:** a debugger can only stop at breakpoints in a workspace built with debug symbols:
+A new test for a ROS package or for the firmware is registered in one of three ways. Choose by what the test needs:
 
-    ```console
-    catkin build --save-config --cmake-args -DCMAKE_BUILD_TYPE=Debug
-    ```
+- **Python test that needs no ROS master:** nose runs the test file. `catkin_add_nosetests` registers the file in the package's `CMakeLists.txt`. Example: [`test_geometry_consistency.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_geometry_consistency.py), registered in [`diffbot_gazebo/CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_gazebo/CMakeLists.txt).
+- **Test that needs running ROS nodes:** [rostest](http://wiki.ros.org/rostest) runs a `.test` file, a launch file that starts the nodes and then the test node. `add_rostest` registers the file in the same `CMakeLists.txt`. Example: [`sim_drive_diffbot.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_drive_diffbot.test) of the [simulation test](simulation-test.md).
+- **Firmware test on the PC:** PlatformIO's `native` environment builds and runs a [Unity](https://docs.platformio.org/en/latest/advanced/unit-testing/frameworks/unity.html) test. The test is a folder in [`diffbot_firmware/test`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test), and its name in `test_filter` of [`platformio.ini`]({{ diffbot_repo_url }}/diffbot_firmware/platformio.ini) registers the folder. Example: [`test_command_timeout`](https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test/test_command_timeout).
 
-    See the [catkin-tools cheat sheet](https://catkin-tools.readthedocs.io/en/latest/cheat_sheet.html) for more.
+A test's name says what the test checks, as a sentence, and a test checks one behavior. The section [Tests in diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md#tests) has the rules. [Running the checks locally](#running-the-checks-locally) has the commands that run all three kinds on your PC. For the first two kinds, these commands build catkin's `run_tests` target, which catkin-tools describes on its page [catkin test](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_test.html).
+
+A debugger can only stop at breakpoints in a workspace that is built with debug symbols:
+
+```console
+catkin build --save-config --cmake-args -DCMAKE_BUILD_TYPE=Debug
+```
+
+See the [catkin-tools cheat sheet](https://catkin-tools.readthedocs.io/en/latest/cheat_sheet.html) for more.
 
 ### Running the checks locally
 
@@ -160,13 +167,20 @@ The workflows use the latest major versions of the GitHub actions, which run on 
 
 | Workflow | File | What it does |
 |:---------|:-----|:-------------|
-| Documentation CI | [`.github/workflows/ci.yml`]({{ docs_repo_url }}/.github/workflows/ci.yml) | Builds the site with `mkdocs build --strict`, which fails on any warning ([strict mode](https://www.mkdocs.org/user-guide/configuration/#strict)), such as a broken link or anchor ([link validation](https://www.mkdocs.org/user-guide/configuration/#validation)). On a push to `main` it also publishes the site to the `gh-pages` branch, which GitHub Pages serves at ros-mobile-robots.com. |
-| Lint | [`.github/workflows/lint.yml`]({{ docs_repo_url }}/.github/workflows/lint.yml) | Checks the spelling with [codespell](https://github.com/codespell-project/codespell); its settings are in [`.codespellrc`]({{ docs_repo_url }}/.codespellrc). |
-| PR preview | [`.github/workflows/preview.yml`]({{ docs_repo_url }}/.github/workflows/preview.yml) | Builds each pull request from a branch in this repository and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. Pull requests from forks get no preview, only the build and spelling checks. |
+| Documentation CI | [`.github/workflows/ci.yml`]({{ docs_repo_url }}/.github/workflows/ci.yml) | Runs the unit tests in [`tests/`](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/tests) and builds the site with `mkdocs build --strict`, which fails on any warning ([strict mode](https://www.mkdocs.org/user-guide/configuration/#strict)), such as a broken link or anchor ([link validation](https://www.mkdocs.org/user-guide/configuration/#validation)). It runs for pull requests into `main` and for pushes to `main`. On a push to `main` it also publishes the site to the `gh-pages` branch, which GitHub Pages serves at ros-mobile-robots.com. |
+| Lint | [`.github/workflows/lint.yml`]({{ docs_repo_url }}/.github/workflows/lint.yml) | Checks the spelling with [codespell](https://github.com/codespell-project/codespell). Its settings are in [`.codespellrc`]({{ docs_repo_url }}/.codespellrc). It runs for pull requests into `main`. |
+| PR preview | [`.github/workflows/preview.yml`]({{ docs_repo_url }}/.github/workflows/preview.yml) | Builds each pull request from a branch in this repository, whichever branch it targets, and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. Pull requests from forks get no preview. |
 
-To build the site locally:
+A pull request into another branch than `main`, a stacked pull request, therefore gets the preview, but no unit tests and no spelling check. A pull request from a fork into such a branch gets none of the three. A maintainer can start Documentation CI and Lint by hand on a branch of this repository. [Checks on a pull request]({{ docs_repo_url }}/AGENTS.md#checks-on-a-pull-request) in this site's AGENTS.md lists the four cases and says what to do in each.
+
+To build the site and run the same checks on your PC, in the repository's root, with Python 3.12 as in CI:
 
 ```console
-pip install -r requirements.txt
-mkdocs serve
+python3 -m venv venv && venv/bin/pip install -r requirements.txt codespell
+venv/bin/mkdocs serve
+venv/bin/python -m unittest discover -s tests -v
+venv/bin/mkdocs build --strict
+venv/bin/codespell
 ```
+
+`mkdocs serve` shows the site at `http://127.0.0.1:8000` and rebuilds it when a file changes. The other three commands are the checks of the two workflows.
