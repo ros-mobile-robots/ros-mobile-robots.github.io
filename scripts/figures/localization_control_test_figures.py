@@ -306,7 +306,7 @@ class DecisionStep(NamedTuple):
 # drop_reason() and the six functions of sample_checks in imu_validator.py, in their order
 DECISION_STEPS = (
     DecisionStep('', ('ROS time t ≠ 0',), ('NO_CLOCK',)),
-    DecisionStep('', ('if the clock went back:', 'forget the last valid one'), ()),
+    DecisionStep('', ('if the clock went back:', 'clear the last valid one'), ()),
     DecisionStep('1', ('frame is imu_link',), ('WRONG_FRAME',)),
     DecisionStep('2', ('values are finite',), ('NOT_FINITE',)),
     DecisionStep('3', ('covariance is valid',),
