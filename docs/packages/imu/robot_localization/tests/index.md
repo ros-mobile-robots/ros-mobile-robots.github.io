@@ -7,20 +7,20 @@ Five test files check the EKF and the IMU sample validator of the [Localization 
 Each question below leads to the page of the test that answers it. The pages go from a single decision of the validator, through the validator and the EKF together, to the simulated robot:
 
 1. **[Which IMU samples may reach the EKF?](validator.md)**
-    - **Answer:** a sample passes only while the ROS clock runs, and only with the right frame, finite values, valid variances, a stamp close to the ROS time, and a stamp later than the last valid sample's.
+    - **Answer:** a sample passes only at a ROS time other than 0, and only with the right frame, finite values, valid variances, a stamp close to the ROS time, and a stamp later than the last valid sample's.
     - **Where the test runs:** in Python alone. The unit tests call the validator's class directly, without a ROS master.
 2. **[What does the EKF estimate when the IMU samples are valid, invalid or stop?](stepped-clock.md)**
     - **Answer:** the estimate's yaw rate $\omega_z$ follows the valid IMU samples, ignores the samples that the validator drops, and goes to the wheels' yaw rate when no valid sample arrives, also at the robot's rates.
     - **Where the test runs:** the validator and the EKF run as ROS nodes, on a clock that the test steps, without Gazebo.
 3. **[Does the EKF recover a wrong turn in Gazebo?](gazebo.md)**
-    - **Answer:** yes. With a wheel separation that is 25 % too large in the drive controller, the wheel odometry's turn falls behind the true turn, and the EKF's turn stays within 0.05 rad of the true turn.
-    - **Where the test runs:** in Gazebo without a window, with DiffBot and with Remo.
+    - **Answer:** yes. With a wheel separation that is 25 % too large in the drive controller, the wheel odometry's turn falls behind the true turn, and the EKF's turn stays within 0.05 rad of the true turn. In the same simulation, the EKF is the only node that publishes the transform `odom → base_footprint`.
+    - **Where the test runs:** in Gazebo without a window, with the EKF, with DiffBot and with Remo.
 4. **[Does `ekf:=true` start the EKF and hand the transform over to the EKF?](switch.md)**
-    - **Answer:** the launch files that start the robot or the simulation start the EKF and the validator only with `ekf:=true`, and then turn the drive controller's transform off. The planners read the EKF's odometry then.
+    - **Answer:** the launch files that start the robot or the simulation start the EKF and the validator only with `ekf:=true`, and then turn the drive controller's transform off. The launch files that start a planner make the planner read the EKF's odometry by default with `ekf:=true`.
     - **Where the test runs:** roslaunch's loader reads the launch files. No node starts.
-5. **[Which node publishes the transform `odom → base_footprint`?](odom-tf.md)**
-    - **Answer:** exactly one node: the drive controller without the EKF, and the EKF with it.
-    - **Where the test runs:** in Gazebo without a window, with and without the EKF.
+5. **[Which node publishes the transform `odom → base_footprint` without the EKF?](odom-tf.md)**
+    - **Answer:** exactly one node, the drive controller. With the EKF, the test of question 3 checks that the EKF is the only publisher, and the page of this question shows both cases.
+    - **Where the test runs:** in Gazebo without a window, without the EKF, with DiffBot and with Remo.
 
 ## How the tests run
 
@@ -33,16 +33,17 @@ catkin's guides [Configuring Python nose tests](https://github.com/ros/catkin/bl
 
 ## Run the tests
 
-Run the commands in the [dev container](../../../../development/dev-container.md), in a shell in which its built Noetic workspace `~/catkin_ws` is sourced, as the container's setup leaves it. These two commands run every test of the workspace, as CI does:
+Run the commands in the [dev container](../../../../development/dev-container.md), in a shell in which its built Noetic workspace `~/catkin_ws` is sourced, as the container's setup leaves it. These commands run every test of the workspace, as CI does, from the workspace's folder:
 
 ```console
+cd ~/catkin_ws
 catkin build --catkin-make-args run_tests
 catkin_test_results build
 ```
 
-The first line builds the workspace and runs every registered test, the five files included. The second line sums up the result files and fails if any test failed. [Run it](../../../../development/simulation-test.md#run-it) on Simulation Test explains the two commands.
+The second line builds the workspace and runs every registered test, the five files included. The third line sums up the result files and fails if any test failed. [Run it](../../../../development/simulation-test.md#run-it) on Simulation Test explains the two commands.
 
-To run one test file, use its command from the list. Each item names the line that a passing run prints at its end. The test's page shows the whole output and what the test doesn't show.
+To run one test file, use its command from the list. Each item names what a passing run prints. The test's page shows the whole output and what the test doesn't show.
 
 - **[`test_imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_imu_validator.py), [IMU Sample Validator](validator.md#run-the-tests):** Python's `unittest` runs the file from its folder.
 
@@ -60,7 +61,7 @@ To run one test file, use its command from the list. Each item names the line th
     rostest diffbot_control ekf_synthetic_robot_rates.test
     ```
 
-    A pass of each command ends with the line `* RESULT: SUCCESS`.
+    For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output.
 
 - **[`test_ekf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf.py), [EKF in Gazebo](gazebo.md#run-it):** rostest starts the simulation of one robot with the EKF.
 
@@ -69,7 +70,7 @@ To run one test file, use its command from the list. Each item names the line th
     rostest diffbot_gazebo sim_ekf_remo.test
     ```
 
-    A pass of `sim_ekf_diffbot.test` prints `[diffbot_gazebo.rosunit-ekf_diffbot/test_ekf_follows_the_true_turn_with_a_wrong_wheel_separation][passed]`.
+    For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output.
 
 - **[`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py), [The ekf Switch](switch.md#run-it):** Python's `unittest` runs the file from its folder.
 
@@ -87,7 +88,7 @@ To run one test file, use its command from the list. Each item names the line th
     rostest diffbot_gazebo sim_drive_remo.test
     ```
 
-    A pass of `sim_drive_diffbot.test` prints `[diffbot_gazebo.rosunit-odom_tf_diffbot/test_expected_node_is_the_only_odom_tf_publisher][passed]`.
+    For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output. This result covers all five test nodes of the file.
 
 ## What the tests don't show
 

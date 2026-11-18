@@ -205,6 +205,8 @@ DECISION_LEFT_X = 2
 DECISION_LEFT_WIDTH = 154
 DECISION_RIGHT_X = 172
 DECISION_RIGHT_WIDTH = 126
+DECISION_REASON_WIDTH = 112  # of a reason's box: the line that collects the reasons runs beside
+DECISION_COLLECT_X = 291  # of that line
 DECISION_LINE_HEIGHT = 13  # between the baselines of a box's lines
 DECISION_GAP = 12  # between two boxes, for an arrow
 DECISION_START_HEIGHT = 22  # of the box of the arriving sample
@@ -289,7 +291,7 @@ class DecisionStep(NamedTuple):
 
 # drop_reason() and the six functions of sample_checks in imu_validator.py, in their order
 DECISION_STEPS = (
-    DecisionStep('', ('the clock runs: t ≠ 0',), ('NO_CLOCK',)),
+    DecisionStep('', ('ROS time t ≠ 0',), ('NO_CLOCK',)),
     DecisionStep('', ('if the clock went back:', 'forget the last valid one'), ()),
     DecisionStep('1', ('frame is imu_link',), ('WRONG_FRAME',)),
     DecisionStep('2', ('values are finite',), ('NOT_FINITE',)),
@@ -451,9 +453,10 @@ def draw_marks(figure: Figure, samples: Sequence[Sample], axis_y: float) -> None
         last_x = sample.x
 
 
-def draw_gap_label(figure: Figure, x: float, axis_y: float, gap: str) -> None:
-    """Add the true gap between two marks that the drawing sets apart, above their middle x."""
-    figure.text(x, axis_y - MARK_ABOVE_AXIS - LARGE_MARK_RADIUS - 4, gap, 'note halo', 'middle')
+def draw_gap_label(figure: Figure, x: float, axis_y: float, gap: str,
+                   anchor: str = 'middle') -> None:
+    """Add the true gap between two marks that the drawing sets apart, above them at x."""
+    figure.text(x, axis_y - MARK_ABOVE_AXIS - LARGE_MARK_RADIUS - 4, gap, 'note halo', anchor)
 
 
 def limit_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
@@ -493,8 +496,10 @@ def limit_tests() -> Tuple[Figure, Tuple[Sample, ...]]:
                'allows'),
     )
     draw_marks(figure, samples, axis.y)
-    for limit_x in (oldest_x, newest_x):
-        draw_gap_label(figure, limit_x, axis.y, '1 µs')
+    # The label at C and D ends at D's right edge, clear of the band's label "ahead"
+    draw_gap_label(figure, oldest_x, axis.y, '1 µs, enlarged')
+    draw_gap_label(figure, newest_x + LIMITS_APART + LARGE_MARK_RADIUS, axis.y, '1 µs, enlarged',
+                   'end')
     return figure, samples
 
 
@@ -639,11 +644,14 @@ def draw_decision_step(figure: Figure, top: float, step: DecisionStep) -> float:
         figure.path(f'M{DECISION_RIGHT_X},{middle_y:.1f} l-8,-4 v8 z', 'message-head')
         figure.text((DECISION_LEFT_X + DECISION_LEFT_WIDTH + DECISION_RIGHT_X) / 2 - 1,
                     middle_y - 5, 'no', 'note', 'middle')
-        figure.rect(DECISION_RIGHT_X, top, DECISION_RIGHT_WIDTH, height, 'drop-mark',
+        figure.rect(DECISION_RIGHT_X, top, DECISION_REASON_WIDTH, height, 'drop-mark',
                     corner_radius=4)
+        # The decision ends with this reason: a short line joins the collecting line
+        figure.path(f'M{DECISION_RIGHT_X + DECISION_REASON_WIDTH},{middle_y:.1f} '
+                    f'H{DECISION_COLLECT_X}', 'message')
         reason_top = (middle_y - (len(step.reason_lines) - 1) * DECISION_LINE_HEIGHT / 2 + 4)
         for index, line in enumerate(step.reason_lines):
-            figure.text(DECISION_RIGHT_X + DECISION_RIGHT_WIDTH / 2,
+            figure.text(DECISION_RIGHT_X + DECISION_REASON_WIDTH / 2,
                         reason_top + index * DECISION_LINE_HEIGHT, line, 'mono', 'middle')
     return height
 
@@ -667,7 +675,6 @@ def validator_decision() -> Figure:
                     'recorded as the last valid sample, and the node forwards it', 0,
                     DRAWING_WIDTH)
     left_middle = DECISION_LEFT_X + DECISION_LEFT_WIDTH / 2
-    right_middle = DECISION_RIGHT_X + DECISION_RIGHT_WIDTH / 2
     figure.rect(DECISION_LEFT_X, 2, DRAWING_WIDTH - 2 * DECISION_LEFT_X, DECISION_START_HEIGHT,
                 'item', corner_radius=4)
     figure.text(DRAWING_WIDTH / 2, 17, 'a sample arrives at the ROS time t', 'strong', 'middle')
@@ -675,10 +682,10 @@ def validator_decision() -> Figure:
     heights = [decision_box_height(max(len(step.lines), len(step.reason_lines)))
                for step in DECISION_STEPS]
     end_top = top + sum(heights) + DECISION_GAP * len(DECISION_STEPS)
-    # The line that collects the drop reasons runs behind their boxes down to the end box
+    # The line that collects the drop reasons runs beside their boxes down to the end box
     first_reason_y = top + heights[0] / 2
-    figure.path(f'M{right_middle},{first_reason_y:.1f} V{end_top - 1:.1f}', 'message')
-    figure.path(f'M{right_middle},{end_top:.1f} l-4,-8 h8 z', 'message-head')
+    figure.path(f'M{DECISION_COLLECT_X},{first_reason_y:.1f} V{end_top - 1:.1f}', 'message')
+    figure.path(f'M{DECISION_COLLECT_X},{end_top:.1f} l-4,-8 h8 z', 'message-head')
     draw_down_arrow(figure, left_middle, top - DECISION_GAP, top)
     for step in DECISION_STEPS:
         height = draw_decision_step(figure, top, step)
@@ -699,9 +706,10 @@ def write_validator_decision() -> None:
     write_parts(
         'includes/localization-test-validator-decision.html',
         [validator_decision().svg()],
-        'The decision of <code>drop_reason_or_record()</code> about one sample. Each step lets '
-        'the sample go down only if its condition holds. Otherwise the arrow "no" leads to the '
-        'drop reason.',
+        'The decision of <code>drop_reason_or_record()</code> about one sample, from top to '
+        'bottom. A check lets the sample go down only if its condition holds. Otherwise the '
+        'arrow "no" leads to the drop reason, and the decision ends with this reason. The clock '
+        'step drops no sample: the decision always goes on after it.',
         RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
 
 

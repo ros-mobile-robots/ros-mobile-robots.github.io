@@ -1,8 +1,8 @@
 # Test: The ekf Switch of the Launch Files
 
-This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py), the test of the `ekf` argument in the launch files.
+This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_ekf_switch.py`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py), the test of the `ekf` argument in the launch files.
 
-The `ekf` argument has to do several things at once in several launch files, as [Which launch file starts what](../../robot_localization.md#which-launch-file-starts-what) shows. With `ekf:=true`, a launch file starts the EKF and the IMU sample validator, turns off the drive controller's transform `odom → base_footprint` and makes the planner read the EKF's odometry. Without `ekf:=true`, none of this may happen. The test proves that the launch files are written this way, for both positions of the switch and for its default. The test reads the launch files and starts nothing. So the test doesn't prove that the nodes run or that they work together. The [stepped-clock test](stepped-clock.md) and the [test in Gazebo](gazebo.md) start them.
+The `ekf` argument has to do several things at once in several launch files, as [Which launch file starts what](../../robot_localization.md#which-launch-file-starts-what) shows. With `ekf:=true`, a launch file that starts the robot or the simulation starts the EKF and the IMU sample validator and turns off the drive controller's transform `odom → base_footprint`. A launch file that starts a planner makes the planner read the EKF's odometry by default, unless its argument `odom_topic` names another topic. Without `ekf:=true`, none of this may happen. The test proves that the launch files are written this way, for both positions of the switch and for its default. The test reads the launch files and starts nothing. So the test doesn't prove that the nodes run or that they work together. The [stepped-clock test](stepped-clock.md) and the [test in Gazebo](gazebo.md) start them.
 
 ## Two launch files, read without starting them
 
@@ -70,7 +70,7 @@ The excerpt shows the test's own result type and the function that calls the loa
 
 ??? example "The constants of `test_ekf_switch.py`, lines 31–50"
 
-    The excerpt shows the names that the test looks for, from [`test_ekf_switch.py`, lines 31–50]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L31-L50). The name of a constant ends in `_NODE` for a node, in `_TOPIC` for a topic and in `_PARAMETER` for a parameter. `SWITCHED_OFF` holds the two ways to run without the EKF, `ekf:=false` and no `ekf` argument. `EKF_PARAMETERS` holds five parameters of the EKF and of the validator with the values that [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) and [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) give them.
+    The excerpt shows the names that the test looks for, from [`test_ekf_switch.py`, lines 31–50]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L31-L50). The name of a constant ends in `_NODE` for a node, in `_TOPIC` for a topic and in `_PARAMETER` for a parameter. `SWITCHED_OFF` holds the two ways to run without the EKF, `ekf:=false` and no `ekf` argument. `EKF_PARAMETERS` holds five parameters of the EKF and of the validator with the values that [`ekf.yaml`]({{ ekf_switch_src_url }}/diffbot_control/config/ekf.yaml) and [`ekf.launch`]({{ ekf_switch_src_url }}/diffbot_control/launch/ekf.launch) give them.
 
     ```python title="test_ekf_switch.py: the constants" linenums="31"
     --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:31:50"
@@ -161,7 +161,7 @@ catkin runs the test with the repository's other tests. The excerpt shows where 
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/CMakeLists.txt:225:226"
 ```
 
-To run only this test, in the [dev container](../../../../development/dev-container.md), in the built workspace:
+Run the test alone from a shell in the built workspace of the [dev container](../../../../development/dev-container.md):
 
 ```console
 cd ~/catkin_ws
@@ -185,11 +185,11 @@ Ran 5 tests in 6.574s
 OK
 ```
 
-The test loads the launch files of `diffbot_bringup`, `diffbot_navigation` and `diffbot_mbf`, so `diffbot_gazebo`'s [`package.xml`]({{ diffbot_repo_url }}/diffbot_gazebo/package.xml) lists these three packages as test dependencies.
+The test loads the launch files of `diffbot_bringup`, `diffbot_navigation` and `diffbot_mbf`, so `diffbot_gazebo`'s [`package.xml`]({{ ekf_switch_src_url }}/diffbot_gazebo/package.xml) lists these three packages as test dependencies.
 
 ## What the test doesn't show
 
 - **Running nodes:** the loader reads the launch files. Nothing starts, so the test can't see whether a node runs, publishes or finds its transforms.
-- **`robot_state_publisher` in every file:** the test asserts `robot_state_publisher` for the two bringup files and for the two simulation files named `diffbot.launch`, of `diffbot_gazebo` and of `diffbot_control`. The test doesn't assert the node for [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch), which doesn't start `robot_state_publisher`.
+- **`robot_state_publisher` in every file:** the test asserts `robot_state_publisher` for the two bringup files and for the two simulation files named `diffbot.launch`, of `diffbot_gazebo` and of `diffbot_control`. The test doesn't assert the node for [`minimal.launch`]({{ ekf_switch_src_url }}/diffbot_bringup/launch/minimal.launch), which doesn't start `robot_state_publisher`.
 - **`ekf:=false` for the planners:** for the planners' launch files, the test loads the default and `ekf:=true`.
 - **Other ways to start the robot:** the [robot container](../../../../processing_units/robot-container/usage.md) starts `bringup.launch` without `ekf`. The test doesn't read the container's settings.
