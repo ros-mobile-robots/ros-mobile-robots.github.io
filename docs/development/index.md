@@ -42,7 +42,7 @@ Good starting points:
 - [ROS developer's guide](http://wiki.ros.org/DevelopersGuide): common practices for components shared with the community, with the [naming conventions](http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources) and the [C++](http://wiki.ros.org/CppStyleGuide) and [Python](http://wiki.ros.org/PyStyleGuide) style guides.
 - [ROS best practices](https://github.com/ethz-asl/ros_best_practices/wiki) of the Autonomous Systems Lab at ETH Zurich.
 
-How the code is built, tested and debugged is described in [Testing and CI](ci.md).
+How the code is built, tested and debugged is described in [Testing and CI](ci.md). [Firmware Unit Tests](firmware-unit-tests.md) shows how to run one test of the Teensy firmware on your PC and how to write a new one.
 
 ## Writing docs
 
