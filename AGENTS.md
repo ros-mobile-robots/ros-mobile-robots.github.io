@@ -141,7 +141,7 @@ venv/bin/mypy --python-version 3.12 --ignore-missing-imports --disallow-untyped-
   scripts/figures/localization_figures.py tests/test_localization_figures.py
 ```
 
-For these two files, flake8 prints nothing and mypy prints `Success: no issues found in 2 source files`. A file you add has to give the same result. In an older file, no finding may be left in a line that you added or changed, and none in the rest of a function, a class or a test that you touched. A change inside a function also brings the function's signature in line: the type hints belong to the function, although the changed line is another one. Findings in functions that you didn't touch, and in module-level lines that you didn't touch, may stay. Say in the pull request which files you checked and which findings remain.
+For these two files, flake8 prints nothing and mypy prints `Success: no issues found in 2 source files`. A file you add has to give the same result. In an older file, no finding may be left in a line that you added or changed, and none in the rest of a function, a class or a test that you touched. A change inside a function also brings the function's signature in line: the type hints belong to the function, although the changed line is another one. A change to a class brings the whole class in line, its methods included. Existing findings may stay outside the changed lines and outside every function, class or test you touched. Say in the pull request which files you checked and which findings remain.
 
 ### Examples
 
