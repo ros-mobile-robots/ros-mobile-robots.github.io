@@ -19,7 +19,7 @@ Each question below leads to the page of the test that answers it. The pages go 
     - **Answer:** the launch files that start the robot or the simulation start the EKF and the validator only with `ekf:=true`, and then turn the drive controller's transform off. The launch files that start a planner make the planner read the EKF's odometry by default with `ekf:=true`.
     - **Where the test runs:** roslaunch's loader reads the launch files. No node starts.
 5. **[Which node publishes the transform `odom → base_footprint` without the EKF?](odom-tf.md)**
-    - **Answer:** exactly one node, the drive controller. With the EKF, the test of question 3 checks that the EKF is the only publisher, and the page of this question shows both cases.
+    - **Answer:** the only publisher is `/gazebo`, the node that runs the drive controller in the simulation. With the EKF, the test of question 3 checks that the EKF is the only publisher, and the page of this question shows both cases.
     - **Where the test runs:** in Gazebo without a window, without the EKF, with DiffBot and with Remo.
 
 ## How the tests run

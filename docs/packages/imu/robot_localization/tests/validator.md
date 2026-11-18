@@ -20,7 +20,7 @@ The figure shows every step of the decision, from top to bottom. Each box on the
 The decision has two ends:
 
 - **Accepted:** [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) records the sample's stamp $t_s$ and its arrival time $t$ as the last valid sample's and returns `None`. The node counts the sample as forwarded and publishes the sample for the EKF. The tests check this end with [`assert_accepted()`](#validatortestcase-a-new-validator-and-two-assertions).
-- **Rejected:** `drop_reason_or_record()` returns the reason and doesn't record the sample. The node counts the sample under this reason, which the [diagnostics](#testsamplecounts-the-numbers-of-a-report) report, and logs a warning, at most one every 5 s. The tests check this end with [`assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions).
+- **Rejected:** `drop_reason_or_record()` returns the reason and doesn't record the sample. The node counts the sample under this reason, which the [diagnostics](#testsamplecounts-the-numbers-of-a-report) report, and passes a warning to `rospy.logwarn_throttle()` with the period `WARNING_PERIOD`, 5 s. The tests check this end with [`assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions).
 
 ## The test classes
 
@@ -57,7 +57,7 @@ The excerpt shows `on_sample()`, from [`imu_validator.py`, lines 365–380]({{ e
 Line 369 stores the method's result in the variable `drop_reason`. The result is either `None` or a reason to drop the sample:
 
 - **`None`:** Python's value for "nothing", here "no reason to drop the sample". The node counts the sample as forwarded and publishes the sample on the topic `imu/data_validated`, in lines 370–374.
-- **A reason:** a member of [`DropReason`](#dropreason-the-reasons-to-drop-a-sample). The node counts the sample by this reason in line 376. Lines 377–380 log a warning with the reason's text, at most once every `WARNING_PERIOD`, 5 s.
+- **A reason:** a member of [`DropReason`](#dropreason-the-reasons-to-drop-a-sample). The node counts the sample by this reason in line 376. Lines 377–380 pass a warning with the reason's text to `rospy.logwarn_throttle()` with the period `WARNING_PERIOD`, 5 s, which leaves out repeated warnings within that period.
 
 The lock of line 367 keeps the diagnostics timer, which runs in another thread, from reading the validator in the middle of a sample.
 
@@ -107,7 +107,7 @@ And the tests run the same two steps as the node. The excerpt shows the two meth
 
 `record_valid_sample()` sets these two numbers in lines 286 and 287. `last_valid_stamp` is the stamp $t_\text{last}$ of check 5.
 
-For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of `drop_reason()`. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator clear the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under `NO_CLOCK`, as the node counts every dropped sample, and passes a warning to its throttled logger, which writes at most one warning every `WARNING_PERIOD`, 5 s.
+For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of `drop_reason()`. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator clear the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under `NO_CLOCK`, as the node counts every dropped sample, and passes a warning to `rospy.logwarn_throttle()` with the period `WARNING_PERIOD`, 5 s.
 
 The constructor `__init__()` fills `sample_checks` in the order in which the checks run. The excerpt shows the tuple, from [`imu_validator.py`, lines 221–229]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L221-L229):
 

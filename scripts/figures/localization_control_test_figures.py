@@ -696,7 +696,7 @@ def validator_decision() -> Figure:
                        ('node forwards the sample', 'note')))
     draw_decision_end(figure, DECISION_RIGHT_X, end_top, DECISION_RIGHT_WIDTH, 'drop-mark',
                       (('returns the reason', 'strong'), ('node counts the drop', 'note'),
-                       ('and logs a warning', 'note')))
+                       ('and throttles warnings', 'note')))
     figure.height = round(end_top + decision_box_height(DECISION_END_LINES) + 2)
     return figure
 
