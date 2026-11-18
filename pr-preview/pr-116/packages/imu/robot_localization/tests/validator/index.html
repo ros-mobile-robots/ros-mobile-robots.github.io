@@ -5954,7 +5954,7 @@
 </table>
 <p>The tests import the module <code>imu_validator</code> and not its names. So a test writes a member with the module's name in front, as <code>imu_validator.DropReason.TOO_OLD</code>.</p>
 <h2 id="the-constants-and-the-helpers">The constants and the helpers</h2>
-<p>The tests share a few constants, two helper functions that build samples and durations, and a base class with two assertions.</p>
+<p>The tests share a few constants, two helper functions that build samples and durations, and a base class with two assertions, <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a>.</p>
 <details class="example">
 <summary>The constants of <code>test_imu_validator.py</code>, lines 23–48</summary>
 <p>The excerpt shows all constants of the file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/3cfbcd3b710fd41935e2b558956974a98dd12bdd/diffbot_control/test/test_imu_validator.py#L23-L48"><code>test_imu_validator.py</code>, lines 23–48</a>. <code>NOW</code> is the ROS time <span class="arithmatex">\(t\)</span> of most checks, 100 s. <code>MAX_AGE</code> and <code>MAX_FUTURE</code> are the two time limits that <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/ekf.launch"><code>ekf.launch</code></a> sets on the robot and in the simulation. <code>JUST_TOO_OLD</code> and <code>JUST_TOO_FAR_AHEAD</code> lie <code>ONE_MICROSECOND</code>, 1 µs, beyond these limits.</p>
