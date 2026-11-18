@@ -211,7 +211,7 @@ Then run the tool where the recording is, with the name that the recorder printe
     ```console
     BAG=imu_still_2026-11-18-13-18-16.bag
     FROM='robot@remo.local:robot-data'
-    scp "$FROM/$BAG" .
+    sftp "$FROM/$BAG"
     ```
 
     The first two lines hold what differs from one robot and one recording to the next, and the third line copies. Replace the values in the first two lines with yours:
@@ -219,7 +219,7 @@ Then run the tool where the recording is, with the name that the recorder printe
     - **`BAG`:** the name of your recording.
     - **`FROM`:** the user and the name or address of the Raspberry Pi, as you use them for `ssh`, and after the colon the folder of the recording on the Raspberry Pi. `robot@remo.local` is the example of [Set Up the Raspberry Pi](../../processing_units/robot-container/setup.md#2-first-login-and-updates). `robot-data` is the robot container's folder. If you set `ROBOT_DATA`, use the folder that the variable names. If you recorded with a native ROS installation, use the folder in which you ran `rosbag record`.
     - **The quotes** keep a folder's name with a space in it in one piece.
-    - **The `.` at the end** is the folder to copy to: the current one.
+    - **[`sftp`](https://manpages.ubuntu.com/manpages/jammy/man1/sftp.1.html)** is SSH's file transfer. Given the path of a file, it fetches that file. The file is saved in the current folder of your PC.
 
     **2. Run the tool in the dev container.** A terminal of the dev container starts in `/home/ros/catkin_ws/src/diffbot`, the same folder, with the built workspace sourced:
 
