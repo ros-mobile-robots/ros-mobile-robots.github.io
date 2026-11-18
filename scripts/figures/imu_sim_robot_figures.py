@@ -572,7 +572,7 @@ def degrees(radians: float) -> str:
 
 
 def frames_from_above_figure() -> Figure:
-    """Return the drawing of the three frames from above."""
+    """Return the drawing of the two frames and their joint on Remo, from above."""
     x, y, z = IMU_POSITION
     back, left, up = centimeters(-x), centimeters(y), centimeters(z)
     figure = Figure('imu-frames-above', 340, 306, 'chassis_link, imu_joint and imu_link on Remo, '
@@ -604,7 +604,7 @@ def frames_from_above_figure() -> Figure:
 
 
 def frames_from_the_side_figure() -> Figure:
-    """Return the drawing of the three frames from the robot's right side."""
+    """Return the drawing of the two frames and their joint on Remo, from its right side."""
     up = centimeters(IMU_POSITION[2])
     figure = Figure('imu-frames-side', 340, 270, 'chassis_link, imu_joint and imu_link on Remo, '
                     'from the right side',
@@ -684,7 +684,7 @@ def draw_magnified_diffbot_frames(figure: Figure, left: float, top: float, right
     figure.circle(chassis, 3, 'dot')
     up = centimeters(DIFFBOT_IMU_POSITION[2])
     figure.text((left + 8, top + 15), f'{DIFFBOT_MAGNIFICATION}\u00d7 larger', 'note')
-    figure.text((right - 8, imu[1] - 17), 'imu_link', 'mono halo', 'end')
+    figure.text((right - 8, imu[1] - 26), 'imu_link', 'mono halo', 'end')
     figure.text((chassis[0] + 9, (chassis[1] + imu[1]) / 2 - 3), 'imu_joint', 'mono halo')
     figure.text((chassis[0] + 9, (chassis[1] + imu[1]) / 2 + 11), f'{up} cm up, not turned',
                 'note halo')
@@ -692,7 +692,7 @@ def draw_magnified_diffbot_frames(figure: Figure, left: float, top: float, right
 
 
 def frames_on_diffbot_figure() -> Figure:
-    """Return the drawing of the three frames on DiffBot, from the robot's right side.
+    """Return the drawing of the two frames and their joint on DiffBot, from its right side.
 
     imu_link has chassis_link's directions and lies straight above it. So the drawing shows
     imu_link's axes and marks chassis_link's origin with a dot, in a magnified box.

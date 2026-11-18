@@ -8,7 +8,7 @@ Two Python files check the simulated IMU in Gazebo, [`test_imu.py`]({{ imu_sim_s
     - **A pass shows:** the message has the form that its readers need. More than 90 messages arrive in 2 s of simulation time, each stamp is later than the one before, the frame is `imu_link`, the orientation $\mathbf q$ is marked unavailable, the yaw rate $\omega_z$ and the upward reading $f_z$ are finite, the yaw rate's variance is positive, and the mean of $f_z$ lies within 0.5 m/s² of 9.81 m/s², which is gravity.
     - **Why:** the IMU sample validator and the EKF need the message this way, and the firmware publishes it this way.
 2. **[The left turn](#the-left-turn)**, in `test_imu.py`: the robot turns left on the spot at 0.5 rad/s.
-    - **A pass shows:** the mean of the yaw rate $\omega_z$ over 2 s of the turn lies between 0.35 and 0.65 rad/s.
+    - **A pass shows:** the mean of the yaw rate $\omega_z$ over 2 s of the turn lies within 0.15 rad/s of the commanded 0.5 rad/s, nominally between 0.35 and 0.65 rad/s.
     - **Why:** the yaw rate is the one value that the EKF fuses, and its sign has to be that of the turn.
 3. **[The reset test](#the-reset-test)**, in `test_imu_reset.py`: the test resets the simulation after about 3 s.
     - **A pass shows:** ten samples arrive after the reset with a stamp below 1 s.
@@ -25,7 +25,7 @@ rostest diffbot_gazebo sim_drive_diffbot.test
 rostest diffbot_gazebo sim_drive_remo.test
 ```
 
-Each command takes about two minutes on our test PC, because rostest starts Gazebo again for every test node. A passing run of the first command ends with these lines, with the test file at the commit that this page shows:
+Each command takes about two minutes on our test PC, because rostest starts Gazebo again for every test node. A passing run of the first command ends with these lines, with the diffbot repository at `cd41ead`, the commit that this page shows:
 
 ```text hl_lines="3 4 5"
 [diffbot_gazebo.rosunit-drive_diffbot/test_forward][passed]
@@ -42,9 +42,9 @@ SUMMARY
  * FAILURES: 0
 ```
 
-The three highlighted lines are the IMU's tests. What to expect from each:
+The three highlighted lines are the IMU's tests. A newer checkout of the diffbot repository has more test nodes in this test file, such as `odom_tf_diffbot`, so its output has more lines and a higher count, as [read the results](../../../development/simulation-test.md#read-the-results) on Simulation Test explains. What to expect from each of the IMU's tests:
 
-- **The left turn** passes when the mean yaw rate lies between 0.35 and 0.65 rad/s. A failure prints the measured mean. With a yaw rate that stays at 0 rad/s, for example, the message is `0.0 != 0.5 within 0.15 delta (0.5 difference) : turning left at 0.5 rad/s, the IMU measured 0.000 rad/s about z`.
+- **The left turn** passes when the mean yaw rate lies within 0.15 rad/s of 0.5 rad/s. A failure prints the measured mean. With a yaw rate that stays at 0 rad/s, for example, the message is `0.0 != 0.5 within 0.15 delta (0.5 difference) : turning left at 0.5 rad/s, the IMU measured 0.000 rad/s about z`.
 - **The test at rest** passes without output. A failure names the check that failed and the value that it found.
 - **The reset test** prints one line, also when it passes. rostest keeps the line in the test node's result file. The next command prints the line of DiffBot's last run:
 
@@ -164,16 +164,16 @@ The excerpt shows the whole test method, from [`test_imu.py`, lines 111–121]({
 ```
 
 - **What the robot does:** `turn_left` is the command, a turn on the spot at `TURN_RATE`, 0.5 rad/s, in the command's `angular.z`. [`send_command()`](#the-test-at-rest) sends `turn_left` for `SPEED_UP`, 1 s, so that the robot reaches the turn rate. Then [`collect_messages()`](#the-test-at-rest) keeps the robot turning for `MEASURE`, 2 s, and returns the IMU's messages of that time, which the test keeps in `messages`. Then the test stops the robot with `Twist()`.
-- **What the test checks:** `mean_yaw_rate` is the average of the yaw rates of `messages`, $\bar\omega_z$. The check needs $|\bar\omega_z - 0.5 \text{ rad/s}| \le 0.15 \text{ rad/s}$, so a mean between 0.35 and 0.65 rad/s. A left turn, counterclockwise seen from above, is positive about the upward z axis, as [the angular velocity](index.md#the-angular-velocity) shows.
+- **What the test checks:** `mean_yaw_rate` is the average of the yaw rates of `messages`, $\bar\omega_z$. The check is `assertAlmostEqual(mean_yaw_rate, TURN_RATE, delta=TURN_RATE_TOLERANCE)`, which needs $|\bar\omega_z - 0.5 \text{ rad/s}| \le 0.15 \text{ rad/s}$. So the nominal range of the mean is 0.35 to 0.65 rad/s. The comparison runs with floating-point numbers: a mean of exactly 0.35 or 0.65 rad/s fails, because the computed difference is 0.15000000000000002. A left turn, counterclockwise seen from above, is positive about the upward z axis, as [the angular velocity](index.md#the-angular-velocity) shows.
 
 ### What a pass of the left turn shows
 
-A pass shows one thing: the mean of the yaw rates that arrived in the 2 s of `MEASURE` lies between 0.35 and 0.65 rad/s. So the test fails when the IMU's frame is upside down, which gives about −0.5 rad/s, and when the yaw rate stays near 0 rad/s.
+A pass shows one thing: the mean of the yaw rates that arrived in the 2 s of `MEASURE` lies within 0.15 rad/s of 0.5 rad/s. So the test fails when the IMU's frame is upside down, which gives about −0.5 rad/s, and when the yaw rate stays near 0 rad/s.
 
 A pass doesn't show that the yaw rate follows the robot's motion:
 
-- **A yaw rate that stays at 0.5 rad/s passes both tests.** The left turn accepts this value as the mean. The test at rest checks only that each yaw rate is finite. So an IMU whose yaw rate never changes from +0.5 rad/s would pass `test_imu.py`.
-- **The mean has no minimum number of messages.** The left turn has no check of the rate. One message with a yaw rate in the accepted range is enough for a pass. With no message at all, the division by `len(yaw_rates)` raises a `ZeroDivisionError`, and the test reports an error, not a failure with the check's message.
+- **A constant yaw rate:** a yaw rate that stays at 0.5 rad/s passes both tests. The left turn accepts this value as the mean. The test at rest checks only that each yaw rate is finite. So an IMU whose yaw rate never changes from +0.5 rad/s would pass `test_imu.py`.
+- **The number of messages:** the mean has no minimum number of messages. The left turn has no check of the rate. One message with a yaw rate in the accepted range is enough for a pass. With no message at all, the division by `len(yaw_rates)` raises a `ZeroDivisionError`, and the test reports an error, not a failure with the check's message.
 
 ## The reset test
 
@@ -219,11 +219,11 @@ The excerpt shows which samples count as fresh, from [`test_imu_reset.py`, lines
 --8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo/test/test_imu_reset.py:66:77"
 ```
 
-`fresh_stamps()` takes the stamps that arrived after the test noted `sample_count_at_reset`, and keeps those below `RECOVERY`, 1 s. Such a stamp can only come from the new simulation time: before the reset, the stamps had reached 3 s. `imu_recovered()` is true when ten stamps are left.
+`fresh_stamps()` takes the stamps that arrived after the test noted `sample_count_at_reset`, and keeps those below `RECOVERY`, 1 s. `imu_recovered()` is true when ten stamps are left. So a pass shows this much: at least ten samples arrived after the test saved the count, each with a stamp below 1 s. The test's idea is that such a stamp belongs to the new simulation time, because the stamps had reached 3 s before the reset. The predicate itself doesn't check when a sample was taken.
 
 - **With the robots' plugin**, the first sample after the reset is stamped about 0.02 s, one period after the clock went back. Ten fresh samples then take about 0.2 s of simulation time. The test doesn't require these two values: it accepts any ten stamps below 1 s.
 - **With a plugin that keeps the old time**, the next sample comes only after the clock has passed 3 s again. Then no sample is stamped below 1 s, and the test fails.
-- **What the count doesn't check:** `fresh_stamps()` compares each stamp with `RECOVERY` and not with the stamps before it. Ten samples with one and the same stamp count as ten fresh samples, also with the stamp 0 s. The IMU sample validator would forward one of them at most, because it drops a sample whose stamp isn't later than the last valid sample's. So a pass shows that samples with new stamps arrive, not that their stamps advance. In the runs for this page, the first three stamps after the reset were 0.020 s, 0.040 s and 0.060 s.
+- **What the count doesn't check:** `fresh_stamps()` compares each stamp with `RECOVERY` and not with the stamps before it. Ten samples with one and the same stamp count as ten fresh samples, also with the stamp 0 s. The IMU sample validator would forward one of them at most, because it drops a sample whose stamp isn't later than the last valid sample's. A sample from before the reset with a stamp below 1 s would count too, if it arrived after the test saved the count. So a pass shows arrivals with stamps below 1 s. It doesn't show that their stamps are new or that they advance. In the runs for this page, the stamps did advance: the first three after the reset were 0.020 s, 0.040 s and 0.060 s.
 
 After the wait, the test prints one line and then checks the result.
 
@@ -251,7 +251,7 @@ Each item says what isn't tested, why not, and what a pass therefore doesn't pro
 
     The test at rest checks that $\omega_z$ and $f_z$ are finite. It doesn't look at the other four values, $\omega_x$, $\omega_y$, $f_x$ and $f_y$.
 
-- **The real BNO055:** the simulated noise is a setting, $\sigma$ = 0.005 rad/s and 0.005 m/s², and the simulation adds no bias and no sensor delay to the values. So a pass says nothing about the real sensor's noise, bias, delay and mounting. The [bench checks](../driver-bno055.md#bench-checks) measure those on the robot. Without an added delay, a subscriber still gets each sample a little after its stamp. In one run of Remo's simulation, the messages on `/diffbot/imu/data_raw` arrived 1 to 2 ms of simulation time after their stamps.
+- **The real BNO055:** the simulated noise is a setting, $\sigma$ = 0.005 rad/s and 0.005 m/s², and the simulation adds no bias and no sensor delay to the values. So a pass says nothing about the real sensor's noise, bias, delay and mounting. The [bench checks](../driver-bno055.md#bench-checks) measure the real sensor's rate, noise, bias and axes on the robot. They don't measure a delay of the sensor. Without an added delay, a subscriber of the simulation still gets each sample a little after its stamp. In one run of Remo's simulation, a subscriber's callback for the messages on `/diffbot/imu/data_raw` ran 1 to 2 ms of simulation time after the messages' stamps.
 - **The rest of the simulation after a reset:** `test_imu_reset.py` checks the IMU's topic after one reset, about 3 s after the start. A pass doesn't show that the other publishers come back at once. Two of them don't:
     - **The drive controller's odometry:** [the EKF's limits](../robot_localization.md#limits) on the Localization page explain why, with the times of a run.
     - **The joint states:** `joint_state_controller` publishes only when the clock has passed `last_publish_time_` by one publishing period. A reset sets the clock back to zero, and `last_publish_time_` keeps its value from before the reset. So the controller publishes the joint states again only when the clock has reached that time again. This follows from the controller's code and isn't measured in a run. The excerpt shows the condition in the controller's `update()`, from [`joint_state_controller.cpp` in ros_controllers 0.22.0, lines 104–110](https://github.com/ros-controls/ros_controllers/blob/0.22.0/joint_state_controller/src/joint_state_controller.cpp#L104-L110):

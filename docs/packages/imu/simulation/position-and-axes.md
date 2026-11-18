@@ -2,7 +2,7 @@
 
 Where the simulated IMU sits on each robot, and which way its axes point. This page belongs to [IMU: Simulation](index.md), which shows the IMU's message.
 
-Three names of the robot's URDF model describe the mounting. `imu_link` is the IMU's frame, `chassis_link` is the frame at the center of the robot's base plate, and `imu_joint` is the fixed joint that puts `imu_link` on `chassis_link`. This page first shows [the mounting on each robot](#the-mounting-on-each-robot), then explains [the three frames](#the-three-frames) and [the lines of the robot's URDF model that make them](#the-link-and-the-joint-in-the-robots-urdf-model).
+Three names of the robot's URDF model describe the mounting. `imu_link` is the IMU's frame, `chassis_link` is the frame at the center of the robot's base plate, and `imu_joint` is the fixed joint that puts `imu_link` on `chassis_link`. This page first shows [the mounting on each robot](#the-mounting-on-each-robot), then explains [the two frames and their fixed joint](#the-two-frames-and-their-fixed-joint) and [the lines of the robot's URDF model that make them](#the-link-and-the-joint-in-the-robots-urdf-model).
 
 ## The mounting on each robot
 
@@ -54,8 +54,16 @@ Choose your robot. The figure's tabs and the tabs of the text below switch toget
 
     How the joint's numbers give the mounting:
 
-    - **Position:** −4.01 cm, +2.34 cm and +1.3 cm from `chassis_link`. `chassis_link` lies 3.6 cm behind the wheel axle, as the comment in [lines 71–74 of `remo.urdf.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L71-L74) explains. So the chip's center lies 7.6 cm behind the wheel axle, 2.34 cm left of the robot's center line, and 8 cm above the floor. The board's header pins sit in the breadboard.
+    - **Position:** −4.01 cm, +2.34 cm and +1.3 cm from `chassis_link`. `chassis_link` lies 3.6 cm behind the wheel axle, as the comment in the collapsed box below explains. So the chip's center lies 7.6 cm behind the wheel axle, 2.34 cm left of the robot's center line, and 8 cm above the floor. The board's header pins sit in the breadboard.
     - **Rotation:** $-\pi/2$ rad, −90°, about z. Both z axes point up, so a left turn is positive for the IMU as for the robot. The yaw of −90° turns `imu_link`'s y axis forward, so a forward acceleration appears in $f_y$ and not in $f_x$. The comment above the arguments in `remo.urdf.xacro` says how each value was found.
+
+    ??? example "Where `chassis_link` lies behind the wheel axle"
+
+        The excerpt shows the lines of Remo's xacro file that compute `axle_x`, how far the wheel axle is in front of `chassis_link`, from [`remo.urdf.xacro`, lines 71–75](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L71-L75). The comment gives the value, 0.036 m:
+
+        ```xml title="remo.urdf.xacro: axle_x" linenums="71"
+        --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:71:75"
+        ```
 
 === "DiffBot"
 
@@ -81,13 +89,13 @@ Choose your robot. The figure's tabs and the tabs of the text below switch toget
 
     Seen from above, the two frames lie on top of each other. So the figure shows DiffBot from the side.
 
-## The three frames
+## The two frames and their fixed joint
 
-[The figure of the mounting](#the-mounting-on-each-robot) shows three parts. Both robots have them, with other values. Their names come from the robot's URDF model:
+[The figure of the mounting](#the-mounting-on-each-robot) shows three parts: two frames and the joint between them. Both robots have them, with other values. Their names come from the robot's URDF model:
 
 - **`imu_link`** is the IMU's frame: a point on the robot with three axes. Every value in the IMU's message is along these axes.
 - **`chassis_link`** is the frame at the center of the robot's base plate. Its x axis points forward, its y axis to the left and its z axis up, as [REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation), ROS's convention for coordinate frames, asks for a robot's body. Each robot's URDF model declares `chassis_link` in its base macro: DiffBot's in [`common_macros.urdf.xacro`, lines 197–207]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207), and Remo's in [`remo_base_macro.urdf.xacro`, lines 20–30](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/remo_base_macro.urdf.xacro#L20-L30).
-- **`imu_joint`** is a fixed joint that puts `imu_link` on `chassis_link`. The joint's origin says where the IMU sensor sits and how the IMU sensor is turned:
+- **`imu_joint`** is not a frame. It is the fixed joint that puts `imu_link` on `chassis_link`. In tf, the joint appears as the transform from `chassis_link` to `imu_link`. The joint's origin says where the IMU sensor sits and how the IMU sensor is turned:
     - `xyz` is the position in m, along `chassis_link`'s x, y and z axes.
     - `rpy` is the rotation in rad: roll about x, pitch about y and yaw about z.
 

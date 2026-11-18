@@ -45,9 +45,9 @@ The two drawings follow the same request of the controller spawner, once with ea
     4. **The physics thread goes on:** it calls `update()`, in this step or the next, and `update()` takes the change. The clock runs on.
     5. **The wait ends:** the callback returns, and the spawner gets its answer. The controllers run.
 
-**The stall depends on timing.** The stall needs a request of the spawner in the queue at the moment that the original plugin spins, before a spinner thread has taken the request. So the stall hits only some starts of the simulation. [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) counts how many starts stalled with the original and with the copy.
+**Timing:** the stall depends on timing. The stall needs a request of the spawner in the queue at the moment that the original plugin spins, before a spinner thread has taken the request. So the stall hits only some starts of the simulation. [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) counts how many starts stalled with the original and with the copy.
 
-**The copy needs no spinning of its own.** The copy only publishes and has no callbacks. The spinner threads run the calls that wait in the global queue, the controller manager's among them.
+**No spinning in the copy:** the copy needs no spinning of its own, because it only publishes and has no callbacks. The spinner threads run the calls that wait in the global queue, the controller manager's among them.
 
 The three collapsed boxes show the lines of code behind steps 2 and 4.
 

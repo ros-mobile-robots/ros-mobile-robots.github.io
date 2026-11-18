@@ -4,11 +4,13 @@ How one sample of the simulated IMU is made, from Gazebo's IMU sensor to the mes
 
 ## One sample, through the three parts
 
-Three parts make the sample, one after the other. The numbers are one sample from a run of Remo's simulation, taken while Remo turned left on the spot at 0.5 rad/s:
+Three parts make the sample, one after the other. The numbers are from a run of Remo's simulation, taken while Remo turned left on the spot at 0.5 rad/s. The run recorded Gazebo's own IMU messages and the two ROS topics side by side. The sample pairs one ROS message with Gazebo's newest IMU message whose stamp isn't later than the ROS message's stamp:
 
-1. **Gazebo's IMU sensor measures:** the IMU sensor measures the angular velocity $\boldsymbol\omega$ and the specific force $\mathbf f$ of `imu_link`. Its yaw rate $\omega_z$, the angular velocity about the upward axis, is 0.50000 rad/s in this sample. The measurement's time is 9.592 s of simulation time. [Part 1](#part-1-gazebos-imu-sensor-measures) shows Gazebo's code.
-2. **The robots' IMU plugin makes the message:** the plugin adds noise to every value, −0.00118 rad/s to this yaw rate. So the message's yaw rate $\tilde\omega_z$ is 0.49882 rad/s. The plugin fills the covariances and stamps the message with 9.593 s, the IMU sensor's update time, which is 1 ms later than the measurement's time. The plugin publishes the message on `/diffbot/imu/gazebo`. This message also has an orientation $\mathbf q$, a quaternion with four numbers. [Part 2](#part-2-the-plugin-makes-the-message) shows the plugin's code.
+1. **Gazebo's IMU sensor measures:** the IMU sensor measures the angular velocity $\boldsymbol\omega$ and the specific force $\mathbf f$ of `imu_link`. In Gazebo's message of this pair, the yaw rate $\omega_z$, the angular velocity about the upward axis, is 0.50000 rad/s, and the measurement's time is 9.592 s of simulation time. [Part 1](#part-1-gazebos-imu-sensor-measures) shows Gazebo's code.
+2. **The robots' IMU plugin makes the message:** when the plugin publishes, it reads the IMU sensor's latest values and adds noise to each of them. The message's yaw rate $\tilde\omega_z$ is 0.49882 rad/s, which is 0.00118 rad/s less than the yaw rate of Gazebo's paired message. The plugin fills the covariances and stamps the message with 9.593 s, the IMU sensor's update time, which is 1 ms later than the paired measurement's time. The plugin publishes the message on `/diffbot/imu/gazebo`. This message also has an orientation $\mathbf q$, a quaternion with four numbers. [Part 2](#part-2-the-plugin-makes-the-message) shows the plugin's code.
 3. **The adapter gives the message the firmware's form:** the firmware's message on the real robot has no orientation. So the adapter marks the orientation unavailable, with four zeros and −1 in `orientation_covariance[0]`, and publishes the message on `/diffbot/imu/data_raw`. The yaw rate, 0.49882 rad/s, and the stamp, 9.593 s, stay as the plugin set them. [Part 3](#part-3-the-adapter) shows the adapter's code.
+
+The pairing is by time alone. The recording can't tell which of Gazebo's measurements the plugin read for a message, so the 0.00118 rad/s is the difference between the two paired readings, not a measured noise value.
 
 The robot's URDF model declares the IMU sensor and its plugin. [The IMU sensor in the robot's URDF model](#the-imu-sensor-in-the-robots-urdf-model) shows where, before anything runs.
 
@@ -161,7 +163,7 @@ The IMU sensor keeps both results. The plugin fetches them later with `sensor->A
 - **The measurement's time** is `timestamp`, the simulation time of the motion data that the measurement was computed from. Gazebo's own IMU message carries this time.
 - **The sensor's update time** is `lastUpdateTime`, the world's simulation time that `Sensor::Update()` read when it ran the measurement. `sensor->LastUpdateTime()` returns the update time. The plugin stamps the ROS message with this time, as [the header and publishing](#the-header-and-publishing) shows.
 
-The sensor loop runs apart from the physics engine, so the world's clock has usually moved on since the link published its motion data. In the run of [the sample above](#one-sample-through-the-three-parts), the update time was 1 ms later than the measurement's time for 523 of 524 messages, one simulation step, and equal for one. These numbers are from one run, not a rule of Gazebo.
+The sensor loop runs apart from the physics engine, so the world's clock has usually moved on since the link published its motion data. The run of [the sample above](#one-sample-through-the-three-parts) paired each of 524 ROS messages with Gazebo's newest IMU message whose stamp wasn't later. For 523 of them, the ROS message's stamp was 1 ms later than the stamp of Gazebo's message, one simulation step. For one, the two stamps were equal. These numbers are from one run and from a pairing by time. They aren't a rule of Gazebo.
 
 At rest, $\mathbf a$ is zero. With `imu_link`'s z axis up, gravity is $\mathbf g = (0, 0, -9.8)$ m/s², so the IMU sensor reads $\mathbf f = (0, 0, +9.8)$ m/s². The overview shows [the angular velocity](index.md#the-angular-velocity) and [the linear acceleration](index.md#the-linear-acceleration) each in a figure, and explains why an accelerometer reads the acceleration minus gravity.
 
@@ -210,7 +212,7 @@ The excerpt shows these lines, from [`gazebo_ros_imu_sensor.cpp`, lines 137–14
 
 ### Reading the sensor and adding noise
 
-A call that passed the checks reads the IMU sensor's last measurement and writes the measurement into the IMU message, with noise. The excerpt shows these lines, from [`gazebo_ros_imu_sensor.cpp`, lines 149–166]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L149-L166):
+A call that passed the checks reads the IMU sensor's latest values and writes them into the IMU message, with noise. The excerpt shows these lines, from [`gazebo_ros_imu_sensor.cpp`, lines 149–166]({{ imu_sim_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L149-L166):
 
 ```cpp title="gazebo_ros_imu_sensor.cpp: the sensor's values, with noise" linenums="149" hl_lines="3 4"
 --8<-- "{{ imu_sim_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:149:166"
@@ -291,7 +293,7 @@ The last lines of `UpdateChild()` set the header, publish the message and store 
 ```
 
 - **The frame:** `body_name` is the parameter `frameName`, `imu_link`.
-- **The stamp:** `current_time` is the IMU sensor's update time, from the first line of `UpdateChild()`. So `header.stamp` is the time at which Gazebo ran the measurement, not the measurement's own time, which only Gazebo's own IMU message carries. [Two times of a measurement](#part-1-gazebos-imu-sensor-measures) in Part 1 explains the difference, 1 ms in the recorded run.
+- **The stamp:** `current_time` is the IMU sensor's update time, from the first line of `UpdateChild()`. So `header.stamp` is the time at which Gazebo ran the measurement, not the measurement's own time, which only Gazebo's own IMU message carries. [Two times of a measurement](#part-1-gazebos-imu-sensor-measures) in Part 1 explains the difference. In the recorded run, the stamp was 1 ms later than the stamp of Gazebo's newest IMU message for nearly every message.
 - **`publish()`:** line 185, the first highlighted line, publishes the finished message on `/diffbot/imu/gazebo`. This is the one place where the plugin publishes.
 - **`last_time`:** line 191, the second highlighted line, stores `current_time` for the rate limit of the next calls. Line 191 also runs when no node subscribes.
 
@@ -319,4 +321,12 @@ The next excerpt shows the adapter's code, from [`imu_raw_adapter.py`, lines 16�
 - **A convention, not a rule to drop the orientation:** REP 145 doesn't ask an IMU driver to leave out the orientation. A driver whose sensor estimates an orientation can publish the orientation on `imu/data`. The firmware's topic, `imu/data_raw`, is REP 145's name for the accelerometer's and the gyroscope's data alone.
 - **`callback()`:** the callback sets the four numbers of the quaternion $\mathbf q$ to 0 and the orientation covariance to a copy of the constant. `list()` makes the copy, so that the messages don't share the constant's list. Then the callback publishes the same message object.
 - **What stays:** the header's stamp and frame, the angular velocity $\tilde{\boldsymbol\omega}$, the specific force $\tilde{\mathbf f}$ and their covariances $\Sigma_\omega$ and $\Sigma_f$. The adapter doesn't stamp the message again. The [IMU sample validator](../robot_localization.md#the-imu-sample-validator) checks how old each sample is, and a new stamp would hide a delay.
-- **What doesn't stay, besides the orientation:** the header's sequence number, `header.seq`. ROS numbers the messages of each publisher when it sends them, for rospy in [lines 143–145 of `msg.py`]({{ ros_comm_src_url }}/clients/rospy/src/rospy/msg.py#L143-L145). So the adapter's messages count on their own. In [the sample above](#one-sample-through-the-three-parts), the plugin's message had the `seq` 460 and the adapter's message the `seq` 447.
+- **What doesn't stay, besides the orientation:** the header's sequence number, `header.seq`. ROS numbers the messages of each publisher when it sends them. So the adapter's messages count on their own. In [the sample above](#one-sample-through-the-three-parts), the plugin's message had the `seq` 460 and the adapter's message the `seq` 447.
+
+??? example "Where rospy sets `header.seq`"
+
+    The excerpt shows the lines of rospy's `serialize_message()` that write the publisher's own count into the header before a message is sent, from [`msg.py` in ros_comm 1.17.4, lines 142–145]({{ ros_comm_src_url }}/clients/rospy/src/rospy/msg.py#L142-L145), under the BSD license. `seq` is the number that the publisher counts up with each message. The adapter's callback never sets `header.seq` itself:
+
+    ```python title="msg.py (rospy 1.17.4): the publisher's count goes into header.seq" linenums="142" hl_lines="4"
+    --8<-- "{{ ros_comm_src_raw }}/clients/rospy/src/rospy/msg.py:142:145"
+    ```

@@ -4,44 +4,46 @@ In the Gazebo simulation, DiffBot and Remo have an IMU too. The simulated IMU pu
 
 ## One left turn, one message
 
-Remo turns left on the spot at 0.5 rad/s. Which numbers of the IMU's message show the turn? The block shows one message of the topic `/diffbot/imu/data_raw` from a run of Remo's simulation, as `rostopic echo /diffbot/imu/data_raw` prints it:
+Remo turns left on the spot at 0.5 rad/s. Which number of the IMU's message shows the turn? One message of the topic `/diffbot/imu/data_raw`, from a run of Remo's simulation, has these three values among its fields:
 
-```yaml title="One message of /diffbot/imu/data_raw while Remo turns left" hl_lines="6 12 16"
-header:
-  seq: 447
-  stamp:
-    secs: 9
-    nsecs: 593000000
-  frame_id: "imu_link"
-orientation:
-  x: 0.0
-  y: 0.0
-  z: 0.0
-  w: 0.0
-orientation_covariance: [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-angular_velocity:
-  x: -0.004345904605363372
-  y: -0.003828368509674866
-  z: 0.4988189368293472
-angular_velocity_covariance: [2.5e-05, 0.0, 0.0, 0.0, 2.5e-05, 0.0, 0.0, 0.0, 2.5e-05]
-linear_acceleration:
-  x: 0.010647160142917143
-  y: 0.10608663989830641
-  z: 9.796201529357843
-linear_acceleration_covariance: [2.5e-05, 0.0, 0.0, 0.0, 2.5e-05, 0.0, 0.0, 0.0, 2.5e-05]
-```
+- **`angular_velocity.z` is 0.4988 rad/s:** this number shows the turn. It is the yaw rate $\omega_z$, how fast the sensor turns about its upward z axis. At rest, the yaw rate is about 0 rad/s. In the turn, the yaw rate is about the turn rate, 0.5 rad/s. The yaw rate is the one value of the message that the EKF uses.
+- **`header.frame_id` is `imu_link`:** this value explains the sign. The frame names the axes that the message's values are along. `imu_link` is the IMU's frame on the robot, and its z axis points up on both robots. Seen from above, a left turn is counterclockwise, and counterclockwise is the positive direction about an axis that points up at you. [The angular velocity](#the-angular-velocity) shows this rule in a figure.
+- **`orientation_covariance[0]` is −1:** this value explains why the message has no heading. The −1 says that the message has no orientation. A gyroscope measures how fast the sensor turns, not which way the sensor points. To know the heading, something has to add up the yaw rates over time. That is the EKF's job, together with the wheel odometry, as [Localization: Wheel Odometry and IMU (EKF)](../robot_localization.md) explains.
 
-Three of its lines, the highlighted ones, answer the question:
+??? example "The complete message, as `rostopic echo /diffbot/imu/data_raw` prints it"
 
-- **`angular_velocity.z` is about +0.5 rad/s:** this number is the yaw rate $\omega_z$, how fast the sensor turns about its upward z axis. At rest, the yaw rate is about 0 rad/s. In the turn, the yaw rate is the turn rate. The value is positive because the turn goes to the left: seen from above, a left turn is counterclockwise, and counterclockwise is the positive direction about an axis that points up at you. [The angular velocity](#the-angular-velocity) shows this rule in a figure. The yaw rate is the one value of the message that the EKF uses.
-- **`header.frame_id` is `imu_link`:** the frame names the axes that the message's values are along. `imu_link` is the IMU's frame on the robot. Its z axis points up on both robots.
-- **`orientation_covariance[0]` is −1:** this −1 says that the message has no orientation. The four zeros of `orientation` are a filler, not a rotation. A gyroscope measures how fast the sensor turns, not which way the sensor points. To know the heading, something has to add up the yaw rates over time. That is the EKF's job, together with the wheel odometry, as [Localization: Wheel Odometry and IMU (EKF)](../robot_localization.md) explains.
+    The block shows the whole message. The three highlighted lines are the three values above. The four zeros of `orientation` are a filler, not a rotation. The other numbers are the angular velocity about the two level axes, which stays near 0 rad/s on a level floor, the linear acceleration with gravity's 9.8 m/s² on the upward axis, and the covariances:
 
-The other numbers are the angular velocity about the two level axes, which stays near 0 rad/s on a level floor, the linear acceleration with gravity's 9.8 m/s² on the upward axis, and the covariances. [What the simulated IMU publishes](#what-the-simulated-imu-publishes) explains every field.
+    ```yaml title="One message of /diffbot/imu/data_raw while Remo turns left" hl_lines="6 12 16"
+    header:
+      seq: 447
+      stamp:
+        secs: 9
+        nsecs: 593000000
+      frame_id: "imu_link"
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+    orientation_covariance: [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    angular_velocity:
+      x: -0.004345904605363372
+      y: -0.003828368509674866
+      z: 0.4988189368293472
+    angular_velocity_covariance: [2.5e-05, 0.0, 0.0, 0.0, 2.5e-05, 0.0, 0.0, 0.0, 2.5e-05]
+    linear_acceleration:
+      x: 0.010647160142917143
+      y: 0.10608663989830641
+      z: 9.796201529357843
+    linear_acceleration_covariance: [2.5e-05, 0.0, 0.0, 0.0, 2.5e-05, 0.0, 0.0, 0.0, 2.5e-05]
+    ```
+
+[What the simulated IMU publishes](#what-the-simulated-imu-publishes) explains every field.
 
 ## The parts, and where to read on
 
-Three parts make the message, one after the other: Gazebo's IMU sensor, the robots' IMU plugin and an adapter. Two more read the message. The IMU sample validator and the EKF run only when the EKF is enabled, with `ekf:=true`. The tests run in CI.
+Three parts make the message, one after the other: Gazebo's IMU sensor, the robots' IMU plugin and an adapter. Two branches read the message. The tests run in CI. The IMU sample validator and the EKF run only when the EKF is enabled, with `ekf:=true`. The validator and this switch are in a later commit of the diffbot repository than the simulated IMU, as the box "Reading the code" says.
 
 ```mermaid
 graph TB
@@ -63,7 +65,9 @@ Four more pages go into the details. Each answers one question:
 
 !!! info "Reading the code"
 
-    - The excerpts on these pages show fixed revisions, with their comments: diffbot's source at one commit, Remo's URDF model at remo_description 2.5.0, and ROS's and Gazebo's sources at one commit each. Their line numbers match the original files.
+    - The excerpts on these pages show fixed revisions, with their comments. Their line numbers match the original files.
+    - The diffbot repository's source is at two commits. The simulated IMU, its plugin, its adapter and its tests are at [`cd41ead`](https://github.com/ros-mobile-robots/diffbot/tree/cd41eadbbec48859d82baf991f587e86fa387814), the commit that added them. This commit has no IMU sample validator and no `ekf:=true`. Both are at [`ead3402`](https://github.com/ros-mobile-robots/diffbot/tree/ead34027a9507c65d7415f93817177340d60d549), the commit of the [Localization](../robot_localization.md) pages, which these pages use for the validator.
+    - Remo's URDF model is at remo_description 2.5.0, and ROS's and Gazebo's sources are at one commit or one release each.
     - The link above each excerpt opens that revision and those lines on GitHub.
     - The numbers that a page calls "from a run" come from one run of Remo's simulation at these revisions, in the dev container. Another run gives other noise, and can give other times.
 
@@ -144,7 +148,7 @@ The list has four cases. The figure shows the first three:
 - **In a turn**, the sensor moves on a circle, and its acceleration points to the circle's center. So the sensor accelerates although the turn rate stays the same. Its size is the turn rate squared times the distance to the center. Remo's IMU sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives $0.5^2 \cdot 0.08 = 0.02$ m/s², which is tiny next to the 9.8 m/s².
 - **In free fall**, nothing holds the sensor up. $\mathbf a$ equals $\mathbf g$, and the sensor reads 0 on all three axes.
 
-**The figure's numbers are a level, noise-free example.** The floor is level, the robot moves exactly as named, and the readings have no noise. A message of the simulation differs in two ways. Each value has the plugin's noise, and the simulated robot doesn't rest exactly level. The means of 200 readings each, from one run of Remo's simulation, show both:
+**A level, noise-free example:** the figure's numbers hold for a level floor, a robot that moves exactly as named, and readings without noise. A message of the simulation differs in two ways. Each value has the plugin's noise, and the simulated robot doesn't rest exactly level. The means of 200 readings each, from one run of Remo's simulation, show both:
 
 - **At rest**, the mean reading was (+0.0004, +0.0693, +9.7998) m/s², not (0, 0, +9.8) m/s². The simulated Remo rests with its front about 0.4° higher than its rear. So a share of the upward reading, about 0.07 m/s², appears on the forward axis.
 - **In the left turn** at 0.5 rad/s, the mean reading was (+0.0069, +0.0876, +9.7991) m/s². So the turn added +0.0065 m/s² to the x reading and +0.0183 m/s² to the y reading. The example's turn adds +0.0059 m/s² and +0.0190 m/s², which the figure rounds to +0.01 and +0.02.
@@ -211,12 +215,12 @@ None of the three covariance arrays is all zeros, so none says that a covariance
 
 ## From the sensor to the EKF
 
-[The diagram at the top of this page](#the-parts-and-where-to-read-on) shows five parts. What each of them adds to the message:
+[The diagram at the top of this page](#the-parts-and-where-to-read-on) shows the parts. What each of them adds to the message, or does with the message:
 
 1. **Gazebo's IMU sensor** measures the angular velocity $\boldsymbol\omega$ and the specific force $\mathbf f$ at `imu_link`, the IMU's frame, 50 times per second. Gazebo computes both from the simulated robot's motion. [Part 1: Gazebo's IMU sensor measures](measurement-to-message.md#part-1-gazebos-imu-sensor-measures) shows the lines of Gazebo's source code, and [Position and Axes](position-and-axes.md) shows where `imu_link` sits on each robot.
-2. **The robots' own IMU plugin** turns each measurement into a `sensor_msgs/Imu` message and publishes it on `/diffbot/imu/gazebo`. The plugin adds the noise to both vectors, writes the variance $\sigma^2$ into their covariances and sets the stamp and the frame. The noise's $\sigma$ of 0.005 rad/s and 0.005 m/s² is the plugin's parameter `gaussianNoise` in the robot's URDF model. [Reading the sensor and adding noise](measurement-to-message.md#reading-the-sensor-and-adding-noise) shows where the robot's URDF model sets this parameter and which lines of the plugin use it. The plugin is a copy of the IMU plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. [The Robots' Own IMU Plugin](plugin.md) explains why.
+2. **The robots' own IMU plugin** reads the IMU sensor's latest values when it publishes, 50 times per second. The plugin makes a `sensor_msgs/Imu` message from these values and publishes the message on `/diffbot/imu/gazebo`. The plugin adds the noise to both vectors, writes the variance $\sigma^2$ into their covariances and sets the stamp and the frame. The noise's $\sigma$ of 0.005 rad/s and 0.005 m/s² is the plugin's parameter `gaussianNoise` in the robot's URDF model. [Reading the sensor and adding noise](measurement-to-message.md#reading-the-sensor-and-adding-noise) shows where the robot's URDF model sets this parameter and which lines of the plugin use it. The plugin is a copy of the IMU plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. [The Robots' Own IMU Plugin](plugin.md) explains why.
 3. **The adapter**, `imu_raw_adapter.py`, gives the simulated message the form of the message that the real robot's firmware publishes. The plugin's message has an orientation $\mathbf q$, and the firmware's message has none. The firmware reads only the BNO055's angular velocity and acceleration, because the EKF fuses only the yaw rate, as [what the firmware publishes](../driver-bno055.md#what-the-firmware-publishes) explains. So the adapter subscribes to `/diffbot/imu/gazebo`, marks the orientation unavailable and publishes the message on `/diffbot/imu/data_raw`. The stamp, the frame, the two vectors and their covariances stay as the plugin set them. The plugin's orientation is not ready to use, because the plugin adds noise to each of the quaternion's four numbers. [Part 3: the adapter](measurement-to-message.md#part-3-the-adapter) shows the adapter's code.
-4. **The [IMU sample validator](../robot_localization.md#the-imu-sample-validator)** subscribes to `/diffbot/imu/data_raw` and forwards the samples that pass its checks, unchanged, on `/diffbot/imu/data_validated`, which the EKF subscribes to. The validator drops a sample while the ROS time is still zero, when the sample's frame isn't `imu_link`, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is [`imu_validator.py` in `diffbot_control`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py). The validator and the EKF run only with `ekf:=true`, as [running the EKF](../robot_localization.md#running-it) shows.
+4. **The [IMU sample validator](../robot_localization.md#the-imu-sample-validator)** subscribes to `/diffbot/imu/data_raw` and forwards the samples that pass its checks on `/diffbot/imu/data_validated`, which the EKF subscribes to. A forwarded sample keeps its stamp, its frame, its measurements and its covariances. Its `header.seq` is the validator's own count, as for [the adapter](measurement-to-message.md#part-3-the-adapter). The validator drops a sample while the ROS time is still zero, when the sample's frame isn't `imu_link`, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is [`imu_validator.py` in `diffbot_control`]({{ ekf_src_url }}/diffbot_control/scripts/imu_validator.py), at the Localization pages' commit `ead3402`. The validator and the EKF run only with `ekf:=true`, as [running the EKF](../robot_localization.md#running-it) shows.
 5. **The tests**, `test_imu.py` and `test_imu_reset.py`, subscribe to `/diffbot/imu/data_raw` and check the messages in CI, as [Tests](tests.md) explains.
 
 ## The simulation and the real robot

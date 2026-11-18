@@ -710,7 +710,7 @@ def reset_caption() -> str:
             'doesn’t start over at the reset. A sample counts as fresh in the gray area: it '
             f'arrives after the reset, with a stamp below `RECOVERY`, {RECOVERY:g} s. The test '
             f'passes with {FRESH_SAMPLE_COUNT} fresh samples, which have to arrive within '
-            f'{RECOVERY_TIMEOUT:g} s of wall time. The dot in the left panel is sample '
+            f'{RECOVERY_TIMEOUT:g} s of wall time. The dot in the first panel is sample '
             f'{FRESH_SAMPLE_COUNT}, stamped about {FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s. The '
             'test counts arrivals and doesn’t compare their stamps with each other.')
 
