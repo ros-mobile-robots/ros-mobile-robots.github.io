@@ -4805,7 +4805,7 @@
 
 
 <h1 id="test-who-publishes-the-transform">Test: Who Publishes the Transform</h1>
-<p>This page belongs to <a href="../../">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a>. It walks through <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a> and its helper <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/odom_tf_observer.py"><code>odom_tf_observer.py</code></a>.</p>
+<p>This page belongs to <a href="../../">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a>. <a href="../">Tests of the Localization</a> lists the five tests by the question that each answers. This page walks through <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a> and its helper <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/odom_tf_observer.py"><code>odom_tf_observer.py</code></a>.</p>
 <p>The transform <code>odom → base_footprint</code> says where the robot is in the <code>odom</code> frame. Exactly one node may publish it on the topic <code>/tf</code>. With two publishers, the robot's pose would jump between their two estimates. Without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, the drive controller publishes the transform. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes it and the drive controller doesn't, as <a href="../../#how-it-fits-together">How it fits together</a> explains. The test proves in the simulation that exactly the expected node publishes the transform while the test watches. It doesn't check the transform's values, and it doesn't run on the real robot. <a href="#what-the-test-doesnt-show">What the test doesn't show</a> lists the limits.</p>
 <p>The check runs in two simulations:</p>
 <table>
@@ -4829,7 +4829,7 @@
 </tr>
 </tbody>
 </table>
-<p>The figure shows both simulations, each in a drawing of its own. On the left of a drawing are the two possible publishers of the transform, the drive controller and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. A solid green box with a ✓ publishes the transform, and a dashed box doesn't. On the right is the observer in the test node, which reads the topic <code>/tf</code> and counts the transforms <code>odom → base_footprint</code> by the node that published them. The list under a drawing names the node that the test expects and gives the observer's counts in a saved run.</p>
+<p>The figure shows both simulations, each in a drawing of its own. On the left of a drawing are the two possible publishers of the transform, the drive controller and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. In the simulation, the drive controller runs in Gazebo's node <code>/gazebo</code>, which the drawing names in the controller's box. A solid green box with a ✓ publishes the transform, and a dashed box doesn't. On the right is the observer in the test node, which reads the topic <code>/tf</code> and counts the transforms <code>odom → base_footprint</code> by their <code>callerid</code>, the name of the node that published them. <a href="#the-observer">The observer</a> explains <code>callerid</code>. The list under a drawing names the node that the test expects and gives the observer's counts in a saved run, as an example of a passing run.</p>
 <style>
 .md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
@@ -4903,50 +4903,52 @@
 </style>
 <figure class="lv-figure lv-large">
 <p class="lv-band">Without the EKF, checked by <code>test_odom_tf.py</code></p>
-<svg class="lv-fig" viewBox="0 0 300 102" role="img" aria-labelledby="lv-tf-without-ekf-title"><title id="lv-tf-without-ekf-title">Without the EKF, only the drive controller publishes the transform odom → base_footprint on the topic /tf, from the node /gazebo. The observer counts the transforms by publishing node</title>
+<svg class="lv-fig" viewBox="0 0 300 116" role="img" aria-labelledby="lv-tf-without-ekf-title"><title id="lv-tf-without-ekf-title">Without the EKF, only the drive controller publishes the transform odom → base_footprint on the topic /tf, from the node /gazebo. The observer counts the transforms by publishing node</title>
 <g><title>The drive controller runs in the node /gazebo and publishes the transform: enable_odom_tf is true</title>
-<rect class="active" x="2.0" y="2.0" width="186.0" height="52.0" rx="4"></rect>
+<rect class="active" x="2.0" y="2.0" width="186.0" height="66.0" rx="4"></rect>
 <text class="strong" x="10.0" y="17.5" text-anchor="start">✓ drive controller</text>
-<text class="mono" x="10.0" y="31.5" text-anchor="start">/gazebo</text>
-<text class="mono" x="10.0" y="45.5" text-anchor="start">enable_odom_tf: true</text>
+<text class="note" x="10.0" y="31.5" text-anchor="start">runs in the node</text>
+<text class="mono" x="10.0" y="45.5" text-anchor="start">/gazebo</text>
+<text class="mono" x="10.0" y="59.5" text-anchor="start">enable_odom_tf: true</text>
 </g>
-<path class="flow" d="M188,28.0 L218,28.0"></path>
-<polygon class="flow-head" points="226,28.0 217,24.2 217,31.8"></polygon>
-<text class="mono" x="205.0" y="22.0" text-anchor="middle">/tf</text>
+<path class="flow" d="M188,35.0 L218,35.0"></path>
+<polygon class="flow-head" points="226,35.0 217,31.2 217,38.8"></polygon>
+<text class="mono" x="205.0" y="29.0" text-anchor="middle">/tf</text>
 <g><title>The EKF is not started and publishes nothing</title>
-<rect class="inactive" x="2.0" y="62.0" width="186.0" height="38.0" rx="4"></rect>
-<text x="10.0" y="77.5" text-anchor="start">EKF</text>
-<text class="note" x="10.0" y="91.5" text-anchor="start">not started</text>
+<rect class="inactive" x="2.0" y="76.0" width="186.0" height="38.0" rx="4"></rect>
+<text x="10.0" y="91.5" text-anchor="start">EKF</text>
+<text class="note" x="10.0" y="105.5" text-anchor="start">not started</text>
 </g>
-<rect class="item" x="226.0" y="2.0" width="72.0" height="98.0" rx="5"></rect>
-<text class="name" x="262.0" y="40.5" text-anchor="middle">observer</text>
-<text class="note" x="262.0" y="54.5" text-anchor="middle">counts</text>
-<text class="note" x="262.0" y="68.5" text-anchor="middle">by node</text>
+<rect class="item" x="226.0" y="2.0" width="72.0" height="112.0" rx="5"></rect>
+<text class="name" x="262.0" y="47.5" text-anchor="middle">observer</text>
+<text class="note" x="262.0" y="61.5" text-anchor="middle">counts by</text>
+<text class="mono" x="262.0" y="75.5" text-anchor="middle">callerid</text>
 </svg>
 <ul class="lv-legend lv-results">
 <li><span class="lv-sign"></span><strong>Expected:</strong> only <code>/gazebo</code> publishes the transform</li>
 <li><span class="lv-sign">✓</span><strong>Saved run:</strong> the observer counted 155 transforms for DiffBot and 151 for Remo, all from <code>/gazebo</code></li>
 </ul>
 <p class="lv-band">With the EKF, checked by <code>test_ekf.py</code></p>
-<svg class="lv-fig" viewBox="0 0 300 102" role="img" aria-labelledby="lv-tf-with-ekf-title"><title id="lv-tf-with-ekf-title">With the EKF, only the EKF publishes the transform odom → base_footprint on the topic /tf, from the node /diffbot/ekf_localization. The observer counts the transforms by publishing node</title>
+<svg class="lv-fig" viewBox="0 0 300 116" role="img" aria-labelledby="lv-tf-with-ekf-title"><title id="lv-tf-with-ekf-title">With the EKF, only the EKF publishes the transform odom → base_footprint on the topic /tf, from the node /diffbot/ekf_localization. The observer counts the transforms by publishing node</title>
 <g><title>The drive controller runs in the node /gazebo and does not publish the transform: enable_odom_tf is false</title>
-<rect class="inactive" x="2.0" y="2.0" width="186.0" height="52.0" rx="4"></rect>
+<rect class="inactive" x="2.0" y="2.0" width="186.0" height="66.0" rx="4"></rect>
 <text x="10.0" y="17.5" text-anchor="start">drive controller</text>
-<text class="mono" x="10.0" y="31.5" text-anchor="start">/gazebo</text>
-<text class="mono" x="10.0" y="45.5" text-anchor="start">enable_odom_tf: false</text>
+<text class="note" x="10.0" y="31.5" text-anchor="start">runs in the node</text>
+<text class="mono" x="10.0" y="45.5" text-anchor="start">/gazebo</text>
+<text class="mono" x="10.0" y="59.5" text-anchor="start">enable_odom_tf: false</text>
 </g>
 <g><title>The EKF runs in the node /diffbot/ekf_localization and publishes the transform</title>
-<rect class="active" x="2.0" y="62.0" width="186.0" height="38.0" rx="4"></rect>
-<text class="strong" x="10.0" y="77.5" text-anchor="start">✓ EKF</text>
-<text class="mono" x="10.0" y="91.5" text-anchor="start">/diffbot/ekf_localization</text>
+<rect class="active" x="2.0" y="76.0" width="186.0" height="38.0" rx="4"></rect>
+<text class="strong" x="10.0" y="91.5" text-anchor="start">✓ EKF</text>
+<text class="mono" x="10.0" y="105.5" text-anchor="start">/diffbot/ekf_localization</text>
 </g>
-<path class="flow" d="M188,81.0 L218,81.0"></path>
-<polygon class="flow-head" points="226,81.0 217,77.2 217,84.8"></polygon>
-<text class="mono" x="205.0" y="75.0" text-anchor="middle">/tf</text>
-<rect class="item" x="226.0" y="2.0" width="72.0" height="98.0" rx="5"></rect>
-<text class="name" x="262.0" y="40.5" text-anchor="middle">observer</text>
-<text class="note" x="262.0" y="54.5" text-anchor="middle">counts</text>
-<text class="note" x="262.0" y="68.5" text-anchor="middle">by node</text>
+<path class="flow" d="M188,95.0 L218,95.0"></path>
+<polygon class="flow-head" points="226,95.0 217,91.2 217,98.8"></polygon>
+<text class="mono" x="205.0" y="89.0" text-anchor="middle">/tf</text>
+<rect class="item" x="226.0" y="2.0" width="72.0" height="112.0" rx="5"></rect>
+<text class="name" x="262.0" y="47.5" text-anchor="middle">observer</text>
+<text class="note" x="262.0" y="61.5" text-anchor="middle">counts by</text>
+<text class="mono" x="262.0" y="75.5" text-anchor="middle">callerid</text>
 </svg>
 <ul class="lv-legend lv-results">
 <li><span class="lv-sign"></span><strong>Expected:</strong> only <code>/diffbot/ekf_localization</code> publishes the transform</li>

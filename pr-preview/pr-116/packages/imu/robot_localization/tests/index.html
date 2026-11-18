@@ -4536,10 +4536,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#which-question-each-test-answers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which question each test answers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-the-tests-run" class="md-nav__link">
     <span class="md-ellipsis">
       
         How the tests run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the tests
       
     </span>
   </a>
@@ -4671,72 +4693,92 @@
 
 <h1 id="tests-of-the-localization">Tests of the Localization</h1>
 <p>Five test files check the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator of the <a href="../">Localization chapter</a> without the robot. Each file tests at a different level: the validator's rules alone, the validator and the filter on a clock that the test steps, the whole robot in Gazebo, the launch files, and the publisher of the transform <code>odom → base_footprint</code>. Each test has a page that walks through its code, with a figure of what the test feeds and what it checks.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Test file</th>
-<th style="text-align: left;">What the test starts</th>
-<th style="text-align: left;">What the test checks</th>
-<th style="text-align: left;">Page</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_imu_validator.py"><code>test_imu_validator.py</code></a></td>
-<td style="text-align: left;">Nothing. Its 27 unit tests call the class <code>ImuValidator</code> directly, without a ROS master</td>
-<td style="text-align: left;">Each reason to drop a sample, the limits <code>max_age</code> and <code>max_future</code>, a clock that goes back, and the diagnostics</td>
-<td style="text-align: left;"><a href="validator/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Sample Validator</a></td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_ekf_synthetic.py"><code>test_ekf_synthetic.py</code></a></td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/ekf.launch"><code>ekf.launch</code></a> with DiffBot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, on a simulated clock that the test publishes, once for each of its two scenarios</td>
-<td style="text-align: left;">The estimate's yaw rate <span class="arithmatex">\(\omega_z\)</span> in seven phases of valid and invalid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples, and the validator's counts on the topic <code>/diagnostics</code>. At the robot's rates, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> at 50 Hz and the wheel odometry at 10 Hz: the estimate, and when the filter publishes with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running and stopped</td>
-<td style="text-align: left;"><a href="stepped-clock/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on a Stepped Clock</a></td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a></td>
-<td style="text-align: left;">DiffBot or Remo in Gazebo with <code>ekf:=true</code>, and a drive controller whose wheel separation is 25 % too large</td>
-<td style="text-align: left;">That the filter's turn follows the robot's true turn, not the wheel odometry's, and that only the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the transform <code>odom → base_footprint</code></td>
-<td style="text-align: left;"><a href="gazebo/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> in Gazebo</a></td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf_switch.py"><code>test_ekf_switch.py</code></a></td>
-<td style="text-align: left;">Nothing. roslaunch's loader reads the launch files without starting a node</td>
-<td style="text-align: left;">Which nodes each launch file starts with <code>ekf</code> true, false and by default, the value of <code>enable_odom_tf</code>, and the odometry topic that the planners read</td>
-<td style="text-align: left;"><a href="switch/">The ekf Switch</a></td>
-</tr>
-<tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a></td>
-<td style="text-align: left;">DiffBot or Remo in Gazebo without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></td>
-<td style="text-align: left;">That only the drive controller publishes the transform <code>odom → base_footprint</code></td>
-<td style="text-align: left;"><a href="odom-tf/">The Transform's Publisher</a></td>
-</tr>
-</tbody>
-</table>
+<h2 id="which-question-each-test-answers">Which question each test answers</h2>
+<p>Each question below leads to the page of the test that answers it. The pages go from a single decision of the validator, through the validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> together, to the simulated robot:</p>
+<ol>
+<li><strong><a href="validator/">Which <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples may reach the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>?</a></strong><ul>
+<li><strong>Answer:</strong> a sample passes only at a ROS time other than 0, and only with the right frame, finite values, valid variances, a stamp close to the ROS time, and a stamp later than the last valid sample's.</li>
+<li><strong>Where the test runs:</strong> in Python alone. The unit tests call the validator's class directly, without a ROS master.</li>
+</ul>
+</li>
+<li><strong><a href="stepped-clock/">What does the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> estimate when the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples are valid, invalid or stop?</a></strong><ul>
+<li><strong>Answer:</strong> the estimate's yaw rate <span class="arithmatex">\(\omega_z\)</span> follows the valid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples, ignores the samples that the validator drops, and goes to the wheels' yaw rate when no valid sample arrives, also at the robot's rates.</li>
+<li><strong>Where the test runs:</strong> the validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run as ROS nodes, on a clock that the test steps, without Gazebo.</li>
+</ul>
+</li>
+<li><strong><a href="gazebo/">Does the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> recover a wrong turn in Gazebo?</a></strong><ul>
+<li><strong>Answer:</strong> yes. With a wheel separation that is 25 % too large in the drive controller, the wheel odometry's turn falls behind the true turn, and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s turn stays within 0.05 rad of the true turn. In the same simulation, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> is the only node that publishes the transform <code>odom → base_footprint</code>.</li>
+<li><strong>Where the test runs:</strong> in Gazebo without a window, with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, with DiffBot and with Remo.</li>
+</ul>
+</li>
+<li><strong><a href="switch/">Does <code>ekf:=true</code> start the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and hand the transform over to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>?</a></strong><ul>
+<li><strong>Answer:</strong> the launch files that start the robot or the simulation start the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the validator only with <code>ekf:=true</code>, and then turn the drive controller's transform off. The launch files that start a planner make the planner read the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry by default with <code>ekf:=true</code>.</li>
+<li><strong>Where the test runs:</strong> roslaunch's loader reads the launch files. No node starts.</li>
+</ul>
+</li>
+<li><strong><a href="odom-tf/">Which node publishes the transform <code>odom → base_footprint</code> without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>?</a></strong><ul>
+<li><strong>Answer:</strong> the only publisher is <code>/gazebo</code>, the node that runs the drive controller in the simulation. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, the test of question 3 checks that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> is the only publisher, and the page of this question shows both cases.</li>
+<li><strong>Where the test runs:</strong> in Gazebo without a window, without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, with DiffBot and with Remo.</li>
+</ul>
+</li>
+</ol>
 <h2 id="how-the-tests-run">How the tests run</h2>
 <p>The five test files are Python tests, written with Python's <a href="https://docs.python.org/3/library/unittest.html"><code>unittest</code></a> module: each file defines its tests as methods of a <code>unittest.TestCase</code> class. catkin runs the five files with the workspace's other tests. The packages register them in their <code>CMakeLists.txt</code> with two macros:</p>
 <ul>
 <li><strong><code>catkin_add_nosetests()</code>:</strong> for the two files without ROS nodes. The test runner <a href="https://nose.readthedocs.io/en/latest/">nose</a> finds the <code>TestCase</code> classes in the file and runs their tests.</li>
 <li><strong><code>add_rostest()</code>:</strong> for the three files that start nodes. rostest starts the nodes of the test's <code>.test</code> launch file, then the test file.</li>
 </ul>
-<p>catkin's guides <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> and <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst">Configuring rostest</a> explain the two macros. There are three ways to run the tests:</p>
-<ul>
-<li><strong>All tests:</strong> <code>catkin build --catkin-make-args run_tests</code> in the <a href="../../../../development/ci/#dev-container-workflow">dev container</a> builds the workspace and runs every test, the five files included. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same tests on every pull request, as <a href="../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> explains.</li>
-<li>
-<p><strong>One test with ROS nodes:</strong> <code>rostest</code> starts the test's launch file and the test, for example the two scenarios of the stepped-clock test and Remo's test in Gazebo:</p>
+<p>catkin's guides <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> and <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst">Configuring rostest</a> explain the two macros. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same tests on every pull request, as <a href="../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> explains.</p>
+<h2 id="run-the-tests">Run the tests</h2>
+<p>Run the commands in the <a href="../../../../development/dev-container/">dev container</a>, in a shell in which its built Noetic workspace <code>~/catkin_ws</code> is sourced, as the container's setup leaves it. These commands run every test of the workspace, as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does, from the workspace's folder:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_control ekf_synthetic.test</span>
-<span class="go">rostest diffbot_control ekf_synthetic_robot_rates.test</span>
-<span class="go">rostest diffbot_gazebo sim_ekf_remo.test</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/catkin_ws</span>
+<span class="go">catkin build --catkin-make-args run_tests</span>
+<span class="go">catkin_test_results build</span>
 </code></pre></div></td></tr></tbody></table></div>
-</li>
+<p>The second line builds the workspace and runs every registered test, the five files included. The third line sums up the result files and fails if any test failed. <a href="../../../../development/simulation-test/#run-it">Run it</a> on Simulation Test explains the two commands.</p>
+<p>To run one test file, use its command from the list. Each item names what a passing run prints. The test's page shows the whole output and what the test doesn't show.</p>
+<ul>
 <li>
-<p><strong>One test file without ROS nodes:</strong> the command for all tests runs the two files without ROS nodes with nose. To run only one of them, for example while you change the validator, Python's <code>unittest</code> runs the file from its folder:</p>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_imu_validator.py"><code>test_imu_validator.py</code></a>, <a href="validator/#run-the-tests"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Sample Validator</a>:</strong> Python's <code>unittest</code> runs the file from its folder.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_control/test</span>
 <span class="go">python3 -m unittest -v test_imu_validator</span>
 </code></pre></div></td></tr></tbody></table></div>
+<p>A pass ends with the line <code>OK</code>, after <code>Ran 27 tests</code>.</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_ekf_synthetic.py"><code>test_ekf_synthetic.py</code></a>, <a href="stepped-clock/#runs"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on a Stepped Clock</a>:</strong> rostest runs one scenario for each <code>.test</code> file.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_control ekf_synthetic.test</span>
+<span class="go">rostest diffbot_control ekf_synthetic_robot_rates.test</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>For each command, look for <code>* RESULT: SUCCESS</code> under <code>SUMMARY</code> at the end of the output.</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a>, <a href="gazebo/#run-it"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> in Gazebo</a>:</strong> rostest starts the simulation of one robot with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_gazebo sim_ekf_diffbot.test</span>
+<span class="go">rostest diffbot_gazebo sim_ekf_remo.test</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>For each command, look for <code>* RESULT: SUCCESS</code> under <code>SUMMARY</code> at the end of the output.</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf_switch.py"><code>test_ekf_switch.py</code></a>, <a href="switch/#run-it">The ekf Switch</a>:</strong> Python's <code>unittest</code> runs the file from its folder.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_gazebo/test</span>
+<span class="go">python3 -m unittest -v test_ekf_switch</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>A pass ends with the line <code>OK</code>, after <code>Ran 5 tests</code>.</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a>, <a href="odom-tf/#run-it">The Transform's Publisher</a>:</strong> rostest starts the simulation of one robot without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and runs all five test nodes of the file, this test among them.</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_gazebo sim_drive_diffbot.test</span>
+<span class="go">rostest diffbot_gazebo sim_drive_remo.test</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>For each command, look for <code>* RESULT: SUCCESS</code> under <code>SUMMARY</code> at the end of the output. This result covers all five test nodes of the file.</p>
 </li>
 </ul>
 <h2 id="what-the-tests-dont-show">What the tests don't show</h2>

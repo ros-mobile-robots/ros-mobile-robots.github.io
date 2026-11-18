@@ -3164,10 +3164,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#how-the-tests-run" class="md-nav__link">
+  <a href="#one-sample-through-the-validator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How the tests run
+        One sample through the validator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-test-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The test classes
       
     </span>
   </a>
@@ -3406,6 +3417,17 @@
     <span class="md-ellipsis">
       
         TestSampleCounts: the numbers of a report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the tests
       
     </span>
   </a>
@@ -4843,10 +4865,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#how-the-tests-run" class="md-nav__link">
+  <a href="#one-sample-through-the-validator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How the tests run
+        One sample through the validator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-test-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The test classes
       
     </span>
   </a>
@@ -5092,6 +5125,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#run-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-the-tests-dont-show" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5215,8 +5259,194 @@
 
 
 <h1 id="tests-the-imu-sample-validator">Tests: The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Sample Validator</h1>
-<p>What the unit tests of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator check, and how they do it. This page belongs to the <a href="../">tests of the Localization</a>.</p>
+<p>What the unit tests of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator check, and how they do it. This page belongs to the <a href="../">tests of the Localization</a>, which list the five tests by the question that each answers.</p>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_imu_validator.py"><code>test_imu_validator.py</code></a> tests the <a href="../../#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> one decision at a time. Its 27 unit tests call the validator's Python class and functions directly. No ROS master runs, no node starts and no message travels over a topic. The tests prove what the validator decides for a given <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample at a given ROS time <span class="arithmatex">\(t\)</span>, and what its diagnostics report. They don't prove that the node forwards the samples on its topic or that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> handles them. For that, the <a href="../stepped-clock/">stepped-clock test</a> runs the node together with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
+<h2 id="one-sample-through-the-validator">One sample through the validator</h2>
+<p>Two examples show the validator's decision before the code. Each example gives one sample to a new validator, one that has seen no sample yet, at the ROS time <span class="arithmatex">\(t\)</span> = 100 s. Both samples are in the frame <code>imu_link</code>, with finite values and positive variances, as the firmware sends them. They differ only in their stamp <span class="arithmatex">\(t_s\)</span>:</p>
+<ul>
+<li><strong>Sample B, stamped <span class="arithmatex">\(t_s\)</span> = 99.900000 s:</strong> its age <span class="arithmatex">\(t - t_s\)</span> is 0.100000 s, exactly <code>max_age</code>. The validator accepts B, and the node forwards the sample.</li>
+<li><strong>Sample A, stamped <span class="arithmatex">\(t_s\)</span> = 99.899999 s:</strong> its age <span class="arithmatex">\(t - t_s\)</span> is 0.100001 s, 1 µs more than <code>max_age</code>. The validator rejects A as <code>TOO_OLD</code>, and the node drops the sample.</li>
+</ul>
+<p><a href="../../#check-4-the-stamp-against-the-ros-time">Check 4</a> lets a sample through that is at most <code>max_age</code>, 0.1 s, old: <span class="arithmatex">\(t - t_s \le \texttt{max\_age}\)</span>. B is exactly that old and passes. <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">Check 5</a> has no earlier valid sample to compare B with, so B passes check 5 too, and the validator accepts B. A is 1 µs older than B and fails check 4. The same two samples appear in the test of <a href="#check-4-the-two-time-limits">Check 4: the two time limits</a>, which gives both to one validator.</p>
+<p>The figure shows every step of the decision, from top to bottom. Each box on the left is a condition. A sample that meets the condition goes down to the next box. A sample that doesn't meet the condition takes the arrow "no" to the right, to the reason with which the validator drops the sample. The second box drops no sample: after the ROS time went back, the validator forgets the last valid sample and goes on, as <a href="#clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back">a clock that goes back</a> explains. The numbers 1 to 5 are those of <a href="../../#the-five-checks">the five checks</a> on the Localization page.</p>
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .cut{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .cut-gap{fill:var(--md-default-bg-color);stroke:none}
+.lv-fig .former-stamp,.lv-key .former-stamp{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:3.5 2.5}
+.lv-fig .wheels-line,.lv-key .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:2.4}
+.lv-fig .imu-line,.lv-key .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-fig .estimate-dot,.lv-key .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:2}
+.lv-fig .estimate-range,.lv-key .estimate-range{fill:none;stroke:var(--lv-estimate);stroke-width:2}
+.lv-fig .estimate-path,.lv-key .estimate-path{fill:none;stroke:var(--lv-estimate);stroke-width:1.6;stroke-dasharray:2 2.5}
+.lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
+.lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
+.lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-large .lv-fig .letter{font-size:11px}
+.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large .lv-fig .index{font-size:9.8px}
+.lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
+.lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-fig .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
+.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
+.lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
+.md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
+.md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+</style>
+<figure class="lv-figure lv-large">
+<svg class="lv-fig" viewBox="0 0 300 397" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. A sample that passes every step is recorded as the last valid sample, and the node forwards it</title>
+<rect class="item" x="2.0" y="2.0" width="296.0" height="22.0" rx="4"></rect>
+<text class="strong" x="150.0" y="17.0" text-anchor="middle">a sample arrives at the ROS time t</text>
+<path class="message" d="M291,47.0 V346.0"></path>
+<path class="message-head" d="M291,347.0 l-4,-8 h8 z"></path>
+<path class="message" d="M79.0,24.0 V35.0"></path>
+<path class="message-head" d="M79.0,36.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="36.0" width="154.0" height="22.0" rx="4"></rect>
+<text x="9.0" y="51.0" text-anchor="start">ROS time t ≠ 0</text>
+<path class="message" d="M156,47.0 H171"></path>
+<path class="message-head" d="M172,47.0 l-8,-4 v8 z"></path>
+<text class="note" x="163.0" y="42.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="36.0" width="112.0" height="22.0" rx="4"></rect>
+<path class="message" d="M284,47.0 H291"></path>
+<text class="mono" x="228.0" y="51.0" text-anchor="middle">NO_CLOCK</text>
+<path class="message" d="M79.0,58.0 V69.0"></path>
+<path class="message-head" d="M79.0,70.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="70.0" width="154.0" height="35.0" rx="4"></rect>
+<text x="9.0" y="85.0" text-anchor="start">if the clock went back:</text>
+<text class="note" x="9.0" y="98.0" text-anchor="start">forget the last valid one</text>
+<path class="message" d="M79.0,105.0 V116.0"></path>
+<path class="message-head" d="M79.0,117.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="117.0" width="154.0" height="22.0" rx="4"></rect>
+<text class="strong" x="9.0" y="132.0" text-anchor="start">1</text>
+<text x="22.0" y="132.0" text-anchor="start">frame is imu_link</text>
+<path class="message" d="M156,128.0 H171"></path>
+<path class="message-head" d="M172,128.0 l-8,-4 v8 z"></path>
+<text class="note" x="163.0" y="123.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="117.0" width="112.0" height="22.0" rx="4"></rect>
+<path class="message" d="M284,128.0 H291"></path>
+<text class="mono" x="228.0" y="132.0" text-anchor="middle">WRONG_FRAME</text>
+<path class="message" d="M79.0,139.0 V150.0"></path>
+<path class="message-head" d="M79.0,151.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="151.0" width="154.0" height="22.0" rx="4"></rect>
+<text class="strong" x="9.0" y="166.0" text-anchor="start">2</text>
+<text x="22.0" y="166.0" text-anchor="start">values are finite</text>
+<path class="message" d="M156,162.0 H171"></path>
+<path class="message-head" d="M172,162.0 l-8,-4 v8 z"></path>
+<text class="note" x="163.0" y="157.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="151.0" width="112.0" height="22.0" rx="4"></rect>
+<path class="message" d="M284,162.0 H291"></path>
+<text class="mono" x="228.0" y="166.0" text-anchor="middle">NOT_FINITE</text>
+<path class="message" d="M79.0,173.0 V184.0"></path>
+<path class="message-head" d="M79.0,185.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="185.0" width="154.0" height="48.0" rx="4"></rect>
+<text class="strong" x="9.0" y="213.0" text-anchor="start">3</text>
+<text x="22.0" y="213.0" text-anchor="start">covariance is valid</text>
+<path class="message" d="M156,209.0 H171"></path>
+<path class="message-head" d="M172,209.0 l-8,-4 v8 z"></path>
+<text class="note" x="163.0" y="204.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="185.0" width="112.0" height="48.0" rx="4"></rect>
+<path class="message" d="M284,209.0 H291"></path>
+<text class="mono" x="228.0" y="200.0" text-anchor="middle">INVALID_ANGULAR_</text>
+<text class="mono" x="228.0" y="213.0" text-anchor="middle">VELOCITY_</text>
+<text class="mono" x="228.0" y="226.0" text-anchor="middle">COVARIANCE</text>
+<path class="message" d="M79.0,233.0 V244.0"></path>
+<path class="message-head" d="M79.0,245.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="245.0" width="154.0" height="22.0" rx="4"></rect>
+<text class="strong" x="9.0" y="260.0" text-anchor="start">4</text>
+<text x="22.0" y="260.0" text-anchor="start">not too far ahead</text>
+<path class="message" d="M156,256.0 H171"></path>
+<path class="message-head" d="M172,256.0 l-8,-4 v8 z"></path>
+<text class="note" x="163.0" y="251.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="245.0" width="112.0" height="22.0" rx="4"></rect>
+<path class="message" d="M284,256.0 H291"></path>
+<text class="mono" x="228.0" y="260.0" text-anchor="middle">FROM_THE_FUTURE</text>
+<path class="message" d="M79.0,267.0 V278.0"></path>
+<path class="message-head" d="M79.0,279.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="279.0" width="154.0" height="22.0" rx="4"></rect>
+<text class="strong" x="9.0" y="294.0" text-anchor="start">4</text>
+<text x="22.0" y="294.0" text-anchor="start">not too old</text>
+<path class="message" d="M156,290.0 H171"></path>
+<path class="message-head" d="M172,290.0 l-8,-4 v8 z"></path>
+<text class="note" x="163.0" y="285.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="279.0" width="112.0" height="22.0" rx="4"></rect>
+<path class="message" d="M284,290.0 H291"></path>
+<text class="mono" x="228.0" y="294.0" text-anchor="middle">TOO_OLD</text>
+<path class="message" d="M79.0,301.0 V312.0"></path>
+<path class="message-head" d="M79.0,313.0 l-4,-8 h8 z"></path>
+<rect class="item" x="2.0" y="313.0" width="154.0" height="22.0" rx="4"></rect>
+<text class="strong" x="9.0" y="328.0" text-anchor="start">5</text>
+<text x="22.0" y="328.0" text-anchor="start">newer than the last</text>
+<path class="message" d="M156,324.0 H171"></path>
+<path class="message-head" d="M172,324.0 l-8,-4 v8 z"></path>
+<text class="note" x="163.0" y="319.0" text-anchor="middle">no</text>
+<rect class="drop-mark" x="172.0" y="313.0" width="112.0" height="22.0" rx="4"></rect>
+<path class="message" d="M284,324.0 H291"></path>
+<text class="mono" x="228.0" y="328.0" text-anchor="middle">NOT_NEWER</text>
+<path class="message" d="M79.0,335.0 V346.0"></path>
+<path class="message-head" d="M79.0,347.0 l-4,-8 h8 z"></path>
+<rect class="pass-mark" x="2.0" y="347.0" width="154.0" height="48.0" rx="4"></rect>
+<text class="strong" x="79.0" y="362.0" text-anchor="middle">valid: returns None</text>
+<text class="note" x="79.0" y="375.0" text-anchor="middle">records the stamp and t</text>
+<text class="note" x="79.0" y="388.0" text-anchor="middle">node forwards the sample</text>
+<rect class="drop-mark" x="172.0" y="347.0" width="126.0" height="48.0" rx="4"></rect>
+<text class="strong" x="235.0" y="362.0" text-anchor="middle">returns the reason</text>
+<text class="note" x="235.0" y="375.0" text-anchor="middle">node counts the drop</text>
+<text class="note" x="235.0" y="388.0" text-anchor="middle">and throttles warnings</text>
+</svg>
+<figcaption>The decision of <code>drop_reason_or_record()</code> about one sample, from top to bottom. A check lets the sample go down only if its condition holds. Otherwise the arrow "no" leads to the drop reason, and the decision ends with this reason. The clock step drops no sample: the decision always goes on after it.</figcaption>
+</figure>
+
+<p>The decision has two ends:</p>
+<ul>
+<li><strong>Accepted:</strong> <a href="#drop_reason_or_record-the-decision-about-a-sample"><code>drop_reason_or_record()</code></a> records the sample's stamp <span class="arithmatex">\(t_s\)</span> and its arrival time <span class="arithmatex">\(t\)</span> as the last valid sample's and returns <code>None</code>. The node counts the sample as forwarded and publishes the sample for the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. The tests check this end with <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_accepted()</code></a>.</li>
+<li><strong>Rejected:</strong> <code>drop_reason_or_record()</code> returns the reason and doesn't record the sample. The node counts the sample under this reason, which the <a href="#testsamplecounts-the-numbers-of-a-report">diagnostics</a> report, and passes a warning to <code>rospy.logwarn_throttle()</code> with the period <code>WARNING_PERIOD</code>, 5 s. The tests check this end with <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_rejected()</code></a>.</li>
+</ul>
+<h2 id="the-test-classes">The test classes</h2>
 <p>The file holds the 27 tests in four test classes, one for each part of <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code></a> that works without ROS communication:</p>
 <table>
 <thead>
@@ -5255,100 +5485,7 @@
 </tbody>
 </table>
 <p>A fifth class, <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a>, holds no tests. It gives the first two test classes a new validator for each test and two assertions about the validator's decision on a sample.</p>
-<p><a href="#what-the-tests-call">What the tests call</a> explains the validator's methods and its reasons to drop a sample before the tests use them. <a href="#the-constants-and-the-helpers">The constants and the helpers</a> explains what the tests share. <a href="#what-the-tests-dont-show">What the tests don't show</a> lists what a pass doesn't prove.</p>
-<h2 id="how-the-tests-run">How the tests run</h2>
-<p>catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how <code>diffbot_control</code> registers its three <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/CMakeLists.txt#L226-L234"><code>CMakeLists.txt</code>, lines 226–234</a>. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst"><code>catkin_add_nosetests()</code></a> registers this file. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst"><code>add_rostest()</code></a> registers the two scenarios of the <a href="../stepped-clock/">stepped-clock test</a>, one <code>.test</code> file each:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control/CMakeLists.txt: the package's tests</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">if</span><span class="p">(</span><span class="s">CATKIN_ENABLE_TESTING</span><span class="p">)</span>
-<span class="w">  </span><span class="c"># The IMU sample validator's checks, without a ROS master</span>
-<span class="w">  </span><span class="nb">catkin_add_nosetests</span><span class="p">(</span><span class="s">test/test_imu_validator.py</span><span class="p">)</span>
-<span class="w">  </span><span class="c"># The EKF with the validator, on a stepped simulated clock (test/test_ekf_synthetic.py). Each</span>
-<span class="w">  </span><span class="c"># .test file runs one of the test's scenarios on a fresh EKF</span>
-<span class="w">  </span><span class="nb">find_package</span><span class="p">(</span><span class="s">rostest</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">add_rostest</span><span class="p">(</span><span class="s">test/ekf_synthetic.test</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">add_rostest</span><span class="p">(</span><span class="s">test/ekf_synthetic_robot_rates.test</span><span class="p">)</span>
-<span class="nb">endif</span><span class="p">()</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs all three with the workspace's other tests, as <a href="../../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> describes. To run only this file, open a shell in which the workspace is sourced and start the file with Python's <code>unittest</code> from its folder:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_control/test</span>
-<span class="go">python3 -m unittest -v test_imu_validator</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>The collapsed box shows the whole output of a run at the commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/d89635881ff860159ef20af42c4cd97c179dcf96"><code>d896358</code></a> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/220">diffbot#220</a>, in the <a href="../../../../../development/dev-container/">dev container</a>'s image with ROS Noetic and Python 3.8.10. The run started <code>python3 -m unittest -v test_imu_validator</code> in the folder <code>diffbot_control/test</code>, the folder that <code>roscd</code> changes to. With the option <code>-v</code>, unittest prints one line for each test: the test's name, its class in parentheses, and <code>ok</code> for a test that passed. unittest runs the classes, and the tests in each class, in the alphabetical order of their names, so the output's order differs from the file's. <code>ValidatorTestCase</code> has no tests, so the output has no line for this class. The last lines give the number of tests and the time that they took, and <code>OK</code> when every test passed:</p>
-<details class="example">
-<summary>The output of <code>python3 -m unittest -v test_imu_validator</code></summary>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code>test_health_is_a_warning_with_new_drops (test_imu_validator.TestHealth) ... ok
-test_health_is_an_error_before_the_first_valid_sample (test_imu_validator.TestHealth) ... ok
-test_health_is_an_error_for_silence_also_with_new_drops (test_imu_validator.TestHealth) ... ok
-test_health_is_ok_at_the_silence_limit_and_an_error_beyond_it (test_imu_validator.TestHealth) ... ok
-test_health_is_ok_without_new_drops (test_imu_validator.TestHealth) ... ok
-test_validator_drops_a_sample_at_ros_time_zero (test_imu_validator.TestImuValidator) ... ok
-test_validator_drops_a_sample_not_later_than_the_last_valid_one (test_imu_validator.TestImuValidator) ... ok
-test_validator_drops_a_sample_with_a_nan_or_infinite_value (test_imu_validator.TestImuValidator) ... ok
-test_validator_drops_a_sample_with_a_wrong_or_empty_frame (test_imu_validator.TestImuValidator) ... ok
-test_validator_drops_a_sample_with_an_invalid_angular_velocity_covariance (test_imu_validator.TestImuValidator) ... ok
-test_validator_forwards_a_new_sample_after_dropping_a_future_one (test_imu_validator.TestImuValidator) ... ok
-test_validator_forwards_a_sample_max_age_old_and_drops_an_older_one (test_imu_validator.TestImuValidator) ... ok
-test_validator_forwards_a_sample_max_future_ahead_and_drops_a_later_one (test_imu_validator.TestImuValidator) ... ok
-test_validator_forwards_new_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
-test_validator_forwards_valid_samples (test_imu_validator.TestImuValidator) ... ok
-test_validator_still_drops_old_and_future_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
-test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report (test_imu_validator.TestSampleCounts) ... ok
-test_snapshot_counts_a_dropped_sample_as_new_only_once (test_imu_validator.TestSampleCounts) ... ok
-test_snapshot_has_the_forwarded_count_and_the_drops_by_reason (test_imu_validator.TestSampleCounts) ... ok
-test_snapshot_keeps_its_numbers_when_more_samples_arrive (test_imu_validator.TestSampleCounts) ... ok
-test_silence_is_none_after_the_clock_goes_back_a_little (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-test_silence_is_none_after_the_clock_goes_back_without_samples (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-test_silence_is_none_before_the_first_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-test_silence_is_none_when_a_dropped_sample_shows_the_clock_went_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-test_silence_is_the_time_since_the_last_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-test_silence_keeps_growing_while_samples_are_dropped (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
-
-----------------------------------------------------------------------
-Ran 27 tests in 0.002s
-
-OK
-</code></pre></div></td></tr></tbody></table></div>
-</details>
+<p><a href="#what-the-tests-call">What the tests call</a> explains the validator's methods and its reasons to drop a sample before the tests use them. <a href="#the-constants-and-the-helpers">The constants and the helpers</a> explains what the tests share. <a href="#run-the-tests">Run the tests</a> shows how to run the file and its output. <a href="#what-the-tests-dont-show">What the tests don't show</a> lists what a pass doesn't prove.</p>
 <h2 id="what-the-tests-call">What the tests call</h2>
 <p>Most tests call the class <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L203"><code>ImuValidator</code></a>, which holds the validator's checks without the ROS node around them. This section explains the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns. <a href="../../#the-five-checks">The five checks</a> on the Localization page explain the checks themselves. <a href="#testhealth-the-status"><code>health()</code></a> and <a href="#testsamplecounts-the-numbers-of-a-report"><code>SampleCounts</code></a> have their own sections, next to their tests.</p>
 <h3 id="where-the-ros-time-comes-from">Where the ROS time comes from</h3>
@@ -5393,7 +5530,7 @@ OK
 <p>Line 369 stores the method's result in the variable <code>drop_reason</code>. The result is either <code>None</code> or a reason to drop the sample:</p>
 <ul>
 <li><strong><code>None</code>:</strong> Python's value for "nothing", here "no reason to drop the sample". The node counts the sample as forwarded and publishes the sample on the topic <code>imu/data_validated</code>, in lines 370–374.</li>
-<li><strong>A reason:</strong> a member of <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason</code></a>. The node counts the sample by this reason in line 376. Lines 377–380 log a warning with the reason's text, at most once every <code>WARNING_PERIOD</code>, 5 s.</li>
+<li><strong>A reason:</strong> a member of <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason</code></a>. The node counts the sample by this reason in line 376. Lines 377–380 pass a warning with the reason's text to <code>rospy.logwarn_throttle()</code> with the period <code>WARNING_PERIOD</code>, 5 s, which leaves out repeated warnings within that period.</li>
 </ul>
 <p>The lock of line 367 keeps the diagnostics timer, which runs in another thread, from reading the validator in the middle of a sample.</p>
 <p>What <code>rospy.Time.now()</code> returns depends on the ROS parameter <code>/use_sim_time</code>, as the ROS wiki's page <a href="http://wiki.ros.org/Clock">Clock</a> explains:</p>
@@ -5498,7 +5635,7 @@ OK
 <li><strong>The checks:</strong> the loop calls the checks in the tuple <code>sample_checks</code>, one after the other. The first check that returns a reason ends the loop, and the method returns that reason. The later checks don't run. When every check has returned <code>None</code>, the method returns <code>None</code>.</li>
 </ol>
 <p><code>record_valid_sample()</code> sets these two numbers in lines 286 and 287. <code>last_valid_stamp</code> is the stamp <span class="arithmatex">\(t_\text{last}\)</span> of check 5.</p>
-<p>For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of <code>drop_reason()</code>. So the stamp of a dropped sample never becomes <span class="arithmatex">\(t_\text{last}\)</span>. Step 2 can still make the validator clear the last valid sample, when the call's <code>now</code> shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 leaves no trace at all, because step 1 returns before step 2.</p>
+<p>For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of <code>drop_reason()</code>. So the stamp of a dropped sample never becomes <span class="arithmatex">\(t_\text{last}\)</span>. Step 2 can still make the validator clear the last valid sample, when the call's <code>now</code> shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under <code>NO_CLOCK</code>, as the node counts every dropped sample, and passes a warning to <code>rospy.logwarn_throttle()</code> with the period <code>WARNING_PERIOD</code>, 5 s.</p>
 <p>The constructor <code>__init__()</code> fills <code>sample_checks</code> in the order in which the checks run. The excerpt shows the tuple, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/scripts/imu_validator.py#L221-L229"><code>imu_validator.py</code>, lines 221–229</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: the checks in their order</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">221</span>
 <span class="normal">222</span>
@@ -6110,6 +6247,8 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <g><title>Sample B: forwarded. stamped t − 0.1 s, exactly MAX_AGE old</title><circle class="pass-mark" cx="82.5" cy="74.0" r="7.5"></circle><text class="letter" x="82.5" y="77.8" text-anchor="middle">B</text></g>
 <g><title>Sample C: forwarded. stamped t + 0.02 s, exactly MAX_FUTURE ahead</title><circle class="pass-mark" cx="205.1" cy="74.0" r="7.5"></circle><text class="letter" x="205.1" y="77.8" text-anchor="middle">C</text></g>
 <g><title>Sample D: dropped. stamped t + 0.020001 s, 1 µs further ahead than MAX_FUTURE allows</title><circle class="drop-mark" cx="224.1" cy="74.0" r="7.5"></circle><text class="letter" x="224.1" y="77.8" text-anchor="middle">D</text></g>
+<text class="note halo" x="73.0" y="62.5" text-anchor="middle">1 µs, enlarged</text>
+<text class="note halo" x="231.6" y="62.5" text-anchor="end">1 µs, enlarged</text>
 </svg>
 <ul class="lv-legend">
 <li><span class="lv-mark lv-drop">A</span><strong>✕ dropped:</strong> stamped t − 0.100001 s, 1 µs older than MAX_AGE allows</li>
@@ -6243,6 +6382,8 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <g><title>Sample G: forwarded. stamped 1 ns after 100 s, the smallest step of a stamp</title><circle class="pass-mark" cx="128.0" cy="42.0" r="7.5"></circle><text class="letter" x="128.0" y="45.8" text-anchor="middle">G</text></g>
 <g><title>Sample H: dropped. stamped 105 s. Check 4 drops it as too far ahead</title><circle class="drop-mark" cx="254.0" cy="42.0" r="7.5"></circle><text class="letter" x="254.0" y="45.8" text-anchor="middle">H</text></g>
 <g><title>Sample I: forwarded. sent after H, stamped 100.02 s. The validator compares the stamp with 100 s, not with the stamp of H</title><circle class="pass-mark" cx="150.0" cy="42.0" r="7.5"></circle><text class="letter" x="150.0" y="45.8" text-anchor="middle">I</text></g>
+<text class="note halo" x="119.0" y="30.5" text-anchor="middle">1 ns</text>
+<text class="note halo" x="286.0" y="30.5" text-anchor="end">check 4: too far ahead</text>
 </svg>
 <ul class="lv-legend">
 <li><span class="lv-mark lv-drop">E</span><strong>✕ dropped:</strong> stamped 0.01 s before 100 s. The sample arrived out of order</li>
@@ -6388,6 +6529,8 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <text class="note" x="246.0" y="70.0" text-anchor="middle">100 s</text>
 <g><title>Sample J: forwarded. stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator forgot that stamp when the clock went back</title><circle class="pass-mark" cx="72.0" cy="42.0" r="7.5"></circle><text class="letter" x="72.0" y="45.8" text-anchor="middle">J</text></g>
 <g><title>Sample K: dropped. stamped 0.02 s again, sent 1 ms later. The stamp is not later than the stamp of J</title><circle class="drop-mark" cx="72.0" cy="24.0" r="7.5"></circle><text class="letter" x="72.0" y="27.8" text-anchor="middle">K</text></g>
+<text class="note halo" x="84.5" y="46.0" text-anchor="start">1st arrival</text>
+<text class="note halo" x="84.5" y="28.0" text-anchor="start">repeat, 1 ms later</text>
 </svg>
 <ul class="lv-legend">
 <li><span class="lv-mark">J</span><strong>✓ forwarded:</strong> stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator forgot that stamp when the clock went back</li>
@@ -6684,7 +6827,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
 <li><strong>The counts:</strong> after two forwarded samples, two samples dropped as too old and one dropped for its frame, the snapshot has <code>forwarded_count</code> 2 and <code>drops_by_reason</code> with 2 and 1. The snapshot also carries the silence that the test passed to <code>take_snapshot()</code>.</li>
-<li><strong>New drops:</strong> <code>new_drop_count</code> is the number of samples dropped since the snapshot before. One dropped sample makes this number 1 in the next snapshot and 0 in the one after. Two more dropped samples, for two different reasons, make the number 2. The warning of <code>health()</code> depends on this number, so a dropped sample causes one warning, not a warning in every report from then on.</li>
+<li><strong>New drops:</strong> <code>new_drop_count</code> is the number of samples dropped since the snapshot before. One dropped sample makes this number 1 in the next snapshot and 0 in the one after. Two more dropped samples, for two different reasons, make the number 2. <code>health()</code> uses this number for the report's level: a new drop can raise the next report to <code>WARN</code> when the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is otherwise healthy. The report after it is <code>OK</code> again if no further sample was dropped and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is still healthy. A silence that is too long, or no valid sample yet, takes priority: the report is then <code>ERROR</code>, as the last row of the table in <a href="#testhealth-the-status"><code>TestHealth</code></a> shows.</li>
 </ul>
 <p>The other two tests cover two cases in which this count could go wrong. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/test/test_imu_validator.py#L286-L302"><code>test_imu_validator.py</code>, lines 286–302</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: a snapshot in an error report, and a snapshot that stays</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">286</span>
@@ -6725,6 +6868,99 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <li><strong>In an error report:</strong> a sample is dropped before any sample was valid. The first snapshot gets the silence <code>None</code>, so <code>health()</code> reports an error, not the warning. The dropped sample counts as new in this snapshot all the same, and not again in the next one.</li>
 <li><strong>A snapshot stays as it is:</strong> after <code>take_snapshot()</code>, the test counts one more forwarded sample and one more dropped sample. The snapshot from before still has its numbers. A report is built from one snapshot, so its numbers all come from one moment.</li>
 </ul>
+<h2 id="run-the-tests">Run the tests</h2>
+<p>catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how <code>diffbot_control</code> registers its three <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96/diffbot_control/CMakeLists.txt#L226-L234"><code>CMakeLists.txt</code>, lines 226–234</a>. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst"><code>catkin_add_nosetests()</code></a> registers this file. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst"><code>add_rostest()</code></a> registers the two scenarios of the <a href="../stepped-clock/">stepped-clock test</a>, one <code>.test</code> file each:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control/CMakeLists.txt: the package's tests</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">if</span><span class="p">(</span><span class="s">CATKIN_ENABLE_TESTING</span><span class="p">)</span>
+<span class="w">  </span><span class="c"># The IMU sample validator's checks, without a ROS master</span>
+<span class="w">  </span><span class="nb">catkin_add_nosetests</span><span class="p">(</span><span class="s">test/test_imu_validator.py</span><span class="p">)</span>
+<span class="w">  </span><span class="c"># The EKF with the validator, on a stepped simulated clock (test/test_ekf_synthetic.py). Each</span>
+<span class="w">  </span><span class="c"># .test file runs one of the test's scenarios on a fresh EKF</span>
+<span class="w">  </span><span class="nb">find_package</span><span class="p">(</span><span class="s">rostest</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">add_rostest</span><span class="p">(</span><span class="s">test/ekf_synthetic.test</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">add_rostest</span><span class="p">(</span><span class="s">test/ekf_synthetic_robot_rates.test</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs all three with the workspace's other tests, as <a href="../../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> describes. To run only this file, open a shell in which the workspace is sourced and start the file with Python's <code>unittest</code> from its folder:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_control/test</span>
+<span class="go">python3 -m unittest -v test_imu_validator</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The collapsed box shows the whole output of a run at the commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/d89635881ff860159ef20af42c4cd97c179dcf96"><code>d896358</code></a> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/220">diffbot#220</a>, in the <a href="../../../../../development/dev-container/">dev container</a>'s image with ROS Noetic and Python 3.8.10. The run started <code>python3 -m unittest -v test_imu_validator</code> in the folder <code>diffbot_control/test</code>, the folder that <code>roscd</code> changes to. With the option <code>-v</code>, unittest prints one line for each test: the test's name, its class in parentheses, and <code>ok</code> for a test that passed. unittest runs the classes, and the tests in each class, in the alphabetical order of their names, so the output's order differs from the file's. <code>ValidatorTestCase</code> has no tests, so the output has no line for this class. The last lines give the number of tests and the time that they took, and <code>OK</code> when every test passed:</p>
+<details class="example">
+<summary>The output of <code>python3 -m unittest -v test_imu_validator</code></summary>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code>test_health_is_a_warning_with_new_drops (test_imu_validator.TestHealth) ... ok
+test_health_is_an_error_before_the_first_valid_sample (test_imu_validator.TestHealth) ... ok
+test_health_is_an_error_for_silence_also_with_new_drops (test_imu_validator.TestHealth) ... ok
+test_health_is_ok_at_the_silence_limit_and_an_error_beyond_it (test_imu_validator.TestHealth) ... ok
+test_health_is_ok_without_new_drops (test_imu_validator.TestHealth) ... ok
+test_validator_drops_a_sample_at_ros_time_zero (test_imu_validator.TestImuValidator) ... ok
+test_validator_drops_a_sample_not_later_than_the_last_valid_one (test_imu_validator.TestImuValidator) ... ok
+test_validator_drops_a_sample_with_a_nan_or_infinite_value (test_imu_validator.TestImuValidator) ... ok
+test_validator_drops_a_sample_with_a_wrong_or_empty_frame (test_imu_validator.TestImuValidator) ... ok
+test_validator_drops_a_sample_with_an_invalid_angular_velocity_covariance (test_imu_validator.TestImuValidator) ... ok
+test_validator_forwards_a_new_sample_after_dropping_a_future_one (test_imu_validator.TestImuValidator) ... ok
+test_validator_forwards_a_sample_max_age_old_and_drops_an_older_one (test_imu_validator.TestImuValidator) ... ok
+test_validator_forwards_a_sample_max_future_ahead_and_drops_a_later_one (test_imu_validator.TestImuValidator) ... ok
+test_validator_forwards_new_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
+test_validator_forwards_valid_samples (test_imu_validator.TestImuValidator) ... ok
+test_validator_still_drops_old_and_future_samples_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
+test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report (test_imu_validator.TestSampleCounts) ... ok
+test_snapshot_counts_a_dropped_sample_as_new_only_once (test_imu_validator.TestSampleCounts) ... ok
+test_snapshot_has_the_forwarded_count_and_the_drops_by_reason (test_imu_validator.TestSampleCounts) ... ok
+test_snapshot_keeps_its_numbers_when_more_samples_arrive (test_imu_validator.TestSampleCounts) ... ok
+test_silence_is_none_after_the_clock_goes_back_a_little (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+test_silence_is_none_after_the_clock_goes_back_without_samples (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+test_silence_is_none_before_the_first_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+test_silence_is_none_when_a_dropped_sample_shows_the_clock_went_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+test_silence_is_the_time_since_the_last_valid_sample (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+test_silence_keeps_growing_while_samples_are_dropped (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.002s
+
+OK
+</code></pre></div></td></tr></tbody></table></div>
+</details>
 <h2 id="what-the-tests-dont-show">What the tests don't show</h2>
 <ul>
 <li><strong>The node:</strong> the class <code>ImuValidatorNode</code> reads the parameters, subscribes to the topic <code>imu/data_raw</code>, publishes on the topic <code>imu/data_validated</code> and on the topic <code>/diagnostics</code>, and reads the ROS time in a lock around each sample. These tests don't call the class. The <a href="../stepped-clock/">stepped-clock test</a> runs the node with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and checks its counts on the topic <code>/diagnostics</code>.</li>

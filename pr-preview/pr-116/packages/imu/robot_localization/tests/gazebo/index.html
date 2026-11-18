@@ -4937,7 +4937,7 @@
 
 
 <h1 id="test-the-ekf-in-gazebo">Test: The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> in Gazebo</h1>
-<p>This page belongs to <a href="../../">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a>. It walks through <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a>, the test that turns the simulated robot with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on.</p>
+<p>This page belongs to <a href="../../">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a>. <a href="../">Tests of the Localization</a> lists the five tests by the question that each answers. This page walks through <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a>, the test that turns the simulated robot with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on.</p>
 <p>The test proves one thing in the simulation: when the wheel odometry reports a wrong turn, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s heading <span class="arithmatex">\(\theta\)</span> still follows the robot's true turn, because the filter takes the yaw rate <span class="arithmatex">\(\omega_z\)</span> from the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>. The test makes the wheel odometry wrong on purpose. It gives the drive controller a wheel separation <span class="arithmatex">\(b_c\)</span> that is 25 % larger than the simulated robot's wheel separation <span class="arithmatex">\(b\)</span>. The same simulation also checks that only the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the transform <code>odom → base_footprint</code>. Both simulated robots run the test, DiffBot and Remo. The test doesn't show how the filter behaves on the real robot. <a href="#what-the-test-doesnt-show">What the test doesn't show</a> lists the differences.</p>
 <p><code>test_ekf.py</code> has two tests:</p>
 <table>
@@ -4962,7 +4962,7 @@
 </tbody>
 </table>
 <h2 id="the-turn-from-above">The turn from above</h2>
-<p>The figure shows the turn test from above, with the values of a saved run and one drawing for each simulated robot. In a drawing, the robot starts with its heading along the dashed line to the right and turns left, counterclockwise. Each arc is one turn from this start: the robot's true turn <span class="arithmatex">\(\Delta\theta_\text{true}\)</span> from Gazebo, the turn <span class="arithmatex">\(\Delta\theta_\text{EKF}\)</span> of the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s estimate and the turn <span class="arithmatex">\(\Delta\theta_\text{odom}\)</span> of the wheel odometry. The label at the end of an arc is the arc's name in the line that the test prints, <code>true</code>, <code>EKF</code> or <code>odometry</code>, with the measured turn. The robot is drawn as it stands after the turn, and the line on its body points forward. The small green sector at the end of the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s arc is where this arc has to end. The line above a drawing gives the robot's two wheel separations <span class="arithmatex">\(b\)</span> and <span class="arithmatex">\(b_c\)</span>, and the list under the drawing gives the results of the two checks on the turn.</p>
+<p>The figure shows the turn test from above, with the values of a saved run and one drawing for each simulated robot. In a drawing, the robot starts with its heading along the dashed line to the right and turns left, counterclockwise. Each arc is one turn from this start: the robot's true turn <span class="arithmatex">\(\Delta\theta_\text{true}\)</span> from Gazebo, the turn <span class="arithmatex">\(\Delta\theta_\text{EKF}\)</span> of the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s estimate and the turn <span class="arithmatex">\(\Delta\theta_\text{odom}\)</span> of the wheel odometry. The label at the end of an arc is the arc's name in the line that the test prints, <code>true</code>, <code>EKF</code> or <code>odometry</code>, with the measured turn. The robot is drawn as it stands after the turn, and the line on its body points forward. The small green sector at the end of the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s arc is where this arc has to end: 0.05 rad to each side of the true turn, as the label "allowed ±0.05 rad" in the drawing's upper left says. The line above a drawing gives the robot's two wheel separations <span class="arithmatex">\(b\)</span> and <span class="arithmatex">\(b_c\)</span>, and the list under the drawing gives the results of the two checks on the turn.</p>
 <style>
 .md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
@@ -5050,6 +5050,9 @@
 <text x="100.0" y="70.5" text-anchor="end">true 1.849 rad</text>
 <text x="90.8" y="50.2" text-anchor="end">EKF 1.844 rad</text>
 <text x="127.3" y="15.3" text-anchor="middle">odometry 1.479 rad</text>
+<text class="note" x="2.0" y="12.0" text-anchor="start">allowed</text>
+<text class="note" x="2.0" y="25.0" text-anchor="start">±0.05 rad</text>
+<path class="dimension" d="M62,18 L97.4,39.6"></path>
 </svg>
 <ul class="lv-legend lv-results">
 <li><span class="lv-sign">✓</span><strong>The EKF follows:</strong> its turn is 0.005&nbsp;rad from the true turn. Allowed: 0.05&nbsp;rad</li>
@@ -5070,6 +5073,9 @@
 <text x="99.1" y="70.8" text-anchor="end">true 1.873 rad</text>
 <text x="89.3" y="50.7" text-anchor="end">EKF 1.870 rad</text>
 <text x="125.7" y="15.2" text-anchor="middle">odometry 1.499 rad</text>
+<text class="note" x="2.0" y="12.0" text-anchor="start">allowed</text>
+<text class="note" x="2.0" y="25.0" text-anchor="start">±0.05 rad</text>
+<path class="dimension" d="M62,18 L95.9,40.1"></path>
 </svg>
 <ul class="lv-legend lv-results">
 <li><span class="lv-sign">✓</span><strong>The EKF follows:</strong> its turn is 0.003&nbsp;rad from the true turn. Allowed: 0.05&nbsp;rad</li>
@@ -5086,6 +5092,54 @@
 <figcaption>The left turn of <code>test_ekf.py</code> from above, in a run at the commit <code>3ef4a91</code>. Each arc is one turn, from the dashed start heading.</figcaption>
 </figure>
 
+<p>The table lists the values of the figure, one column for each simulated robot. The run was in the dev container's image, at the commit <code>3ef4a91</code> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/154">diffbot#154</a>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Measurement</th>
+<th style="text-align: right;">DiffBot</th>
+<th style="text-align: right;">Remo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Wheel separation <span class="arithmatex">\(b\)</span> of the simulated robot</td>
+<td style="text-align: right;">0.138 m</td>
+<td style="text-align: right;">0.144 m</td>
+</tr>
+<tr>
+<td style="text-align: left;">Controller's wheel separation <span class="arithmatex">\(b_c\)</span></td>
+<td style="text-align: right;">0.1725 m</td>
+<td style="text-align: right;">0.18 m</td>
+</tr>
+<tr>
+<td style="text-align: left;">True turn <span class="arithmatex">\(\Delta\theta_\text{true}\)</span></td>
+<td style="text-align: right;">1.849 rad</td>
+<td style="text-align: right;">1.873 rad</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wheel odometry's turn <span class="arithmatex">\(\Delta\theta_\text{odom}\)</span></td>
+<td style="text-align: right;">1.479 rad</td>
+<td style="text-align: right;">1.499 rad</td>
+</tr>
+<tr>
+<td style="text-align: left;"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s turn <span class="arithmatex">\(\Delta\theta_\text{EKF}\)</span></td>
+<td style="text-align: right;">1.844 rad</td>
+<td style="text-align: right;">1.870 rad</td>
+</tr>
+<tr>
+<td style="text-align: left;">Rate of the validated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples</td>
+<td style="text-align: right;">49.7 Hz</td>
+<td style="text-align: right;">50.0 Hz</td>
+</tr>
+</tbody>
+</table>
+<p>The two checks on the turn compare these turns. For DiffBot, they work out as follows:</p>
+<ul>
+<li><strong>The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> follows the true turn:</strong> <span class="arithmatex">\(|\Delta\theta_\text{EKF} - \Delta\theta_\text{true}| = |1.844\ \text{rad} - 1.849\ \text{rad}| = 0.005\ \text{rad}\)</span>. The test allows at most 0.05 rad, the green sector.</li>
+<li><strong>The wheel odometry falls behind:</strong> <span class="arithmatex">\(\Delta\theta_\text{true} - \Delta\theta_\text{odom} = 1.849\ \text{rad} - 1.479\ \text{rad} = 0.370\ \text{rad}\)</span>. The test requires more than 0.15 rad.</li>
+</ul>
+<p>The same calculation for Remo gives 0.003 rad and 0.374 rad. <a href="#the-checks-on-the-turn">The checks on the turn</a> shows the code of both checks.</p>
 <h2 id="what-the-simulation-starts">What the simulation starts</h2>
 <p>Two rostest files run the test, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/sim_ekf_diffbot.test"><code>sim_ekf_diffbot.test</code></a> for the simulated DiffBot and <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/sim_ekf_remo.test"><code>sim_ekf_remo.test</code></a> for the simulated Remo. A rostest file is a launch file with a <code>&lt;test&gt;</code> element. rostest starts the file's nodes, runs the test node and stops everything when the test node ends, as <a href="../../../../../development/simulation-test/#1-the-test-file">the test file on Simulation Test</a> explains. The excerpt shows what DiffBot's file starts, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/sim_ekf_diffbot.test#L9-L21"><code>sim_ekf_diffbot.test</code>, lines 9–21</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">sim_ekf_diffbot.test: the simulation with the EKF, the wheel separation and the test node</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 9</span>
@@ -5640,38 +5694,7 @@ v_r - v_l = \omega_\text{cmd}\, b_c
         <span class="n">geometry</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">geometry_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">geometry</span><span class="p">[</span><span class="s1">'diffbot'</span><span class="p">][</span><span class="s1">'mobile_base_controller'</span><span class="p">][</span><span class="s1">'wheel_separation'</span><span class="p">])</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The table lists what the test measured in a run in the dev container's image, at the commit <code>3ef4a91</code> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/154">diffbot#154</a>:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Simulated robot</th>
-<th style="text-align: left;">Controller's wheel separation</th>
-<th style="text-align: left;">True turn</th>
-<th style="text-align: left;">Wheel odometry's turn</th>
-<th style="text-align: left;"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s turn</th>
-<th style="text-align: left;">Validated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">DiffBot</td>
-<td style="text-align: left;">0.1725 m</td>
-<td style="text-align: left;">1.849 rad</td>
-<td style="text-align: left;">1.479 rad</td>
-<td style="text-align: left;">1.844 rad</td>
-<td style="text-align: left;">49.7 Hz</td>
-</tr>
-<tr>
-<td style="text-align: left;">Remo</td>
-<td style="text-align: left;">0.18 m</td>
-<td style="text-align: left;">1.873 rad</td>
-<td style="text-align: left;">1.499 rad</td>
-<td style="text-align: left;">1.870 rad</td>
-<td style="text-align: left;">50.0 Hz</td>
-</tr>
-</tbody>
-</table>
-<p>In this run, the wheel odometry fell behind the true turn by 0.370 rad for DiffBot and 0.374 rad for Remo. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s turn differed from the true turn by 0.005 rad for DiffBot and 0.003 rad for Remo.</p>
+<p><a href="#the-turn-from-above">The turn from above</a> lists what the test measured in a run, and works out checks 3 and 4 with these values.</p>
 <h2 id="who-publishes-the-transform">Who publishes the transform</h2>
 <p>With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> has to publish the transform <code>odom → base_footprint</code>, and the drive controller must not. The excerpt shows the second test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py#L261-L269"><code>test_ekf.py</code>, lines 261–269</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf.py: only the EKF publishes odom → base_footprint</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">261</span>
