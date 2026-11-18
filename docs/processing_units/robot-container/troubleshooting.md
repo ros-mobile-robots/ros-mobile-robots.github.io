@@ -128,8 +128,13 @@ No message arrives on the topic. Either no node publishes the topic, or a node d
     rostopic info /diffbot/measured_joint_states
     ```
 
+    The command gives one of three answers, each with its own next step.
+
+- **If the output is `ERROR: Unknown topic`:** the ROS master that the PC asks doesn't know the topic at all. Then the PC and the bringup don't use the same running ROS master, or the bringup doesn't run. On the PC, `rosnode list` has to list `/diffbot/diffbot_base`. If the node is missing, check on the Raspberry Pi that the bringup is `Up` (`docker compose ps -a`) and that the bringup's output shows `ROS_MASTER_URI` with the address of the PC that runs `roscore` ([The containers' output shows no error](usage.md#2-the-containers-output-shows-no-error)). On the PC, `echo $ROS_MASTER_URI` prints the address that the PC's tools ask.
 - **If the output says `Publishers: None`:** no node publishes the topic. This topic comes from the Teensy, through rosserial. Look at the bringup's output for the Teensy's connection, with `docker compose logs bringup`, and at the two entries about the Teensy: [*Permission denied* for `/dev/ttyACM0`](#the-bringups-output-shows-permission-denied-for-devttyacm0) and [*Unable to sync with device*](#the-bringups-output-shows-unable-to-sync-with-device).
-- **If the output lists a publisher:** check whether the messages arrive on the robot itself: `docker compose exec bringup /entrypoint.sh rostopic hz /diffbot/measured_joint_states`. If they arrive there and not on the PC, the direct connection between the two machines fails. Then check that `ROS_IP` on each machine is that machine's own address. Both directions must work ([ROS Network Setup](../ros-network-setup.md)).
+- **If the output lists a publisher:** check whether the messages arrive on the robot itself. On the Raspberry Pi: `docker compose exec bringup /entrypoint.sh rostopic hz /diffbot/measured_joint_states`
+    - **Messages arrive on the robot, but not on the PC:** the direct connection between the two machines fails. Check that `ROS_IP` on each machine is that machine's own address. Both directions must work ([ROS Network Setup](../ros-network-setup.md)).
+    - **No message arrives on the robot either:** the publisher is registered, but it doesn't send. Look at the bringup's output for rosserial and the Teensy, with `docker compose logs bringup`.
 - **Then:** on the PC, `rostopic hz /diffbot/measured_joint_states` prints lines with `average rate:`.
 
 ### The bringup's output shows *Unable to sync with device*
