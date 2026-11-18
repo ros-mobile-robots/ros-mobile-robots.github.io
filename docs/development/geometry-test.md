@@ -6,8 +6,12 @@ The [simulation test](simulation-test.md) drives the robots in Gazebo and would 
 
 ## What it compares
 
+The test protects against a change on one side without the other:
+
+- **A length that differs:** diff_drive_controller computes the odometry and the wheel commands from `wheel_radius` and `wheel_separation`. With a value that differs from the URDF, these calculations no longer fit the robot that the URDF describes and that Gazebo simulates.
+- **A joint list in the wrong order:** on the real robot, the hardware interface sends the wheel commands in the order of its `joints` list. In the wrong order, the left wheel's command drives the right motor. Gazebo doesn't use this list.
+
 The figure shows what goes into the test, what the test compares, and what comes out.
-The test protects against a change on one side without the other. After such a change, the controller's odometry and wheel commands no longer fit the robot that Gazebo simulates.
 
 --8<-- "includes/geometry-test-flow.html"
 
@@ -15,8 +19,8 @@ The test protects against a change on one side without the other. After such a c
 - **Compared:** six checks ([step 3](#3-the-checks)).
     - Two compare lengths: the radius of the wheels' collision shapes with `wheel_radius`, and the distance between the wheel joints with `wheel_separation`.
     - Three check the joints that the controller names in `left_wheel` and `right_wheel`: each side has a name, the names are continuous joints of the URDF, and each joint has a velocity interface.
-    - One checks that the hardware interface's `joints` list holds the same joints, the left one first.
-- **Out:** the test passes when everything agrees. Otherwise it fails and names each difference ([Run it](#run-it) shows such a message).
+    - One checks that the hardware interface's `joints` list holds the same joints, the left one first ([joint order](#the-hardware-interfaces-joint-order)).
+- **Out:** the test passes when both lengths agree within 0.1 mm and all joint checks pass. Otherwise one or more checks fail, and the test names each problem ([Run it](#run-it) shows such a message). For example, with Remo's radius of 0.033 m in the URDF, a `wheel_radius` of 0.03305 m passes, and 0.0332 m fails with a message for each wheel.
 
 For Remo, these are the values. The two values in each row must be the same:
 
