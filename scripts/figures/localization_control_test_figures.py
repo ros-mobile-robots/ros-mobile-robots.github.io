@@ -364,8 +364,8 @@ class DecisionStep(NamedTuple):
     reason: str  # the DropReason member, '' for a step that drops none
 
 
-CLOCK_STEP_LINES = ('if the clock went back:', 'clear the last valid', "sample's stamp and",
-                    'arrival time')
+CLOCK_STEP_LINES = ('if the clock went back:', 'set last_valid_stamp and',
+                    'last_valid_arrival_time', 'to None')
 # drop_reason() and the six functions of sample_checks in imu_validator.py, in their order
 DECISION_STEPS = (
     DecisionStep('', ('ROS time t ≠ 0',), ('ROS time t ≠ 0',), 100, 'NO_CLOCK'),
@@ -380,7 +380,7 @@ DECISION_STEPS = (
                  ('no last valid', 'stamp, or this', 'stamp is later'), 96, 'NOT_NEWER'),
 )
 DECISION_START = 'a sample arrives at the ROS time t'
-VALID_END = (('valid: returns None', 'strong'), ('records the stamp and t', 'note'),
+VALID_END = (('valid: returns None', 'strong'), ('stores the stamp and t', 'note'),
              ('node forwards the sample', 'note'))
 DROP_END = (('returns the reason', 'strong'), ('node counts the drop', 'note'),
             ('and throttles warnings', 'note'))
@@ -707,9 +707,9 @@ def early_clock_tests(layout: Layout) -> Tuple[Figure, Tuple[Sample, ...]]:
 
     samples = (
         Sample('J', now_x, True,
-               f'stamped {EARLY_RESTART_S} s, the new ROS time. The stamp is far older than '
-               f'the last valid stamp, {NOW_S} s. The validator cleared that stamp when the '
-               'clock went back'),
+               f'stamped {EARLY_RESTART_S} s, the new ROS time. The stamp is far older '
+               f'than the last valid stamp, {NOW_S} s. When the clock went back, the validator '
+               'set its attribute last_valid_stamp to None'),
         Sample('K', now_x, False,
                f'stamped {EARLY_RESTART_S} s again, sent {REPEAT_DELAY_MS} ms later. The stamp '
                'is not later than the stamp of J'),
@@ -841,10 +841,13 @@ def draw_decision_end(figure: Figure, x: float, top: float, width: float, css_cl
 def decision_title(direction: str, reason_place: str) -> str:
     """Return the accessible title of a layout of the decision drawing."""
     return ("The validator's decision about a sample that arrives at the ROS time t, "
-            f'{direction}: the clock, the clock check, and checks 1 to 5. A sample that fails '
-            f'a step is dropped with the reason {reason_place} the step, and the node counts '
-            'the reason. For a sample that passes every step, the validator records the '
-            "sample's stamp and arrival time, and the node forwards the sample")
+            f'{direction}: the clock, the clock check, and checks 1 to 5. If the clock went '
+            'back, the clock check sets the attributes last_valid_stamp and '
+            'last_valid_arrival_time of the validator to None. A sample that fails a step is '
+            f'dropped with the reason {reason_place} the step, and the node counts the reason. '
+            'For a sample that passes every step, the validator stores the stamp in '
+            'last_valid_stamp and t in last_valid_arrival_time, and the node forwards the '
+            'sample')
 
 
 def validator_decision() -> Figure:
