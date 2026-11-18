@@ -13,7 +13,9 @@ shows what one test of the simulated IMU does over simulation time:
   plugin that keeps the time from before the reset. The panels are an idealized example: the
   reset comes at exactly RUN_BEFORE_RESET, and the IMU publishes exactly IMU_RATE samples per
   second. The test itself only needs FRESH_SAMPLE_COUNT samples after the reset with a stamp
-  below RECOVERY.
+  below RECOVERY. Both axes end a fifth of RUN_BEFORE_RESET after the time at which a plugin that
+  keeps the old time publishes again, so that this sample lies inside the plot for any
+  RUN_BEFORE_RESET.
 
 The durations, rates and tolerances below are the constants of diffbot_gazebo/test/test_imu.py
 and test_imu_reset.py in the diffbot repository, at the commit that mkdocs.yml pins as
@@ -52,6 +54,7 @@ TURN_RATE_TOLERANCE = 0.15  # rad/s
 RUN_BEFORE_RESET = 3.0  # s of simulation time
 RECOVERY = 1.0  # s of simulation time
 FRESH_SAMPLE_COUNT = 10
+RECOVERY_TIMEOUT = 30.0  # s of wall time
 # Gazebo's gravity in the robots' worlds, SDF's default
 GAZEBO_GRAVITY = 9.8  # m/s²
 
@@ -76,7 +79,8 @@ RULES = (
     ('.tl-fig .mono', 'font-family:var(--md-code-font-family,"Roboto Mono"),monospace;'
                       'font-size:11.5px'),
     ('.tl-fig .note', f'font-size:11.5px;fill:{FG_LIGHT}'),
-    ('.tl-fig .sub', 'font-size:9px'),
+    ('.tl-fig .sub', 'font-size:10px'),
+    ('.tl-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:3px;stroke-linejoin:round'),
     ('.tl-fig .strong', 'font-weight:700'),
     ('.tl-fig .grid', f'fill:none;stroke:{FG_LIGHTEST};stroke-width:1'),
     ('.tl-fig .axis', f'fill:none;stroke:{FG_LIGHTER};stroke-width:1'),
@@ -193,7 +197,7 @@ class Row(NamedTuple):
 
 # The two drive tests: the layout that both timelines share
 DRIVE_WIDTH = 360
-DRIVE_HEIGHT = 380
+DRIVE_HEIGHT = 394
 # Simulation time since the test's first command, with room after the last phase
 DRIVE_TIME = Scale(0.0, 3.3, 40.0, 348.0)
 COMMAND_BAR = Row(top=22, height=20)
@@ -206,7 +210,7 @@ CHART = Row(top=196, height=60)
 LEGEND_Y = 274
 MESSAGES_TITLE_Y = 314
 MESSAGES_BAR = Row(top=322, height=8)
-AXIS_Y = 346
+AXIS_Y = 362
 
 
 class Phase(NamedTuple):
@@ -214,6 +218,14 @@ class Phase(NamedTuple):
 
     name: str
     seconds: float
+
+
+class Robots(NamedTuple):
+    """The row with the robot from above: its title, the robot at each time and notes."""
+
+    title: str
+    robots: Sequence['Robot']
+    notes: Sequence[Tuple[float, Sequence[str]]]  # (time, lines of text)
 
 
 class Robot(NamedTuple):
@@ -239,6 +251,8 @@ class Reading(NamedTuple):
     values: Scale
     ticks: Sequence[Tuple[float, str]]
     accepted: Band
+    band_label: str  # what the band is, written inside it
+    band_label_offset: float  # from the middle of the band down to the label's baseline
     legend: Sequence[Tuple[str, str]]  # (CSS class of the key, text)
 
 
@@ -297,16 +311,15 @@ def robot_elements(heading: float) -> List[str]:
     return elements
 
 
-def draw_robots(figure: Figure, robots: Sequence[Robot],
-                notes: Sequence[Tuple[float, Sequence[str]]]) -> None:
-    """Add the robot from above at each time, and notes of several lines at their times."""
-    figure.text(8, ROBOT_TITLE_Y, 'The robot, seen from above', 'row-title')
-    for robot in robots:
+def draw_robots(figure: Figure, row: Robots) -> None:
+    """Add the row's title, the robot from above at each time, and the notes at their times."""
+    figure.text(8, ROBOT_TITLE_Y, row.title, 'row-title')
+    for robot in row.robots:
         x = DRIVE_TIME.position(robot.time)
         figure.group(f'translate({x},{ROBOT_Y})', robot_elements(robot.heading))
         label_x = x if robot.anchor == 'middle' else DRIVE_WIDTH - 6
         figure.text(label_x, ROBOT_LABEL_Y, robot.label, 'note', robot.anchor)
-    for time, lines in notes:
+    for time, lines in row.notes:
         for index, line in enumerate(lines):
             figure.text(DRIVE_TIME.position(time), ROBOT_Y - 3 + index * LINE_HEIGHT, line,
                         'note', 'middle')
@@ -328,6 +341,9 @@ def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scal
                      'imu-wash')
     figure.text(band_left - 4, band_bottom + 4, f'{reading.accepted.lowest:.2f}', 'note', 'end')
     figure.text(band_left - 4, band_top + 4, f'{reading.accepted.highest:.2f}', 'note', 'end')
+    figure.text((band_left + band_right) / 2,
+                (band_top + band_bottom) / 2 + reading.band_label_offset, reading.band_label,
+                'note', 'middle')
     for index, (key_class, text) in enumerate(reading.legend):
         y = LEGEND_Y + index * LINE_HEIGHT
         if key_class == 'imu-wash':
@@ -338,8 +354,11 @@ def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scal
     return reading.values
 
 
-def draw_messages(figure: Figure, measure_start: float) -> None:
-    """Add the IMU's messages, the ones the test keeps, and the time axis below them."""
+def draw_messages(figure: Figure, measure_start: float, count_rule: str) -> None:
+    """Add the IMU's messages, the ones the test keeps, and the time axis below them.
+
+    count_rule says how many of the kept messages the test needs.
+    """
     figure.text(8, MESSAGES_TITLE_Y, f'The IMU publishes, {IMU_RATE:g} messages per second',
                 'row-title')
     top, height = MESSAGES_BAR.top, MESSAGES_BAR.height
@@ -350,11 +369,22 @@ def draw_messages(figure: Figure, measure_start: float) -> None:
     figure.rectangle(kept_left, top, kept_right - kept_left, height, 'imu-bar', 4)
     figure.text((kept_left + kept_right) / 2, top - 4 + height + 16,
                 f'the test keeps these, about {MEASURE * IMU_RATE:g}', 'note', 'middle')
+    figure.text((kept_left + kept_right) / 2, top - 4 + height + 16 + LINE_HEIGHT, count_rule,
+                'note', 'middle')
     figure.path(f'M{left},{AXIS_Y} H{right}', 'axis')
     for second in range(4):
         figure.text(DRIVE_TIME.position(second), AXIS_Y + 14, str(second), 'note', 'middle')
     figure.text((left + right) / 2, AXIS_Y + 28,
                 'simulation time since the test’s first command, in s', 'note', 'middle')
+
+
+def fewest_messages_at_rest() -> int:
+    """Return the fewest messages of MEASURE with which the test at rest passes its rate check.
+
+    The test needs a rate above RATE_TOLERANCE times its RATE, so more messages than that rate
+    gives in MEASURE.
+    """
+    return math.floor(RATE_TOLERANCE * IMU_RATE * MEASURE) + 1
 
 
 def at_rest_figure() -> Figure:
@@ -363,27 +393,33 @@ def at_rest_figure() -> Figure:
         'tl-at-rest', DRIVE_WIDTH, DRIVE_HEIGHT, 'The test at rest over simulation time',
         f'The test sends the stop command {COMMAND_RATE} times per second, for SETTLE, '
         f'{SETTLE:g} s, and then for MEASURE, {MEASURE:g} s. The robot stands still. The test '
-        f'keeps the IMU’s messages of MEASURE, about {MEASURE * IMU_RATE:g}, and needs more than '
-        f'{RATE_TOLERANCE * MEASURE * IMU_RATE:g}. The mean reading on '
-        f'the upward axis must lie between {GRAVITY - GRAVITY_TOLERANCE:.2f} and '
-        f'{GRAVITY + GRAVITY_TOLERANCE:.2f} m/s². Gravity in the simulation is '
-        f'{GAZEBO_GRAVITY} m/s².')
+        f'keeps the IMU’s messages of MEASURE, about {MEASURE * IMU_RATE:g}, and needs at least '
+        f'{fewest_messages_at_rest()}. The mean of their readings on the upward axis must lie '
+        f'between {GRAVITY - GRAVITY_TOLERANCE:.2f} and {GRAVITY + GRAVITY_TOLERANCE:.2f} m/s². '
+        f'A black line marks a reference value, gravity in the simulation, {GAZEBO_GRAVITY} '
+        'm/s². It is not a reading.')
     draw_command(figure, 'stand still: all velocities 0',
                  [Phase('SETTLE', SETTLE), Phase('MEASURE', MEASURE)], stops=False)
-    draw_robots(figure, [Robot(SETTLE + MEASURE / 2, 0.0, 'stands still')],
-                [(SETTLE / 2, ['may still brake', 'after the left turn'])])
+    draw_robots(figure, Robots(
+        title='The robot, seen from above',
+        robots=[Robot(SETTLE + MEASURE / 2, 0.0, 'stands still')],
+        notes=[(SETTLE / 2, ['may still brake', 'after the left turn'])]))
     reading = Reading(
         title='Reading on the upward axis, ' + subscript('f', 'z') + ', in m/s²',
         values=Scale(9.0, 10.6, CHART.bottom, CHART.top),
         ticks=[(9.0, '9'), (10.0, '10')],
         accepted=Band(lowest=GRAVITY - GRAVITY_TOLERANCE, highest=GRAVITY + GRAVITY_TOLERANCE),
-        legend=[('reference-line', f'gravity in the simulation: {GAZEBO_GRAVITY} m/s²'),
+        band_label=f'the mean over {MEASURE:g} s must lie here',
+        band_label_offset=14,
+        legend=[('reference-line', f'reference value: gravity in the simulation, '
+                                   f'{GAZEBO_GRAVITY} m/s²'),
                 ('imu-wash', f'accepted mean of the IMU’s readings: {GRAVITY} ± '
                              f'{GRAVITY_TOLERANCE}')])
     values = draw_reading(figure, reading, SETTLE)
     figure.path(f'M{DRIVE_TIME.first_position},{values.position(GAZEBO_GRAVITY)} '
                 f'H{DRIVE_TIME.last_position}', 'reference-line')
-    draw_messages(figure, SETTLE)
+    draw_messages(figure, SETTLE,
+                  f'pass rule: at least {fewest_messages_at_rest()} arrivals in {MEASURE:g} s')
     return figure
 
 
@@ -396,8 +432,9 @@ def left_turn_figure() -> Figure:
         f'{COMMAND_RATE} times per second, for SPEED_UP, {SPEED_UP:g} s, and then for MEASURE, '
         f'{MEASURE:g} s. Then it sends one stop command. The robot turns left on the spot, by '
         f'about {TURN_RATE * SPEED_UP:g} rad after SPEED_UP and about {TURN_RATE * turn_end:g} '
-        f'rad after MEASURE. The test keeps the IMU’s messages of MEASURE, about '
-        f'{MEASURE * IMU_RATE:g}. Their mean yaw rate must lie between '
+        f'rad after MEASURE. These headings are ideal: they follow from the command, not from '
+        f'a run. The test keeps the IMU’s messages of MEASURE, about {MEASURE * IMU_RATE:g}, '
+        'and has no rule for their number. The mean of their yaw rates must lie between '
         f'{TURN_RATE - TURN_RATE_TOLERANCE:.2f} and {TURN_RATE + TURN_RATE_TOLERANCE:.2f} rad/s.')
     draw_command(figure, f'turn left: angular.z = {TURN_RATE} rad/s',
                  [Phase('SPEED_UP', SPEED_UP), Phase('MEASURE', MEASURE)], stops=True)
@@ -406,13 +443,16 @@ def left_turn_figure() -> Figure:
         turned = TURN_RATE * time
         robots.append(Robot(time, turned, f'about {turned:g} rad, {math.degrees(turned):.0f}°',
                             anchor))
-    draw_robots(figure, robots, [])
+    draw_robots(figure, Robots(title='The robot from above: ideal headings from the command',
+                               robots=robots, notes=[]))
     reading = Reading(
         title='Turn rate about the upward axis, ' + subscript('ω', 'z') + ', in rad/s',
         values=Scale(0.0, 0.7, CHART.bottom, CHART.top),
         ticks=[(0.0, '0'), (TURN_RATE, f'{TURN_RATE}')],
         accepted=Band(lowest=TURN_RATE - TURN_RATE_TOLERANCE,
                       highest=TURN_RATE + TURN_RATE_TOLERANCE),
+        band_label=f'the mean over {MEASURE:g} s must lie here',
+        band_label_offset=11,
         legend=[('command-line', f'the test’s command: {TURN_RATE} rad/s'),
                 ('imu-wash', f'accepted mean of the IMU’s yaw rates: {TURN_RATE} ± '
                              f'{TURN_RATE_TOLERANCE}')])
@@ -420,18 +460,44 @@ def left_turn_figure() -> Figure:
     start, end = DRIVE_TIME.position(0.0), DRIVE_TIME.position(turn_end)
     figure.path(f'M{start},{values.position(0.0)} V{values.position(TURN_RATE)} H{end} '
                 f'V{values.position(0.0)} H{DRIVE_TIME.last_position}', 'command-line')
-    draw_messages(figure, SPEED_UP)
+    draw_messages(figure, SPEED_UP, 'this test has no rule for their number')
     return figure
 
 
 # The reset test: the layout that both panels share
 RESET_WIDTH = 300
 RESET_HEIGHT = 262
-# How long the simulation has run, and the stamps of the IMU's samples, both in s
-RUN_AFTER_RESET = 3.6
-RESET_RUN = Scale(0.0, RUN_BEFORE_RESET + RUN_AFTER_RESET, 34.0, 292.0)
-RESET_STAMP = Scale(0.0, RUN_AFTER_RESET, 190.0, 60.0)
+# The plot's edges on the drawing
+RESET_PLOT_LEFT = 34.0
+RESET_PLOT_RIGHT = 292.0
+RESET_PLOT_BOTTOM = 190.0
+RESET_PLOT_TOP = 60.0
 IMU_PERIOD = 1.0 / IMU_RATE
+
+
+def run_after_reset() -> float:
+    """Return how long the panels follow the simulation after the reset, in s.
+
+    A plugin that keeps the old time publishes again RUN_BEFORE_RESET and one period after the
+    reset. The panels show a fifth of RUN_BEFORE_RESET more, so that this sample and the
+    samples after it lie inside the plot.
+    """
+    return 1.2 * RUN_BEFORE_RESET
+
+
+def reset_run() -> Scale:
+    """Return the horizontal scale: how long the simulation has run, in s."""
+    return Scale(0.0, RUN_BEFORE_RESET + run_after_reset(), RESET_PLOT_LEFT, RESET_PLOT_RIGHT)
+
+
+def reset_stamp() -> Scale:
+    """Return the vertical scale: the stamps of the IMU's samples, in s."""
+    return Scale(0.0, run_after_reset(), RESET_PLOT_BOTTOM, RESET_PLOT_TOP)
+
+
+def run_axis_ticks() -> Tuple[float, float, float]:
+    """Return the run times that the horizontal axis numbers: the start, the reset and twice it."""
+    return (0.0, RUN_BEFORE_RESET, 2 * RUN_BEFORE_RESET)
 
 
 def draw_reset_heading(figure: Figure, heading: str) -> None:
@@ -442,50 +508,52 @@ def draw_reset_heading(figure: Figure, heading: str) -> None:
 
 def draw_fresh_region(figure: Figure) -> None:
     """Add the region in which a sample counts as fresh: after the reset, below RECOVERY."""
-    reset_x = RESET_RUN.position(RUN_BEFORE_RESET)
-    figure.rectangle(reset_x, RESET_STAMP.position(RECOVERY), RESET_RUN.last_position - reset_x,
-                     RESET_STAMP.position(0.0) - RESET_STAMP.position(RECOVERY), 'fresh')
+    run, stamp = reset_run(), reset_stamp()
+    reset_x = run.position(RUN_BEFORE_RESET)
+    figure.rectangle(reset_x, stamp.position(RECOVERY), run.last_position - reset_x,
+                     stamp.position(0.0) - stamp.position(RECOVERY), 'fresh')
 
 
 def draw_stamp_grid(figure: Figure) -> None:
     """Add a horizontal grid line with its stamp at 0, RECOVERY and RUN_BEFORE_RESET."""
-    left, right = RESET_RUN.first_position, RESET_RUN.last_position
-    for stamp in (0.0, RECOVERY, RUN_BEFORE_RESET):
-        y = RESET_STAMP.position(stamp)
-        figure.path(f'M{left},{y} H{right}', 'grid')
-        figure.text(left - 6, y + 4, f'{stamp:g}', 'note', 'end')
+    run, stamp = reset_run(), reset_stamp()
+    for value in (0.0, RECOVERY, RUN_BEFORE_RESET):
+        y = stamp.position(value)
+        figure.path(f'M{run.first_position},{y} H{run.last_position}', 'grid')
+        figure.text(run.first_position - 6, y + 4, f'{value:g}', 'note', 'end')
 
 
 def draw_run_axis(figure: Figure) -> None:
     """Add the horizontal axis as a line at stamp 0."""
-    figure.path(f'M{RESET_RUN.first_position},{RESET_STAMP.position(0.0)} '
-                f'H{RESET_RUN.last_position}', 'axis')
+    run = reset_run()
+    figure.path(f'M{run.first_position},{reset_stamp().position(0.0)} H{run.last_position}',
+                'axis')
 
 
 def draw_reset_guide(figure: Figure) -> None:
     """Add a vertical line where the test resets the simulation, with its label."""
-    reset_x = RESET_RUN.position(RUN_BEFORE_RESET)
-    figure.path(f'M{reset_x},{RESET_STAMP.position(0.0)} V{RESET_STAMP.last_position - 8}',
-                'span')
+    stamp = reset_stamp()
+    reset_x = reset_run().position(RUN_BEFORE_RESET)
+    figure.path(f'M{reset_x},{stamp.position(0.0)} V{stamp.last_position - 8}', 'span')
     for index, line in enumerate(('the test resets', 'the simulation')):
-        figure.text(reset_x - 6, RESET_STAMP.last_position - 3 + index * LINE_HEIGHT, line,
-                    'note', 'end')
+        figure.text(reset_x - 6, stamp.last_position - 3 + index * LINE_HEIGHT, line, 'note',
+                    'end')
 
 
 def draw_run_axis_labels(figure: Figure) -> None:
     """Add the horizontal axis's numbers and, below them, what the axis shows."""
-    left, right = RESET_RUN.first_position, RESET_RUN.last_position
-    axis_y = RESET_STAMP.position(0.0)
-    for seconds in (0.0, RUN_BEFORE_RESET, 2 * RUN_BEFORE_RESET):
-        figure.text(RESET_RUN.position(seconds), axis_y + 14, f'{seconds:g}', 'note', 'middle')
-    figure.text((left + right) / 2, axis_y + 28, 'seconds that the simulation has run', 'note',
-                'middle')
+    run = reset_run()
+    axis_y = reset_stamp().position(0.0)
+    for seconds in run_axis_ticks():
+        figure.text(run.position(seconds), axis_y + 14, f'{seconds:g}', 'note', 'middle')
+    figure.text((run.first_position + run.last_position) / 2, axis_y + 28,
+                'seconds that the simulation has run', 'note', 'middle')
 
 
 def draw_reset_legend(figure: Figure) -> None:
     """Add the legend below the horizontal axis: Gazebo's clock and the IMU's samples."""
-    left = RESET_RUN.first_position
-    axis_y = RESET_STAMP.position(0.0)
+    left = RESET_PLOT_LEFT
+    axis_y = reset_stamp().position(0.0)
     figure.path(f'M{left},{axis_y + 44} H{left + 16}', 'clock-line')
     figure.text(left + 22, axis_y + 48, 'Gazebo’s clock', 'note')
     figure.path(f'M{left + 118},{axis_y + 44} H{left + 134}', 'imu-line')
@@ -509,39 +577,65 @@ def draw_reset_chart(figure: Figure, heading: str) -> None:
 
 def clock_path(first_run: float, last_run: float, clock_start: float) -> str:
     """Return the path of a clock that started at clock_start, between two run times."""
-    return (f'M{RESET_RUN.position(first_run)},{RESET_STAMP.position(first_run - clock_start)} '
-            f'L{RESET_RUN.position(last_run)},{RESET_STAMP.position(last_run - clock_start)}')
+    run, stamp = reset_run(), reset_stamp()
+    return (f'M{run.position(first_run)},{stamp.position(first_run - clock_start)} '
+            f'L{run.position(last_run)},{stamp.position(last_run - clock_start)}')
 
 
-def draw_reset_run(figure: Figure, silent_until: Optional[float]) -> None:
-    """Add Gazebo's clock and the IMU's samples before and after the reset.
+def first_stamp_after_reset(silent_until: Optional[float]) -> float:
+    """Return the stamp of the IMU's first sample after the reset, in s.
 
-    silent_until is the stamp at which the IMU publishes again after the reset. None means
-    that the IMU publishes from its first period on.
+    silent_until is the stamp up to which the plugin publishes nothing after the reset. None
+    means that the plugin publishes from its first period on.
     """
-    end = RUN_BEFORE_RESET + RUN_AFTER_RESET
-    reset_x = RESET_RUN.position(RUN_BEFORE_RESET)
+    return IMU_PERIOD if silent_until is None else silent_until + IMU_PERIOD
+
+
+def draw_clock_and_samples(figure: Figure, silent_until: Optional[float]) -> None:
+    """Add Gazebo's clock and the IMU's samples, before and after the reset."""
+    end = RUN_BEFORE_RESET + run_after_reset()
     figure.path(clock_path(0.0, RUN_BEFORE_RESET, 0.0)
-                + f' V{RESET_STAMP.position(0.0)} '
+                + f' V{reset_stamp().position(0.0)} '
                 + clock_path(RUN_BEFORE_RESET, end, RUN_BEFORE_RESET).replace('M', 'L', 1),
                 'clock-line')
     figure.path(clock_path(IMU_PERIOD, RUN_BEFORE_RESET, 0.0), 'imu-line')
-    first_stamp = IMU_PERIOD if silent_until is None else silent_until + IMU_PERIOD
-    first_run = RUN_BEFORE_RESET + first_stamp
+    first_run = RUN_BEFORE_RESET + first_stamp_after_reset(silent_until)
     figure.path(clock_path(first_run, end, RUN_BEFORE_RESET), 'imu-line')
-    first_x, first_y = RESET_RUN.position(first_run), RESET_STAMP.position(first_stamp)
-    figure.circle(first_x, first_y, 4.5, 'imu-dot')
-    fresh_y = RESET_STAMP.position(RECOVERY / 2) + 4
-    if silent_until is None:
-        figure.text(RESET_RUN.last_position - 6, fresh_y - LINE_HEIGHT / 2, 'fresh samples',
-                    'note', 'end')
-        figure.text(RESET_RUN.last_position - 6, fresh_y + LINE_HEIGHT / 2,
-                    f'from about {first_stamp:.2f} s', 'note', 'end')
-    else:
-        figure.text(first_x - 8, first_y - 8, f'next: about {first_stamp:.2f} s', 'note', 'end')
-        figure.text(RESET_RUN.last_position - 6, fresh_y, 'no fresh sample', 'note', 'end')
-        figure.text((reset_x + first_x) / 2 - 6, RESET_STAMP.position(2.2), 'silent', 'note',
-                    'end')
+
+
+def draw_sample_marker(figure: Figure, stamp_after_reset: float) -> Tuple[float, float]:
+    """Add a dot at the sample with a stamp after the reset, and return the dot's position."""
+    x = reset_run().position(RUN_BEFORE_RESET + stamp_after_reset)
+    y = reset_stamp().position(stamp_after_reset)
+    figure.circle(x, y, 4.5, 'imu-dot')
+    return x, y
+
+
+def draw_recovery_with_the_copy(figure: Figure) -> None:
+    """Add the copy's run: the sample with which the test passes, and the window it lies in."""
+    draw_clock_and_samples(figure, None)
+    passing_stamp = FRESH_SAMPLE_COUNT * IMU_PERIOD
+    draw_sample_marker(figure, passing_stamp)
+    # Two short lines at the right end of the fresh region, clear of the samples' line
+    right = reset_run().last_position - 4
+    middle = reset_stamp().position(RECOVERY / 2) + 5
+    figure.text(right, middle - LINE_HEIGHT / 2,
+                f'sample {FRESH_SAMPLE_COUNT}: {passing_stamp:.2f} s', 'note', 'end')
+    figure.text(right, middle + LINE_HEIGHT / 2, f'counted: below {RECOVERY:g} s', 'note', 'end')
+
+
+def draw_silence_with_the_old_time(figure: Figure) -> None:
+    """Add the run of a plugin that keeps the old time: silent until the clock is back there."""
+    draw_clock_and_samples(figure, RUN_BEFORE_RESET)
+    first_stamp = first_stamp_after_reset(RUN_BEFORE_RESET)
+    first_x, first_y = draw_sample_marker(figure, first_stamp)
+    run, stamp = reset_run(), reset_stamp()
+    reset_x = run.position(RUN_BEFORE_RESET)
+    figure.text(first_x - 8, first_y - 8, f'next: about {first_stamp:.2f} s', 'note', 'end')
+    figure.text(run.last_position - 6, stamp.position(RECOVERY / 2) + 4, 'no fresh sample',
+                'note', 'end')
+    figure.text((reset_x + first_x) / 2 - 6, stamp.position(0.75 * RUN_BEFORE_RESET), 'silent',
+                'note', 'end')
 
 
 def reset_with_the_copy_figure() -> Figure:
@@ -550,11 +644,12 @@ def reset_with_the_copy_figure() -> Figure:
         'tl-reset-copy', RESET_WIDTH, RESET_HEIGHT, 'The reset test with the robots’ IMU plugin',
         f'The stamps of the IMU’s samples rise with Gazebo’s clock to {RUN_BEFORE_RESET:g} s. '
         'Then the test resets the simulation, and the clock starts from 0 again. The first '
-        f'sample after the reset is stamped about {IMU_PERIOD:.2f} s. Samples after the reset '
-        f'with a stamp below {RECOVERY:g} s count as fresh. The test passes with '
-        f'{FRESH_SAMPLE_COUNT} of them, which takes about {FRESH_SAMPLE_COUNT * IMU_PERIOD:g} s.')
+        f'sample after the reset is stamped about {IMU_PERIOD:.2f} s. Samples that arrive after '
+        f'the reset with a stamp below {RECOVERY:g} s count as fresh. The test passes with '
+        f'{FRESH_SAMPLE_COUNT} of them. A dot marks sample {FRESH_SAMPLE_COUNT}, stamped about '
+        f'{FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s.')
     draw_reset_chart(figure, 'With the robots’ IMU plugin')
-    draw_reset_run(figure, None)
+    draw_recovery_with_the_copy(figure)
     figure.text(8, RESET_HEIGHT - 8, f'{FRESH_SAMPLE_COUNT} fresh samples: the test passes',
                 'strong')
     return figure
@@ -571,7 +666,7 @@ def reset_with_the_old_time_figure() -> Figure:
         f'the reset has a stamp below {RECOVERY:g} s, so none counts as fresh, and the test '
         'fails.')
     draw_reset_chart(figure, 'With a plugin that keeps the old time')
-    draw_reset_run(figure, RUN_BEFORE_RESET)
+    draw_silence_with_the_old_time(figure)
     figure.text(8, RESET_HEIGHT - 8, 'no fresh sample: the test fails', 'strong')
     return figure
 
@@ -612,9 +707,12 @@ def reset_caption() -> str:
             f'{RUN_BEFORE_RESET:g} s, and the IMU publishes exactly {IMU_RATE:g} samples per '
             'second. The robot stands still, and the test sends no command. Each panel shows '
             'the stamps of the IMU’s samples while the simulation runs. The horizontal axis '
-            'doesn’t start over at the reset. A sample counts as fresh in the gray area: after '
-            f'the reset, with a stamp below `RECOVERY`, {RECOVERY:g} s. The test passes with '
-            f'{FRESH_SAMPLE_COUNT} fresh samples.')
+            'doesn’t start over at the reset. A sample counts as fresh in the gray area: it '
+            f'arrives after the reset, with a stamp below `RECOVERY`, {RECOVERY:g} s. The test '
+            f'passes with {FRESH_SAMPLE_COUNT} fresh samples, which have to arrive within '
+            f'{RECOVERY_TIMEOUT:g} s of wall time. The dot in the left panel is sample '
+            f'{FRESH_SAMPLE_COUNT}, stamped about {FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s. The '
+            'test counts arrivals and doesn’t compare their stamps with each other.')
 
 
 def main() -> None:
