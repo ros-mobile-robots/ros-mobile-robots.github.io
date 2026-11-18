@@ -5338,7 +5338,7 @@
 
 <h1 id="tests-the-imu-sample-validator">Tests: The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Sample Validator</h1>
 <p>What the unit tests of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator check, and how they do it. This page belongs to the <a href="../">tests of the Localization</a>, which list the five tests by the question that each answers.</p>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_imu_validator.py"><code>test_imu_validator.py</code></a> tests the <a href="../../#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> one decision at a time. Its 27 unit tests call the validator's Python class and functions directly. No ROS master runs, no node starts and no message travels over a topic. The tests prove what the validator decides for a given <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample at a given ROS time <span class="arithmatex">\(t\)</span>, and what its diagnostics report. They don't prove that the node forwards the samples on its topic or that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> handles them. For that, the <a href="../stepped-clock/">stepped-clock test</a> runs the node together with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_imu_validator.py"><code>test_imu_validator.py</code></a> tests the <a href="../../#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> one decision at a time. Its 28 unit tests call the validator's Python class and functions directly. No ROS master runs, no node starts and no message travels over a topic. The tests prove what the validator decides for a given <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample at a given ROS time <span class="arithmatex">\(t\)</span>, and what its diagnostics report. They don't prove that the node forwards the samples on its topic or that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> handles them. For that, the <a href="../stepped-clock/">stepped-clock test</a> runs the node together with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
 <h2 id="one-sample-through-the-validator">One sample through the validator</h2>
 <p>Two examples show the validator's decision before the code. Each example gives one sample to a new validator, one that has seen no sample yet, at the ROS time <span class="arithmatex">\(t\)</span> = 100 s. This is the ROS time of most tests, their constant <a href="#the-constants-and-the-helpers"><code>NOW</code></a>. Both samples are in the frame <code>imu_link</code>, with finite values and positive variances, as the firmware sends them. They differ only in their stamp <span class="arithmatex">\(t_s\)</span>:</p>
 <ul>
@@ -5642,7 +5642,7 @@
 <li><strong>Rejected:</strong> <code>drop_reason_or_record()</code> returns the reason and stores neither the sample's stamp nor its arrival time. The node counts the sample under this reason, which the <a href="#testsamplecounts-the-numbers-of-a-report">diagnostics</a> report, and passes a warning to <code>rospy.logwarn_throttle()</code> with the period <code>WARNING_PERIOD</code>, 5 s. The tests check this end with <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_rejected()</code></a>.</li>
 </ul>
 <h2 id="the-test-classes">The test classes</h2>
-<p>The file holds the 27 tests in four test classes, one for each part of <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code></a> that works without ROS communication:</p>
+<p>The file holds the 28 tests in four test classes, one for each part of <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code></a> that works without ROS communication:</p>
 <table>
 <thead>
 <tr>
@@ -5655,7 +5655,7 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><a href="#testimuvalidator-which-samples-are-valid"><code>TestImuValidator</code></a></td>
-<td style="text-align: left;">11</td>
+<td style="text-align: left;">12</td>
 <td style="text-align: left;"><a href="#drop_reason_or_record-the-decision-about-a-sample"><code>ImuValidator.drop_reason_or_record()</code></a></td>
 <td style="text-align: left;">Which samples the validator accepts, and the reason for each sample that it rejects</td>
 </tr>
@@ -5668,13 +5668,13 @@
 <tr>
 <td style="text-align: left;"><a href="#testhealth-the-status"><code>TestHealth</code></a></td>
 <td style="text-align: left;">5</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L143"><code>health()</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L143"><code>health()</code></a></td>
 <td style="text-align: left;">The level of the diagnostics status: OK, warning or error</td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="#testsamplecounts-the-numbers-of-a-report"><code>TestSampleCounts</code></a></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L163"><code>SampleCounts</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L163"><code>SampleCounts</code></a></td>
 <td style="text-align: left;">The counts of forwarded and dropped samples in a diagnostics report</td>
 </tr>
 </tbody>
@@ -5682,14 +5682,14 @@
 <p>A fifth class, <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a>, holds no tests. It gives the first two test classes a new validator for each test and two assertions about the validator's decision on a sample.</p>
 <p><a href="#what-the-tests-call">What the tests call</a> explains the validator's methods and its reasons to drop a sample before the tests use them. <a href="#the-constants-and-the-helpers">The constants and the helpers</a> explains what the tests share. <a href="#run-the-tests">Run the tests</a> shows how to run the file and its output. <a href="#what-the-tests-dont-show">What the tests don't show</a> lists what a pass doesn't prove.</p>
 <h2 id="what-the-tests-call">What the tests call</h2>
-<p>Most tests call the class <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L203"><code>ImuValidator</code></a>, which holds the validator's checks without the ROS node around them. This section explains the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns. <a href="../../#the-five-checks">The five checks</a> on the Localization page explain the checks themselves. <a href="#testhealth-the-status"><code>health()</code></a> and <a href="#testsamplecounts-the-numbers-of-a-report"><code>SampleCounts</code></a> have their own sections, next to their tests.</p>
+<p>Most tests call the class <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L203"><code>ImuValidator</code></a>, which holds the validator's checks without the ROS node around them. This section explains the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns. <a href="../../#the-five-checks">The five checks</a> on the Localization page explain the checks themselves. <a href="#testhealth-the-status"><code>health()</code></a> and <a href="#testsamplecounts-the-numbers-of-a-report"><code>SampleCounts</code></a> have their own sections, next to their tests.</p>
 <h3 id="where-the-ros-time-comes-from">Where the ROS time comes from</h3>
 <p><code>ImuValidator</code> never reads the ROS clock itself. Its methods <a href="#drop_reason_or_record-the-decision-about-a-sample"><code>drop_reason_or_record()</code></a> and <a href="#seconds_since_last_valid_sample-the-silence"><code>seconds_since_last_valid_sample()</code></a> get the ROS time <span class="arithmatex">\(t\)</span> as their argument <code>now</code>. The caller decides which time that is:</p>
 <ul>
-<li><strong>On the robot and in the simulation:</strong> the node's class <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L359"><code>ImuValidatorNode</code></a> calls the two methods. For each sample, rospy calls the node's callback <code>on_sample()</code>, which reads the ROS time with <code>rospy.Time.now()</code> and passes it to <code>drop_reason_or_record()</code> as <code>now</code>. For each diagnostics report, the node's method <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L415"><code>take_snapshot()</code></a> reads the ROS time in the same way and passes it to <code>seconds_since_last_valid_sample()</code>.</li>
+<li><strong>On the robot and in the simulation:</strong> the node's class <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L359"><code>ImuValidatorNode</code></a> calls the two methods. For each sample, rospy calls the node's callback <code>on_sample()</code>, which reads the ROS time with <code>rospy.Time.now()</code> and passes it to <code>drop_reason_or_record()</code> as <code>now</code>. For each diagnostics report, the node's method <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L415"><code>take_snapshot()</code></a> reads the ROS time in the same way and passes it to <code>seconds_since_last_valid_sample()</code>.</li>
 <li><strong>In the tests:</strong> each test passes a ROS time that it chooses, most often <a href="#the-constants-and-the-helpers"><code>NOW</code></a>, 100 s. So a test can put any ROS time next to any stamp <span class="arithmatex">\(t_s\)</span>, and needs no clock and no waiting.</li>
 </ul>
-<p>The excerpt shows <code>on_sample()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L383-L398"><code>imu_validator.py</code>, lines 383–398</a>. Line 386 reads the ROS time, and line 387 passes the time with the sample to <code>drop_reason_or_record()</code>:</p>
+<p>The excerpt shows <code>on_sample()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L383-L398"><code>imu_validator.py</code>, lines 383–398</a>. Line 386 reads the ROS time, and line 387 passes the time with the sample to <code>drop_reason_or_record()</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: the node reads the ROS time and passes it on</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">383</span>
 <span class="normal">384</span>
 <span class="normal">385</span>
@@ -5731,17 +5731,17 @@
 <p>What <code>rospy.Time.now()</code> returns depends on the ROS parameter <code>/use_sim_time</code>, as the ROS wiki's page <a href="http://wiki.ros.org/Clock">Clock</a> explains:</p>
 <ul>
 <li><strong>On the robot:</strong> none of the launch files that start the robot sets <code>/use_sim_time</code>. <a href="../../#which-launch-file-starts-what">Which launch file starts what</a> on the Localization page shows these files. Without the parameter, <code>rospy.Time.now()</code> returns the system clock of the robot's single-board computer (<abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>), in seconds since 1 January 1970. This clock doesn't read 0.</li>
-<li><strong>In the simulation:</strong> gazebo_ros's <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/launch/empty_world.launch#L27"><code>empty_world.launch</code></a>, which <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_gazebo/launch/diffbot_view.launch#L30"><code>diffbot_view.launch</code></a> includes, sets <code>/use_sim_time</code> to true. Gazebo publishes the simulation's time on the topic <code>/clock</code>, and <code>rospy.Time.now()</code> returns the time of the last message there. Until the node has received the first message on <code>/clock</code>, <code>rospy.Time.now()</code> returns 0. <a href="#before-the-checks-no-clock">Before the checks: no clock</a> shows what the validator does then.</li>
+<li><strong>In the simulation:</strong> gazebo_ros's <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/launch/empty_world.launch#L27"><code>empty_world.launch</code></a>, which <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_gazebo/launch/diffbot_view.launch#L30"><code>diffbot_view.launch</code></a> includes, sets <code>/use_sim_time</code> to true. Gazebo publishes the simulation's time on the topic <code>/clock</code>, and <code>rospy.Time.now()</code> returns the time of the last message there. Until the node has received the first message on <code>/clock</code>, <code>rospy.Time.now()</code> returns 0. <a href="#before-the-checks-no-clock">Before the checks: no clock</a> shows what the validator does then.</li>
 </ul>
 <p>The <a href="../stepped-clock/">stepped-clock test</a> sets <code>/use_sim_time</code> too, and publishes the messages on <code>/clock</code> itself.</p>
 <h3 id="drop_reason_or_record-the-decision-about-a-sample"><code>drop_reason_or_record()</code>: the decision about a sample</h3>
 <p><code>drop_reason_or_record(message, now)</code> decides about one sample. The node calls the method once for each sample, and the tests call the method through <a href="#validatortestcase-a-new-validator-and-two-assertions">two assertions</a>. Its two arguments are:</p>
 <ul>
-<li><strong><code>message</code>:</strong> the sample, a <code>sensor_msgs/Imu</code> message. The sample carries its own time, the stamp <span class="arithmatex">\(t_s\)</span> in <code>header.stamp</code>, which the sender writes into the message. On the robot, the Teensy's firmware stamps each sample with rosserial's ROS time when it starts to read the BNO055. That time estimates when the BNO055 measured, because the sensor doesn't report that time, as the <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_firmware/lib/imu/imu_publisher.h#L36-L38">firmware's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publisher</a> explains. In the simulation, Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin stamps each sample with the simulation time of the measurement. The header also carries the frame of the values, <code>header.frame_id</code>. <a href="../../#the-messages-and-their-fields">The messages and their fields</a> on the Localization page lists the sample's fields.</li>
+<li><strong><code>message</code>:</strong> the sample, a <code>sensor_msgs/Imu</code> message. The sample carries its own time, the stamp <span class="arithmatex">\(t_s\)</span> in <code>header.stamp</code>, which the sender writes into the message. On the robot, the Teensy's firmware stamps each sample with rosserial's ROS time when it starts to read the BNO055. That time estimates when the BNO055 measured, because the sensor doesn't report that time, as the <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_firmware/lib/imu/imu_publisher.h#L36-L38">firmware's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publisher</a> explains. In the simulation, Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin stamps each sample with the simulation time of the measurement. The header also carries the frame of the values, <code>header.frame_id</code>. <a href="../../#the-messages-and-their-fields">The messages and their fields</a> on the Localization page lists the sample's fields.</li>
 <li><strong><code>now</code>:</strong> the ROS time <span class="arithmatex">\(t\)</span> at which the sample arrives at the validator, a <code>rospy.Time</code>. The sample's way from the sender to the node takes time, so <span class="arithmatex">\(t\)</span> is usually a little later than <span class="arithmatex">\(t_s\)</span>. On the robot, <a href="https://github.com/ros-drivers/rosserial/blob/0.9.1/rosserial_client/src/ros_lib/ros/node_handle.h#L354-L383">rosserial synchronizes</a> the Teensy's clock only approximately with the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>'s clock. The remaining offset can put <span class="arithmatex">\(t_s\)</span> a little after <span class="arithmatex">\(t\)</span>. Check 4 allows a stamp up to <code>max_future</code>, 0.02 s, ahead.</li>
 </ul>
 <p>The validator checks both the frame and the stamp: <a href="../../#checks-1-to-3-the-samples-form">check 1</a> the frame, <a href="../../#check-4-the-stamp-against-the-ros-time">check 4</a> the stamp <span class="arithmatex">\(t_s\)</span> against the ROS time <span class="arithmatex">\(t\)</span>, and <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">check 5</a> the stamp <span class="arithmatex">\(t_s\)</span> against the stamp of the last valid sample.</p>
-<p>The name lists the method's two outcomes in their order: the caller gets the drop reason, the first reason to drop the sample, or, when the sample has no drop reason, the method records the sample's two times and returns <code>None</code>. To record means here that the validator stores the sample's stamp in its attribute <code>last_valid_stamp</code> and the ROS time of the sample's arrival in <code>last_valid_arrival_time</code>, for its next decisions. The validator doesn't keep the message or write it to a file. The return type in the method's first line, <code>Optional[DropReason]</code>, says the same: the result is a member of <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason</code></a> or <code>None</code>. So <code>None</code> means "no reason to drop": the sample is valid, and the node forwards the sample. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L258-L275"><code>imu_validator.py</code>, lines 258–275</a>:</p>
+<p>The name lists the method's two outcomes in their order: the caller gets the drop reason, the first reason to drop the sample, or, when the sample has no drop reason, the method records the sample's two times and returns <code>None</code>. To record means here that the validator stores the sample's stamp in its attribute <code>last_valid_stamp</code> and the ROS time of the sample's arrival in <code>last_valid_arrival_time</code>, for its next decisions. The validator doesn't keep the message or write it to a file. The return type in the method's first line, <code>Optional[DropReason]</code>, says the same: the result is a member of <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason</code></a> or <code>None</code>. So <code>None</code> means "no reason to drop": the sample is valid, and the node forwards the sample. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L258-L275"><code>imu_validator.py</code>, lines 258–275</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: drop_reason_or_record()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">258</span>
 <span class="normal">259</span>
 <span class="normal">260</span>
@@ -5780,7 +5780,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>The method runs two steps, each in a method of its own: first <a href="#step-1-drop_reason-the-decision"><code>drop_reason()</code></a>, then, only when the reason is <code>None</code>, <a href="#step-2-record_valid_sample_times-a-valid-sample"><code>record_valid_sample_times()</code></a>.</p>
 <h4 id="step-1-drop_reason-the-decision">Step 1: <code>drop_reason()</code>, the decision</h4>
-<p><code>drop_reason()</code> returns the first reason to drop the sample, or <code>None</code> when the sample passes every check. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L277-L295"><code>imu_validator.py</code>, lines 277–295</a>:</p>
+<p><code>drop_reason()</code> returns the first reason to drop the sample, or <code>None</code> when the sample passes every check. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L277-L295"><code>imu_validator.py</code>, lines 277–295</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: drop_reason()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
@@ -5821,11 +5821,11 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>drop_reason()</code> works in three steps:</p>
 <ol>
-<li><strong>No clock:</strong> if a sample arrives at the ROS time 0 s, lines 288 and 289 return <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason.NO_CLOCK</code></a> at once. The validator reads 0 s as "no clock yet", as the comment in lines 286 and 287 says, so the method skips step 2, the clock check. The clock check compares the current ROS time with <code>last_checked_ros_time</code>, the ROS time of the last clock check. At startup, before the first message on <code>/clock</code>, a new validator has no earlier check. Now suppose that the validator last checked the clock at 100 s and a clock publisher sends 0 s. A sample that arrives at 0 s leaves the validator's attributes as they are: 100 s in <code>last_checked_ros_time</code>, and the last valid sample's stamp and arrival time in <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code>. If the next check reads 0.02 s, the check sets <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code> to <code>None</code>, because 0.02 s is earlier than 100 s. That next check can come from a sample or from a diagnostics report.</li>
+<li><strong>No clock:</strong> if a sample arrives at the ROS time 0 s, lines 288 and 289 return <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason.NO_CLOCK</code></a> at once. The validator reads 0 s as "no clock yet", as the comment in lines 286 and 287 says, so the method skips step 2, the clock check. The clock check compares the current ROS time with <code>last_checked_ros_time</code>, the ROS time of the last clock check. At startup, before the first message on <code>/clock</code>, a new validator has no earlier check. Now suppose that the validator last checked the clock at 100 s and a clock publisher sends 0 s. A sample that arrives at 0 s leaves the validator's attributes as they are: 100 s in <code>last_checked_ros_time</code>, and the last valid sample's stamp and arrival time in <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code>. If the next check reads 0.02 s, the check sets <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code> to <code>None</code>, because 0.02 s is earlier than 100 s. That next check can come from a sample or from a diagnostics report. A test in <a href="#before-the-checks-no-clock">Before the checks: no clock</a> checks that a sample at 0 s changes nothing.</li>
 <li><strong>A clock that went back:</strong> <a href="#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back"><code>clear_last_valid_sample_times_if_clock_went_back(now)</code></a> clears <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code> if <code>now</code> is earlier than <code>last_checked_ros_time</code>. The method then stores <code>now</code> in <code>last_checked_ros_time</code> for the next clock check.</li>
 <li><strong>The checks:</strong> the loop calls the checks in the tuple <code>sample_checks</code>, one after the other. The first check that returns a reason ends the loop, and the method returns that reason. The later checks don't run. When every check has returned <code>None</code>, the method returns <code>None</code>.</li>
 </ol>
-<p>The constructor <code>__init__()</code> fills <code>sample_checks</code> in the order in which the checks run. The excerpt shows the tuple, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L222-L230"><code>imu_validator.py</code>, lines 222–230</a>:</p>
+<p>The constructor <code>__init__()</code> fills <code>sample_checks</code> in the order in which the checks run. The excerpt shows the tuple, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L222-L230"><code>imu_validator.py</code>, lines 222–230</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: the checks in their order</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">222</span>
 <span class="normal">223</span>
 <span class="normal">224</span>
@@ -5846,7 +5846,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>The six functions are <a href="../../#the-five-checks">the five checks</a> of the Localization page. Check 4 has two functions, one for each time limit: <code>check_not_too_far_ahead()</code> and <code>check_not_too_old()</code>. A sample that would fail two checks gets the reason of the earlier one, as sample A in <a href="#check-4-the-two-time-limits">Check 4: the two time limits</a> shows.</p>
 <h4 id="step-2-record_valid_sample_times-a-valid-sample">Step 2: <code>record_valid_sample_times()</code>, a valid sample</h4>
-<p>Only when <a href="#step-1-drop_reason-the-decision"><code>drop_reason()</code></a> has returned <code>None</code>, <code>record_valid_sample_times()</code> stores two times of the sample in attributes of the validator: the sample's stamp in <code>last_valid_stamp</code> and its arrival time in <code>last_valid_arrival_time</code>. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L297-L303"><code>imu_validator.py</code>, lines 297–303</a>:</p>
+<p>Only when <a href="#step-1-drop_reason-the-decision"><code>drop_reason()</code></a> has returned <code>None</code>, <code>record_valid_sample_times()</code> stores two times of the sample in attributes of the validator: the sample's stamp in <code>last_valid_stamp</code> and its arrival time in <code>last_valid_arrival_time</code>. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L297-L303"><code>imu_validator.py</code>, lines 297–303</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: record_valid_sample_times()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">297</span>
 <span class="normal">298</span>
 <span class="normal">299</span>
@@ -5899,7 +5899,7 @@
 <p>The tests therefore run the same two steps as the node.</p>
 <h3 id="clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back"><code>clear_last_valid_sample_times_if_clock_went_back()</code>: a clock that goes back</h3>
 <p>The ROS time can jump back. In the simulation, a call of the service <code>/gazebo/reset_simulation</code> starts Gazebo's clock again near 0 s. On the robot, a correction of the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>'s clock can set the time back. Without a reaction, <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">check 5</a> would still compare new stamps with the stamp <span class="arithmatex">\(t_\text{last}\)</span> of the last valid sample from before the jump. Samples that pass checks 1 to 4 would then be dropped as <a href="#dropreason-the-reasons-to-drop-a-sample"><code>NOT_NEWER</code></a> while their stamps are no later than <span class="arithmatex">\(t_\text{last}\)</span>. For example, suppose the last valid stamp is 100 s and the simulation restarts near 0 s. If each new sample's stamp equals its arrival time, those samples would be dropped until their stamps exceed 100 s, about 100 s of simulation time later.</p>
-<p>The method's name says what the method does about this: the method clears the last valid sample's times if the clock went back. The validator keeps these two times in attributes of its own: the stamp of the last valid sample in <code>last_valid_stamp</code>, and the ROS time of its arrival in <code>last_valid_arrival_time</code>. The validator stores no sample, only these two times. To clear them, the method sets both attributes to <code>None</code>. The validator also stores the ROS time of the last clock check in its attribute <code>last_checked_ros_time</code>. The excerpt shows the method and its two helpers, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L232-L256"><code>imu_validator.py</code>, lines 232–256</a>:</p>
+<p>The method's name says what the method does about this: the method clears the last valid sample's times if the clock went back. The validator keeps these two times in attributes of its own: the stamp of the last valid sample in <code>last_valid_stamp</code>, and the ROS time of its arrival in <code>last_valid_arrival_time</code>. The validator stores no sample, only these two times. To clear them, the method sets both attributes to <code>None</code>. The validator also stores the ROS time of the last clock check in its attribute <code>last_checked_ros_time</code>. The excerpt shows the method and its two helpers, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L232-L256"><code>imu_validator.py</code>, lines 232–256</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: clear_last_valid_sample_times_if_clock_went_back() and its two helpers</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">232</span>
 <span class="normal">233</span>
 <span class="normal">234</span>
@@ -6010,7 +6010,7 @@
 <p>Without the clock check, <code>last_valid_stamp</code> would still be 100 s when J arrives. Check 5 would drop J as <code>NOT_NEWER</code>, because J's stamp of 0.02 s is not later than 100 s.</p>
 <p>Two methods call <code>clear_last_valid_sample_times_if_clock_went_back()</code> with their own <code>now</code>: <a href="#step-1-drop_reason-the-decision"><code>drop_reason()</code></a> for each sample that arrives at a ROS time other than 0, and <code>seconds_since_last_valid_sample()</code> for each diagnostics report. So the validator notices a jump back also while no sample arrives. The tests never call the method directly. They see its effect in <a href="#a-clock-that-goes-back">A clock that goes back</a> and in the tests of <a href="#testsecondssincelastvalidsample-the-silence">the silence</a>.</p>
 <h3 id="seconds_since_last_valid_sample-the-silence"><code>seconds_since_last_valid_sample()</code>: the silence</h3>
-<p><code>seconds_since_last_valid_sample(now)</code> returns how long no sample has been valid at the ROS time <code>now</code>. The <a href="../../#the-validators-diagnostics">validator's diagnostics</a> report this silence. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L342-L356"><code>imu_validator.py</code>, lines 342–356</a>:</p>
+<p><code>seconds_since_last_valid_sample(now)</code> returns how long no sample has been valid at the ROS time <code>now</code>. The <a href="../../#the-validators-diagnostics">validator's diagnostics</a> report this silence. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L342-L356"><code>imu_validator.py</code>, lines 342–356</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: seconds_since_last_valid_sample()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">342</span>
 <span class="normal">343</span>
 <span class="normal">344</span>
@@ -6047,7 +6047,7 @@
 <li><strong>The silence in s, a <code>float</code>:</strong> the ROS time <span class="arithmatex">\(t\)</span> minus <span class="arithmatex">\(t_\text{valid}\)</span>, the ROS time <code>last_valid_arrival_time</code> at which the last valid sample arrived: <span class="arithmatex">\(t - t_\text{valid}\)</span>. The silence counts from the sample's arrival, not from its stamp.</li>
 </ul>
 <h3 id="dropreason-the-reasons-to-drop-a-sample"><code>DropReason</code>: the reasons to drop a sample</h3>
-<p><code>DropReason</code> is an <a href="https://docs.python.org/3/library/enum.html">enumeration</a>, a fixed set of named members, one for each reason to drop a sample. The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/scripts/imu_validator.py#L105-L118"><code>imu_validator.py</code>, lines 105–118</a>:</p>
+<p><code>DropReason</code> is an <a href="https://docs.python.org/3/library/enum.html">enumeration</a>, a fixed set of named members, one for each reason to drop a sample. The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/scripts/imu_validator.py#L105-L118"><code>imu_validator.py</code>, lines 105–118</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: DropReason</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span>
@@ -6128,7 +6128,7 @@
 <p>The tests share a few constants, two helper functions that build samples and durations, and a base class with two assertions, <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a>.</p>
 <details class="example">
 <summary>The constants of <code>test_imu_validator.py</code>, lines 23–64</summary>
-<p>The excerpt shows all constants of the file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L23-L64"><code>test_imu_validator.py</code>, lines 23–64</a>. <code>NOW</code> is the ROS time <span class="arithmatex">\(t\)</span> of most checks, 100 s. <code>MAX_AGE</code> and <code>MAX_FUTURE</code> are the two time limits that <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/ekf.launch"><code>ekf.launch</code></a> sets on the robot and in the simulation. <code>JUST_TOO_OLD</code> and <code>JUST_TOO_FAR_AHEAD</code> lie <code>ONE_MICROSECOND</code>, 1 µs, beyond these limits. The tests that use the other constants explain them in their sections, and the comment above each constant says which condition its value meets. <code>ONE_NANOSECOND</code> is a <code>rospy.Duration</code> of exactly 1 ns, built from whole nanoseconds and not with <code>seconds()</code>. <code>seconds()</code> passes a number of seconds to <code>rospy.Duration.from_sec()</code>, which multiplies the number by 10⁹ as a floating-point number and cuts off the fraction of a nanosecond. So <code>seconds(3.3)</code> is 3.299999999 s.</p>
+<p>The excerpt shows all constants of the file, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L23-L64"><code>test_imu_validator.py</code>, lines 23–64</a>. <code>NOW</code> is the ROS time <span class="arithmatex">\(t\)</span> of most checks, 100 s. <code>MAX_AGE</code> and <code>MAX_FUTURE</code> are the two time limits that <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/launch/ekf.launch"><code>ekf.launch</code></a> sets on the robot and in the simulation. <code>JUST_TOO_OLD</code> and <code>JUST_TOO_FAR_AHEAD</code> lie <code>ONE_MICROSECOND</code>, 1 µs, beyond these limits. The tests that use the other constants explain them in their sections, and the comment above each constant says which condition its value meets. <code>ONE_NANOSECOND</code> is a <code>rospy.Duration</code> of exactly 1 ns, built from whole nanoseconds and not with <code>seconds()</code>. <code>seconds()</code> passes a number of seconds to <code>rospy.Duration.from_sec()</code>, which multiplies the number by 10⁹ as a floating-point number and cuts off the fraction of a nanosecond. So <code>seconds(3.3)</code> is 3.299999999 s.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
@@ -6214,7 +6214,7 @@
 <span class="n">OFF_DIAGONAL_INDEX</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># x-y</span>
 </code></pre></div></td></tr></tbody></table></div>
 </details>
-<p>Every test that gives the validator a sample builds the sample with the helper <code>make_imu_sample()</code>. The excerpt shows <code>make_imu_sample()</code> and the helper <code>seconds()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L67-L88"><code>test_imu_validator.py</code>, lines 67–88</a>:</p>
+<p>Every test that gives the validator a sample builds the sample with the helper <code>make_imu_sample()</code>. The excerpt shows <code>make_imu_sample()</code> and the helper <code>seconds()</code>, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L67-L88"><code>test_imu_validator.py</code>, lines 67–88</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: make_imu_sample() and seconds()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
 <span class="normal">68</span>
 <span class="normal">69</span>
@@ -6266,7 +6266,7 @@
 <li><strong><code>seconds()</code>:</strong> turns a number of seconds into a <code>rospy.Duration</code>, which a test adds to <code>NOW</code> or subtracts from it.</li>
 </ul>
 <h3 id="validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code>: a new validator and two assertions</h3>
-<p><a href="#testimuvalidator-which-samples-are-valid"><code>TestImuValidator</code></a> and <a href="#testsecondssincelastvalidsample-the-silence"><code>TestSecondsSinceLastValidSample</code></a> derive from the class <code>ValidatorTestCase</code>, which derives from <code>unittest.TestCase</code>. A class that derives from another class inherits the other class's methods. So the tests of both classes can use the three methods of <code>ValidatorTestCase</code>: <code>setUp()</code> and the two assertions <code>assert_accepted()</code> and <code>assert_rejected()</code>. <code>ValidatorTestCase</code> itself has no tests. The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L91-L109"><code>test_imu_validator.py</code>, lines 91–109</a>:</p>
+<p><a href="#testimuvalidator-which-samples-are-valid"><code>TestImuValidator</code></a> and <a href="#testsecondssincelastvalidsample-the-silence"><code>TestSecondsSinceLastValidSample</code></a> derive from the class <code>ValidatorTestCase</code>, which derives from <code>unittest.TestCase</code>. A class that derives from another class inherits the other class's methods. So the tests of both classes can use the three methods of <code>ValidatorTestCase</code>: <code>setUp()</code> and the two assertions <code>assert_accepted()</code> and <code>assert_rejected()</code>. <code>ValidatorTestCase</code> itself has no tests. The excerpt shows the class, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L91-L109"><code>test_imu_validator.py</code>, lines 91–109</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: ValidatorTestCase</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
 <span class="normal"> 92</span>
 <span class="normal"> 93</span>
@@ -6314,14 +6314,14 @@
 <p><code>assertIsNone()</code> and <code>assertEqual()</code> are two of the <a href="https://docs.python.org/3/library/unittest.html#assert-methods">assert methods</a> that every test class inherits from <code>unittest.TestCase</code>, which is why the two assertions call these methods on <code>self</code>. The tests call <code>assert_accepted()</code> and <code>assert_rejected()</code> on <code>self</code> in the same way.</p>
 <p>Accepted and rejected are the validator's decisions, and the tests' names say "accepts" and "rejects". The node forwards an accepted sample and drops a rejected one. The tests themselves publish nothing, as <a href="#what-the-tests-dont-show">What the tests don't show</a> says.</p>
 <h2 id="testimuvalidator-which-samples-are-valid"><code>TestImuValidator</code>: which samples are valid</h2>
-<p>The class tests <a href="#drop_reason_or_record-the-decision-about-a-sample"><code>drop_reason_or_record()</code></a>, one reason to drop a sample at a time. The excerpt shows the class's first two lines, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L112-L113"><code>test_imu_validator.py</code>, lines 112–113</a>. The name in parentheses, <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a>, is the class that <code>TestImuValidator</code> derives from. So each test starts with a new validator and checks each decision of the validator with <code>assert_accepted()</code> or <code>assert_rejected()</code>:</p>
+<p>The class tests <a href="#drop_reason_or_record-the-decision-about-a-sample"><code>drop_reason_or_record()</code></a>, one reason to drop a sample at a time. The excerpt shows the class's first two lines, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L112-L113"><code>test_imu_validator.py</code>, lines 112–113</a>. The name in parentheses, <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a>, is the class that <code>TestImuValidator</code> derives from. So each test starts with a new validator and checks each decision of the validator with <code>assert_accepted()</code> or <code>assert_rejected()</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the class derives from ValidatorTestCase</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">112</span>
 <span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestImuValidator</span><span class="p">(</span><span class="n">ValidatorTestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Test which samples the validator accepts, and the reason for each one it rejects."""</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The sections below follow the order of the checks, with the numbers and names of <a href="../../#the-five-checks">the five checks</a> on the Localization page.</p>
 <h3 id="a-valid-sample">A valid sample</h3>
-<p><code>test_validator_accepts_valid_samples</code> is the baseline of the class. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L115-L117"><code>test_imu_validator.py</code>, lines 115–117</a>:</p>
+<p><code>test_validator_accepts_valid_samples</code> is the baseline of the class. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L115-L117"><code>test_imu_validator.py</code>, lines 115–117</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: valid samples</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_accepts_valid_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -6336,12 +6336,36 @@
 <p>So line 116 checks that the validator accepts the sample. In the node, <a href="#where-the-ros-time-comes-from"><code>on_sample()</code></a> forwards an accepted sample.</p>
 <p>Line 117 checks a second sample in the same way. The sample is stamped <code>MAX_FUTURE</code>, 0.02 s, later than the first, and arrives at a ROS time that is 0.02 s later too. This sample is the next one of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> at 50 Hz. The validator accepts the sample, because its stamp is later than the first sample's.</p>
 <h3 id="before-the-checks-no-clock">Before the checks: no clock</h3>
-<p><code>test_validator_rejects_a_sample_at_ros_time_zero</code> gives the validator a valid sample at the ROS time 0, the test's constant <a href="#the-constants-and-the-helpers"><code>ROS_TIME_ZERO</code></a>, <code>rospy.Time(0)</code>. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L119-L120"><code>test_imu_validator.py</code>, lines 119–120</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: no clock</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
-<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_at_ros_time_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<p><code>test_validator_rejects_a_sample_at_ros_time_zero</code> gives the validator a valid sample at the ROS time 0, the test's constant <a href="#the-constants-and-the-helpers"><code>ROS_TIME_ZERO</code></a>, <code>rospy.Time(0)</code>. The excerpt shows this test and the next one, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L119-L132"><code>test_imu_validator.py</code>, lines 119–132</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: no clock, and what a sample at 0 s leaves</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_at_ros_time_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_rejected</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">NO_CLOCK</span><span class="p">,</span> <span class="n">make_imu_sample</span><span class="p">(),</span> <span class="n">ROS_TIME_ZERO</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_the_same_stamp_again_after_a_sample_at_ros_time_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># A sample at the ROS time 0 returns NO_CLOCK before the clock check, so the validator</span>
+    <span class="c1"># keeps last_valid_stamp and last_checked_ros_time</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assert_accepted</span><span class="p">(</span><span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span><span class="p">),</span> <span class="n">NOW</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assert_rejected</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">NO_CLOCK</span><span class="p">,</span> <span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span><span class="p">),</span>
+                         <span class="n">ROS_TIME_ZERO</span><span class="p">)</span>
+    <span class="c1"># The same stamp again, 1 ms after NOW: not before NOW, so this call's own clock check</span>
+    <span class="c1"># finds no clock that went back, and only the call at ROS_TIME_ZERO could have cleared</span>
+    <span class="c1"># last_valid_stamp</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assert_rejected</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">NOT_NEWER</span><span class="p">,</span> <span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span><span class="p">),</span>
+                         <span class="n">NOW</span> <span class="o">+</span> <span class="n">seconds</span><span class="p">(</span><span class="n">ONE_MILLISECOND</span><span class="p">))</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_rejected()</code></a> gets the expected reason first, here <a href="#dropreason-the-reasons-to-drop-a-sample"><code>imu_validator.DropReason.NO_CLOCK</code></a>, then the sample and the ROS time. So the test checks that the validator rejects even a valid sample at the ROS time 0, with the reason <code>NO_CLOCK</code>.</p>
+<p><a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_rejected()</code></a> gets the expected reason first, here <a href="#dropreason-the-reasons-to-drop-a-sample"><code>imu_validator.DropReason.NO_CLOCK</code></a>, then the sample and the ROS time. So the first test checks that the validator rejects even a valid sample at the ROS time 0, with the reason <code>NO_CLOCK</code>.</p>
 <p>The validator treats the ROS time 0 as an unavailable clock. At startup with simulation time, <code>rospy.Time.now()</code> returns 0 until the node has received the first message on the topic <code>/clock</code>, as <a href="#where-the-ros-time-comes-from">Where the ROS time comes from</a> explains. A stamp can't be judged against this time. At <span class="arithmatex">\(t = 0\)</span>, check 4 would allow only the stamps between −0.1 s and 0.02 s:</p>
 <div class="arithmatex">\[
 t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
@@ -6353,13 +6377,20 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <li><strong>A sample without a stamp:</strong> a message whose stamp was never set has the stamp 0 s, and would pass check 4.</li>
 </ul>
 <p>So the validator rejects every sample at the ROS time 0 before the checks, with its own reason <code>NO_CLOCK</code>, which <a href="#step-1-drop_reason-the-decision"><code>drop_reason()</code></a> returns. On the robot, the ROS time is the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>'s system clock, which doesn't read 0. So the robot's validator doesn't reject samples for this reason.</p>
+<p><code>test_validator_rejects_the_same_stamp_again_after_a_sample_at_ros_time_zero</code> checks what a sample at the ROS time 0 leaves behind: nothing, because <a href="#step-1-drop_reason-the-decision"><code>drop_reason()</code></a> returns <code>NO_CLOCK</code> before the clock check. The test gives one validator three samples, all stamped <code>NOW</code>, 100 s:</p>
+<ol>
+<li><strong>The 1st call, line 125, at the ROS time <code>NOW</code>, 100 s:</strong> the sample is valid. The validator stores 100 s in its attributes <code>last_valid_stamp</code> and <code>last_checked_ros_time</code>.</li>
+<li><strong>The 2nd call, lines 126 and 127, at <code>ROS_TIME_ZERO</code>, 0 s:</strong> the validator returns <code>NO_CLOCK</code> before the clock check. Both attributes stay 100 s.</li>
+<li><strong>The 3rd call, lines 131 and 132, at <code>NOW</code> plus <code>ONE_MILLISECOND</code>, 100.001 s:</strong> the clock check finds 100.001 s later than <code>last_checked_ros_time</code>, 100 s, and stores 100.001 s. <code>last_valid_stamp</code> is still 100 s, so <a href="#check-5-the-order-of-the-stamps">check 5</a> rejects the sample as <code>NOT_NEWER</code>.</li>
+</ol>
+<p>The third call's own clock check finds no clock that went back, because its ROS time is not earlier than <code>NOW</code>. So only the second call could have cleared <code>last_valid_stamp</code>. A validator that checked the clock before it returned <code>NO_CLOCK</code> would take 0 s for a clock that went back and set its attributes <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code> to <code>None</code>. It would then accept the third sample, and the test fails for such a validator.</p>
 <h3 id="check-1-the-frame">Check 1: the frame</h3>
-<p>Check 1 compares the sample's <code>header.frame_id</code> with the frame that the validator expects, <a href="#the-constants-and-the-helpers"><code>FRAME</code></a>, <code>imu_link</code>. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L122-L126"><code>test_imu_validator.py</code>, lines 122–126</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: a wrong frame</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_with_a_wrong_or_empty_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<p>Check 1 compares the sample's <code>header.frame_id</code> with the frame that the validator expects, <a href="#the-constants-and-the-helpers"><code>FRAME</code></a>, <code>imu_link</code>. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L134-L138"><code>test_imu_validator.py</code>, lines 134–138</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: a wrong frame</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_with_a_wrong_or_empty_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'base_link'</span><span class="p">,</span> <span class="s1">''</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_rejected</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">WRONG_FRAME</span><span class="p">,</span>
                              <span class="n">make_imu_sample</span><span class="p">(</span><span class="n">frame_id</span><span class="o">=</span><span class="n">frame_id</span><span class="p">),</span> <span class="n">NOW</span><span class="p">,</span>
@@ -6367,17 +6398,17 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </code></pre></div></td></tr></tbody></table></div>
 <p>The loop runs twice, with the frame <code>base_link</code> and with an empty frame. In each pass, <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_rejected()</code></a> expects <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason.WRONG_FRAME</code></a>. The last argument is the assertion's <code>msg</code>, the text that unittest adds to its report when the assertion fails. The text names the frame of the loop's current pass, so a failure says which of the two frames the validator didn't reject.</p>
 <h3 id="check-2-the-values">Check 2: the values</h3>
-<p>Check 2 needs finite values in the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span>, the field <code>angular_velocity</code>, and in the accelerometer's reading <span class="arithmatex">\(\mathbf f\)</span>, the field <code>linear_acceleration</code>. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L128-L137"><code>test_imu_validator.py</code>, lines 128–137</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: NaN and infinite values</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_with_a_nan_or_infinite_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<p>Check 2 needs finite values in the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span>, the field <code>angular_velocity</code>, and in the accelerometer's reading <span class="arithmatex">\(\mathbf f\)</span>, the field <code>linear_acceleration</code>. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L140-L149"><code>test_imu_validator.py</code>, lines 140–149</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: NaN and infinite values</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_with_a_nan_or_infinite_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">make_imu_sample</span><span class="p">()</span>
         <span class="n">message</span><span class="o">.</span><span class="n">angular_velocity</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">value</span>
@@ -6390,19 +6421,19 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </code></pre></div></td></tr></tbody></table></div>
 <p>The loop runs three times, for NaN, +∞ and −∞. Each pass builds two samples. The first has the value as its yaw rate <span class="arithmatex">\(\omega_z\)</span>, <code>angular_velocity.z</code>. The second has the value as <span class="arithmatex">\(f_x\)</span>, <code>linear_acceleration.x</code>. The validator has to reject all six samples with <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason.NOT_FINITE</code></a>.</p>
 <h3 id="check-3-the-variances">Check 3: the variances</h3>
-<p>Check 3 looks at the covariance <span class="arithmatex">\(\boldsymbol\Sigma_{\boldsymbol\omega}\)</span> of the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span>, the field <code>angular_velocity_covariance</code>. Its nine values have to be finite, and its three variances on the diagonal, <span class="arithmatex">\(\sigma^2_{\omega_x}\)</span>, <span class="arithmatex">\(\sigma^2_{\omega_y}\)</span> and <span class="arithmatex">\(\sigma^2_{\omega_z}\)</span>, have to be positive. <a href="../../#the-variances">The variances</a> on the Localization page shows how the message stores the 3 × 3 matrix as nine numbers, row by row. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L139-L150"><code>test_imu_validator.py</code>, lines 139–150</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: three invalid covariances</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_with_an_invalid_angular_velocity_covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<p>Check 3 looks at the covariance <span class="arithmatex">\(\boldsymbol\Sigma_{\boldsymbol\omega}\)</span> of the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span>, the field <code>angular_velocity_covariance</code>. Its nine values have to be finite, and its three variances on the diagonal, <span class="arithmatex">\(\sigma^2_{\omega_x}\)</span>, <span class="arithmatex">\(\sigma^2_{\omega_y}\)</span> and <span class="arithmatex">\(\sigma^2_{\omega_z}\)</span>, have to be positive. <a href="../../#the-variances">The variances</a> on the Localization page shows how the message stores the 3 × 3 matrix as nine numbers, row by row. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L151-L162"><code>test_imu_validator.py</code>, lines 151–162</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: three invalid covariances</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_with_an_invalid_angular_velocity_covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">unavailable</span> <span class="o">=</span> <span class="n">make_imu_sample</span><span class="p">()</span>
     <span class="n">unavailable</span><span class="o">.</span><span class="n">angular_velocity_covariance</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ANGULAR_VELOCITY_UNAVAILABLE</span><span class="p">)</span>
     <span class="n">zero_variance</span> <span class="o">=</span> <span class="n">make_imu_sample</span><span class="p">()</span>
@@ -6422,16 +6453,16 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <li><strong><code>nan_off_the_diagonal</code>:</strong> the covariance <span class="arithmatex">\(\sigma_{\omega_x \omega_y}\)</span>, the element with the index <code>OFF_DIAGONAL_INDEX</code>, 1, is NaN. This element is not a variance, so the test shows that the check looks at all nine values.</li>
 </ul>
 <h3 id="check-4-the-two-time-limits">Check 4: the two time limits</h3>
-<p>Check 4 compares the stamp <span class="arithmatex">\(t_s\)</span> with the ROS time <span class="arithmatex">\(t\)</span>: <span class="arithmatex">\(t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}\)</span>. Two tests probe each limit from both sides. The excerpt shows both tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L152-L160"><code>test_imu_validator.py</code>, lines 152–160</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: at the limits and 1 µs beyond</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_accepts_a_sample_max_age_old_and_rejects_an_older_one</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<p>Check 4 compares the stamp <span class="arithmatex">\(t_s\)</span> with the ROS time <span class="arithmatex">\(t\)</span>: <span class="arithmatex">\(t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}\)</span>. Two tests probe each limit from both sides. The excerpt shows both tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L164-L172"><code>test_imu_validator.py</code>, lines 164–172</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: at the limits and 1 µs beyond</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_accepts_a_sample_max_age_old_and_rejects_an_older_one</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_accepted</span><span class="p">(</span><span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span> <span class="o">-</span> <span class="n">seconds</span><span class="p">(</span><span class="n">MAX_AGE</span><span class="p">)),</span> <span class="n">NOW</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_rejected</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">TOO_OLD</span><span class="p">,</span>
                          <span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span> <span class="o">-</span> <span class="n">seconds</span><span class="p">(</span><span class="n">JUST_TOO_OLD</span><span class="p">)),</span> <span class="n">NOW</span><span class="p">)</span>
@@ -6612,26 +6643,26 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <p>The first test sends B and then A, the second test D and then C, all at the ROS time <a href="#the-constants-and-the-helpers"><code>NOW</code></a>. The tests build the four stamps from the constants: B is <code>NOW - seconds(MAX_AGE)</code>, A is <code>NOW - seconds(JUST_TOO_OLD)</code>, D is <code>NOW + seconds(JUST_TOO_FAR_AHEAD)</code> and C is <code>NOW + seconds(MAX_FUTURE)</code>. The validator has to accept B and C, so each limit itself is still valid. The validator has to reject A with <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason.TOO_OLD</code></a> and D with <code>DropReason.FROM_THE_FUTURE</code>.</p>
 <p>In the first test, sample A is also older than the valid sample B before it. The validator reports <code>DropReason.TOO_OLD</code> and not <code>DropReason.NOT_NEWER</code>, because the checks run <a href="#step-1-drop_reason-the-decision">in their order</a> and check 4 comes before check 5. The second test sends the rejected sample D first. For a rejected sample, the validator stores only the ROS time of the call in <code>last_checked_ros_time</code>, for its clock check, so D doesn't change what the validator decides for C.</p>
 <h3 id="check-5-the-order-of-the-stamps">Check 5: the order of the stamps</h3>
-<p>Check 5 compares the stamp <span class="arithmatex">\(t_s\)</span> with <span class="arithmatex">\(t_\text{last}\)</span>, the stamp of the last valid sample: <span class="arithmatex">\(t_s &gt; t_\text{last}\)</span>. The excerpt shows the two tests of this check, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L162-L180"><code>test_imu_validator.py</code>, lines 162–180</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the order check</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
+<p>Check 5 compares the stamp <span class="arithmatex">\(t_s\)</span> with <span class="arithmatex">\(t_\text{last}\)</span>, the stamp of the last valid sample: <span class="arithmatex">\(t_s &gt; t_\text{last}\)</span>. The excerpt shows the two tests of this check, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L174-L192"><code>test_imu_validator.py</code>, lines 174–192</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the order check</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">174</span>
 <span class="normal">175</span>
 <span class="normal">176</span>
 <span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
-<span class="normal">180</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_not_later_than_the_last_valid_one</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_rejects_a_sample_not_later_than_the_last_valid_one</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_accepted</span><span class="p">(</span><span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span><span class="p">),</span> <span class="n">NOW</span><span class="p">)</span>
     <span class="c1"># The same stamp again</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_rejected</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">NOT_NEWER</span><span class="p">,</span> <span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span><span class="p">),</span> <span class="n">NOW</span><span class="p">)</span>
@@ -6797,25 +6828,25 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </ol>
 <p><code>test_validator_accepts_a_new_sample_after_rejecting_a_future_one</code> shows what <span class="arithmatex">\(t_\text{last}\)</span> is not. After a valid sample stamped <code>NOW</code>, the test sends sample H, stamped <code>FAR_AHEAD</code>, 5 s, ahead. Check 4 rejects H with <code>DropReason.FROM_THE_FUTURE</code>. Then the test sends sample I, stamped 0.02 s after <code>NOW</code>. The validator accepts I. If the validator stored the stamp of the rejected sample H in <code>last_valid_stamp</code>, every sample of the next 5 s would count as not newer.</p>
 <h3 id="a-clock-that-goes-back">A clock that goes back</h3>
-<p>As <a href="#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back"><code>clear_last_valid_sample_times_if_clock_went_back()</code></a> explains, the validator sets its attributes <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code> to <code>None</code> when a call checks the clock and the call's <code>now</code> is earlier than <code>last_checked_ros_time</code>, the ROS time of the last clock check. Every diagnostics report checks the clock, and so does every sample that arrives at a ROS time other than 0. A sample at the ROS time 0 returns <a href="#dropreason-the-reasons-to-drop-a-sample"><code>NO_CLOCK</code></a> before the clock check and changes nothing. After the validator has cleared <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code>, the order check, <a href="#check-5-the-order-of-the-stamps">check 5</a>, starts over. The excerpt shows the two tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L182-L199"><code>test_imu_validator.py</code>, lines 182–199</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the clock goes back</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
+<p>As <a href="#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back"><code>clear_last_valid_sample_times_if_clock_went_back()</code></a> explains, the validator sets its attributes <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code> to <code>None</code> when a call checks the clock and the call's <code>now</code> is earlier than <code>last_checked_ros_time</code>, the ROS time of the last clock check. Every diagnostics report checks the clock, and so does every sample that arrives at a ROS time other than 0. A sample at the ROS time 0 returns <a href="#dropreason-the-reasons-to-drop-a-sample"><code>NO_CLOCK</code></a> before the clock check and changes nothing. After the validator has cleared <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code>, the order check, <a href="#check-5-the-order-of-the-stamps">check 5</a>, starts over. The excerpt shows the two tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L194-L211"><code>test_imu_validator.py</code>, lines 194–211</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the clock goes back</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">194</span>
 <span class="normal">195</span>
 <span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
-<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_accepts_a_stamp_once_after_the_clock_goes_back</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_validator_accepts_a_stamp_once_after_the_clock_goes_back</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># For example after /gazebo/reset_simulation: the clock and the stamps start again near 0.</span>
     <span class="c1"># The order check starts over there, and works again from the first valid sample on</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_accepted</span><span class="p">(</span><span class="n">make_imu_sample</span><span class="p">(</span><span class="n">NOW</span><span class="p">),</span> <span class="n">NOW</span><span class="p">)</span>
@@ -7035,20 +7066,8 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </ul>
 <h2 id="testsecondssincelastvalidsample-the-silence"><code>TestSecondsSinceLastValidSample</code>: the silence</h2>
 <p>The <a href="../../#the-validators-diagnostics">validator's diagnostics</a> report an error when no sample was forwarded for too long. The time behind this error comes from <a href="#seconds_since_last_valid_sample-the-silence"><code>seconds_since_last_valid_sample()</code></a>, which returns the silence <span class="arithmatex">\(t - t_\text{valid}\)</span> in s, or <code>None</code> when no sample was valid since the clock last went back.</p>
-<p>The class derives from <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a> too. So each test starts with a new validator, and the tests give the validator their samples through <code>assert_accepted()</code> and <code>assert_rejected()</code>. The class adds a helper of its own, <code>assert_silence()</code>, for the comparison of the silence. The excerpt shows the class's first lines, the helper and the first three tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L202-L227"><code>test_imu_validator.py</code>, lines 202–227</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the silence grows</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
+<p>The class derives from <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a> too. So each test starts with a new validator, and the tests give the validator their samples through <code>assert_accepted()</code> and <code>assert_rejected()</code>. The class adds a helper of its own, <code>assert_silence()</code>, for the comparison of the silence. The excerpt shows the class's first lines, the helper and the first three tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L214-L239"><code>test_imu_validator.py</code>, lines 214–239</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the silence grows</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">214</span>
 <span class="normal">215</span>
 <span class="normal">216</span>
 <span class="normal">217</span>
@@ -7061,7 +7080,19 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <span class="normal">224</span>
 <span class="normal">225</span>
 <span class="normal">226</span>
-<span class="normal">227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestSecondsSinceLastValidSample</span><span class="p">(</span><span class="n">ValidatorTestCase</span><span class="p">):</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestSecondsSinceLastValidSample</span><span class="p">(</span><span class="n">ValidatorTestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Test seconds_since_last_valid_sample(), the silence that the diagnostics report."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">assert_silence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -7094,20 +7125,8 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <li><strong>After a valid sample:</strong> the valid sample is stamped <code>SHORTLY_BEFORE</code>, 0.01 s, before it arrives at <code>NOW</code>. <code>SILENCE</code>, 3 s, after the arrival, the method returns 3 s and not 3.01 s, because the silence counts from the arrival and not from the stamp.</li>
 <li><strong>While samples are rejected:</strong> a sample that the validator rejects with <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason.TOO_OLD</code></a> doesn't end the silence. <code>SILENCE</code>, 3 s, after the valid sample, the method returns 3 s.</li>
 </ul>
-<p>The next three tests are about a clock that goes back while no valid sample arrives. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L229-L254"><code>test_imu_validator.py</code>, lines 229–254</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the silence after the clock goes back</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
+<p>The next three tests are about a clock that goes back while no valid sample arrives. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L241-L266"><code>test_imu_validator.py</code>, lines 241–266</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the silence after the clock goes back</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">241</span>
 <span class="normal">242</span>
 <span class="normal">243</span>
 <span class="normal">244</span>
@@ -7120,7 +7139,19 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <span class="normal">251</span>
 <span class="normal">252</span>
 <span class="normal">253</span>
-<span class="normal">254</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_silence_is_none_after_the_clock_goes_back_without_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_silence_is_none_after_the_clock_goes_back_without_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_accepted</span><span class="p">(</span><span class="n">make_imu_sample</span><span class="p">(),</span> <span class="n">NOW</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validator</span><span class="o">.</span><span class="n">seconds_since_last_valid_sample</span><span class="p">(</span><span class="n">RESTART</span><span class="p">))</span>
     <span class="c1"># Still None while the clock goes on</span>
@@ -7152,21 +7183,21 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <li><strong>Back by less than the silence:</strong> a valid sample arrives at the ROS time <code>NOW</code>, 100 s. The method is asked at the ROS time 103 s, <code>SILENCE</code> after <code>NOW</code>, and returns a silence of 3 s. Then the method is asked at 100.1 s, <code>NOW</code> plus <code>RECENT</code>. The clock went back by 2.9 s, less than the silence, so the new ROS time is still later than the arrival of the valid sample, and <span class="arithmatex">\(t - t_\text{valid}\)</span> would be 0.1 s, a silence that <a href="#testhealth-the-status"><code>health()</code></a> reports as OK. The method returns <code>None</code> all the same, and at 101 s, <code>ONE_SECOND</code> after <code>NOW</code>, as well. A sample from before the clock went back says nothing about the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> in the new time.</li>
 <li><strong>Shown by a rejected sample:</strong> a valid sample arrives at the ROS time <code>NOW</code>, 100 s, and the method returns a silence of 3 s at 103 s. Then the clock goes back. The first call in the new time is a sample that arrives at 100.1 s, <code>NOW</code> plus <code>RECENT</code>, stamped 99 s, <code>ONE_SECOND</code> before <code>NOW</code>, which the validator rejects as too old. The validator checks the clock also for a sample that a check rejects, so in this call the validator sets its attributes <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code> to <code>None</code>. The method returns <code>None</code> at 104 s, <code>SILENCE</code> plus <code>ONE_SECOND</code> after <code>NOW</code>. This last call is later than the call at 103 s, so its own clock check finds no clock that went back. Only the rejected sample's call can have cleared the two attributes. A sample at the ROS time 0 would not show that the clock went back: the validator rejects such a sample before the clock check.</li>
 </ul>
-<p>The last test of the class follows the silence through a whole restart. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L256-L269"><code>test_imu_validator.py</code>, lines 256–269</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the silence starts again</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<p>The last test of the class follows the silence through a whole restart. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L268-L281"><code>test_imu_validator.py</code>, lines 268–281</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the silence starts again</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_accepted</span><span class="p">(</span><span class="n">make_imu_sample</span><span class="p">(),</span> <span class="n">NOW</span><span class="p">)</span>
     <span class="c1"># Two samples that the validator rejects at RESTART: one with a stamp from before the</span>
     <span class="c1"># clock went back, one with a wrong frame</span>
@@ -7183,20 +7214,8 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </code></pre></div></td></tr></tbody></table></div>
 <p>A valid sample arrives at the ROS time <code>NOW</code>, 100 s. Then the ROS time is <code>RESTART</code>, 50 s. At this ROS time, the validator rejects a sample from the future and a sample with the wrong frame. At 51 s, <code>ONE_SECOND</code> after <code>RESTART</code>, the method still returns <code>None</code>. At 53 s, <code>SILENCE</code> after <code>RESTART</code>, a valid sample arrives. At 53.1 s, <code>RECENT</code>, 0.1 s, after that sample, the method returns 0.1 s.</p>
 <h2 id="testhealth-the-status"><code>TestHealth</code>: the status</h2>
-<p><code>health()</code> turns two numbers into the level and the message of the diagnostics status: the <a href="#seconds_since_last_valid_sample-the-silence">silence</a> <span class="arithmatex">\(t - t_\text{valid}\)</span> in s, or <code>None</code>, and the number of samples dropped since the report before. The function reads no clock and keeps no state, so each call is independent of the others. The excerpt shows the class's five tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L275-L297"><code>test_imu_validator.py</code>, lines 275–297</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the level of the status</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
+<p><code>health()</code> turns two numbers into the level and the message of the diagnostics status: the <a href="#seconds_since_last_valid_sample-the-silence">silence</a> <span class="arithmatex">\(t - t_\text{valid}\)</span> in s, or <code>None</code>, and the number of samples dropped since the report before. The function reads no clock and keeps no state, so each call is independent of the others. The excerpt shows the class's five tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L287-L309"><code>test_imu_validator.py</code>, lines 287–309</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the level of the status</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">287</span>
 <span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span>
@@ -7206,7 +7225,19 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <span class="normal">294</span>
 <span class="normal">295</span>
 <span class="normal">296</span>
-<span class="normal">297</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_health_is_an_error_before_the_first_valid_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_health_is_an_error_before_the_first_valid_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">DiagnosticStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">imu_validator</span><span class="o">.</span><span class="n">health</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">test_health_is_ok_at_the_silence_limit_and_an_error_beyond_it</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -7273,26 +7304,26 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </table>
 <p><code>SILENCE_LIMIT</code> is the validator's own constant, which the tests read from <code>imu_validator</code>. So a test doesn't repeat the limit's value. The test checks that the limit itself is still OK and that 1 ms more is an error.</p>
 <h2 id="testsamplecounts-the-numbers-of-a-report"><code>TestSampleCounts</code>: the numbers of a report</h2>
-<p><code>SampleCounts</code> counts the forwarded samples and the dropped samples by their reason. <code>take_snapshot()</code> returns the numbers of one diagnostics report as a <code>DiagnosticSnapshot</code>. The excerpt shows the first two tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L306-L324"><code>test_imu_validator.py</code>, lines 306–324</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the counts of a snapshot</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">306</span>
-<span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span>
-<span class="normal">316</span>
-<span class="normal">317</span>
-<span class="normal">318</span>
+<p><code>SampleCounts</code> counts the forwarded samples and the dropped samples by their reason. <code>take_snapshot()</code> returns the numbers of one diagnostics report as a <code>DiagnosticSnapshot</code>. The excerpt shows the first two tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L318-L336"><code>test_imu_validator.py</code>, lines 318–336</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: the counts of a snapshot</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">318</span>
 <span class="normal">319</span>
 <span class="normal">320</span>
 <span class="normal">321</span>
 <span class="normal">322</span>
 <span class="normal">323</span>
-<span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_snapshot_has_the_forwarded_count_and_the_drops_by_reason</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_snapshot_has_the_forwarded_count_and_the_drops_by_reason</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">count_forwarded</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">count_forwarded</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">count_dropped</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">TOO_OLD</span><span class="p">)</span>
@@ -7316,24 +7347,24 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <li><strong>The counts:</strong> after two forwarded samples, two samples dropped as too old and one dropped for its frame, the snapshot has <code>forwarded_count</code> 2 and <code>drops_by_reason</code> with 2 and 1. The snapshot also carries the <a href="#seconds_since_last_valid_sample-the-silence">silence</a> that the test passed to <code>take_snapshot()</code>.</li>
 <li><strong>New drops:</strong> <code>new_drop_count</code> is the number of samples dropped since the snapshot before. One dropped sample makes this number 1 in the next snapshot and 0 in the one after. Two more dropped samples, for two different reasons, make the number 2. <a href="#testhealth-the-status"><code>health()</code></a> uses this number for the report's level: a new drop can raise the next report to <code>WARN</code> when the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is otherwise healthy. The report after it is <code>OK</code> again if no further sample was dropped and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is still healthy. A silence that is too long, or no valid sample yet, takes priority: the report is then <code>ERROR</code>, as the last row of the table in <a href="#testhealth-the-status"><code>TestHealth</code></a> shows.</li>
 </ul>
-<p>The other two tests cover two cases in which this count could go wrong. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/test/test_imu_validator.py#L326-L342"><code>test_imu_validator.py</code>, lines 326–342</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: a snapshot in an error report, and a snapshot that stays</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">326</span>
-<span class="normal">327</span>
-<span class="normal">328</span>
-<span class="normal">329</span>
-<span class="normal">330</span>
-<span class="normal">331</span>
-<span class="normal">332</span>
-<span class="normal">333</span>
-<span class="normal">334</span>
-<span class="normal">335</span>
-<span class="normal">336</span>
-<span class="normal">337</span>
-<span class="normal">338</span>
+<p>The other two tests cover two cases in which this count could go wrong. The excerpt shows them, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/test/test_imu_validator.py#L338-L354"><code>test_imu_validator.py</code>, lines 338–354</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_imu_validator.py: a snapshot in an error report, and a snapshot that stays</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">338</span>
 <span class="normal">339</span>
 <span class="normal">340</span>
 <span class="normal">341</span>
-<span class="normal">342</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># No sample was valid yet, so health() reports an error for the first snapshot</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">count_dropped</span><span class="p">(</span><span class="n">imu_validator</span><span class="o">.</span><span class="n">DropReason</span><span class="o">.</span><span class="n">WRONG_FRAME</span><span class="p">)</span>
     <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
@@ -7356,7 +7387,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <li><strong>A snapshot stays as it is:</strong> after <code>take_snapshot()</code>, the test counts one more forwarded sample and one more dropped sample. The snapshot from before still has its numbers. A report is built from one snapshot, so its numbers all come from one moment.</li>
 </ul>
 <h2 id="run-the-tests">Run the tests</h2>
-<p>catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how <code>diffbot_control</code> registers its three <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/666652a9a09dec41946fb76926215b91ed8f5613/diffbot_control/CMakeLists.txt#L226-L234"><code>CMakeLists.txt</code>, lines 226–234</a>. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst"><code>catkin_add_nosetests()</code></a> registers this file. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst"><code>add_rostest()</code></a> registers the two scenarios of the <a href="../stepped-clock/">stepped-clock test</a>, one <code>.test</code> file each:</p>
+<p>catkin runs the file with nose, a test runner for Python, as part of the package's tests. The excerpt shows how <code>diffbot_control</code> registers its three <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/b664126b025e6075819c1fc88a7663d42b0a6d28/diffbot_control/CMakeLists.txt#L226-L234"><code>CMakeLists.txt</code>, lines 226–234</a>. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst"><code>catkin_add_nosetests()</code></a> registers this file. <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst"><code>add_rostest()</code></a> registers the two scenarios of the <a href="../stepped-clock/">stepped-clock test</a>, one <code>.test</code> file each:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_control/CMakeLists.txt: the package's tests</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
 <span class="normal">227</span>
 <span class="normal">228</span>
@@ -7380,7 +7411,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_control/test</span>
 <span class="go">python3 -m unittest -v test_imu_validator</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The collapsed box shows the whole output of a run at the commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/666652a9a09dec41946fb76926215b91ed8f5613"><code>666652a</code></a> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/220">diffbot#220</a>, in the <a href="../../../../../development/dev-container/">dev container</a>'s image with ROS Noetic and Python 3.8.10. The run started <code>python3 -m unittest -v test_imu_validator</code> in the folder <code>diffbot_control/test</code>, the folder that <code>roscd</code> changes to. With the option <code>-v</code>, unittest prints one line for each test: the test's name, its class in parentheses, and <code>ok</code> for a test that passed. unittest runs the classes, and the tests in each class, in the alphabetical order of their names, so the output's order differs from the file's. <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a> has no tests, so the output has no line for this class. The last lines give the number of tests and the time that they took, and <code>OK</code> when every test passed:</p>
+<p>The collapsed box shows the whole output of a run at the commit <a href="https://github.com/ros-mobile-robots/diffbot/commit/b664126b025e6075819c1fc88a7663d42b0a6d28"><code>b664126</code></a> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/220">diffbot#220</a>, in the <a href="../../../../../development/dev-container/">dev container</a>'s image with ROS Noetic and Python 3.8.10. The run started <code>python3 -m unittest -v test_imu_validator</code> in the folder <code>diffbot_control/test</code>, the folder that <code>roscd</code> changes to. With the option <code>-v</code>, unittest prints one line for each test: the test's name, its class in parentheses, and <code>ok</code> for a test that passed. unittest runs the classes, and the tests in each class, in the alphabetical order of their names, so the output's order differs from the file's. <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>ValidatorTestCase</code></a> has no tests, so the output has no line for this class. The last lines give the number of tests and the time that they took, and <code>OK</code> when every test passed:</p>
 <details class="example">
 <summary>The output of <code>python3 -m unittest -v test_imu_validator</code></summary>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
@@ -7414,7 +7445,8 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code>test_health_is_a_warning_with_new_drops (test_imu_validator.TestHealth) ... ok
+<span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code>test_health_is_a_warning_with_new_drops (test_imu_validator.TestHealth) ... ok
 test_health_is_an_error_before_the_first_valid_sample (test_imu_validator.TestHealth) ... ok
 test_health_is_an_error_for_silence_also_with_new_drops (test_imu_validator.TestHealth) ... ok
 test_health_is_ok_at_the_silence_limit_and_an_error_beyond_it (test_imu_validator.TestHealth) ... ok
@@ -7430,6 +7462,7 @@ test_validator_rejects_a_sample_with_a_nan_or_infinite_value (test_imu_validator
 test_validator_rejects_a_sample_with_a_wrong_or_empty_frame (test_imu_validator.TestImuValidator) ... ok
 test_validator_rejects_a_sample_with_an_invalid_angular_velocity_covariance (test_imu_validator.TestImuValidator) ... ok
 test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back (test_imu_validator.TestImuValidator) ... ok
+test_validator_rejects_the_same_stamp_again_after_a_sample_at_ros_time_zero (test_imu_validator.TestImuValidator) ... ok
 test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report (test_imu_validator.TestSampleCounts) ... ok
 test_snapshot_counts_a_dropped_sample_as_new_only_once (test_imu_validator.TestSampleCounts) ... ok
 test_snapshot_has_the_forwarded_count_and_the_drops_by_reason (test_imu_validator.TestSampleCounts) ... ok
@@ -7443,7 +7476,7 @@ test_silence_keeps_growing_while_samples_are_rejected (test_imu_validator.TestSe
 test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back (test_imu_validator.TestSecondsSinceLastValidSample) ... ok
 
 ----------------------------------------------------------------------
-Ran 27 tests in 0.002s
+Ran 28 tests in 0.002s
 
 OK
 </code></pre></div></td></tr></tbody></table></div>
