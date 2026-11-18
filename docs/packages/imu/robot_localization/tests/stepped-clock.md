@@ -6,12 +6,12 @@ What the stepped-clock test checks on the EKF and the IMU sample validator, and 
 
 ## One step of the clock
 
-The ROS time of the nodes is the time of the last message on the topic `/clock`. So the ROS time stands still between two of the test's clock messages, while the computer's own clock, the wall clock, runs on. The test can wait on the wall clock as long as a step needs, and no ROS time passes for the nodes. A step at the start of a scenario, at the ROS time $t$ = 100.00 s, runs in five parts:
+The ROS time of the nodes is the time of the last message on the topic `/clock`. So the ROS time stands still between two of the test's clock messages, while the computer's own clock, the wall clock, runs on. The test can wait on the wall clock as long as a step needs, and no ROS time passes for the nodes. A step at the start of a scenario, at the ROS time $t$ = 100.00 s, the test's constant `START`, runs in five parts:
 
 1. **The inputs:** the test publishes a wheel message and an IMU sample, both stamped 100.00 s.
 2. **The validator:** the test waits on the wall clock until the validator's output, the forwarded IMU sample, has reached the test. The ROS time stays 100.00 s.
 3. **The delivery:** the test sleeps `DELIVERY`, 20 ms of wall time, so that the inputs reach the EKF too. The ROS time still stays 100.00 s.
-4. **The clock:** the test publishes the ROS time 100.02 s. The EKF updates 50 times per second of ROS time, so the new clock lets the EKF run its update at 100.02 s, which fuses the two inputs.
+4. **The clock:** the test publishes the ROS time 100.02 s, which is `STEP`, 20 ms, later. The EKF updates 50 times per second of ROS time, so the new clock lets the EKF run its update at 100.02 s, which fuses the two inputs.
 5. **The output:** the EKF publishes its output at the ROS time 100.02 s, stamped 100.00 s, the time of the inputs that it fused. The test waits on the wall clock until an output arrives that is stamped from the step's 100.00 s up to the clock's 100.02 s.
 
 The figure shows the messages of this step. Read the figure from top to bottom. The three boxes are the test, the validator and the EKF. Each arrow is a message, from the node that publishes it to the node that receives it. The label above an arrow names the message, and the note below the arrow says how the message is stamped or which clock runs. $t$ is the ROS time of the step. The numbers are those of the list in the docstring of `step()`, and the key below the drawing names the code of each number. [The code of one step](#the-code-of-one-step) walks through this code.
@@ -90,7 +90,7 @@ The test publishes on the two topics that the nodes read on the robot. The wheel
 
 ??? example "The constants of `test_ekf_synthetic.py`, lines 49–132"
 
-    The excerpt shows all constants of the file, from [`test_ekf_synthetic.py`, lines 49–132]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L49-L132). `STEP`, `START`, `RESTART`, `ROBOT_WHEEL_ODOMETRY_PERIOD` and `DIAGNOSTICS_WAIT` are ROS times, which the test sets. `WAIT`, `DELIVERY`, `POLL_INTERVAL`, `NO_OUTPUT_WAIT`, `TF_DELIVERY` and `RESET_DELIVERY` are seconds of wall time. `STEPS_PER_WHEEL_MESSAGE` is the number of steps from one wheel message to the next in the scenario `robot_rates`, 100 ms divided by 20 ms. `SPEED_CHANGE_STEP`, `CHANGED_SPEED` and `SPEED_CHANGE_WINDOW` belong to [phase 1 of `robot_rates`](#phase-1-of-robot_rates-the-estimate-follows-the-imu-and-the-wheels-speed).
+    The excerpt shows the timing, topic and test constants of the file, from [`test_ekf_synthetic.py`, lines 49–132]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L49-L132). `START` and `RESTART` are readings of the ROS clock, which the test sets. `STEP`, `ROBOT_WHEEL_ODOMETRY_PERIOD` and `DIAGNOSTICS_WAIT` are durations of ROS time. `WAIT`, `DELIVERY`, `POLL_INTERVAL`, `NO_OUTPUT_WAIT`, `TF_DELIVERY` and `RESET_DELIVERY` are seconds of wall time. `STEPS_PER_WHEEL_MESSAGE` is the number of steps from one wheel message to the next in the scenario `robot_rates`, 100 ms divided by 20 ms. `SPEED_CHANGE_STEP`, `CHANGED_SPEED` and `SPEED_CHANGE_WINDOW` belong to [phase 1 of `robot_rates`](#phase-1-of-robot_rates-the-estimate-follows-the-imu-and-the-wheels-speed).
 
     ```python title="test_ekf_synthetic.py: the constants" linenums="49"
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:49:132"

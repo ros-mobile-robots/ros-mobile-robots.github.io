@@ -6,7 +6,7 @@ What the unit tests of the IMU sample validator check, and how they do it. This 
 
 ## One sample through the validator
 
-Two examples show the validator's decision before the code. Each example gives one sample to a new validator, one that has seen no sample yet, at the ROS time $t$ = 100 s. Both samples are in the frame `imu_link`, with finite values and positive variances, as the firmware sends them. They differ only in their stamp $t_s$:
+Two examples show the validator's decision before the code. Each example gives one sample to a new validator, one that has seen no sample yet, at the ROS time $t$ = 100 s. This is the ROS time of most tests, their constant [`NOW`](#the-constants-and-the-helpers). Both samples are in the frame `imu_link`, with finite values and positive variances, as the firmware sends them. They differ only in their stamp $t_s$:
 
 - **Sample B, stamped $t_s$ = 99.900000 s:** its age $t - t_s$ is 0.100000 s, exactly `max_age`. The validator accepts B, and the node forwards the sample.
 - **Sample A, stamped $t_s$ = 99.899999 s:** its age $t - t_s$ is 0.100001 s, 1 µs more than `max_age`. The validator rejects A as `TOO_OLD`, and the node drops the sample.
@@ -155,14 +155,23 @@ After a jump back, the validator starts over as if it had seen no valid sample y
 - **Check 5:** with no stamp $t_\text{last}$ to compare with, check 5 lets the next sample through. If checks 1 to 4 pass too, the sample is valid, and its stamp becomes the new $t_\text{last}$.
 - **The silence:** [`seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) returns `None` until a sample is valid again. A diagnostics report in that time shows the error "no IMU sample forwarded yet, or since the clock went back". At 50 Hz, samples are spaced 20 ms apart. The silence becomes a number again only when a sample passes all five checks.
 
-The table shows an example with two samples, as in the test [A clock that goes back](#a-clock-that-goes-back):
+The table follows two samples through a new validator, one that has seen no sample yet, with the values of the test `test_validator_accepts_a_stamp_once_after_the_clock_goes_back` in [A clock that goes back](#a-clock-that-goes-back):
 
-| Sample | Stamp $t_s$ and ROS time $t$ | What `clear_last_valid_sample_times_if_clock_went_back()` does | Result |
-|:--|:--|:--|:--|
-| The first sample | 100 s | keeps 100 s | valid, $t_\text{last}$ = 100 s |
-| J, after `/gazebo/reset_simulation` | 0.02 s | 0.02 s is earlier than 100 s: clears the first sample's stamp and arrival time, keeps 0.02 s | J is valid, $t_\text{last}$ = 0.02 s |
+- **The first sample:** is stamped 100 s and arrives at the ROS time 100 s. Both values are the test's [`NOW`](#the-constants-and-the-helpers).
+- **Sample J:** arrives after the clock went back, as after a call of `/gazebo/reset_simulation`. J is stamped 0.02 s and arrives at the ROS time 0.02 s. Both values are the test's `restart`.
 
-Without this method, check 5 would drop J as `NOT_NEWER`, because 0.02 s is not later than 100 s.
+Each column of the table is one sample. The rows follow the sample's call of `drop_reason_or_record()` from top to bottom. The clock check keeps its ROS time in `last_checked_ros_time`. The two times of the result are the validator's `last_valid_stamp` and `last_valid_arrival_time`:
+
+| Step of the call | The first sample | Sample J |
+|:--|:--|:--|
+| Stamp $t_s$ | 100 s | 0.02 s |
+| ROS time $t$ at arrival | 100 s | 0.02 s |
+| Clock check: $t$ against the ROS time of the last clock check | No clock check yet, so nothing to compare with | 100 s. 0.02 s is earlier, so the clock went back: the check clears the first sample's two times |
+| ROS time that the clock check keeps for the next one | 100 s | 0.02 s |
+| Check 5: $t_s$ against the last valid stamp | No stamp to compare with, so the check passes | No stamp to compare with, so the check passes |
+| Result | Valid. Recorded stamp: 100 s. Recorded arrival time: 100 s | Valid. Recorded stamp: 0.02 s. Recorded arrival time: 0.02 s |
+
+Without the clock check, the last valid stamp would still be 100 s when J arrives. Check 5 would drop J as `NOT_NEWER`, because J's stamp of 0.02 s is not later than 100 s.
 
 Two methods call `clear_last_valid_sample_times_if_clock_went_back()` with their own `now`: `drop_reason()` for each sample that arrives at a ROS time other than 0, and `seconds_since_last_valid_sample()` for each diagnostics report. So the validator notices a jump back also while no sample arrives. The tests never call the method directly. They see its effect in [A clock that goes back](#a-clock-that-goes-back) and in the tests of [the silence](#testsecondssincelastvalidsample-the-silence).
 
@@ -382,8 +391,8 @@ The figure shows the two tests, each on its own axis at the new ROS time:
 
 --8<-- "includes/localization-test-validator-clock-back.html"
 
-- **`test_validator_accepts_a_stamp_once_after_the_clock_goes_back`:** after a valid sample at 100 s, the ROS time is `restart`, 0.02 s, as after a reset of the simulation. This test is the first axis of the figure. Sample J is stamped `restart`, which is far older than $t_\text{last}$, 100 s. The validator accepts J all the same, because the order check started over. The order check works again from this sample on: the test sends the same stamp once more, 1 ms later, and expects `DropReason.NOT_NEWER`. This second sample is K.
-- **`test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back`:** starting over applies to the order check only. After a valid sample at 100 s, the ROS time is `restart`, 50 s. This test is the second axis of the figure. Sample M is stamped 100.02 s, which was valid before the clock went back and is 50.02 s ahead of the new ROS time. The validator rejects M with `DropReason.FROM_THE_FUTURE`. Sample L is stamped 1 s before `restart`, and the validator rejects L with `DropReason.TOO_OLD`.
+- **`test_validator_accepts_a_stamp_once_after_the_clock_goes_back`:** the first sample is stamped `NOW`, 100 s, and arrives at the ROS time `NOW`. The validator accepts this sample. Then the ROS time is `restart`, 0.02 s, as after a reset of the simulation. This test is the first axis of the figure. Sample J is stamped `restart` and arrives at the ROS time `restart`. This stamp is far older than $t_\text{last}$, 100 s. The validator accepts J all the same, because the order check started over. The order check works again from this sample on: the test sends the same stamp once more, 1 ms later, and expects `DropReason.NOT_NEWER`. This second sample is K.
+- **`test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back`:** starting over applies to the order check only. The first sample is again stamped `NOW`, 100 s, and arrives at the ROS time `NOW`. Then the ROS time is `restart`, here 50 s, and both of the next samples arrive at this ROS time. This test is the second axis of the figure. Sample M is stamped 100.02 s, `NOW` plus `MAX_FUTURE`. This stamp was valid before the clock went back and is 50.02 s ahead of the new ROS time. The validator rejects M with `DropReason.FROM_THE_FUTURE`. Sample L is stamped 49 s, 1 s before `restart`, and the validator rejects L with `DropReason.TOO_OLD`.
 
 ## `TestSecondsSinceLastValidSample`: the silence
 
@@ -406,7 +415,7 @@ The next three tests are about a clock that goes back while no valid sample arri
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:203:220"
 ```
 
-- **Without samples:** after a valid sample at 100 s, the method is asked at 50 s and at 55 s and returns `None` both times. The method itself notices that the clock went back, because the method checks the clock with `clear_last_valid_sample_times_if_clock_went_back()` in each call.
+- **Without samples:** a valid sample arrives at the ROS time `NOW`, 100 s. Then the method is asked at the ROS times 50 s and 55 s and returns `None` both times. The method itself notices that the clock went back, because the method checks the clock with `clear_last_valid_sample_times_if_clock_went_back()` in each call.
 - **Back by less than the silence:** a valid sample arrives at the ROS time `NOW`, 100 s. The method is asked at the ROS time 103.3 s and returns a silence of 3.3 s. Then the method is asked at 100.2 s. The clock went back by 3.1 s, less than the silence, so the new ROS time is still later than the arrival of the valid sample, and $t - t_\text{valid}$ would be 0.2 s. The method returns `None` all the same, and at 101 s as well. A sample from before the clock went back says nothing about the IMU in the new time.
 - **Shown by a rejected sample:** a valid sample arrives at the ROS time `NOW`, 100 s, and the method returns a silence of 3 s at 103 s. Then the clock goes back. The first call in the new time is a sample that arrives at 100.2 s, stamped 99 s, which the validator rejects as too old. The validator checks the clock also for a sample that a check rejects, so this call clears the two times, and the method returns `None` at 100.3 s. A sample at the ROS time 0 would not show that the clock went back: the validator rejects such a sample before the clock check.
 
@@ -416,7 +425,7 @@ The last test of the class follows the silence through a whole restart. The exce
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:222:231"
 ```
 
-After a valid sample at 100 s, the ROS time is `restart`, 50 s. The validator rejects a sample from the future and a sample with the wrong frame. 1 s later, the method still returns `None`. 2 s after `restart`, a valid sample arrives. 0.5 s after that sample, the method returns 0.5 s.
+A valid sample arrives at the ROS time `NOW`, 100 s. Then the ROS time is `restart`, here 50 s. At this ROS time, the validator rejects a sample from the future and a sample with the wrong frame. At 51 s, 1 s after `restart`, the method still returns `None`. At 52 s, a valid sample arrives. At 52.5 s, 0.5 s after that sample, the method returns 0.5 s.
 
 ## `TestHealth`: the status
 
