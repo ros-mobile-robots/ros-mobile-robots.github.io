@@ -9,17 +9,21 @@ Run from the repository root: python -m unittest discover -s tests
 import math
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
 from typing import Dict
+from typing import List
 from typing import Sequence
+from typing import Tuple
 import unittest
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
 
+import imu_sim_figures  # noqa: E402
 import imu_sim_robot_figures  # noqa: E402
 import imu_sim_test_figures  # noqa: E402
 
@@ -61,8 +65,7 @@ class TestIncludes(unittest.TestCase):
 
     def test_thread_figures_write_the_repository_includes_with_an_ascii_locale(self) -> None:
         self.assert_script_writes_the_repository_includes(
-            'imu_sim_figures.py',
-            ['imu-sim-threads-original.html', 'imu-sim-threads-copy.html'])
+            'imu_sim_figures.py', ['imu-sim-threads.html'])
 
     def test_robot_figures_write_the_repository_includes_with_an_ascii_locale(self) -> None:
         self.assert_script_writes_the_repository_includes(
@@ -153,6 +156,117 @@ class TestTextsFromValues(unittest.TestCase):
             caption = imu_sim_test_figures.reset_caption()
         self.assertIn('the reset comes at exactly 4 s', caption)
         self.assertIn('The test passes with 20 fresh samples', caption)
+
+    def test_at_rest_figure_names_the_fewest_messages_of_another_rate_tolerance(self) -> None:
+        rate_tolerance = 0.8  # the share of the 50 Hz that the test would need
+        with mock.patch.object(imu_sim_test_figures, 'RATE_TOLERANCE', rate_tolerance):
+            drawing = imu_sim_test_figures.at_rest_figure()
+        # More than 0.8 * 50 Hz * 2 s = 80 messages
+        self.assertIn('pass rule: at least 81 arrivals in 2 s', drawing.svg())
+        self.assertIn('and needs at least 81.', drawing.description)
+
+    def test_specific_force_drawings_call_their_numbers_a_level_noise_free_example(self) -> None:
+        drawings = [imu_sim_robot_figures.specific_force_at_rest_figure(),
+                    imu_sim_robot_figures.specific_force_speeding_up_figure(),
+                    imu_sim_robot_figures.specific_force_in_a_turn_figure()]
+        labeled = ['>Level, noise-free example</text>' in drawing.svg()
+                   and 'In this level, noise-free example' in drawing.description
+                   for drawing in drawings]
+        self.assertEqual(labeled, [True, True, True])
+
+
+def sample_markers(drawing: imu_sim_test_figures.Figure) -> List[Tuple[float, float]]:
+    """Return the positions of the dots that a reset panel draws on the IMU's samples."""
+    return [(float(x), float(y)) for x, y in re.findall(
+        r'<circle class="imu-dot" cx="([0-9.]+)" cy="([0-9.]+)"', drawing.svg())]
+
+
+class TestResetPanels(unittest.TestCase):
+    """The reset panels keep their marks inside the plot, also for another reset time."""
+
+    OTHER_RUN_BEFORE_RESET = 4.0  # s, later than the test's 3 s
+
+    def assert_inside_the_plot(self, position: Tuple[float, float]) -> None:
+        x, y = position
+        self.assertGreaterEqual(x, imu_sim_test_figures.RESET_PLOT_LEFT)
+        self.assertLessEqual(x, imu_sim_test_figures.RESET_PLOT_RIGHT)
+        self.assertGreaterEqual(y, imu_sim_test_figures.RESET_PLOT_TOP)
+        self.assertLessEqual(y, imu_sim_test_figures.RESET_PLOT_BOTTOM)
+
+    def test_old_time_panel_marks_the_next_sample_inside_the_plot_for_a_later_reset(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET',
+                               self.OTHER_RUN_BEFORE_RESET):
+            markers = sample_markers(imu_sim_test_figures.reset_with_the_old_time_figure())
+        self.assertEqual(len(markers), 1, markers)
+        self.assert_inside_the_plot(markers[0])
+
+    def test_run_axis_numbers_no_time_beyond_the_plot_for_a_later_reset(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET',
+                               self.OTHER_RUN_BEFORE_RESET):
+            run = imu_sim_test_figures.reset_run()
+            last_tick = imu_sim_test_figures.run_axis_ticks()[-1]
+            first_sample_with_the_old_time = (
+                2 * self.OTHER_RUN_BEFORE_RESET + imu_sim_test_figures.IMU_PERIOD)
+        self.assertEqual(last_tick, 2 * self.OTHER_RUN_BEFORE_RESET)
+        self.assertLessEqual(run.position(last_tick), imu_sim_test_figures.RESET_PLOT_RIGHT)
+        self.assertLess(first_sample_with_the_old_time, run.last_value)
+
+    def test_copy_panel_marks_the_sample_with_which_the_test_passes(self) -> None:
+        markers = sample_markers(imu_sim_test_figures.reset_with_the_copy_figure())
+        passing_stamp = (imu_sim_test_figures.FRESH_SAMPLE_COUNT
+                         * imu_sim_test_figures.IMU_PERIOD)  # s after the reset
+        expected = (
+            imu_sim_test_figures.reset_run().position(
+                imu_sim_test_figures.RUN_BEFORE_RESET + passing_stamp),
+            imu_sim_test_figures.reset_stamp().position(passing_stamp))
+        self.assertEqual(markers, [expected])
+
+
+class TestThreadDrawings(unittest.TestCase):
+    """The two thread drawings stand in tabs at one place, so what they share must not move."""
+
+    def test_both_drawings_have_the_same_size(self) -> None:
+        original = imu_sim_figures.threads_with_the_original_figure()
+        copy = imu_sim_figures.threads_with_the_copy_figure()
+        self.assertEqual(original.height, copy.height)
+
+    def test_both_drawings_put_the_awaited_update_at_the_same_place(self) -> None:
+        # The box of the update() that has to take the change: its upper left corner
+        box = (f'x="{imu_sim_figures.PHYSICS_LANE.left + 4}" '
+               f'y="{imu_sim_figures.UPDATE_BOX_Y}"')
+        drawings = [imu_sim_figures.threads_with_the_original_figure(),
+                    imu_sim_figures.threads_with_the_copy_figure()]
+        boxes_at_that_place = [drawing.svg().count(f'<rect class="stuck" {box}')
+                               + drawing.svg().count(f'<rect class="callback" {box}')
+                               for drawing in drawings]
+        self.assertEqual(boxes_at_that_place, [1, 1])
+
+    def test_include_has_one_tab_per_drawing_with_the_pages_labels(self) -> None:
+        include = (ROOT / 'includes' / 'imu-sim-threads.html').read_text(encoding='utf-8')
+        labels = re.findall(r'<label for="__tabbed_th_\d">([^<]*)</label>', include)
+        self.assertEqual(labels, list(imu_sim_figures.TAB_LABELS))
+        page = (ROOT / 'docs' / 'packages' / 'imu' / 'simulation' / 'plugin.md').read_text(
+            encoding='utf-8')
+        page_tabs = re.findall(r'^=== "([^"]*)"$', page, re.MULTILINE)
+        self.assertEqual(page_tabs, list(imu_sim_figures.TAB_LABELS))
+
+
+class TestFrameTabs(unittest.TestCase):
+    """The frames' include has one tab per robot, with the labels of the page's tabs."""
+
+    def test_include_and_page_use_the_same_robot_labels(self) -> None:
+        include = (ROOT / 'includes' / 'imu-sim-frames.html').read_text(encoding='utf-8')
+        labels = re.findall(r'<label for="__tabbed_imuframes_\d">([^<]*)</label>', include)
+        self.assertEqual(labels, list(imu_sim_robot_figures.ROBOT_TAB_LABELS))
+        page = (ROOT / 'docs' / 'packages' / 'imu' / 'simulation'
+                / 'position-and-axes.md').read_text(encoding='utf-8')
+        page_tabs = re.findall(r'^=== "([^"]*)"$', page, re.MULTILINE)
+        self.assertEqual(page_tabs, list(imu_sim_robot_figures.ROBOT_TAB_LABELS))
+
+    def test_diffbot_drawing_puts_imu_link_above_chassis_link_by_the_models_height(self) -> None:
+        drawing = imu_sim_robot_figures.frames_on_diffbot_figure()
+        self.assertIn('>1 cm up, not turned</text>', drawing.svg())
+        self.assertIn('It is not measured on the robot.', drawing.description)
 
 
 if __name__ == '__main__':
