@@ -131,12 +131,14 @@ Read the manual's Precautions before the first charge.
 
 1. Take the six cells out of Remo's battery holder.
 2. Connect the charger to a USB power adapter with its USB cable.
-3. Insert four cells. Each slot has marks for the plus pole and the minus pole. Insert every cell the way the marks of its slot show. The charger starts by itself.
-4. Look at the display. A slot that shows `EE EE` has a cell that is inserted the wrong way round or has a short circuit. Take this cell out and check it.
-5. Wait until the charger has ended the charge of all four slots. The charger ends the charge of each slot on its own, so one cell can still be charging when the others are full. A short press of the C button steps through the four slots on the display. Check every slot before you take the cells out. A slot that shows `END` below `CHG. STATUS` has charged for 20 hours, and the charger stopped it to protect against a faulty cell (the manual's Overtime Charging Protection). This cell isn't charged.
-6. Take out the four cells and charge the remaining two with steps 3 to 5.
+3. Insert four cells, or in the second round the remaining two. Each slot has marks for the plus pole and the minus pole. Insert every cell the way the marks of its slot show. The charger starts by itself.
+4. Check each occupied slot on the display. A short press of the C button selects the next slot, and short presses of the V button step through the slot's values, among them Battery Health.
+    - **`EE EE`:** The cell is inserted the wrong way round or has a short circuit. Take it out and check it.
+    - **Battery Health `Poor`:** The cell's internal resistance is above 250 mΩ, and the manual says that the cell should be replaced (Automatic Battery Internal Resistance Detection).
+5. Wait until the display shows for each occupied slot that its charge has ended. The charger ends the charge of each slot on its own, so one cell can still be charging when the others are full. Check every slot before you take the cells out. A slot that shows `END` below `CHG. STATUS` has charged for 20 hours, and the charger stopped it to protect against a faulty cell (the manual's Overtime Charging Protection). This cell isn't charged.
+6. Take out the four cells and repeat steps 3 to 5 with the remaining two.
 7. Unplug the charger and take out the cells when the second round is done. Don't leave the charger unattended while it is connected (precautions 8 and 19 of the manual).
-8. Put the six cells back into Remo's holder only if all six have finished their charge without `EE EE` or `END`. Keep them together as one set, and don't mix them with older cells or other types of batteries. Energizer warns that mixing can make cells rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). So if a cell fails, replace the whole set, not only that cell.
+8. Put the six cells back into Remo's holder only if all six have finished their charge and none showed `EE EE`, `Poor` or `END`. Keep them together as one set, and don't mix them with older cells or other types of batteries. Energizer warns that mixing can make cells rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). So if a cell fails, replace the whole set, not only that cell.
 
 !!! warning "These steps are for Remo's NiMH cells only"
     - **Never charge DiffBot's alkaline AA batteries**, or any other battery that isn't marked as rechargeable. Recharging a battery that isn't rechargeable can make it rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). Nitecore's manual forbids such batteries in the charger as well (precautions 1 and 10).
