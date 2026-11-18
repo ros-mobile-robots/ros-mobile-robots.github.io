@@ -55,7 +55,7 @@
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
 .lv-large .lv-fig .letter{font-size:11px}
 .lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:9.8px}
+.lv-large .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
 .lv-fig .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
@@ -66,6 +66,7 @@
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.lv-fig .estimate-first,.lv-key .estimate-first{fill:var(--md-default-bg-color);stroke:var(--lv-estimate);stroke-width:1.8}
 </style>
 <figure class="lv-figure lv-large">
 <svg class="lv-fig" viewBox="0 0 300 247" role="img" aria-labelledby="lv-test-stepped-clock-title"><title id="lv-test-stepped-clock-title">The seven phases of the stepped-clock test from left to right: the yaw rate that the wheel odometry and the valid IMU samples report, the samples that the validator has to drop, the ranges that the test accepts for the filter's estimate, and the estimates that a run printed</title>
@@ -137,10 +138,10 @@
 <g><title>Phase 4: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M176.6,106.0 V120.0 M173.1,106.0 h7 M173.1,120.0 h7"/></g>
 <g><title>Phase 5: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M201.5,106.0 V120.0 M198.0,106.0 h7 M198.0,120.0 h7"/></g>
 <g><title>Phase 6: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M252.2,106.0 V120.0 M248.7,106.0 h7 M248.7,120.0 h7"/></g>
-<path class="estimate-path" d="M104.6,115.4 L126.9,182.6"/>
-<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 0b2f5a1</title><circle class="estimate-dot" cx="102.1" cy="113.9" r="4"/></g>
-<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 0b2f5a1</title><circle class="estimate-dot" cx="126.9" cy="182.6" r="4"/></g>
-<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 0b2f5a1</title><circle class="estimate-dot" cx="252.2" cy="113.9" r="4"/></g>
+<g><title>0.4966 rad/s, the first output of phase 2 in the run at the commit 6bc8dc7</title><path class="estimate-first" d="M112.1,111.9 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"/></g>
+<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 6bc8dc7</title><circle class="estimate-dot" cx="102.1" cy="113.9" r="4"/></g>
+<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 6bc8dc7</title><circle class="estimate-dot" cx="126.9" cy="182.6" r="4"/></g>
+<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 6bc8dc7</title><circle class="estimate-dot" cx="252.2" cy="113.9" r="4"/></g>
 <text class="strong" x="94.1" y="131.0" text-anchor="end">estimate</text>
 <text class="strong" x="94.1" y="144.0" text-anchor="end">0.4987</text>
 <text class="strong halo" x="134.9" y="199.0" text-anchor="start">0.4005</text>
@@ -158,10 +159,10 @@
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"/></svg>the range for the last output of a phase: 0.5 ± 0.01 rad/s, and 0.4 ± 0.02 rad/s in phase 2</li>
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="limit" d="M1,6 H23"/></svg>the limit in phases 2 to 5: no output that the test keeps, one per step, may be above 0.51 rad/s</li>
 </ul>
-<p class="lv-band">What the test printed in a run at the diffbot commit 0b2f5a1</p>
+<p class="lv-band">What the test printed in a run at the diffbot commit 6bc8dc7</p>
 <ul class="lv-legend lv-keys">
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="4"/></svg>the filter's estimate in the last output of phase 1, 0.4987 rad/s, of phase 2, 0.4005 rad/s, and of phase 6, 0.4987 rad/s</li>
-<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-path" d="M1,6 H23"/></svg>joins the first estimate of phase 2, 0.4966 rad/s, and the last one. The run printed only these two</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="estimate-first" d="M12.0,2.5 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"/></svg>the filter's estimate in the first output of phase 2, 0.4966 rad/s. The run printed only the first and the last estimate of phase 2, so the chart has no line between them</li>
 </ul>
 <figcaption>The stepped-clock test from left to right, one step every 20 ms of ROS time. The rows "IMU valid" and "IMU to drop" show the samples of one step of each phase. At the solid vertical line, the clock goes back from 107 s to 50 s.</figcaption>
 </figure>

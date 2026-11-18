@@ -55,7 +55,7 @@
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
 .lv-large .lv-fig .letter{font-size:11px}
 .lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:9.8px}
+.lv-large .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
 .lv-fig .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
@@ -68,18 +68,18 @@
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
 </style>
 <figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 310" role="img" aria-labelledby="lv-test-step-title"><title id="lv-test-step-title">One step of the stepped-clock test, from top to bottom: the test publishes the wheel odometry and an IMU sample, the validator forwards the valid sample to the EKF and to the test, the test waits and publishes the new clock, and the EKF publishes its output, the filtered odometry</title>
-<path class="lifeline" d="M30,30 V304"/>
+<svg class="lv-fig" viewBox="0 0 300 330" role="img" aria-labelledby="lv-test-step-title"><title id="lv-test-step-title">One step of the stepped-clock test, from top to bottom: the test publishes the wheel odometry and an IMU sample, the validator forwards the valid sample to the EKF and to the test, the test waits and publishes the new clock, and the EKF publishes its output, the filtered odometry</title>
+<path class="lifeline" d="M30,30 V324"/>
 <g><title>The test node, test_ekf_synthetic.py</title>
 <rect class="item" x="6.0" y="6.0" width="48.0" height="24.0" rx="5"/>
 <text class="name" x="30.0" y="21.5" text-anchor="middle">test</text>
 </g>
-<path class="lifeline" d="M156,30 V304"/>
+<path class="lifeline" d="M156,30 V324"/>
 <g><title>The IMU sample validator, the node imu_validator</title>
 <rect class="item" x="114.0" y="6.0" width="84.0" height="24.0" rx="5"/>
 <text class="name" x="156.0" y="21.5" text-anchor="middle">validator</text>
 </g>
-<path class="lifeline" d="M270,30 V304"/>
+<path class="lifeline" d="M270,30 V324"/>
 <g><title>robot_localization's EKF, the node ekf_localization</title>
 <rect class="item" x="244.0" y="6.0" width="52.0" height="24.0" rx="5"/>
 <text class="name" x="270.0" y="21.5" text-anchor="middle">EKF</text>
@@ -88,12 +88,12 @@
 <path class="message-head" d="M270,62 l-8,-4 v8 z"/>
 <text class="strong" x="36.0" y="56.0" text-anchor="start">1</text>
 <text x="49.0" y="56.0" text-anchor="start">wheel odometry</text>
-<text class="note" x="49.0" y="75.0" text-anchor="start">stamped t</text>
+<text class="note halo" x="49.0" y="75.0" text-anchor="start">stamped t</text>
 <path class="message" d="M30,104 H155"/>
 <path class="message-head" d="M156,104 l-8,-4 v8 z"/>
 <text class="strong" x="36.0" y="98.0" text-anchor="start">1</text>
 <text x="49.0" y="98.0" text-anchor="start">IMU sample</text>
-<text class="note" x="49.0" y="117.0" text-anchor="start">stamped t</text>
+<text class="note halo" x="49.0" y="117.0" text-anchor="start">stamped t</text>
 <path class="message" d="M156,144 H269"/>
 <path class="message-head" d="M270,144 l-8,-4 v8 z"/>
 <text class="strong" x="162.0" y="138.0" text-anchor="start">2</text>
@@ -102,21 +102,23 @@
 <path class="message-head" d="M30,172 l8,-4 v8 z"/>
 <text class="strong" x="36.0" y="166.0" text-anchor="start">2</text>
 <text x="49.0" y="166.0" text-anchor="start">valid sample</text>
-<rect class="item" x="21.0" y="186.0" width="126.0" height="36.0" rx="4"/>
-<text class="strong" x="27.0" y="201.0" text-anchor="start">3</text>
-<text x="40.0" y="201.0" text-anchor="start">waits DELIVERY</text>
-<text class="note" x="40.0" y="214.0" text-anchor="start">20 ms of wall time</text>
-<path class="message" d="M30,252 H269"/>
-<path class="message-head" d="M270,252 l-8,-4 v8 z"/>
-<path class="message-head" d="M156,252 l-8,-4 v8 z"/>
-<text class="strong" x="36.0" y="246.0" text-anchor="start">4</text>
-<text x="49.0" y="246.0" text-anchor="start">new clock</text>
-<text class="note" x="49.0" y="265.0" text-anchor="start">t + 20 ms</text>
-<path class="message" d="M270,290 H31"/>
-<path class="message-head" d="M30,290 l8,-4 v8 z"/>
-<text class="strong" x="36.0" y="284.0" text-anchor="start">5</text>
-<text x="49.0" y="284.0" text-anchor="start">EKF output</text>
-<text class="note" x="49.0" y="303.0" text-anchor="start">stamped t or later</text>
+<text class="note halo" x="49.0" y="185.0" text-anchor="start">wall clock runs</text>
+<rect class="item" x="21.0" y="196.0" width="126.0" height="48.0" rx="4"/>
+<text class="strong" x="27.0" y="211.0" text-anchor="start">3</text>
+<text x="40.0" y="211.0" text-anchor="start">waits DELIVERY</text>
+<text class="note" x="40.0" y="224.0" text-anchor="start">20 ms of wall time</text>
+<text class="note" x="40.0" y="237.0" text-anchor="start">ROS time stays t</text>
+<path class="message" d="M30,274 H269"/>
+<path class="message-head" d="M270,274 l-8,-4 v8 z"/>
+<path class="message-head" d="M156,274 l-8,-4 v8 z"/>
+<text class="strong" x="36.0" y="268.0" text-anchor="start">4</text>
+<text x="49.0" y="268.0" text-anchor="start">new clock</text>
+<text class="note halo" x="49.0" y="287.0" text-anchor="start">ROS time t + 20 ms</text>
+<path class="message" d="M270,312 H31"/>
+<path class="message-head" d="M30,312 l8,-4 v8 z"/>
+<text class="strong" x="36.0" y="306.0" text-anchor="start">5</text>
+<text x="49.0" y="306.0" text-anchor="start">EKF output</text>
+<text class="note halo" x="49.0" y="325.0" text-anchor="start">stamped t to t + 20 ms</text>
 </svg>
 <ul class="lv-legend lv-row">
 <li><strong>1</strong> <code>publish_inputs()</code></li>

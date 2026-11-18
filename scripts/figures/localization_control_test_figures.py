@@ -147,6 +147,9 @@ FUTURE_OFFSET_S = 0.5  # FUTURE_OFFSET, of phase 4's second sample
 OLDER_OFFSET_S = -0.01  # OLDER_OFFSET, of phase 5's second sample
 YAW_RATE_TOLERANCE = 0.01  # YAW_RATE_TOLERANCE, rad/s
 WHEEL_RATE_TOLERANCE = 0.02  # WHEEL_RATE_TOLERANCE, rad/s
+SPEED = 0.1  # SPEED, m/s, the wheels' forward speed
+CHANGED_SPEED = 0.12  # CHANGED_SPEED, m/s, from SPEED_CHANGE_STEP of robot_rates' phase 1 on
+SPEED_CHANGE_STEP = 100  # SPEED_CHANGE_STEP
 
 # What runs of the test printed or recorded: measured data, one line per run
 RUNS_FILE = 'scripts/figures/data/localization-stepped-clock-test-runs.jsonl'
@@ -197,6 +200,8 @@ BETWEEN_WHEELS_PIXELS_PER_MS = 0.9
 OUTPUT_DOT_RADIUS = 4.6
 # The chart of robot_rates leaves room for the rows' names left of the plot
 ROBOT_RATES_PLOT_LEFT = 50
+BRACKET_ROW = 20  # the height of the row above the chart of robot_rates with the bracket
+BRACKET_Y = 9  # of the bracket's line in that row
 
 # The drawing of the validator's decision about one sample: the steps of drop_reason() from top
 # to bottom in the left column, each drop reason to the right of its step, and the two ends at
@@ -225,7 +230,7 @@ NODE_BOX_TOP = 6
 NODE_BOX_HEIGHT = 24
 LABEL_ABOVE_ARROW = 6  # from an arrow up to the baseline of its label
 NOTE_BELOW_ARROW = 13  # from an arrow down to the baseline of its note
-STEP_HEIGHT = 310
+STEP_HEIGHT = 330
 
 EXTRA_RULES = (
     ('.lv-fig .cut', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.3'),
@@ -248,7 +253,7 @@ EXTRA_RULES = (
     ('.lv-fig .clock-jump', f'fill:none;stroke:{FG};stroke-width:1.6'),
     ('.lv-large .lv-fig .letter', 'font-size:11px'),
     ('.lv-large .lv-fig .sign', 'font-size:12.5px;font-weight:700'),
-    ('.lv-large .lv-fig .index', 'font-size:9.8px'),
+    ('.lv-large .lv-fig .index', 'font-size:11px'),
     # A label that lies on a line: the page's background around the letters keeps it readable
     ('.lv-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:4px;stroke-linejoin:round'),
     ('.lv-fig .lifeline', f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:3 3'),
@@ -265,6 +270,15 @@ EXTRA_RULES = (
     ('.md-typeset ul.lv-legend.lv-row', 'display:flex;flex-wrap:wrap;gap:.1em 1.1em'),
     ('.md-typeset ul.lv-legend.lv-row li', 'margin:0;padding-left:0;text-indent:0'),
 )
+
+
+# The marker of the first estimate of phase 2, in the chart of the seven phases only
+PHASES_RULES = (
+    ('.lv-fig .estimate-first,.lv-key .estimate-first',
+     f'fill:{BG};stroke:var(--lv-estimate);stroke-width:1.8'),
+)
+FIRST_MARKER_OFFSET = 7.5  # from the start of phase 2 to the diamond's center
+FIRST_MARKER_HALF_WIDTH = 3.5
 
 
 # The marks of the two figures of robot_rates only
@@ -874,8 +888,13 @@ def draw_run(figure: Figure, phases: Phases, run: Run) -> None:
         (phases.end_x(2) - 2.5, run.end_of_phase_2, 'the last output of phase 2'),
         (phases.end_x(6) - 2.5, run.end_of_phase_6, 'the last output of phase 6'),
     )
-    figure.path(f'M{phases.start_x(2):.1f},{rate_y(run.start_of_phase_2):.1f} '
-                f'L{dots[1][0]:.1f},{rate_y(run.end_of_phase_2):.1f}', 'estimate-path')
+    # The first output of phase 2 is one step after the last of phase 1: its marker stands just
+    # right of that dot. The run printed no estimate between the two of phase 2
+    first_x = phases.start_x(2) + FIRST_MARKER_OFFSET
+    first_y = rate_y(run.start_of_phase_2)
+    add_with_title(figure, f'{run.start_of_phase_2} rad/s, the first output of phase 2 in the '
+                   f'run at the commit {run.commit}',
+                   f'<path class="estimate-first" d="{diamond(first_x, first_y)}"/>')
     for x, rate, what in dots:
         add_with_title(figure, f'{rate} rad/s, {what} in the run at the commit {run.commit}',
                        f'<circle class="estimate-dot" cx="{x:.1f}" cy="{rate_y(rate):.1f}" '
@@ -886,6 +905,12 @@ def draw_run(figure: Figure, phases: Phases, run: Run) -> None:
                 'end')
     figure.text(dots[1][0] + 8, rate_y(WHEEL_RATE) + 16, f'{run.end_of_phase_2}', 'strong halo')
     figure.text(phases.start_x(6) + 5, below_the_imu_line, f'{run.end_of_phase_6}', 'strong')
+
+
+def diamond(x: float, y: float) -> str:
+    """Return the path of a diamond with its center at x, y, the marker of a first estimate."""
+    half = FIRST_MARKER_HALF_WIDTH
+    return f'M{x:.1f},{y - half:.1f} l{half},{half} l{-half},{half} l{-half},{-half} z'
 
 
 def phases_chart(phases: Phases, run: Run) -> Figure:
@@ -933,9 +958,10 @@ def chart_legends(run: Run) -> List[str]:
         key(f'<circle class="estimate-dot" cx="12" cy="6" r="{DOT_RADIUS}"/>')
         + f"the filter's estimate in the last output of phase 1, {run.end_of_phase_1} rad/s, "
         f'of phase 2, {run.end_of_phase_2} rad/s, and of phase 6, {run.end_of_phase_6} rad/s',
-        key('<path class="estimate-path" d="M1,6 H23"/>')
-        + f'joins the first estimate of phase 2, {run.start_of_phase_2} rad/s, and the last '
-        'one. The run printed only these two',
+        key(f'<path class="estimate-first" d="{diamond(12, 6)}"/>')
+        + f"the filter's estimate in the first output of phase 2, {run.start_of_phase_2} "
+        'rad/s. The run printed only the first and the last estimate of phase 2, so the chart '
+        'has no line between them',
     )
     return [
         band('What each step sends'),
@@ -960,7 +986,7 @@ def write_stepped_clock_test() -> None:
         'show the samples of one step of each phase. At the solid vertical line, the clock '
         'goes back from '
         f'{phases.end_time(5):g} s to {SYNTHETIC_RESTART_S} s.',
-        RULES + LARGE_RULES + EXTRA_RULES, 'lv-large')
+        RULES + LARGE_RULES + EXTRA_RULES + PHASES_RULES, 'lv-large')
 
 
 def draw_node(figure: Figure, x: float, width: float, name: str, title: str) -> None:
@@ -993,7 +1019,8 @@ def draw_message(figure: Figure, y: float, x_from: float, x_to: float, number: s
     label_x = min(x_from, x_to) + 6
     draw_label(figure, label_x, y - LABEL_ABOVE_ARROW, number, label)
     if note:
-        figure.text(label_x + (13 if number else 0), y + NOTE_BELOW_ARROW, note, 'note')
+        # A long note can cross a node's line: the halo keeps it readable
+        figure.text(label_x + (13 if number else 0), y + NOTE_BELOW_ARROW, note, 'note halo')
 
 
 def one_step() -> Figure:
@@ -1011,13 +1038,16 @@ def one_step() -> Figure:
     draw_message(figure, 62, TEST_X, EKF_X, '1', 'wheel odometry', 'stamped t')
     draw_message(figure, 104, TEST_X, VALIDATOR_X, '1', 'IMU sample', 'stamped t')
     draw_message(figure, 144, VALIDATOR_X, EKF_X, '2', 'valid sample')
-    draw_message(figure, 172, VALIDATOR_X, TEST_X, '2', 'valid sample')
-    figure.rect(TEST_X - 9, 186, 126, 36, 'item', corner_radius=4)
-    draw_label(figure, TEST_X - 3, 201, '3', 'waits DELIVERY')
-    figure.text(TEST_X + 10, 214, f'{DELIVERY_MS} ms of wall time', 'note')
-    draw_message(figure, 252, TEST_X, EKF_X, '4', 'new clock',
-                 f't + {round(1000 * STEP_S)} ms', also_to=(VALIDATOR_X,))
-    draw_message(figure, 290, EKF_X, TEST_X, '5', 'EKF output', 'stamped t or later')
+    draw_message(figure, 172, VALIDATOR_X, TEST_X, '2', 'valid sample',
+                 'wall clock runs')
+    figure.rect(TEST_X - 9, 196, 126, 48, 'item', corner_radius=4)
+    draw_label(figure, TEST_X - 3, 211, '3', 'waits DELIVERY')
+    figure.text(TEST_X + 10, 224, f'{DELIVERY_MS} ms of wall time', 'note')
+    figure.text(TEST_X + 10, 237, 'ROS time stays t', 'note')
+    draw_message(figure, 274, TEST_X, EKF_X, '4', 'new clock',
+                 f'ROS time t + {round(1000 * STEP_S)} ms', also_to=(VALIDATOR_X,))
+    draw_message(figure, 312, EKF_X, TEST_X, '5', 'EKF output',
+                 f'stamped t to t + {round(1000 * STEP_S)} ms')
     return figure
 
 
@@ -1052,6 +1082,7 @@ class RobotRatesRun(NamedTuple):
 
     commit: str  # of the diffbot repository, abbreviated
     last_imu_stamp: float
+    imu_stamps: Tuple[float, ...]  # every IMU sample's stamp, one per step of phase 1
     wheel_stamps: Tuple[float, ...]
     outputs: Tuple[Output, ...]
     end_of_phase_1: float  # printed: the estimate in the last output of phase 1
@@ -1074,6 +1105,19 @@ class RobotRatesRun(NamedTuple):
                      if self.last_imu_stamp < output.stamp < self.end() - STEP_S / 2)
 
 
+def imu_input_grid(first: float, last: float, count: int) -> Tuple[float, ...]:
+    """Return the stamps of the recorded IMU samples from the first and last stamp and the count.
+
+    The test stamps the samples one STEP apart, so the grid is counted in whole ms, without the
+    rounding errors of repeated additions.
+    """
+    first_ms = round(1000 * first)
+    step_ms = round(1000 * STEP_S)
+    stamps = tuple((first_ms + index * step_ms) / 1000 for index in range(count))
+    assert abs(stamps[-1] - last) < 1e-6, 'the IMU samples are one step apart'
+    return stamps
+
+
 def load_robot_rates_run() -> RobotRatesRun:
     """Return the last recorded run of robot_rates in RUNS_FILE, checked against its printout."""
     run = last_run_of(ROBOT_RATES)
@@ -1086,11 +1130,13 @@ def load_robot_rates_run() -> RobotRatesRun:
         assert abs(output.published - output.stamp - expected) < 1e-6, (
             f'the output stamped {output.stamp} s, published at {output.published} s')
     loaded = RobotRatesRun(run['commit'][:COMMIT_LENGTH], run['imu_stamps_s'][1],
-                           tuple(run['wheel_stamps_s']), outputs,
+                           imu_input_grid(*run['imu_stamps_s']), tuple(run['wheel_stamps_s']),
+                           outputs,
                            run['phase_1']['last_estimate_rad_s'],
                            run['phase_2']['last_estimate_rad_s'])
     phase_2 = loaded.phase_2()
-    assert len(loaded.phase_1()) == FUSION_STEPS, 'phase 1 has one output per step'
+    assert len(loaded.phase_1()) == FUSION_STEPS == len(loaded.imu_stamps), (
+        'phase 1 has one IMU sample and one output per step')
     assert len(phase_2) == IMU_STOPPED_WHEEL_MESSAGES == run['phase_2']['output_count']
     assert [output.stamp for output in phase_2] == list(loaded.wheel_stamps[-len(phase_2):]), (
         'phase 2 has one output per wheel message, stamped with its time')
@@ -1117,8 +1163,8 @@ def draw_robot_rates_rows(figure: Figure, run: RobotRatesRun) -> None:
                            for stamp in run.wheel_stamps)
     add_with_title(figure, f'A wheel message every {round(1000 * WHEEL_PERIOD_S)} ms',
                    f'<path class="wheels-tick" d="{wheel_ticks}"/>')
-    imu_ticks = ' '.join(f'M{robot_rates_x(output.stamp, run):.1f},{DROP_ROW_Y - 9} v9'
-                         for output in run.phase_1())
+    imu_ticks = ' '.join(f'M{robot_rates_x(stamp, run):.1f},{DROP_ROW_Y - 9} v9'
+                         for stamp in run.imu_stamps)
     add_with_title(figure, f'Phase 1: a valid IMU sample every {round(1000 * STEP_S)} ms',
                    f'<path class="imu-tick" d="{imu_ticks}"/>')
     figure.text((phase_2_x + PLOT_RIGHT) / 2, DROP_ROW_Y - 1, 'stopped', 'note', 'middle')
@@ -1205,6 +1251,29 @@ def draw_robot_rates_run(figure: Figure, run: RobotRatesRun) -> None:
                 f'{run.end_of_phase_2:.4f}', 'strong halo', 'end')
 
 
+def add_wheel_period_bracket(figure: Figure, run: RobotRatesRun) -> None:
+    """Move the drawing down and add a bracket over the first wheel period at the top.
+
+    The ticks of the IMU samples lie closer together than a line's width on a phone, so the
+    bracket says what one wheel period holds. Two thin lines lead from its ends down through the
+    rows of the wheels and the IMU.
+    """
+    start_x = robot_rates_x(START_S, run)
+    end_x = robot_rates_x(START_S + WHEEL_PERIOD_S, run)
+    drawing = figure.elements
+    figure.elements = []
+    figure.dimension(start_x, end_x, BRACKET_Y)
+    figure.path(f'M{start_x:.1f},{BRACKET_Y} V{BRACKET_ROW + DROP_ROW_Y + 2} '
+                f'M{end_x:.1f},{BRACKET_Y} V{BRACKET_ROW + DROP_ROW_Y + 2}', 'dimension')
+    figure.text(end_x + 5, BRACKET_Y + 4,
+                f'{round(1000 * WHEEL_PERIOD_S)} ms: {STEPS_PER_WHEEL_MESSAGE} IMU samples, '
+                '1 wheel message', 'note')
+    figure.elements.append(f'<g transform="translate(0,{BRACKET_ROW})">')
+    figure.elements.extend(drawing)
+    figure.elements.append('</g>')
+    figure.height += BRACKET_ROW
+
+
 def robot_rates_chart(run: RobotRatesRun) -> Figure:
     """Return the chart of the two phases of robot_rates."""
     figure = Figure('lv-test-robot-rates',
@@ -1217,6 +1286,7 @@ def robot_rates_chart(run: RobotRatesRun) -> Figure:
     draw_robot_rates_inputs(figure, run)
     draw_robot_rates_assertions(figure, run)
     draw_robot_rates_run(figure, run)
+    add_wheel_period_bracket(figure, run)
     return figure
 
 
@@ -1227,7 +1297,9 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
         key('<path class="wheels-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
         + 'a wheel message in every fifth step, '
         f'{round(1000 * WHEEL_PERIOD_S)} ms of ROS time, in both phases. It reports '
-        f'{WHEEL_RATE} rad/s, the blue line',
+        f'{WHEEL_RATE} rad/s, the blue line, and a forward speed of {SPEED} m/s, from step '
+        f'{SPEED_CHANGE_STEP} of phase 1 on {CHANGED_SPEED} m/s. The chart shows the yaw rates '
+        'only',
         key('<path class="imu-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
         + f'a valid IMU sample in every step of phase 1, {round(1000 * STEP_S)} ms. It reports '
         f'{IMU_RATE} rad/s, the orange line. In phase 2, the IMU sends nothing',
@@ -1236,7 +1308,7 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
         key('<path class="estimate-range" d="M12,1 V11 M8.5,1 h7 M8.5,11 h7"/>')
         + f'the range for the last output of a phase: {IMU_RATE} ± {YAW_RATE_TOLERANCE} rad/s '
         f'in phase 1, {WHEEL_RATE} ± {WHEEL_RATE_TOLERANCE} rad/s in phase 2',
-        sign_key('=') + 'in phase 2: one output per wheel period, the '
+        sign_key('=') + 'in phase 2: the header stamp of one output in each wheel period, the '
         f'{round(1000 * WHEEL_PERIOD_S)} ms from one wheel message to the next',
     )
     results = (
@@ -1246,8 +1318,9 @@ def robot_rates_legends(run: RobotRatesRun) -> List[str]:
         f'{max(output.yaw_rate for output in run.phase_1()):.4f} rad/s, and the last output '
         f'has {run.end_of_phase_1:.4f} rad/s',
         key(f'<circle class="estimate-dot" cx="12" cy="6" r="{SMALL_DOT_RADIUS}"/>')
-        + f"phase 2: the filter's {len(phase_2)} outputs, one per wheel message. The estimate "
-        f'goes from {phase_2[0].yaw_rate:.4f} to {run.end_of_phase_2:.4f} rad/s',
+        + f"phase 2: the filter's {len(phase_2)} outputs, each stamped with a wheel message's "
+        f'time. The estimate goes from {phase_2[0].yaw_rate:.4f} to {run.end_of_phase_2:.4f} '
+        'rad/s',
     )
     return [
         band('What the steps send'),
@@ -1302,8 +1375,12 @@ def between_wheels_axis(rows: RowLayout) -> TimeAxis:
 
 
 def draw_between_wheels_rows(figure: Figure, axis: TimeAxis, rows: RowLayout,
-                             first_wheel_stamp: float, imu_running: bool) -> None:
-    """Add the rows' names, the axis with a tick per update of the filter, and the inputs."""
+                             first_wheel_stamp: float, imu_stamps: Sequence[float]) -> None:
+    """Add the rows' names, the axis with a tick per update of the filter, and the inputs.
+
+    imu_stamps are the recorded IMU samples' stamps. Those within the axis, both ends included,
+    are drawn. None in the drawing writes "stopped" in the IMU's row.
+    """
     figure.text(2, rows.wheels + 4, 'wheels', 'note')
     figure.text(2, rows.imu + 4, 'IMU', 'note')
     figure.text(2, rows.outputs + 4, 'EKF', 'note')
@@ -1313,13 +1390,14 @@ def draw_between_wheels_rows(figure: Figure, axis: TimeAxis, rows: RowLayout,
         figure.circle(x, rows.wheels, OUTPUT_DOT_RADIUS, 'wheels-dot')
         figure.text(x, axis.y + 16, f'{first_wheel_stamp + index * WHEEL_PERIOD_S:.1f}', 'note',
                     'middle')
-    if imu_running:
-        offset_ms = axis.start_ms
-        while offset_ms <= axis.end_ms - STEP_S * 1000:
-            figure.circle(axis.at(offset_ms), rows.imu, SMALL_DOT_RADIUS + 0.6, 'imu-dot')
-            offset_ms += STEP_S * 1000
-    else:
-        figure.text(axis.at(axis.start_ms) + 4, rows.imu + 4, 'stopped', 'note')
+    offsets_ms = [round(1000 * (stamp - first_wheel_stamp)) for stamp in imu_stamps]
+    shown_ms = [offset for offset in offsets_ms if axis.start_ms <= offset <= axis.end_ms]
+    for offset_ms in shown_ms:
+        figure.circle(axis.at(offset_ms), rows.imu, SMALL_DOT_RADIUS + 0.6, 'imu-dot')
+    if not shown_ms:
+        # Between the first two wheel messages, clear of the lines down from their stamps
+        figure.text(axis.at(WHEEL_PERIOD_S * 1000 / 2), rows.imu + 4, 'stopped', 'note',
+                    'middle')
 
 
 def draw_between_wheels_outputs(figure: Figure, axis: TimeAxis, rows: RowLayout,
@@ -1341,6 +1419,23 @@ def draw_between_wheels_outputs(figure: Figure, axis: TimeAxis, rows: RowLayout,
         if labelled:
             label = 'predicted' if output.predicted else 'fused'
             figure.text(x, rows.outputs + 18, label, '', 'middle')
+            draw_stamp_to_publication(figure, axis, rows, first_wheel_stamp, output)
+
+
+def draw_stamp_to_publication(figure: Figure, axis: TimeAxis, rows: RowLayout,
+                              first_wheel_stamp: float, output: Output) -> None:
+    """Add a thin line down from the output's stamp, and an arrow to its publication if later.
+
+    The stamp is the wheel message's time. A fused output is published one update later.
+    """
+    stamp_x = axis.at((output.stamp - first_wheel_stamp) * 1000)
+    published_x = axis.at((output.published - first_wheel_stamp) * 1000)
+    figure.path(f'M{stamp_x:.1f},{rows.wheels + OUTPUT_DOT_RADIUS} V{rows.outputs}',
+                'dimension')
+    if published_x - stamp_x > OUTPUT_DOT_RADIUS:
+        tip_x = published_x - OUTPUT_DOT_RADIUS - 0.5
+        figure.path(f'M{stamp_x:.1f},{rows.outputs} H{tip_x - 4:.1f}', 'message')
+        figure.path(f'M{tip_x:.1f},{rows.outputs} l-5,-3 v6 z', 'message-head')
 
 
 def between_wheels_running(run: RobotRatesRun) -> Figure:
@@ -1352,7 +1447,7 @@ def between_wheels_running(run: RobotRatesRun) -> Figure:
                     'Phase 1, IMU running: an IMU sample in every step, a wheel message in '
                     'every fifth, and an EKF output in every step', RUNNING_ROWS.height,
                     DRAWING_WIDTH)
-    draw_between_wheels_rows(figure, axis, RUNNING_ROWS, first_wheel_stamp, True)
+    draw_between_wheels_rows(figure, axis, RUNNING_ROWS, first_wheel_stamp, run.imu_stamps)
     draw_between_wheels_outputs(figure, axis, RUNNING_ROWS, first_wheel_stamp, run.phase_1(),
                                 False)
     return figure
@@ -1371,7 +1466,7 @@ def between_wheels_stopped(run: RobotRatesRun) -> Figure:
                     "output per wheel message, stamped with the message's time: fused in the "
                     'next update, or predicted at the time of the message', STOPPED_ROWS.height,
                     DRAWING_WIDTH)
-    draw_between_wheels_rows(figure, axis, STOPPED_ROWS, first_wheel_stamp, False)
+    draw_between_wheels_rows(figure, axis, STOPPED_ROWS, first_wheel_stamp, ())
     draw_between_wheels_outputs(figure, axis, STOPPED_ROWS, first_wheel_stamp, phase_2, True)
     # From the stamp of the fused wheel message, the filter's last measurement, to the update
     # that predicts
@@ -1397,6 +1492,11 @@ def between_wheels_legend(run: RobotRatesRun) -> str:
         f'update {round(1000 * STEP_S)} ms later',
         key('<path class="tick" d="M12,3 v7"/>', 'lv-key lv-narrow')
         + "a tick on the axis: one of the filter's updates, 50 per second of ROS time",
+        key('<path class="message" d="M2,6 H17"/><path class="message-head" d="M22,6 l-5,-3 '
+            'v6 z"/>')
+        + "in phase 2: from an output's header stamp, the time of its wheel message, to the "
+        f'ROS time at which the filter published it, {round(1000 * STEP_S)} ms later for a '
+        'fused output. A predicted output is published at its stamp',
         sign_key('') + '<strong>fused:</strong> in the trace, the filter fused the wheel '
         "message and published the result, stamped with the message's time",
         sign_key('') + '<strong>predicted:</strong> in the trace, the filter predicted to the '
@@ -1417,7 +1517,8 @@ def write_between_wheels() -> None:
         [band('Phase 1: the IMU running'), between_wheels_running(run).svg(),
          band('Phase 2: the IMU stopped'), between_wheels_stopped(run).svg(),
          between_wheels_legend(run)],
-        'Three wheel periods of each phase of robot_rates in a recorded run at the diffbot '
+        f'{BETWEEN_WHEELS_MESSAGES} wheel messages of each phase of robot_rates, about '
+        f'{round(BETWEEN_WHEELS_END_MS + 1000 * STEP_S)} ms, in a recorded run at the diffbot '
         f"commit {run.commit}, with robot_localization's debug trace, ROS time to the right.",
         RULES + LARGE_RULES + EXTRA_RULES + ROBOT_RATES_RULES, 'lv-large')
 
