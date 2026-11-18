@@ -1938,6 +1938,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU (BNO055)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU (BNO055)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../driver-bno055/" class="md-nav__link">
         
@@ -1955,6 +2013,42 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../noise-at-rest-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests of the Noise Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -6754,7 +6848,7 @@ k = n\,i + j
 <p>These settings supply the numbers on the diagonals:</p>
 <ul>
 <li><strong>The wheel odometry's variances:</strong> the drive controller publishes the values of its parameter <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/config/diffbot_control.yaml#L37"><code>twist_covariance_diagonal</code></a> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a>, on the robot and in the simulation.</li>
-<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance on the robot:</strong> the firmware publishes its setting <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_firmware/lib/config/diffbot_base_config.h#L71"><code>angular_velocity_variance</code></a>, 4 · 10⁻⁴ (rad/s)². <a href="../driver-bno055/#what-the-firmware-publishes">What the firmware publishes</a> on the BNO055 page lists the firmware's settings. The value is a starting value from the datasheet's noise and offsets. <a href="../driver-bno055/#bias-and-noise-at-rest">Bias and noise at rest</a> on the same page shows how a recording of the standing robot gives the gyroscope's noise: on Remo, a variance of 2 to 7 · 10⁻⁷ (rad/s)². The starting value stays for now, because driving adds vibration and drift, which a recording at rest doesn't show.</li>
+<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance on the robot:</strong> the firmware publishes its setting <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_firmware/lib/config/diffbot_base_config.h#L71"><code>angular_velocity_variance</code></a>, 4 · 10⁻⁴ (rad/s)². <a href="../driver-bno055/#what-the-firmware-publishes">What the firmware publishes</a> on the BNO055 page lists the firmware's settings. The value is a starting value from the datasheet's noise and offsets. <a href="../driver-bno055/#bias-and-noise-at-rest">Bias and noise at rest</a> on the same page shows how a recording of the standing robot gives the gyroscope's noise: on Remo, a variance of 2 to 7 · 10⁻⁷ (rad/s)². <a href="../driver-bno055/#from-the-report-to-the-ekf">From the report to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> follows the yaw rate's measured variance to this setting. The starting value stays for now, because driving adds vibration and drift, which a recording at rest doesn't show.</li>
 <li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance in the simulation:</strong> the simulated sensor publishes the square of <code>gaussianNoise</code>, the noise of 0.005 rad/s that the sensor adds to each value. The setting stands in DiffBot's <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_description/urdf/include/common_sensors.xacro#L251"><code>common_sensors.xacro</code></a> and in Remo's <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L261"><code>common_sensors.xacro</code></a>.</li>
 </ul>
 <h4 id="the-frames">The frames</h4>
