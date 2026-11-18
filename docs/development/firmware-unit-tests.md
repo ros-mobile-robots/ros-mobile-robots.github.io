@@ -11,7 +11,8 @@ This page runs one test first. Then it explains which of the two test frameworks
 The goal of this first run is to check that a register write sends the register byte followed by the value byte. The test `WireBusTest.WriteRegisterSendsRegisterAndValue` checks exactly that, for the firmware's I2C bus code. Run it in the [firmware container](firmware-container.md), which needs only Docker, from the root folder of your diffbot clone:
 
 ```console
-.docker/firmware/run.sh pio test -e native_googletest \
+.docker/firmware/run.sh pio test \
+  -e native_googletest \
   --filter googletest/test_wire_bus \
   --program-arg=--gtest_filter=WireBusTest.WriteRegisterSendsRegisterAndValue
 ```
@@ -21,7 +22,7 @@ The test passed when PlatformIO prints its name with `[PASSED]`, and the last li
 ```console
 WireBusTest.WriteRegisterSendsRegisterAndValue	[PASSED]
 …
-================== 1 test cases: 1 succeeded in 00:00:00.497 ==================
+================== 1 test cases: 1 succeeded in 00:00:00.496 ==================
 ```
 
 The first run of an environment downloads what it needs from PlatformIO's registry, so it needs the internet. For `native_googletest` that is GoogleTest, for `native` Unity and rosserial. The libraries land in `diffbot_firmware/.pio/libdeps/<environment>`. Later runs of the same environment work without the internet. To be able to run every suite offline, run the command for every suite below once while you are online.
@@ -37,37 +38,43 @@ A test's full name has two parts. GoogleTest groups the tests of a program into 
 
 ### All suites, one environment or one suite
 
-Each of these commands runs more than one test. Run them from the same folder:
+Each of these commands runs more than one test. Run them from the same folder.
 
-- Run every suite, as CI does:
+Run every suite, as CI does:
 
-    ```console
-    .docker/firmware/run.sh pio test -e native -e native_googletest
-    ```
+```console
+.docker/firmware/run.sh pio test \
+  -e native -e native_googletest
+```
 
-- Run only the Unity suites:
+Run only the Unity suites:
 
-    ```console
-    .docker/firmware/run.sh pio test -e native
-    ```
+```console
+.docker/firmware/run.sh pio test \
+  -e native
+```
 
-- Run only the GoogleTest suites:
+Run only the GoogleTest suites:
 
-    ```console
-    .docker/firmware/run.sh pio test -e native_googletest
-    ```
+```console
+.docker/firmware/run.sh pio test \
+  -e native_googletest
+```
 
-- Run one Unity suite, here the PID controller's:
+Run one Unity suite, here the PID controller's:
 
-    ```console
-    .docker/firmware/run.sh pio test -e native --filter test_pid
-    ```
+```console
+.docker/firmware/run.sh pio test \
+  -e native --filter test_pid
+```
 
-- Run one GoogleTest suite, here the I2C bus code's:
+Run one GoogleTest suite, here the I2C bus code's:
 
-    ```console
-    .docker/firmware/run.sh pio test -e native_googletest --filter googletest/test_wire_bus
-    ```
+```console
+.docker/firmware/run.sh pio test \
+  -e native_googletest \
+  --filter googletest/test_wire_bus
+```
 
 PlatformIO prints each test's name with `[PASSED]` or `[FAILED]`. At the end, a summary lists each PlatformIO test suite with its status, and the last line counts the test cases: 101 for every suite.
 
@@ -81,29 +88,29 @@ PlatformIO prints each test's name with `[PASSED]` or `[FAILED]`. At the end, a 
     WireBusTest.WriteRegisterSendsRegisterAndValue	[PASSED]
     WireBusTest.WriteRegisterFailsWhenTheAddressIsNotAcknowledged	[PASSED]
     WireBusTest.WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite	[PASSED]
-    WireBusTest.WriteRegisterSendsToTheAlternateAddress	[PASSED]
+    WireBusTest.WriteRegisterPassesOnTheAddressRegisterAndValue	[PASSED]
     WireBusTest.ReadRegistersUsesARepeatedStart	[PASSED]
-    WireBusTest.ReadRegistersReadsFromTheAlternateAddress	[PASSED]
+    WireBusTest.ReadRegistersPassesOnTheAddressAndRegister	[PASSED]
     WireBusTest.ReadRegistersReturnsAllBytesOfASample	[PASSED]
     WireBusTest.ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails	[PASSED]
     ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/ReportedShortAllBytesThere	[PASSED]
     ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/BothShort	[PASSED]
     ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/ReportedInFullOneByteMissing	[PASSED]
     ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/ReportedOneShortAllBytesThere	[PASSED]
-    ---- native_googletest:googletest/test_wire_bus [PASSED] Took 2.01 seconds ----
+    ---- native_googletest:googletest/test_wire_bus [PASSED] Took 1.98 seconds ----
 
     =================================== SUMMARY ===================================
     Environment        Test                               Status    Duration
     -----------------  ---------------------------------  --------  ------------
-    native             test_wheel_control                 PASSED    00:00:00.480
-    native             test_synced_node_handle            PASSED    00:00:00.478
-    native             test_ros_wheel_command_subscriber  PASSED    00:00:00.505
-    native             test_pid                           PASSED    00:00:00.451
-    native             test_imu_publisher                 PASSED    00:00:00.512
-    native             test_command_timeout               PASSED    00:00:00.437
-    native             test_bno055                        PASSED    00:00:00.473
-    native_googletest  googletest/test_wire_bus           PASSED    00:00:02.014
-    ================ 101 test cases: 101 succeeded in 00:00:05.350 ================
+    native             test_wheel_control                 PASSED    00:00:00.476
+    native             test_synced_node_handle            PASSED    00:00:00.482
+    native             test_ros_wheel_command_subscriber  PASSED    00:00:00.511
+    native             test_pid                           PASSED    00:00:00.448
+    native             test_imu_publisher                 PASSED    00:00:00.520
+    native             test_command_timeout               PASSED    00:00:00.450
+    native             test_bno055                        PASSED    00:00:00.478
+    native_googletest  googletest/test_wire_bus           PASSED    00:00:01.985
+    ================ 101 test cases: 101 succeeded in 00:00:05.349 ================
     ```
 
 With PlatformIO installed on your PC instead, in the virtual environment that [Firmware Container](firmware-container.md) sets up, call that environment's `pio` in the folder `diffbot_firmware`: `~/.venvs/platformio/bin/pio test -e native -e native_googletest`. That route needs a C++17 compiler on the PC. It wasn't tested with the GoogleTest environment.
@@ -121,7 +128,9 @@ To see what a failure looks like, change the tested code on purpose. `readRegist
 With that edit, run the wire bus suite from the root folder of your diffbot clone:
 
 ```console
-.docker/firmware/run.sh pio test -e native_googletest --filter googletest/test_wire_bus
+.docker/firmware/run.sh pio test \
+  -e native_googletest \
+  --filter googletest/test_wire_bus
 ```
 
 The suite fails in one case, `BothShort`:
@@ -132,7 +141,7 @@ The suite fails in one case, `BothShort`:
 
     The read requested 18 bytes. `requestFrom()` reported 4, and 4 bytes arrived. The changed check finds 4 equal to 4.
 
-PlatformIO marks the case with `[FAILED]` and names the line of the failed check, `test_wire_bus.cpp:252`. The other eleven tests pass. The summary counts 13 test cases: the twelve tests, and one more with the status `ERRORED` for the program's exit status.
+PlatformIO marks the case with `[FAILED]` and names the line of the failed check, `test_wire_bus.cpp:258`. The other eleven tests pass. The summary counts 13 test cases: the twelve tests, and one more with the status `ERRORED` for the program's exit status.
 
 ??? example "PlatformIO's output of the failed run"
 
@@ -140,13 +149,13 @@ PlatformIO marks the case with `[FAILED]` and names the line of the failed check
     WireBusTest.WriteRegisterSendsRegisterAndValue	[PASSED]
     WireBusTest.WriteRegisterFailsWhenTheAddressIsNotAcknowledged	[PASSED]
     WireBusTest.WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite	[PASSED]
-    WireBusTest.WriteRegisterSendsToTheAlternateAddress	[PASSED]
+    WireBusTest.WriteRegisterPassesOnTheAddressRegisterAndValue	[PASSED]
     WireBusTest.ReadRegistersUsesARepeatedStart	[PASSED]
-    WireBusTest.ReadRegistersReadsFromTheAlternateAddress	[PASSED]
+    WireBusTest.ReadRegistersPassesOnTheAddressAndRegister	[PASSED]
     WireBusTest.ReadRegistersReturnsAllBytesOfASample	[PASSED]
     WireBusTest.ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails	[PASSED]
     ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/ReportedShortAllBytesThere	[PASSED]
-    test/googletest/test_wire_bus/test_wire_bus.cpp:252: ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/BothShort: Failure	[FAILED]
+    test/googletest/test_wire_bus/test_wire_bus.cpp:258: ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/BothShort: Failure	[FAILED]
     ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/ReportedInFullOneByteMissing	[PASSED]
     ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/ReportedOneShortAllBytesThere	[PASSED]
     Program received signal SIGHUP (Hangup)
@@ -155,9 +164,9 @@ PlatformIO marks the case with `[FAILED]` and names the line of the failed check
     =================================== SUMMARY ===================================
     Environment        Test                      Status    Duration
     -----------------  ------------------------  --------  ------------
-    native_googletest  googletest/test_wire_bus  ERRORED   00:00:00.498
+    native_googletest  googletest/test_wire_bus  ERRORED   00:00:00.502
 
-    ============ 13 test cases: 1 failed, 11 succeeded in 00:00:00.498 ============
+    ============ 13 test cases: 1 failed, 11 succeeded in 00:00:00.502 ============
     ```
 
 Add `-v` at the end of the same command, and PlatformIO also prints GoogleTest's own output, which says why the check failed:
@@ -166,7 +175,7 @@ Add `-v` at the end of the same command, and PlatformIO also prints GoogleTest's
 
     ```console
     [ RUN      ] ShortReads/WireBusShortReadTest.ReadRegistersFailsAndDrainsTheBytes/BothShort
-    test/googletest/test_wire_bus/test_wire_bus.cpp:252: Failure
+    test/googletest/test_wire_bus/test_wire_bus.cpp:258: Failure
     Value of: bus_.readRegisters(DEVICE_ADDRESS, READ_REGISTER, data.data(), data.size())
       Actual: true
     Expected: false
@@ -284,7 +293,9 @@ int main(int argc, char** argv)
 Run the suite from the root folder of your diffbot clone:
 
 ```console
-.docker/firmware/run.sh pio test -e native_googletest --filter googletest/test_first_suite
+.docker/firmware/run.sh pio test \
+  -e native_googletest \
+  --filter googletest/test_first_suite
 ```
 
 The test passed when PlatformIO prints `CommandTimeoutTest.IsTimedOutWhenConstructed` with `[PASSED]`, and the last line counts `1 test cases: 1 succeeded`. The environment `native_googletest` found the new folder by itself, without a change of `platformio.ini`.
@@ -302,36 +313,36 @@ This first suite tests code that a Unity suite, `test_command_timeout`, tests al
 
 ### Tests that share a setup: a fixture
 
-The wire bus suite has eight tests of `WireBusT` that all need a fake Wire library and a `WireBusT` on it. A fixture is a class with the objects that every test of a group needs. The fixture `WireBusTest` holds a `FakeWire` and a `WireBusT` on it, [lines 115–122]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L115-L122):
+The wire bus suite has eight tests of `WireBusT` that all need a fake Wire library and a `WireBusT` on it. A fixture is a class with the objects that every test of a group needs. The fixture `WireBusTest` holds a `FakeWire` and a `WireBusT` on it, [lines 121–128]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L121-L128):
 
-```cpp title="test_wire_bus.cpp: the fixture" linenums="115"
---8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:115:122"
+```cpp title="test_wire_bus.cpp: the fixture" linenums="121"
+--8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:121:128"
 ```
 
 GoogleTest creates a new `WireBusTest` object for each test ([Test Fixtures](https://google.github.io/googletest/primer.html#same-data-multiple-tests) in the primer). So each test starts with an empty `wire_`, and the order of the tests doesn't matter.
 
 `FakeWire` stands in for Arduino's Wire library. It records each call of `beginTransmission()`, `write()`, `endTransmission()` and `requestFrom()` as text, such as `beginTransmission(0x28)` or `write(0x3D)`, in the list `calls`, in the order of the calls. `available()` and `read()` only hand out the received bytes, and `calls` doesn't list them. It also returns the results that a test chooses, for example `end_result` as the result of `endTransmission()`. The functions `beginTransmissionCall()`, `writeCall()`, `endTransmissionCall()` and `requestFromCall()` write a call as text. `FakeWire` records its calls with them, and the tests write the calls that they expect with the same functions.
 
-??? example "`FakeWire` and the functions that write a call as text, lines 48–113"
+??? example "`FakeWire` and the functions that write a call as text, lines 54–119"
 
-    The functions and the fake are [lines 48–113]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L48-L113):
+    The functions and the fake are [lines 54–119]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L54-L119):
 
-    ```cpp title="test_wire_bus.cpp: FakeWire" linenums="48"
-    --8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:48:113"
+    ```cpp title="test_wire_bus.cpp: FakeWire" linenums="54"
+    --8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:54:119"
     ```
 
-`TEST_F` defines a test that uses a fixture. Its first argument is the fixture, its second the test's name. The four tests of `writeRegister()` are [lines 124–160]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L124-L160):
+`TEST_F` defines a test that uses a fixture. Its first argument is the fixture, its second the test's name. The four tests of `writeRegister()` are [lines 130–166]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L130-L166):
 
-```cpp title="test_wire_bus.cpp: the tests of writeRegister()" linenums="124"
---8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:124:160"
+```cpp title="test_wire_bus.cpp: the tests of writeRegister()" linenums="130"
+--8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:130:166"
 ```
 
 - **The members:** `wire_` and `bus_` are the fixture's. The first test calls `bus_.writeRegister()` and then compares `wire_.calls` with `expected_calls`: the device's address, the register, the value, and the end of the transfer with a stop.
-- **The values:** they have names, which the top of the file defines: `DEVICE_ADDRESS`, `ALTERNATE_DEVICE_ADDRESS`, `WRITTEN_REGISTER`, `WRITTEN_VALUE`, `ADDRESS_NOT_ACKNOWLEDGED` and `WITH_STOP`.
+- **The values:** they have names, which the top of the file defines, such as `DEVICE_ADDRESS`, `WRITTEN_REGISTER`, `WRITTEN_VALUE`, `ADDRESS_NOT_ACKNOWLEDGED` and `WITH_STOP`.
 - **A scenario in phases:** the third test checks two calls on the same `bus_`, in numbered phases. A write that the device acknowledges comes first, and the next write, which no device acknowledges, has to fail. Its first check is an `ASSERT_` check, because a failed first write would leave nothing to check in phase 2.
-- **The other address:** the fourth test writes to `ALTERNATE_DEVICE_ADDRESS`, 0x29, the BNO055's address when its ADR pin is high. `WireBusT` has to pass on the address that it gets, not only the default one.
+- **A second set of values:** the fourth test writes `RESET_VALUE` to `RESET_REGISTER` at `ALTERNATE_DEVICE_ADDRESS`, 0x29, the BNO055's address when its ADR pin is high. Each of these values differs from those of the first three tests, so the test shows that `WireBusT` passes on the values that it gets.
 
-The tests of `readRegisters()` compare `wire_.calls` the same way. In a read, the register write ends with a repeated start, `endTransmission(false)`, and only then comes the read request, `requestFrom()`. After a register write that no device acknowledges, no read request may follow. A read from `ALTERNATE_DEVICE_ADDRESS` checks the address in both the register write and the read request.
+The tests of `readRegisters()` compare `wire_.calls` the same way. In a read, the register write ends with a repeated start, `endTransmission(false)`, and only then comes the read request, `requestFrom()`. After a register write that no device acknowledges, no read request may follow. A read of `CHIP_ID_REGISTER` from `ALTERNATE_DEVICE_ADDRESS` checks that `WireBusT` passes on that register, and that address in both the register write and the read request.
 
 ### One behavior with several inputs: a parameterized test
 
@@ -358,16 +369,16 @@ The case `BothShort` is a read that the Teensy 4's Wire library can deliver when
 --8<-- "https://raw.githubusercontent.com/PaulStoffregen/Wire/eec0c444a0c8daadcd6f9da8df085b574b9ad916/WireIMXRT.cpp:155:163"
 ```
 
-The four cases are examples of short reads, not every possible one. Two have a short reported count with all bytes there, 4 and 17 of 18. One has both counts short, and one has a byte missing behind a full count. They are four inputs to one behavior: `readRegisters()` fails and drains the bytes. A parameterized test is written once and runs once per case. The type `ShortRead` describes a case, and the fixture `WireBusShortReadTest` adds the case to `WireBusTest`, [lines 219–241]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L219-L241):
+The four cases are examples of short reads, not every possible one. Two have a short reported count with all bytes there, 4 and 17 of 18. One has both counts short, and one has a byte missing behind a full count. They are four inputs to one behavior: `readRegisters()` fails and drains the bytes. A parameterized test is written once and runs once per case. The type `ShortRead` describes a case, and the fixture `WireBusShortReadTest` adds the case to `WireBusTest`, [lines 225–247]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L225-L247):
 
-```cpp title="test_wire_bus.cpp: the type of a case and the fixture" linenums="219"
---8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:219:241"
+```cpp title="test_wire_bus.cpp: the type of a case and the fixture" linenums="225"
+--8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:225:247"
 ```
 
-`TEST_P` defines the test, and `INSTANTIATE_TEST_SUITE_P` lists the cases, [lines 243–272]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L243-L272):
+`TEST_P` defines the test, and `INSTANTIATE_TEST_SUITE_P` lists the cases, [lines 249–278]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L249-L278):
 
-```cpp title="test_wire_bus.cpp: the parameterized test and its cases" linenums="243"
---8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:243:272"
+```cpp title="test_wire_bus.cpp: the parameterized test and its cases" linenums="249"
+--8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp:249:278"
 ```
 
 - **`GetParam()`:** returns the case of the current run. The test passes the case's two counts to `wire_` and calls `readRegisters()`. Then it checks the result, that the read request asked for the whole sample of `SAMPLE_LENGTH_BYTES`, and that `wire_.available()` is 0.
