@@ -8,8 +8,8 @@ The test proves one thing in the simulation: when the wheel odometry reports a w
 
 | Test | What it checks | Limit |
 |:--|:--|:--|
-| `test_ekf_follows_the_true_turn_with_a_wrong_wheel_separation` | In a left turn of 3 s: the IMU sample validator forwards the IMU's samples, the wheel odometry's turn falls behind the true turn, and the EKF's turn is the true turn | more than 45 Hz, more than 0.15 rad behind, within 0.05 rad |
-| `test_ekf_is_the_only_odom_tf_publisher` | Only the node `/diffbot/ekf_localization` publishes the transform `odom → base_footprint` on the topic `/tf` | exactly one node |
+| [`test_ekf_follows_the_true_turn_with_a_wrong_wheel_separation`](#the-checks-on-the-turn) | In a left turn of 3 s: the IMU sample validator forwards the IMU's samples, the wheel odometry's turn falls behind the true turn, and the EKF's turn is the true turn | more than 45 Hz, more than 0.15 rad behind, within 0.05 rad |
+| [`test_ekf_is_the_only_odom_tf_publisher`](#who-publishes-the-transform) | Only the node `/diffbot/ekf_localization` publishes the transform `odom → base_footprint` on the topic `/tf` | exactly one node |
 
 ## The turn from above
 
@@ -58,7 +58,7 @@ The next excerpt shows how `ekf` reaches the drive controller's launch file, fro
 
 ## Why a wrong wheel separation
 
-The drive controller, `diff_drive_controller`, uses its `wheel_separation` parameter twice. It turns a commanded yaw rate into two wheel speeds, and it turns the wheels' movement back into the odometry's yaw rate. $b$ is the wheel separation of the simulated robot, the distance between its two wheels in the URDF model. $b_c = 1.25\,b$ is the controller's value. The factor 1.25 is the test's `SEPARATION_SCALE`. For a commanded yaw rate $\omega_\text{cmd}$, the controller makes the right wheel's speed $v_r$ larger than the left wheel's speed $v_l$ by
+The drive controller, `diff_drive_controller`, uses its `wheel_separation` parameter twice. It turns a commanded yaw rate into two wheel speeds, and it turns the wheels' movement back into the odometry's yaw rate. $b$ is the wheel separation of the simulated robot, the distance between its two wheels in the URDF model. $b_c = 1.25\,b$ is the controller's value. The factor 1.25 is the test's [`SEPARATION_SCALE`](#the-constants). For a commanded yaw rate $\omega_\text{cmd}$, the controller makes the right wheel's speed $v_r$ larger than the left wheel's speed $v_l$ by
 
 $$
 v_r - v_l = \omega_\text{cmd}\, b_c
@@ -108,8 +108,8 @@ The next excerpt shows the type `Headings` and how a `HeadingObserver` starts, f
 - **`Headings`:** the robot's heading at one moment by each source, in rad. `true` is from Gazebo, `odometry` from the drive controller's wheel odometry and `ekf` from the EKF's estimate.
 - **`true_heading`, `odometry_heading` and `ekf_heading`:** the observer's latest heading of each source. Each is `None` until the first message of its source arrives.
 - **`sample_count`:** the number of samples that the IMU sample validator forwarded since the observer was created.
-- **The four subscribers:** they read the drive controller's wheel odometry (`WHEEL_ODOMETRY_TOPIC`), the EKF's estimate (`FILTERED_TOPIC`), Gazebo's model states (`MODEL_STATES_TOPIC`), which carry the robot's true pose, and the validator's output (`VALIDATED_IMU_TOPIC`). The subscriber of the model states keeps one message, `MODEL_STATES_QUEUE_SIZE`, because only the latest true pose matters. The subscriber of the validated samples keeps up to 100 messages, `IMU_QUEUE_SIZE`, because the test counts every sample.
-- **`lock`:** several threads use the observer's four values, the three headings and `sample_count`. rospy has one receiving thread for each publisher connection of a subscribed topic, and calls the subscriber's callback in that thread. Each of the four topics has one publisher, so the four callbacks run in four threads. The test itself runs in the test node's main thread, which calls `setUpClass()` and the tests and reads the observer. The lock lets one thread at a time read or change the four values. So the test gets the three headings as one copy, and no callback changes a heading while the test copies them. The three headings are the latest of each source, not headings of the same instant.
+- **The four subscribers:** they read the drive controller's wheel odometry ([`WHEEL_ODOMETRY_TOPIC`](#the-constants)), the EKF's estimate (`FILTERED_TOPIC`), Gazebo's model states (`MODEL_STATES_TOPIC`), which carry the robot's true pose, and the validator's output (`VALIDATED_IMU_TOPIC`). The subscriber of the model states keeps one message, `MODEL_STATES_QUEUE_SIZE`, because only the latest true pose matters. The subscriber of the validated samples keeps up to 100 messages, `IMU_QUEUE_SIZE`, because the test counts every sample.
+- **`lock`:** several threads use the observer's four values, the three headings and `sample_count`. rospy has one receiving thread for each publisher connection of a subscribed topic, and calls the subscriber's callback in that thread. Each of the four topics has one publisher, so the four callbacks run in four threads. The test itself runs in the test node's main thread, which calls [`setUpClass()`](#waiting-until-everything-runs) and the tests and reads the observer. The lock lets one thread at a time read or change the four values. So the test gets the three headings as one copy, and no callback changes a heading while the test copies them. The three headings are the latest of each source, not headings of the same instant.
 
 Each callback stores what the test needs from one message. The excerpt shows the four callbacks, from [`test_ekf.py`, lines 136–155]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L136-L155):
 
@@ -134,7 +134,7 @@ The test reads the observer through three methods, and each holds the lock while
 
 ## Waiting until everything runs
 
-unittest calls `setUpClass()` once, before the first test of the class. `setUpClass()` creates the test's node, a `HeadingObserver`, the observer of the topic `/tf` and the publisher of the velocity commands. Then it waits until `ready()` returns true. The excerpt shows both methods, from [`test_ekf.py`, lines 185–204]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L185-L204):
+unittest calls `setUpClass()` once, before the first test of the class. `setUpClass()` creates the test's node, a [`HeadingObserver`](#reading-the-three-headings), the observer of the topic `/tf` and the publisher of the velocity commands. Then it waits until `ready()` returns true. The excerpt shows both methods, from [`test_ekf.py`, lines 185–204]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L185-L204):
 
 ```python title="test_ekf.py: setUpClass() and ready()" linenums="185"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:185:204"
@@ -142,7 +142,7 @@ unittest calls `setUpClass()` once, before the first test of the class. `setUpCl
 
 - **`cls.heading_observer`:** from its creation on, the `HeadingObserver` keeps the latest headings and counts the validated IMU samples.
 - **`cls.odom_tf_observer`:** `OdomTfObserver()` starts to count who publishes the transform `odom → base_footprint`, for the second test. [The Transform's Publisher](odom-tf.md#the-observer) explains this observer.
-- **`cls.command`:** publishes the velocity commands on `CMD_VEL_TOPIC`, the drive controller's command topic.
+- **`cls.command`:** publishes the velocity commands on [`CMD_VEL_TOPIC`](#the-constants), the drive controller's command topic.
 - **`ready()`:** is true when `latest()` returns headings, so a heading arrived from each of the three sources, and the drive controller has connected to the command topic. ROS loses a command that is published before this connection exists.
 - **`STARTUP_TIMEOUT`:** after 120 s of wall time, `setUpClass()` raises an `AssertionError`. Its message names the sources that sent no heading, from `silent_sources()`, and the number of subscribers to the commands.
 
@@ -154,10 +154,10 @@ unittest calls `setUpClass()` once, before the first test of the class. `setUpCl
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:206:233"
 ```
 
-`latest_headings()` returns what `latest()` of the `HeadingObserver` returns. Its `assert` stops the test if that is `None`. After `setUpClass()`, which waited for a heading of each source, `latest()` returns a `Headings`.
+`latest_headings()` returns what [`latest()`](#reading-the-three-headings) of the `HeadingObserver` returns. Its `assert` stops the test if that is `None`. After [`setUpClass()`](#waiting-until-everything-runs), which waited for a heading of each source, `latest()` returns a `Headings`.
 
 1. `measure_turn()` reads the three headings with `latest_headings()` into `start`, notes the count of validated IMU samples and reads the simulation time.
-2. For `DURATION`, 3 s of simulation time, it publishes a `Twist` command with `angular.z` set to `TURN_VELOCITY`, 0.5 rad/s, at `COMMAND_RATE`, 20 times per second. A positive yaw rate is a left turn. The command has no forward speed, so the robot turns on the spot.
+2. For [`DURATION`](#the-constants), 3 s of simulation time, it publishes a `Twist` command with `angular.z` set to `TURN_VELOCITY`, 0.5 rad/s, at `COMMAND_RATE`, 20 times per second. A positive yaw rate is a left turn. The command has no forward speed, so the robot turns on the spot.
 3. It computes the rate of the validated IMU samples: the number of samples that `validated_sample_count()` counted during the turn, divided by the time that the turn took.
 4. In the `finally` block, it publishes a command of zero. The robot stops also when an error ends the loop early.
 5. It waits `SETTLE`, 1 s of simulation time, until the robot stands.
@@ -187,7 +187,7 @@ The next excerpt shows the four assertion methods, from [`test_ekf.py`, lines 23
 
 In the list, $\Delta\theta_\text{true}$ is the robot's true turn, $\Delta\theta_\text{odom}$ the wheel odometry's turn and $\Delta\theta_\text{EKF}$ the turn of the EKF's estimate, as in [the figure](#the-turn-from-above).
 
-1. **The wheel separation is the scaled one**, `assert_wheel_separation_is_scaled()`: the parameter `/diffbot/mobile_base_controller/wheel_separation` is `SEPARATION_SCALE` times the `wheel_separation` in the robot's `geometry.yaml`, within `SEPARATION_TOLERANCE`, 10⁻⁶ m. This check shows that the rostest file's value reached the controller's parameter and still fits the robot's geometry.
+1. **The wheel separation is the scaled one**, `assert_wheel_separation_is_scaled()`: the parameter `/diffbot/mobile_base_controller/wheel_separation` is [`SEPARATION_SCALE`](#the-constants) times the `wheel_separation` in the robot's `geometry.yaml`, within `SEPARATION_TOLERANCE`, 10⁻⁶ m. This check shows that the rostest file's value reached the controller's parameter and still fits the robot's geometry.
 2. **The validator forwards the IMU**, `assert_validated_imu_rate()`: during the turn, the samples on the topic `/diffbot/imu/data_validated` arrived at more than `MIN_IMU_RATE_SHARE` times `IMU_RATE`, 0.9 · 50 Hz = 45 Hz. Without the validated samples, the EKF would have only the wheel odometry.
 3. **The wheel odometry falls behind**, `assert_odometry_falls_behind()`: $\Delta\theta_\text{true} - \Delta\theta_\text{odom}$ is more than `MIN_ODOMETRY_ERROR`, 0.15 rad. This check shows that the error that the test needs is there. With the scaled separation, the wheel odometry reports 1 / 1.25 of the true turn, so the difference is a fifth of the true turn.
 4. **The EKF follows the true turn**, `assert_ekf_follows_the_true_turn()`: $|\Delta\theta_\text{EKF} - \Delta\theta_\text{true}|$ is at most `EKF_TOLERANCE`, 0.05 rad.
@@ -208,12 +208,12 @@ With the EKF on, the EKF has to publish the transform `odom → base_footprint`,
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:261:269"
 ```
 
-1. The test waits until `self.odom_tf_observer` has seen a first transform `odom → base_footprint`, at most `STARTUP_TIMEOUT`.
+1. The test waits until `self.odom_tf_observer` has seen a first transform `odom → base_footprint`, at most [`STARTUP_TIMEOUT`](#the-constants).
 2. It waits `OBSERVE`, 3 s of simulation time, while the observer keeps counting.
 3. It expects exactly one publishing node in the observer's counts, `EKF_NODE`, which is `/diffbot/ekf_localization`.
 4. It expects the controller's parameter `enable_odom_tf`, which `ODOM_TF_PARAMETER` names, to be `false`.
 
-This observer counts from `setUpClass()` on. unittest runs a class's test methods in alphabetical order, so the turn test runs first, and the count covers the turn too. In the saved run, the observer counted 375 transforms for DiffBot and 371 for Remo, all from `/diffbot/ekf_localization`. [The Transform's Publisher](odom-tf.md) explains the observer and the same check without the EKF.
+This observer counts from [`setUpClass()`](#waiting-until-everything-runs) on. unittest runs a class's test methods in alphabetical order, so the turn test runs first, and the count covers the turn too. In the saved run, the observer counted 375 transforms for DiffBot and 371 for Remo, all from `/diffbot/ekf_localization`. [The Transform's Publisher](odom-tf.md) explains the observer and the same check without the EKF.
 
 ## Run it
 
@@ -251,4 +251,4 @@ CI runs both files with the repository's other tests, as [Testing and CI](../../
 - **The real robot's rates and delays:** in the simulation, the wheel odometry and the IMU both arrive at 50 Hz, stamped with simulation time. On the robot, the wheel odometry arrives at most 10 times per second, as [The other settings](../../robot_localization.md#the-other-settings) on the Localization page explains. [How it's tested](../../robot_localization.md#how-its-tested) on the same page lists what the tests don't show about the robot's rates and delays.
 - **Other errors of the wheels:** the test's error is one constant factor on a turn on the spot. The test has no slip that comes and goes and no driving forward.
 - **The position:** the test compares the three turns only, not the positions $x$ and $y$.
-- **Turns of more than $\pi$:** `turned()` returns a change of the heading between $-\pi$ and $\pi$.
+- **Turns of more than $\pi$:** [`turned()`](#reading-the-three-headings) returns a change of the heading between $-\pi$ and $\pi$.

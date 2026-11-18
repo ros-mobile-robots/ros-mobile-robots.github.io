@@ -744,7 +744,7 @@ Neither setting looks at a sample's age, its frame or a repeated stamp.
 
 ### The five checks
 
-A sample is valid only if it passes all five checks. For each sample, the node calls [`drop_reason_or_record()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L256) of the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails. For a valid sample, the method records the sample's stamp and arrival ROS time as the last valid sample's and returns `None`, which stands for "no reason to drop". In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
+A sample is valid only if it passes all five checks. For each sample, the node calls [`drop_reason_or_record()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L256) of the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails. For a valid sample, the method records the sample's stamp and arrival ROS time as the last valid sample's and returns `None`, which stands for "no reason to drop". The validator's tests page walks through the method in [`drop_reason_or_record()`: the decision about a sample](robot_localization/tests/validator.md#drop_reason_or_record-the-decision-about-a-sample). In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
 
 Before the first check, the node drops every sample while the ROS time is zero, because it can't judge a stamp without a clock. In the simulation, the parameter `/use_sim_time` is true, and the ROS time is the time of the last message on Gazebo's topic `/clock`. Until the node has received the first message there, the ROS time is zero. On the robot, the ROS time is the SBC's system clock, which doesn't read zero. The validator's tests page explains this in [Where the ROS time comes from](robot_localization/tests/validator.md#where-the-ros-time-comes-from). [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33) are the node's parameters, which [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) sets.
 
@@ -787,7 +787,7 @@ The values of `max_age` and `max_future` are initial policy values, not standard
 
 --8<-- "includes/localization-validator-order.html"
 
-When the ROS time goes back, for example after a call of the service `/gazebo/reset_simulation`, the order check starts over from the new time.
+When the ROS time goes back, for example after a call of the service `/gazebo/reset_simulation`, the order check starts over from the new time. The validator's tests page explains how in [a clock that goes back](robot_localization/tests/validator.md#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back).
 
 ### What the validator doesn't check
 
@@ -862,7 +862,7 @@ The issue [EKF: evaluate outlier rejection on recorded drives (diffbot#205)](htt
 
 ### The validator's diagnostics
 
-The validator publishes its counts on the topic `/diagnostics`, next to the EKF's own status there: how many samples it forwarded, and how many it dropped for which reason. The function [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143) sets the status. The status is an error in three cases: before the validator has forwarded its first sample, after the ROS time went back until the validator forwards a sample again, and when the validator forwarded no sample for more than [`SILENCE_LIMIT`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L101), 1 s. The status is a warning when the validator dropped samples since its last report.
+The validator publishes its counts on the topic `/diagnostics`, next to the EKF's own status there: how many samples it forwarded, and how many it dropped for which reason. The function [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143) sets the status. The status is an error in three cases: before the validator has forwarded its first sample, after the ROS time went back until the validator forwards a sample again, and when the validator forwarded no sample for more than [`SILENCE_LIMIT`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L101), 1 s. The status is a warning when the validator dropped samples since its last report. [`TestHealth`: the status](robot_localization/tests/validator.md#testhealth-the-status) on the validator's tests page lists the level for each case.
 
 `rostopic echo /diagnostics` prints the reports as text. `rosrun rqt_runtime_monitor rqt_runtime_monitor` shows them in a window, sorted into errors, warnings and OK, with the values of the entry that you click. rqt_robot_monitor shows nothing here, because it reads the topic `/diagnostics_agg` of a diagnostic aggregator, which the launch files don't start.
 

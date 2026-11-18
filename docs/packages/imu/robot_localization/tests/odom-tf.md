@@ -8,8 +8,8 @@ The check runs in two simulations:
 
 | Simulation | Test | Expected publisher |
 |:--|:--|:--|
-| Without the EKF: `sim_drive_diffbot.test`, `sim_drive_remo.test` | `test_expected_node_is_the_only_odom_tf_publisher` in `test_odom_tf.py` | `/gazebo`, the node that runs the drive controller in the simulation |
-| With the EKF: `sim_ekf_diffbot.test`, `sim_ekf_remo.test` | `test_ekf_is_the_only_odom_tf_publisher` in `test_ekf.py` | `/diffbot/ekf_localization` |
+| Without the EKF: `sim_drive_diffbot.test`, `sim_drive_remo.test` | [`test_expected_node_is_the_only_odom_tf_publisher`](#the-test) in `test_odom_tf.py` | `/gazebo`, the node that runs the drive controller in the simulation |
+| With the EKF: `sim_ekf_diffbot.test`, `sim_ekf_remo.test` | [`test_ekf_is_the_only_odom_tf_publisher`](gazebo.md#who-publishes-the-transform) in `test_ekf.py` | `/diffbot/ekf_localization` |
 
 The figure shows both simulations, each in a drawing of its own. On the left of a drawing are the two possible publishers of the transform, the drive controller and the EKF. In the simulation, the drive controller runs in Gazebo's node `/gazebo`, which the drawing names in the controller's box. A solid green box with a ✓ publishes the transform, and a dashed box doesn't. On the right is the observer in the test node, which reads the topic `/tf` and counts the transforms `odom → base_footprint` by their `callerid`, the name of the node that published them. [The observer](#the-observer) explains `callerid`. The list under a drawing names the node that the test expects and gives the observer's counts in a saved run, as an example of a passing run.
 
