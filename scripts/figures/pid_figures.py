@@ -266,7 +266,11 @@ CHECKS: Tuple[Callable[[LoggedStep], List[str]], ...] = (
 
 
 def check_logged_step(step: LoggedStep) -> None:
-    """Stop with every problem of a logged step that doesn't fit the firmware's formulas."""
+    """Stop with every problem of a logged step.
+
+    A problem is a value that doesn't fit the firmware's arithmetic, or a step that doesn't meet
+    the worked example's assumptions.
+    """
     problems = [problem for check in CHECKS for problem in check(step)]
     if problems:
         raise ValueError('. '.join(problems))
@@ -330,9 +334,9 @@ def draw_time_line(figure: Figure) -> None:
     """Add a time line of one control step: what the step measures and what it commands.
 
     The measured speed (signal 7) is the mean over the interval before the step. The motor command
-    (signal 3) normally acts during the interval after it, until the next step's write(). An
-    interval is the nominal control period or slightly longer, so the time line doesn't name a
-    length.
+    (signal 3) normally acts during the interval after it, until the next step's write(). The
+    scheduler counts whole milliseconds and the encoder measures the actual time between two
+    reads, so the time line doesn't name a length.
     """
     step_x = (TIME_START_X + TIME_END_X) / 2
     figure.arrow(f'M{TIME_START_X},{TIME_Y} H{TIME_END_X}', 'time-line')

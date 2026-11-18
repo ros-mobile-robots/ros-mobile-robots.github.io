@@ -69,7 +69,7 @@ The firmware's main loop calls `step()` on every pass, and `step()` returns earl
 ```
 
 `stopWhenCommandExpires()` stops the motors once the last wheel command is `COMMAND_TIMEOUT_MS` old.
-`control_period_ms_` is 50 ms. The control step runs on the first pass of the main loop at which at least 50 ms have passed since the last control step, so the interval between two steps is 50 ms or slightly longer.
+`control_period_ms_` is 50 ms. The control step runs on the first pass of the main loop at which the Teensy's millisecond counter has advanced by at least 50 since the last control step. The encoder measures the actual time between two reads.
 `controller_.read()` measures the wheel's speed over the interval since the previous step.
 `controller_.write()` then sets the motor command, which normally acts until the next step's `write()`.
 So the measured 5.56 rad/s (7) is the result of the previous motor command, and the 96 (3) is the new one.
@@ -169,7 +169,7 @@ Follow the values around the loop:
 The example shows three properties of this PID that matter for tuning:
 
 - **The sum of the errors holds the motor command:** It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.
-- **The limit doesn't stop the sum:** While the wheel stays slower than its target, each control step adds a positive error to the sum. This goes on while the raw output is above 255 and the motor command stays at 255. When the wheel then reaches its target, the large sum keeps the drive high until errors of the opposite sign have reduced the sum, and the wheel overshoots. This is called integral windup. After a command timeout, the firmware resets both PIDs and clears their sums.
+- **The limit doesn't stop the sum:** While the wheel stays slower than its target, each control step adds a positive error to the sum, also while the raw output is above 255 and the motor command stays at 255. This is called integral windup. The stored sum can keep the drive high as the wheel reaches its target. If the wheel overshoots, the error turns negative and starts reducing the sum. After a command timeout, the firmware resets both PIDs and clears their sums.
 - **The gains belong to the control rate:** The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the 50 ms between two steps. With another `UPDATE_RATE_CONTROL`, the same $K_I$ and $K_D$ have another effect.
 
 ## Driving straight

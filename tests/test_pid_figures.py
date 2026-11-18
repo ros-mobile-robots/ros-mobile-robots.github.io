@@ -55,7 +55,7 @@ class TestInclude(unittest.TestCase):
 
 
 class TestChecks(unittest.TestCase):
-    """Each check reports a logged step that doesn't fit one of the firmware's formulas.
+    """Each check reports a step that doesn't fit the firmware's arithmetic or the example.
 
     The steps below change one or two values of the script's logged step: a target of
     6.06 rad/s, a measured speed of 5.56 rad/s, an error of 0.50 rad/s and the motor command 96.
