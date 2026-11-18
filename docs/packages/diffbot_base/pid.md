@@ -68,11 +68,12 @@ The firmware's main loop calls `step()` on every pass, and `step()` returns earl
 --8<-- "{{ pid_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:86:95"
 ```
 
-`stopWhenCommandExpires()` stops the motors when the last wheel command is older than `COMMAND_TIMEOUT_MS`.
-`control_period_ms_` is the 50 ms between two control steps.
-`controller_.read()` measures the wheel's speed over the 50 ms since the previous step.
-`controller_.write()` then sets the motor command that acts until the next step.
+`stopWhenCommandExpires()` stops the motors once the last wheel command is `COMMAND_TIMEOUT_MS` old.
+`control_period_ms_` is 50 ms. The control step runs on the first pass of the main loop at which at least 50 ms have passed since the last control step, so the interval between two steps is 50 ms or slightly longer.
+`controller_.read()` measures the wheel's speed over the interval since the previous step.
+`controller_.write()` then sets the motor command, which normally acts until the next step's `write()`.
 So the measured 5.56 rad/s (7) is the result of the previous motor command, and the 96 (3) is the new one.
+The example takes each interval as the nominal 50 ms.
 Follow the values around the loop:
 
 1. **Target wheel speed:** On the Raspberry Pi, `diff_drive_controller` converts the commanded robot velocity into a target angular velocity for each wheel. With Remo's wheel radius of 0.033 m, 0.2 m/s is $\dot{\phi}_\text{target}$ = 0.2 m/s / 0.033 m = 6.06 rad/s. The hardware interface publishes both targets on the topic `wheel_cmd_velocities`. The firmware stores the left one in `wheel_cmd_velocity_left_`.
@@ -129,7 +130,7 @@ Follow the values around the loop:
 
 5. **Rotation:** The motor turns the wheel through its gearbox.
 
-6. **Ticks since the previous control step:** The encoder in the motor has two Hall sensors. The Teensy counts the edges of their two signals as ticks, 542 for one turn of the wheel (`encoder_resolution` in [`base.yaml`]({{ pid_src_url }}/diffbot_base/config/base.yaml)). The count runs on from one step to the next. [`Encoder::jointState()`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39) reads it and subtracts the count of the previous step. The difference, `delta_ticks`, is the ticks since the previous step. The debug output doesn't show `delta_ticks`. With the nominal 50 ms between two steps, the measured speed corresponds to 24 ticks, so the figure shows this calculated count.
+6. **Ticks since the previous control step:** The encoder in the motor has two Hall sensors. The Teensy counts the edges of their two signals as ticks, 542 for one turn of the wheel (`encoder_resolution` in [`base.yaml`]({{ pid_src_url }}/diffbot_base/config/base.yaml)). The count runs on from one step to the next. [`Encoder::jointState()`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39) reads it and subtracts the count of the previous step. The difference, `delta_ticks`, is the ticks since the previous step. The debug output doesn't show `delta_ticks`. With the nominal 50 ms between two steps, the measured speed corresponds to 24 ticks, so the figure shows this calculated count. The count is an estimate: 25 ticks in an interval of 52.1 ms give the same rounded 5.56 rad/s.
 
 7. **Measured wheel speed:** `Encoder::jointState()` converts `delta_ticks` to an angle and divides the angle by `dts`, the time since the previous step, which it measures with the Teensy's clock. With 24 ticks in 50 ms: 24 · 2π / 542 = 0.278 rad, and 0.278 rad / 0.05 s = 5.56 rad/s. `read()` stores this value as `joint_state_left_.angular_velocity_` and publishes it to the Raspberry Pi on the topic `measured_joint_states`. `write()` then compares it with the target (2).
 
@@ -168,7 +169,7 @@ Follow the values around the loop:
 The example shows three properties of this PID that matter for tuning:
 
 - **The sum of the errors holds the motor command:** It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.
-- **The limit doesn't stop the sum:** While the raw output is above 255, the motor command stays at 255, but the sum of the errors keeps growing. When the wheel then reaches its target, the large sum keeps the command high until errors of the opposite sign have reduced the sum, and the wheel overshoots. This is called integral windup. After a command timeout, the firmware resets both PIDs and clears their sums.
+- **The limit doesn't stop the sum:** While the wheel stays slower than its target, each control step adds a positive error to the sum. This goes on while the raw output is above 255 and the motor command stays at 255. When the wheel then reaches its target, the large sum keeps the drive high until errors of the opposite sign have reduced the sum, and the wheel overshoots. This is called integral windup. After a command timeout, the firmware resets both PIDs and clears their sums.
 - **The gains belong to the control rate:** The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the 50 ms between two steps. With another `UPDATE_RATE_CONTROL`, the same $K_I$ and $K_D$ have another effect.
 
 ## Driving straight

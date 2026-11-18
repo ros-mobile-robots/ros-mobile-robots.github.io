@@ -227,7 +227,12 @@ def check_error_is_target_minus_measured(step: LoggedStep) -> List[str]:
 
 
 def check_pid_output_is_within_the_pwm_range(step: LoggedStep) -> List[str]:
-    """Check that the PID's output lies within the motor command's range, the example's case."""
+    """Check that the PID's raw output lies within the motor command's range.
+
+    This is a condition of the example, not a formula of the firmware: the firmware also runs
+    with a raw output beyond the range and limits it, but the page explains a step without that
+    limit.
+    """
     if -PWM_MAX <= pid_output(step) <= PWM_MAX:
         return []
     return [f'the PID output {pid_output(step):.2f} is outside {-PWM_MAX} to {PWM_MAX}, the '
@@ -285,8 +290,8 @@ def draw_firmware(figure: Figure, step: LoggedStep) -> None:
     These are the error (signal 2) and the measured wheel speed (signal 7).
     """
     figure.box(4, 78, 352, 186, 'firmware')
-    figure.text(348, 94, f'Teensy firmware, every {1000 // CONTROL_RATE} ms', 'container-name',
-                'end')
+    figure.text(348, 94, f'Teensy firmware, about every {1000 // CONTROL_RATE} ms',
+                'container-name', 'end')
     figure.circle(FORWARD_X, COMPARISON_Y, 13, 'code')
     figure.text(FORWARD_X - 13, COMPARISON_Y - 12, '+', 'sign', 'end')
     figure.text(FORWARD_X + 17, COMPARISON_Y + 16, '\u2212', 'sign')
@@ -324,18 +329,21 @@ def draw_hardware(figure: Figure, step: LoggedStep) -> None:
 def draw_time_line(figure: Figure) -> None:
     """Add a time line of one control step: what the step measures and what it commands.
 
-    The measured speed (signal 7) is the mean over the period before the step. The motor command
-    (signal 3) acts during the period after it.
+    The measured speed (signal 7) is the mean over the interval before the step. The motor command
+    (signal 3) normally acts during the interval after it, until the next step's write(). An
+    interval is the nominal control period or slightly longer, so the time line doesn't name a
+    length.
     """
-    period = f'{1000 // CONTROL_RATE} ms'
     step_x = (TIME_START_X + TIME_END_X) / 2
     figure.arrow(f'M{TIME_START_X},{TIME_Y} H{TIME_END_X}', 'time-line')
     for x in (TIME_START_X, step_x):
         figure.line(f'M{x},{TIME_Y - 5} V{TIME_Y + 5}', 'time-line')
     figure.line(f'M{step_x},{TIME_Y - 9} V{TIME_Y + 9}', 'time-step')
     figure.text(step_x, TIME_Y - 14, 'control step', 'container-name', 'middle')
-    figure.text((TIME_START_X + step_x) / 2, TIME_Y - 6, f'previous {period}', 'note', 'middle')
-    figure.text((step_x + TIME_END_X) / 2, TIME_Y - 6, f'next {period}', 'note', 'middle')
+    # The interval names sit away from the control step's name, which is in the middle
+    figure.text((TIME_START_X + step_x) / 2 - 12, TIME_Y - 6, 'previous interval', 'note',
+                'middle')
+    figure.text((step_x + TIME_END_X) / 2 + 12, TIME_Y - 6, 'next interval', 'note', 'middle')
     figure.signal(TIME_START_X + 4, TIME_Y + 24, 7, ['measured over this time'])
     figure.signal(step_x + 8, TIME_Y + 24, 3, ['acts during this time'])
 
@@ -362,7 +370,8 @@ def main() -> None:
                "and the encoder are hardware. The blue values are one control step of Remo's left "
                "wheel. The firmware doesn't log the ticks (6). They are calculated from the "
                'measured speed (7). The time line shows that a control step measures the speed '
-               f'over the previous {period} and sets the motor command for the next {period}.')
+               'over the previous interval and sets the motor command for the next one. The '
+               f'example takes each interval as the nominal {period}.')
     with open('includes/pid-feedback-loop.html', 'w', encoding='utf-8') as include:
         include.write(f'{style_element(RULES)}\n<figure class="pid-loop-figure">\n'
                       f'{feedback_loop(LOGGED_STEP).svg()}\n'

@@ -29,7 +29,7 @@
 <text x="116" y="56" text-anchor="start">target wheel speed</text>
 <text class="value" x="116" y="70" text-anchor="start">6.06 rad/s</text>
 <rect class="firmware" x="4" y="78" width="352" height="186" rx="5"/>
-<text class="container-name" x="348" y="94" text-anchor="end">Teensy firmware, every 50 ms</text>
+<text class="container-name" x="348" y="94" text-anchor="end">Teensy firmware, about every 50 ms</text>
 <circle class="code" cx="90" cy="140" r="13"/>
 <text class="sign" x="77" y="128" text-anchor="end">+</text>
 <text class="sign" x="107" y="156" text-anchor="start">−</text>
@@ -84,8 +84,8 @@
 <path class="time-line" d="M180.0,493 V503"/>
 <path class="time-step" d="M180.0,489 V507"/>
 <text class="container-name" x="180.0" y="484" text-anchor="middle">control step</text>
-<text class="note" x="100.0" y="492" text-anchor="middle">previous 50 ms</text>
-<text class="note" x="260.0" y="492" text-anchor="middle">next 50 ms</text>
+<text class="note" x="88.0" y="492" text-anchor="middle">previous interval</text>
+<text class="note" x="272.0" y="492" text-anchor="middle">next interval</text>
 <circle class="number-disc" cx="32" cy="518" r="8"/>
 <text class="number" x="32" y="521.8" text-anchor="middle">7</text>
 <text x="44" y="522" text-anchor="start">measured over this time</text>
@@ -93,5 +93,5 @@
 <text class="number" x="196.0" y="521.8" text-anchor="middle">3</text>
 <text x="208.0" y="522" text-anchor="start">acts during this time</text>
 </svg>
-<figcaption>One wheel's speed control loop. Start at the target wheel speed (1) and follow the numbers around the loop, back to the comparison in the circle. The boxes inside the Teensy firmware are code. The motor driver, the motor with the wheel and the encoder are hardware. The blue values are one control step of Remo's left wheel. The firmware doesn't log the ticks (6). They are calculated from the measured speed (7). The time line shows that a control step measures the speed over the previous 50 ms and sets the motor command for the next 50 ms.</figcaption>
+<figcaption>One wheel's speed control loop. Start at the target wheel speed (1) and follow the numbers around the loop, back to the comparison in the circle. The boxes inside the Teensy firmware are code. The motor driver, the motor with the wheel and the encoder are hardware. The blue values are one control step of Remo's left wheel. The firmware doesn't log the ticks (6). They are calculated from the measured speed (7). The time line shows that a control step measures the speed over the previous interval and sets the motor command for the next one. The example takes each interval as the nominal 50 ms.</figcaption>
 </figure>
