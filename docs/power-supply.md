@@ -57,13 +57,13 @@ In series, the voltages of the cells add up:
 | Per cell, fresh or fully charged | about 1.6 V | about 1.4 V |
 | Pack, nominal | 6.0 V | 7.2 V |
 | Pack, fresh or fully charged | about 6.4 V | about 8.4 V |
-| Pack, at the end value of the cell test | about 4.4 V (1.1 V per cell, battery test) | about 6.0 V (1.0 V per cell, capacity test) |
+| Pack equivalent of the cell-test reading | about 4.4 V (1.1 V per cell, battery test) | about 6.0 V (1.0 V per cell, capacity test) |
 | Input range of the motor driver | 6 V to 15 V | 4.5 V to 13.5 V |
 
 The cell values come from Energizer's data:
 
 - **Alkaline:** The [Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf) gives about 1.6 V for a fresh alkaline cell without load. Its battery test loads a cell with about 10 Ω for one to two seconds. A fresh cell then shows about 1.5 V, and a cell that shows 1.1 V has about 20 % of its service left. The table's 4.4 V is four times this test value. It is the result of a test on single cells, not a voltage that DiffBot runs on: its motor driver needs at least 6 V.
-- **NiMH:** The [NH15-1500 datasheet](https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf) gives 1.2 V nominal for a NiMH AA cell. Its discharge curves start at 1.4 V. It rates the capacity for a discharge down to 1.0 V per cell. The table's 6.0 V is six times this end value of the capacity test. A pack at this voltage is empty, so [recharge Remo's cells](#when-to-replace-or-recharge) before they get there.
+- **NiMH:** The [NH15-1500 datasheet](https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf) gives 1.2 V nominal for a NiMH AA cell. Its discharge curves start at 1.4 V. It rates the capacity of this 1500 mAh cell for a discharge with 300 mA at 21 °C, down to 1.0 V per cell. The table's 6.0 V is six times this end value. Remo's 2000 mAh cells at the motors' unmeasured current can behave differently, so 6.0 V is a comparison with the datasheet, not a voltage to drive down to. [Recharge Remo's cells](#when-to-replace-or-recharge) after each use.
 
 The two kinds of cells also discharge differently.
 The voltage of an alkaline cell slopes down during the whole discharge.
@@ -74,15 +74,15 @@ So the voltage that Remo's motors can get stays nearly the same until its cells 
 
 Neither robot has a battery-protection cutoff.
 The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
-Remo's firmware, for example, stops the motors only when no wheel commands arrive ([`wheel_control.h`](https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L98-L109)).
+Remo's firmware, for example, has one automatic stop, the command timeout: it releases the motors when no wheel commands arrive ([`wheel_control.h`](https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L98-L109)).
 So you decide when the cells are replaced or recharged:
 
-- **DiffBot:** Replace the batteries when the voltage at the motor driver's power terminal is below 6 V while the motors run. Below 6 V, the board is outside the input range that Seeed specifies ([Specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/)). A multimeter across the two screws of the power terminal shows this voltage. Four fresh alkaline batteries give only about 6 V under load, so a set has little margin from the start. The voltage at DiffBot's power terminal isn't measured yet. Replace all four batteries together: Energizer warns that mixing old and new batteries can make them rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings).
-- **Remo:** Recharge all six cells after each use. Don't drive until the robot gets slow or stops. A pack that shows 6.0 V or less while the motors run is empty.
+- **DiffBot:** Replace the batteries when the voltage at the motor driver's power terminal is below 6 V while the motors run. Below 6 V, the board is outside the input range that Seeed specifies ([Specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/)). To measure it, set a multimeter to DC volts, with the black lead in COM and the red lead in V. While the motors run, hold the black probe on the − screw and the red probe on the + screw of the power terminal ([Fluke's guide to measuring DC voltage](https://www.fluke.com/en-us/learn/blog/digital-multimeters/how-to-measure-dc-voltage-with-a-digital-multimeter)). Four fresh alkaline batteries give only about 6 V under load, so a set has little margin from the start. The voltage at DiffBot's power terminal isn't measured yet. Replace all four batteries together: Energizer warns that mixing old and new batteries can make them rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings).
+- **Remo:** Recharge all six cells after each use. Don't drive until the robot gets slow or stops.
 
 Two things speak against driving Remo until it stops:
 
-- **The speed doesn't show the state of the cells:** Remo's firmware regulates the speed of each wheel. Its [PID controller](packages/diffbot_base/pid.md) raises the duty cycle until the wheel turns at the commanded speed. When the voltage of the pack falls, the controller raises the duty cycle further. The wheel gets slower only when the duty cycle is at its maximum. By then, the cells can be deeply discharged.
+- **The speed doesn't show the state of the cells:** Remo's firmware regulates the speed of each wheel. Its [PID controller](packages/diffbot_base/pid.md) compares the measured speed with the target speed and changes the duty cycle. When the voltage of the pack falls, the controller raises the duty cycle. So the speed can look steady while the cells run down, and it gives no reliable sign of when to recharge.
 - **A deep discharge damages NiMH cells:** In a pack, the same current flows through all six cells. The cell with the least charge is empty first, and the other five keep driving the current through it. Its voltage then reverses. Energizer calls this battery reversal: the cell can vent, and the damage stays. Energizer recommends removing the load before a NiMH battery is fully discharged ([Nickel Metal Hydride Handbook](https://energizer.com/eu/austria/wp-content/uploads/2024/05/nickelmetalhydride_appman.pdf), Discharge Termination on page 9 and Battery Reversal on page 12).
 
 ## DiffBot: four AA batteries and the Grove I2C Motor Driver
@@ -106,7 +106,7 @@ The battery and the motor driver fit together like this:
     Two other kinds of cells have the size of an AA battery and don't suit DiffBot's motor driver:
 
     - **NiMH cells:** Four of them give 4.8 V nominal, below the driver's 6 V minimum.
-    - **14500 lithium-ion cells:** A fully charged cell has 4.2 V ([Nitecore's charger manual](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), section Default Settings). Four of them give 16.8 V, above the driver's 15 V maximum.
+    - **14500 lithium-ion cells:** A 14500 cell with 3.6 V or 3.7 V nominal has 4.2 V when fully charged ([Nitecore's charger manual](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), section Default Settings). Four of them give 16.8 V, above the driver's 15 V maximum.
 
 ## Remo: six NiMH cells and the Adafruit FeatherWing
 
@@ -153,14 +153,10 @@ Read the manual's Precautions before the first charge.
 2. Connect the charger to a USB power adapter with its USB cable.
 3. Insert four cells. Each slot has marks for the plus pole and the minus pole. Insert every cell the way the marks of its slot show. The charger starts by itself.
 4. Look at the display. A slot that shows `EE EE` has a cell that is inserted the wrong way round or has a short circuit. Take this cell out and check it.
-5. Wait until the charger has ended the charge of all four slots. The charger ends the charge of each slot on its own, so one cell can still be charging when the others are full. A short press of the C button steps through the four slots on the display. Look at every slot before you take the cells out.
-6. Take out the four cells and charge the remaining two in the same way.
+5. Wait until the charger has ended the charge of all four slots. The charger ends the charge of each slot on its own, so one cell can still be charging when the others are full. A short press of the C button steps through the four slots on the display. Check every slot before you take the cells out. A slot that shows `END` below `CHG. STATUS` has charged for 20 hours, and the charger stopped it to protect against a faulty cell (the manual's Overtime Charging Protection). This cell isn't charged.
+6. Take out the four cells and charge the remaining two with steps 3 to 5.
 7. Unplug the charger and take out the cells when the second round is done. Don't leave the charger unattended while it is connected (precautions 8 and 19 of the manual).
-8. Put all six cells back into Remo's holder. Keep them together as one set, and don't mix them with older cells or other types of batteries. Energizer warns that mixing can make cells rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings).
-
-A slot can also stop before its cell is full.
-After 20 hours of charging, the charger stops a slot and shows `END`.
-Nitecore's manual describes this time limit as a protection against a faulty cell, so don't count such a cell as charged.
+8. Put the six cells back into Remo's holder only if all six have finished their charge without `EE EE` or `END`. Keep them together as one set, and don't mix them with older cells or other types of batteries. Energizer warns that mixing can make cells rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). So if a cell fails, replace the whole set, not only that cell.
 
 !!! warning "These steps are for Remo's NiMH cells only"
     - **Never charge DiffBot's alkaline AA batteries**, or any other battery that isn't marked as rechargeable. Recharging a battery that isn't rechargeable can make it rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). Nitecore's manual forbids such batteries in the charger as well (precautions 1 and 10).
