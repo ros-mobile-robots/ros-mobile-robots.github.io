@@ -65,12 +65,12 @@ The first `.test` file runs the scenario `invalid_imu_samples`, the second the s
 
 The test node picks the scenario's class by this argument, as the collapsed box shows:
 
-??? example "How the test node picks its scenario: lines 793–814"
+??? example "How the test node picks its scenario: lines 800–821"
 
-    The excerpt shows the table of the scenarios and the start of the node, from [`test_ekf_synthetic.py`, lines 793–814]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L793-L814):
+    The excerpt shows the table of the scenarios and the start of the node, from [`test_ekf_synthetic.py`, lines 800–821]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L800-L821):
 
-    ```python title="test_ekf_synthetic.py: SCENARIOS, scenario_from_arguments() and the start" linenums="793"
-    --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:793:814"
+    ```python title="test_ekf_synthetic.py: SCENARIOS, scenario_from_arguments() and the start" linenums="800"
+    --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:800:821"
     ```
 
     1. `rospy.myargv()` returns the node's arguments without ROS's remapping arguments, such as the node's name.
@@ -353,16 +353,16 @@ The phase runs 150 steps, 3 s of ROS time, with a valid IMU sample in each step 
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:605:623"
 ```
 
-The phase runs its steps with `run_steps_at_the_robot_rates()`, which asks `wheel_input_at_the_robot_rates()` for each step's wheel odometry. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 665–673]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L665-L673):
+The phase runs its steps with `run_steps_at_the_robot_rates()`, which asks `wheel_input_at_the_robot_rates()` for each step's wheel odometry. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 667–675]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L667-L675):
 
-```python title="test_ekf_synthetic.py: run_steps_at_the_robot_rates()" linenums="665"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:665:673"
+```python title="test_ekf_synthetic.py: run_steps_at_the_robot_rates()" linenums="667"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:667:675"
 ```
 
-The next excerpt shows the function that decides each step's wheel odometry, from [`test_ekf_synthetic.py`, lines 769–777]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L769-L777). The step with the `step_index` 0 publishes a wheel message, and so does every step whose `step_index` is a multiple of `STEPS_PER_WHEEL_MESSAGE`, 5. The other steps get `None` and publish no wheel odometry:
+The next excerpt shows the function that decides each step's wheel odometry, from [`test_ekf_synthetic.py`, lines 776–784]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L776-L784). The step with the `step_index` 0 publishes a wheel message, and so does every step whose `step_index` is a multiple of `STEPS_PER_WHEEL_MESSAGE`, 5. The other steps get `None` and publish no wheel odometry:
 
-```python title="test_ekf_synthetic.py: wheel_input_at_the_robot_rates()" linenums="769"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:769:777"
+```python title="test_ekf_synthetic.py: wheel_input_at_the_robot_rates()" linenums="776"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:776:784"
 ```
 
 The phase checks four things:
@@ -372,10 +372,10 @@ The phase checks four things:
 - **After the change:** `assert_forward_speeds()` checks the output that the test keeps for each step, the last one that `step()` returns, from the step with the `index` 106 on, `SPEED_CHANGE_STEP + SPEED_CHANGE_WINDOW`, against `CHANGED_SPEED`, 0.12 m/s, within 0.002 m/s. `SPEED_CHANGE_WINDOW`, 6 steps, gives the estimate time for two wheel messages, in the steps 100 and 105, and one more step for a message that arrives late. The constants' comments say why the change is 0.02 m/s: the filter estimates an acceleration from the change, which moves the estimate between two wheel messages, by less than the tolerance for this small change.
 - **The last output:** `assert_fused_estimate()` checks the output of the step with the `index` 149, again the fourth after a wheel message, against `CHANGED_SPEED` and `IMU_RATE`.
 
-The excerpt shows the helper of the check after the change, from [`test_ekf_synthetic.py`, lines 716–721]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L716-L721):
+The excerpt shows the helper of the check after the change, from [`test_ekf_synthetic.py`, lines 723–728]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L723-L728):
 
-```python title="test_ekf_synthetic.py: assert_forward_speeds()" linenums="716"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:716:721"
+```python title="test_ekf_synthetic.py: assert_forward_speeds()" linenums="723"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:723:728"
 ```
 
 ### Phase 2 of `robot_rates`: the IMU stops
@@ -399,16 +399,16 @@ What the test asserts and what the recorded run shows, side by side:
 - **The test asserts:** the header stamp of one output in each wheel period, at any time within the period. So a wheel message that reaches the filter late can still pass. The test doesn't look at the times at which the outputs are published.
 - **The recorded run shows:** each of the 20 outputs is stamped exactly with its wheel message's time. 12 of them were published 20 ms after their stamp, by the update that fused the wheel message. 8 were published at their stamp, by a prediction at the sensor timeout. So a fused output is published between two wheel messages, while its header stamp lies at the start of its period.
 
-The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 625–663]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L625-L663). Its docstring says what the filter does between two wheel messages:
+The excerpt shows the phase, from [`test_ekf_synthetic.py`, lines 625–665]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L625-L665). Its docstring says what the filter does between two wheel messages:
 
 ```python title="test_ekf_synthetic.py: phase 2 of robot_rates" linenums="625"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:625:663"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:625:665"
 ```
 
-The phase runs its steps with `run_wheel_periods_without_imu()`. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 675–689]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L675-L689):
+The phase runs its steps with `run_wheel_periods_without_imu()`. The excerpt shows the method, from [`test_ekf_synthetic.py`, lines 677–691]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L677-L691):
 
-```python title="test_ekf_synthetic.py: run_wheel_periods_without_imu()" linenums="675"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:675:689"
+```python title="test_ekf_synthetic.py: run_wheel_periods_without_imu()" linenums="677"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:677:691"
 ```
 
 1. A wheel period is `STEPS_PER_WHEEL_MESSAGE`, 5, steps. The first step of a period notes the clock `self.now` in `period_starts` and publishes a wheel message stamped with this time, which reports `WHEEL_INPUT`.
@@ -470,44 +470,45 @@ The three recordings have their wheel messages on time. In them, with the IMU st
 
 Which of the two happens depends on the last digits of the difference between two stamps. The filter computes with times in seconds as double-precision floating-point numbers, and the difference of two stamps 0.1 s apart comes out a little above or a little below 0.1. For example, 103.2 s minus 103.1 s gives 0.1000000000000085, and the filter predicts. 103.3 s minus 103.2 s gives 0.0999999999999943, and the filter waits for the message. In each of three recorded runs, robot_localization's debug trace shows 8 of the 20 outputs of phase 2 as predicted and 12 as fused, at the same wheel messages: those where the difference of two stamps comes out at 0.1 or above. In both cases, the output is stamped with the wheel message's time.
 
-A wheel message can also reach the filter late, for example on a busy computer. The test doesn't wait for an output in the measured periods, so the clock moves on, and the filter fuses the message in a later update of its period. That late update either publishes the message, stamped with its time, or an earlier update of the period has already predicted and published, stamped with that update's time. Then the late message is older than the filter's time: the filter corrects with it but publishes no output for it. So each period still gets one output stamp, as long as its wheel message reaches the filter, and the filter's updates run, before the clock reaches the next wheel message's stamp. The steps' sleeps give a message about 0.9 s of wall time for that, five times `DELIVERY` and four times `NO_OUTPUT_WAIT`, but they don't prove that the filter's updates ran. The check of the outputs allows any stamp within a wheel period. Two functions put stamps into wheel periods. The excerpt shows them, from [`test_ekf_synthetic.py`, lines 780–790]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L780-L790):
+A wheel message can also reach the filter late, for example on a busy computer. The test doesn't wait for an output in the measured periods, so the clock moves on, and the filter fuses the message in a later update of its period. That late update either publishes the message, stamped with its time, or an earlier update of the period has already predicted and published, stamped with that update's time. Then the late message is older than the filter's time: the filter corrects with it but publishes no output for it. So each period still gets one output stamp, as long as its wheel message reaches the filter, and the filter's updates run, before the clock reaches the next wheel message's stamp. The steps' sleeps give a message about 0.9 s of wall time for that, five times `DELIVERY` and four times `NO_OUTPUT_WAIT`, but they don't prove that the filter's updates ran. The check of the outputs allows any stamp within a wheel period. Two functions put stamps into wheel periods. The excerpt shows them, from [`test_ekf_synthetic.py`, lines 787–797]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L787-L797):
 
-```python title="test_ekf_synthetic.py: within_wheel_periods() and wheel_period_index()" linenums="780"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:780:790"
+```python title="test_ekf_synthetic.py: within_wheel_periods() and wheel_period_index()" linenums="787"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:787:797"
 ```
 
-- **`within_wheel_periods()`:** returns whether a stamp lies from the first period's start to before the end of the last period. The phase takes the outputs and the wheel messages by their stamps with this function, from all that the test has received after one more step, which the next excerpt shows. So the stamps, not the order of arrival, decide the period of each message.
+- **`within_wheel_periods()`:** returns whether a stamp lies from the first period's start to before the end of the last period. The phase takes the outputs and the wheel messages by their stamps with this function, from all that the test has received after one more wheel period, which the next excerpt shows. So the stamps, not the order of arrival, decide the period of each message.
 - **`wheel_period_index()`:** returns for a stamp the index of its wheel period, the number of periods that started at or before the stamp, minus one. A period starts at a wheel message's stamp and ends at the next one's.
 
-The phase reads the outputs and the wheel messages only after one more step. The excerpt shows this step and the two methods that take the outputs and the wheel messages of the periods, from [`test_ekf_synthetic.py`, lines 691–714]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L691-L714):
+The phase reads the outputs and the wheel messages only after one more wheel period, which it doesn't measure. `run_wheel_periods_without_imu(1)` runs this period like the others, from the end of the last measured period at 105.00 s, and returns its start. Then `wait_for_messages_from()` waits for the messages of this extra period. The excerpt shows this method and the two methods that take the outputs and the wheel messages of the measured periods, from [`test_ekf_synthetic.py`, lines 693–721]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L693-L721):
 
-```python title="test_ekf_synthetic.py: the step after the wheel periods, and what the phase reads" linenums="691"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:691:714"
+```python title="test_ekf_synthetic.py: the wait after the measured periods, and what the phase reads" linenums="693"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:693:721"
 ```
 
-- **`run_step_after_the_wheel_periods()`:** runs one more step with `advance()`, at the end of the last period, with the wheel message that would start the next period and no IMU sample. Then the method waits with `wait_until()`, at most `WAIT`, until the test's subscriber has this wheel message and an output stamped at the step's time or later. Each subscription receives the messages of its one publisher in their order and runs their callbacks in that order. So when these two messages have arrived, the callbacks of all earlier wheel messages and outputs have run. The method returns whether the two arrived, without failing.
-- **`outputs_within_the_periods()` and `wheel_message_stamps_within_the_periods()`:** take the outputs and the wheel messages' stamps that lie within the periods, by `within_wheel_periods()`, from all that the test received, in the order of arrival. The extra step's wheel message and output lie after the last period, so they don't count.
+- **`wait_for_messages_from()`:** waits with `wait_until()`, at most `WAIT`, until the test's subscriber has the extra period's wheel message, stamped at its start, and an output stamped at that start or later. Each subscription receives the messages of its one publisher in their order and runs their callbacks in that order. So when these two messages have arrived, the callbacks of all earlier wheel messages and outputs have run. The extra period moves the clock on by a whole wheel period first, so that the filter publishes an output even when the extra wheel message reaches the filter late. The method doesn't fail. It returns the names of the messages that didn't arrive.
+- **`outputs_within_the_periods()` and `wheel_message_stamps_within_the_periods()`:** take the outputs and the wheel messages' stamps that lie within the measured periods, by `within_wheel_periods()`, from all that the test received, in the order of arrival. The extra period's messages lie after the last measured period, so they don't count.
 
-The excerpt shows the two assertions of the periods, from [`test_ekf_synthetic.py`, lines 723–739]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L723-L739):
+The excerpt shows the two assertions of the periods, from [`test_ekf_synthetic.py`, lines 730–746]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L730-L746):
 
-```python title="test_ekf_synthetic.py: the two assertions of the wheel periods" linenums="723"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:723:739"
+```python title="test_ekf_synthetic.py: the two assertions of the wheel periods" linenums="730"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:730:746"
 ```
 
 - **`assert_one_wheel_message_per_period()`:** the stamps of the received wheel messages have to be exactly the periods' starts, in their order, one message at the start of each period. A failure names the starts without a wheel message.
 - **`assert_one_output_per_period()`:** turns each output's header stamp into its period's index. The list of indices has to be 0, 1, 2 and so on, one output stamp in each period, in the order of the periods.
 
-The phase checks five things:
+The phase checks these things, in this order:
 
-- **The step after the periods:** its wheel message and an output arrived. Otherwise messages of the periods might still be missing, and the phase fails with this reason.
+- **Outputs at all:** without any output within the measured periods, the phase fails with the message that it got no EKF output in the 20 wheel periods.
+- **The extra period's messages:** its wheel message and an output from its start on arrived. Otherwise messages of the measured periods might still be missing, and the phase fails with a message that names what didn't arrive.
 - **One wheel message per wheel period:** `assert_one_wheel_message_per_period()` checks the wheel messages that the test's own subscriber received on the topic. So the wheel topic carried the 20 wheel messages, one at the start of each period.
-- **One output stamp per wheel period:** the phase takes the outputs stamped within the periods, before the end of the last period. The extra step's output is stamped at that end or later, so the phase leaves the output out. `assert_one_output_per_period()` checks that each of the 20 periods contains the header stamp of one output, in their order. A filter that put two output stamps into one period would fail, for example one that predicted again before the next wheel message. In runs of the scenario with changed settings and the wheel messages on time, a `sensor_timeout` of 0.08 s of ROS time gave 24 outputs for the 20 periods, and `predict_to_current_time`, which makes the filter predict in every update, gave 100, five in each period. Both runs failed this check. The check doesn't prove the setting itself. In a run in which each of the 20 wheel messages of the measured periods was published 0.5 s of wall time late, a `sensor_timeout` of 0.08 s gave one output stamp per period, and the run passed. The steps moved the clock on by only 60 ms of ROS time during those 0.5 s, so the test published each message 60 ms of ROS time after its stamp, for example the message stamped 103.00 s at the ROS time 103.06 s. Both `sensor_timeout` and this delay are ROS times. The test prints how many outputs carry a wheel message's stamp.
+- **One output stamp per wheel period:** the phase takes the outputs stamped within the periods, before the end of the last period. The extra period's outputs are stamped at that end or later, so the phase leaves them out. `assert_one_output_per_period()` checks that each of the 20 periods contains the header stamp of one output, in their order. A filter that put two output stamps into one period would fail, for example one that predicted again before the next wheel message. In runs of the scenario with changed settings and the wheel messages on time, a `sensor_timeout` of 0.08 s of ROS time gave 24 outputs for the 20 periods, and `predict_to_current_time`, which makes the filter predict in every update, gave 100, five in each period. Both runs failed this check. The check doesn't prove the setting itself. In a run in which each of the 20 wheel messages of the measured periods was published 0.5 s of wall time late, a `sensor_timeout` of 0.08 s gave one output stamp per period, and the run passed. The steps moved the clock on by only 60 ms of ROS time during those 0.5 s, so the test published each message 60 ms of ROS time after its stamp, for example the message stamped 103.00 s at the ROS time 103.06 s. Both `sensor_timeout` and this delay are ROS times. The test prints how many outputs carry a wheel message's stamp.
 - **The forward speed $v_x$:** the last output's, `SPEED`, 0.1 m/s within 0.002 m/s, with `assert_forward_speed()`. The estimate comes from phase 1's 0.12 m/s, so the estimate gets back to 0.1 m/s only if the filter fuses the wheel messages of phase 2.
 - **The yaw rate $\omega_z$:** the last output's, `WHEEL_RATE`, 0.4 rad/s, within `WHEEL_RATE_TOLERANCE`, 0.02 rad/s. The wheel odometry is the filter's only source of the yaw rate in this phase. In the recorded run, the estimate was within the tolerance from the eleventh output on, and 0.4016 rad/s at the end.
 
 ## Runs
 
-The runs on this page are runs of the commit [`c4ad07b`](https://github.com/ros-mobile-robots/diffbot/commit/c4ad07b86dc3a3a70ea8f2db470939f1b2b62bfc) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for `invalid_imu_samples` and 29 s for `robot_rates`.
+The runs on this page are runs of the commit [`3cfbcd3`](https://github.com/ros-mobile-robots/diffbot/commit/3cfbcd3b710fd41935e2b558956974a98dd12bdd) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for `invalid_imu_samples` and 31 s for `robot_rates`.
 
 ### `invalid_imu_samples`
 

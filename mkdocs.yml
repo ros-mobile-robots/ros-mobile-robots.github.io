@@ -92,8 +92,8 @@ extra:
   # page's links into imu_validator.py show: the head of diffbot #220 until it merges. Move both
   # to its merge commit before these pages' pull request merges, and check the excerpts' line
   # ranges and the links' lines on the three pages against it
-  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/c4ad07b86dc3a3a70ea8f2db470939f1b2b62bfc
-  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/c4ad07b86dc3a3a70ea8f2db470939f1b2b62bfc
+  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3cfbcd3b710fd41935e2b558956974a98dd12bdd
+  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3cfbcd3b710fd41935e2b558956974a98dd12bdd
   # The diffbot commit that the excerpts and the links on the test page The ekf Switch
   # (robot_localization/tests/switch.md) show: the merge commit of diffbot #215, whose
   # test_ekf_switch.py also loads diffbot_control's diffbot.launch. Update both when the test

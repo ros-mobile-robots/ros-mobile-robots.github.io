@@ -1123,8 +1123,8 @@ def wheel_stamps_of_the_periods(stamps: Sequence[float],
                                 last_imu_stamp: float) -> Tuple[float, ...]:
     """Return the wheel messages' stamps of phase 1 and of the wheel periods of phase 2.
 
-    The test runs one more step after the periods, with the wheel message that would start the
-    next period. Its stamp is the end of the last period, and the figures leave it out.
+    The test runs one more wheel period after the measured ones. Its wheel message is stamped at
+    the end of the last measured period, and the figures leave it out.
     """
     phase_1_count = sum(1 for stamp in stamps if stamp <= last_imu_stamp)
     periods = tuple(stamps[:phase_1_count + IMU_STOPPED_WHEEL_PERIODS])
