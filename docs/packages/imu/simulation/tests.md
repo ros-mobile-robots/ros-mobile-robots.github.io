@@ -5,7 +5,7 @@ What CI checks on the simulated IMU, how to run the checks yourself, and what a 
 Two Python files check the simulated IMU in Gazebo, [`test_imu.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py) and [`test_imu_reset.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py), with three tests. Each test reads the topic `/diffbot/imu/data_raw`:
 
 1. **[The test at rest](#the-test-at-rest)**, in `test_imu.py`: the robot stands still.
-    - **A pass shows:** the message has the form that its readers need. More than 90 messages arrive in 2 s of simulation time, each stamp is later than the one before, the frame is `imu_link`, the orientation $\mathbf q$ is marked unavailable, the yaw rate $\omega_z$ and the upward reading $f_z$ are finite, the yaw rate's variance is positive, and the mean of $f_z$ is gravity.
+    - **A pass shows:** the message has the form that its readers need. More than 90 messages arrive in 2 s of simulation time, each stamp is later than the one before, the frame is `imu_link`, the orientation $\mathbf q$ is marked unavailable, the yaw rate $\omega_z$ and the upward reading $f_z$ are finite, the yaw rate's variance is positive, and the mean of $f_z$ lies within 0.5 m/s² of 9.81 m/s², which is gravity.
     - **Why:** the IMU sample validator and the EKF need the message this way, and the firmware publishes it this way.
 2. **[The left turn](#the-left-turn)**, in `test_imu.py`: the robot turns left on the spot at 0.5 rad/s.
     - **A pass shows:** the mean of the yaw rate $\omega_z$ over 2 s of the turn lies between 0.35 and 0.65 rad/s.
