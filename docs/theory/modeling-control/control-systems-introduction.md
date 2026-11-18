@@ -157,12 +157,13 @@ The simplest approach is for the user to send a predetermined sequence of comman
     Add open loop image
 
 !!! note "Open Loop Pros"
-    - it can't make a stable process unstable, because no measurement is fed back (an unstable process stays unstable, too)
+    - it can't make a stable process unstable: a bounded, preset command keeps the response of a stable process bounded, because no measurement is fed back
     - it is convenient
     - works when the model of the system is good
 
 !!! note "Open Loop Cons"
     - everything must be planned in advance
+    - it can't make an unstable process stable or correct a slowdown, because it doesn't observe the output
 
 If our understanding of the platform response is good, we will obtain the desired outcome.
 If it is not good or if something unexpected happens during the execution, then the end result will diverge from the plan.
@@ -186,7 +187,9 @@ The figure shows a closed loop around the system of the [first figure](#system-f
 Without the path of the observations (6), the loop is open, and the controller has no measured speed to subtract.
 An open loop controller for the same wheel could apply a fixed motor command for a fixed time.
 If the wheel slows down under a load, for example on a carpet, that command stays the same, and the wheel turns less far than planned.
-The closed loop measures the slowdown, and the controller raises the motor command until the wheel reaches its target speed again.
+The closed loop measures the slowdown, and the controller raises the motor command.
+If the motor has enough torque, the wheel gets back to its target speed.
+If the motor command has reached its largest value, the wheel stays slower, and the measured speed shows by how much.
 [PID Controllers](../../packages/diffbot_base/pid.md) describes this controller for the robots.
 
 !!! note "Closed Feedback Loop Pros"

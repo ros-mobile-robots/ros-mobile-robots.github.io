@@ -246,8 +246,9 @@ def main() -> None:
     write_include('includes/control-systems-system.html', system_figure(),
                   'A system from its actuators to its sensors. Read the figure from top to '
                   'bottom. In the example, the measured wheel speed comes about like this: the '
-                  'wheel turns, the wheel encoder counts the edges of its signals, and the '
-                  'firmware computes the angular velocity from the counted edges.',
+                  "wheel turns, the encoder's two Hall sensors give pulses, the Teensy counts "
+                  'their edges, and the firmware computes the angular velocity from the change of '
+                  'the count and the time it took.',
                   style_element(RULES) + '\n')
     write_include('includes/control-systems-closed-loop.html', closed_loop_figure(),
                   'A closed loop. Start at the reference (1) and follow the numbers around '

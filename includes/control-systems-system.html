@@ -37,5 +37,5 @@
 <text class="example" x="188.0" y="280" text-anchor="start">measured wheel speed</text>
 <text class="legend" x="180.0" y="312" text-anchor="middle">Blue: an example, the speed of one of the robot's wheels</text>
 </svg>
-<figcaption>A system from its actuators to its sensors. Read the figure from top to bottom. In the example, the measured wheel speed comes about like this: the wheel turns, the wheel encoder counts the edges of its signals, and the firmware computes the angular velocity from the counted edges.</figcaption>
+<figcaption>A system from its actuators to its sensors. Read the figure from top to bottom. In the example, the measured wheel speed comes about like this: the wheel turns, the encoder's two Hall sensors give pulses, the Teensy counts their edges, and the firmware computes the angular velocity from the change of the count and the time it took.</figcaption>
 </figure>
