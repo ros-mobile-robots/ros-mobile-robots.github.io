@@ -1,0 +1,133 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+</style>
+<figure class="lv-figure lv-large lv-drawing lv-symbols">
+<svg class="lv-fig" viewBox="0 0 300 214" role="img" aria-labelledby="lv-check-values-title"><title id="lv-check-values-title">Check 2: a sample whose angular velocity and linear acceleration are finite passes. A sample with a NaN in its angular velocity is dropped</title>
+<text class="variable" x="172.0" y="14.0" text-anchor="middle">x</text>
+<text class="variable" x="218.0" y="14.0" text-anchor="middle">y</text>
+<text class="variable" x="264.0" y="14.0" text-anchor="middle">z</text>
+<rect class="card-pass" x="4.0" y="22.0" width="292.0" height="70.0" rx="5"/>
+<text class="mono quiet" x="10.0" y="38.0" text-anchor="start">angular_velocity</text>
+<text class="note" x="10.0" y="51.0" text-anchor="start">rad/s</text>
+<rect class="cell" x="150.0" y="29.0" width="44.0" height="24.0" rx="0"/>
+<text x="172.0" y="45.5" text-anchor="middle">0.01</text>
+<rect class="cell" x="196.0" y="29.0" width="44.0" height="24.0" rx="0"/>
+<text x="218.0" y="45.5" text-anchor="middle">−0.02</text>
+<rect class="cell" x="242.0" y="29.0" width="44.0" height="24.0" rx="0"/>
+<text x="264.0" y="45.5" text-anchor="middle">0.48</text>
+<text class="mono quiet" x="10.0" y="68.0" text-anchor="start">linear_acceleration</text>
+<text class="note" x="10.0" y="81.0" text-anchor="start">m/s²</text>
+<rect class="cell" x="150.0" y="59.0" width="44.0" height="24.0" rx="0"/>
+<text x="172.0" y="75.5" text-anchor="middle">0.12</text>
+<rect class="cell" x="196.0" y="59.0" width="44.0" height="24.0" rx="0"/>
+<text x="218.0" y="75.5" text-anchor="middle">0.05</text>
+<rect class="cell" x="242.0" y="59.0" width="44.0" height="24.0" rx="0"/>
+<text x="264.0" y="75.5" text-anchor="middle">9.79</text>
+<text class="verdict-pass" x="6.0" y="110.0" text-anchor="start">✓ forwarded</text>
+<rect class="card-drop" x="4.0" y="118.0" width="292.0" height="70.0" rx="5"/>
+<text class="mono quiet" x="10.0" y="134.0" text-anchor="start">angular_velocity</text>
+<text class="note" x="10.0" y="147.0" text-anchor="start">rad/s</text>
+<rect class="cell" x="150.0" y="125.0" width="44.0" height="24.0" rx="0"/>
+<text x="172.0" y="141.5" text-anchor="middle">0.01</text>
+<rect class="cell-bad" x="196.0" y="125.0" width="44.0" height="24.0" rx="0"/>
+<text class="strong" x="218.0" y="141.5" text-anchor="middle">NaN</text>
+<rect class="cell" x="242.0" y="125.0" width="44.0" height="24.0" rx="0"/>
+<text x="264.0" y="141.5" text-anchor="middle">0.48</text>
+<text class="mono quiet" x="10.0" y="164.0" text-anchor="start">linear_acceleration</text>
+<text class="note" x="10.0" y="177.0" text-anchor="start">m/s²</text>
+<rect class="cell" x="150.0" y="155.0" width="44.0" height="24.0" rx="0"/>
+<text x="172.0" y="171.5" text-anchor="middle">0.12</text>
+<rect class="cell" x="196.0" y="155.0" width="44.0" height="24.0" rx="0"/>
+<text x="218.0" y="171.5" text-anchor="middle">0.05</text>
+<rect class="cell" x="242.0" y="155.0" width="44.0" height="24.0" rx="0"/>
+<text x="264.0" y="171.5" text-anchor="middle">9.79</text>
+<text class="verdict-drop" x="6.0" y="206.0" text-anchor="start">✕ dropped: not finite</text>
+</svg>
+<figcaption>Check 2 reads the three components of the sample's <code>angular_velocity</code>, in rad/s, and of its <code>linear_acceleration</code>, in m/s². Example values.</figcaption>
+</figure>
