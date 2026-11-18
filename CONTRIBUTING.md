@@ -10,13 +10,18 @@ On your PC, in the repository's root, with Python 3.12, as in CI:
 
 ```bash
 python3 -m venv venv && venv/bin/pip install -r requirements.txt codespell
-venv/bin/mkdocs serve                              # live preview at http://127.0.0.1:8000
 venv/bin/python -m unittest discover -s tests -v   # the unit tests of the scripts and macros
 venv/bin/mkdocs build --strict                     # every warning, such as a broken link, fails the build
 venv/bin/codespell                                 # spelling, with the settings in .codespellrc
 ```
 
-CI runs the last three commands for every pull request into `main`. Pull requests from a branch in this repository also get a preview at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`. A pull request from a fork gets no preview, so check your change with `mkdocs serve`. A pull request into another branch than `main` gets no unit tests and no spelling check from CI: run the three commands yourself and put their results into the description. [AGENTS.md](AGENTS.md#checks-on-a-pull-request) has the table of which check runs when.
+While you write, a live preview shows the site at `http://127.0.0.1:8000`. The command runs until you stop it:
+
+```bash
+venv/bin/mkdocs serve
+```
+
+CI runs the unit tests, the strict build and the spelling check for every pull request into `main`. Pull requests from a branch in this repository also get a preview at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`. A pull request from a fork gets no preview, so check your change with `mkdocs serve`. A pull request into another branch than `main` gets no unit tests and no spelling check from CI: run the three commands yourself and put their results into the description. [AGENTS.md](AGENTS.md#checks-on-a-pull-request) has the table of which check runs when.
 
 ## How the site is put together
 
@@ -43,12 +48,13 @@ Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules)
 
 The figure scripts, the hooks and macros, the tests and the theme's JavaScript follow the same rules as the robots' code: one thing per function, names that say what a thing is, one type for values that belong together, type hints on every Python function, and test names that say what the test checks. [AGENTS.md](AGENTS.md#code-in-this-repository) has the list. New logic comes with a test that CI runs.
 
-The rules hold for the files you add and for the functions and tests you add or change. Older scripts keep their form until they change. CI runs the unit tests, the strict build and the spelling check. It doesn't run flake8 or mypy, so check the style of your Python yourself, with the commands in [AGENTS.md](AGENTS.md#check-the-python-style).
+The rules hold for the files you add and for the functions, classes and tests you add or change. Older scripts keep their form until they change. CI runs the unit tests, the strict build and the spelling check. It doesn't run flake8 or mypy, so check the style of your Python yourself, with the commands in [AGENTS.md](AGENTS.md#check-the-python-style).
 
 ## Pull requests
 
-- **One topic per pull request**, on a branch named `docs/…`, `fix/…`, `feat/…`, `chore/…`, `refactor/…` or `test/…`, with a short topic in kebab-case, such as `docs/dev-container`.
-- **Pull requests are squash-merged.** The PR title becomes the commit's subject: `Page: what changed`, 65 characters or fewer. GitHub adds the PR number. The whole description becomes the commit message, so start it with what changes and why.
+- **One topic:** one topic per pull request.
+- **Branch:** `docs/…`, `fix/…`, `feat/…`, `chore/…`, `refactor/…` or `test/…`, with a short topic in kebab-case, such as `docs/dev-container`.
+- **Title and description:** pull requests are squash-merged. The PR title becomes the commit's subject: `Page: what changed`, 65 characters or fewer. GitHub adds the PR number. The whole description becomes the commit message, so start it with what changes and why.
 - Say how you checked it: the strict build, the preview, and for figures or code excerpts what you compared them with.
 - End the description with `Closes #N` when your pull request resolves issue N. If the issue stays open, name it without a closing keyword, for example `Part of #N`.
 - Sign your commits with GPG: `git commit -S`.

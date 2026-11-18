@@ -10,7 +10,8 @@ Find your change in this list. Each line says what to run or check, and links th
 - **A page:** every number, parameter, file name, command and link you write is checked against its source: the pinned code, the official documentation, or a measurement you can point to. Say in the pull request what you checked. Every code excerpt has a full sentence before it, and every line range the text points to has its excerpt. `grep -n ';'` on the changed pages finds no sentence that two short ones would say better ([Writing rules](#writing-rules)).
 - **A page with figures or wide tables:** look at the page in light and dark, on a narrow screen too.
 - **A page that explains a feature:** the page links the feature's tests page, or is that page ([A feature's tests](#a-features-tests)).
-- **A script, a hook, a macro, a test or the theme's JavaScript:** the unit tests pass, new logic has a test, and flake8 and mypy report nothing in the code you added or changed ([Code in this repository](#code-in-this-repository)). After a change to a figure script, regenerate the script's includes and commit them with the script.
+- **A Python script, hook, macro or test:** the unit tests pass, new logic has a test, and flake8 and mypy report nothing in the functions, classes and tests that you added or changed ([Check the Python style](#check-the-python-style)). After a change to a figure script, regenerate the script's includes and commit them with the script.
+- **The theme's JavaScript:** the rules for functions and names hold ([Code in this repository](#code-in-this-repository)). No tool checks JavaScript here, so look at a page that uses the script, with `venv/bin/mkdocs serve`.
 - **The commits and the pull request:** one topic, signed commits, and no attribution lines for AI tools ([Commits and pull requests](#commits-and-pull-requests)).
 
 ## What this is
@@ -33,7 +34,7 @@ Each of the three checks passes when its exit status is 0. The strict build down
 
 ### Checks on a pull request
 
-GitHub runs up to three workflows on a pull request. Which ones run depends on the branch that the pull request targets, and on whether its own branch is in this repository or in a fork:
+GitHub runs up to three workflows by itself when a pull request is opened or gets a new commit. Which ones run depends on the branch that the pull request targets, and on whether its own branch is in this repository or in a fork:
 
 | Pull request | Documentation CI: unit tests and strict build | Lint: spelling | PR preview: strict build and the preview site |
 |:--|:--|:--|:--|
@@ -46,7 +47,7 @@ The preview site is at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`. 
 
 - **A check that didn't run hasn't passed:** run the three commands above on the commit you push. Say in the description which commit that was and what the commands printed.
 - **Stacked pull request from a branch of this repository:** ask a maintainer to [run Documentation CI and Lint by hand](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow) on the pull request's branch. A manual run needs write access. It checks the newest commit that the branch has at that moment, so put the commit that each run shows into the description.
-- **Pull request from a fork:** GitHub publishes no preview for a fork, so look at the pages with `venv/bin/mkdocs serve`. A manual run can only take a branch of this repository. For a fork's pull request into another branch than `main`, the results from your PC are therefore the only ones, until the pull request targets `main`.
+- **Pull request from a fork:** GitHub publishes no preview for a fork, so look at the pages with `venv/bin/mkdocs serve`. A manual run takes a branch or a tag of this repository, never a fork's branch. For a fork's pull request into another branch than `main`, the results from your PC are therefore the only ones, until the pull request targets `main`.
 
 ## How the site works
 
@@ -114,7 +115,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 The scripts (`scripts/`, `hooks/`, `macros/`), the tests (`tests/`) and the theme's JavaScript (`docs/custom_theme/js/`) follow the same rules as the robots' code:
 
 - **Where the rules hold:** in every file you add, and in every function, class and test that you add or change in an older file. The rest of an older file keeps its form until it changes. `scripts/figures/localization_figures.py` and `tests/test_localization_figures.py` follow the rules. `scripts/figures/simulation_test_figures.py` and `wheel_dynamics_figures.py` are older: each has its own `esc()`, functions without type hints, and includes that are written without an encoding.
-- **What CI checks:** the unit tests, the strict build and the spelling. No workflow runs flake8 or mypy in this repository. Run both yourself, as [Check the Python style](#check-the-python-style) shows, and say in the pull request what they reported.
+- **What CI checks:** the unit tests, the strict build and the spelling. No workflow runs flake8 or mypy in this repository. Run both yourself on the Python files you changed, as [Check the Python style](#check-the-python-style) shows, and say in the pull request what they reported. Neither tool reads JavaScript.
 - **Functions:** one thing per function, named for it. A `main()` reads as the list of its steps, and a function that checks several things becomes one function per check and one that runs them.
 - **Names:** a name says what the thing is or does. A function that returns a figure is called `…_figure()`, not after the quantity it draws. One word for one thing. No one-letter names outside a formula that defines them.
 - **Types:** one type for what belongs together (a `NamedTuple` such as `Box(x, y, width, height)`), and an `Enum` for a closed set such as a figure's line kinds. Not bare tuples read by position.
@@ -140,7 +141,7 @@ venv/bin/mypy --python-version 3.12 --ignore-missing-imports --disallow-untyped-
   scripts/figures/localization_figures.py tests/test_localization_figures.py
 ```
 
-For these two files, flake8 prints nothing and mypy prints `Success: no issues found in 2 source files`. A file you add has to give the same result. In an older file, no finding may be left in a line that you added or changed. Say in the pull request which files you checked and which findings remain in the older lines.
+For these two files, flake8 prints nothing and mypy prints `Success: no issues found in 2 source files`. A file you add has to give the same result. In an older file, no finding may be left in a function, a class or a test that you added or changed. A change inside a function also brings the function's signature in line: the type hints belong to the function, although the changed line is another one. Findings in functions that you didn't touch may stay. Say in the pull request which files you checked and which findings remain.
 
 ### Examples
 

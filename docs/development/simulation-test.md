@@ -180,7 +180,7 @@ rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_
 - The two subscribers call `on_odom()` for each odometry message, and `on_model_states()` for each `model_states` message. Gazebo publishes `model_states` in every simulation step, so `queue_size=1` keeps only the newest message instead of falling behind.
 - `rospy.wait_for_message()` waits for the first message on a topic. If none comes within the timeout, it raises an exception and the tests fail, for example when the controller doesn't start because of a wrong joint name.
 
-The two callbacks `on_odom()` and `on_model_states()` in [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L135-L145) store the robot's pose from each message:
+The two callbacks are in [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L135-L145). `on_odom()` stores the pose of every odometry message. `on_model_states()` stores the robot's true pose from every `model_states` message that lists the robot:
 
 ```python title="test_drive.py: the subscriber callbacks" linenums="135"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:135:145"

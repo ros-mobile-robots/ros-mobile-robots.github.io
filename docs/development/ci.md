@@ -171,16 +171,15 @@ See the [catkin-tools cheat sheet](https://catkin-tools.readthedocs.io/en/latest
 | Lint | [`.github/workflows/lint.yml`]({{ docs_repo_url }}/.github/workflows/lint.yml) | Checks the spelling with [codespell](https://github.com/codespell-project/codespell). Its settings are in [`.codespellrc`]({{ docs_repo_url }}/.codespellrc). It runs for pull requests into `main`. |
 | PR preview | [`.github/workflows/preview.yml`]({{ docs_repo_url }}/.github/workflows/preview.yml) | Builds each pull request from a branch in this repository, whichever branch it targets, and publishes it at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`, so changes can be checked on the real site before merging. The preview is removed when the PR is closed. Pull requests from forks get no preview. |
 
-A pull request into another branch than `main`, a stacked pull request, therefore gets the preview, but no unit tests and no spelling check. A pull request from a fork into such a branch gets none of the three. A maintainer can start Documentation CI and Lint by hand on a branch of this repository. [Checks on a pull request]({{ docs_repo_url }}/AGENTS.md#checks-on-a-pull-request) in this site's AGENTS.md lists the four cases and says what to do in each.
+A pull request into another branch than `main`, a stacked pull request, therefore gets the preview, but no unit tests and no spelling check. A pull request from a fork into such a branch gets none of the three. A maintainer can start Documentation CI and Lint by hand on a branch or a tag of this repository. [Checks on a pull request]({{ docs_repo_url }}/AGENTS.md#checks-on-a-pull-request) in this site's AGENTS.md lists the four cases and says what to do in each.
 
-To build the site and run the same checks on your PC, in the repository's root, with Python 3.12 as in CI:
+To run the same checks on your PC, in the repository's root, with Python 3.12 as in CI:
 
 ```console
 python3 -m venv venv && venv/bin/pip install -r requirements.txt codespell
-venv/bin/mkdocs serve
 venv/bin/python -m unittest discover -s tests -v
 venv/bin/mkdocs build --strict
 venv/bin/codespell
 ```
 
-`mkdocs serve` shows the site at `http://127.0.0.1:8000` and rebuilds it when a file changes. The other three commands are the checks of the two workflows.
+While you write, `venv/bin/mkdocs serve` shows the site at `http://127.0.0.1:8000` and rebuilds it when a file changes. The command runs until you stop it.
