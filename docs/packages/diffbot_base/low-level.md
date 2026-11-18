@@ -765,8 +765,8 @@ command arrived.
 
 ### The firmware's design
 
-The sections up to here follow a wheel command through the firmware. This
-section and the next two step back and show how the firmware is built: its parts
+The sections up to here follow a wheel command through the firmware. The three
+parts of this section step back and show how the firmware is built: its parts
 today and as planned, the ports-and-adapters pattern behind them, and how the
 firmware's wheel control compares with ros_control on the robot's computer.
 
