@@ -90,8 +90,8 @@ extra:
   # The diffbot commit that the excerpts of the IMU noise tool and its tests show (diffbot #178),
   # on the BNO055 page and on Tests: IMU Bias and Noise at Rest. Move both to #178's merge commit
   # before this page's pull request merges, and check the excerpts' line ranges
-  imu_noise_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/6bf992f2756e7be77aac6fefa3603246c2064023
-  imu_noise_src_url: https://github.com/ros-mobile-robots/diffbot/blob/6bf992f2756e7be77aac6fefa3603246c2064023
+  imu_noise_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/9b3f336ed1035980095c4c8c520b81517b23a2dd
+  imu_noise_src_url: https://github.com/ros-mobile-robots/diffbot/blob/9b3f336ed1035980095c4c8c520b81517b23a2dd
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots

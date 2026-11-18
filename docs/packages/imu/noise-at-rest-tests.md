@@ -72,7 +72,7 @@ Before the tool calculates anything, it checks its input. Each check is one func
 The first check, `check_topic()`, runs before the tool reads a message. A bag stores three things about the message type of each of a topic's connections: the type's name, the text of the type's definition, and a checksum of the definition that the recorder got from the publisher. The check asks the bag for all three and refuses three kinds of topics:
 
 - **Another type:** a topic whose type isn't named `sensor_msgs/Imu`. A camera's topic chosen by mistake is refused without loading its images.
-- **A checksum that doesn't fit:** rosbag builds a message's class from the definition's text in the bag. The check builds the class in the same way. If the class's checksum isn't the stored one, the text isn't the definition with which the messages were written, and rosbag would read one field's bytes as another field.
+- **A checksum that doesn't fit:** rosbag builds a message's class from the definition's text in the bag. The check builds the class in the same way. If the class's checksum isn't the stored one, the stored checksum and the stored definition disagree, and the bag doesn't say which of the two belongs to the messages. With a wrong definition, rosbag would read one field's bytes as another field. So the tool refuses the topic before it reads a message.
 - **Other fields:** messages that are named `sensor_msgs/Imu`, but whose class has other fields than ROS's. The check compares the class's fields, and the fields of its fields, with those of ROS's `sensor_msgs/Imu`.
 
 `TestTopicChecks` gives the check stand-ins for a bag, which only know a topic's connections:
@@ -130,7 +130,7 @@ The other tests of the statistics:
 - **`test_axis_statistics_counts_each_distinct_value_once`:** five readings on three output steps of 1/900 rad/s are three distinct values.
 - **`test_axis_statistics_gives_a_variance_of_zero_without_noise`:** five equal readings have a variance of exactly 0.
 - **`test_axis_statistics_gives_the_exact_variance_of_two_neighbouring_floats`:** 9.81 and the next floating-point number above it have the variance $(b - a)^2 / 2$, compared exactly. Their mean lies between two floating-point numbers. Rounded to one of them, the mean would give one deviation of zero and one of a whole step, and twice the variance. Fractions hold the mean exactly.
-- **`test_axis_statistics_gives_a_variance_of_zero_for_deviations_too_small_to_square`:** the readings 7 · 10⁻³⁰⁴, 0 and 0 have a variance of 0, without an error. The squares of deviations that small are zero as floating-point numbers, and Python 3.8's `statistics.variance()` stops with an error on them. As fractions, they aren't zero.
+- **`test_axis_statistics_gives_a_variance_of_zero_for_deviations_too_small_to_square`:** the readings 7 · 10⁻³⁰⁴, 0 and 0 have a variance of 0, without an error. The squares of deviations that small are zero as floating-point numbers, and Python 3.8's `statistics.variance()` stops with an error on them. As fractions, the squares aren't zero, and only the result is rounded to a floating-point number, to 0.
 - **`test_axis_statistics_fails_with_fewer_than_two_values`:** one value raises a `StatisticsError`, because a sample variance needs two values.
 - **`test_vector_statistics_keeps_the_axes_apart`:** the vectors (1, 10, 100) and (3, 30, 300) have the means 2, 20 and 200 on x, y and z.
 - **`test_field_statistics_gives_the_reading_count_and_the_axes_statistics`:** two readings give a count of 2 and the statistics of each axis.
@@ -201,7 +201,7 @@ The functions whose names start with `format_` turn the statistics into the repo
 
 ## The tool as a command
 
-The 23 tests of `TestToolOnBags` run the script the way a user does. Each test writes a bag into a temporary folder, starts the script as a new process and compares what the process prints.
+The 23 tests of `TestToolOnBags` run the script the way a user does. Each test prepares an input in a temporary folder: a bag, a file that isn't a bag, or no file at all. It starts the script as a new process and compares what the process prints.
 
 `write_bag()` stores the messages in the order of its list, each with the time at which a recorder would have received it. The excerpt shows the function, [lines 668–677 of `test_imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/test/test_imu_noise_at_rest.py#L668-L677):
 
@@ -227,7 +227,7 @@ The mean is one step, 0.00111 rad/s, and the sample variance one step squared, 1
 --8<-- "{{ imu_noise_src_raw }}/diffbot_bringup/test/test_imu_noise_at_rest.py:756:782"
 ```
 
-The messages' covariances are all zeros, which means "not known". The report still has the readings' statistics, because only −1 marks a field as not measured.
+The messages show both meanings of a covariance. Their `angular_velocity_covariance` and `linear_acceleration_covariance` are all zeros, which means "not known", and the report has these fields' statistics. Their `orientation_covariance` starts with −1, as the firmware's does, which means that the messages have no orientation.
 
 ### Reports for other bags
 
@@ -244,7 +244,7 @@ The last two tests differ in the recorder's clock. rosbag's reader returns the m
 
 ### Inputs that the tool refuses
 
-For these inputs the tool prints one line and ends with status 1. The line starts with the file's name. For a problem with the messages, the topic follows. Each test compares the whole line. The list gives the line's reason:
+For these inputs the tool prints one line and ends with status 1. The line starts with the file's name. For a problem with the messages, the topic follows. All tests but the last two of the list compare the whole line. The list gives the line's reason:
 
 - **`test_tool_ends_with_a_message_when_the_messages_have_two_frames`:** the second message is in the frame `other_imu`, with gravity on −z. The reason is `the messages have more than one frame_id ("imu_link", "other_imu"), so their readings have different axes`.
 - **`test_tool_ends_with_a_message_when_the_messages_have_no_frame_id`:** all three messages have an empty `frame_id`. The reason is `3 of 3 messages have an empty frame_id. The readings need one named frame, which says what their axes are`.
@@ -263,7 +263,7 @@ For these inputs the tool prints one line and ends with status 1. The line start
 - **`test_tool_ends_with_a_message_when_the_messages_data_is_damaged`:** a bag with compressed messages, of which the test inverts one byte. The bag still opens, because its index is intact, and reading its messages fails. The line starts with the file, the topic and `a message can't be read from the bag:`.
 - **`test_tool_ends_with_a_message_when_a_message_lacks_its_last_byte`:** the third message's data is one byte too short for a `sensor_msgs/Imu`. The line starts as in the test before.
 
-In the last two tests, the reason at the line's end comes from rosbag or from Python. The tests don't fix its words. They check that the line has a reason, and that it is the only line.
+In the last two tests, the reason at the line's end comes from rosbag or from Python. These tests don't fix its words. They compare the line's start and check that a reason follows it, and that the line is the only one.
 
 ## What the tests don't show
 

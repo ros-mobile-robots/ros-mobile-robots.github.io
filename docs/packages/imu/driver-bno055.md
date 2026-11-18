@@ -101,20 +101,11 @@ A [tilt test](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomme
 
 ## Bias and noise at rest
 
-An IMU at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't. Its readings have an offset, the **bias**, and they scatter around their average, the **noise**. The tool [`imu_noise_at_rest.py`]({{ diffbot_repo_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) in the diffbot repository reads a recording of the standing robot and prints both for each axis. The noise is a baseline for the variances in the IMU's messages, which tell the [EKF](robot_localization.md) how much to trust each reading.
-
-The section starts with the result and then explains its parts:
-
-1. [Run the tool on a recording](#run-the-tool-on-a-recording): one command and what it prints.
-2. [Make a recording](#make-a-recording): 180 s on the robot, without overwriting an earlier recording.
-3. [Bias and noise in a picture](#bias-and-noise-in-a-picture) and [Read the report](#read-the-report): what each number means.
-4. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings): the calculation by hand.
-5. [From the report to the EKF](#from-the-report-to-the-ekf): where one measured number belongs.
-6. [Results on Remo](#results-on-remo) and [How the tool is tested](#how-the-tool-is-tested).
+An IMU at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't: its readings have an offset, the **bias**, and they scatter around their average, the **noise**. The tool [`imu_noise_at_rest.py`]({{ diffbot_repo_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) in the diffbot repository reads a recording of the standing robot and prints the gyroscope's remaining bias and the noise of each axis.
 
 ### Run the tool on a recording
 
-**You need:** a rosbag with the topic `/diffbot/imu/data_raw`, recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both. The tool only reads the file, so it needs no robot and no ROS master.
+**You need:** a rosbag with the topic `/diffbot/imu/data_raw`, recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both.
 
 In the folder that holds the recording, run the tool with the recording's file name:
 
@@ -124,9 +115,7 @@ rosrun diffbot_bringup \
   imu_still_2026-11-18-13-18-16.bag
 ```
 
-`imu_still_2026-11-18-13-18-16.bag` is an example of a name. Use the name of your own recording. The `\` at a line's end continues the command on the next line, so the three lines are one command.
-
-The tool prints a report: first the messages and their time stamps, then a table for the angular velocity and a table for the acceleration, with one row for each axis. The row to look at first is `z` of `angular_velocity`, the yaw rate $\omega_z$, because the EKF uses this value. Remo's recording of 180 s at rest, measured on 2026-11-03 with the Teensy 4.0, gives these results:
+`imu_still_2026-11-18-13-18-16.bag` is an example of a name. Use the name of your own recording. For Remo's 180 s at rest, recorded on 2026-11-03 with the Teensy 4.0, the tool's report has these results for the yaw rate $\omega_z$:
 
 | Result | Remo at rest |
 |:--|:--|
@@ -135,7 +124,17 @@ The tool prints a report: first the messages and their time stamps, then a table
 | **Noise** of the yaw rate: the column `std dev` | 0.00073 rad/s |
 | The noise as a variance: the column `variance` | 5.317 · 10⁻⁷ (rad/s)² |
 
-The bias is small: 0.00005 rad/s is less than a twentieth of the smallest step that the BNO055 can report. The noise is the number that matters for the EKF, as [From the report to the EKF](#from-the-report-to-the-ekf) shows.
+The bias is small: 0.00005 rad/s is less than a twentieth of the smallest step that the BNO055 can report. The noise is a baseline for the variances in the IMU's messages, which tell the [EKF](robot_localization.md) how much to trust each reading, as [From the report to the EKF](#from-the-report-to-the-ekf) shows.
+
+The `\` at the end of a line continues the command on the next line, so the three lines above are one command. The tool only reads the file: it needs no robot and no ROS master. Its report starts with the messages and their time stamps. A table for the angular velocity and a table for the acceleration follow, each with one row for each axis. The yaw rate is the row `z` of `angular_velocity`, the value that the EKF uses. For the acceleration, the mean of an axis isn't a bias: it is gravity's share on the axis together with the sensor's error, as [Read the report](#read-the-report) explains.
+
+The rest of this section explains the result:
+
+1. [Make a recording](#make-a-recording): 180 s on the robot, without overwriting the recording before.
+2. [Bias and noise in a picture](#bias-and-noise-in-a-picture) and [Read the report](#read-the-report): what each number means.
+3. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings): the calculation by hand.
+4. [From the report to the EKF](#from-the-report-to-the-ekf): where one measured number belongs.
+5. [Results on Remo](#results-on-remo) and [How the tool is tested](#how-the-tool-is-tested).
 
 ### Make a recording
 
@@ -173,7 +172,7 @@ Recording to 'imu_still_2026-11-18-13-18-16.bag'.
 
 The two options of [`rosbag record`](https://wiki.ros.org/rosbag/Commandline#rosbag_record) do this:
 
-- **`-o imu_still`:** the recorder puts `imu_still` in front of the date and the time at which the recording starts. So each run writes a new file, and a repeated check keeps the recording before it.
+- **`-o imu_still`:** the recorder puts `imu_still` in front of the date and the time at which the recording starts, to the second. A second recording that starts at least a second later, by a clock that goes forward, gets another name. So a repeated check of 180 s keeps the recording before it.
 - **`--duration=180`:** the recorder stops after 180 s.
 
 !!! warning "Not the capital `-O`"
@@ -210,12 +209,16 @@ Then run the tool where the recording is, with the name that the recorder printe
     **1. Copy the recording into the clone.** In a terminal on the PC, in the folder of your clone:
 
     ```console
-    scp \
-      <user>@<robot-ip>:robot-data/imu_still_2026-11-18-13-18-16.bag \
-      .
+    BAG=imu_still_2026-11-18-13-18-16.bag
+    FROM=<user>@<robot-ip>:robot-data
+    scp $FROM/$BAG .
     ```
 
-    Put the Raspberry Pi's user name and address in place of `<user>` and `<robot-ip>`. The `.` at the end is the folder to copy to: the current one. If `ROBOT_DATA` names another folder on the Raspberry Pi, copy from that folder instead of `robot-data`.
+    The first two lines hold what differs from one recording to the next, and the third line copies:
+
+    - **`BAG`:** the name of your recording.
+    - **`FROM`:** the Raspberry Pi's user name and address in place of `<user>` and `<robot-ip>`, and after the colon the folder of the recording on the Raspberry Pi. `robot-data` is the robot container's folder. If you set `ROBOT_DATA`, it is the folder that the variable names. If you recorded with a native ROS installation, it is the folder in which you ran `rosbag record`.
+    - **The `.` at the end:** the folder to copy to, the current one.
 
     **2. Run the tool in the dev container.** A terminal of the dev container starts in `/home/ros/catkin_ws/src/diffbot`, the same folder, with the built workspace sourced:
 
@@ -241,7 +244,7 @@ The example's bias is about 30 times Remo's, so that the figure can show it. Wit
 
 ### Read the report
 
-The report has the same lines for every recording. The example is the whole report for a small bag: three messages 20 ms apart, with the yaw rates 0, 1/900 and 2/900 rad/s and a robot that stands level. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) calculates its row `z` by hand.
+A recording in which every message has both the angular velocity and the acceleration gets a report of 18 lines. The example is the whole report for a small bag: three messages 20 ms apart, with the yaw rates 0, 1/900 and 2/900 rad/s and a robot that stands level. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) calculates its row `z` by hand.
 
 ??? example "The whole report for three messages"
     The tool's test [`test_tool_prints_the_report_of_three_readings_one_output_step_apart`](noise-at-rest-tests.md#the-whole-report-for-three-messages) writes this bag and compares every line of the report:
@@ -286,6 +289,12 @@ Each table has one row for each axis and these columns:
 | `variance` | The **noise** as a variance $s^2$: how far the readings scatter around their mean, as a squared distance in (rad/s)² or (m/s²)². [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) has the formula. The variances in the message's covariances have the same unit. |
 | `std dev` | The standard deviation $s$, the square root of the variance. Its unit is the readings' own, so it is easier to compare with them. |
 | `distinct values` | How many different values the axis read in this recording. The BNO055 reports in steps of 1/900 rad/s (0.0011 rad/s) and 1/100 m/s² (0.01 m/s²). When the noise is smaller than one step, the readings take only a handful of values around their mean. The count says how many steps the recording used. It doesn't say how large a step is. |
+
+A report can be shorter. An IMU can leave a field out, and each field needs two readings for its table:
+
+- **A field with fewer than two readings:** instead of the table, the report has the field's number of readings and the reason, for example `angular_velocity: 0 readings, the statistics need at least two`. The other field's table stays, and the tool ends with status 0, as for a full report.
+- **Fewer than two readings of the acceleration:** the report has no line about gravity.
+- **No field with two readings:** the tool prints one line with the reason and ends with status 1.
 
 The last line is gravity as the IMU measures it: the length of the mean acceleration. A robot that stands tilted measures gravity on all three axes, and the length puts the three shares together again:
 
@@ -343,7 +352,7 @@ The excerpt shows the two functions of the tool that do this calculation, [lines
 
 Two readings are enough to calculate a variance, and the tool asks for no more. A recording is longer for a reason: 180 s at 50 Hz give about 9,000 readings, which describe that run far better than three. Three limits remain:
 
-- **Only this run:** the numbers describe one pose on one day. A robot that stands tilted, a table that shakes or a wheel that still turns goes into the mean and the variance like the sensor's own noise.
+- **Only this run:** the numbers describe one pose on one day. A robot that stands tilted has other shares of gravity on its axes, so the acceleration's means differ from one pose to the next, and its variances don't. A tilt that changes during the recording, a table that shakes or a wheel that still turns adds to the variances like the sensor's own noise.
 - **Readings that follow each other can depend on each other:** a bias that drifts slowly, for example with the temperature, moves many readings in the same direction. Then 9,000 readings say less than 9,000 independent ones would.
 - **At rest only:** driving adds vibration from the motors and the floor, which a recording at rest doesn't contain.
 
