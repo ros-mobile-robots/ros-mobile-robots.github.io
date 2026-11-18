@@ -69,7 +69,7 @@ FG_LIGHT = 'var(--md-default-fg-color--light)'
 BG = 'var(--md-default-bg-color)'
 
 # The width of every drawing in view box units. The figure class lv-large shows a drawing at
-# up to 400 px, and the text sizes of LARGE_RULES are made for this width
+# up to 20rem, 400 px on a phone, and the text sizes of LARGE_RULES are made for this width
 DRAWING_WIDTH = CHECKS_WIDTH
 
 # test_imu_validator.py's constants

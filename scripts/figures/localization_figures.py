@@ -201,10 +201,13 @@ EXAMPLE_THRESHOLD = 2.0
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
 BG = 'var(--md-default-bg-color)'
+# Sizes: a figure's largest width is in rem, so that the figure grows with the page's text on
+# a large screen, where the theme's root font size is 22 or 24 px instead of 20 px. A drawing
+# scales with its figure, so its text keeps its size relative to the text of the page.
 # Colors: forwarded or fused (good) and dropped (bad) are status colors, always shown with a
 # sign and a word. Wheels, IMU and estimate are the series colors of the site's other figures.
 RULES = (
-    ('.md-typeset figure.lv-figure', 'margin:1em auto;width:100%;max-width:480px'),
+    ('.md-typeset figure.lv-figure', 'margin:1em auto;width:100%;max-width:24rem'),
     ('.lv-figure,.lv-fig', '--lv-good:#0ca30c;--lv-bad:#d03b3b;'
                            '--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);'
                            '--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a'),
@@ -240,8 +243,8 @@ RULES = (
 # The figures of the Localization page itself: larger text in narrower drawings, and the long
 # explanations as HTML lists
 LARGE_RULES = (
-    ('.md-typeset figure.lv-figure.lv-large', 'max-width:400px'),
-    ('.md-typeset figure.lv-figure.lv-grids', 'max-width:520px'),
+    ('.md-typeset figure.lv-figure.lv-large', 'max-width:20rem'),
+    ('.md-typeset figure.lv-figure.lv-grids', 'max-width:26rem'),
     ('.lv-large .lv-fig text,.lv-grids .lv-fig text', 'font-size:12px'),
     ('.lv-large .lv-fig .name,.lv-grids .lv-fig .name', 'font-size:12.5px'),
     ('.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono', 'font-size:11px'),
@@ -249,7 +252,7 @@ LARGE_RULES = (
     ('.lv-large .lv-fig .letter', 'font-size:10.5px'),
     ('.lv-grids .lv-fig .subscript', 'font-size:9px'),
     ('.lv-grids .lv-pair', 'display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em'),
-    ('.lv-grids .lv-pair .lv-fig', 'width:236px;max-width:100%'),
+    ('.lv-grids .lv-pair .lv-fig', 'width:11.8rem;max-width:100%'),
     ('.md-typeset .lv-band', 'margin:.9em 0 .2em;font-weight:700;font-size:.7rem;'
                              'text-align:left'),
     ('.md-typeset ul.lv-legend', 'list-style:none;margin:.3em 0 .6em;padding:0;'
@@ -276,7 +279,7 @@ LARGE_RULES = (
 KATEX_MAIN = 'font-family:KaTeX_Main,"Times New Roman",serif'
 KATEX_MATH = 'font-family:KaTeX_Math,"Times New Roman",serif'
 DRAWING_RULES = (
-    ('.md-typeset figure.lv-figure.lv-drawing', 'max-width:360px'),
+    ('.md-typeset figure.lv-figure.lv-drawing', 'max-width:18rem'),
     ('.lv-drawing .lv-fig text', 'font-size:12px'),
     ('.lv-drawing .lv-fig .mono', 'font-size:11.5px'),
     ('.lv-drawing .lv-fig .quiet', f'fill:{FG_LIGHT}'),
@@ -372,7 +375,7 @@ ODOM_RULES = (
 # The figures of the filter's checks and of the covariances: symbols in the formulas' fonts
 # (DRAWING_RULES), and the series colors of the wheels, the IMU and the estimate
 SYMBOL_RULES = (
-    ('.md-typeset figure.lv-figure.lv-symbols', 'max-width:360px'),
+    ('.md-typeset figure.lv-figure.lv-symbols', 'max-width:18rem'),
     ('.lv-symbols .lv-fig .reference', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1;'
                                        'stroke-dasharray:3 3'),
     ('.lv-symbols .lv-fig .wheels-dot', f'fill:var(--lv-wheels);stroke:{BG};stroke-width:1'),
@@ -400,8 +403,8 @@ SYMBOL_RULES = (
     ('.lv-symbols .lv-fig .verdict-drop', 'fill:var(--lv-bad);font-weight:700'),
     ('.lv-symbols .lv-fig .cell-bad', 'fill:var(--lv-bad-fill);stroke:var(--lv-bad);'
                                       'stroke-width:1.8'),
-    ('.lv-symbols .lv-pair .lv-fig.lv-check-grid', 'width:196px;max-width:100%'),
-    ('.md-typeset figure.lv-figure.lv-symbols.lv-check-pair', 'max-width:440px'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-check-grid', 'width:9.8rem;max-width:100%'),
+    ('.md-typeset figure.lv-figure.lv-symbols.lv-check-pair', 'max-width:22rem'),
     ('.lv-symbols .lv-fig .limit-box', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1;'
                                        'stroke-dasharray:5 3'),
     ('.lv-symbols .lv-fig .cell-replaced', 'fill:url(#lv-hatch-covariance);'
@@ -409,9 +412,9 @@ SYMBOL_RULES = (
                                            'stroke-dasharray:2 2'),
     ('.lv-symbols .lv-pair', 'display:flex;flex-wrap:wrap;justify-content:center;'
                              'align-items:flex-start;gap:.4em 1.2em'),
-    ('.lv-symbols .lv-pair .lv-fig.lv-twist', 'width:252px;max-width:100%'),
-    ('.lv-symbols .lv-pair .lv-fig.lv-angular', 'width:232px;max-width:100%'),
-    ('.md-typeset figure.lv-figure.lv-symbols.lv-covariances', 'max-width:520px'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-twist', 'width:12.6rem;max-width:100%'),
+    ('.lv-symbols .lv-pair .lv-fig.lv-angular', 'width:11.6rem;max-width:100%'),
+    ('.md-typeset figure.lv-figure.lv-symbols.lv-covariances', 'max-width:26rem'),
 )
 
 

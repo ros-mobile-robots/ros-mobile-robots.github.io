@@ -116,7 +116,7 @@ EXTRA_RULES = (
     ('.lv-fig .active', 'fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6'),
     ('.lv-fig .inactive', f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:3 3'),
     # Each robot of the turn figure: its heading, its drawing and its results in one column
-    ('.lv-grids .lv-pair .lv-case', 'width:250px;max-width:100%'),
+    ('.lv-grids .lv-pair .lv-case', 'width:12.5rem;max-width:100%'),
     ('.lv-grids .lv-pair .lv-case .lv-fig', 'width:100%'),
     ('.lv-legend .lv-swatch.lv-inactive', 'border-style:dashed'),
     # The legend's sample of an arc of the turn figure
