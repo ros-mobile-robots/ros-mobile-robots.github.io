@@ -95,7 +95,7 @@ The method runs two steps, each in a method of its own: first `drop_reason()`, t
 
 `drop_reason()` works in three steps:
 
-1. **No clock:** at the ROS time 0, the method returns `DropReason.NO_CLOCK` at once, before any check. Line 275 tests the time with `now.is_zero()`. The comment in lines 273 and 274 says why this step comes before the clock check: the validator treats the ROS time 0 as an unavailable clock for samples. Returning before the clock check keeps the time of the previous clock check and the last valid sample's times.
+1. **No clock:** if a sample arrives at the ROS time 0 s, lines 275 and 276 return `DropReason.NO_CLOCK` at once. The validator reads 0 s as "no clock yet", as the comment in lines 273 and 274 says, so the method skips step 2, the clock check. The clock check compares the current ROS time with the ROS time of the last clock check. At startup, before the first message on `/clock`, a new validator has no earlier check. Now suppose that the validator last checked the clock at 100 s and a clock publisher sends 0 s. A sample that arrives at 0 s leaves 100 s in memory, together with the last valid sample's stamp and arrival time. If the next check reads 0.02 s, the check clears the two times of the last valid sample, because 0.02 s is earlier than 100 s. That next check can come from a sample or from a diagnostics report.
 2. **A clock that went back:** [`clear_last_valid_sample_if_clock_went_back(now)`](#clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back) clears the last valid sample if `now` is earlier than the ROS time of the last clock check. The method then keeps `now` for the next clock check.
 3. **The checks:** the loop calls the checks in the tuple `sample_checks`, one after the other. The first check that returns a reason ends the loop, and the method returns that reason. The later checks don't run. When every check has returned `None`, the method returns `None`.
 
@@ -107,8 +107,6 @@ The constructor `__init__()` fills `sample_checks` in the order in which the che
 
 The six functions are the five checks of the Localization page. Check 4 has two functions, one for each time limit: `check_not_from_the_future()` and `check_not_too_old()`. A sample that would fail two checks gets the reason of the earlier one, as sample A in [Check 4: the two time limits](#check-4-the-two-time-limits) shows.
 
-For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of `drop_reason()`. So the stamp of a dropped sample never becomes $t_\text{last}$. Step 2 can still make the validator clear the last valid sample, when the call's `now` shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under `NO_CLOCK`, as the node counts every dropped sample, and passes a warning to `rospy.logwarn_throttle()` with the period `WARNING_PERIOD`, 5 s.
-
 #### Step 2: `record_valid_sample()`, a valid sample
 
 Only when `drop_reason()` has returned `None`, `record_valid_sample()` records the sample as the last valid one. The excerpt shows the method, from [`imu_validator.py`, lines 284–287]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L284-L287):
@@ -118,6 +116,16 @@ Only when `drop_reason()` has returned `None`, `record_valid_sample()` records t
 ```
 
 Lines 286 and 287 keep two times of the sample: its stamp $t_s$ in `last_valid_stamp`, the stamp $t_\text{last}$ that [check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) compares the next stamps with, and the ROS time of its arrival, `now`, in `last_valid_at`, from which `seconds_since_last_valid_sample()` counts the silence. Each valid sample replaces these two times, so the validator keeps no history of samples.
+
+What a call of `drop_reason_or_record()` changes in the validator depends on how the call ends. The table lists the three cases:
+
+| How the call ends | The last valid sample's stamp and arrival time | The ROS time that the next clock check compares with |
+|:--|:--|:--|
+| The sample is valid | replaced by this sample's stamp and `now` | `now` |
+| A check drops the sample | unchanged, or cleared when `now` shows that the clock went back | `now` |
+| The ROS time is 0 s (`NO_CLOCK`) | unchanged | unchanged |
+
+So the stamp of a dropped sample never becomes $t_\text{last}$. The node counts every dropped sample by its reason, `NO_CLOCK` included, and passes a warning to `rospy.logwarn_throttle()` with the period `WARNING_PERIOD`, 5 s.
 
 #### Why one method runs both steps
 
