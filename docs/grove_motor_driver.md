@@ -37,10 +37,21 @@ pip3 install smbus
 
 ### Connection
 
-Afterwards the I2C port of the motor should be connected to the I2C port 1 of the Raspberry Pi 4 B. 
-Don't forget to remove the jumper on the motor driver board which would provide power to the Pi.
-However, it is also not required to connect VCC and GND of the I2C connector. 
-Only the SDA (data) and SCL (clock) wires are required.
+Connect the I2C port of the motor driver to the I2C port 1 of the Raspberry Pi 4 B.
+On DiffBot, the two boards have separate supplies: a power bank for the Raspberry Pi and four AA batteries for the motor driver ([Power Supply](power-supply.md)).
+The connection needs three of the four wires of the I2C connector:
+
+- **SDA:** The data line, pin 3 of the Raspberry Pi's 40-pin header.
+- **SCL:** The clock line, pin 5 of the header.
+- **GND:** The ground line, for example pin 6 of the header ([I2C pinout](https://pinout.xyz/pinout/i2c)). Each board measures the voltages on SDA and SCL against its own ground. So the grounds of the two boards have to be connected, even though each board has its own supply.
+
+The fourth wire, VCC, isn't needed, because the motor driver makes its own 5 V from the batteries.
+
+Remove the jumper J4 on the motor driver board.
+The jumper connects the board's 5 V regulator to the VCC pin of the I2C connector.
+Seeed asks to remove it when the board gets power both from its screw terminals and over the I2C connector ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
+Without the jumper, the regulator can't feed the Raspberry Pi's supply line, even when a four-wire Grove cable connects VCC.
+The jumper switches only this 5 V line. The GND pin of the I2C connector stays connected to the board's ground either way.
 
 Make sure to set the address with the dip switches on the motor driver to `0x0f` because this is the default address used
 in the library files.
