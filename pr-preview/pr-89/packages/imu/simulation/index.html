@@ -4525,6 +4525,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#one-left-turn-one-message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One left turn, one message
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-parts-and-where-to-read-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The parts, and where to read on
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-the-simulated-imu-publishes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4579,6 +4601,17 @@
     <span class="md-ellipsis">
       
         From the sensor to the EKF
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-simulation-and-the-real-robot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The simulation and the real robot
       
     </span>
   </a>
@@ -4698,19 +4731,87 @@
 
 
 <h1 id="imu-simulation"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</h1>
-<p>In the Gazebo simulation, DiffBot and Remo have an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> too. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes on the same topic as the <a href="../driver-bno055/#what-the-firmware-publishes">BNO055 firmware on the real robot</a>, a message of the same form: an angular velocity and a linear acceleration with their covariances, and no orientation. So the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> that fuses the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate <span class="arithmatex">\(\omega_z\)</span>, its angular velocity about the upward axis, with the wheel odometry gets its input the same way in the simulation as on the robot. <a href="../robot_localization/">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a> explains the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and how to switch it on.</p>
-<p>This page shows <a href="#what-the-simulated-imu-publishes">what the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes</a> and <a href="#from-the-sensor-to-the-ekf">which parts make the message</a>. Four more pages go into the details:</p>
+<p>In the Gazebo simulation, DiffBot and Remo have an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> too. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes on the same topic as the <a href="../driver-bno055/#what-the-firmware-publishes">BNO055 firmware on the real robot</a>, with the same message type, the same frame and no orientation. So the nodes that read the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> run with the same configuration in the simulation as on the robot. The noise and the covariances are the simulation's own, as <a href="#the-simulation-and-the-real-robot">the simulation and the real robot</a> explains.</p>
+<h2 id="one-left-turn-one-message">One left turn, one message</h2>
+<p>Remo turns left on the spot at 0.5 rad/s. Which number of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s message shows the turn? One message of the topic <code>/diffbot/imu/data_raw</code>, from a run of Remo's simulation, has these three values among its fields:</p>
 <ul>
-<li><strong><a href="position-and-axes/">Position and Axes</a></strong> shows where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits on each robot and which way its axes point, with the lines of the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model that put the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> there. Read it to tell which axis of the message is the robot's forward direction, or to change the mounting.</li>
-<li><strong><a href="measurement-to-message/">From Measurement to Message</a></strong> follows one sample from Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor to the published message, in the order in which the code runs: what the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measures, the plugin's checks, the noise, the covariances, the header and the adapter. Read it to find where a value of the message is set.</li>
-<li><strong><a href="plugin/">The Robots' Own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Plugin</a></strong> explains why the robots don't use the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin that comes with ROS, and what their copy does differently. It's background for the interested reader. You don't need it to use the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</li>
-<li><strong><a href="tests/">Tests</a></strong> shows what <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> checks on the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and how the two tests work. Read it before you change the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> in a robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, the plugin or the adapter.</li>
+<li><strong><code>angular_velocity.z</code> is 0.4988 rad/s:</strong> this number shows the turn. It is the yaw rate <span class="arithmatex">\(\omega_z\)</span>, how fast the sensor turns about its upward z axis. At rest, the yaw rate is about 0 rad/s. In the turn, the yaw rate is about the turn rate, 0.5 rad/s. The yaw rate is the one value of the message that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> uses.</li>
+<li><strong><code>header.frame_id</code> is <code>imu_link</code>:</strong> this value explains the sign. The frame names the axes that the message's values are along. <code>imu_link</code> is the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame on the robot, and its z axis points up on both robots. Seen from above, a left turn is counterclockwise, and counterclockwise is the positive direction about an axis that points up at you. <a href="#the-angular-velocity">The angular velocity</a> shows this rule in a figure.</li>
+<li><strong><code>orientation_covariance[0]</code> is −1:</strong> this value explains why the message has no heading. The −1 says that the message has no orientation. A gyroscope measures how fast the sensor turns, not which way the sensor points. To know the heading, something has to add up the yaw rates over time. That is the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s job, together with the wheel odometry, as <a href="../robot_localization/">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a> explains.</li>
+</ul>
+<details class="example">
+<summary>The complete message, as <code>rostopic echo /diffbot/imu/data_raw</code> prints it</summary>
+<p>The block shows the whole message. The three highlighted lines are the three values above. The four zeros of <code>orientation</code> are a filler, not a rotation. The other numbers are the angular velocity about the two level axes, which stays near 0 rad/s on a level floor, the linear acceleration with gravity's 9.8 m/s² on the upward axis, and the covariances:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">One message of /diffbot/imu/data_raw while Remo turns left</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">header</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">seq</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">447</span>
+<span class="w">  </span><span class="nt">stamp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">secs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9</span>
+<span class="w">    </span><span class="nt">nsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">593000000</span>
+<span class="hll"><span class="w">  </span><span class="nt">frame_id</span><span class="p">:</span><span class="w"> </span><span class="s">"imu_link"</span>
+</span><span class="nt">orientation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">x</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">  </span><span class="nt">y</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">  </span><span class="nt">z</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">  </span><span class="nt">w</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="hll"><span class="nt">orientation_covariance</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">]</span>
+</span><span class="nt">angular_velocity</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">x</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.004345904605363372</span>
+<span class="w">  </span><span class="nt">y</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.003828368509674866</span>
+<span class="hll"><span class="w">  </span><span class="nt">z</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.4988189368293472</span>
+</span><span class="nt">angular_velocity_covariance</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2.5e-05</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.5e-05</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.5e-05</span><span class="p p-Indicator">]</span>
+<span class="nt">linear_acceleration</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">x</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.010647160142917143</span>
+<span class="w">  </span><span class="nt">y</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.10608663989830641</span>
+<span class="w">  </span><span class="nt">z</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9.796201529357843</span>
+<span class="nt">linear_acceleration_covariance</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2.5e-05</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.5e-05</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.5e-05</span><span class="p p-Indicator">]</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<p><a href="#what-the-simulated-imu-publishes">What the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes</a> explains every field.</p>
+<h2 id="the-parts-and-where-to-read-on">The parts, and where to read on</h2>
+<p>Three parts make the message, one after the other: Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor, the robots' <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin and an adapter. Two branches read the message. The tests run in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>. The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run only when the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> is enabled, with <code>ekf:=true</code>. The validator and this switch are in a later commit of the diffbot repository than the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, as the box "Reading the code" says.</p>
+<div class="mermaid">graph TB
+  SENSOR["Gazebo's IMU sensor"] --&gt; PLUGIN["IMU plugin"]
+  PLUGIN --&gt;|imu/gazebo| ADAPTER["adapter"]
+  ADAPTER --&gt;|imu/data_raw| TEST["tests&lt;br/&gt;in CI"]
+  ADAPTER --&gt;|imu/data_raw| VALIDATOR["validator&lt;br/&gt;with the EKF enabled"]
+  VALIDATOR --&gt;|imu/data_validated| EKF["EKF&lt;br/&gt;with the EKF enabled"]</div>
+<p>The topics are in the <code>/diffbot</code> namespace, for both robots: <code>/diffbot/imu/gazebo</code>, <code>/diffbot/imu/data_raw</code> and <code>/diffbot/imu/data_validated</code>. <a href="#from-the-sensor-to-the-ekf">From the sensor to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> says what each part adds to the message.</p>
+<p>Four more pages go into the details. Each answers one question:</p>
+<ul>
+<li><strong>Which axis of the message is forward on my robot?</strong> <a href="position-and-axes/">Position and Axes</a> shows where the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits on each robot and which way its axes point, with the lines of the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model that put the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> there. Read it to change the mounting, too.</li>
+<li><strong>Where is a value of the message set?</strong> <a href="measurement-to-message/">From Measurement to Message</a> follows one sample from Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor to the published message, in the order in which the code runs: what the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measures, the plugin's checks, the noise, the covariances, the header and the adapter.</li>
+<li><strong>Why don't the robots use the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin that comes with ROS?</strong> <a href="plugin/">The Robots' Own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Plugin</a> explains what can go wrong with that plugin, and what the robots' copy does differently. It's background for the interested reader. You don't need it to use the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</li>
+<li><strong>What does <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> check, and how do I run the checks?</strong> <a href="tests/">Tests</a> shows the three tests in two Python files, how to run them and what a pass proves. Read it before you change the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> in a robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, the plugin or the adapter.</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Reading the code</p>
 <ul>
-<li>The excerpts on these pages show fixed revisions, with their comments: diffbot's source at one commit, Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model at remo_description 2.5.0, and ROS's and Gazebo's sources at one commit each. Their line numbers match the original files.</li>
+<li>The excerpts on these pages show fixed revisions, with their comments. Their line numbers match the original files.</li>
+<li>The diffbot repository's source is at two commits. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, its plugin, its adapter and its tests are at <a href="https://github.com/ros-mobile-robots/diffbot/tree/cd41eadbbec48859d82baf991f587e86fa387814"><code>cd41ead</code></a>, the commit that added them. This commit has no <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and no <code>ekf:=true</code>. Both are at <a href="https://github.com/ros-mobile-robots/diffbot/tree/ead34027a9507c65d7415f93817177340d60d549"><code>ead3402</code></a>, the commit of the <a href="../robot_localization/">Localization</a> pages, which these pages use for the validator.</li>
+<li>Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model is at remo_description 2.5.0, and ROS's and Gazebo's sources are at one commit or one release each.</li>
 <li>The link above each excerpt opens that revision and those lines on GitHub.</li>
+<li>The numbers that a page calls "from a run" come from one run of Remo's simulation at these revisions, in the dev container. Another run gives other noise, and can give other times.</li>
 </ul>
 </div>
 <h2 id="what-the-simulated-imu-publishes">What the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes</h2>
@@ -4766,14 +4867,14 @@
 <p>The comments at the top are the message's contract for every publisher:</p>
 <ul>
 <li>Angular velocities are in rad/s, accelerations in m/s².</li>
-<li>Each of the three measurements, the orientation <span class="arithmatex">\(\mathbf q\)</span>, the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and the linear acceleration <span class="arithmatex">\(\mathbf f\)</span>, comes with a covariance, which says how uncertain the measurement is. A publisher that knows only the variances puts them on the diagonal.</li>
+<li>Each of the three measurements, the orientation <span class="arithmatex">\(\mathbf q\)</span>, the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> in rad/s and the linear acceleration <span class="arithmatex">\(\mathbf f\)</span> in m/s², comes with a covariance, which says how uncertain the measurement is. A publisher that knows only the variances puts them on the diagonal.</li>
 <li>A covariance of all zeros means that the covariance is unknown, not that the value has no uncertainty.</li>
 <li>−1 as a covariance's first element means that the publisher has no estimate for that field.</li>
 </ul>
 <p><a href="#how-the-message-stores-a-covariance">How the message stores a covariance</a> shows a covariance's nine numbers and these two special cases.</p>
 <p>The fields in order, and what the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> puts into them:</p>
 <ul>
-<li><strong><code>header</code>:</strong> <code>header.stamp</code> is the time of the measurement, here the simulation time at which Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measured. <code>header.frame_id</code> names the frame whose axes the values use, here <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame.</li>
+<li><strong><code>header</code>:</strong> <code>header.stamp</code> is the message's time. In the simulation, the stamp is the simulation time at which Gazebo ran the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's measurement, the sensor's update time. The motion data that the measurement uses has a time of its own, which can be a little earlier, as <a href="measurement-to-message/#part-1-gazebos-imu-sensor-measures">two times of a measurement</a> explains. <code>header.frame_id</code> names the frame whose axes the values use, here <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame.</li>
 <li><strong><code>orientation</code> and <code>orientation_covariance</code>:</strong> the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s orientation <span class="arithmatex">\(\mathbf q\)</span> and its covariance. The orientation is a <strong>quaternion</strong>: four numbers, x, y, z and w, that together describe a rotation in space. The ROS wiki's <a href="http://wiki.ros.org/tf2/Tutorials/Quaternions">quaternion basics</a> explain them. Like the firmware, the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> has no orientation estimate. So the field is marked unavailable: <code>orientation_covariance[0]</code> is −1, and the quaternion's four numbers are 0. Four zeros don't describe a rotation, because a quaternion that does has the length 1. The −1 tells a node that reads the message not to use them.</li>
 <li><strong><code>angular_velocity</code>:</strong> <span class="arithmatex">\(\boldsymbol\omega\)</span>, how fast the sensor turns about each of <code>imu_link</code>'s three axes, in rad/s. <a href="#the-angular-velocity">The angular velocity</a> shows the three rotations. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes <span class="arithmatex">\(\tilde{\boldsymbol\omega}\)</span>, the angular velocity with noise.</li>
 <li><strong><code>angular_velocity_covariance</code>:</strong> <span class="arithmatex">\(\Sigma_\omega\)</span>, in (rad/s)². The noise's standard deviation is <span class="arithmatex">\(\sigma = 0.005\)</span> rad/s on each axis, so each variance is <span class="arithmatex">\(\sigma^2 = 2.5 \cdot 10^{-5}\)</span> (rad/s)².</li>
@@ -4784,17 +4885,19 @@
 <h3 id="the-angular-velocity">The angular velocity</h3>
 <style>
 .md-typeset figure.imu-figure{margin:1em auto;width:100%;max-width:none}
+.md-typeset .imu-tabs figure.imu-figure{margin:.6em auto 0}
 .imu-figure .imu-panels{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8rem 1.6rem}
-.imu-figure .imu-fig{flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)}
+.imu-figure .imu-panel{flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)}
+.md-typeset .imu-figure .imu-panel p{margin:.3em 0 0;font-size:.7rem;text-align:left}
 .md-typeset .imu-figure figcaption{max-width:36rem}
-.imu-fig{width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;--imu-z:#1565c0;--imu-board:#9db9e6;--imu-gravity:#546e7a;--imu-acceleration:#e65100;--imu-reading:#7b1fa2;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.imu-fig{display:block;width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;--imu-z:#1565c0;--imu-board:#9db9e6;--imu-gravity:#546e7a;--imu-acceleration:#e65100;--imu-reading:#7b1fa2;font-family:var(--md-text-font-family,Roboto),sans-serif}
 [data-md-color-scheme=slate] .imu-fig{--imu-x:#ff7b72;--imu-y:#6fcf73;--imu-z:#6cb2ff;--imu-board:#3d5a8c;--imu-gravity:#a7b6be;--imu-acceleration:#ffa94d;--imu-reading:#d79bea}
 .imu-fig text{fill:var(--md-default-fg-color);font-size:12px}
 .imu-fig .title{font-size:13px;font-weight:700}
 .imu-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
 .imu-fig .note{font-size:11.5px;fill:var(--md-default-fg-color--light)}
 .imu-fig .strong{font-weight:700}
-.imu-fig .sub{font-size:9px}
+.imu-fig .sub{font-size:10px}
 .imu-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3.5px;stroke-linejoin:round}
 .imu-fig .body{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
 .imu-fig .wheel{fill:var(--md-default-fg-color--lighter);stroke:var(--md-default-fg-color--light);stroke-width:1}
@@ -4825,7 +4928,8 @@
 </style>
 <figure class="imu-figure" style="--imu-basis:300px;--imu-max:480px">
 <div class="imu-panels">
-<svg class="imu-fig" viewBox="0 0 360 330" role="img" aria-labelledby="imu-angular-velocity-title imu-angular-velocity-description"><title id="imu-angular-velocity-title">The angular velocity about imu_link’s three axes</title><desc id="imu-angular-velocity-description">Remo from behind and above. At the IMU board, imu_link’s three axes: x in red to the robot’s right, y in green forward and z in blue up. A curved arrow turns about each axis in the direction that counts as positive: counterclockwise when the axis points at the viewer. The arrow about z is the yaw rate, which is positive in a left turn. The EKF fuses this value.</desc>
+<div class="imu-panel">
+<svg class="imu-fig" viewBox="0 0 360 330" role="img" aria-labelledby="imu-angular-velocity-title imu-angular-velocity-description"><title id="imu-angular-velocity-title">The angular velocity about imu_link’s three axes</title><desc id="imu-angular-velocity-description">Remo from behind and above. At the IMU board, imu_link’s three axes: x in red to the robot’s right, y in green forward and z in blue up. A curved arrow turns about each axis in the direction that counts as positive: counterclockwise when the axis points at the viewer. The arrow about z is the yaw rate, which is positive in a left turn: a left turn at 0.5 rad/s reads +0.5 rad/s. The EKF fuses this value.</desc>
 <g class="context">
 <polygon class="wheel" points="72.82,170.34 73.14,163.91 74.11,157.04 75.69,149.91 77.84,142.77 80.48,135.81 83.54,129.25 86.93,123.30 90.54,118.12 94.27,113.89 97.99,110.72 101.60,108.72 104.99,107.94 108.05,108.41 136.20,117.73 138.84,119.44 140.99,122.32 142.57,126.31 143.54,131.26 143.86,137.04 143.54,143.47 142.57,150.34 140.99,157.47 138.84,164.61 136.20,171.57 133.14,178.13 129.75,184.08 126.14,189.26 122.41,193.49 118.69,196.66 115.08,198.66 111.69,199.44 108.63,198.97 80.48,189.65 77.84,187.94 75.69,185.06 74.11,181.07 73.14,176.12"></polygon>
 <polygon class="wheel" points="143.86,137.04 143.54,131.26 142.57,126.31 140.99,122.32 138.84,119.44 136.20,117.73 133.14,117.26 129.75,118.04 126.14,120.04 122.41,123.21 118.69,127.44 115.08,132.62 111.69,138.57 108.63,145.13 105.98,152.09 103.84,159.23 102.26,166.36 101.29,173.23 100.96,179.66 101.29,185.44 102.26,190.39 103.84,194.38 105.98,197.26 108.63,198.97 111.69,199.44 115.08,198.66 118.69,196.66 122.41,193.49 126.14,189.26 129.75,184.08 133.14,178.13 136.20,171.57 138.84,164.61 140.99,157.47 142.57,150.34 143.54,143.47"></polygon>
@@ -4865,13 +4969,14 @@
 <polygon class="head turn z" points="113.59,119.13 105.29,121.67 105.97,114.99"></polygon>
 <circle class="dot" cx="113.6" cy="171.3" r="3.0"></circle>
 <text class="z" x="70.0" y="28.0" text-anchor="end">ω<tspan class="sub" dy="3">z</tspan></text>
-<text x="78.0" y="28.0" text-anchor="start">yaw rate: positive in a left turn.</text>
+<text x="78.0" y="28.0" text-anchor="start">yaw rate. Left turn at 0.5 rad/s: +0.5 rad/s.</text>
 <text x="78.0" y="44.0" text-anchor="start">The EKF fuses this value.</text>
 <text class="y halo" x="186.0" y="150.0" text-anchor="start">ω<tspan class="sub" dy="3">y</tspan></text>
 <text class="x halo" x="199.0" y="246.0" text-anchor="start">ω<tspan class="sub" dy="3">x</tspan></text>
 <text class="note" x="180.0" y="306.0" text-anchor="middle">Each curved arrow shows the direction that counts</text>
 <text class="note" x="180.0" y="321.0" text-anchor="middle">as positive for the angular velocity about its axis</text>
 </svg>
+</div>
 </div>
 <figcaption><code>angular_velocity</code> on Remo: one number per axis of <code>imu_link</code>, in rad/s. Red is x, green is y and blue is z. Point your right thumb along an axis: your fingers curl in the positive direction. On Remo, <code>imu_link</code>’s y axis points forward and its x axis to the robot’s right, because the board is mounted turned by −90° about z, as the <a href="position-and-axes/">figure of Remo’s frames</a> shows.</figcaption>
 </figure>
@@ -4889,17 +4994,19 @@
 <h3 id="the-linear-acceleration">The linear acceleration</h3>
 <style>
 .md-typeset figure.imu-figure{margin:1em auto;width:100%;max-width:none}
+.md-typeset .imu-tabs figure.imu-figure{margin:.6em auto 0}
 .imu-figure .imu-panels{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.8rem 1.6rem}
-.imu-figure .imu-fig{flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)}
+.imu-figure .imu-panel{flex:1 1 var(--imu-basis,300px);max-width:var(--imu-max,400px)}
+.md-typeset .imu-figure .imu-panel p{margin:.3em 0 0;font-size:.7rem;text-align:left}
 .md-typeset .imu-figure figcaption{max-width:36rem}
-.imu-fig{width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;--imu-z:#1565c0;--imu-board:#9db9e6;--imu-gravity:#546e7a;--imu-acceleration:#e65100;--imu-reading:#7b1fa2;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.imu-fig{display:block;width:100%;height:auto;--imu-x:#d32f2f;--imu-y:#2e7d32;--imu-z:#1565c0;--imu-board:#9db9e6;--imu-gravity:#546e7a;--imu-acceleration:#e65100;--imu-reading:#7b1fa2;font-family:var(--md-text-font-family,Roboto),sans-serif}
 [data-md-color-scheme=slate] .imu-fig{--imu-x:#ff7b72;--imu-y:#6fcf73;--imu-z:#6cb2ff;--imu-board:#3d5a8c;--imu-gravity:#a7b6be;--imu-acceleration:#ffa94d;--imu-reading:#d79bea}
 .imu-fig text{fill:var(--md-default-fg-color);font-size:12px}
 .imu-fig .title{font-size:13px;font-weight:700}
 .imu-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
 .imu-fig .note{font-size:11.5px;fill:var(--md-default-fg-color--light)}
 .imu-fig .strong{font-weight:700}
-.imu-fig .sub{font-size:9px}
+.imu-fig .sub{font-size:10px}
 .imu-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3.5px;stroke-linejoin:round}
 .imu-fig .body{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
 .imu-fig .wheel{fill:var(--md-default-fg-color--lighter);stroke:var(--md-default-fg-color--light);stroke-width:1}
@@ -4930,7 +5037,8 @@
 </style>
 <figure class="imu-figure" style="--imu-basis:200px;--imu-max:290px">
 <div class="imu-panels">
-<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-rest-title imu-force-rest-description"><title id="imu-force-rest-title">At rest</title><desc id="imu-force-rest-description">Remo stands still on the floor, seen from its right side. At the IMU, gravity g points down with 9.8 m/s². The acceleration a is zero. The sensor reads f = a − g, which points up with 9.8 m/s². On Remo, the message’s x, y and z are 0, 0 and +9.8.</desc>
+<div class="imu-panel">
+<svg class="imu-fig" viewBox="0 0 216 326" role="img" aria-labelledby="imu-force-rest-title imu-force-rest-description"><title id="imu-force-rest-title">At rest</title><desc id="imu-force-rest-description">Remo stands still on the floor, seen from its right side. At the IMU, gravity g points down with 9.8 m/s². The acceleration a is zero. The sensor reads f = a − g, which points up with 9.8 m/s². In this level, noise-free example, the reading along imu_link’s x, y and z axes on Remo is 0, 0 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">At rest</text>
 <polyline class="floor" points="10.00,211.94 206.00,211.94"></polyline>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
@@ -4954,10 +5062,14 @@
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
 <text class="reading" x="108.0" y="249.0" text-anchor="middle">forward 0,</text>
 <text class="reading" x="108.0" y="265.0" text-anchor="middle">up +9.8 m/s²</text>
-<text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
-<text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, 0, +9.8)</text>
+<text class="note" x="108.0" y="284.0" text-anchor="middle">Level, noise-free example</text>
+<text class="note" x="108.0" y="299.0" text-anchor="middle">in Remo’s IMU axes x, y, z</text>
+<text class="reading" x="108.0" y="316.0" text-anchor="middle">(0, 0, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up, so f leans forward by 3 degrees. A circle shows the tip of f ten times larger: f ends 0.5 m/s² in front of the point straight above the sensor. On Remo, the message’s x, y and z are 0, +0.5 and +9.8.</desc>
+<p><strong>a</strong> is zero, so the sensor reads <strong>f</strong> = −<strong>g</strong>: 9.8 m/s² straight up. <strong>g</strong> and <strong>f</strong> are drawn to one scale.</p>
+</div>
+<div class="imu-panel">
+<svg class="imu-fig" viewBox="0 0 216 326" role="img" aria-labelledby="imu-force-speeding-up-title imu-force-speeding-up-description"><title id="imu-force-speeding-up-title">Speeding up forward</title><desc id="imu-force-speeding-up-description">Remo speeds up forward with 0.5 m/s², seen from its right side. At the IMU, gravity g points down with 9.8 m/s², and the acceleration a points forward with 0.5 m/s². The sensor reads f = a − g: 0.5 m/s² forward and 9.8 m/s² up, so f leans forward by 3 degrees. A circle shows the tip of f ten times larger: f ends 0.5 m/s² in front of the point straight above the sensor. In this level, noise-free example, the reading along imu_link’s x, y and z axes on Remo is 0, +0.5 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Speeding up forward</text>
 <polyline class="floor" points="10.00,211.94 206.00,211.94"></polyline>
 <text class="note" x="206.0" y="146.0" text-anchor="end">front</text>
@@ -4994,10 +5106,14 @@
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
 <text class="reading" x="108.0" y="249.0" text-anchor="middle">forward +0.5,</text>
 <text class="reading" x="108.0" y="265.0" text-anchor="middle">up +9.8 m/s²</text>
-<text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
-<text class="reading" x="108.0" y="301.0" text-anchor="middle">(0, +0.5, +9.8)</text>
+<text class="note" x="108.0" y="284.0" text-anchor="middle">Level, noise-free example</text>
+<text class="note" x="108.0" y="299.0" text-anchor="middle">in Remo’s IMU axes x, y, z</text>
+<text class="reading" x="108.0" y="316.0" text-anchor="middle">(0, +0.5, +9.8)</text>
 </svg>
-<svg class="imu-fig" viewBox="0 0 216 310" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to gravity. Its arrow shows only its direction. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing, so f leans toward the center by 0.1 degrees. On Remo, the message’s x, y and z are +0.01, +0.02 and +9.8.</desc>
+<p><strong>f</strong> leans forward by only 3°. So the circle shows the tip of <strong>f</strong> 10 times larger: <strong>f</strong> ends 0.5 m/s² in front of the dotted line, which points straight up from the sensor.</p>
+</div>
+<div class="imu-panel">
+<svg class="imu-fig" viewBox="0 0 216 326" role="img" aria-labelledby="imu-force-turn-title imu-force-turn-description"><title id="imu-force-turn-title">Turning left, from above</title><desc id="imu-force-turn-description">Remo turns left on the spot, seen from above. The IMU moves on a circle around the midpoint of the wheel axle, 8 cm away. Its acceleration a points to that midpoint. At 0.5 rad/s, a is 0.02 m/s², tiny next to gravity. Its arrow shows only its direction. The sensor reads this 0.02 m/s² toward the center and 9.8 m/s² up, out of the drawing, so f leans toward the center by 0.1 degrees. In this level, noise-free example, the reading along imu_link’s x, y and z axes on Remo is +0.01, +0.02 and +9.8.</desc>
 <text class="title" x="6.0" y="18.0" text-anchor="start">Turning left, from above</text>
 <g class="context">
 <rect class="wheel" x="32.0" y="79.9" width="22.5" height="59.4" rx="4"></rect>
@@ -5020,11 +5136,14 @@
 <text class="note" x="108.0" y="232.0" text-anchor="middle">The sensor reads</text>
 <text class="reading" x="108.0" y="249.0" text-anchor="middle">toward the center 0.02,</text>
 <text class="reading" x="108.0" y="265.0" text-anchor="middle">up +9.8 m/s²</text>
-<text class="note" x="108.0" y="284.0" text-anchor="middle">On Remo, the message’s x, y, z</text>
-<text class="reading" x="108.0" y="301.0" text-anchor="middle">(+0.01, +0.02, +9.8)</text>
+<text class="note" x="108.0" y="284.0" text-anchor="middle">Level, noise-free example</text>
+<text class="note" x="108.0" y="299.0" text-anchor="middle">in Remo’s IMU axes x, y, z</text>
+<text class="reading" x="108.0" y="316.0" text-anchor="middle">(+0.01, +0.02, +9.8)</text>
 </svg>
+<p>The dotted circle is the sensor’s path. <strong>f</strong> points up, at you, and leans toward the center by 0.1°. The arrow of <strong>a</strong> shows only its direction: at the scale of <strong>g</strong>, its 0.02 m/s² would be too short to see.</p>
 </div>
-<figcaption><code>linear_acceleration</code> is the specific force <strong>f</strong> = <strong>a</strong> − <strong>g</strong>: the acceleration <strong>a</strong> of the sensor minus gravity <strong>g</strong>, in m/s². <strong>g</strong> and <strong>f</strong> are drawn to one scale and in their true directions. While the robot speeds up with 0.5 m/s², <strong>f</strong> leans forward by only 3°. So the circle shows the tip of <strong>f</strong> 10 times larger: <strong>f</strong> ends 0.5 m/s² in front of the dotted line, which points straight up from the sensor. The last line of each drawing gives the message’s x, y and z on Remo, where <code>imu_link</code>’s y axis points forward. In the turn, the dotted circle is the sensor’s path. <strong>f</strong> points up, at you, and leans toward the center by 0.1°. The arrow of <strong>a</strong> shows only its direction: its 0.02 m/s² is tiny next to gravity’s 9.8 m/s², and at the scale of <strong>g</strong> it would be too short to see.</figcaption>
+</div>
+<figcaption><code>linear_acceleration</code> is the specific force <strong>f</strong> = <strong>a</strong> − <strong>g</strong>: the acceleration <strong>a</strong> of the sensor minus gravity <strong>g</strong>, in m/s². The three drawings are a level, noise-free example: the floor is level, the robot moves exactly as named, and the readings have no noise. The last line of each drawing gives the reading along <code>imu_link</code>’s x, y and z axes on Remo, where the y axis points forward. A message of the simulation differs a little, as the text below the figure explains.</figcaption>
 </figure>
 <p><code>linear_acceleration</code> isn't the robot's acceleration alone. It's what an accelerometer measures, the <strong>specific force</strong>:</p>
 <div class="arithmatex">\[
@@ -5044,11 +5163,17 @@
 <p>So every reading is the acceleration minus gravity, on all three axes. A real accelerometer doesn't compute this difference. The difference is what the sensor feels. An accelerometer can't feel gravity itself, because gravity pulls on the sensor's housing and on the small mass inside it in the same way. What the sensor feels is the force that holds it up against gravity. The box at the top of <a href="../driver-bno055/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Bosch BNO055</a> explains the mass and its suspension. Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor computes the difference, so that the simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor reads as a real one, in the lines of Gazebo's source code that <a href="measurement-to-message/#part-1-gazebos-imu-sensor-measures">Part 1 of From Measurement to Message</a> shows.</p>
 <p>The list has four cases. The figure shows the first three:</p>
 <ul>
-<li><strong>At rest</strong>, <span class="arithmatex">\(\mathbf a\)</span> is zero. With <code>imu_link</code>'s z axis up, gravity is <span class="arithmatex">\(\mathbf g = (0, 0, -9.8)\)</span> m/s², so the sensor reads <span class="arithmatex">\(\mathbf f = (0, 0, +9.8)\)</span> m/s². The floor holds the robot up, and the sensor reads that as 9.8 m/s² upward, although the robot doesn't move. At a steady speed on a level floor, <span class="arithmatex">\(\mathbf a\)</span> is zero too, and the reading is the same.</li>
-<li><strong>Speeding up forward</strong> with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is <code>imu_link</code>'s y axis, so the message's three numbers are (0, +0.5, +9.8). The reading leans forward by only 3° from straight up, so the figure shows its tip in a circle, ten times larger. The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the <code>max_acceleration</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/config/diffbot_control.yaml#L47-L48">lines 47–48 of its configuration</a>.</li>
-<li><strong>In a turn</strong>, the sensor moves on a circle, and its acceleration points to the circle's center. Its size is the turn rate squared times the distance to the center. Remo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives <span class="arithmatex">\(0.5^2 \cdot 0.08 = 0.02\)</span> m/s², which is tiny next to the 9.8 m/s².</li>
+<li><strong>At rest</strong>, <span class="arithmatex">\(\mathbf a\)</span> is zero. With <code>imu_link</code>'s z axis up, gravity is <span class="arithmatex">\(\mathbf g = (0, 0, -9.8)\)</span> m/s², so the sensor reads <span class="arithmatex">\(\mathbf f = (0, 0, +9.8)\)</span> m/s². The floor holds the robot up, and the sensor reads that as 9.8 m/s² upward, although the robot doesn't move. At a steady speed in a straight line on a level floor, <span class="arithmatex">\(\mathbf a\)</span> is zero too, and the reading is the same.</li>
+<li><strong>Speeding up forward</strong> with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is <code>imu_link</code>'s y axis, so the three numbers of this example are (0, +0.5, +9.8) m/s². The reading leans forward by only 3° from straight up, so the figure shows its tip in a circle, ten times larger. The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the <code>max_acceleration</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/config/diffbot_control.yaml#L47-L48">lines 47–48 of its configuration</a>.</li>
+<li><strong>In a turn</strong>, the sensor moves on a circle, and its acceleration points to the circle's center. So the sensor accelerates although the turn rate stays the same. Its size is the turn rate squared times the distance to the center. Remo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives <span class="arithmatex">\(0.5^2 \cdot 0.08 = 0.02\)</span> m/s², which is tiny next to the 9.8 m/s².</li>
 <li><strong>In free fall</strong>, nothing holds the sensor up. <span class="arithmatex">\(\mathbf a\)</span> equals <span class="arithmatex">\(\mathbf g\)</span>, and the sensor reads 0 on all three axes.</li>
 </ul>
+<p><strong>A level, noise-free example:</strong> the figure's numbers hold for a level floor, a robot that moves exactly as named, and readings without noise. A message of the simulation differs in two ways. Each value has the plugin's noise, and the simulated robot doesn't rest exactly level. The means of 200 readings each, from one run of Remo's simulation, show both:</p>
+<ul>
+<li><strong>At rest</strong>, the mean reading was (+0.0004, +0.0693, +9.7998) m/s², not (0, 0, +9.8) m/s². The simulated Remo rests with its front about 0.4° higher than its rear. So a share of the upward reading, about 0.07 m/s², appears on the forward axis.</li>
+<li><strong>In the left turn</strong> at 0.5 rad/s, the mean reading was (+0.0069, +0.0876, +9.7991) m/s². So the turn added +0.0065 m/s² to the x reading and +0.0183 m/s² to the y reading. The example's turn adds +0.0059 m/s² and +0.0190 m/s², which the figure rounds to +0.01 and +0.02.</li>
+</ul>
+<p>The message in <a href="#one-left-turn-one-message">one left turn, one message</a> is one reading of that turn, with its noise.</p>
 <p>Which of the message's axes is forward depends on how the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is mounted. <a href="position-and-axes/#the-mounting-on-each-robot">Position and Axes</a> shows the mounting on both robots.</p>
 <h3 id="how-the-message-stores-a-covariance">How the message stores a covariance</h3>
 <p>Each of the message's three measurements has a covariance matrix: the orientation, the angular velocity and the linear acceleration. A covariance matrix says how uncertain a measurement is. Take the angular velocity, with its three components about the x, y and z axes. Its covariance matrix has three rows and three columns:</p>
@@ -5097,21 +5222,40 @@
 </ul>
 <p>None of the three covariance arrays is all zeros, so none says that a covariance is unknown. <a href="measurement-to-message/#filling-the-covariances">Filling the covariances</a> shows the plugin's lines that write the variances and explains why the other elements are 0. <a href="measurement-to-message/#part-3-the-adapter">Part 3: the adapter</a> shows the lines that write the −1.</p>
 <h2 id="from-the-sensor-to-the-ekf">From the sensor to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></h2>
-<p>Three parts make the message, one after the other. Two more parts read the message:</p>
-<div class="mermaid">graph TB
-  SENSOR["Gazebo's IMU sensor at imu_link"] --&gt; PLUGIN["the robots' own IMU plugin"]
-  PLUGIN --&gt;|imu/gazebo| ADAPTER[imu_raw_adapter.py]
-  ADAPTER --&gt;|imu/data_raw| VALIDATOR[IMU sample validator: imu_validator.py]
-  VALIDATOR --&gt;|imu/data_validated| EKF[EKF]
-  ADAPTER --&gt;|imu/data_raw| TEST["test_imu.py and test_imu_reset.py"]</div>
-<p>The topics are in the <code>/diffbot</code> namespace, for both robots. The parts of the diagram, and what each adds to the message:</p>
+<p><a href="#the-parts-and-where-to-read-on">The diagram at the top of this page</a> shows the parts. What each of them adds to the message, or does with the message:</p>
 <ol>
-<li><strong>Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</strong> measures the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and the specific force <span class="arithmatex">\(\mathbf f\)</span> at <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame, 50 times per second. Gazebo computes both from the simulated robot's motion. <a href="measurement-to-message/#part-1-gazebos-imu-sensor-measures">Part 1: Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measures</a> shows the lines of Gazebo's source code, and <a href="position-and-axes/">Position and Axes</a> shows where <code>imu_link</code> sits on each robot.</li>
-<li><strong>The robots' own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin</strong> turns each measurement into a <code>sensor_msgs/Imu</code> message and publishes it on <code>/diffbot/imu/gazebo</code>. The plugin adds the noise to both vectors, writes the variance <span class="arithmatex">\(\sigma^2\)</span> into their covariances and sets the stamp and the frame. The noise's <span class="arithmatex">\(\sigma\)</span> of 0.005 is the plugin's parameter <code>gaussianNoise</code> in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model. <a href="measurement-to-message/#reading-the-sensor-and-adding-noise">Reading the sensor and adding noise</a> shows where the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model sets this parameter and which lines of the plugin use it. The plugin is a copy of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. <a href="plugin/">The Robots' Own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Plugin</a> explains why.</li>
-<li><strong>The adapter</strong>, <code>imu_raw_adapter.py</code>, gives the simulated message the form of the message that the real robot's firmware publishes. The plugin's message has an orientation <span class="arithmatex">\(\mathbf q\)</span>, and the firmware's message has none. The firmware reads only the BNO055's angular velocity and acceleration, because the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses only the yaw rate, as <a href="../driver-bno055/#what-the-firmware-publishes">what the firmware publishes</a> explains. So the adapter subscribes to <code>/diffbot/imu/gazebo</code>, marks the orientation unavailable and publishes the rest unchanged on <code>/diffbot/imu/data_raw</code>. <a href="measurement-to-message/#part-3-the-adapter">Part 3: the adapter</a> shows its code.</li>
-<li><strong>The <a href="../robot_localization/#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a></strong> subscribes to <code>/diffbot/imu/data_raw</code> and forwards the samples that pass its checks, unchanged, on <code>/diffbot/imu/data_validated</code>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> subscribes to. The validator drops a sample while the ROS time is still zero, when the sample's frame isn't <code>imu_link</code>, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code> in <code>diffbot_control</code></a>. The validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run only with <code>ekf:=true</code>, as <a href="../robot_localization/#running-it">running the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> shows.</li>
+<li><strong>Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</strong> measures the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and the specific force <span class="arithmatex">\(\mathbf f\)</span> at <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame, at the rate that the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model sets, 50 times per second. Gazebo computes both from the simulated robot's motion. <a href="measurement-to-message/#part-1-gazebos-imu-sensor-measures">Part 1: Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measures</a> shows the lines of Gazebo's source code, and <a href="position-and-axes/">Position and Axes</a> shows where <code>imu_link</code> sits on each robot.</li>
+<li><strong>The robots' own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin</strong> reads the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's latest values when it publishes. The plugin publishes at most 50 times per second, and only while its topic has a subscriber. The plugin makes a <code>sensor_msgs/Imu</code> message from these values and publishes the message on <code>/diffbot/imu/gazebo</code>. The plugin adds the noise to both vectors, writes the variance <span class="arithmatex">\(\sigma^2\)</span> into their covariances and sets the stamp and the frame. The noise's <span class="arithmatex">\(\sigma\)</span> of 0.005 rad/s and 0.005 m/s² is the plugin's parameter <code>gaussianNoise</code> in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model. <a href="measurement-to-message/#reading-the-sensor-and-adding-noise">Reading the sensor and adding noise</a> shows where the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model sets this parameter and which lines of the plugin use it. The plugin is a copy of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. <a href="plugin/">The Robots' Own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Plugin</a> explains why.</li>
+<li><strong>The adapter</strong>, <code>imu_raw_adapter.py</code>, gives the simulated message the form of the message that the real robot's firmware publishes. The plugin's message has an orientation <span class="arithmatex">\(\mathbf q\)</span>, and the firmware's message has none. The firmware reads only the BNO055's angular velocity and acceleration, because the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses only the yaw rate, as <a href="../driver-bno055/#what-the-firmware-publishes">what the firmware publishes</a> explains. So the adapter subscribes to <code>/diffbot/imu/gazebo</code>, marks the orientation unavailable and publishes the message on <code>/diffbot/imu/data_raw</code>. The stamp, the frame, the two vectors and their covariances stay as the plugin set them. The plugin's orientation is not ready to use, because the plugin adds noise to each of the quaternion's four numbers. <a href="measurement-to-message/#part-3-the-adapter">Part 3: the adapter</a> shows the adapter's code.</li>
+<li><strong>The <a href="../robot_localization/#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a></strong> subscribes to <code>/diffbot/imu/data_raw</code> and forwards the samples that pass its checks on <code>/diffbot/imu/data_validated</code>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> subscribes to. A forwarded sample keeps its stamp, its frame, its measurements and its covariances. Its <code>header.seq</code> is the validator's own count, as for <a href="measurement-to-message/#part-3-the-adapter">the adapter</a>. The validator drops a sample while the ROS time is still zero, when the sample's frame isn't <code>imu_link</code>, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code> in <code>diffbot_control</code></a>, at the Localization pages' commit <code>ead3402</code>. The validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run only with <code>ekf:=true</code>, as <a href="../robot_localization/#running-it">running the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> shows.</li>
 <li><strong>The tests</strong>, <code>test_imu.py</code> and <code>test_imu_reset.py</code>, subscribe to <code>/diffbot/imu/data_raw</code> and check the messages in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>, as <a href="tests/">Tests</a> explains.</li>
 </ol>
+<h2 id="the-simulation-and-the-real-robot">The simulation and the real robot</h2>
+<p>The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the firmware keep the same contract for the message, so that the same validator and the same <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> configuration work with both:</p>
+<ul>
+<li><strong>The same:</strong> the topic <code>/diffbot/imu/data_raw</code>, the message type <code>sensor_msgs/Imu</code>, the rate of 50 Hz, the frame <code>imu_link</code>, and the orientation marked unavailable.</li>
+<li><strong>Not the same:</strong> the values' noise and the covariances. The simulation's noise is a setting of the plugin, and the firmware's variances are settings of the firmware. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> weighs the yaw rate with its variance, <code>angular_velocity_covariance[8]</code>. This variance is <span class="arithmatex">\(2.5 \cdot 10^{-5}\)</span> (rad/s)² in the simulation and <span class="arithmatex">\(4 \cdot 10^{-4}\)</span> (rad/s)² in the firmware's default configuration, 16 times as much. The linear acceleration's variances are <span class="arithmatex">\(2.5 \cdot 10^{-5}\)</span> (m/s²)² and <span class="arithmatex">\(10^{-2}\)</span> (m/s²)².</li>
+</ul>
+<p>So the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> gets its input in the same form in the simulation as on the robot, but not with the same weight. A filter that behaves well in the simulation is not yet tuned for the real sensor.</p>
+<p>The excerpt shows the firmware's two variances, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_firmware/lib/config/diffbot_base_config.h#L65-L73"><code>diffbot_base_config.h</code>, lines 65–73</a>. <a href="measurement-to-message/#filling-the-covariances">Filling the covariances</a> shows the plugin's lines for the simulation's variances:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_base_config.h: the firmware's IMU settings</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="n">diffbot</span><span class="o">::</span><span class="n">ImuPublisherConfig</span><span class="w"> </span><span class="n">IMU_PUBLISHER_CONFIG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">true</span><span class="p">,</span><span class="w">       </span><span class="c1">// enabled</span>
+<span class="w">    </span><span class="mi">20</span><span class="p">,</span><span class="w">         </span><span class="c1">// period_ms</span>
+<span class="w">    </span><span class="mi">10000</span><span class="p">,</span><span class="w">      </span><span class="c1">// retry_ms</span>
+<span class="w">    </span><span class="mi">10000</span><span class="p">,</span><span class="w">      </span><span class="c1">// read_budget_us</span>
+<span class="w">    </span><span class="s">"imu_link"</span><span class="p">,</span><span class="w"> </span><span class="c1">// frame_id</span>
+<span class="hll"><span class="w">    </span><span class="mf">4.0e-4f</span><span class="p">,</span><span class="w">    </span><span class="c1">// angular_velocity_variance, (0.02 rad/s)²</span>
+</span><span class="hll"><span class="w">    </span><span class="mf">1.0e-2f</span><span class="p">,</span><span class="w">    </span><span class="c1">// linear_acceleration_variance, (0.1 m/s²)²</span>
+</span><span class="p">};</span>
+</code></pre></div></td></tr></tbody></table></div>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->

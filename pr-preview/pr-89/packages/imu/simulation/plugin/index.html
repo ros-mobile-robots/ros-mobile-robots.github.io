@@ -2860,10 +2860,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-to-know-first" class="md-nav__link">
+  <a href="#one-request-with-each-plugin" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What to know first
+        One request, with each plugin
       
     </span>
   </a>
@@ -2871,21 +2871,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-goes-wrong-with-the-original-plugin" class="md-nav__link">
+  <a href="#the-terms-in-the-drawings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What goes wrong with the original plugin
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#what-the-copy-does-instead" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What the copy does instead
+        The terms in the drawings
       
     </span>
   </a>
@@ -4703,10 +4692,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-to-know-first" class="md-nav__link">
+  <a href="#one-request-with-each-plugin" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What to know first
+        One request, with each plugin
       
     </span>
   </a>
@@ -4714,21 +4703,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-goes-wrong-with-the-original-plugin" class="md-nav__link">
+  <a href="#the-terms-in-the-drawings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What goes wrong with the original plugin
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#what-the-copy-does-instead" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What the copy does instead
+        The terms in the drawings
       
     </span>
   </a>
@@ -4908,9 +4886,293 @@
 <p><a href="#the-copys-other-changes">The copy's other changes</a> don't change what the plugin publishes.</p>
 <h2 id="why-the-plugin-doesnt-spin">Why the plugin doesn't spin</h2>
 <h3 id="the-short-answer">The short answer</h3>
-<p>gazebo_plugins' original <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin calls <code>ros::spinOnce()</code> right after it publishes a message. This call makes Gazebo's physics thread, the thread that moves the simulation forward, run the service requests that wait in the node's global callback queue at that moment. The controller spawner's requests wait there. Such a request then waits for the controller manager's next update, and only the physics thread runs that update. So the physics thread waits for itself, and the simulation's clock stops for good. The robots' copy leaves the call out, because a plugin that only publishes has nothing to spin for.</p>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/issues/185">diffbot#185</a> has the diagnosis, with the backtraces of the stalled simulations. The rest of this section explains the terms and then follows one request, step by step.</p>
-<h3 id="what-to-know-first">What to know first</h3>
+<p>In Gazebo, one thread moves the simulation's clock forward: the physics thread. With gazebo_plugins' original <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin, this thread can end up waiting for something that only it can do. Then nothing moves the clock anymore.</p>
+<p>The original plugin calls <code>ros::spinOnce()</code> right after it publishes a message. This call makes the physics thread run the service requests that wait in the node's global callback queue at that moment. The controller spawner's requests wait there. Such a request then waits for the controller manager's next update, and only the physics thread runs that update. So the physics thread waits for itself, and the simulation's clock stops for good. The robots' copy leaves the call out, because a plugin that only publishes has nothing to spin for.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/issues/185">diffbot#185</a> has the diagnosis, with the backtraces of the stalled simulations.</p>
+<h3 id="one-request-with-each-plugin">One request, with each plugin</h3>
+<p>The two drawings follow the same request of the controller spawner, once with each plugin. Switch between the two tabs to compare them: what both runs share stays in place. The blue path is the request, and the box named <code>update()</code> at the bottom of the left lane is the update that the request waits for. The numbered steps below each drawing explain its numbers. <a href="#the-terms-in-the-drawings">The terms in the drawings</a> explains threads, callbacks and the callback queue in more detail.</p>
+<style>
+.md-typeset .th-figs figure{margin:.6em auto 0;width:100%;max-width:480px}
+.th-fig{width:100%;height:auto;--th-request:#1e63c4;--th-stuck:#c62828;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .th-fig{--th-request:#82b1ff;--th-stuck:#ef6a6a}
+.th-fig text{fill:var(--md-default-fg-color);font-size:12px}
+.th-fig .lane-name{font-weight:700;fill:var(--md-default-fg-color--light)}
+.th-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
+.th-fig .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.th-fig .stuck-text{fill:var(--th-stuck)}
+.th-fig .strong{font-weight:700}
+.th-fig .lane{fill:var(--md-default-fg-color--lightest);stroke:none}
+.th-fig .box{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.th-fig .queue{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3}
+.th-fig .callback{fill:var(--md-default-bg-color);stroke:var(--th-request);stroke-width:1.8}
+.th-fig .idle{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.th-fig .stuck{fill:none;stroke:var(--th-stuck);stroke-width:1.6;stroke-dasharray:5 3}
+.th-fig .open{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
+.th-fig .flow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.th-fig .flow-head{fill:var(--md-default-fg-color--light)}
+.th-fig .request{fill:none;stroke:var(--th-request);stroke-width:1.8}
+.th-fig .request-head{fill:var(--th-request)}
+.th-fig .step-disc{fill:var(--md-default-fg-color)}
+.th-fig .step{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+</style>
+<div class="tabbed-set tabbed-alternate th-figs" data-tabs="th:2"><input checked="" id="__tabbed_th_1" name="__tabbed_th" type="radio"><input id="__tabbed_th_2" name="__tabbed_th" type="radio"><div class="tabbed-labels"><label for="__tabbed_th_1">With the original plugin</label><label for="__tabbed_th_2">With the copy</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<figure>
+<svg class="th-fig" viewBox="0 0 360 380" role="img" aria-labelledby="th-original-title th-original-description"><title id="th-original-title">The request with the original IMU plugin</title><desc id="th-original-description">Step 1: the controller spawner, another ROS node, sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and calls ros::spinOnce(). Step 3: ros::spinOnce() takes the request from the queue and runs the callback in the physics thread. Step 4: the callback notes the change and waits here for update(). Step 5: update() never runs, because its thread is waiting. This is a deadlock: the clock stops. The ROS spinner thread finds the queue empty.</desc><defs><marker id="th-original-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="th-original-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="box" x="18" y="8" width="152" height="38" rx="4"></rect>
+<text x="94.0" y="24" text-anchor="middle">controller spawner</text>
+<text class="note" x="94.0" y="38" text-anchor="middle">another ROS node</text>
+<rect class="queue" x="200" y="8" width="152" height="38" rx="4"></rect>
+<text x="276.0" y="24" text-anchor="middle">global callback queue</text>
+<text class="note" x="276.0" y="38" text-anchor="middle">a waiting list</text>
+<path class="request" d="M170,27.0 H199" marker-end="url(#th-original-request)"></path>
+<circle class="step-disc" cx="185.0" cy="15.0" r="8"></circle>
+<text class="step" x="185.0" y="19.0" text-anchor="middle">1</text>
+<rect class="lane" x="18" y="62" width="160" height="314" rx="6"></rect>
+<text class="lane-name" x="98.0" y="79" text-anchor="middle">physics thread</text>
+<rect class="lane" x="186" y="62" width="166" height="314" rx="6"></rect>
+<text class="lane-name" x="269.0" y="79" text-anchor="middle">ROS spinner thread</text>
+<text class="note" transform="translate(13,66) rotate(-90)" text-anchor="end">time</text>
+<path class="flow" d="M9,96 V370" marker-end="url(#th-original-flow)"></path>
+<path class="box" d="M22,262 V88 H174 V262"></path>
+<path class="open" d="M22,262 V278 M174,262 V278"></path>
+<text class="mono" x="98.0" y="104" text-anchor="middle">UpdateChild()</text>
+<text class="note" x="98.0" y="118" text-anchor="middle">publishes the IMU message</text>
+<circle class="step-disc" cx="22" cy="88" r="8"></circle>
+<text class="step" x="22" y="92" text-anchor="middle">2</text>
+<path class="box" d="M28,258 V126 H168 V258"></path>
+<path class="open" d="M28,258 V272 M168,258 V272"></path>
+<text class="mono" x="98.0" y="142" text-anchor="middle">ros::spinOnce()</text>
+<text class="note" x="98.0" y="156" text-anchor="middle">runs the callback here</text>
+<rect class="callback" x="34" y="166" width="128" height="66" rx="4"></rect>
+<text class="mono" x="98.0" y="183" text-anchor="middle">switch_controller</text>
+<text class="note" x="98.0" y="197" text-anchor="middle">callback</text>
+<text x="98.0" y="211" text-anchor="middle">notes the change,</text>
+<text x="98.0" y="225" text-anchor="middle">waits here for update()</text>
+<circle class="step-disc" cx="34" cy="166" r="8"></circle>
+<text class="step" x="34" y="170" text-anchor="middle">4</text>
+<path class="request" d="M338,46 V150 H169" marker-end="url(#th-original-request)"></path>
+<circle class="step-disc" cx="338" cy="112" r="8"></circle>
+<text class="step" x="338" y="116" text-anchor="middle">3</text>
+<rect class="stuck" x="22" y="286" width="152" height="38" rx="4"></rect>
+<text class="mono stuck-text" x="98.0" y="303" text-anchor="middle">update()</text>
+<text class="note" x="98.0" y="317" text-anchor="middle">never runs: its thread waits</text>
+<circle class="step-disc" cx="22" cy="286" r="8"></circle>
+<text class="step" x="22" y="290" text-anchor="middle">5</text>
+<text class="stuck-text strong" x="98.0" y="342" text-anchor="middle">deadlock: the clock stops</text>
+<rect class="idle" x="206" y="176" width="126" height="38" rx="4"></rect>
+<text class="note" x="269.0" y="193" text-anchor="middle">finds the queue</text>
+<text class="note" x="269.0" y="207" text-anchor="middle">empty</text>
+</svg>
+<figcaption>With gazebo_plugins’ original IMU plugin. Time runs downward, and the numbers are the steps below. Blue is the <code>switch_controller</code> request and its callback. The callback runs in the physics thread and waits for an <code>update()</code> that only this thread can run.</figcaption>
+</figure>
+</div>
+<div class="tabbed-block">
+<figure>
+<svg class="th-fig" viewBox="0 0 360 380" role="img" aria-labelledby="th-copy-title th-copy-description"><title id="th-copy-title">The request with the robots’ copy of the IMU plugin</title><desc id="th-copy-description">Step 1: the controller spawner sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and returns. Step 3: a ROS spinner thread takes the request and runs the callback, which notes the change and waits for update(). The callback waits here, in the spinner thread, not in the physics thread. Step 4: the physics thread goes on and calls update(), which takes the change. The clock runs on. Step 5: the callback returns, and the spawner gets its answer.</desc><defs><marker id="th-copy-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="th-copy-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="box" x="18" y="8" width="152" height="38" rx="4"></rect>
+<text x="94.0" y="24" text-anchor="middle">controller spawner</text>
+<text class="note" x="94.0" y="38" text-anchor="middle">another ROS node</text>
+<rect class="queue" x="200" y="8" width="152" height="38" rx="4"></rect>
+<text x="276.0" y="24" text-anchor="middle">global callback queue</text>
+<text class="note" x="276.0" y="38" text-anchor="middle">a waiting list</text>
+<path class="request" d="M170,27.0 H199" marker-end="url(#th-copy-request)"></path>
+<circle class="step-disc" cx="185.0" cy="15.0" r="8"></circle>
+<text class="step" x="185.0" y="19.0" text-anchor="middle">1</text>
+<rect class="lane" x="18" y="62" width="160" height="314" rx="6"></rect>
+<text class="lane-name" x="98.0" y="79" text-anchor="middle">physics thread</text>
+<rect class="lane" x="186" y="62" width="166" height="314" rx="6"></rect>
+<text class="lane-name" x="269.0" y="79" text-anchor="middle">ROS spinner thread</text>
+<text class="note" transform="translate(13,66) rotate(-90)" text-anchor="end">time</text>
+<path class="flow" d="M9,96 V370" marker-end="url(#th-copy-flow)"></path>
+<rect class="box" x="22" y="88" width="152" height="52" rx="4"></rect>
+<text class="mono" x="98.0" y="105" text-anchor="middle">UpdateChild()</text>
+<text class="note" x="98.0" y="119" text-anchor="middle">publishes the IMU message</text>
+<text class="note" x="98.0" y="133" text-anchor="middle">and returns</text>
+<circle class="step-disc" cx="22" cy="88" r="8"></circle>
+<text class="step" x="22" y="92" text-anchor="middle">2</text>
+<rect class="box" x="22" y="150" width="152" height="38" rx="4"></rect>
+<text class="mono" x="98.0" y="167" text-anchor="middle">update()</text>
+<text class="note" x="98.0" y="181" text-anchor="middle">runs the controllers</text>
+<path class="flow" d="M98.0,198 V256" marker-end="url(#th-copy-flow)"></path>
+<text class="note" x="98.0" y="274" text-anchor="middle">this step or the next</text>
+<rect class="callback" x="22" y="286" width="152" height="38" rx="4"></rect>
+<text class="mono" x="98.0" y="303" text-anchor="middle">update()</text>
+<text class="note" x="98.0" y="317" text-anchor="middle">takes the change</text>
+<circle class="step-disc" cx="22" cy="286" r="8"></circle>
+<text class="step" x="22" y="290" text-anchor="middle">4</text>
+<text class="strong" x="98.0" y="342" text-anchor="middle">the clock runs on</text>
+<path class="request" d="M338,46 V87" marker-end="url(#th-copy-request)"></path>
+<rect class="callback" x="190" y="88" width="158" height="236" rx="4"></rect>
+<text class="mono" x="269.0" y="105" text-anchor="middle">switch_controller</text>
+<text class="note" x="269.0" y="119" text-anchor="middle">callback</text>
+<text x="269.0" y="133" text-anchor="middle">notes the change,</text>
+<text x="269.0" y="147" text-anchor="middle">waits for update()</text>
+<text class="strong" x="269.0" y="204" text-anchor="middle">the callback waits here,</text>
+<text class="note" x="269.0" y="218" text-anchor="middle">not in the physics thread</text>
+<circle class="step-disc" cx="190" cy="88" r="8"></circle>
+<text class="step" x="190" y="92" text-anchor="middle">3</text>
+<path class="request" d="M174,305.0 H189" marker-end="url(#th-copy-request)"></path>
+<text class="note" x="269.0" y="309.0" text-anchor="middle">the change is taken</text>
+<path class="flow" d="M269.0,324 V338" marker-end="url(#th-copy-flow)"></path>
+<circle class="step-disc" cx="207.0" cy="354" r="8"></circle>
+<text class="step" x="207.0" y="358" text-anchor="middle">5</text>
+<text class="note" x="277.0" y="352" text-anchor="middle">returns: the spawner</text>
+<text class="note" x="277.0" y="366" text-anchor="middle">gets its answer</text>
+</svg>
+<figcaption>With the robots’ copy of the plugin. Time runs downward, and the numbers are the steps below. A ROS spinner thread runs the callback, and the callback waits there. The physics thread goes on and calls <code>update()</code>.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">With the original plugin</label><label for="__tabbed_1_2">With the copy</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ol>
+<li><strong>The request arrives:</strong> the controller spawner calls the controller manager's service <code>switch_controller</code>. The spawner is a separate ROS node, which starts the robot's controllers. ROS doesn't run a service's function, its <strong>callback</strong>, at the moment the request arrives. The request waits in the Gazebo server's <strong>global callback queue</strong>, a waiting list, until a thread takes the request out and runs the callback.</li>
+<li><strong>The physics thread publishes and spins:</strong> before a ROS spinner thread takes the request, the physics thread starts a simulation step and calls the plugin's <code>UpdateChild()</code>. The plugin publishes its message and calls <code>ros::spinOnce()</code>.</li>
+<li><strong>The callback runs in the physics thread:</strong> <code>ros::spinOnce()</code> runs the callbacks that wait in the global queue at that moment, in the thread that calls it. So <code>ros::spinOnce()</code> finds the request and runs the service's callback, in the physics thread.</li>
+<li><strong>The callback waits:</strong> the callback notes which controllers to start, and waits until the controller manager's <code>update()</code> has taken the change.</li>
+<li><strong>Nothing can end the wait:</strong> <code>update()</code> runs only in the physics thread. But the physics thread is still inside <code>UpdateChild()</code>, waiting in the callback. The physics thread waits for itself. This is a <strong>deadlock</strong>: <code>update()</code> never runs, the callback never returns, and the simulation step never ends. The simulation's clock stops for good, and the spawner never gets its answer.</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<ol>
+<li><strong>The request arrives:</strong> the request waits in the global callback queue, as with the original plugin.</li>
+<li><strong>The physics thread publishes and returns:</strong> the physics thread calls <code>UpdateChild()</code>. The copy publishes its message and returns, as <a href="../measurement-to-message/#the-header-and-publishing">the header and publishing</a> shows. So the physics thread never runs a callback.</li>
+<li><strong>The callback runs in a spinner thread:</strong> a ROS spinner thread takes the request and runs the callback. The callback notes the change and waits, in the spinner thread.</li>
+<li><strong>The physics thread goes on:</strong> it calls <code>update()</code>, in this step or the next, and <code>update()</code> takes the change. The clock runs on.</li>
+<li><strong>The wait ends:</strong> the callback returns, and the spawner gets its answer. The controllers run.</li>
+</ol>
+</div>
+</div>
+</div>
+<p><strong>Timing:</strong> the stall depends on timing. The stall needs a request of the spawner in the queue at the moment that the original plugin spins, before a spinner thread has taken the request. So the stall hits only some starts of the simulation. <a href="https://github.com/ros-mobile-robots/diffbot/issues/185">diffbot#185</a> counts how many starts stalled with the original and with the copy.</p>
+<p><strong>No spinning in the copy:</strong> the copy needs no spinning of its own, because it only publishes and has no callbacks. The spinner threads run the calls that wait in the global queue, the controller manager's among them.</p>
+<p>The three collapsed boxes show the lines of code behind steps 2 and 4.</p>
+<details class="example">
+<summary>Step 2: the original plugin calls <code>ros::spinOnce()</code> after it publishes</summary>
+<p>The excerpt shows the end of the original plugin's <code>UpdateChild()</code>, from <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L153"><code>gazebo_ros_imu_sensor.cpp</code> in gazebo_plugins 2.9.3, lines 137–153</a>, under the Apache License 2.0. Line 146 publishes the message, and line 150, the highlighted one, spins the global queue in the thread that called <code>UpdateChild()</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp (gazebo_plugins 2.9.3): publish(), then ros::spinOnce()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">    </span><span class="c1">//preparing message header</span>
+<span class="w">    </span><span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">frame_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">body_name</span><span class="p">;</span>
+<span class="w">    </span><span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">.</span><span class="n">sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">.</span><span class="n">sec</span><span class="p">;</span>
+<span class="w">    </span><span class="n">imu_msg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">stamp</span><span class="p">.</span><span class="n">nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">.</span><span class="n">nsec</span><span class="p">;</span>
+<span class="cp">#ifdef ENABLE_PROFILER</span>
+<span class="w">    </span><span class="n">IGN_PROFILE_END</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">//publishing data</span>
+<span class="w">    </span><span class="n">IGN_PROFILE_BEGIN</span><span class="p">(</span><span class="s">"publish"</span><span class="p">);</span>
+<span class="cp">#endif</span>
+<span class="w">    </span><span class="n">imu_data_publisher</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">imu_msg</span><span class="p">);</span>
+<span class="cp">#ifdef ENABLE_PROFILER</span>
+<span class="w">    </span><span class="n">IGN_PROFILE_END</span><span class="p">();</span>
+<span class="cp">#endif</span>
+<span class="hll"><span class="w">    </span><span class="n">ros</span><span class="o">::</span><span class="n">spinOnce</span><span class="p">();</span>
+</span><span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">last_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_time</span><span class="p">;</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<details class="example">
+<summary>Step 4: the callback of <code>switch_controller</code> waits for <code>update()</code></summary>
+<p>The excerpt shows the wait in the controller manager's <code>switchController()</code>, from <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L605-L630"><code>controller_manager.cpp</code> in ros_control 0.20.0, lines 605–630</a>, under the BSD license. Line 610 notes the change by setting <code>switch_params_.do_switch</code>. The loop from line 616 on, the highlighted line, sleeps until <code>update()</code> has set <code>do_switch</code> back to false. With <code>timeout == 0</code>, line 623 never lets the loop give up:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">controller_manager.cpp (ros_control 0.20.0): the wait of switch_controller</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// start the atomic controller switching</span>
+<span class="n">switch_params_</span><span class="p">.</span><span class="n">strictness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strictness</span><span class="p">;</span>
+<span class="n">switch_params_</span><span class="p">.</span><span class="n">start_asap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start_asap</span><span class="p">;</span>
+<span class="n">switch_params_</span><span class="p">.</span><span class="n">init_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ros</span><span class="o">::</span><span class="n">Time</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="n">switch_params_</span><span class="p">.</span><span class="n">timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeout</span><span class="p">;</span>
+<span class="n">switch_params_</span><span class="p">.</span><span class="n">do_switch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+
+<span class="c1">// wait until switch is finished</span>
+<span class="n">ROS_DEBUG</span><span class="p">(</span><span class="s">"Request atomic controller switch from realtime loop"</span><span class="p">);</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">start_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">timed_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="hll"><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">switch_params_</span><span class="p">.</span><span class="n">do_switch</span><span class="p">)</span>
+</span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">())</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="n">count</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">timeout</span><span class="o">+</span><span class="mf">1.0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">timeout</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span>
+<span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="p">(</span><span class="mi">100</span><span class="p">));</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">ROS_DEBUG</span><span class="p">(</span><span class="s">"Timed out while switching controllers. Exiting..."</span><span class="p">);</span>
+<span class="w">      </span><span class="n">timed_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">      </span><span class="k">break</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<details class="example">
+<summary>Step 4: the callback of <code>load_controller</code> waits for <code>update()</code> too</summary>
+<p>The excerpt shows the wait in the controller manager's <code>loadController()</code>, from <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L349-L359"><code>controller_manager.cpp</code> in ros_control 0.20.0, lines 349–359</a>. The callback switches to a new list of controllers and sleeps until <code>update()</code>, which the comment calls the realtime thread, no longer uses the old list. This loop has no time limit:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">controller_manager.cpp (ros_control 0.20.0): the wait of load_controller</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Destroys the old controllers list when the realtime thread is finished with it.</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">former_current_controllers_list_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_controllers_list_</span><span class="p">;</span>
+<span class="n">current_controllers_list_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">free_controllers_list</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">used_by_realtime_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">former_current_controllers_list_</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ros</span><span class="o">::</span><span class="n">ok</span><span class="p">())</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="p">(</span><span class="mi">200</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<h3 id="the-terms-in-the-drawings">The terms in the drawings</h3>
 <p>This section explains three terms, each with an example from the simulation, and one fact about the controller manager.</p>
 <p><strong>Threads:</strong> a program can do several things at the same time, each in a <strong>thread</strong>. A thread runs one function after the other. While a thread is inside a function that waits, it can't do anything else. The threads of one program share the program's data.</p>
 <p><em>Example:</em> the Gazebo server, <code>gzserver</code>, has a <strong>physics thread</strong>, which computes the simulation step by step. Each step moves the simulation's clock forward by 1 ms, the <code>max_step_size</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_gazebo/worlds/diffbot_empty.world#L15">line 15 of the test's world file</a>. At the start of every step, the physics thread calls the update functions of the plugins, one after the other. Two of them matter here:</p>
@@ -4929,195 +5191,32 @@
 <li><strong><code>ros::spinOnce()</code></strong> spins the global queue once, in the thread that calls it. It runs the callbacks that wait in the global queue at that moment, and returns when they have returned. The ROS wiki describes <code>ros::spinOnce()</code> under <a href="http://wiki.ros.org/roscpp/Overview/Callbacks%20and%20Spinning#Single-threaded_Spinning">single-threaded spinning</a>, and <a href="https://github.com/ros/ros_comm/blob/1.17.4/clients/roscpp/src/libros/init.cpp#L585-L588">lines 585–588 of roscpp's <code>init.cpp</code></a> are its code.</li>
 </ul>
 <p>Not every service of the Gazebo server uses the global queue. Gazebo's ROS interface gives its own services, such as <code>/gazebo/reset_simulation</code>, a separate queue, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L545-L552">lines 545–552 of its source</a>. A thread of its own runs that queue, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L257-L263">lines 257–263</a>. Neither the spinner threads nor <code>ros::spinOnce()</code> run it, and the rest of this explanation doesn't need it.</p>
-<p><strong>The fact about the controller manager:</strong> its services wait for <code>update()</code>. The controller spawner is a separate ROS node, which <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/launch/diffbot_control.launch#L23-L25"><code>diffbot_control.launch</code></a> starts. The spawner loads and starts the controllers with two of the controller manager's services, <code>load_controller</code> and <code>switch_controller</code>. Their callbacks don't change the running controllers themselves, because <code>update()</code> may be using the controllers at that moment. The callbacks note the change and wait until <code>update()</code> has taken it, in <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L352-L359">lines 352–359</a> and <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L630">lines 612–630 of <code>controller_manager.cpp</code></a>. <code>switch_controller</code> can give up after a time limit. The spawner asks for none: it passes 0, in <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/scripts/spawner#L212">line 212 of its source</a>.</p>
-<h3 id="what-goes-wrong-with-the-original-plugin">What goes wrong with the original plugin</h3>
-<p>The original plugin's <code>UpdateChild()</code> calls <code>ros::spinOnce()</code> after it publishes, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L150">line 150 of its source</a>. So the physics thread spins the global queue in every call that publishes. The figure follows one <code>switch_controller</code> request of the spawner. Its numbers are the steps below:</p>
-<style>
-.md-typeset figure.th-figure{margin:1em auto;width:100%;max-width:480px}
-.th-fig{width:100%;height:auto;--th-request:#1e63c4;--th-stuck:#c62828;font-family:var(--md-text-font-family,Roboto),sans-serif}
-[data-md-color-scheme=slate] .th-fig{--th-request:#82b1ff;--th-stuck:#ef6a6a}
-.th-fig text{fill:var(--md-default-fg-color);font-size:12px}
-.th-fig .lane-name{font-weight:700;fill:var(--md-default-fg-color--light)}
-.th-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
-.th-fig .note{font-size:11px;fill:var(--md-default-fg-color--light)}
-.th-fig .stuck-text{fill:var(--th-stuck)}
-.th-fig .strong{font-weight:700}
-.th-fig .lane{fill:var(--md-default-fg-color--lightest);stroke:none}
-.th-fig .box{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
-.th-fig .queue{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3}
-.th-fig .callback{fill:var(--md-default-bg-color);stroke:var(--th-request);stroke-width:1.8}
-.th-fig .idle{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.th-fig .stuck{fill:none;stroke:var(--th-stuck);stroke-width:1.6;stroke-dasharray:5 3}
-.th-fig .open{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
-.th-fig .flow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
-.th-fig .flow-head{fill:var(--md-default-fg-color--light)}
-.th-fig .request{fill:none;stroke:var(--th-request);stroke-width:1.8}
-.th-fig .request-head{fill:var(--th-request)}
-.th-fig .step-disc{fill:var(--md-default-fg-color)}
-.th-fig .step{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
-</style>
-<figure class="th-figure">
-<div class="th-panel">
-<svg class="th-fig" viewBox="0 0 360 352" role="img" aria-labelledby="th-original-title th-original-description"><title id="th-original-title">The request with the original IMU plugin</title><desc id="th-original-description">Step 1: the controller spawner, another ROS node, sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and calls ros::spinOnce(). Step 3: ros::spinOnce() takes the request from the queue and runs the callback in the physics thread. Step 4: the callback notes the change and waits for update(). Step 5: update() never runs, because its thread is waiting. This is a deadlock: the clock stops. The ROS spinner thread finds the queue empty.</desc><defs><marker id="th-original-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="th-original-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
-<rect class="box" x="18" y="8" width="152" height="38" rx="4"></rect>
-<text x="94.0" y="24" text-anchor="middle">controller spawner</text>
-<text class="note" x="94.0" y="38" text-anchor="middle">another ROS node</text>
-<rect class="queue" x="200" y="8" width="152" height="38" rx="4"></rect>
-<text x="276.0" y="24" text-anchor="middle">global callback queue</text>
-<text class="note" x="276.0" y="38" text-anchor="middle">a waiting list</text>
-<path class="request" d="M170,27.0 H199" marker-end="url(#th-original-request)"></path>
-<circle class="step-disc" cx="185.0" cy="15.0" r="8"></circle>
-<text class="step" x="185.0" y="19.0" text-anchor="middle">1</text>
-<rect class="lane" x="18" y="62" width="160" height="286" rx="6"></rect>
-<text class="lane-name" x="98.0" y="79" text-anchor="middle">physics thread</text>
-<rect class="lane" x="186" y="62" width="166" height="286" rx="6"></rect>
-<text class="lane-name" x="269.0" y="79" text-anchor="middle">ROS spinner thread</text>
-<text class="note" transform="translate(13,66) rotate(-90)" text-anchor="end">time</text>
-<path class="flow" d="M9,96 V342" marker-end="url(#th-original-flow)"></path>
-<path class="box" d="M22,262 V88 H174 V262"></path>
-<path class="open" d="M22,262 V278 M174,262 V278"></path>
-<text class="mono" x="98.0" y="104" text-anchor="middle">UpdateChild()</text>
-<text class="note" x="98.0" y="118" text-anchor="middle">publishes the IMU message</text>
-<circle class="step-disc" cx="22" cy="88" r="8"></circle>
-<text class="step" x="22" y="92" text-anchor="middle">2</text>
-<path class="box" d="M28,258 V126 H168 V258"></path>
-<path class="open" d="M28,258 V272 M168,258 V272"></path>
-<text class="mono" x="98.0" y="142" text-anchor="middle">ros::spinOnce()</text>
-<text class="note" x="98.0" y="156" text-anchor="middle">runs the callback here</text>
-<rect class="callback" x="34" y="166" width="128" height="66" rx="4"></rect>
-<text class="mono" x="98.0" y="183" text-anchor="middle">switch_controller</text>
-<text class="note" x="98.0" y="197" text-anchor="middle">callback</text>
-<text x="98.0" y="211" text-anchor="middle">notes the change,</text>
-<text x="98.0" y="225" text-anchor="middle">waits for update()</text>
-<circle class="step-disc" cx="34" cy="166" r="8"></circle>
-<text class="step" x="34" y="170" text-anchor="middle">4</text>
-<path class="request" d="M338,46 V150 H169" marker-end="url(#th-original-request)"></path>
-<circle class="step-disc" cx="338" cy="112" r="8"></circle>
-<text class="step" x="338" y="116" text-anchor="middle">3</text>
-<rect class="stuck" x="22" y="286" width="152" height="38" rx="4"></rect>
-<text class="mono stuck-text" x="98.0" y="303" text-anchor="middle">update()</text>
-<text class="note" x="98.0" y="317" text-anchor="middle">never runs: its thread waits</text>
-<circle class="step-disc" cx="22" cy="286" r="8"></circle>
-<text class="step" x="22" y="290" text-anchor="middle">5</text>
-<text class="stuck-text strong" x="98.0" y="340" text-anchor="middle">deadlock: the clock stops</text>
-<rect class="idle" x="206" y="176" width="126" height="38" rx="4"></rect>
-<text class="note" x="269.0" y="193" text-anchor="middle">finds the queue</text>
-<text class="note" x="269.0" y="207" text-anchor="middle">empty</text>
-</svg>
-</div>
-<figcaption>With gazebo_plugins’ original <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin. Time runs downward, and the numbers are the steps in the text. Blue is the <code>switch_controller</code> request and its callback. The callback runs in the physics thread and waits for an <code>update()</code> that only this thread can run.</figcaption>
-</figure>
-<ol>
-<li>The controller spawner calls <code>switch_controller</code>. The request arrives in the Gazebo server and waits in the global callback queue.</li>
-<li>Before a spinner thread takes the request, the physics thread starts a step and calls <code>UpdateChild()</code>. The plugin publishes its message and calls <code>ros::spinOnce()</code>.</li>
-<li><code>ros::spinOnce()</code> finds the request in the queue and runs the service's callback, in the physics thread.</li>
-<li>The callback notes which controllers to start, and waits until <code>update()</code> has taken the change.</li>
-<li><code>update()</code> runs only in the physics thread. But the physics thread is still inside <code>UpdateChild()</code>, waiting in the callback. The physics thread waits for itself. This is a <strong>deadlock</strong>: <code>update()</code> never runs, the callback never returns, and the simulation step never ends. The simulation's clock stops for good, and the spawner never gets its answer.</li>
-</ol>
-<p>The stall depends on timing. It needs a request of the spawner in the queue at the moment that the plugin spins, before a spinner thread has taken the request. So the stall hits only some starts of the simulation. <a href="https://github.com/ros-mobile-robots/diffbot/issues/185">diffbot#185</a> counts how many starts stalled with the original and with the copy.</p>
-<h3 id="what-the-copy-does-instead">What the copy does instead</h3>
-<p>The copy's <code>UpdateChild()</code> ends after it publishes, as <a href="../measurement-to-message/#the-header-and-publishing">the header and publishing</a> shows. So the physics thread never runs a callback. The figure follows the same request, with the copy:</p>
-<style>
-.md-typeset figure.th-figure{margin:1em auto;width:100%;max-width:480px}
-.th-fig{width:100%;height:auto;--th-request:#1e63c4;--th-stuck:#c62828;font-family:var(--md-text-font-family,Roboto),sans-serif}
-[data-md-color-scheme=slate] .th-fig{--th-request:#82b1ff;--th-stuck:#ef6a6a}
-.th-fig text{fill:var(--md-default-fg-color);font-size:12px}
-.th-fig .lane-name{font-weight:700;fill:var(--md-default-fg-color--light)}
-.th-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:11.5px}
-.th-fig .note{font-size:11px;fill:var(--md-default-fg-color--light)}
-.th-fig .stuck-text{fill:var(--th-stuck)}
-.th-fig .strong{font-weight:700}
-.th-fig .lane{fill:var(--md-default-fg-color--lightest);stroke:none}
-.th-fig .box{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
-.th-fig .queue{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:4 3}
-.th-fig .callback{fill:var(--md-default-bg-color);stroke:var(--th-request);stroke-width:1.8}
-.th-fig .idle{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.th-fig .stuck{fill:none;stroke:var(--th-stuck);stroke-width:1.6;stroke-dasharray:5 3}
-.th-fig .open{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 3}
-.th-fig .flow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
-.th-fig .flow-head{fill:var(--md-default-fg-color--light)}
-.th-fig .request{fill:none;stroke:var(--th-request);stroke-width:1.8}
-.th-fig .request-head{fill:var(--th-request)}
-.th-fig .step-disc{fill:var(--md-default-fg-color)}
-.th-fig .step{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
-</style>
-<figure class="th-figure">
-<div class="th-panel">
-<svg class="th-fig" viewBox="0 0 360 322" role="img" aria-labelledby="th-copy-title th-copy-description"><title id="th-copy-title">The request with the robots’ copy of the IMU plugin</title><desc id="th-copy-description">Step 1: the controller spawner sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and returns. Step 3: a ROS spinner thread takes the request and runs the callback, which notes the change and waits for update(). Step 4: the physics thread goes on and calls update(), which takes the change. Step 5: the callback returns, and the spawner gets its answer.</desc><defs><marker id="th-copy-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="th-copy-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
-<rect class="box" x="18" y="8" width="152" height="38" rx="4"></rect>
-<text x="94.0" y="24" text-anchor="middle">controller spawner</text>
-<text class="note" x="94.0" y="38" text-anchor="middle">another ROS node</text>
-<rect class="queue" x="200" y="8" width="152" height="38" rx="4"></rect>
-<text x="276.0" y="24" text-anchor="middle">global callback queue</text>
-<text class="note" x="276.0" y="38" text-anchor="middle">a waiting list</text>
-<path class="request" d="M170,27.0 H199" marker-end="url(#th-copy-request)"></path>
-<circle class="step-disc" cx="185.0" cy="15.0" r="8"></circle>
-<text class="step" x="185.0" y="19.0" text-anchor="middle">1</text>
-<rect class="lane" x="18" y="62" width="160" height="256" rx="6"></rect>
-<text class="lane-name" x="98.0" y="79" text-anchor="middle">physics thread</text>
-<rect class="lane" x="186" y="62" width="166" height="256" rx="6"></rect>
-<text class="lane-name" x="269.0" y="79" text-anchor="middle">ROS spinner thread</text>
-<text class="note" transform="translate(13,66) rotate(-90)" text-anchor="end">time</text>
-<path class="flow" d="M9,96 V312" marker-end="url(#th-copy-flow)"></path>
-<rect class="box" x="22" y="88" width="152" height="52" rx="4"></rect>
-<text class="mono" x="98.0" y="105" text-anchor="middle">UpdateChild()</text>
-<text class="note" x="98.0" y="119" text-anchor="middle">publishes the IMU message</text>
-<text class="note" x="98.0" y="133" text-anchor="middle">and returns</text>
-<circle class="step-disc" cx="22" cy="88" r="8"></circle>
-<text class="step" x="22" y="92" text-anchor="middle">2</text>
-<rect class="box" x="22" y="150" width="152" height="38" rx="4"></rect>
-<text class="mono" x="98.0" y="167" text-anchor="middle">update()</text>
-<text class="note" x="98.0" y="181" text-anchor="middle">runs the controllers</text>
-<rect class="callback" x="22" y="222" width="152" height="38" rx="4"></rect>
-<text class="mono" x="98.0" y="239" text-anchor="middle">update()</text>
-<text class="note" x="98.0" y="253" text-anchor="middle">takes the change</text>
-<circle class="step-disc" cx="22" cy="222" r="8"></circle>
-<text class="step" x="22" y="226" text-anchor="middle">4</text>
-<text class="note" x="98.0" y="282" text-anchor="middle">next steps: the clock</text>
-<text class="note" x="98.0" y="296" text-anchor="middle">runs on</text>
-<path class="request" d="M338,46 V87" marker-end="url(#th-copy-request)"></path>
-<rect class="callback" x="190" y="88" width="158" height="172" rx="4"></rect>
-<text class="mono" x="269.0" y="105" text-anchor="middle">switch_controller</text>
-<text class="note" x="269.0" y="119" text-anchor="middle">callback</text>
-<text x="269.0" y="133" text-anchor="middle">notes the change,</text>
-<text x="269.0" y="147" text-anchor="middle">waits for update()</text>
-<circle class="step-disc" cx="190" cy="88" r="8"></circle>
-<text class="step" x="190" y="92" text-anchor="middle">3</text>
-<path class="request" d="M174,241 H189" marker-end="url(#th-copy-request)"></path>
-<text class="note" x="269.0" y="245" text-anchor="middle">the change is taken</text>
-<path class="flow" d="M269.0,260 V280" marker-end="url(#th-copy-flow)"></path>
-<circle class="step-disc" cx="207.0" cy="296" r="8"></circle>
-<text class="step" x="207.0" y="300" text-anchor="middle">5</text>
-<text class="note" x="277.0" y="294" text-anchor="middle">returns: the spawner</text>
-<text class="note" x="277.0" y="308" text-anchor="middle">gets its answer</text>
-</svg>
-</div>
-<figcaption>With the robots’ copy of the plugin. A ROS spinner thread runs the callback and waits. The physics thread goes on and calls <code>update()</code>.</figcaption>
-</figure>
-<ol>
-<li>The request waits in the global callback queue, as before.</li>
-<li>The physics thread calls <code>UpdateChild()</code>. The copy publishes its message and returns.</li>
-<li>A ROS spinner thread takes the request and runs the callback. The callback notes the change and waits, in the spinner thread.</li>
-<li>The physics thread goes on. It calls <code>update()</code>, in this step or the next, and <code>update()</code> takes the change.</li>
-<li>The callback returns, and the spawner gets its answer. The controllers run.</li>
-</ol>
-<p>The copy needs no spinning of its own, because it only publishes: it has no callbacks. The spinner threads run the calls that wait in the global queue, the controller manager's among them.</p>
+<p><strong>The fact about the controller manager:</strong> its services wait for <code>update()</code>. The controller spawner is a separate ROS node, which <a href="https://github.com/ros-mobile-robots/diffbot/blob/cd41eadbbec48859d82baf991f587e86fa387814/diffbot_control/launch/diffbot_control.launch#L23-L25"><code>diffbot_control.launch</code></a> starts. The spawner loads and starts the controllers with two of the controller manager's services, <code>load_controller</code> and <code>switch_controller</code>. Their callbacks don't change the running controllers themselves, because <code>update()</code> may be using the controllers at that moment. The callbacks note the change and wait until <code>update()</code> has taken it, as the two collapsed boxes of <a href="#one-request-with-each-plugin">step 4</a> show. <code>switch_controller</code> can give up after a time limit. The spawner asks for none: it passes 0 as the last argument, in <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/scripts/spawner#L212">line 212 of its source</a>.</p>
 <h3 id="why-not-just-wait">Why not just wait?</h3>
 <p>The deadlock comes from the physics thread running a callback that waits for the physics thread. The first three ideas below wait differently and don't remove that dependency. The fourth removes it in another place:</p>
 <ul>
 <li><strong>A delay, or starting Gazebo paused:</strong> a delay at the start might change which thread takes the spawner's request, but the unsafe path stays. Starting Gazebo paused doesn't help either. The controllers start only when <code>update()</code> takes the change, and the physics thread calls <code>update()</code> only while the simulation runs. So the request waits for the simulation to run, and then the same path is open. Later requests to the controller manager can take this path too.</li>
 <li><strong>A condition variable</strong> lets a thread sleep until another thread signals it. The callback already waits. Waiting on a condition variable instead of polling would still block the physics thread, which is the only thread that can run <code>update()</code>.</li>
-<li><strong>A timeout:</strong> <code>switch_controller</code> has an escape: with a positive timeout, its callback returns a failure about a second after the timeout, in <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L636">lines 612–636 of <code>controller_manager.cpp</code></a>. The spawner passes 0, which turns that escape off. <code>load_controller</code> has no timeout at all. And a failed switch wouldn't start the controllers anyway.</li>
+<li><strong>A timeout:</strong> <code>switch_controller</code> has an escape: with a positive timeout, its callback returns a failure about a second after the timeout, in <a href="https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L636">lines 612–636 of <code>controller_manager.cpp</code></a>, most of which the collapsed box of <a href="#one-request-with-each-plugin">step 4</a> shows. The spawner passes 0, which turns that escape off. <code>load_controller</code> has no timeout at all. And a failed switch wouldn't start the controllers anyway.</li>
 <li><strong>A separate queue for the controller manager</strong>, served by a thread of its own, would also keep the callbacks out of the physics thread. That needs a change in <code>gazebo_ros_control</code>, which passes the controller manager an ordinary node handle on the global queue, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L149-L150">lines 149–150 of its source</a>.</li>
 </ul>
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin only publishes, so it has no callbacks of its own to run. Leaving out <code>ros::spinOnce()</code> is the smallest change that keeps the physics thread out of the queue. The packaged plugin has no option to turn off this call. The robots load their own library, so the fix doesn't require replacing gazebo_plugins' installed library.</p>
 <h2 id="publishing-again-after-a-reset">Publishing again after a reset</h2>
 <p>A reset of the simulation sets Gazebo's clock back to zero. <code>/gazebo/reset_simulation</code> is the ROS service for a reset, one of <a href="https://classic.gazebosim.org/tutorials?tut=ros_comm#Services:Simulationcontrol">Gazebo's simulation control services</a>. For example: <code>rosservice call /gazebo/reset_simulation</code>.</p>
-<p>Both plugins limit their rate. They compare the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's time, <code>current_time</code> in the code, with <code>last_time</code>, the time of their last update:</p>
+<p>Both plugins limit their rate. They compare the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's update time, <code>current_time</code> in the code, with <code>last_time</code>, the time of their last update:</p>
 <ul>
-<li><strong>The original</strong> has only this rate limit, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L97-L100">lines 97–100 of its source</a>. After a reset, <code>current_time</code> starts from zero again, and <code>last_time</code> still holds a time from before the reset. The difference of the two is negative, so the rate limit stops every call until the clock has passed its value from before the reset. The longer the simulation ran before the reset, the longer the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stays silent.</li>
+<li><strong>The original</strong> has only this rate limit. After a reset, <code>current_time</code> starts from zero again, and <code>last_time</code> still holds a time from before the reset. The difference of the two is negative, so the rate limit stops every call until the clock has passed its value from before the reset. The longer the simulation ran before the reset, the longer the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stays silent.</li>
 <li><strong>The copy</strong> sets <code>last_time</code> to <code>current_time</code> when <code>current_time</code> is the earlier one. The rate limit then counts from the new time, and the plugin can publish again one period, 20 ms, later. <a href="../measurement-to-message/#the-checks-before-a-call-publishes">The checks before a call publishes</a> shows these lines.</li>
 </ul>
+<p>The excerpt shows the original's rate limit, from <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L97-L100"><code>gazebo_ros_imu_sensor.cpp</code> in gazebo_plugins 2.9.3, lines 97–100</a>. With a <code>last_time</code> of 3 s and a <code>current_time</code> of 0.02 s, the difference in line 99 is −2.98 s, which is less than one period, so line 100 returns:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp (gazebo_plugins 2.9.3): the rate limit</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">common</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">current_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sensor</span><span class="o">-&gt;</span><span class="n">LastUpdateTime</span><span class="p">();</span>
+
+<span class="k">if</span><span class="p">(</span><span class="n">update_rate</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">current_time</span><span class="o">-</span><span class="n">last_time</span><span class="p">).</span><span class="n">Double</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="n">update_rate</span><span class="p">)</span><span class="w"> </span><span class="c1">//update rate check</span>
+<span class="w">  </span><span class="k">return</span><span class="p">;</span>
+</code></pre></div></td></tr></tbody></table></div>
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> start over when the clock goes back, as <a href="../../robot_localization/#the-imu-sample-validator">the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a> and <a href="../../robot_localization/#limits">the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s limits</a> on the Localization page explain. So both need the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples right after a reset. <a href="../tests/#the-reset-test">The reset test</a> checks that the samples come.</p>
 <p>gazebo_plugins itself has a plugin that treats a clock that went back as the copy does: <code>gazebo_ros_p3d</code>, in <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_p3d.cpp#L240-L244">lines 240–244 of its source</a>. <code>gazebo_ros_p3d</code> publishes a link's true pose and velocity in the simulation, as an odometry message. This page names <code>gazebo_ros_p3d</code> only as an example of the same handling. <code>gazebo_ros_p3d</code> can't stand in for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin: it reads no <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor, and it publishes no acceleration and no <code>sensor_msgs/Imu</code> message.</p>
 <h2 id="the-plugins-library-in-remos-urdf-model">The plugin's library in Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model</h2>
