@@ -257,8 +257,8 @@ EXTRA_RULES = (
     # A label that lies on a line: the page's background around the letters keeps it readable
     ('.lv-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:4px;stroke-linejoin:round'),
     ('.lv-fig .lifeline', f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:3 3'),
-    ('.lv-fig .message', f'fill:none;stroke:{FG};stroke-width:1.3'),
-    ('.lv-fig .message-head', f'fill:{FG};stroke:none'),
+    ('.lv-fig .message,.lv-key .message', f'fill:none;stroke:{FG};stroke-width:1.3'),
+    ('.lv-fig .message-head,.lv-key .message-head', f'fill:{FG};stroke:none'),
     # The keys of the HTML legends: a small drawing or a sign in front of each line
     ('.lv-legend .lv-key', 'display:inline-block;width:2em;height:1em;vertical-align:-.12em;'
                            'margin-right:.4em;overflow:visible'),
@@ -960,8 +960,9 @@ def chart_legends(run: Run) -> List[str]:
         f'of phase 2, {run.end_of_phase_2} rad/s, and of phase 6, {run.end_of_phase_6} rad/s',
         key(f'<path class="estimate-first" d="{diamond(12, 6)}"/>')
         + f"the filter's estimate in the first output of phase 2, {run.start_of_phase_2} "
-        'rad/s. The run printed only the first and the last estimate of phase 2, so the chart '
-        'has no line between them',
+        "rad/s, drawn a little right of the start of phase 2, so that it doesn't hide the dot "
+        'of phase 1. The run printed only the first and the last estimate of phase 2, so the '
+        'chart has no line between them',
     )
     return [
         band('What each step sends'),
@@ -1293,12 +1294,16 @@ def robot_rates_chart(run: RobotRatesRun) -> Figure:
 def robot_rates_legends(run: RobotRatesRun) -> List[str]:
     """Return the HTML parts below the chart of robot_rates."""
     phase_2 = run.phase_2()
+    wheel_messages_of_phase_1 = FUSION_STEPS // STEPS_PER_WHEEL_MESSAGE
+    wheel_messages_before_the_change = SPEED_CHANGE_STEP // STEPS_PER_WHEEL_MESSAGE
     inputs = (
         key('<path class="wheels-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
         + 'a wheel message in every fifth step, '
         f'{round(1000 * WHEEL_PERIOD_S)} ms of ROS time, in both phases. It reports '
-        f'{WHEEL_RATE} rad/s, the blue line, and a forward speed of {SPEED} m/s, from step '
-        f'{SPEED_CHANGE_STEP} of phase 1 on {CHANGED_SPEED} m/s. The chart shows the yaw rates '
+        f'{WHEEL_RATE} rad/s, the blue line, and a forward speed of {SPEED} m/s in the first '
+        f'{wheel_messages_before_the_change} wheel messages of phase 1, {CHANGED_SPEED} m/s in '
+        f'its last {wheel_messages_of_phase_1 - wheel_messages_before_the_change}, and {SPEED} '
+        f'm/s again in the {IMU_STOPPED_WHEEL_MESSAGES} of phase 2. The chart shows the yaw rates '
         'only',
         key('<path class="imu-tick" d="M12,1 v10"/>', 'lv-key lv-narrow')
         + f'a valid IMU sample in every step of phase 1, {round(1000 * STEP_S)} ms. It reports '

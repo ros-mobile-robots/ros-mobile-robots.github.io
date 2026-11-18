@@ -58,8 +58,8 @@
 .lv-large .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
-.lv-fig .message-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
 .lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
@@ -135,7 +135,7 @@
 </svg>
 <p class="lv-band">What the steps send</p>
 <ul class="lv-legend lv-keys">
-<li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="wheels-tick" d="M12,1 v10"/></svg>a wheel message in every fifth step, 100 ms of ROS time, in both phases. It reports 0.4 rad/s, the blue line, and a forward speed of 0.1 m/s, from step 100 of phase 1 on 0.12 m/s. The chart shows the yaw rates only</li>
+<li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="wheels-tick" d="M12,1 v10"/></svg>a wheel message in every fifth step, 100 ms of ROS time, in both phases. It reports 0.4 rad/s, the blue line, and a forward speed of 0.1 m/s in the first 20 wheel messages of phase 1, 0.12 m/s in its last 10, and 0.1 m/s again in the 20 of phase 2. The chart shows the yaw rates only</li>
 <li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="imu-tick" d="M12,1 v10"/></svg>a valid IMU sample in every step of phase 1, 20 ms. It reports 0.5 rad/s, the orange line. In phase 2, the IMU sends nothing</li>
 </ul>
 <p class="lv-band">What the test asserts</p>
