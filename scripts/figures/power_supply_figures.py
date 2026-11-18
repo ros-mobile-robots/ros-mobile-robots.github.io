@@ -8,8 +8,9 @@ Both are inline SVG that follows the site's light and dark colors:
 
 A thick line is a supply, in the color of its source, with its voltage next to it. A dashed line is
 a data connection. A figure draws a supply only where it is checked on the robot or in the board's
-schematic. On Remo, the camera has only its documented data connection. DiffBot's figure leaves out
-every part whose supply isn't checked.
+schematic. On Remo, the camera has only its documented data connection, and its box says that its
+supply isn't checked. DiffBot's figure leaves out every part whose supply isn't checked. It has no
+legend: its caption names the two colors.
 
 Run from the repository root after changing a figure:
 
@@ -50,8 +51,18 @@ WIDTH = 360
 # The parts on the power bank are in the left column, the motor battery's parts in the right one
 LEFT_X = 10
 LEFT_WIDTH = 140
-RIGHT_X = 220
-RIGHT_WIDTH = 130
+RIGHT_X = 206
+RIGHT_WIDTH = 144
+# Remo's LiDAR and camera are in a column between the two, above the motor driver
+DEVICE_X = 190
+DEVICE_WIDTH = 136
+# The battery's supply line runs down the right column's right side, past the LiDAR and the camera
+BATTERY_LINE_X = RIGHT_X + RIGHT_WIDTH - 12
+# The supply line from the motor driver to the motors runs down the middle of the right column
+MOTOR_LINE_X = RIGHT_X + RIGHT_WIDTH / 2
+# The baselines of two text lines in a box, and of two legend rows, are this far apart
+TEXT_LINE_GAP = 14
+LEGEND_ROW_GAP = 15
 # The supply and the data line of one cable run side by side, this far apart
 PAIR_GAP = 7
 # A supply line ends this far before the part it feeds, and its arrowhead's tip closes the gap
@@ -72,7 +83,7 @@ RULES = (
     ('.pf-fig', 'width:100%;height:auto;--pf-bank:#1e63c4;--pf-battery:#b45309;'
                 'font-family:var(--md-text-font-family,Roboto),sans-serif'),
     ('[data-md-color-scheme=slate] .pf-fig', '--pf-bank:#82b1ff;--pf-battery:#ffab70'),
-    ('.pf-fig text', f'fill:{FG};font-size:10px'),
+    ('.pf-fig text', f'fill:{FG};font-size:11px'),
     ('.pf-fig .part', f'fill:var(--md-default-bg-color);stroke:{FG_LIGHT};stroke-width:1'),
     ('.pf-fig .source', 'fill:var(--md-code-bg-color);stroke-width:2'),
     ('.pf-fig .source.bank', 'stroke:var(--pf-bank)'),
@@ -84,8 +95,8 @@ RULES = (
     ('.pf-fig .line.ground', f'stroke:{FG_LIGHT};stroke-width:1.3'),
     ('.pf-fig .head-bank', 'fill:var(--pf-bank)'),
     ('.pf-fig .head-battery', 'fill:var(--pf-battery)'),
-    ('.pf-fig .name', 'font-size:11px'),
-    ('.pf-fig .note', f'font-size:9.5px;fill:{FG_LIGHT}'),
+    ('.pf-fig .name', 'font-size:12px'),
+    ('.pf-fig .note', f'font-size:11px;fill:{FG_LIGHT}'),
     ('.pf-fig .volt-bank', 'fill:var(--pf-bank);font-weight:700'),
     ('.pf-fig .volt-battery', 'fill:var(--pf-battery);font-weight:700'),
 )
@@ -113,11 +124,11 @@ class Figure:
 
     def box(self, x: float, y: float, width: float, height: float, lines: Sequence[Line],
             css_class: str = 'part') -> None:
-        """Add a box with its text lines centered in it, 13 px apart."""
+        """Add a box with its text lines centered in it, TEXT_LINE_GAP px apart."""
         self.elements.append(f'<rect class="{css_class}" x="{x}" y="{y}" width="{width}" '
                              f'height="{height}" rx="5"/>')
         for index, (text, text_class) in enumerate(lines):
-            baseline = y + height / 2 + (index - (len(lines) - 1) / 2) * 13 + 4
+            baseline = y + height / 2 + (index - (len(lines) - 1) / 2) * TEXT_LINE_GAP + 4
             self.text(x + width / 2, baseline, text, text_class, 'middle')
 
     def line(self, path: str, kind: LineKind) -> None:
@@ -142,7 +153,7 @@ class Figure:
     def legend(self, y: float, entries: Sequence[LegendEntry]) -> None:
         """Add the legend's rows below y: a sample of each line and what it means."""
         for row, entry in enumerate(entries):
-            baseline = y + 14 * row
+            baseline = y + LEGEND_ROW_GAP * row
             self.line(f'M{LEFT_X},{baseline - 3.5} H{LEFT_X + 26}', entry.kind)
             self.text(LEFT_X + 34, baseline, entry.meaning)
 
@@ -172,15 +183,16 @@ def draw_lidar_and_camera(figure: Figure) -> None:
     """Add the LiDAR and the camera on the Raspberry Pi.
 
     The LiDAR's USB adapter gets the supply and the data over one cable. The camera has a data
-    line only.
+    line only, and its box says that its supply isn't checked.
     """
-    left_edge, box_x = LEFT_X + LEFT_WIDTH, 196
-    figure.supply(f'M{left_edge},79 H{box_x - HEAD_TIP}', Source.BANK)
-    figure.line(f'M{left_edge},{79 + PAIR_GAP} H{box_x}', LineKind.DATA)
-    figure.text((left_edge + box_x) / 2, 73, '5 V', 'volt-bank', 'middle')
-    figure.box(box_x, 64, 122, 34, [('RPLidar A2M8', 'name'), ('USB adapter', 'note')])
-    figure.line(f'M{left_edge},118 H{box_x}', LineKind.DATA)
-    figure.box(box_x, 106, 122, 34, [('Raspberry Pi Camera', 'name'), ('camera cable', 'note')])
+    left_edge = LEFT_X + LEFT_WIDTH
+    figure.supply(f'M{left_edge},79 H{DEVICE_X - HEAD_TIP}', Source.BANK)
+    figure.line(f'M{left_edge},{79 + PAIR_GAP} H{DEVICE_X}', LineKind.DATA)
+    figure.text((left_edge + DEVICE_X) / 2, 73, '5 V', 'volt-bank', 'middle')
+    figure.box(DEVICE_X, 62, DEVICE_WIDTH, 36, [('RPLidar A2M8', 'name'), ('USB adapter', 'note')])
+    figure.line(f'M{left_edge},120 H{DEVICE_X}', LineKind.DATA)
+    figure.box(DEVICE_X, 104, DEVICE_WIDTH, 36,
+               [('Raspberry Pi Camera', 'name'), ('supply not checked', 'note')])
 
 
 def draw_battery_and_motors(figure: Figure, battery: Sequence[Line], voltage: str,
@@ -191,12 +203,13 @@ def draw_battery_and_motors(figure: Figure, battery: Sequence[Line], voltage: st
     voltage is the battery's nominal voltage, and driver_y is the top of the motor driver's box.
     """
     figure.box(RIGHT_X, 6, RIGHT_WIDTH, 38, battery, 'source battery')
-    figure.supply(f'M338,44 V{driver_y - HEAD_TIP}', Source.BATTERY)
-    figure.text(330, driver_y - 20, voltage, 'volt-battery', 'end')
+    figure.supply(f'M{BATTERY_LINE_X},44 V{driver_y - HEAD_TIP}', Source.BATTERY)
+    figure.text(BATTERY_LINE_X - 8, driver_y - 20, voltage, 'volt-battery', 'end')
     figure.box(RIGHT_X, driver_y, RIGHT_WIDTH, 54, driver)
-    figure.supply(f'M285,{driver_y + 54} V{driver_y + 104 - HEAD_TIP}', Source.BATTERY)
-    figure.text(277, driver_y + 77, 'switched on and off', 'volt-battery', 'end')
-    figure.text(277, driver_y + 89, 'by the driver (PWM)', 'volt-battery', 'end')
+    figure.supply(f'M{MOTOR_LINE_X},{driver_y + 54} V{driver_y + 104 - HEAD_TIP}',
+                  Source.BATTERY)
+    figure.text(MOTOR_LINE_X - 8, driver_y + 76, 'switched on and off', 'volt-battery', 'end')
+    figure.text(MOTOR_LINE_X - 8, driver_y + 90, 'by the driver (PWM)', 'volt-battery', 'end')
     figure.box(RIGHT_X, driver_y + 104, RIGHT_WIDTH, 38, [('Two DG01D-E motors', 'name')])
 
 
@@ -222,8 +235,8 @@ def draw_driver_logic_lines(figure: Figure) -> None:
 
 def draw_teensy_sensors(figure: Figure) -> None:
     """Add the Teensy's sensors, the encoders and the IMU, each with its supply and data line."""
-    for x, width, lines in ((LEFT_X, 66, [('Encoders', 'name'), ('both wheels', 'note')]),
-                            (LEFT_X + 74, 66, [('IMU', 'name'), ('BNO055', 'note')])):
+    for x, width, lines in ((LEFT_X, 68, [('Encoders', 'name'), ('both wheels', 'note')]),
+                            (LEFT_X + 72, 68, [('IMU', 'name'), ('BNO055', 'note')])):
         figure.supply(f'M{x + 18},240 V{290 - HEAD_TIP}', Source.BANK)
         figure.line(f'M{x + 18 + PAIR_GAP},240 V290', LineKind.DATA)
         figure.text(x + 31, 269, '3.3 V', 'volt-bank')
@@ -231,7 +244,7 @@ def draw_teensy_sensors(figure: Figure) -> None:
 
 
 def remo_power_flow_figure() -> Figure:
-    """Return Remo's figure: every part's supply is checked."""
+    """Return Remo's figure: every part with its checked supply, and the camera's data line."""
     figure = Figure('pf-remo', 400, "Remo's power flow: the power bank supplies the Raspberry Pi, "
                     'the LiDAR, the Teensy and its sensors, and the six NiMH cells supply the '
                     'motors')
@@ -243,20 +256,22 @@ def remo_power_flow_figure() -> Figure:
     draw_teensy(figure)
     draw_driver_logic_lines(figure)
     draw_teensy_sensors(figure)
-    figure.legend(352, (LEGEND_BANK, LEGEND_BATTERY, LEGEND_DATA, LEGEND_GROUND))
+    figure.legend(350, (LEGEND_BANK, LEGEND_BATTERY, LEGEND_DATA, LEGEND_GROUND))
     return figure
 
 
 def diffbot_power_flow_figure() -> Figure:
-    """Return DiffBot's figure: its two supplies, which are the parts that are checked."""
-    figure = Figure('pf-diffbot', 292, "DiffBot's power flow: the power bank supplies the "
+    """Return DiffBot's figure: its two supplies, which are the parts that are checked.
+
+    The figure has no legend. Its caption names the two colors.
+    """
+    figure = Figure('pf-diffbot', 246, "DiffBot's power flow: the power bank supplies the "
                     'Raspberry Pi, and the four AA batteries supply the motors')
     draw_power_bank_and_pi(figure)
     draw_battery_and_motors(figure, [('Four AA batteries', 'name'), ('alkaline', 'note')],
                             '6.0 V nominal', [
         ('Motor driver', 'name'), ('Grove I2C Motor Driver', 'note'),
         ('makes 5 V for its logic', 'note')], driver_y=96)
-    figure.legend(264, (LEGEND_BANK, LEGEND_BATTERY))
     return figure
 
 
@@ -270,11 +285,14 @@ def write_include(path: str, figure: Figure, caption: str, style: str = '') -> N
 def main() -> None:
     """Write both includes."""
     write_include('includes/power-supply-flow-diffbot.html', diffbot_power_flow_figure(),
-                  "DiffBot's two supplies. Follow each color from its source at the top.",
+                  "DiffBot's two supplies. The blue line is the Raspberry Pi's supply from the "
+                  'power bank. The orange lines are the motor supply from the four batteries.',
                   style_element(RULES) + '\n')
     write_include('includes/power-supply-flow-remo.html', remo_power_flow_figure(),
                   "Remo's two supplies. Follow each color from its source at the top. The motor "
-                  'driver is the only part on both supplies.')
+                  'driver is the only part on both supplies. Its logic gets 3.3 V from the power '
+                  'bank through the Raspberry Pi and the Teensy. Its motors get the voltage of '
+                  'the six cells.')
 
 
 if __name__ == '__main__':
