@@ -1,16 +1,23 @@
 """Generate the thread figures on docs/packages/imu/simulation/plugin.md.
 
-It writes two includes, as inline SVG that follows the site's light and dark colors. Both follow
-one switch_controller request of the controller spawner through the Gazebo server, with the same
-two lanes, Gazebo's physics thread and one of the ROS spinner threads, and time running downward:
+It writes one include, includes/imu-sim-threads.html, with two drawings as inline SVG that
+follows the site's light and dark colors. Both follow one switch_controller request of the
+controller spawner through the Gazebo server, with the same two lanes, Gazebo's physics thread
+and one of the ROS spinner threads, and time running downward:
 
-- includes/imu-sim-threads-original.html: gazebo_plugins' original IMU plugin runs the service's
-  callback in the physics thread with ros::spinOnce(), and the physics thread waits for itself.
-- includes/imu-sim-threads-copy.html: with the robots' copy of the plugin, a spinner thread runs
-  the callback, and the physics thread goes on.
+- With gazebo_plugins' original IMU plugin, ros::spinOnce() runs the service's callback in the
+  physics thread, and the physics thread waits for itself.
+- With the robots' copy of the plugin, a spinner thread runs the callback, and the physics thread
+  goes on.
 
-The numbers in the discs are the steps of the numbered lists on the page, so change them
-together. Each caption is Markdown.
+The two drawings stand in two tabs at the same place, so that a reader can switch between them.
+So both have the same size, and what they share lies at the same position in both: the request,
+the lanes, the update() that has to take the change (UPDATE_BOX_Y) and what happens to the clock
+(CLOCK_NOTE_Y). The tabs are written as HTML, in the markup that pymdownx.tabbed produces with
+alternate_style, as scripts/figures/simulation_test_figures.py does. The page's numbered lists
+stand in Markdown tabs with the same labels (TAB_LABELS), and the theme's content.tabs.link
+switches all tabs with one label together. So change the labels here and on the page together.
+The numbers in the discs are the steps of those lists. Each caption is HTML.
 
 Run from the repository root after changing a figure:
 
@@ -70,6 +77,7 @@ class Box(NamedTuple):
 
 
 WIDTH = 360
+HEIGHT = 380
 PHYSICS_LANE = Lane(left=18, right=178)
 SPINNER_LANE = Lane(left=186, right=352)
 LANE_TOP = 62
@@ -78,7 +86,14 @@ SPAWNER_BOX = Box(x=18, y=8, width=152, height=38)
 QUEUE_BOX = Box(x=200, y=8, width=152, height=38)
 # Where the request leaves the queue downward, to the right of the spinner lane's name
 REQUEST_X = 338
+# The upper edge of the box of the controller manager's update() that has to take the change
+UPDATE_BOX_Y = 286
+# The baseline of the line below that box, which says what happens to the simulation's clock
+CLOCK_NOTE_Y = 342
 LINE_HEIGHT = 14
+
+# The tabs' labels, the same as those of the numbered lists on the page
+TAB_LABELS = ('With the original plugin', 'With the copy')
 
 # A text line in a box: the text and its CSS class
 Line = Tuple[str, str]
@@ -87,7 +102,7 @@ FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
 BG = 'var(--md-default-bg-color)'
 RULES = (
-    ('.md-typeset figure.th-figure', 'margin:1em auto;width:100%;max-width:480px'),
+    ('.md-typeset .th-figs figure', 'margin:.6em auto 0;width:100%;max-width:480px'),
     ('.th-fig', 'width:100%;height:auto;--th-request:#1e63c4;--th-stuck:#c62828;'
                 'font-family:var(--md-text-font-family,Roboto),sans-serif'),
     ('[data-md-color-scheme=slate] .th-fig', '--th-request:#82b1ff;--th-stuck:#ef6a6a'),
@@ -129,8 +144,8 @@ def style_element(rules: Sequence[Tuple[str, str]]) -> str:
 class Figure:
     """Collect the SVG elements of one drawing."""
 
-    def __init__(self, name: str, height: float, title: str, description: str) -> None:
-        self.name, self.height = name, height
+    def __init__(self, name: str, title: str, description: str) -> None:
+        self.name, self.height = name, HEIGHT
         self.title, self.description = title, description
         self.elements: List[str] = []
 
@@ -214,15 +229,15 @@ def draw_lanes(figure: Figure) -> None:
 
 def threads_with_the_original_figure() -> Figure:
     """Return the drawing of the request with gazebo_plugins' original plugin: a deadlock."""
-    figure = Figure('th-original', 352, 'The request with the original IMU plugin',
+    figure = Figure('th-original', 'The request with the original IMU plugin',
                     'Step 1: the controller spawner, another ROS node, sends a switch_controller '
                     'request, which waits in the global callback queue. Step 2: the physics '
                     'thread calls the IMU plugin’s UpdateChild(), which publishes the IMU '
                     'message and calls ros::spinOnce(). Step 3: ros::spinOnce() takes the '
                     'request from the queue and runs the callback in the physics thread. Step 4: '
-                    'the callback notes the change and waits for update(). Step 5: update() '
-                    'never runs, because its thread is waiting. This is a deadlock: the clock '
-                    'stops. The ROS spinner thread finds the queue empty.')
+                    'the callback notes the change and waits here for update(). Step 5: '
+                    'update() never runs, because its thread is waiting. This is a deadlock: '
+                    'the clock stops. The ROS spinner thread finds the queue empty.')
     draw_request(figure)
     draw_lanes(figure)
     left, right, center = PHYSICS_LANE.left, PHYSICS_LANE.right, PHYSICS_LANE.center
@@ -237,15 +252,15 @@ def threads_with_the_original_figure() -> Figure:
     figure.lines(center, 142, [('ros::spinOnce()', 'mono'), ('runs the callback here', 'note')])
     figure.box(left + 16, 166, right - left - 32, 'callback',
                [('switch_controller', 'mono'), ('callback', 'note'), ('notes the change,', ''),
-                ('waits for update()', '')])
+                ('waits here for update()', '')])
     figure.step(left + 16, 166, 4)
     # The request goes from the queue down the spinner lane and into ros::spinOnce()
     figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V150 H{right - 9}', 'request')
     figure.step(REQUEST_X, 112, 3)
-    figure.box(left + 4, 286, right - left - 8, 'stuck',
+    figure.box(left + 4, UPDATE_BOX_Y, right - left - 8, 'stuck',
                [('update()', 'mono stuck-text'), ('never runs: its thread waits', 'note')])
-    figure.step(left + 4, 286, 5)
-    figure.text(center, 340, 'deadlock: the clock stops', 'stuck-text strong')
+    figure.step(left + 4, UPDATE_BOX_Y, 5)
+    figure.text(center, CLOCK_NOTE_Y, 'deadlock: the clock stops', 'stuck-text strong')
     figure.box(SPINNER_LANE.left + 20, 176, SPINNER_LANE.width - 40, 'idle',
                [('finds the queue', 'note'), ('empty', 'note')])
     return figure
@@ -253,14 +268,15 @@ def threads_with_the_original_figure() -> Figure:
 
 def threads_with_the_copy_figure() -> Figure:
     """Return the drawing of the request with the robots' copy of the plugin: no deadlock."""
-    figure = Figure('th-copy', 322, 'The request with the robots’ copy of the IMU plugin',
+    figure = Figure('th-copy', 'The request with the robots’ copy of the IMU plugin',
                     'Step 1: the controller spawner sends a switch_controller request, which '
                     'waits in the global callback queue. Step 2: the physics thread calls the IMU '
                     'plugin’s UpdateChild(), which publishes the IMU message and returns. '
                     'Step 3: a ROS spinner thread takes the request and runs the callback, which '
-                    'notes the change and waits for update(). Step 4: the physics thread goes '
-                    'on and calls update(), which takes the change. Step 5: the callback '
-                    'returns, and the spawner gets its answer.')
+                    'notes the change and waits for update(). The callback waits here, in the '
+                    'spinner thread, not in the physics thread. Step 4: the physics thread goes '
+                    'on and calls update(), which takes the change. The clock runs on. Step 5: '
+                    'the callback returns, and the spawner gets its answer.')
     draw_request(figure)
     draw_lanes(figure)
     left, right, center = PHYSICS_LANE.left, PHYSICS_LANE.right, PHYSICS_LANE.center
@@ -271,49 +287,63 @@ def threads_with_the_copy_figure() -> Figure:
     figure.step(left + 4, 88, 2)
     figure.box(left + 4, 150, width, 'box', [('update()', 'mono'),
                                              ('runs the controllers', 'note')])
-    figure.box(left + 4, 222, width, 'callback', [('update()', 'mono'),
-                                                  ('takes the change', 'note')])
-    figure.step(left + 4, 222, 4)
-    figure.lines(center, 282, [('next steps: the clock', 'note'), ('runs on', 'note')])
+    figure.arrow(f'M{center},198 V{UPDATE_BOX_Y - 30}', 'flow')
+    figure.text(center, UPDATE_BOX_Y - 12, 'this step or the next', 'note')
+    update_bottom = figure.box(left + 4, UPDATE_BOX_Y, width, 'callback',
+                               [('update()', 'mono'), ('takes the change', 'note')])
+    figure.step(left + 4, UPDATE_BOX_Y, 4)
+    figure.text(center, CLOCK_NOTE_Y, 'the clock runs on', 'strong')
     spinner_left, spinner_center = SPINNER_LANE.left, SPINNER_LANE.center
     figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V87', 'request')
-    figure.rectangle(spinner_left + 4, 88, SPINNER_LANE.width - 8, 172, 'callback')
+    figure.rectangle(spinner_left + 4, 88, SPINNER_LANE.width - 8, update_bottom - 88, 'callback')
     figure.lines(spinner_center, 105, [('switch_controller', 'mono'), ('callback', 'note'),
                                        ('notes the change,', ''), ('waits for update()', '')])
+    figure.lines(spinner_center, 204, [('the callback waits here,', 'strong'),
+                                       ('not in the physics thread', 'note')])
     figure.step(spinner_left + 4, 88, 3)
-    figure.arrow(f'M{right - 4},241 H{spinner_left + 3}', 'request')
-    figure.text(spinner_center, 245, 'the change is taken', 'note')
-    figure.arrow(f'M{spinner_center},260 V280', 'flow')
-    figure.step(spinner_center - 62, 296, 5)
-    figure.lines(spinner_center + 8, 294, [('returns: the spawner', 'note'),
-                                           ('gets its answer', 'note')])
+    update_center = (UPDATE_BOX_Y + update_bottom) / 2
+    figure.arrow(f'M{right - 4},{update_center} H{spinner_left + 3}', 'request')
+    figure.text(spinner_center, update_center + 4, 'the change is taken', 'note')
+    figure.arrow(f'M{spinner_center},{update_bottom} V{update_bottom + 14}', 'flow')
+    figure.step(spinner_center - 62, update_bottom + 30, 5)
+    figure.lines(spinner_center + 8, update_bottom + 28, [('returns: the spawner', 'note'),
+                                                          ('gets its answer', 'note')])
     return figure
 
 
-def figure_html(drawing: Figure, caption: str) -> str:
-    """Return a figure element with a drawing and its caption. caption is Markdown.
+def tabs_html(drawings: Sequence[Figure], captions: Sequence[str]) -> str:
+    """Return a set of tabs, one per drawing, each with the drawing and its caption.
 
-    The drawing stands in a div without the markdown attribute, so that Markdown leaves the
-    SVG's text as it is. Otherwise the glossary would wrap a term such as IMU in an abbr element,
-    which a browser doesn't draw inside SVG text.
+    The labels are TAB_LABELS. captions are HTML. The tab set is raw HTML, so Markdown leaves
+    the SVG's text as it is. Otherwise the glossary would wrap a term such as IMU in an abbr
+    element, which a browser doesn't draw inside SVG text.
     """
-    return (f'{style_element(RULES)}\n<figure class="th-figure" markdown="block">\n'
-            f'<div class="th-panel">\n{drawing.svg()}\n</div>\n'
-            f'<figcaption markdown="span">{caption}</figcaption>\n</figure>\n')
+    inputs = ''.join(
+        f'<input{" checked" if index == 0 else ""} id="__tabbed_th_{index + 1}" '
+        'name="__tabbed_th" type="radio">' for index in range(len(drawings)))
+    labels = ''.join(f'<label for="__tabbed_th_{index + 1}">{escape(label)}</label>'
+                     for index, label in enumerate(TAB_LABELS))
+    blocks = ''.join(
+        f'<div class="tabbed-block">\n<figure>\n{drawing.svg()}\n'
+        f'<figcaption>{caption}</figcaption>\n</figure>\n</div>\n'
+        for drawing, caption in zip(drawings, captions))
+    return (f'{style_element(RULES)}\n<div class="tabbed-set tabbed-alternate th-figs" '
+            f'data-tabs="th:{len(drawings)}">{inputs}<div class="tabbed-labels">{labels}</div>\n'
+            f'<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
 
 
 def main() -> None:
-    """Write the two includes."""
+    """Write the include."""
     original = ('With gazebo_plugins’ original IMU plugin. Time runs downward, and the '
-                'numbers are the steps in the text. Blue is the `switch_controller` request and '
-                'its callback. The callback runs in the physics thread and waits for an '
-                '`update()` that only this thread can run.')
-    copy = ('With the robots’ copy of the plugin. A ROS spinner thread runs the callback and '
-            'waits. The physics thread goes on and calls `update()`.')
-    with open('includes/imu-sim-threads-original.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html(threads_with_the_original_figure(), original))
-    with open('includes/imu-sim-threads-copy.html', 'w', encoding='utf-8') as include:
-        include.write(figure_html(threads_with_the_copy_figure(), copy))
+                'numbers are the steps below. Blue is the <code>switch_controller</code> '
+                'request and its callback. The callback runs in the physics thread and waits '
+                'for an <code>update()</code> that only this thread can run.')
+    copy = ('With the robots’ copy of the plugin. Time runs downward, and the numbers are the '
+            'steps below. A ROS spinner thread runs the callback, and the callback waits '
+            'there. The physics thread goes on and calls <code>update()</code>.')
+    with open('includes/imu-sim-threads.html', 'w', encoding='utf-8') as include:
+        include.write(tabs_html([threads_with_the_original_figure(),
+                                 threads_with_the_copy_figure()], [original, copy]))
 
 
 if __name__ == '__main__':

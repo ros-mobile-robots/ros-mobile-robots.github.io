@@ -17,11 +17,65 @@ The copy takes the same parameters, computes the same values and publishes the s
 
 ### The short answer
 
-gazebo_plugins' original IMU plugin calls `ros::spinOnce()` right after it publishes a message. This call makes Gazebo's physics thread, the thread that moves the simulation forward, run the service requests that wait in the node's global callback queue at that moment. The controller spawner's requests wait there. Such a request then waits for the controller manager's next update, and only the physics thread runs that update. So the physics thread waits for itself, and the simulation's clock stops for good. The robots' copy leaves the call out, because a plugin that only publishes has nothing to spin for.
+In Gazebo, one thread moves the simulation's clock forward: the physics thread. With gazebo_plugins' original IMU plugin, this thread can end up waiting for something that only it can do. Then nothing moves the clock anymore.
 
-[diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) has the diagnosis, with the backtraces of the stalled simulations. The rest of this section explains the terms and then follows one request, step by step.
+The original plugin calls `ros::spinOnce()` right after it publishes a message. This call makes the physics thread run the service requests that wait in the node's global callback queue at that moment. The controller spawner's requests wait there. Such a request then waits for the controller manager's next update, and only the physics thread runs that update. So the physics thread waits for itself, and the simulation's clock stops for good. The robots' copy leaves the call out, because a plugin that only publishes has nothing to spin for.
 
-### What to know first
+[diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) has the diagnosis, with the backtraces of the stalled simulations.
+
+### One request, with each plugin
+
+The two drawings follow the same request of the controller spawner, once with each plugin. Switch between the two tabs to compare them: what both runs share stays in place. The blue path is the request, and the box named `update()` at the bottom of the left lane is the update that the request waits for. The numbered steps below each drawing explain its numbers. [The terms in the drawings](#the-terms-in-the-drawings) explains threads, callbacks and the callback queue in more detail.
+
+--8<-- "includes/imu-sim-threads.html"
+
+=== "With the original plugin"
+
+    1. **The request arrives:** the controller spawner calls the controller manager's service `switch_controller`. The spawner is a separate ROS node, which starts the robot's controllers. ROS doesn't run a service's function, its **callback**, at the moment the request arrives. The request waits in the Gazebo server's **global callback queue**, a waiting list, until a thread takes the request out and runs the callback.
+    2. **The physics thread publishes and spins:** before a ROS spinner thread takes the request, the physics thread starts a simulation step and calls the plugin's `UpdateChild()`. The plugin publishes its message and calls `ros::spinOnce()`.
+    3. **The callback runs in the physics thread:** `ros::spinOnce()` runs the callbacks that wait in the global queue at that moment, in the thread that calls it. So `ros::spinOnce()` finds the request and runs the service's callback, in the physics thread.
+    4. **The callback waits:** the callback notes which controllers to start, and waits until the controller manager's `update()` has taken the change.
+    5. **Nothing can end the wait:** `update()` runs only in the physics thread. But the physics thread is still inside `UpdateChild()`, waiting in the callback. The physics thread waits for itself. This is a **deadlock**: `update()` never runs, the callback never returns, and the simulation step never ends. The simulation's clock stops for good, and the spawner never gets its answer.
+
+=== "With the copy"
+
+    1. **The request arrives:** the request waits in the global callback queue, as with the original plugin.
+    2. **The physics thread publishes and returns:** the physics thread calls `UpdateChild()`. The copy publishes its message and returns, as [the header and publishing](measurement-to-message.md#the-header-and-publishing) shows. So the physics thread never runs a callback.
+    3. **The callback runs in a spinner thread:** a ROS spinner thread takes the request and runs the callback. The callback notes the change and waits, in the spinner thread.
+    4. **The physics thread goes on:** it calls `update()`, in this step or the next, and `update()` takes the change. The clock runs on.
+    5. **The wait ends:** the callback returns, and the spawner gets its answer. The controllers run.
+
+**The stall depends on timing.** The stall needs a request of the spawner in the queue at the moment that the original plugin spins, before a spinner thread has taken the request. So the stall hits only some starts of the simulation. [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) counts how many starts stalled with the original and with the copy.
+
+**The copy needs no spinning of its own.** The copy only publishes and has no callbacks. The spinner threads run the calls that wait in the global queue, the controller manager's among them.
+
+The three collapsed boxes show the lines of code behind steps 2 and 4.
+
+??? example "Step 2: the original plugin calls `ros::spinOnce()` after it publishes"
+
+    The excerpt shows the end of the original plugin's `UpdateChild()`, from [`gazebo_ros_imu_sensor.cpp` in gazebo_plugins 2.9.3, lines 137–153](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L137-L153), under the Apache License 2.0. Line 146 publishes the message, and line 150, the highlighted one, spins the global queue in the thread that called `UpdateChild()`:
+
+    ```cpp title="gazebo_ros_imu_sensor.cpp (gazebo_plugins 2.9.3): publish(), then ros::spinOnce()" linenums="137" hl_lines="14"
+    --8<-- "https://raw.githubusercontent.com/ros-simulation/gazebo_ros_pkgs/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:137:153"
+    ```
+
+??? example "Step 4: the callback of `switch_controller` waits for `update()`"
+
+    The excerpt shows the wait in the controller manager's `switchController()`, from [`controller_manager.cpp` in ros_control 0.20.0, lines 605–630](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L605-L630), under the BSD license. Line 610 notes the change by setting `switch_params_.do_switch`. The loop from line 616 on, the highlighted line, sleeps until `update()` has set `do_switch` back to false. With `timeout == 0`, line 623 never lets the loop give up:
+
+    ```cpp title="controller_manager.cpp (ros_control 0.20.0): the wait of switch_controller" linenums="605" hl_lines="12"
+    --8<-- "https://raw.githubusercontent.com/ros-controls/ros_control/0.20.0/controller_manager/src/controller_manager.cpp:605:630"
+    ```
+
+??? example "Step 4: the callback of `load_controller` waits for `update()` too"
+
+    The excerpt shows the wait in the controller manager's `loadController()`, from [`controller_manager.cpp` in ros_control 0.20.0, lines 349–359](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L349-L359). The callback switches to a new list of controllers and sleeps until `update()`, which the comment calls the realtime thread, no longer uses the old list. This loop has no time limit:
+
+    ```cpp title="controller_manager.cpp (ros_control 0.20.0): the wait of load_controller" linenums="349"
+    --8<-- "https://raw.githubusercontent.com/ros-controls/ros_control/0.20.0/controller_manager/src/controller_manager.cpp:349:359"
+    ```
+
+### The terms in the drawings
 
 This section explains three terms, each with an example from the simulation, and one fact about the controller manager.
 
@@ -49,35 +103,7 @@ Two things can run the calls that wait in the global queue:
 
 Not every service of the Gazebo server uses the global queue. Gazebo's ROS interface gives its own services, such as `/gazebo/reset_simulation`, a separate queue, in [lines 545–552 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L545-L552). A thread of its own runs that queue, in [lines 257–263](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/src/gazebo_ros_api_plugin.cpp#L257-L263). Neither the spinner threads nor `ros::spinOnce()` run it, and the rest of this explanation doesn't need it.
 
-**The fact about the controller manager:** its services wait for `update()`. The controller spawner is a separate ROS node, which [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L23-L25) starts. The spawner loads and starts the controllers with two of the controller manager's services, `load_controller` and `switch_controller`. Their callbacks don't change the running controllers themselves, because `update()` may be using the controllers at that moment. The callbacks note the change and wait until `update()` has taken it, in [lines 352–359](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L352-L359) and [lines 612–630 of `controller_manager.cpp`](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L630). `switch_controller` can give up after a time limit. The spawner asks for none: it passes 0, in [line 212 of its source](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/scripts/spawner#L212).
-
-### What goes wrong with the original plugin
-
-The original plugin's `UpdateChild()` calls `ros::spinOnce()` after it publishes, in [line 150 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L150). So the physics thread spins the global queue in every call that publishes. The figure follows one `switch_controller` request of the spawner. Its numbers are the steps below:
-
---8<-- "includes/imu-sim-threads-original.html"
-
-1. The controller spawner calls `switch_controller`. The request arrives in the Gazebo server and waits in the global callback queue.
-2. Before a spinner thread takes the request, the physics thread starts a step and calls `UpdateChild()`. The plugin publishes its message and calls `ros::spinOnce()`.
-3. `ros::spinOnce()` finds the request in the queue and runs the service's callback, in the physics thread.
-4. The callback notes which controllers to start, and waits until `update()` has taken the change.
-5. `update()` runs only in the physics thread. But the physics thread is still inside `UpdateChild()`, waiting in the callback. The physics thread waits for itself. This is a **deadlock**: `update()` never runs, the callback never returns, and the simulation step never ends. The simulation's clock stops for good, and the spawner never gets its answer.
-
-The stall depends on timing. It needs a request of the spawner in the queue at the moment that the plugin spins, before a spinner thread has taken the request. So the stall hits only some starts of the simulation. [diffbot#185](https://github.com/ros-mobile-robots/diffbot/issues/185) counts how many starts stalled with the original and with the copy.
-
-### What the copy does instead
-
-The copy's `UpdateChild()` ends after it publishes, as [the header and publishing](measurement-to-message.md#the-header-and-publishing) shows. So the physics thread never runs a callback. The figure follows the same request, with the copy:
-
---8<-- "includes/imu-sim-threads-copy.html"
-
-1. The request waits in the global callback queue, as before.
-2. The physics thread calls `UpdateChild()`. The copy publishes its message and returns.
-3. A ROS spinner thread takes the request and runs the callback. The callback notes the change and waits, in the spinner thread.
-4. The physics thread goes on. It calls `update()`, in this step or the next, and `update()` takes the change.
-5. The callback returns, and the spawner gets its answer. The controllers run.
-
-The copy needs no spinning of its own, because it only publishes: it has no callbacks. The spinner threads run the calls that wait in the global queue, the controller manager's among them.
+**The fact about the controller manager:** its services wait for `update()`. The controller spawner is a separate ROS node, which [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L23-L25) starts. The spawner loads and starts the controllers with two of the controller manager's services, `load_controller` and `switch_controller`. Their callbacks don't change the running controllers themselves, because `update()` may be using the controllers at that moment. The callbacks note the change and wait until `update()` has taken it, as the two collapsed boxes of [step 4](#one-request-with-each-plugin) show. `switch_controller` can give up after a time limit. The spawner asks for none: it passes 0 as the last argument, in [line 212 of its source](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/scripts/spawner#L212).
 
 ### Why not just wait?
 
@@ -85,7 +111,7 @@ The deadlock comes from the physics thread running a callback that waits for the
 
 - **A delay, or starting Gazebo paused:** a delay at the start might change which thread takes the spawner's request, but the unsafe path stays. Starting Gazebo paused doesn't help either. The controllers start only when `update()` takes the change, and the physics thread calls `update()` only while the simulation runs. So the request waits for the simulation to run, and then the same path is open. Later requests to the controller manager can take this path too.
 - **A condition variable** lets a thread sleep until another thread signals it. The callback already waits. Waiting on a condition variable instead of polling would still block the physics thread, which is the only thread that can run `update()`.
-- **A timeout:** `switch_controller` has an escape: with a positive timeout, its callback returns a failure about a second after the timeout, in [lines 612–636 of `controller_manager.cpp`](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L636). The spawner passes 0, which turns that escape off. `load_controller` has no timeout at all. And a failed switch wouldn't start the controllers anyway.
+- **A timeout:** `switch_controller` has an escape: with a positive timeout, its callback returns a failure about a second after the timeout, in [lines 612–636 of `controller_manager.cpp`](https://github.com/ros-controls/ros_control/blob/0.20.0/controller_manager/src/controller_manager.cpp#L612-L636), most of which the collapsed box of [step 4](#one-request-with-each-plugin) shows. The spawner passes 0, which turns that escape off. `load_controller` has no timeout at all. And a failed switch wouldn't start the controllers anyway.
 - **A separate queue for the controller manager**, served by a thread of its own, would also keep the callbacks out of the physics thread. That needs a change in `gazebo_ros_control`, which passes the controller manager an ordinary node handle on the global queue, in [lines 149–150 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L149-L150).
 
 The IMU plugin only publishes, so it has no callbacks of its own to run. Leaving out `ros::spinOnce()` is the smallest change that keeps the physics thread out of the queue. The packaged plugin has no option to turn off this call. The robots load their own library, so the fix doesn't require replacing gazebo_plugins' installed library.
@@ -94,10 +120,16 @@ The IMU plugin only publishes, so it has no callbacks of its own to run. Leaving
 
 A reset of the simulation sets Gazebo's clock back to zero. `/gazebo/reset_simulation` is the ROS service for a reset, one of [Gazebo's simulation control services](https://classic.gazebosim.org/tutorials?tut=ros_comm#Services:Simulationcontrol). For example: `rosservice call /gazebo/reset_simulation`.
 
-Both plugins limit their rate. They compare the IMU sensor's time, `current_time` in the code, with `last_time`, the time of their last update:
+Both plugins limit their rate. They compare the IMU sensor's update time, `current_time` in the code, with `last_time`, the time of their last update:
 
-- **The original** has only this rate limit, in [lines 97–100 of its source](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L97-L100). After a reset, `current_time` starts from zero again, and `last_time` still holds a time from before the reset. The difference of the two is negative, so the rate limit stops every call until the clock has passed its value from before the reset. The longer the simulation ran before the reset, the longer the IMU stays silent.
+- **The original** has only this rate limit. After a reset, `current_time` starts from zero again, and `last_time` still holds a time from before the reset. The difference of the two is negative, so the rate limit stops every call until the clock has passed its value from before the reset. The longer the simulation ran before the reset, the longer the IMU stays silent.
 - **The copy** sets `last_time` to `current_time` when `current_time` is the earlier one. The rate limit then counts from the new time, and the plugin can publish again one period, 20 ms, later. [The checks before a call publishes](measurement-to-message.md#the-checks-before-a-call-publishes) shows these lines.
+
+The excerpt shows the original's rate limit, from [`gazebo_ros_imu_sensor.cpp` in gazebo_plugins 2.9.3, lines 97–100](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L97-L100). With a `last_time` of 3 s and a `current_time` of 0.02 s, the difference in line 99 is −2.98 s, which is less than one period, so line 100 returns:
+
+```cpp title="gazebo_ros_imu_sensor.cpp (gazebo_plugins 2.9.3): the rate limit" linenums="97"
+--8<-- "https://raw.githubusercontent.com/ros-simulation/gazebo_ros_pkgs/2.9.3/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:97:100"
+```
 
 The IMU sample validator and the EKF start over when the clock goes back, as [the IMU sample validator](../robot_localization.md#the-imu-sample-validator) and [the EKF's limits](../robot_localization.md#limits) on the Localization page explain. So both need the IMU's samples right after a reset. [The reset test](tests.md#the-reset-test) checks that the samples come.
 
