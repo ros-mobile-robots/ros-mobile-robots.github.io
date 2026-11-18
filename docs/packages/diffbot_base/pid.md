@@ -132,7 +132,7 @@ too.
 The two PIDs make each wheel turn at its target angular velocity $\dot{\phi}_{l/r}$, the rate at which the wheel turns about its axle.
 They don't make sure that the robot drives the commanded path.
 One reason is that the two wheel radii $R_{l/r}$ differ slightly.
-Take a wheel with the radius $R_{l/r}$ that rolls without slipping and turns with a constant $\dot{\phi}_{l/r}$ for the time $\Delta t$.
+Take a wheel with the radius $R_{l/r}$ that rolls forward without slipping and turns with a constant $\dot{\phi}_{l/r}$ for the time $\Delta t$.
 It moves over the ground with the speed $v_{l/r} = R_{l/r} \cdot \dot{\phi}_{l/r}$ and travels the distance $d_{l/r}$:
 
 $$
