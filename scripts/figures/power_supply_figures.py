@@ -291,8 +291,8 @@ def main() -> None:
     write_include('includes/power-supply-flow-remo.html', remo_power_flow_figure(),
                   "Remo's two supplies. Follow each color from its source at the top. The motor "
                   'driver is the only part on both supplies. Its logic gets 3.3 V from the power '
-                  'bank through the Raspberry Pi and the Teensy. Its motors get the voltage of '
-                  'the six cells.')
+                  'bank through the Raspberry Pi and the Teensy. The six cells feed its motor '
+                  'supply, and the driver switches that power to the motors.')
 
 
 if __name__ == '__main__':
