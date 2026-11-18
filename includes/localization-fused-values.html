@@ -1,0 +1,144 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large{max-width:400px}
+.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+</style>
+<figure class="lv-figure lv-grids">
+<div class="lv-pair">
+<svg class="lv-fig" viewBox="0 0 208 180" role="img" aria-labelledby="lv-odom0-title"><title id="lv-odom0-title">The list odom0_config of ekf.yaml, for the wheel odometry, as a grid of five rows of three</title>
+<defs><pattern id="lv-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path class="hatch" d="M0,0 V5"/></pattern></defs>
+<text class="mono" x="138.0" y="13.0" text-anchor="middle">odom0_config</text>
+<text class="note" x="138.0" y="28.0" text-anchor="middle">wheel odometry</text>
+<text class="note" x="66.0" y="54.0" text-anchor="end">Position</text>
+<rect class="cell" x="72.0" y="36.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="94.0" y="54.0" text-anchor="middle">x</text>
+<rect class="cell" x="116.0" y="36.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="138.0" y="54.0" text-anchor="middle">y</text>
+<rect class="cell-zero" x="160.0" y="36.0" width="44.0" height="28.0" rx="0"/>
+<text x="182.0" y="54.0" text-anchor="middle">z</text>
+<text class="note" x="66.0" y="82.0" text-anchor="end">Orientation</text>
+<rect class="cell-zero" x="72.0" y="64.0" width="44.0" height="28.0" rx="0"/>
+<text x="94.0" y="82.0" text-anchor="middle">roll</text>
+<rect class="cell-zero" x="116.0" y="64.0" width="44.0" height="28.0" rx="0"/>
+<text x="138.0" y="82.0" text-anchor="middle">pitch</text>
+<rect class="cell" x="160.0" y="64.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="182.0" y="82.0" text-anchor="middle">θ</text>
+<text class="note" x="66.0" y="104.0" text-anchor="end">Linear</text>
+<text class="note" x="66.0" y="116.0" text-anchor="end">velocity</text>
+<rect class="cell-fused" x="72.0" y="92.0" width="44.0" height="28.0" rx="0"/>
+<text class="strong" x="100.0" y="110.0" text-anchor="middle">v<tspan class="subscript" dy="2.5">x</tspan></text>
+<text class="strong" x="77.0" y="110.0" text-anchor="start">✓</text>
+<rect class="cell-fused" x="116.0" y="92.0" width="44.0" height="28.0" rx="0"/>
+<text class="strong" x="144.0" y="110.0" text-anchor="middle">v<tspan class="subscript" dy="2.5">y</tspan></text>
+<text class="strong" x="121.0" y="110.0" text-anchor="start">✓</text>
+<rect class="cell-zero" x="160.0" y="92.0" width="44.0" height="28.0" rx="0"/>
+<text x="182.0" y="110.0" text-anchor="middle">v<tspan class="subscript" dy="2.5">z</tspan></text>
+<text class="note" x="66.0" y="132.0" text-anchor="end">Angular</text>
+<text class="note" x="66.0" y="144.0" text-anchor="end">velocity</text>
+<rect class="cell-zero" x="72.0" y="120.0" width="44.0" height="28.0" rx="0"/>
+<text x="94.0" y="138.0" text-anchor="middle">ω<tspan class="subscript" dy="2.5">x</tspan></text>
+<rect class="cell-zero" x="116.0" y="120.0" width="44.0" height="28.0" rx="0"/>
+<text x="138.0" y="138.0" text-anchor="middle">ω<tspan class="subscript" dy="2.5">y</tspan></text>
+<rect class="cell-fused" x="160.0" y="120.0" width="44.0" height="28.0" rx="0"/>
+<text class="strong" x="188.0" y="138.0" text-anchor="middle">ω<tspan class="subscript" dy="2.5">z</tspan></text>
+<text class="strong" x="165.0" y="138.0" text-anchor="start">✓</text>
+<text class="note" x="66.0" y="160.0" text-anchor="end">Linear</text>
+<text class="note" x="66.0" y="172.0" text-anchor="end">acceleration</text>
+<rect class="cell" x="72.0" y="148.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="94.0" y="166.0" text-anchor="middle">a<tspan class="subscript" dy="2.5">x</tspan></text>
+<rect class="cell" x="116.0" y="148.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="138.0" y="166.0" text-anchor="middle">a<tspan class="subscript" dy="2.5">y</tspan></text>
+<rect class="cell-zero" x="160.0" y="148.0" width="44.0" height="28.0" rx="0"/>
+<text x="182.0" y="166.0" text-anchor="middle">a<tspan class="subscript" dy="2.5">z</tspan></text>
+</svg>
+<svg class="lv-fig" viewBox="0 0 208 180" role="img" aria-labelledby="lv-imu0-title"><title id="lv-imu0-title">The list imu0_config of ekf.yaml, for the IMU, as a grid of five rows of three</title>
+<text class="mono" x="138.0" y="13.0" text-anchor="middle">imu0_config</text>
+<text class="note" x="138.0" y="28.0" text-anchor="middle">IMU</text>
+<text class="note" x="66.0" y="54.0" text-anchor="end">Position</text>
+<rect class="cell" x="72.0" y="36.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="94.0" y="54.0" text-anchor="middle">x</text>
+<rect class="cell" x="116.0" y="36.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="138.0" y="54.0" text-anchor="middle">y</text>
+<rect class="cell-zero" x="160.0" y="36.0" width="44.0" height="28.0" rx="0"/>
+<text x="182.0" y="54.0" text-anchor="middle">z</text>
+<text class="note" x="66.0" y="82.0" text-anchor="end">Orientation</text>
+<rect class="cell-zero" x="72.0" y="64.0" width="44.0" height="28.0" rx="0"/>
+<text x="94.0" y="82.0" text-anchor="middle">roll</text>
+<rect class="cell-zero" x="116.0" y="64.0" width="44.0" height="28.0" rx="0"/>
+<text x="138.0" y="82.0" text-anchor="middle">pitch</text>
+<rect class="cell" x="160.0" y="64.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="182.0" y="82.0" text-anchor="middle">θ</text>
+<text class="note" x="66.0" y="104.0" text-anchor="end">Linear</text>
+<text class="note" x="66.0" y="116.0" text-anchor="end">velocity</text>
+<rect class="cell" x="72.0" y="92.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="94.0" y="110.0" text-anchor="middle">v<tspan class="subscript" dy="2.5">x</tspan></text>
+<rect class="cell" x="116.0" y="92.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="138.0" y="110.0" text-anchor="middle">v<tspan class="subscript" dy="2.5">y</tspan></text>
+<rect class="cell-zero" x="160.0" y="92.0" width="44.0" height="28.0" rx="0"/>
+<text x="182.0" y="110.0" text-anchor="middle">v<tspan class="subscript" dy="2.5">z</tspan></text>
+<text class="note" x="66.0" y="132.0" text-anchor="end">Angular</text>
+<text class="note" x="66.0" y="144.0" text-anchor="end">velocity</text>
+<rect class="cell-zero" x="72.0" y="120.0" width="44.0" height="28.0" rx="0"/>
+<text x="94.0" y="138.0" text-anchor="middle">ω<tspan class="subscript" dy="2.5">x</tspan></text>
+<rect class="cell-zero" x="116.0" y="120.0" width="44.0" height="28.0" rx="0"/>
+<text x="138.0" y="138.0" text-anchor="middle">ω<tspan class="subscript" dy="2.5">y</tspan></text>
+<rect class="cell-fused" x="160.0" y="120.0" width="44.0" height="28.0" rx="0"/>
+<text class="strong" x="188.0" y="138.0" text-anchor="middle">ω<tspan class="subscript" dy="2.5">z</tspan></text>
+<text class="strong" x="165.0" y="138.0" text-anchor="start">✓</text>
+<text class="note" x="66.0" y="160.0" text-anchor="end">Linear</text>
+<text class="note" x="66.0" y="172.0" text-anchor="end">acceleration</text>
+<rect class="cell" x="72.0" y="148.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="94.0" y="166.0" text-anchor="middle">a<tspan class="subscript" dy="2.5">x</tspan></text>
+<rect class="cell" x="116.0" y="148.0" width="44.0" height="28.0" rx="0"/>
+<text class="note" x="138.0" y="166.0" text-anchor="middle">a<tspan class="subscript" dy="2.5">y</tspan></text>
+<rect class="cell-zero" x="160.0" y="148.0" width="44.0" height="28.0" rx="0"/>
+<text x="182.0" y="166.0" text-anchor="middle">a<tspan class="subscript" dy="2.5">z</tspan></text>
+</svg>
+</div>
+<ul class="lv-legend">
+<li><span class="lv-swatch lv-fused">✓</span><code>true</code>: the filter fuses this value from the input</li>
+<li><span class="lv-swatch"></span><code>false</code>: the filter ignores this value of the input</li>
+<li><span class="lv-swatch lv-zero"></span>kept at 0 by <code>two_d_mode</code>, whatever the list says</li>
+</ul>
+<figcaption>The two lists of <code>ekf.yaml</code>, in the file's layout: five rows of three, in the order of the filter's state. θ is the heading, the yaw angle.</figcaption>
+</figure>
