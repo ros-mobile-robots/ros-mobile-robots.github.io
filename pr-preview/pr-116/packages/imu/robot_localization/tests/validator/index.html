@@ -3217,6 +3217,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="drop_reason_or_record(): the decision about a sample">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-drop_reason-the-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: drop_reason(), the decision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-record_valid_sample-a-valid-sample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: record_valid_sample(), a valid sample
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-one-method-runs-both-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why one method runs both steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4918,6 +4957,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="drop_reason_or_record(): the decision about a sample">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-drop_reason-the-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: drop_reason(), the decision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-record_valid_sample-a-valid-sample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: record_valid_sample(), a valid sample
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-one-method-runs-both-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why one method runs both steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -5573,18 +5651,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">record_valid_sample</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">now</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">reason</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>The method runs two steps, each in a method of its own:</p>
-<ol>
-<li><strong>The decision:</strong> <code>drop_reason()</code> returns the first reason to drop the sample, or <code>None</code> when the sample passes every check.</li>
-<li><strong>A valid sample:</strong> only when the reason is <code>None</code>, <code>record_valid_sample()</code> records the sample as the last valid one: the validator keeps two times of the sample, its stamp <span class="arithmatex">\(t_s\)</span> in <code>last_valid_stamp</code>, which <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">check 5</a> compares the next stamps with, and the ROS time of its arrival, <code>now</code>, in <code>last_valid_at</code>, from which <code>seconds_since_last_valid_sample()</code> counts the silence. Each valid sample replaces these two times, so the validator keeps no history of samples.</li>
-</ol>
-<p>Two places in the code call <code>drop_reason_or_record()</code>: the node's callback <code>on_sample()</code>, once for each sample that arrives, and the tests, through <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_accepted()</code> and <code>assert_rejected()</code></a>. Neither calls <code>drop_reason()</code> and <code>record_valid_sample()</code> itself. So neither can get the two steps wrong in one of two ways:</p>
-<ul>
-<li><strong>Recording a dropped sample:</strong> check 5 would compare later stamps with the stamp of a sample that the checks dropped. If a caller recorded a sample from the future, otherwise valid samples with stamps no later than that stored stamp would be dropped as <code>NOT_NEWER</code>.</li>
-<li><strong>Not recording a valid sample:</strong> check 5 would still let the same stamp through, and the silence would keep counting from the last recorded sample. If no valid sample had been recorded, the silence would stay <code>None</code>. Such omissions could make the diagnostics report an error while valid samples arrive.</li>
-</ul>
-<p>And the tests run the same two steps as the node. The excerpt shows the two methods, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/3cfbcd3b710fd41935e2b558956974a98dd12bdd/diffbot_control/scripts/imu_validator.py#L266-L287"><code>imu_validator.py</code>, lines 266–287</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: drop_reason() and record_valid_sample()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">266</span>
+<p>The method runs two steps, each in a method of its own: first <code>drop_reason()</code>, then, only when the reason is <code>None</code>, <code>record_valid_sample()</code>.</p>
+<h4 id="step-1-drop_reason-the-decision">Step 1: <code>drop_reason()</code>, the decision</h4>
+<p><code>drop_reason()</code> returns the first reason to drop the sample, or <code>None</code> when the sample passes every check. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/3cfbcd3b710fd41935e2b558956974a98dd12bdd/diffbot_control/scripts/imu_validator.py#L266-L282"><code>imu_validator.py</code>, lines 266–282</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: drop_reason()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">266</span>
 <span class="normal">267</span>
 <span class="normal">268</span>
 <span class="normal">269</span>
@@ -5600,12 +5670,7 @@
 <span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">drop_reason</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Imu</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DropReason</span><span class="p">]:</span>
+<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">drop_reason</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Imu</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DropReason</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Return the first reason to drop message at ROS time now, or None if every check passes.</span>
 
 <span class="sd">    The method also checks the clock (clear_last_valid_sample_if_clock_went_back()), so a</span>
@@ -5622,11 +5687,6 @@
         <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">reason</span>
     <span class="k">return</span> <span class="kc">None</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">record_valid_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Imu</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Record message as the last valid sample, which arrived at ROS time now."""</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">last_valid_stamp</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">stamp</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">last_valid_at</span> <span class="o">=</span> <span class="n">now</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>drop_reason()</code> works in three steps:</p>
 <ol>
@@ -5634,8 +5694,6 @@
 <li><strong>A clock that went back:</strong> <a href="#clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back"><code>clear_last_valid_sample_if_clock_went_back(now)</code></a> clears the last valid sample if <code>now</code> is earlier than the ROS time of the last clock check. The method then keeps <code>now</code> for the next clock check.</li>
 <li><strong>The checks:</strong> the loop calls the checks in the tuple <code>sample_checks</code>, one after the other. The first check that returns a reason ends the loop, and the method returns that reason. The later checks don't run. When every check has returned <code>None</code>, the method returns <code>None</code>.</li>
 </ol>
-<p><code>record_valid_sample()</code> sets these two numbers in lines 286 and 287. <code>last_valid_stamp</code> is the stamp <span class="arithmatex">\(t_\text{last}\)</span> of check 5.</p>
-<p>For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of <code>drop_reason()</code>. So the stamp of a dropped sample never becomes <span class="arithmatex">\(t_\text{last}\)</span>. Step 2 can still make the validator clear the last valid sample, when the call's <code>now</code> shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under <code>NO_CLOCK</code>, as the node counts every dropped sample, and passes a warning to <code>rospy.logwarn_throttle()</code> with the period <code>WARNING_PERIOD</code>, 5 s.</p>
 <p>The constructor <code>__init__()</code> fills <code>sample_checks</code> in the order in which the checks run. The excerpt shows the tuple, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/3cfbcd3b710fd41935e2b558956974a98dd12bdd/diffbot_control/scripts/imu_validator.py#L221-L229"><code>imu_validator.py</code>, lines 221–229</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: the checks in their order</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">221</span>
 <span class="normal">222</span>
@@ -5656,6 +5714,25 @@
 <span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The six functions are the five checks of the Localization page. Check 4 has two functions, one for each time limit: <code>check_not_from_the_future()</code> and <code>check_not_too_old()</code>. A sample that would fail two checks gets the reason of the earlier one, as sample A in <a href="#check-4-the-two-time-limits">Check 4: the two time limits</a> shows.</p>
+<p>For a sample that a check drops, the validator keeps only the ROS time of the call for the next clock check, in step 2 of <code>drop_reason()</code>. So the stamp of a dropped sample never becomes <span class="arithmatex">\(t_\text{last}\)</span>. Step 2 can still make the validator clear the last valid sample, when the call's <code>now</code> shows that the clock went back, as the next section explains. A sample that arrives at the ROS time 0 changes none of the validator's three times, the last valid sample's stamp and arrival time and the ROS time of the last clock check, because step 1 returns before step 2. The node still counts the sample under <code>NO_CLOCK</code>, as the node counts every dropped sample, and passes a warning to <code>rospy.logwarn_throttle()</code> with the period <code>WARNING_PERIOD</code>, 5 s.</p>
+<h4 id="step-2-record_valid_sample-a-valid-sample">Step 2: <code>record_valid_sample()</code>, a valid sample</h4>
+<p>Only when <code>drop_reason()</code> has returned <code>None</code>, <code>record_valid_sample()</code> records the sample as the last valid one. The excerpt shows the method, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/3cfbcd3b710fd41935e2b558956974a98dd12bdd/diffbot_control/scripts/imu_validator.py#L284-L287"><code>imu_validator.py</code>, lines 284–287</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_validator.py: record_valid_sample()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">record_valid_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Imu</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Record message as the last valid sample, which arrived at ROS time now."""</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">last_valid_stamp</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">stamp</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">last_valid_at</span> <span class="o">=</span> <span class="n">now</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Lines 286 and 287 keep two times of the sample: its stamp <span class="arithmatex">\(t_s\)</span> in <code>last_valid_stamp</code>, the stamp <span class="arithmatex">\(t_\text{last}\)</span> that <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">check 5</a> compares the next stamps with, and the ROS time of its arrival, <code>now</code>, in <code>last_valid_at</code>, from which <code>seconds_since_last_valid_sample()</code> counts the silence. Each valid sample replaces these two times, so the validator keeps no history of samples.</p>
+<h4 id="why-one-method-runs-both-steps">Why one method runs both steps</h4>
+<p>Two places in the code call <code>drop_reason_or_record()</code>: the node's callback <code>on_sample()</code>, once for each sample that arrives, and the tests, through <a href="#validatortestcase-a-new-validator-and-two-assertions"><code>assert_accepted()</code> and <code>assert_rejected()</code></a>. Neither calls <code>drop_reason()</code> and <code>record_valid_sample()</code> itself. So neither can get the two steps wrong in one of two ways:</p>
+<ul>
+<li><strong>Recording a dropped sample:</strong> check 5 would compare later stamps with the stamp of a sample that the checks dropped. If a caller recorded a sample from the future, otherwise valid samples with stamps no later than that stored stamp would be dropped as <code>NOT_NEWER</code>.</li>
+<li><strong>Not recording a valid sample:</strong> check 5 would still let the same stamp through, and the silence would keep counting from the last recorded sample. If no valid sample had been recorded, the silence would stay <code>None</code>. Such omissions could make the diagnostics report an error while valid samples arrive.</li>
+</ul>
+<p>The tests therefore run the same two steps as the node.</p>
 <h3 id="clear_last_valid_sample_if_clock_went_back-a-clock-that-goes-back"><code>clear_last_valid_sample_if_clock_went_back()</code>: a clock that goes back</h3>
 <p>The ROS time can jump back. In the simulation, a call of the service <code>/gazebo/reset_simulation</code> starts Gazebo's clock again near 0 s. On the robot, a correction of the <abbr title="Single-board computer. A complete computer on one board that runs Linux and ROS, such as the Raspberry Pi or the Jetson Nano.">SBC</abbr>'s clock can set the time back. Without a reaction, <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">check 5</a> would still compare new stamps with the stamp <span class="arithmatex">\(t_\text{last}\)</span> of the last valid sample from before the jump. Samples that pass checks 1 to 4 would then be dropped as <code>NOT_NEWER</code> while their stamps are no later than <span class="arithmatex">\(t_\text{last}\)</span>. For example, suppose the last valid stamp is 100 s and the simulation restarts near 0 s. If each new sample's stamp equals its arrival time, those samples would be dropped until their stamps exceed 100 s, about 100 s of simulation time later.</p>
 <p>The method's name says what the method does about this: it clears the last valid sample if the clock went back. The validator keeps the ROS time of the last clock check in <code>last_checked_ros_time</code>. The excerpt shows the method and its two helpers, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/3cfbcd3b710fd41935e2b558956974a98dd12bdd/diffbot_control/scripts/imu_validator.py#L231-L250"><code>imu_validator.py</code>, lines 231–250</a>:</p>
