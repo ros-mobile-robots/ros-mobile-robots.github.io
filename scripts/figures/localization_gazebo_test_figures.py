@@ -58,6 +58,9 @@ EKF_NODE = '/diffbot/ekf_localization'
 
 # test_ekf_switch.py: one of the test's calls of load(), as its description writes it
 LOADED_EXAMPLE = 'diffbot_gazebo diffbot.launch ekf:=true'
+# What assert_controller_odom_tf() asserts for LOADED_EXAMPLE: the drive controller's
+# enable_odom_tf is False
+ASSERTED_EXAMPLE = 'enable_odom_tf: False'
 
 LINE_HEIGHT = 14  # between the baselines of a box's lines
 HEAD_LENGTH = 9  # of an arrowhead
@@ -577,15 +580,17 @@ def switch_flow() -> Figure:
     draw_arrow(figure, (skipped_middle, y), (skipped_middle, y + FLOW_GAP), skipped=True)
 
     y += FLOW_GAP
-    assertion_lines = (("the test's assertions", 'strong'), ('look at these fields', 'note'))
-    figure.rect(FLOW_X, y, ASSERTIONS_WIDTH, box_height(len(assertion_lines)), 'item',
-                corner_radius=5)
+    # One of the assertions on LOADED_EXAMPLE, with the value that the loader returns
+    assertion_lines = (("the test's assertions", 'strong'), ('for example', 'note'),
+                       (ASSERTED_EXAMPLE, 'mono'))
+    bottom_height = box_height(len(assertion_lines))
+    figure.rect(FLOW_X, y, ASSERTIONS_WIDTH, bottom_height, 'item', corner_radius=5)
     draw_lines(figure, path_x, y, assertion_lines, 'middle')
     skipped_lines = (('ROS master, nodes', ''), ('not started', 'note'))
-    figure.rect(skipped_x, y, skipped_width, box_height(len(skipped_lines)), 'inactive',
-                corner_radius=5)
-    draw_lines(figure, skipped_middle, y, skipped_lines, 'middle')
-    figure.height = round(y + box_height(len(assertion_lines)) + 2)
+    figure.rect(skipped_x, y, skipped_width, bottom_height, 'inactive', corner_radius=5)
+    # The skipped box has one line less: its lines sit half a line lower, in the middle
+    draw_lines(figure, skipped_middle, y + LINE_HEIGHT / 2, skipped_lines, 'middle')
+    figure.height = round(y + bottom_height + 2)
     return figure
 
 

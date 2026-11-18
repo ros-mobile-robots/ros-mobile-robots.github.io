@@ -94,6 +94,12 @@ extra:
   # ranges and the links' lines on the three pages against it
   ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/d89635881ff860159ef20af42c4cd97c179dcf96
   ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/d89635881ff860159ef20af42c4cd97c179dcf96
+  # The diffbot commit that the excerpts and the links on the test page The ekf Switch
+  # (robot_localization/tests/switch.md) show: the merge commit of diffbot #215, whose
+  # test_ekf_switch.py also loads diffbot_control's diffbot.launch. Update both when the test
+  # changes, and check the excerpts' line ranges against the new commit
+  ekf_switch_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/27d72a42785ca00d59ff197ada39ca91666c3490
+  ekf_switch_src_url: https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots

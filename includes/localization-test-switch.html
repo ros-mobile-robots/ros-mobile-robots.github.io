@@ -70,7 +70,7 @@
 .lv-legend .lv-sign{display:inline-block;width:1.4em;text-indent:0;font-weight:700}
 </style>
 <figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 254" role="img" aria-labelledby="lv-switch-flow-title"><title id="lv-switch-flow-title">How test_ekf_switch.py works: load() gives a launch file and its arguments to roslaunch's loader, load_config_default(). The loader returns what roslaunch would start, which the test keeps as a LaunchConfiguration with the nodes, the parameters and a description. The test's assertions look at this result. The ROS master and the nodes are not started</title>
+<svg class="lv-fig" viewBox="0 0 300 268" role="img" aria-labelledby="lv-switch-flow-title"><title id="lv-switch-flow-title">How test_ekf_switch.py works: load() gives a launch file and its arguments to roslaunch's loader, load_config_default(). The loader returns what roslaunch would start, which the test keeps as a LaunchConfiguration with the nodes, the parameters and a description. The test's assertions look at this result. The ROS master and the nodes are not started</title>
 <rect class="item" x="2.0" y="2.0" width="296.0" height="38.0" rx="5"/>
 <text class="name" x="150.0" y="17.5" text-anchor="middle">launch file with arguments</text>
 <text class="mono" x="150.0" y="31.5" text-anchor="middle">diffbot_gazebo diffbot.launch ekf:=true</text>
@@ -96,12 +96,13 @@
 <polygon class="flow-head" points="80.0,214.0 76.2,205.0 83.8,205.0"/>
 <path class="flow-skipped" d="M234.0,192.0 L234.0,206.0"/>
 <polygon class="flow-head-skipped" points="234.0,214.0 230.2,205.0 237.8,205.0"/>
-<rect class="item" x="2.0" y="214.0" width="156.0" height="38.0" rx="5"/>
+<rect class="item" x="2.0" y="214.0" width="156.0" height="52.0" rx="5"/>
 <text class="strong" x="80.0" y="229.5" text-anchor="middle">the test's assertions</text>
-<text class="note" x="80.0" y="243.5" text-anchor="middle">look at these fields</text>
-<rect class="inactive" x="170.0" y="214.0" width="128.0" height="38.0" rx="5"/>
-<text x="234.0" y="229.5" text-anchor="middle">ROS master, nodes</text>
-<text class="note" x="234.0" y="243.5" text-anchor="middle">not started</text>
+<text class="note" x="80.0" y="243.5" text-anchor="middle">for example</text>
+<text class="mono" x="80.0" y="257.5" text-anchor="middle">enable_odom_tf: False</text>
+<rect class="inactive" x="170.0" y="214.0" width="128.0" height="52.0" rx="5"/>
+<text x="234.0" y="236.5" text-anchor="middle">ROS master, nodes</text>
+<text class="note" x="234.0" y="250.5" text-anchor="middle">not started</text>
 </svg>
 <ul class="lv-legend">
 <li><span class="lv-swatch lv-inactive"></span>what roslaunch would do next and the test leaves out</li>
