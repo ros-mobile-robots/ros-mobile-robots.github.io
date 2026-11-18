@@ -282,9 +282,12 @@ EXTRA_RULES = (
     ('.lv-fig .phase-edge', f'fill:none;stroke:{FG_LIGHT};stroke-width:.8;'
                             'stroke-dasharray:1.5 2.5'),
     ('.lv-fig .clock-jump', f'fill:none;stroke:{FG};stroke-width:1.6'),
-    ('.lv-large .lv-fig .letter', 'font-size:11px'),
-    ('.lv-large .lv-fig .sign', 'font-size:12.5px;font-weight:700'),
-    ('.lv-large .lv-fig .index', 'font-size:11px'),
+    # Larger letters, signs and indices on the time axes, the figures with two layouts. The
+    # selectors name that class, so that they don't match the Localization page's figures: a
+    # preview of a section, which the theme shows over a link, adds its rules to the page
+    ('.lv-large.lv-layouts .lv-fig .letter', 'font-size:11px'),
+    ('.lv-large.lv-layouts .lv-fig .sign', 'font-size:12.5px;font-weight:700'),
+    ('.lv-large.lv-layouts .lv-fig .index', 'font-size:11px'),
     # A label that lies on a line: the page's background around the letters keeps it readable
     ('.lv-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:4px;stroke-linejoin:round'),
     ('.lv-fig .lifeline', f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:3 3'),
@@ -294,8 +297,10 @@ EXTRA_RULES = (
     # The keys of the HTML legends: a small drawing or a sign in front of each line
     ('.lv-legend .lv-key', 'display:inline-block;width:2em;height:1em;vertical-align:-.12em;'
                            'margin-right:.4em;overflow:visible'),
-    ('.lv-legend .lv-sign', 'display:inline-block;width:2em;margin-right:.4em;'
-                            'text-align:center;text-indent:0;font-weight:700'),
+    # A sign as wide as a key, in the legends of keys. The Gazebo tests' legends have narrower
+    # signs
+    ('.lv-legend.lv-keys .lv-sign', 'display:inline-block;width:2em;margin-right:.4em;'
+                                    'text-align:center;text-indent:0;font-weight:700'),
     ('.md-typeset ul.lv-legend.lv-keys li', 'padding-left:2.4em;text-indent:-2.4em'),
     ('.lv-legend .lv-key.lv-narrow', 'width:1.45em;margin-right:.35em'),
     # A legend whose short items stand side by side and wrap

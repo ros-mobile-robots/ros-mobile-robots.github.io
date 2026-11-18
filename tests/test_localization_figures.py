@@ -376,6 +376,40 @@ def winning_declarations(rules: Sequence[Rule], element: ElementKey,
     return winners
 
 
+def changes_by_added_rules(page: str, include_names: Sequence[str],
+                           added_names: Sequence[str]) -> List[str]:
+    """Return the values that the rules of an added include would change on a page.
+
+    The added rules come after the page's rules. Of rules with the same specificity the last
+    one wins, so an added rule changes an element where it gives a property another value with
+    the same specificity as the page's winning rule or a higher one. In a narrow and a wide
+    block for the layouts, and in both color schemes.
+    """
+    elements = {key_of(element) for include_name in include_names
+                for element in elements_of(include_name)}
+    changes = []
+    for block_is_wide, dark in itertools.product((False, True), (False, True)):
+        def applies(rule: Rule) -> bool:
+            return rule.condition == '' or (block_is_wide
+                                            and rule.condition.startswith('@container'))
+        page_rules = [rule for include_name in include_names
+                      for rule in css_rules(include_name) if applies(rule)]
+        added_rules = {name: [rule for rule in css_rules(name) if applies(rule)]
+                       for name in added_names}
+        for element in sorted(elements):
+            page_values = winning_declarations(page_rules, element, dark)
+            for added_name, rules in added_rules.items():
+                for name, added in winning_declarations(rules, element, dark).items():
+                    before = page_values.get(name)
+                    if before is None or (added.specificity >= before.specificity
+                                          and added.value != before.value):
+                        changes.append(f'{page} with {added_name}: <{element.name} class="'
+                                       f'{element.classes}"> {name}: '
+                                       f'{before.value if before else "unset"} -> '
+                                       f'{added.value}')
+    return changes
+
+
 class TestIncludes(unittest.TestCase):
     """Each script writes the repository's includes, whatever the locale's encoding is.
 
@@ -497,6 +531,20 @@ class TestLayouts(unittest.TestCase):
         self.assertGreater(len(caps), 1)
         for selector in caps - {wide_cap}:
             self.assertGreater(specificity(wide_cap), specificity(selector), selector)
+
+    def test_rules_of_any_include_added_to_a_page_change_none_of_its_elements(self) -> None:
+        """A previewed section's style element leaves the page's figures as they are.
+
+        Over a link, the theme shows a preview of the linked section, also of another page, and
+        adds that section's style element after the page's own. The test adds each include's
+        rules in turn after each page's rules.
+        """
+        all_names = [name for names in INCLUDE_NAMES.values() for name in names]
+        # The includes with the same style element add the same rules
+        added_names = list({css_style(name): name for name in all_names}.values())
+        changes = [change for page, include_names in localization_includes_by_page().items()
+                   for change in changes_by_added_rules(page, include_names, added_names)]
+        self.assertEqual(changes, [])
 
     def test_ids_are_unique_on_each_page(self) -> None:
         pages = localization_includes_by_page()

@@ -242,13 +242,15 @@ RULES = (
     ('.lv-fig .subscript', 'font-size:7.5px'),
 )
 # The figures of the Localization page itself: larger text in narrower drawings, and the long
-# explanations as HTML lists
+# explanations as HTML lists. A drawing (DRAWING_RULES) has a width and a monospace size of its
+# own, and the large rules leave it out. Their order doesn't decide then: a preview of a section,
+# which the theme shows over a link, adds that section's rules after the page's own
 LARGE_RULES = (
-    ('.md-typeset figure.lv-figure.lv-large', 'max-width:20rem'),
+    ('.md-typeset figure.lv-figure.lv-large:not(.lv-drawing)', 'max-width:20rem'),
     ('.md-typeset figure.lv-figure.lv-grids', 'max-width:26rem'),
     ('.lv-large .lv-fig text,.lv-grids .lv-fig text', 'font-size:12px'),
     ('.lv-large .lv-fig .name,.lv-grids .lv-fig .name', 'font-size:12.5px'),
-    ('.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono', 'font-size:11px'),
+    ('.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono', 'font-size:11px'),
     ('.lv-large .lv-fig .note,.lv-grids .lv-fig .note', 'font-size:11px'),
     ('.lv-large .lv-fig .letter', 'font-size:10.5px'),
     ('.lv-grids .lv-fig .subscript', 'font-size:9px'),
@@ -299,7 +301,7 @@ LAYOUT_RULES = (
     (f'@container (min-width:{WIDE_FROM})',
      f'.{LAYOUT_SPACE} .lv-fig.{NARROW_LAYOUT}{{display:none}}'
      f'.{LAYOUT_SPACE} .lv-fig.{WIDE_LAYOUT}{{display:inline}}'
-     f'.md-typeset .{LAYOUT_SPACE} figure.lv-figure.lv-layouts{{max-width:36rem}}'),
+     f'.md-typeset .{LAYOUT_SPACE} figure.lv-figure.lv-large.lv-layouts{{max-width:36rem}}'),
 )
 
 # The drawings with symbols and a robot from above. The symbols are set in the fonts of the page's
@@ -422,7 +424,8 @@ SYMBOL_RULES = (
     ('.lv-symbols .lv-fig .ellipse', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.1'),
     ('.lv-symbols .lv-fig .threshold', 'fill:var(--lv-good-fill);stroke:var(--lv-good);'
                                        'stroke-width:1.6'),
-    ('.lv-symbols .lv-fig .second-index', 'font-size:9.5px'),
+    # An index of an index: one class more than the drawings' subscripts, which are larger
+    ('.lv-symbols .lv-fig .subscript.second-index', 'font-size:9.5px'),
     ('.lv-symbols .lv-fig .card-pass', 'fill:var(--lv-good-fill);stroke:var(--lv-good);'
                                        'stroke-width:1.4'),
     ('.lv-symbols .lv-fig .card-drop', 'fill:var(--lv-bad-fill);stroke:var(--lv-bad);'
