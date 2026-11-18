@@ -62,7 +62,7 @@ The firmware logged the target, the measured speed, the PID's three terms and th
 The PWM duty cycle (4) and the ticks (6) are calculated from the logged values.
 
 A control step measures first and commands second.
-The firmware's main loop calls `step()` on every pass, and `step()` returns early until 50 ms have passed since the last control step, [lines 86–95]({{ pid_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L86-L95):
+The firmware's main loop calls `step()` on every pass, and `step()` returns early until the next control step is due, [lines 86–95]({{ pid_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L86-L95):
 
 ```cpp title="wheel_control.h: step()" linenums="86" hl_lines="6 8"
 --8<-- "{{ pid_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:86:95"
@@ -170,7 +170,7 @@ The example shows three properties of this PID that matter for tuning:
 
 - **The sum of the errors holds the motor command:** It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.
 - **The limit doesn't stop the sum:** While the wheel stays slower than its target, each control step adds a positive error to the sum, also while the raw output is above 255 and the motor command stays at 255. This is called integral windup. The stored sum can keep the drive high as the wheel reaches its target. If the wheel overshoots, the error turns negative and starts reducing the sum. After a command timeout, the firmware resets both PIDs and clears their sums.
-- **The gains belong to the control rate:** The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the 50 ms between two steps. With another `UPDATE_RATE_CONTROL`, the same $K_I$ and $K_D$ have another effect.
+- **The gains belong to the control rate:** The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the elapsed time between two steps. With another `UPDATE_RATE_CONTROL`, the same $K_I$ and $K_D$ have another effect.
 
 ## Driving straight
 
