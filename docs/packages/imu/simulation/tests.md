@@ -11,7 +11,7 @@ Two Python files check the simulated IMU in Gazebo, [`test_imu.py`]({{ imu_sim_s
     - **A pass shows:** the mean of the yaw rate $\omega_z$ over 2 s of the turn lies within 0.15 rad/s of the commanded 0.5 rad/s, nominally between 0.35 and 0.65 rad/s.
     - **Why:** the yaw rate is the one value that the EKF fuses, and its sign has to be that of the turn.
 3. **[The reset test](#the-reset-test)**, in `test_imu_reset.py`: the test resets the simulation after about 3 s.
-    - **A pass shows:** ten samples arrive after the reset with a stamp below 1 s.
+    - **A pass shows:** at least ten samples with a stamp below 1 s arrive after the test saved its count of samples, which the test does just before it calls the reset.
     - **Why:** the IMU sample validator and the EKF start over at a reset and need samples right away.
 
 [What the tests don't show](#what-the-tests-dont-show) lists what a pass doesn't prove. Two limits come from the checks themselves: a yaw rate that stays at one value [can pass both tests of `test_imu.py`](#what-a-pass-of-the-left-turn-shows), and ten samples with one repeated stamp [count as a recovery](#which-samples-count-as-fresh).

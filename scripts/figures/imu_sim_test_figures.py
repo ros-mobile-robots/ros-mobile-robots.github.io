@@ -645,7 +645,8 @@ def reset_with_the_copy_figure() -> Figure:
         f'The stamps of the IMU’s samples rise with Gazebo’s clock to {RUN_BEFORE_RESET:g} s. '
         'Then the test resets the simulation, and the clock starts from 0 again. The first '
         f'sample after the reset is stamped about {IMU_PERIOD:.2f} s. Samples that arrive after '
-        f'the reset with a stamp below {RECOVERY:g} s count as fresh. The test passes with '
+        'the test saved its count, just before the reset call, with a stamp below '
+        f'{RECOVERY:g} s count as fresh. The test passes with '
         f'{FRESH_SAMPLE_COUNT} of them. A dot marks sample {FRESH_SAMPLE_COUNT}, stamped about '
         f'{FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s.')
     draw_reset_chart(figure, 'With the robots’ IMU plugin')
@@ -707,8 +708,10 @@ def reset_caption() -> str:
             f'{RUN_BEFORE_RESET:g} s, and the IMU publishes exactly {IMU_RATE:g} samples per '
             'second. The robot stands still, and the test sends no command. Each panel shows '
             'the stamps of the IMU’s samples while the simulation runs. The horizontal axis '
-            'doesn’t start over at the reset. A sample counts as fresh in the gray area: it '
-            f'arrives after the reset, with a stamp below `RECOVERY`, {RECOVERY:g} s. The test '
+            'doesn’t start over at the reset. The test counts a sample as fresh when the sample '
+            'arrives after the test saved its count of samples, just before the reset call, '
+            f'with a stamp below `RECOVERY`, {RECOVERY:g} s. In this ideal run, these are the '
+            'samples in the gray area. The test '
             f'passes with {FRESH_SAMPLE_COUNT} fresh samples, which have to arrive within '
             f'{RECOVERY_TIMEOUT:g} s of wall time. The dot in the first panel is sample '
             f'{FRESH_SAMPLE_COUNT}, stamped about {FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s. The '

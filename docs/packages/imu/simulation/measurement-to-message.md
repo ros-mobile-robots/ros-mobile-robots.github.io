@@ -21,7 +21,7 @@ The figure shows what each part does, in the order in which the code runs. The s
 ```mermaid
 graph TB
   subgraph PART1 [ ]
-    MEASURE["<b>1. Gazebo's IMU sensor</b><br/>UpdateImpl(), 50 times per second<br/>of simulation time<br/>measures angularVel and linearAcc<br/>of imu_link"]
+    MEASURE["<b>1. Gazebo's IMU sensor</b><br/>UpdateImpl(), every 20 ms<br/>of simulation time on average<br/>measures angularVel and linearAcc<br/>of imu_link"]
   end
   subgraph PART2 [ ]
     CHECKS["<b>2. The robots' IMU plugin</b><br/>UpdateChild(), at every simulation step<br/>the checks: clock went back,<br/>rate limit, subscriber<br/>most calls end here"]
@@ -91,7 +91,7 @@ The next excerpt shows the macro's Gazebo block, which declares the IMU sensor a
 ```
 
 - **`<gazebo reference="imu_link">`:** this block holds what only Gazebo reads. `reference` attaches the IMU sensor to `imu_link`, so the IMU sensor measures at `imu_link`'s position and along its axes.
-- **`type="imu"`:** this is Gazebo's IMU sensor. `update_rate` makes the IMU sensor measure 50 times per second.
+- **`type="imu"`:** this is Gazebo's IMU sensor. `update_rate` is the rate at which the IMU sensor measures, 50 times per second of simulation time.
 - **`<plugin>`:** the plugin turns the IMU sensor's values into ROS messages. `filename` names its library, `libdiffbot_gazebo_ros_imu_sensor.so`, the robots' own copy of the IMU plugin that comes with ROS. [The Robots' Own IMU Plugin](plugin.md) explains why the robots have a copy, and how [Remo's URDF model gets the library's name](plugin.md#the-plugins-library-in-remos-urdf-model).
 
 The lines inside `<plugin>` are the plugin's parameters:
@@ -117,13 +117,13 @@ Where the IMU sensor sits and how it's turned comes from the joint's origin in t
 
 The IMU sensor derives its measurements from motion that Gazebo has already computed. Gazebo's physics engine computes the motion of every link in every simulation step, and the IMU sensor reads the motion of the link that carries it. From that motion, the IMU sensor computes two vectors along `imu_link`'s axes: the angular velocity $\boldsymbol\omega$ and the specific force $\mathbf f$.
 
-**Who runs this code, and when:** Gazebo's sensor manager runs the sensors in a loop of its own, apart from the physics engine. For each sensor, the loop calls `Sensor::Update()`. This function reads the world's simulation time into `simTime`. Once one update period has passed since the sensor's last update, it calls the IMU sensor's `ImuSensor::UpdateImpl()`, which measures. Then `Sensor::Update()` stores `simTime` as the sensor's `lastUpdateTime`. With the `update_rate` of 50 in the robot's URDF model, the period is 20 ms of simulation time. The robots' IMU plugin takes no part in the measurement. The plugin only reads the results afterwards.
+**Who runs this code, and when:** Gazebo's sensor manager runs the sensors in a loop of its own, apart from the physics engine. For each sensor, the loop calls `Sensor::Update()`. This function reads the world's simulation time into `simTime`. It adds two times: the time since the sensor's last update, and `updateDelay`, the lateness that an earlier update left over. Once this sum reaches the update period, `Sensor::Update()` calls the IMU sensor's `ImuSensor::UpdateImpl()`, which measures. Then `Sensor::Update()` stores `simTime` as the sensor's `lastUpdateTime`. With the `update_rate` of 50 in the robot's URDF model, the period is 20 ms of simulation time. Because of the carried lateness, two updates can be less than 20 ms apart: after an update that came 1 ms late, the next one comes after 19 ms. In the recorded run, Gazebo's IMU messages were 19, 20 or 21 ms apart. The robots' IMU plugin takes no part in the measurement. The plugin only reads the results afterwards.
 
 ??? example "`Sensor::Update()`: when Gazebo runs a measurement, and the update time that it stores"
 
-    The excerpt shows the part of `Sensor::Update()` that runs for the robots' IMU sensor, from [`Sensor.cc` of Gazebo Classic 11.15.1, lines 254–295]({{ gazebo_src_url }}/gazebo/sensors/Sensor.cc#L254-L295). Line 260 reads the world's simulation time. Lines 272–276 return while less than one update period has passed. Line 289 calls `UpdateImpl()`, and line 292 stores `simTime` as `lastUpdateTime`:
+    The excerpt shows the part of `Sensor::Update()` that runs for the robots' IMU sensor, from [`Sensor.cc` of Gazebo Classic 11.15.1, lines 254–295]({{ gazebo_src_url }}/gazebo/sensors/Sensor.cc#L254-L295). Line 260 reads the world's simulation time. Lines 272–273 compute `adjustedElapsed`: the time since the last update plus `updateDelay`. Lines 275–276 return while `adjustedElapsed` is less than the update period. Lines 278–279 keep by how much `adjustedElapsed` exceeds the period, as the `updateDelay` of the next update. Line 289 calls `UpdateImpl()`, and line 292 stores `simTime` as `lastUpdateTime`:
 
-    ```cpp title="Sensor.cc (Gazebo Classic 11.15.1): the update period and lastUpdateTime" linenums="254" hl_lines="7 19 20 22 23 36 39"
+    ```cpp title="Sensor.cc (Gazebo Classic 11.15.1): the update period and lastUpdateTime" linenums="254" hl_lines="7 19 20 22 23 25 26 36 39"
     --8<-- "{{ gazebo_src_raw }}/gazebo/sensors/Sensor.cc:254:295"
     ```
 
@@ -293,7 +293,7 @@ The last lines of `UpdateChild()` set the header, publish the message and store 
 ```
 
 - **The frame:** `body_name` is the parameter `frameName`, `imu_link`.
-- **The stamp:** `current_time` is the IMU sensor's update time, from the first line of `UpdateChild()`. So `header.stamp` is the time at which Gazebo ran the measurement, not the measurement's own time, which only Gazebo's own IMU message carries. [Two times of a measurement](#part-1-gazebos-imu-sensor-measures) in Part 1 explains the difference. In the recorded run, the stamp was 1 ms later than the stamp of Gazebo's newest IMU message for nearly every message.
+- **The stamp:** `current_time` is the IMU sensor's update time, from the first line of `UpdateChild()`. So `header.stamp` is the time at which Gazebo ran the measurement, not the measurement's own time, which only Gazebo's own IMU message carries. [Two times of a measurement](#part-1-gazebos-imu-sensor-measures) in Part 1 explains the difference. In the recorded run, the stamp was 1 ms later than the paired Gazebo stamp for 523 of the 524 paired messages.
 - **`publish()`:** line 185, the first highlighted line, publishes the finished message on `/diffbot/imu/gazebo`. This is the one place where the plugin publishes.
 - **`last_time`:** line 191, the second highlighted line, stores `current_time` for the rate limit of the next calls. Line 191 also runs when no node subscribes.
 
