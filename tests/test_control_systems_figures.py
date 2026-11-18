@@ -1,6 +1,6 @@
 """Tests for scripts/figures/control_systems_figures.py.
 
-The script writes the two figures of the Introduction to Control Systems page.
+The script writes the three figures of the Introduction to Control Systems page.
 
 Run from the repository root: python -m unittest discover -s tests
 """
@@ -20,7 +20,8 @@ sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
 import control_systems_figures  # noqa: E402
 
 SCRIPT = ROOT / 'scripts' / 'figures' / 'control_systems_figures.py'
-INCLUDE_NAMES = ['control-systems-closed-loop.html', 'control-systems-system.html']
+INCLUDE_NAMES = ['control-systems-agent.html', 'control-systems-closed-loop.html',
+                 'control-systems-system.html']
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
 # Python's own switch to UTF-8 for that locale
 ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
