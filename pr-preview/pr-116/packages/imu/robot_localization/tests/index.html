@@ -4702,7 +4702,7 @@
 </ul>
 </li>
 <li><strong><a href="stepped-clock/">What does the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> estimate when the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples are valid, invalid or stop?</a></strong><ul>
-<li><strong>Answer:</strong> the estimate's yaw rate <span class="arithmatex">\(\omega_z\)</span> follows the valid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples, ignores the samples that the validator drops, and goes to the wheels' yaw rate when no valid sample arrives, also at the robot's rates.</li>
+<li><strong>Answer:</strong> the estimate's yaw rate <span class="arithmatex">\(\omega_z\)</span> follows the valid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples, ignores the samples that the validator drops, and goes to the wheels' yaw rate when no valid sample arrives, also at the robot's rates. The estimate's forward speed <span class="arithmatex">\(v_x\)</span> follows the wheels', also when their speed changes.</li>
 <li><strong>Where the test runs:</strong> the validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run as ROS nodes, on a clock that the test steps, without Gazebo.</li>
 </ul>
 </li>
