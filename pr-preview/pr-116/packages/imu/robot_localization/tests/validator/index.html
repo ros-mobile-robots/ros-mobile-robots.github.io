@@ -5346,9 +5346,9 @@
 <li><strong>Sample A, stamped <span class="arithmatex">\(t_s\)</span> = 99.899999 s:</strong> its age <span class="arithmatex">\(t - t_s\)</span> is 0.100001 s, 1 µs more than <code>max_age</code>. The validator rejects A as <a href="#dropreason-the-reasons-to-drop-a-sample"><code>TOO_OLD</code></a>, and the node drops the sample.</li>
 </ul>
 <p><a href="../../#check-4-the-stamp-against-the-ros-time">Check 4</a> lets a sample through that is at most <code>max_age</code>, 0.1 s, old: <span class="arithmatex">\(t - t_s \le \texttt{max\_age}\)</span>. B is exactly that old and passes. <a href="../../#check-5-the-stamp-against-the-last-forwarded-sample">Check 5</a> has no stamp of an earlier valid sample to compare B's stamp with, so B passes check 5 too, and the validator accepts B. A is 1 µs older than B and fails check 4. The same two samples appear in the test of <a href="#check-4-the-two-time-limits">Check 4: the two time limits</a>, which gives both to one validator.</p>
-<p>The figure shows every step of the decision, from top to bottom. Each box on the left is a condition. A sample that meets the condition goes down to the next box. A sample that doesn't meet the condition takes the arrow "no" to the right, to the reason for which the validator rejects the sample. The second box drops no sample: after the ROS time went back, the validator clears the last valid sample's stamp and arrival time, which the validator keeps in its attributes <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code>. Then the decision goes on, as <a href="#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back">a clock that goes back</a> explains. The numbers 1 to 5 are those of <a href="../../#the-five-checks">the five checks</a> on the Localization page.</p>
+<p>The figure shows every step of the decision, in the order of its arrows. On a wide screen, the steps run from left to right in two rows. On a narrow screen, they run from top to bottom. Each step is a box with a condition. A sample that meets the condition follows the arrow to the next step. A sample that doesn't meet the condition takes the arrow "no" to the reason for which the validator rejects the sample, in a dashed red box. The second step drops no sample: after the ROS time went back, the validator clears the last valid sample's stamp and arrival time, which the validator keeps in its attributes <code>last_valid_stamp</code> and <code>last_valid_arrival_time</code>. Then the decision goes on, as <a href="#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back">a clock that goes back</a> explains. The numbers 1 to 5 are those of <a href="../../#the-five-checks">the five checks</a> on the Localization page.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -5373,16 +5373,16 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -5402,22 +5402,27 @@
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 436" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. For a sample that passes every step, the validator records the sample's stamp and arrival time, and the node forwards the sample</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 436" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. For a sample that passes every step, the validator records the sample's stamp and arrival time, and the node forwards the sample</title>
 <rect class="item" x="2.0" y="2.0" width="296.0" height="22.0" rx="4"></rect>
 <text class="strong" x="150.0" y="17.0" text-anchor="middle">a sample arrives at the ROS time t</text>
 <path class="message" d="M291,47.0 V385.0"></path>
@@ -5430,8 +5435,8 @@
 <path class="message-head" d="M172,47.0 l-8,-4 v8 z"></path>
 <text class="note" x="163.0" y="42.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="36.0" width="112.0" height="22.0" rx="4"></rect>
-<path class="message" d="M284,47.0 H291"></path>
 <text class="mono" x="228.0" y="51.0" text-anchor="middle">NO_CLOCK</text>
+<path class="message" d="M284,47.0 H291"></path>
 <path class="message" d="M79.0,58.0 V69.0"></path>
 <path class="message-head" d="M79.0,70.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="70.0" width="154.0" height="61.0" rx="4"></rect>
@@ -5448,8 +5453,8 @@
 <path class="message-head" d="M172,154.0 l-8,-4 v8 z"></path>
 <text class="note" x="163.0" y="149.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="143.0" width="112.0" height="22.0" rx="4"></rect>
-<path class="message" d="M284,154.0 H291"></path>
 <text class="mono" x="228.0" y="158.0" text-anchor="middle">WRONG_FRAME</text>
+<path class="message" d="M284,154.0 H291"></path>
 <path class="message" d="M79.0,165.0 V176.0"></path>
 <path class="message-head" d="M79.0,177.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="177.0" width="154.0" height="22.0" rx="4"></rect>
@@ -5459,8 +5464,8 @@
 <path class="message-head" d="M172,188.0 l-8,-4 v8 z"></path>
 <text class="note" x="163.0" y="183.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="177.0" width="112.0" height="22.0" rx="4"></rect>
-<path class="message" d="M284,188.0 H291"></path>
 <text class="mono" x="228.0" y="192.0" text-anchor="middle">NOT_FINITE</text>
+<path class="message" d="M284,188.0 H291"></path>
 <path class="message" d="M79.0,199.0 V210.0"></path>
 <path class="message-head" d="M79.0,211.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="211.0" width="154.0" height="48.0" rx="4"></rect>
@@ -5470,10 +5475,10 @@
 <path class="message-head" d="M172,235.0 l-8,-4 v8 z"></path>
 <text class="note" x="163.0" y="230.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="211.0" width="112.0" height="48.0" rx="4"></rect>
-<path class="message" d="M284,235.0 H291"></path>
 <text class="mono" x="228.0" y="226.0" text-anchor="middle">INVALID_ANGULAR_</text>
 <text class="mono" x="228.0" y="239.0" text-anchor="middle">VELOCITY_</text>
 <text class="mono" x="228.0" y="252.0" text-anchor="middle">COVARIANCE</text>
+<path class="message" d="M284,235.0 H291"></path>
 <path class="message" d="M79.0,259.0 V270.0"></path>
 <path class="message-head" d="M79.0,271.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="271.0" width="154.0" height="22.0" rx="4"></rect>
@@ -5483,8 +5488,8 @@
 <path class="message-head" d="M172,282.0 l-8,-4 v8 z"></path>
 <text class="note" x="163.0" y="277.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="271.0" width="112.0" height="22.0" rx="4"></rect>
-<path class="message" d="M284,282.0 H291"></path>
 <text class="mono" x="228.0" y="286.0" text-anchor="middle">FROM_THE_FUTURE</text>
+<path class="message" d="M284,282.0 H291"></path>
 <path class="message" d="M79.0,293.0 V304.0"></path>
 <path class="message-head" d="M79.0,305.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="305.0" width="154.0" height="22.0" rx="4"></rect>
@@ -5494,8 +5499,8 @@
 <path class="message-head" d="M172,316.0 l-8,-4 v8 z"></path>
 <text class="note" x="163.0" y="311.0" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="305.0" width="112.0" height="22.0" rx="4"></rect>
-<path class="message" d="M284,316.0 H291"></path>
 <text class="mono" x="228.0" y="320.0" text-anchor="middle">TOO_OLD</text>
+<path class="message" d="M284,316.0 H291"></path>
 <path class="message" d="M79.0,327.0 V338.0"></path>
 <path class="message-head" d="M79.0,339.0 l-4,-8 h8 z"></path>
 <rect class="item" x="2.0" y="339.0" width="154.0" height="35.0" rx="4"></rect>
@@ -5506,8 +5511,8 @@
 <path class="message-head" d="M172,356.5 l-8,-4 v8 z"></path>
 <text class="note" x="163.0" y="351.5" text-anchor="middle">no</text>
 <rect class="drop-mark" x="172.0" y="339.0" width="112.0" height="35.0" rx="4"></rect>
-<path class="message" d="M284,356.5 H291"></path>
 <text class="mono" x="228.0" y="360.5" text-anchor="middle">NOT_NEWER</text>
+<path class="message" d="M284,356.5 H291"></path>
 <path class="message" d="M79.0,374.0 V385.0"></path>
 <path class="message-head" d="M79.0,386.0 l-4,-8 h8 z"></path>
 <rect class="pass-mark" x="2.0" y="386.0" width="154.0" height="48.0" rx="4"></rect>
@@ -5519,8 +5524,117 @@
 <text class="note" x="235.0" y="414.0" text-anchor="middle">node counts the drop</text>
 <text class="note" x="235.0" y="427.0" text-anchor="middle">and throttles warnings</text>
 </svg>
-<figcaption>The decision of <code>drop_reason_or_record()</code> about one sample, from top to bottom. A check lets the sample go down only if its condition holds. Otherwise the arrow "no" leads to the drop reason, and the decision ends with this reason. The clock step drops no sample: the decision always goes on after it.</figcaption>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 307" role="img" aria-labelledby="lv-test-decision-wide-title"><title id="lv-test-decision-wide-title">The validator's decision about a sample that arrives at the ROS time t, from left to right in 2 rows: the clock, the clock check, and checks 1 to 5. A sample that fails a step is dropped with the reason below the step, and the node counts the reason. For a sample that passes every step, the validator records the sample's stamp and arrival time, and the node forwards the sample</title>
+<rect class="item" x="12.0" y="2.0" width="200.0" height="22.0" rx="4"></rect>
+<text class="strong" x="112.0" y="17.0" text-anchor="middle">a sample arrives at the ROS time t</text>
+<path class="message-line" d="M62.0,24.0 L62.0,31.0"></path>
+<path class="message-head" d="M62.0,36.0 L57.8,29.0 L66.2,29.0 z"></path>
+<rect class="item" x="12.0" y="36.0" width="100.0" height="61.0" rx="4"></rect>
+<text x="19.0" y="70.5" text-anchor="start">ROS time t ≠ 0</text>
+<path class="message-line" d="M62.0,97.0 L62.0,108.0"></path>
+<path class="message-head" d="M62.0,113.0 L57.8,106.0 L66.2,106.0 z"></path>
+<text class="note" x="67.0" y="107.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="12.0" y="113.0" width="100.0" height="22.0" rx="4"></rect>
+<text class="mono" x="62.0" y="128.0" text-anchor="middle">NO_CLOCK</text>
+<path class="message" d="M62.0,135.0 V145.0"></path>
+<rect class="item" x="122.0" y="36.0" width="152.0" height="61.0" rx="4"></rect>
+<text x="129.0" y="51.0" text-anchor="start">if the clock went back:</text>
+<text x="129.0" y="64.0" text-anchor="start">clear the last valid</text>
+<text x="129.0" y="77.0" text-anchor="start">sample's stamp and</text>
+<text x="129.0" y="90.0" text-anchor="start">arrival time</text>
+<path class="message-line" d="M112.0,66.5 L117.0,66.5"></path>
+<path class="message-head" d="M122.0,66.5 L115.0,70.7 L115.0,62.3 z"></path>
+<rect class="item" x="284.0" y="36.0" width="118.0" height="61.0" rx="4"></rect>
+<text class="strong" x="291.0" y="70.5" text-anchor="start">1</text>
+<text x="304.0" y="70.5" text-anchor="start">frame is imu_link</text>
+<path class="message-line" d="M274.0,66.5 L279.0,66.5"></path>
+<path class="message-head" d="M284.0,66.5 L277.0,70.7 L277.0,62.3 z"></path>
+<path class="message-line" d="M343.0,97.0 L343.0,108.0"></path>
+<path class="message-head" d="M343.0,113.0 L338.8,106.0 L347.2,106.0 z"></path>
+<text class="note" x="348.0" y="107.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="284.0" y="113.0" width="118.0" height="22.0" rx="4"></rect>
+<text class="mono" x="343.0" y="128.0" text-anchor="middle">WRONG_FRAME</text>
+<path class="message" d="M343.0,135.0 V145.0"></path>
+<rect class="item" x="412.0" y="36.0" width="118.0" height="61.0" rx="4"></rect>
+<text class="strong" x="419.0" y="70.5" text-anchor="start">2</text>
+<text x="432.0" y="70.5" text-anchor="start">values are finite</text>
+<path class="message-line" d="M402.0,66.5 L407.0,66.5"></path>
+<path class="message-head" d="M412.0,66.5 L405.0,70.7 L405.0,62.3 z"></path>
+<path class="message-line" d="M471.0,97.0 L471.0,108.0"></path>
+<path class="message-head" d="M471.0,113.0 L466.8,106.0 L475.2,106.0 z"></path>
+<text class="note" x="476.0" y="107.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="412.0" y="113.0" width="118.0" height="22.0" rx="4"></rect>
+<text class="mono" x="471.0" y="128.0" text-anchor="middle">NOT_FINITE</text>
+<path class="message" d="M471.0,135.0 V145.0"></path>
+<path class="message" d="M471.0,145.0 H4 V302.0"></path>
+<path class="message-line" d="M530.0,66.5 L538.0,66.5 L538.0,155.0 L12.0,155.0 L12.0,191.0 L17.0,191.0"></path>
+<path class="message-head" d="M22.0,191.0 L15.0,195.2 L15.0,186.8 z"></path>
+<rect class="item" x="22.0" y="167.0" width="82.0" height="48.0" rx="4"></rect>
+<text class="strong" x="29.0" y="188.5" text-anchor="start">3</text>
+<text x="42.0" y="188.5" text-anchor="start">covariance</text>
+<text x="42.0" y="201.5" text-anchor="start">is valid</text>
+<path class="message-line" d="M63.0,215.0 L63.0,226.0"></path>
+<path class="message-head" d="M63.0,231.0 L58.8,224.0 L67.2,224.0 z"></path>
+<text class="note" x="68.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="22.0" y="231.0" width="82.0" height="61.0" rx="4"></rect>
+<text class="mono" x="63.0" y="246.0" text-anchor="middle">INVALID_</text>
+<text class="mono" x="63.0" y="259.0" text-anchor="middle">ANGULAR_</text>
+<text class="mono" x="63.0" y="272.0" text-anchor="middle">VELOCITY_</text>
+<text class="mono" x="63.0" y="285.0" text-anchor="middle">COVARIANCE</text>
+<path class="message" d="M63.0,292.0 V302.0"></path>
+<rect class="item" x="114.0" y="167.0" width="80.0" height="48.0" rx="4"></rect>
+<text class="strong" x="121.0" y="188.5" text-anchor="start">4</text>
+<text x="134.0" y="188.5" text-anchor="start">not too far</text>
+<text x="134.0" y="201.5" text-anchor="start">ahead</text>
+<path class="message-line" d="M104.0,191.0 L109.0,191.0"></path>
+<path class="message-head" d="M114.0,191.0 L107.0,195.2 L107.0,186.8 z"></path>
+<path class="message-line" d="M154.0,215.0 L154.0,226.0"></path>
+<path class="message-head" d="M154.0,231.0 L149.8,224.0 L158.2,224.0 z"></path>
+<text class="note" x="159.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="114.0" y="231.0" width="80.0" height="35.0" rx="4"></rect>
+<text class="mono" x="154.0" y="246.0" text-anchor="middle">FROM_THE_</text>
+<text class="mono" x="154.0" y="259.0" text-anchor="middle">FUTURE</text>
+<path class="message" d="M154.0,266.0 V302.0"></path>
+<rect class="item" x="204.0" y="167.0" width="82.0" height="48.0" rx="4"></rect>
+<text class="strong" x="211.0" y="195.0" text-anchor="start">4</text>
+<text x="224.0" y="195.0" text-anchor="start">not too old</text>
+<path class="message-line" d="M194.0,191.0 L199.0,191.0"></path>
+<path class="message-head" d="M204.0,191.0 L197.0,195.2 L197.0,186.8 z"></path>
+<path class="message-line" d="M245.0,215.0 L245.0,226.0"></path>
+<path class="message-head" d="M245.0,231.0 L240.8,224.0 L249.2,224.0 z"></path>
+<text class="note" x="250.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="204.0" y="231.0" width="82.0" height="22.0" rx="4"></rect>
+<text class="mono" x="245.0" y="246.0" text-anchor="middle">TOO_OLD</text>
+<path class="message" d="M245.0,253.0 V302.0"></path>
+<rect class="item" x="296.0" y="167.0" width="96.0" height="48.0" rx="4"></rect>
+<text class="strong" x="303.0" y="182.0" text-anchor="start">5</text>
+<text x="316.0" y="182.0" text-anchor="start">no last valid</text>
+<text x="316.0" y="195.0" text-anchor="start">stamp, or this</text>
+<text x="316.0" y="208.0" text-anchor="start">stamp is later</text>
+<path class="message-line" d="M286.0,191.0 L291.0,191.0"></path>
+<path class="message-head" d="M296.0,191.0 L289.0,195.2 L289.0,186.8 z"></path>
+<path class="message-line" d="M344.0,215.0 L344.0,226.0"></path>
+<path class="message-head" d="M344.0,231.0 L339.8,224.0 L348.2,224.0 z"></path>
+<text class="note" x="349.0" y="225.0" text-anchor="start">no</text>
+<rect class="drop-mark" x="296.0" y="231.0" width="96.0" height="22.0" rx="4"></rect>
+<text class="mono" x="344.0" y="246.0" text-anchor="middle">NOT_NEWER</text>
+<path class="message" d="M344.0,253.0 V302.0"></path>
+<path class="message-line" d="M392.0,191.0 L397.0,191.0"></path>
+<path class="message-head" d="M402.0,191.0 L395.0,195.2 L395.0,186.8 z"></path>
+<rect class="pass-mark" x="402.0" y="167.0" width="136.0" height="48.0" rx="4"></rect>
+<text class="strong" x="470.0" y="182.0" text-anchor="middle">valid: returns None</text>
+<text class="note" x="470.0" y="195.0" text-anchor="middle">records the stamp and t</text>
+<text class="note" x="470.0" y="208.0" text-anchor="middle">node forwards the sample</text>
+<rect class="drop-mark" x="402.0" y="231.0" width="136.0" height="48.0" rx="4"></rect>
+<text class="strong" x="470.0" y="246.0" text-anchor="middle">returns the reason</text>
+<text class="note" x="470.0" y="259.0" text-anchor="middle">node counts the drop</text>
+<text class="note" x="470.0" y="272.0" text-anchor="middle">and throttles warnings</text>
+<path class="message-line" d="M4.0,302.0 L470.0,302.0 L470.0,284.0"></path>
+<path class="message-head" d="M470.0,279.0 L474.2,286.0 L465.8,286.0 z"></path>
+</svg>
+<figcaption>The decision of <code>drop_reason_or_record()</code> about one sample, along the arrows from the box of the arriving sample. A check lets the sample go on to the next box only if its condition holds. Otherwise the arrow "no" leads to the drop reason, and the decision ends with this reason. The clock step drops no sample: the decision always goes on after it.</figcaption>
 </figure>
+</div>
 
 <p>The decision has two ends:</p>
 <ul>
@@ -6295,7 +6409,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </ul>
 <p>Two samples that lie only 1 µs or 1 ns apart would share one spot at the figure's scale, so the figures draw them apart.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -6320,16 +6434,16 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -6349,22 +6463,27 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 108" role="img" aria-labelledby="lv-test-limits-title"><title id="lv-test-limits-title">Check 4 in the tests, at the ROS time t = 100 s: a sample stamped exactly MAX_AGE, 0.1 s, before t or exactly MAX_FUTURE, 0.02 s, after t is forwarded, and a sample 1 µs beyond each limit is dropped</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 108" role="img" aria-labelledby="lv-test-limits-title"><title id="lv-test-limits-title">Check 4 in the tests, at the ROS time t = 100 s: a sample stamped exactly MAX_AGE, 0.1 s, before t or exactly MAX_FUTURE, 0.02 s, after t is forwarded, and a sample 1 µs beyond each limit is dropped</title>
 <rect class="drop-zone" x="14.0" y="38.0" width="59.0" height="46.0" rx="0"></rect>
 <rect class="drop-zone" x="214.6" y="38.0" width="71.4" height="46.0" rx="0"></rect>
 <rect class="pass-zone" x="73.0" y="38.0" width="141.6" height="46.0" rx="0"></rect>
@@ -6401,6 +6520,43 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <text class="note halo" x="73.0" y="62.5" text-anchor="middle">1 µs, enlarged</text>
 <text class="note halo" x="231.6" y="62.5" text-anchor="end">1 µs, enlarged</text>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 108" role="img" aria-labelledby="lv-test-limits-wide-title"><title id="lv-test-limits-wide-title">Check 4 in the tests, at the ROS time t = 100 s: a sample stamped exactly MAX_AGE, 0.1 s, before t or exactly MAX_FUTURE, 0.02 s, after t is forwarded, and a sample 1 µs beyond each limit is dropped</title>
+<rect class="drop-zone" x="25.2" y="38.0" width="106.2" height="46.0" rx="0"></rect>
+<rect class="drop-zone" x="386.3" y="38.0" width="128.5" height="46.0" rx="0"></rect>
+<rect class="pass-zone" x="131.4" y="38.0" width="254.9" height="46.0" rx="0"></rect>
+<text class="strong" x="28.3" y="51.0" text-anchor="start">too old</text>
+<text class="strong" x="511.7" y="51.0" text-anchor="end">too far</text>
+<text class="strong" x="511.7" y="63.0" text-anchor="end">ahead</text>
+<text class="mono" x="455.2" y="12.0" text-anchor="end">MAX_FUTURE = 0.02 s</text>
+<text class="mono" x="237.6" y="25.0" text-anchor="middle">MAX_AGE = 0.1 s</text>
+<path class="dimension" d="M131.4,31 H343.8 M131.4,28 V34 M343.8,28 V34"></path>
+<path class="dimension" d="M343.8,31 H386.3 M343.8,28 V34 M386.3,28 V34"></path>
+<path class="dimension" d="M365.0,28 V16"></path>
+<path class="axis" d="M25.2,84 H527.4"></path>
+<path class="axis" d="M527.4,84 l-6,-3.5 M527.4,84 l-6,3.5"></path>
+<path class="tick" d="M46.4,84 v4"></path>
+<path class="tick" d="M88.9,84 v4"></path>
+<path class="tick" d="M131.4,84 v4"></path>
+<path class="tick" d="M173.9,84 v4"></path>
+<path class="tick" d="M216.4,84 v4"></path>
+<path class="tick" d="M258.8,84 v4"></path>
+<path class="tick" d="M301.3,84 v4"></path>
+<path class="tick" d="M343.8,84 v4"></path>
+<path class="tick" d="M386.3,84 v4"></path>
+<path class="tick" d="M428.8,84 v4"></path>
+<path class="tick" d="M471.2,84 v4"></path>
+<path class="tick" d="M513.7,84 v4"></path>
+<path class="now" d="M343.8,34 V90"></path>
+<text class="name" x="343.8" y="102.0" text-anchor="middle">now: t</text>
+<text class="note" x="131.4" y="102.0" text-anchor="middle">t − 0.1 s</text>
+<text class="note" x="392.2" y="102.0" text-anchor="start">t + 0.02 s</text>
+<g><title>Sample A: dropped. stamped t − 0.100001 s, 1 µs older than MAX_AGE allows</title><circle class="drop-mark" cx="121.9" cy="74.0" r="7.5"></circle><text class="letter" x="121.9" y="77.8" text-anchor="middle">A</text></g>
+<g><title>Sample B: forwarded. stamped t − 0.1 s, exactly MAX_AGE old</title><circle class="pass-mark" cx="140.9" cy="74.0" r="7.5"></circle><text class="letter" x="140.9" y="77.8" text-anchor="middle">B</text></g>
+<g><title>Sample C: forwarded. stamped t + 0.02 s, exactly MAX_FUTURE ahead</title><circle class="pass-mark" cx="376.7" cy="74.0" r="7.5"></circle><text class="letter" x="376.7" y="77.8" text-anchor="middle">C</text></g>
+<g><title>Sample D: dropped. stamped t + 0.020001 s, 1 µs further ahead than MAX_FUTURE allows</title><circle class="drop-mark" cx="395.8" cy="74.0" r="7.5"></circle><text class="letter" x="395.8" y="77.8" text-anchor="middle">D</text></g>
+<text class="note halo" x="131.4" y="62.5" text-anchor="middle">1 µs, enlarged</text>
+<text class="note halo" x="403.2" y="62.5" text-anchor="end">1 µs, enlarged</text>
+</svg>
 <ul class="lv-legend">
 <li><span class="lv-mark lv-drop">A</span><strong>✕ dropped:</strong> stamped t − 0.100001 s, 1 µs older than MAX_AGE allows</li>
 <li><span class="lv-mark">B</span><strong>✓ forwarded:</strong> stamped t − 0.1 s, exactly MAX_AGE old</li>
@@ -6409,6 +6565,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </ul>
 <figcaption>Check 4 in two tests, at the ROS time t = 100 s. A lies 1 µs before B, and D 1 µs after C. The figure draws them apart.</figcaption>
 </figure>
+</div>
 
 <p>The first test sends B and then A, the second test D and then C, all at the ROS time <a href="#the-constants-and-the-helpers"><code>NOW</code></a>. The tests build the four stamps from the constants: B is <code>NOW - seconds(MAX_AGE)</code>, A is <code>NOW - seconds(JUST_TOO_OLD)</code>, D is <code>NOW + seconds(JUST_TOO_FAR_AHEAD)</code> and C is <code>NOW + seconds(MAX_FUTURE)</code>. The validator has to accept B and C, so each limit itself is still valid. The validator has to reject A with <a href="#dropreason-the-reasons-to-drop-a-sample"><code>DropReason.TOO_OLD</code></a> and D with <code>DropReason.FROM_THE_FUTURE</code>.</p>
 <p>In the first test, sample A is also older than the valid sample B before it. The validator reports <code>DropReason.TOO_OLD</code> and not <code>DropReason.NOT_NEWER</code>, because the checks run <a href="#step-1-drop_reason-the-decision">in their order</a> and check 4 comes before check 5. The second test sends the rejected sample D first. For a rejected sample, the validator keeps only the ROS time of the call for its clock check, so D doesn't change what the validator decides for C.</p>
@@ -6442,7 +6599,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </code></pre></div></td></tr></tbody></table></div>
 <p>The figure shows the samples of the two tests around <span class="arithmatex">\(t_\text{last}\)</span>, 100 s:</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -6467,16 +6624,16 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -6496,22 +6653,27 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-order-title"><title id="lv-test-order-title">Check 5 in the tests, after a valid sample stamped 100 s: a sample with an older stamp or the same stamp is dropped, a sample stamped 1 ns later is forwarded, and so is a later sample that follows a dropped sample stamped 5 s ahead</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-order-title"><title id="lv-test-order-title">Check 5 in the tests, after a valid sample stamped 100 s: a sample with an older stamp or the same stamp is dropped, a sample stamped 1 ns later is forwarded, and so is a later sample that follows a dropped sample stamped 5 s ahead</title>
 <rect class="drop-zone" x="14.0" y="6.0" width="96.0" height="46.0" rx="0"></rect>
 <rect class="pass-zone" x="110.0" y="6.0" width="176.0" height="46.0" rx="0"></rect>
 <text class="strong" x="17.0" y="19.0" text-anchor="start">not later</text>
@@ -6536,6 +6698,31 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <text class="note halo" x="119.0" y="30.5" text-anchor="middle">1 ns</text>
 <text class="note halo" x="286.0" y="30.5" text-anchor="end">check 4: too far ahead</text>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 76" role="img" aria-labelledby="lv-test-order-wide-title"><title id="lv-test-order-wide-title">Check 5 in the tests, after a valid sample stamped 100 s: a sample with an older stamp or the same stamp is dropped, a sample stamped 1 ns later is forwarded, and so is a later sample that follows a dropped sample stamped 5 s ahead</title>
+<rect class="drop-zone" x="25.2" y="6.0" width="172.8" height="46.0" rx="0"></rect>
+<rect class="pass-zone" x="198.0" y="6.0" width="316.8" height="46.0" rx="0"></rect>
+<text class="strong" x="28.3" y="19.0" text-anchor="start">not later</text>
+<text class="strong" x="511.7" y="19.0" text-anchor="end">later</text>
+<path class="axis" d="M25.2,52 H527.4"></path>
+<path class="axis" d="M527.4,52 l-6,-3.5 M527.4,52 l-6,3.5"></path>
+<path class="tick" d="M54.0,52 v4"></path>
+<path class="tick" d="M126.0,52 v4"></path>
+<path class="tick" d="M198.0,52 v4"></path>
+<path class="tick" d="M270.0,52 v4"></path>
+<path class="tick" d="M342.0,52 v4"></path>
+<rect class="cut-gap" x="389.0" y="51.0" width="7.0" height="2.0" rx="0"></rect>
+<path class="cut" d="M386.8,57 l4,-10 M393.8,57 l4,-10"></path>
+<path class="now" d="M198.0,2 V58"></path>
+<text class="name" x="198.0" y="70.0" text-anchor="middle">100 s: the last valid stamp</text>
+<text class="note" x="457.2" y="70.0" text-anchor="middle">105 s</text>
+<g><title>Sample E: dropped. stamped 0.01 s before 100 s. The sample arrived out of order</title><circle class="drop-mark" cx="162.0" cy="42.0" r="7.5"></circle><text class="letter" x="162.0" y="45.8" text-anchor="middle">E</text></g>
+<g><title>Sample F: dropped. stamped 100 s again. The sample came twice</title><circle class="drop-mark" cx="198.0" cy="42.0" r="7.5"></circle><text class="letter" x="198.0" y="45.8" text-anchor="middle">F</text></g>
+<g><title>Sample G: forwarded. stamped 1 ns after 100 s, the smallest step of a stamp</title><circle class="pass-mark" cx="216.0" cy="42.0" r="7.5"></circle><text class="letter" x="216.0" y="45.8" text-anchor="middle">G</text></g>
+<g><title>Sample H: dropped. stamped 105 s. Check 4 drops it as too far ahead</title><circle class="drop-mark" cx="457.2" cy="42.0" r="7.5"></circle><text class="letter" x="457.2" y="45.8" text-anchor="middle">H</text></g>
+<g><title>Sample I: forwarded. sent after H, stamped 100.02 s. The validator compares the stamp with 100 s, not with the stamp of H</title><circle class="pass-mark" cx="270.0" cy="42.0" r="7.5"></circle><text class="letter" x="270.0" y="45.8" text-anchor="middle">I</text></g>
+<text class="note halo" x="207.0" y="30.5" text-anchor="middle">1 ns</text>
+<text class="note halo" x="514.8" y="30.5" text-anchor="end">check 4: too far ahead</text>
+</svg>
 <ul class="lv-legend">
 <li><span class="lv-mark lv-drop">E</span><strong>✕ dropped:</strong> stamped 0.01 s before 100 s. The sample arrived out of order</li>
 <li><span class="lv-mark lv-drop">F</span><strong>✕ dropped:</strong> stamped 100 s again. The sample came twice</li>
@@ -6545,6 +6732,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </ul>
 <figcaption>Check 5 in two tests, after a valid sample stamped 100 s. G lies 1 ns after F. The figure draws them apart.</figcaption>
 </figure>
+</div>
 
 <p><code>test_validator_rejects_a_sample_not_later_than_the_last_valid_one</code> sends four samples to one validator:</p>
 <ol>
@@ -6590,7 +6778,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 </code></pre></div></td></tr></tbody></table></div>
 <p>The figure shows the two tests, each on its own axis at the new ROS time:</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -6615,16 +6803,16 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -6644,23 +6832,28 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
 <p class="lv-band">The clock goes back from 100 s to 0.02 s: check 5 starts over</p>
-<svg class="lv-fig" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-early-title"><title id="lv-test-clock-early-title">After the ROS time went back from 100 s to 0.02 s, check 5 starts over: a sample stamped 0.02 s is forwarded, although the last valid stamp was 100 s, and a second sample with the same stamp is dropped</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-early-title"><title id="lv-test-clock-early-title">After the ROS time went back from 100 s to 0.02 s, check 5 starts over: a sample stamped 0.02 s is forwarded, although the last valid stamp was 100 s, and a second sample with the same stamp is dropped</title>
 <rect class="drop-zone" x="108.0" y="6.0" width="178.0" height="46.0" rx="0"></rect>
 <rect class="pass-zone" x="36.0" y="6.0" width="72.0" height="46.0" rx="0"></rect>
 <text class="strong" x="283.0" y="19.0" text-anchor="end">too far ahead</text>
@@ -6683,13 +6876,36 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <text class="note halo" x="84.5" y="46.0" text-anchor="start">1st arrival</text>
 <text class="note halo" x="84.5" y="28.0" text-anchor="start">repeat, 1 ms later</text>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 76" role="img" aria-labelledby="lv-test-clock-early-wide-title"><title id="lv-test-clock-early-wide-title">After the ROS time went back from 100 s to 0.02 s, check 5 starts over: a sample stamped 0.02 s is forwarded, although the last valid stamp was 100 s, and a second sample with the same stamp is dropped</title>
+<rect class="drop-zone" x="194.4" y="6.0" width="320.4" height="46.0" rx="0"></rect>
+<rect class="pass-zone" x="64.8" y="6.0" width="129.6" height="46.0" rx="0"></rect>
+<text class="strong" x="511.7" y="19.0" text-anchor="end">too far ahead</text>
+<path class="axis" d="M64.8,52 H527.4"></path>
+<path class="axis" d="M527.4,52 l-6,-3.5 M527.4,52 l-6,3.5"></path>
+<path class="tick" d="M129.6,52 v4"></path>
+<path class="tick" d="M194.4,52 v4"></path>
+<path class="tick" d="M259.2,52 v4"></path>
+<path class="tick" d="M324.0,52 v4"></path>
+<path class="axis" d="M64.8,47 v10"></path>
+<text class="note" x="59.8" y="56.0" text-anchor="end">0 s</text>
+<rect class="cut-gap" x="371.0" y="51.0" width="7.0" height="2.0" rx="0"></rect>
+<path class="cut" d="M368.8,57 l4,-10 M375.8,57 l4,-10"></path>
+<path class="now" d="M129.6,2 V58"></path>
+<text class="name" x="129.6" y="70.0" text-anchor="middle">now: t = 0.02 s</text>
+<g><title>100 s: the stamp of the last valid sample before the clock went back</title><path class="former-stamp" d="M442.8,26 V58"></path></g>
+<text class="note" x="442.8" y="70.0" text-anchor="middle">100 s</text>
+<g><title>Sample J: forwarded. stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator cleared that stamp when the clock went back</title><circle class="pass-mark" cx="129.6" cy="42.0" r="7.5"></circle><text class="letter" x="129.6" y="45.8" text-anchor="middle">J</text></g>
+<g><title>Sample K: dropped. stamped 0.02 s again, sent 1 ms later. The stamp is not later than the stamp of J</title><circle class="drop-mark" cx="129.6" cy="24.0" r="7.5"></circle><text class="letter" x="129.6" y="27.8" text-anchor="middle">K</text></g>
+<text class="note halo" x="142.0" y="46.0" text-anchor="start">1st arrival</text>
+<text class="note halo" x="142.0" y="28.0" text-anchor="start">repeat, 1 ms later</text>
+</svg>
 <ul class="lv-legend">
 <li><span class="lv-mark">J</span><strong>✓ forwarded:</strong> stamped 0.02 s, the new ROS time. The stamp is far older than the last valid stamp, 100 s. The validator cleared that stamp when the clock went back</li>
 <li><span class="lv-mark lv-drop">K</span><strong>✕ dropped:</strong> stamped 0.02 s again, sent 1 ms later. The stamp is not later than the stamp of J</li>
 <li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="former-stamp" d="M12,-3 V15"></path></svg>100 s, the stamp of the last valid sample before the clock went back</li>
 </ul>
 <p class="lv-band">The clock goes back from 100 s to 50 s: check 4 uses the new time</p>
-<svg class="lv-fig" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-back-title"><title id="lv-test-clock-back-title">After the ROS time went back from 100 s to 50 s, check 4 uses the new time: a sample stamped 49 s is too old, and a sample stamped 100.02 s is too far ahead</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 76" role="img" aria-labelledby="lv-test-clock-back-title"><title id="lv-test-clock-back-title">After the ROS time went back from 100 s to 50 s, check 4 uses the new time: a sample stamped 49 s is too old, and a sample stamped 100.02 s is too far ahead</title>
 <rect class="drop-zone" x="14.0" y="6.0" width="66.0" height="46.0" rx="0"></rect>
 <rect class="drop-zone" x="176.0" y="6.0" width="110.0" height="46.0" rx="0"></rect>
 <rect class="pass-zone" x="80.0" y="6.0" width="96.0" height="46.0" rx="0"></rect>
@@ -6718,12 +6934,42 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <g><title>Sample L: dropped. stamped 49 s, 1 s older than the new ROS time</title><circle class="drop-mark" cx="32.0" cy="42.0" r="7.5"></circle><text class="letter" x="32.0" y="45.8" text-anchor="middle">L</text></g>
 <g><title>Sample M: dropped. stamped 100.02 s, 50.02 s ahead of the new ROS time. At the ROS time 100 s, this stamp was valid</title><circle class="drop-mark" cx="254.0" cy="42.0" r="7.5"></circle><text class="letter" x="254.0" y="45.8" text-anchor="middle">M</text></g>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 76" role="img" aria-labelledby="lv-test-clock-back-wide-title"><title id="lv-test-clock-back-wide-title">After the ROS time went back from 100 s to 50 s, check 4 uses the new time: a sample stamped 49 s is too old, and a sample stamped 100.02 s is too far ahead</title>
+<rect class="drop-zone" x="25.2" y="6.0" width="118.8" height="46.0" rx="0"></rect>
+<rect class="drop-zone" x="316.8" y="6.0" width="198.0" height="46.0" rx="0"></rect>
+<rect class="pass-zone" x="144.0" y="6.0" width="172.8" height="46.0" rx="0"></rect>
+<text class="strong" x="28.3" y="19.0" text-anchor="start">too old</text>
+<text class="strong" x="511.7" y="19.0" text-anchor="end">too far ahead</text>
+<path class="axis" d="M25.2,52 H527.4"></path>
+<path class="axis" d="M527.4,52 l-6,-3.5 M527.4,52 l-6,3.5"></path>
+<path class="tick" d="M115.2,52 v4"></path>
+<path class="tick" d="M144.0,52 v4"></path>
+<path class="tick" d="M172.8,52 v4"></path>
+<path class="tick" d="M201.6,52 v4"></path>
+<path class="tick" d="M230.4,52 v4"></path>
+<path class="tick" d="M259.2,52 v4"></path>
+<path class="tick" d="M288.0,52 v4"></path>
+<path class="tick" d="M316.8,52 v4"></path>
+<path class="tick" d="M345.6,52 v4"></path>
+<path class="tick" d="M374.4,52 v4"></path>
+<rect class="cut-gap" x="93.8" y="51.0" width="7.0" height="2.0" rx="0"></rect>
+<path class="cut" d="M91.6,57 l4,-10 M98.6,57 l4,-10"></path>
+<rect class="cut-gap" x="396.2" y="51.0" width="7.0" height="2.0" rx="0"></rect>
+<path class="cut" d="M394.0,57 l4,-10 M401.0,57 l4,-10"></path>
+<path class="now" d="M288.0,2 V58"></path>
+<text class="name" x="288.0" y="70.0" text-anchor="middle">now: t = 50 s</text>
+<text class="note" x="57.6" y="70.0" text-anchor="middle">49 s</text>
+<text class="note" x="457.2" y="70.0" text-anchor="middle">100.02 s</text>
+<g><title>Sample L: dropped. stamped 49 s, 1 s older than the new ROS time</title><circle class="drop-mark" cx="57.6" cy="42.0" r="7.5"></circle><text class="letter" x="57.6" y="45.8" text-anchor="middle">L</text></g>
+<g><title>Sample M: dropped. stamped 100.02 s, 50.02 s ahead of the new ROS time. At the ROS time 100 s, this stamp was valid</title><circle class="drop-mark" cx="457.2" cy="42.0" r="7.5"></circle><text class="letter" x="457.2" y="45.8" text-anchor="middle">M</text></g>
+</svg>
 <ul class="lv-legend">
 <li><span class="lv-mark lv-drop">L</span><strong>✕ dropped:</strong> stamped 49 s, 1 s older than the new ROS time</li>
 <li><span class="lv-mark lv-drop">M</span><strong>✕ dropped:</strong> stamped 100.02 s, 50.02 s ahead of the new ROS time. At the ROS time 100 s, this stamp was valid</li>
 </ul>
 <figcaption>Two tests in which the ROS time goes back from 100 s. The bands on each axis are those of check 4 at the new ROS time.</figcaption>
 </figure>
+</div>
 
 <ul>
 <li><strong><code>test_validator_accepts_a_stamp_once_after_the_clock_goes_back</code>:</strong> the first sample is stamped <a href="#the-constants-and-the-helpers"><code>NOW</code></a>, 100 s, and arrives at the ROS time <code>NOW</code>. The validator accepts this sample. Then the ROS time is <code>restart</code>, 0.02 s, as after a reset of the simulation. This test is the first axis of the figure. Sample J is stamped <code>restart</code> and arrives at the ROS time <code>restart</code>. This stamp is far older than <span class="arithmatex">\(t_\text{last}\)</span>, 100 s. The validator accepts J all the same, because the order check started over. The order check works again from this sample on: the test sends the same stamp once more, 1 ms later, and expects <code>DropReason.NOT_NEWER</code>. This second sample is K.</li>

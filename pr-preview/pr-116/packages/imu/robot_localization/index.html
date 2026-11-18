@@ -5451,7 +5451,7 @@
 </ul>
 <p>The position <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(y\)</span> says where <code>base_footprint</code> lies along the two axes of <code>odom</code>. The heading <span class="arithmatex">\(\theta\)</span> is the angle from the x axis of <code>odom</code> to the robot's forward direction. The transform <code>odom → base_footprint</code> holds this pose.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -5476,7 +5476,7 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -5574,7 +5574,7 @@
 <li><strong>The way back to the wheels:</strong> the dashed gray arrows show the way of the velocity commands. A velocity command says how fast the robot is to drive forward and how fast the robot is to turn: the target forward speed <span class="arithmatex">\(v_x^*\)</span> and the target yaw rate <span class="arithmatex">\(\omega_z^*\)</span>. The star marks a target value. A command comes from a teleop node, with which a person steers the robot, or from the planner in <code>move_base</code>, the node that computes the commands that lead the robot to a navigation goal. The planner reads the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s two outputs, which the thin green arrow at the figure's right edge shows. The drive controller turns each command into two target wheel speeds, the angular velocities <span class="arithmatex">\(\omega_\text{l}^*\)</span> for the left wheel and <span class="arithmatex">\(\omega_\text{r}^*\)</span> for the right wheel. On the real robot, the firmware on the Teensy drives the motors so that the wheels reach these speeds. In the simulation, the Gazebo plugin <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control"><code>gazebo_ros_control</code></a> applies a torque <span class="arithmatex">\(\tau\)</span> to each wheel joint. A torque is the turning effect of a force about an axis, here the joint's axis. The robot moves, the sensors measure the motion, and the loop starts again.</li>
 </ol>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -5599,16 +5599,16 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -5617,7 +5617,7 @@
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -6502,7 +6502,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>The figure shows both lists in the file's layout. A green cell with a check mark is a <code>true</code>: the filter fuses this value from the input. A plain cell is a <code>false</code>: the filter ignores this value of the input, even when the message carries it. A dashed cell belongs to a variable that <a href="#what-two_d_mode-does"><code>two_d_mode</code></a> keeps at 0, whatever the list says.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -6527,16 +6527,16 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -6801,7 +6801,7 @@ k = n\,i + j
 \]</div>
 <p><a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/TwistWithCovariance.msg#L9"><code>twist.covariance</code></a>, the field of a <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg"><code>nav_msgs/Odometry</code></a> message, holds the 6 × 6 matrix of the velocities <span class="arithmatex">\(v_x\)</span>, <span class="arithmatex">\(v_y\)</span>, <span class="arithmatex">\(v_z\)</span>, <span class="arithmatex">\(\omega_x\)</span>, <span class="arithmatex">\(\omega_y\)</span> and <span class="arithmatex">\(\omega_z\)</span>, with <span class="arithmatex">\(n = 6\)</span>. Its variances lie at the indices 0, 7, 14, 21, 28 and 35. <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21"><code>angular_velocity_covariance</code></a> of a <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg"><code>sensor_msgs/Imu</code></a> message holds the 3 × 3 matrix above, with <span class="arithmatex">\(n = 3\)</span> and the variances at 0, 4 and 8. The figure shows both matrices with the index of each element:</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -6826,16 +6826,16 @@ k = n\,i + j
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -6844,7 +6844,7 @@ k = n\,i + j
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -6861,7 +6861,7 @@ k = n\,i + j
 .lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
 .lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
 .lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
-.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
 .lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
 .lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
 .lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
@@ -6874,20 +6874,20 @@ k = n\,i + j
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
-.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
 .lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
 .lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
 .lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
 .lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
 .lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
-.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols lv-covariances">
 <div class="lv-pair">
@@ -6981,7 +6981,6 @@ k = n\,i + j
 <text class="strong" x="212.0" y="236.0" text-anchor="middle">✓35</text>
 </svg>
 <svg class="lv-fig lv-angular" viewBox="0 0 214 156" role="img" aria-labelledby="lv-angular-covariance-title"><title id="lv-angular-covariance-title">The covariance angular_velocity_covariance of the IMU, 3 × 3 as a grid of 3 rows and 3 columns, with the index of each element in the array</title>
-<defs><pattern id="lv-hatch-covariance" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path class="hatch" d="M0,0 V5"></path></pattern></defs>
 <text class="mono" x="107.0" y="13.0" text-anchor="middle">angular_velocity_covariance</text>
 <text class="note" x="107.0" y="28.0" text-anchor="middle">IMU, 3 × 3</text>
 <text x="90.0" y="48.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
@@ -7466,7 +7465,7 @@ k = n\,i + j
 </ul>
 <p><strong>1. The stamp check compares with the input's last stamp, not with the clock:</strong> the filter takes an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample when <span class="arithmatex">\(t_s \ge t_\text{input}\)</span>. So an equal stamp passes, and so does a stamp that lies far behind the ROS time <span class="arithmatex">\(t\)</span>, as the figure shows:</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -7491,16 +7490,16 @@ k = n\,i + j
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -7509,7 +7508,7 @@ k = n\,i + j
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -7526,7 +7525,7 @@ k = n\,i + j
 .lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
 .lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
 .lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
-.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
 .lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
 .lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
 .lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
@@ -7539,20 +7538,20 @@ k = n\,i + j
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
-.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
 .lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
 .lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
 .lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
 .lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
 .lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
-.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols">
 <svg class="lv-fig" viewBox="0 0 300 116" role="img" aria-labelledby="lv-stamp-check-title"><title id="lv-stamp-check-title">robot_localization's stamp check on a time axis: a stamp passes when it is not earlier than the last stamp of the same input, however far it lies behind the ROS time</title>
@@ -7604,7 +7603,7 @@ k = n\,i + j
 <p><strong>3. The filter doesn't go back in time:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/ekf.yaml"><code>ekf.yaml</code></a> leaves <a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L893"><code>smooth_lagged_data</code></a> at its default <code>false</code>, which robot_localization's <a href="https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data">description of <code>smooth_lagged_data</code></a> explains, so the filter doesn't return to <span class="arithmatex">\(t_s\)</span> to process a late measurement in its place.</p>
 <p>The figure shows the second and the third fact for a current and for a late <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample:</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -7629,16 +7628,16 @@ k = n\,i + j
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -7647,7 +7646,7 @@ k = n\,i + j
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -7664,7 +7663,7 @@ k = n\,i + j
 .lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
 .lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
 .lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
-.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
 .lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
 .lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
 .lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
@@ -7677,20 +7676,20 @@ k = n\,i + j
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
-.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
 .lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
 .lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
 .lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
 .lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
 .lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
-.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols">
 <p class="lv-band">Δt &gt; 0: the filter predicts, then corrects</p>
@@ -7901,7 +7900,7 @@ k = n\,i + j
 <p>The first three checks look at the sample's frame, values and variances, fields of its <a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg"><code>sensor_msgs/Imu</code></a> message. Each of the three figures shows the fields that its check reads, for a sample that passes and for one that the node drops.</p>
 <p><strong>1. The frame:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/scripts/imu_validator.py#L298"><code>check_frame()</code></a> checks that the sample's <code>header.frame_id</code> is the node's parameter <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/launch/ekf.launch#L31"><code>frame_id</code></a>, <code>imu_link</code>. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs this frame to turn the measured rate into the robot's frame with TF.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -7926,16 +7925,16 @@ k = n\,i + j
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -7944,7 +7943,7 @@ k = n\,i + j
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -7961,7 +7960,7 @@ k = n\,i + j
 .lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
 .lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
 .lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
-.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
 .lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
 .lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
 .lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
@@ -7974,20 +7973,20 @@ k = n\,i + j
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
-.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
 .lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
 .lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
 .lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
 .lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
 .lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
-.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols">
 <svg class="lv-fig" viewBox="0 0 300 112" role="img" aria-labelledby="lv-check-frame-title"><title id="lv-check-frame-title">Check 1: a sample whose header.frame_id is imu_link passes. A sample with the frame base_link is dropped</title>
@@ -8006,7 +8005,7 @@ k = n\,i + j
 
 <p><strong>2. The values:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/scripts/imu_validator.py#L302"><code>check_finite_values()</code></a> checks that the three components of the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and of the accelerometer's reading <span class="arithmatex">\(\mathbf f\)</span>, the field <code>linear_acceleration</code>, are finite numbers, so that none is NaN or infinite.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -8031,16 +8030,16 @@ k = n\,i + j
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -8049,7 +8048,7 @@ k = n\,i + j
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -8066,7 +8065,7 @@ k = n\,i + j
 .lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
 .lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
 .lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
-.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
 .lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
 .lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
 .lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
@@ -8079,20 +8078,20 @@ k = n\,i + j
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
-.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
 .lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
 .lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
 .lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
 .lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
 .lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
-.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols">
 <svg class="lv-fig" viewBox="0 0 300 214" role="img" aria-labelledby="lv-check-values-title"><title id="lv-check-values-title">Check 2: a sample whose angular velocity and linear acceleration are finite passes. A sample with a NaN in its angular velocity is dropped</title>
@@ -8141,7 +8140,7 @@ k = n\,i + j
 
 <p><strong>3. The variances:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/scripts/imu_validator.py#L309"><code>check_angular_velocity_covariance()</code></a> checks that the nine values of the angular velocity's covariance are finite, and that its diagonal, the three variances <span class="arithmatex">\(\sigma^2\)</span>, is positive. The figure lays the covariance out as <a href="#the-variances">the figure of the covariances</a> does.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -8166,16 +8165,16 @@ k = n\,i + j
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -8184,7 +8183,7 @@ k = n\,i + j
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -8201,7 +8200,7 @@ k = n\,i + j
 .lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
 .lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
 .lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
-.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
 .lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
 .lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
 .lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
@@ -8214,20 +8213,20 @@ k = n\,i + j
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
-.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
 .lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
 .lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
 .lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
 .lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
 .lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
-.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols lv-check-pair">
 <div class="lv-pair">
@@ -8298,7 +8297,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 \]</div>
 <p>A stamp can fail only one of the two checks, so their order doesn't matter. The figure shows samples inside and outside the interval:</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -8323,16 +8322,16 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -8395,7 +8394,7 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 <h4 id="check-5-the-stamp-against-the-last-forwarded-sample">Check 5: the stamp against the last forwarded sample</h4>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/2fa558dbdc9f5a702a29250984a279ea97a9e895/diffbot_control/scripts/imu_validator.py#L327"><code>check_stamp_later_than_last_valid()</code></a> checks that the sample's stamp is later than the stamp of the last forwarded sample: <span class="arithmatex">\(t_s &gt; t_\text{last}\)</span>. A sample with an older stamp arrived out of order, as sample E. A sample with the same stamp came twice, as sample F:</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -8420,16 +8419,16 @@ t - \texttt{max\_age} \le t_s \le t + \texttt{max\_future}
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -8503,7 +8502,7 @@ d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\s
 </ul>
 <p>The two cases are reduced examples. The updates of this configuration also hold the zeros that <a href="#what-two_d_mode-does"><code>two_d_mode</code></a> adds, and the wheel odometry's update also holds the sideways speed <span class="arithmatex">\(v_y\)</span>, as the collapsed box below the figure explains.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -8528,16 +8527,16 @@ d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\s
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -8546,7 +8545,7 @@ d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\s
 .lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
 .lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
 .lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
-.md-typeset figure.lv-figure.lv-drawing{max-width:360px}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
 .lv-drawing .lv-fig text{font-size:12px}
 .lv-drawing .lv-fig .mono{font-size:11.5px}
 .lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
@@ -8563,7 +8562,7 @@ d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\s
 .lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
 .lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
 .lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
-.md-typeset figure.lv-figure.lv-symbols{max-width:360px}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
 .lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
 .lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
 .lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
@@ -8576,20 +8575,20 @@ d^2 = \left(\frac{y_{v_x}}{\sigma_{v_x}}\right)^2 + \left(\frac{y_{\omega_z}}{\s
 .lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
 .lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
 .lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
-.lv-symbols .lv-fig .second-index{font-size:9.5px}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
 .lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
 .lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
 .lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
 .lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
 .lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
-.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:196px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:440px}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
 .lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
 .lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
-.lv-symbols .lv-pair .lv-fig.lv-twist{width:252px;max-width:100%}
-.lv-symbols .lv-pair .lv-fig.lv-angular{width:232px;max-width:100%}
-.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:520px}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
 </style>
 <figure class="lv-figure lv-large lv-drawing lv-symbols">
 <p class="lv-band">One value: an IMU sample's yaw rate</p>

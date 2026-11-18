@@ -5140,7 +5140,7 @@
 </ol>
 <p>The figure shows the messages of this step. Read the figure from top to bottom. The three boxes are the test, the validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. Each arrow is a message, from the node that publishes it to the node that receives it. The label above an arrow names the message, and the note below the arrow says how the message is stamped or which clock runs. <span class="arithmatex">\(t\)</span> is the ROS time of the step. The numbers are those of the list in the docstring of <a href="#the-code-of-one-step"><code>step()</code></a>, and the key below the drawing names the code of each number.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -5165,16 +5165,16 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -5194,15 +5194,15 @@
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
@@ -6196,7 +6196,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>The figure shows the seven phases from left to right, one step every 20 ms of ROS time. The rows "<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> valid" and "<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> to drop" show the samples of one step: ✓ is a valid sample, ✕ is a sample that the validator has to drop. The chart below the rows shows the yaw rate <span class="arithmatex">\(\omega_z\)</span> that the wheel odometry and the valid <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples report, the range that the test accepts for the last output of each phase, the limit for the outputs that the test keeps in phases 2 to 5, and the estimates that the test printed in a run. The run printed the first and the last estimate of phase 2, so phase 2 has two markers. The three lists below the chart explain each mark and give its numbers.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -6221,16 +6221,16 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -6250,23 +6250,28 @@
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
 .md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
 .lv-fig .estimate-first,.lv-key .estimate-first{fill:var(--md-default-bg-color);stroke:var(--lv-estimate);stroke-width:1.8}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 247" role="img" aria-labelledby="lv-test-stepped-clock-title"><title id="lv-test-stepped-clock-title">The seven phases of the stepped-clock test from left to right: the yaw rate that the wheel odometry and the valid IMU samples report, the samples that the validator has to drop, the ranges that the test accepts for the filter's estimate, and the estimates that a run printed</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 247" role="img" aria-labelledby="lv-test-stepped-clock-title"><title id="lv-test-stepped-clock-title">The seven phases of the stepped-clock test from left to right: the yaw rate that the wheel odometry and the valid IMU samples report, the samples that the validator has to drop, the ranges that the test accepts for the filter's estimate, and the estimates that a run printed</title>
 <text class="note" x="2.0" y="14.0" text-anchor="start">Phase</text>
 <text class="note" x="2.0" y="31.0" text-anchor="start">IMU valid</text>
 <text class="note" x="2.0" y="47.0" text-anchor="start">IMU to drop</text>
@@ -6301,9 +6306,9 @@
 <g><title>The clock goes back from 107 s to 50 s</title><path class="clock-jump" d="M204.0,3 V215"></path></g>
 <text class="note" x="2" y="69">Yaw rate ω<tspan class="index" dy="2.5">z</tspan><tspan dy="-2.5"> in rad/s</tspan></text>
 <path class="axis" d="M30,74 V211 H292"></path>
-<path class="tick" d="M26,183.0 h4"></path>
+<path class="tick" d="M30,183.0 h-4"></path>
 <text class="note" x="24.0" y="187.0" text-anchor="end">0.4</text>
-<path class="tick" d="M26,113.0 h4"></path>
+<path class="tick" d="M30,113.0 h-4"></path>
 <text class="note" x="24.0" y="117.0" text-anchor="end">0.5</text>
 <text class="note" x="30.0" y="226.0" text-anchor="start">100</text>
 <path class="tick" d="M104.6,211 v4"></path>
@@ -6344,6 +6349,84 @@
 <text class="strong halo" x="134.9" y="199.0" text-anchor="start">0.4005</text>
 <text class="strong" x="209.0" y="131.0" text-anchor="start">0.4987</text>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 247" role="img" aria-labelledby="lv-test-stepped-clock-wide-title"><title id="lv-test-stepped-clock-wide-title">The seven phases of the stepped-clock test from left to right: the yaw rate that the wheel odometry and the valid IMU samples report, the samples that the validator has to drop, the ranges that the test accepts for the filter's estimate, and the estimates that a run printed</title>
+<text class="note" x="3.6" y="14.0" text-anchor="start">Phase</text>
+<text class="note" x="3.6" y="31.0" text-anchor="start">IMU valid</text>
+<text class="note" x="3.6" y="47.0" text-anchor="start">IMU to drop</text>
+<text class="strong" x="121.1" y="14.0" text-anchor="middle">1</text>
+<g><title>Phase 1: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="121.1" y="32" text-anchor="middle">✓</text></g>
+<text class="strong" x="210.6" y="14.0" text-anchor="middle">2</text>
+<g><title>Phase 2: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="210.6" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M188.3,3 V54"></path>
+<path class="phase-edge" d="M188.3,78.0 V211"></path>
+<text class="strong" x="255.4" y="14.0" text-anchor="middle">3</text>
+<g><title>Phase 3: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="255.4" y="32" text-anchor="middle">✓</text></g>
+<g><title>Phase 3: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="255.4" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M232.9,3 V54"></path>
+<path class="phase-edge" d="M232.9,106.0 V211"></path>
+<text class="strong" x="300.1" y="14.0" text-anchor="middle">4</text>
+<g><title>Phase 4: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="300.1" y="32" text-anchor="middle">✓</text></g>
+<g><title>Phase 4: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="300.1" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M277.7,3 V54"></path>
+<path class="phase-edge" d="M277.7,106.0 V211"></path>
+<text class="strong" x="344.9" y="14.0" text-anchor="middle">5</text>
+<g><title>Phase 5: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="344.9" y="32" text-anchor="middle">✓</text></g>
+<g><title>Phase 5: a sample that reports 2.0 rad/s, in every step. The validator has to drop it.</title><text class="sign" x="344.9" y="48" text-anchor="middle">✕</text></g>
+<path class="phase-edge" d="M322.4,3 V54"></path>
+<path class="phase-edge" d="M322.4,106.0 V211"></path>
+<text class="strong" x="412.9" y="14.0" text-anchor="middle">6</text>
+<g><title>Phase 6: a valid sample that reports 0.5 rad/s, in every step. The validator forwards it.</title><text class="sign" x="412.9" y="32" text-anchor="middle">✓</text></g>
+<path class="phase-edge" d="M367.2,3 V54"></path>
+<text class="strong" x="492.1" y="14.0" text-anchor="middle">7</text>
+<text class="note" x="492.1" y="39.0" text-anchor="middle">none</text>
+<path class="phase-edge" d="M458.5,3 V54"></path>
+<path class="phase-edge" d="M458.5,78.0 V211"></path>
+<g><title>The clock goes back from 107 s to 50 s</title><path class="clock-jump" d="M367.2,3 V215"></path></g>
+<text class="note" x="3.6" y="69">Yaw rate ω<tspan class="index" dy="2.5">z</tspan><tspan dy="-2.5"> in rad/s</tspan></text>
+<path class="axis" d="M54.0,74 V211 H525.6"></path>
+<path class="tick" d="M54.0,183.0 h-4"></path>
+<text class="note" x="48.1" y="187.0" text-anchor="end">0.4</text>
+<path class="tick" d="M54.0,113.0 h-4"></path>
+<text class="note" x="48.1" y="117.0" text-anchor="end">0.5</text>
+<text class="note" x="54.0" y="226.0" text-anchor="start">100</text>
+<path class="tick" d="M188.3,211 v4"></path>
+<text class="note" x="188.3" y="226.0" text-anchor="middle">103</text>
+<path class="tick" d="M232.9,211 v4"></path>
+<text class="note" x="232.9" y="226.0" text-anchor="middle">104</text>
+<path class="tick" d="M277.7,211 v4"></path>
+<text class="note" x="277.7" y="226.0" text-anchor="middle">105</text>
+<path class="tick" d="M322.4,211 v4"></path>
+<path class="tick" d="M458.5,211 v4"></path>
+<text class="note" x="458.5" y="226.0" text-anchor="middle">52.04</text>
+<text class="note" x="363.2" y="226.0" text-anchor="end">107</text>
+<text class="strong" x="371.2" y="226.0" text-anchor="start">50</text>
+<text class="note" x="54.0" y="240.0" text-anchor="start">ROS time t in s</text>
+<g><title>Wheel odometry: 0.4 rad/s in every step</title><path class="wheels-line" d="M54.0,183.0 H525.6"></path></g>
+<text class="strong" x="59.0" y="177.0" text-anchor="start">wheels</text>
+<g><title>Phase 1: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M54.0,113.0 H188.3"></path></g>
+<g><title>Phase 3: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M232.9,113.0 H277.7"></path></g>
+<g><title>Phase 4: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M277.7,113.0 H322.4"></path></g>
+<g><title>Phase 5: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M322.4,113.0 H367.2"></path></g>
+<g><title>Phase 6: the valid IMU samples report 0.5 rad/s</title><path class="imu-line" d="M367.2,113.0 H458.5"></path></g>
+<text class="strong" x="59.0" y="107.0" text-anchor="start">IMU</text>
+<g><title>Phases 2 to 5: no output that the test keeps, one per step, may be above 0.51 rad/s</title><path class="limit" d="M188.3,106.0 H367.2"></path></g>
+<text x="277.7" y="88.0" text-anchor="middle">kept outputs</text>
+<text x="277.7" y="101.0" text-anchor="middle">at most 0.51</text>
+<g><title>Phase 1: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M185.8,106.0 V120.0 M182.2,106.0 h7 M182.2,120.0 h7"></path></g>
+<g><title>Phase 2: the last output has to be 0.4 ± 0.02 rad/s</title><path class="estimate-range" d="M230.4,169.0 V197.0 M227.0,169.0 h7 M227.0,197.0 h7"></path></g>
+<g><title>Phase 3: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M275.2,106.0 V120.0 M271.8,106.0 h7 M271.8,120.0 h7"></path></g>
+<g><title>Phase 4: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M320.0,106.0 V120.0 M316.4,106.0 h7 M316.4,120.0 h7"></path></g>
+<g><title>Phase 5: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M364.7,106.0 V120.0 M361.3,106.0 h7 M361.3,120.0 h7"></path></g>
+<g><title>Phase 6: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M455.9,106.0 V120.0 M452.5,106.0 h7 M452.5,120.0 h7"></path></g>
+<g><title>0.4966 rad/s, the first output of phase 2 in the run at the commit 2fa558d</title><path class="estimate-first" d="M195.7,111.9 l3.5,3.5 l-3.5,3.5 l-3.5,-3.5 z"></path></g>
+<g><title>0.4987 rad/s, the last output of phase 1 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="185.8" cy="113.9" r="4"></circle></g>
+<g><title>0.4005 rad/s, the last output of phase 2 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="230.4" cy="182.6" r="4"></circle></g>
+<g><title>0.4987 rad/s, the last output of phase 6 in the run at the commit 2fa558d</title><circle class="estimate-dot" cx="455.9" cy="113.9" r="4"></circle></g>
+<text class="strong" x="177.7" y="131.0" text-anchor="end">estimate</text>
+<text class="strong" x="177.7" y="144.0" text-anchor="end">0.4987</text>
+<text class="strong halo" x="238.5" y="199.0" text-anchor="start">0.4005</text>
+<text class="strong" x="448.0" y="131.0" text-anchor="end">0.4987</text>
+</svg>
 <p class="lv-band">What each step sends</p>
 <ul class="lv-legend lv-keys">
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="wheels-line" d="M1,6 H23"></path></svg>wheel odometry: 0.4 rad/s in every step of every phase</li>
@@ -6363,6 +6446,7 @@
 </ul>
 <figcaption>The stepped-clock test from left to right, one step every 20 ms of ROS time. The rows "IMU valid" and "IMU to drop" show the samples of one step of each phase. At the solid vertical line, the clock goes back from 107 s to 50 s.</figcaption>
 </figure>
+</div>
 
 <p>In every step of every phase, the wheel odometry reports <a href="#the-inputs"><code>WHEEL_INPUT</code></a>: <code>SPEED</code>, 0.1 m/s, and <code>WHEEL_RATE</code>, 0.4 rad/s, as with a wheel separation that is too large in the drive controller's configuration. The table lists what changes from phase to phase:</p>
 <table>
@@ -6750,9 +6834,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">check_ekf_publishes_at_the_wheel_rate_and_follows_the_wheels_when_the_imu_stops</span><span class="p">()</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>setUp()</code> first runs the <code>setUp()</code> of <a href="#before-the-first-step"><code>SteppedClockTestCase</code></a>, through <code>super()</code>. Then <code>setUp()</code> subscribes to the wheel odometry's topic itself, with the callback <code>on_wheel_odometry()</code>, which notes the stamp of each wheel message in <code>self.wheel_message_stamps</code>. So phase 2 counts the wheel messages that the topic carried, not only those that the test meant to send.</p>
-<p>The figure shows the two phases from left to right, over the ROS time <span class="arithmatex">\(t\)</span>. The rows "wheels" and "<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>" mark each wheel message and each <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample. The ticks of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples, 20 ms apart, merge into a band at this scale, so the bracket at the top marks one wheel period of 100 ms: 5 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples and 1 wheel message. The chart below the rows shows the yaw rate <span class="arithmatex">\(\omega_z\)</span> that the inputs report, the range that the test accepts for the last output of each phase, and the filter's estimate in each of its outputs, recorded in a run of the scenario. The chart ends with the last of the 20 wheel periods that phase 2 measures, at 105.00 s, so the messages after these periods lie beyond the chart. The lists below the chart explain each mark and give its numbers. <a href="#phase-2-of-robot_rates-the-imu-stops">The figure in phase 2</a> shows three wheel messages of each phase in close-up.</p>
+<p>The figure shows the two phases from left to right, over the ROS time <span class="arithmatex">\(t\)</span>. The rows "wheels" and "<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>" mark each wheel message and each <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample. On a narrow screen, the ticks of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples, 20 ms apart, merge into a band. So the bracket at the top marks one wheel period of 100 ms: 5 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples and 1 wheel message. The chart below the rows shows the yaw rate <span class="arithmatex">\(\omega_z\)</span> that the inputs report, the range that the test accepts for the last output of each phase, and the filter's estimate in each of its outputs, recorded in a run of the scenario. The chart ends with the last of the 20 wheel periods that phase 2 measures, at 105.00 s, so the messages after these periods lie beyond the chart. The lists below the chart explain each mark and give its numbers. <a href="#phase-2-of-robot_rates-the-imu-stops">The figure in phase 2</a> shows three wheel messages of each phase in close-up.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -6777,16 +6861,16 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -6806,15 +6890,15 @@
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
@@ -6825,9 +6909,14 @@
 .lv-fig .imu-dot,.lv-key .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:.8}
 .lv-fig .estimate-trace,.lv-key .estimate-trace{fill:none;stroke:var(--lv-estimate);stroke-width:1.6}
 .lv-key .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
-<svg class="lv-fig" viewBox="0 0 300 267" role="img" aria-labelledby="lv-test-robot-rates-title"><title id="lv-test-robot-rates-title">The two phases of the scenario robot_rates from left to right: the wheel messages and the IMU samples, the yaw rate that they report, the ranges that the test accepts for the filter's estimate, and the estimate in the filter's outputs in a recorded run</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 267" role="img" aria-labelledby="lv-test-robot-rates-title"><title id="lv-test-robot-rates-title">The two phases of the scenario robot_rates from left to right: the wheel messages and the IMU samples, the yaw rate that they report, the ranges that the test accepts for the filter's estimate, and the estimate in the filter's outputs in a recorded run</title>
 <path class="dimension" d="M50.0,9 H54.8 M50.0,6 V12 M54.8,6 V12"></path>
 <path class="dimension" d="M50.0,9 V70 M54.8,9 V70"></path>
 <text class="note" x="59.8" y="13.0" text-anchor="start">100 ms: 5 IMU samples, 1 wheel message</text>
@@ -6843,9 +6932,9 @@
 <path class="phase-edge" d="M195.2,3 V211"></path>
 <text class="note" x="2" y="69">Yaw rate ω<tspan class="index" dy="2.5">z</tspan><tspan dy="-2.5"> in rad/s</tspan></text>
 <path class="axis" d="M50,74 V211 H292"></path>
-<path class="tick" d="M46,183.0 h4"></path>
+<path class="tick" d="M50,183.0 h-4"></path>
 <text class="note" x="44.0" y="187.0" text-anchor="end">0.4</text>
-<path class="tick" d="M46,113.0 h4"></path>
+<path class="tick" d="M50,113.0 h-4"></path>
 <text class="note" x="44.0" y="117.0" text-anchor="end">0.5</text>
 <text class="note" x="50.0" y="226.0" text-anchor="start">100</text>
 <path class="tick" d="M195.2,211 v4"></path>
@@ -6886,6 +6975,65 @@
 <text class="strong halo" x="287.2" y="173.0" text-anchor="end">0.4016</text>
 </g>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 267" role="img" aria-labelledby="lv-test-robot-rates-wide-title"><title id="lv-test-robot-rates-wide-title">The two phases of the scenario robot_rates from left to right: the wheel messages and the IMU samples, the yaw rate that they report, the ranges that the test accepts for the filter's estimate, and the estimate in the filter's outputs in a recorded run</title>
+<path class="dimension" d="M90.0,9 H98.6 M90.0,6 V12 M98.6,6 V12"></path>
+<path class="dimension" d="M90.0,9 V70 M98.6,9 V70"></path>
+<text class="note" x="103.7" y="13.0" text-anchor="start">100 ms: 5 IMU samples, 1 wheel message</text>
+<g transform="translate(0,20)">
+<text class="note" x="3.6" y="14.0" text-anchor="start">Phase</text>
+<text class="strong" x="220.7" y="14.0" text-anchor="middle">1</text>
+<text class="strong" x="438.5" y="14.0" text-anchor="middle">2</text>
+<text class="note" x="3.6" y="31.0" text-anchor="start">wheels</text>
+<text class="note" x="3.6" y="47.0" text-anchor="start">IMU</text>
+<g><title>A wheel message every 100 ms</title><path class="wheels-tick" d="M90.0,23 v9 M98.6,23 v9 M107.5,23 v9 M116.1,23 v9 M124.9,23 v9 M133.6,23 v9 M142.2,23 v9 M151.0,23 v9 M159.7,23 v9 M168.5,23 v9 M177.1,23 v9 M185.8,23 v9 M194.6,23 v9 M203.2,23 v9 M212.0,23 v9 M220.7,23 v9 M229.3,23 v9 M238.1,23 v9 M246.8,23 v9 M255.6,23 v9 M264.2,23 v9 M272.9,23 v9 M281.7,23 v9 M290.3,23 v9 M299.2,23 v9 M307.8,23 v9 M316.4,23 v9 M325.3,23 v9 M333.9,23 v9 M342.7,23 v9 M351.4,23 v9 M360.0,23 v9 M368.8,23 v9 M377.5,23 v9 M386.3,23 v9 M394.9,23 v9 M403.6,23 v9 M412.4,23 v9 M421.0,23 v9 M429.8,23 v9 M438.5,23 v9 M447.1,23 v9 M455.9,23 v9 M464.6,23 v9 M473.4,23 v9 M482.0,23 v9 M490.7,23 v9 M499.5,23 v9 M508.1,23 v9 M517.0,23 v9"></path></g>
+<g><title>Phase 1: a valid IMU sample every 20 ms</title><path class="imu-tick" d="M90.0,39 v9 M91.8,39 v9 M93.4,39 v9 M95.2,39 v9 M97.0,39 v9 M98.6,39 v9 M100.4,39 v9 M102.2,39 v9 M103.9,39 v9 M105.7,39 v9 M107.5,39 v9 M109.1,39 v9 M110.9,39 v9 M112.7,39 v9 M114.5,39 v9 M116.1,39 v9 M117.9,39 v9 M119.7,39 v9 M121.3,39 v9 M123.1,39 v9 M124.9,39 v9 M126.5,39 v9 M128.3,39 v9 M130.1,39 v9 M131.8,39 v9 M133.6,39 v9 M135.4,39 v9 M137.0,39 v9 M138.8,39 v9 M140.6,39 v9 M142.2,39 v9 M144.0,39 v9 M145.8,39 v9 M147.4,39 v9 M149.2,39 v9 M151.0,39 v9 M152.6,39 v9 M154.4,39 v9 M156.2,39 v9 M158.0,39 v9 M159.7,39 v9 M161.5,39 v9 M163.3,39 v9 M164.9,39 v9 M166.7,39 v9 M168.5,39 v9 M170.1,39 v9 M171.9,39 v9 M173.7,39 v9 M175.3,39 v9 M177.1,39 v9 M178.9,39 v9 M180.5,39 v9 M182.3,39 v9 M184.1,39 v9 M185.8,39 v9 M187.6,39 v9 M189.4,39 v9 M191.0,39 v9 M192.8,39 v9 M194.6,39 v9 M196.2,39 v9 M198.0,39 v9 M199.8,39 v9 M201.6,39 v9 M203.2,39 v9 M205.0,39 v9 M206.8,39 v9 M208.4,39 v9 M210.2,39 v9 M212.0,39 v9 M213.7,39 v9 M215.5,39 v9 M217.3,39 v9 M218.9,39 v9 M220.7,39 v9 M222.5,39 v9 M224.1,39 v9 M225.9,39 v9 M227.7,39 v9 M229.3,39 v9 M231.1,39 v9 M232.9,39 v9 M234.5,39 v9 M236.3,39 v9 M238.1,39 v9 M239.8,39 v9 M241.6,39 v9 M243.4,39 v9 M245.2,39 v9 M246.8,39 v9 M248.6,39 v9 M250.4,39 v9 M252.0,39 v9 M253.8,39 v9 M255.6,39 v9 M257.2,39 v9 M259.0,39 v9 M260.8,39 v9 M262.4,39 v9 M264.2,39 v9 M266.0,39 v9 M267.7,39 v9 M269.5,39 v9 M271.3,39 v9 M272.9,39 v9 M274.7,39 v9 M276.5,39 v9 M278.1,39 v9 M279.9,39 v9 M281.7,39 v9 M283.3,39 v9 M285.1,39 v9 M286.9,39 v9 M288.7,39 v9 M290.3,39 v9 M292.1,39 v9 M293.9,39 v9 M295.6,39 v9 M297.4,39 v9 M299.2,39 v9 M300.8,39 v9 M302.6,39 v9 M304.4,39 v9 M306.0,39 v9 M307.8,39 v9 M309.6,39 v9 M311.2,39 v9 M313.0,39 v9 M314.8,39 v9 M316.4,39 v9 M318.2,39 v9 M320.0,39 v9 M321.7,39 v9 M323.5,39 v9 M325.3,39 v9 M326.9,39 v9 M328.7,39 v9 M330.5,39 v9 M332.3,39 v9 M333.9,39 v9 M335.7,39 v9 M337.5,39 v9 M339.1,39 v9 M340.9,39 v9 M342.7,39 v9 M344.3,39 v9 M346.1,39 v9 M347.9,39 v9 M349.6,39 v9"></path></g>
+<text class="note" x="438.5" y="47.0" text-anchor="middle">stopped</text>
+<path class="phase-edge" d="M351.4,3 V211"></path>
+<text class="note" x="3.6" y="69">Yaw rate ω<tspan class="index" dy="2.5">z</tspan><tspan dy="-2.5"> in rad/s</tspan></text>
+<path class="axis" d="M90.0,74 V211 H525.6"></path>
+<path class="tick" d="M90.0,183.0 h-4"></path>
+<text class="note" x="84.1" y="187.0" text-anchor="end">0.4</text>
+<path class="tick" d="M90.0,113.0 h-4"></path>
+<text class="note" x="84.1" y="117.0" text-anchor="end">0.5</text>
+<text class="note" x="90.0" y="226.0" text-anchor="start">100</text>
+<path class="tick" d="M351.4,211 v4"></path>
+<path class="tick" d="M525.6,211 v4"></path>
+<text class="note" x="351.4" y="226.0" text-anchor="middle">103</text>
+<text class="note" x="525.6" y="226.0" text-anchor="end">105</text>
+<text class="note" x="90.0" y="240.0" text-anchor="start">ROS time t in s</text>
+<g><title>Wheel odometry: 0.4 rad/s in every message</title><path class="wheels-line" d="M90.0,183.0 H525.6"></path></g>
+<text class="strong" x="95.0" y="199.0" text-anchor="start">wheels</text>
+<g><title>Phase 1: the IMU samples report 0.5 rad/s</title><path class="imu-line" d="M90.0,113.0 H351.4"></path></g>
+<text class="strong" x="95.0" y="107.0" text-anchor="start">IMU</text>
+<g><title>Phase 1: the last output has to be 0.5 ± 0.01 rad/s</title><path class="estimate-range" d="M349.6,106.0 V120.0 M346.1,106.0 h7 M346.1,120.0 h7"></path></g>
+<g><title>Phase 2: the last output has to be 0.4 ± 0.02 rad/s</title><path class="estimate-range" d="M521.8,169.0 V197.0 M518.4,169.0 h7 M518.4,197.0 h7"></path></g>
+<g><title>Phase 1: the filter's estimate in each of its 150 outputs, one per step</title><path class="estimate-trace" d="M90.0,113.9 L91.8,113.3 L93.4,113.1 L95.2,113.1 L97.0,113.0 L98.6,113.6 L100.4,113.2 L102.2,113.1 L103.9,113.0 L105.7,113.0 L107.5,113.6 L109.1,113.2 L110.9,113.1 L112.7,113.0 L114.5,113.0 L116.1,113.6 L117.9,113.2 L119.7,113.1 L121.3,113.0 L123.1,113.0 L124.9,113.6 L126.5,113.2 L128.3,113.1 L130.1,113.0 L131.8,113.0 L133.6,113.6 L135.4,113.2 L137.0,113.1 L138.8,113.0 L140.6,113.0 L142.2,113.6 L144.0,113.2 L145.8,113.1 L147.4,113.0 L149.2,113.0 L151.0,113.6 L152.6,113.2 L154.4,113.1 L156.2,113.0 L158.0,113.0 L159.7,113.6 L161.5,113.2 L163.3,113.1 L164.9,113.0 L166.7,113.0 L168.5,113.6 L170.1,113.2 L171.9,113.1 L173.7,113.0 L175.3,113.0 L177.1,113.6 L178.9,113.2 L180.5,113.1 L182.3,113.0 L184.1,113.0 L185.8,113.6 L187.6,113.2 L189.4,113.1 L191.0,113.0 L192.8,113.0 L194.6,113.6 L196.2,113.2 L198.0,113.1 L199.8,113.0 L201.6,113.0 L203.2,113.6 L205.0,113.2 L206.8,113.1 L208.4,113.0 L210.2,113.0 L212.0,113.6 L213.7,113.2 L215.5,113.1 L217.3,113.0 L218.9,113.0 L220.7,113.6 L222.5,113.2 L224.1,113.1 L225.9,113.0 L227.7,113.0 L229.3,113.6 L231.1,113.2 L232.9,113.1 L234.5,113.0 L236.3,113.0 L238.1,113.6 L239.8,113.2 L241.6,113.1 L243.4,113.0 L245.2,113.0 L246.8,113.6 L248.6,113.2 L250.4,113.1 L252.0,113.0 L253.8,113.0 L255.6,113.6 L257.2,113.2 L259.0,113.1 L260.8,113.0 L262.4,113.0 L264.2,113.6 L266.0,113.2 L267.7,113.1 L269.5,113.0 L271.3,113.0 L272.9,113.6 L274.7,113.2 L276.5,113.1 L278.1,113.0 L279.9,113.0 L281.7,113.6 L283.3,113.2 L285.1,113.1 L286.9,113.0 L288.7,113.0 L290.3,113.6 L292.1,113.2 L293.9,113.1 L295.6,113.0 L297.4,113.0 L299.2,113.6 L300.8,113.2 L302.6,113.1 L304.4,113.0 L306.0,113.0 L307.8,113.6 L309.6,113.2 L311.2,113.1 L313.0,113.0 L314.8,113.0 L316.4,113.6 L318.2,113.2 L320.0,113.1 L321.7,113.0 L323.5,113.0 L325.3,113.6 L326.9,113.2 L328.7,113.1 L330.5,113.0 L332.3,113.0 L333.9,113.6 L335.7,113.2 L337.5,113.1 L339.1,113.0 L340.9,113.0 L342.7,113.6 L344.3,113.2 L346.1,113.1 L347.9,113.0 L349.6,113.0"></path></g>
+<path class="estimate-trace" d="M351.4,114.5 L360.0,114.5 L360.0,120.0 L368.8,120.0 L368.8,120.0 L377.5,120.0 L377.5,137.1 L386.3,137.1 L386.3,137.1 L394.9,137.1 L394.9,153.2 L403.6,153.2 L403.6,159.5 L412.4,159.5 L412.4,159.5 L421.0,159.5 L421.0,168.7 L429.8,168.7 L429.8,168.7 L438.5,168.7 L438.5,174.4 L447.1,174.4 L447.1,176.4 L455.9,176.4 L455.9,176.4 L464.6,176.4 L464.6,179.0 L473.4,179.0 L473.4,179.0 L482.0,179.0 L482.0,180.6 L490.7,180.6 L490.7,181.2 L499.5,181.2 L499.5,181.2 L508.1,181.2 L508.1,181.9 L517.0,181.9 L517.0,181.9"></path>
+<g><title>0.4979 rad/s, the output stamped 103 s</title><circle class="estimate-dot" cx="351.4" cy="114.5" r="2.6"></circle></g>
+<g><title>0.49 rad/s, the output stamped 103.1 s</title><circle class="estimate-dot" cx="360.0" cy="120.0" r="2.6"></circle></g>
+<g><title>0.49 rad/s, the output stamped 103.2 s</title><circle class="estimate-dot" cx="368.8" cy="120.0" r="2.6"></circle></g>
+<g><title>0.4656 rad/s, the output stamped 103.3 s</title><circle class="estimate-dot" cx="377.5" cy="137.1" r="2.6"></circle></g>
+<g><title>0.4656 rad/s, the output stamped 103.4 s</title><circle class="estimate-dot" cx="386.3" cy="137.1" r="2.6"></circle></g>
+<g><title>0.4426 rad/s, the output stamped 103.5 s</title><circle class="estimate-dot" cx="394.9" cy="153.2" r="2.6"></circle></g>
+<g><title>0.4335 rad/s, the output stamped 103.6 s</title><circle class="estimate-dot" cx="403.6" cy="159.5" r="2.6"></circle></g>
+<g><title>0.4335 rad/s, the output stamped 103.7 s</title><circle class="estimate-dot" cx="412.4" cy="159.5" r="2.6"></circle></g>
+<g><title>0.4204 rad/s, the output stamped 103.8 s</title><circle class="estimate-dot" cx="421.0" cy="168.7" r="2.6"></circle></g>
+<g><title>0.4204 rad/s, the output stamped 103.9 s</title><circle class="estimate-dot" cx="429.8" cy="168.7" r="2.6"></circle></g>
+<g><title>0.4123 rad/s, the output stamped 104 s</title><circle class="estimate-dot" cx="438.5" cy="174.4" r="2.6"></circle></g>
+<g><title>0.4095 rad/s, the output stamped 104.1 s</title><circle class="estimate-dot" cx="447.1" cy="176.4" r="2.6"></circle></g>
+<g><title>0.4095 rad/s, the output stamped 104.2 s</title><circle class="estimate-dot" cx="455.9" cy="176.4" r="2.6"></circle></g>
+<g><title>0.4057 rad/s, the output stamped 104.3 s</title><circle class="estimate-dot" cx="464.6" cy="179.0" r="2.6"></circle></g>
+<g><title>0.4057 rad/s, the output stamped 104.4 s</title><circle class="estimate-dot" cx="473.4" cy="179.0" r="2.6"></circle></g>
+<g><title>0.4034 rad/s, the output stamped 104.5 s</title><circle class="estimate-dot" cx="482.0" cy="180.6" r="2.6"></circle></g>
+<g><title>0.4026 rad/s, the output stamped 104.6 s</title><circle class="estimate-dot" cx="490.7" cy="181.2" r="2.6"></circle></g>
+<g><title>0.4026 rad/s, the output stamped 104.7 s</title><circle class="estimate-dot" cx="499.5" cy="181.2" r="2.6"></circle></g>
+<g><title>0.4016 rad/s, the output stamped 104.8 s</title><circle class="estimate-dot" cx="508.1" cy="181.9" r="2.6"></circle></g>
+<g><title>0.4016 rad/s, the output stamped 104.9 s</title><circle class="estimate-dot" cx="517.0" cy="181.9" r="2.6"></circle></g>
+<text class="strong" x="347.4" y="129.0" text-anchor="end">0.5000</text>
+<text class="strong" x="365.4" y="116.5" text-anchor="start">estimate</text>
+<text class="strong halo" x="517.0" y="173.0" text-anchor="end">0.4016</text>
+</g>
+</svg>
 <p class="lv-band">What the steps send</p>
 <ul class="lv-legend lv-keys">
 <li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="wheels-tick" d="M12,1 v10"></path></svg>a wheel message in every fifth step, 100 ms of ROS time, in both phases, up to the end of the 20 measured wheel periods. It reports 0.4 rad/s, the blue line, and a forward speed of 0.1 m/s in the first 20 wheel messages of phase 1, 0.12 m/s in its last 10, and 0.1 m/s again in the 20 of phase 2. The chart shows the yaw rates only</li>
@@ -6903,6 +7051,7 @@
 </ul>
 <figcaption>The scenario robot_rates from left to right, one step every 20 ms of ROS time. At the dotted vertical line, the IMU stops.</figcaption>
 </figure>
+</div>
 
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples report <code>IMU_RATE</code>, 0.5 rad/s, as in <a href="#the-seven-phases-of-invalid_imu_samples"><code>invalid_imu_samples</code></a>. The wheel odometry reports <code>WHEEL_RATE</code>, 0.4 rad/s, in each of its messages, and a forward speed that changes once in phase 1. The table lists the two phases:</p>
 <table>
@@ -7028,7 +7177,7 @@
 <p>The phase sends no <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample. The wheel messages go on, one in every fifth step, for <code>IMU_STOPPED_WHEEL_PERIODS</code>, 20 wheel periods, and report 0.1 m/s again. A wheel period runs from one wheel message's stamp to the next one's, 100 ms. The phase checks that each wheel period contains the header stamp of one output, and that the estimate goes back to the wheels' forward speed and to their yaw rate.</p>
 <p>An output's message gives the time of its estimate in its header stamp, which the filter writes into the message. robot_localization's debug trace tells when the filter published the output, and that ROS time can be later. The figure shows both times, for three wheel messages at the end of <a href="#phase-1-of-robot_rates-the-estimate-follows-the-imu-and-the-wheels-speed">phase 1</a> and three in phase 2 of a recorded run. In each drawing, the row "wheels" marks the wheel messages at their stamps, the row "<abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>" the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> samples, and the row "<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>" each output at the ROS time of the update that published it. In the lower drawing, a thin line leads down from each wheel message's stamp, and an arrow leads from there to an output that was published later.</p>
 <style>
-.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:480px}
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
 [data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
 .lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -7053,16 +7202,16 @@
 .lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
 .lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
 .lv-fig .subscript{font-size:7.5px}
-.md-typeset figure.lv-figure.lv-large{max-width:400px}
-.md-typeset figure.lv-figure.lv-grids{max-width:520px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
 .lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
 .lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
-.lv-large .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
 .lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
 .lv-large .lv-fig .letter{font-size:10.5px}
 .lv-grids .lv-fig .subscript{font-size:9px}
 .lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
-.lv-grids .lv-pair .lv-fig{width:236px;max-width:100%}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
 .md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
 .md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
 .md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
@@ -7082,15 +7231,15 @@
 .lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
 .lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
 .lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
-.lv-large .lv-fig .letter{font-size:11px}
-.lv-large .lv-fig .sign{font-size:12.5px;font-weight:700}
-.lv-large .lv-fig .index{font-size:11px}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
 .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
 .lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
-.lv-fig .message,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
 .lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
 .lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
-.lv-legend .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
 .md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
 .lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
 .md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
@@ -7101,10 +7250,15 @@
 .lv-fig .imu-dot,.lv-key .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:.8}
 .lv-fig .estimate-trace,.lv-key .estimate-trace{fill:none;stroke:var(--lv-estimate);stroke-width:1.6}
 .lv-key .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large">
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
 <p class="lv-band">Phase 1: the IMU running</p>
-<svg class="lv-fig" viewBox="0 0 300 102" role="img" aria-labelledby="lv-test-between-wheels-running-title"><title id="lv-test-between-wheels-running-title">Phase 1, IMU running: an IMU sample in every step, a wheel message in every fifth, and an EKF output in every step</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 102" role="img" aria-labelledby="lv-test-between-wheels-running-title"><title id="lv-test-between-wheels-running-title">Phase 1, IMU running: an IMU sample in every step, a wheel message in every fifth, and an EKF output in every step</title>
 <text class="note" x="2.0" y="20.0" text-anchor="start">wheels</text>
 <text class="note" x="2.0" y="40.0" text-anchor="start">IMU</text>
 <text class="note" x="2.0" y="60.0" text-anchor="start">EKF</text>
@@ -7159,8 +7313,63 @@
 <g><title>0.4992 rad/s, stamped 102.9 s, published at 102.92 s</title><circle class="estimate-dot" cx="266.0" cy="56" r="4.6"></circle></g>
 <g><title>0.4997 rad/s, stamped 102.92 s, published at 102.94 s</title><circle class="estimate-dot" cx="284.0" cy="56" r="4.6"></circle></g>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 102" role="img" aria-labelledby="lv-test-between-wheels-running-wide-title"><title id="lv-test-between-wheels-running-wide-title">Phase 1, IMU running: an IMU sample in every step, a wheel message in every fifth, and an EKF output in every step</title>
+<text class="note" x="3.6" y="20.0" text-anchor="start">wheels</text>
+<text class="note" x="3.6" y="40.0" text-anchor="start">IMU</text>
+<text class="note" x="3.6" y="60.0" text-anchor="start">EKF</text>
+<path class="axis" d="M90.0,78 H523.8"></path>
+<path class="axis" d="M523.8,78 l-6,-3.5 M523.8,78 l-6,3.5"></path>
+<path class="tick" d="M90.0,78 v4"></path>
+<path class="tick" d="M122.4,78 v4"></path>
+<path class="tick" d="M154.8,78 v4"></path>
+<path class="tick" d="M187.2,78 v4"></path>
+<path class="tick" d="M219.6,78 v4"></path>
+<path class="tick" d="M252.0,78 v4"></path>
+<path class="tick" d="M284.4,78 v4"></path>
+<path class="tick" d="M316.8,78 v4"></path>
+<path class="tick" d="M349.2,78 v4"></path>
+<path class="tick" d="M381.6,78 v4"></path>
+<path class="tick" d="M414.0,78 v4"></path>
+<path class="tick" d="M446.4,78 v4"></path>
+<path class="tick" d="M478.8,78 v4"></path>
+<path class="tick" d="M511.2,78 v4"></path>
+<circle class="wheels-dot" cx="122.4" cy="16.0" r="4.6"></circle>
+<text class="note" x="122.4" y="94.0" text-anchor="middle">102.7</text>
+<circle class="wheels-dot" cx="284.4" cy="16.0" r="4.6"></circle>
+<text class="note" x="284.4" y="94.0" text-anchor="middle">102.8</text>
+<circle class="wheels-dot" cx="446.4" cy="16.0" r="4.6"></circle>
+<text class="note" x="446.4" y="94.0" text-anchor="middle">102.9</text>
+<circle class="imu-dot" cx="90.0" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="122.4" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="154.8" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="187.2" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="219.6" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="252.0" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="284.4" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="316.8" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="349.2" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="381.6" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="414.0" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="446.4" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="478.8" cy="36.0" r="3.2"></circle>
+<circle class="imu-dot" cx="511.2" cy="36.0" r="3.2"></circle>
+<g><title>0.5 rad/s, stamped 102.66 s, published at 102.68 s</title><circle class="estimate-dot" cx="90.0" cy="56" r="4.6"></circle></g>
+<g><title>0.5 rad/s, stamped 102.68 s, published at 102.7 s</title><circle class="estimate-dot" cx="122.4" cy="56" r="4.6"></circle></g>
+<g><title>0.4992 rad/s, stamped 102.7 s, published at 102.72 s</title><circle class="estimate-dot" cx="154.8" cy="56" r="4.6"></circle></g>
+<g><title>0.4997 rad/s, stamped 102.72 s, published at 102.74 s</title><circle class="estimate-dot" cx="187.2" cy="56" r="4.6"></circle></g>
+<g><title>0.4999 rad/s, stamped 102.74 s, published at 102.76 s</title><circle class="estimate-dot" cx="219.6" cy="56" r="4.6"></circle></g>
+<g><title>0.5 rad/s, stamped 102.76 s, published at 102.78 s</title><circle class="estimate-dot" cx="252.0" cy="56" r="4.6"></circle></g>
+<g><title>0.5 rad/s, stamped 102.78 s, published at 102.8 s</title><circle class="estimate-dot" cx="284.4" cy="56" r="4.6"></circle></g>
+<g><title>0.4992 rad/s, stamped 102.8 s, published at 102.82 s</title><circle class="estimate-dot" cx="316.8" cy="56" r="4.6"></circle></g>
+<g><title>0.4997 rad/s, stamped 102.82 s, published at 102.84 s</title><circle class="estimate-dot" cx="349.2" cy="56" r="4.6"></circle></g>
+<g><title>0.4999 rad/s, stamped 102.84 s, published at 102.86 s</title><circle class="estimate-dot" cx="381.6" cy="56" r="4.6"></circle></g>
+<g><title>0.5 rad/s, stamped 102.86 s, published at 102.88 s</title><circle class="estimate-dot" cx="414.0" cy="56" r="4.6"></circle></g>
+<g><title>0.5 rad/s, stamped 102.88 s, published at 102.9 s</title><circle class="estimate-dot" cx="446.4" cy="56" r="4.6"></circle></g>
+<g><title>0.4992 rad/s, stamped 102.9 s, published at 102.92 s</title><circle class="estimate-dot" cx="478.8" cy="56" r="4.6"></circle></g>
+<g><title>0.4997 rad/s, stamped 102.92 s, published at 102.94 s</title><circle class="estimate-dot" cx="511.2" cy="56" r="4.6"></circle></g>
+</svg>
 <p class="lv-band">Phase 2: the IMU stopped</p>
-<svg class="lv-fig" viewBox="0 0 300 136" role="img" aria-labelledby="lv-test-between-wheels-stopped-title"><title id="lv-test-between-wheels-stopped-title">Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF output per wheel message, stamped with the message's time: fused in the next update, or predicted at the time of the message</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 136" role="img" aria-labelledby="lv-test-between-wheels-stopped-title"><title id="lv-test-between-wheels-stopped-title">Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF output per wheel message, stamped with the message's time: fused in the next update, or predicted at the time of the message</title>
 <text class="note" x="2.0" y="42.0" text-anchor="start">wheels</text>
 <text class="note" x="2.0" y="62.0" text-anchor="start">IMU</text>
 <text class="note" x="2.0" y="82.0" text-anchor="start">EKF</text>
@@ -7203,6 +7412,49 @@
 <path class="dimension" d="M68.0,20 H158.0 M68.0,17 V23 M158.0,17 V23"></path>
 <text class="note" x="113.0" y="15.0" text-anchor="middle">sensor_timeout 0.1 s</text>
 </svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 136" role="img" aria-labelledby="lv-test-between-wheels-stopped-wide-title"><title id="lv-test-between-wheels-stopped-wide-title">Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF output per wheel message, stamped with the message's time: fused in the next update, or predicted at the time of the message</title>
+<text class="note" x="3.6" y="42.0" text-anchor="start">wheels</text>
+<text class="note" x="3.6" y="62.0" text-anchor="start">IMU</text>
+<text class="note" x="3.6" y="82.0" text-anchor="start">EKF</text>
+<path class="axis" d="M90.0,112 H523.8"></path>
+<path class="axis" d="M523.8,112 l-6,-3.5 M523.8,112 l-6,3.5"></path>
+<path class="tick" d="M90.0,112 v4"></path>
+<path class="tick" d="M122.4,112 v4"></path>
+<path class="tick" d="M154.8,112 v4"></path>
+<path class="tick" d="M187.2,112 v4"></path>
+<path class="tick" d="M219.6,112 v4"></path>
+<path class="tick" d="M252.0,112 v4"></path>
+<path class="tick" d="M284.4,112 v4"></path>
+<path class="tick" d="M316.8,112 v4"></path>
+<path class="tick" d="M349.2,112 v4"></path>
+<path class="tick" d="M381.6,112 v4"></path>
+<path class="tick" d="M414.0,112 v4"></path>
+<path class="tick" d="M446.4,112 v4"></path>
+<path class="tick" d="M478.8,112 v4"></path>
+<path class="tick" d="M511.2,112 v4"></path>
+<circle class="wheels-dot" cx="122.4" cy="38.0" r="4.6"></circle>
+<text class="note" x="122.4" y="128.0" text-anchor="middle">103.1</text>
+<circle class="wheels-dot" cx="284.4" cy="38.0" r="4.6"></circle>
+<text class="note" x="284.4" y="128.0" text-anchor="middle">103.2</text>
+<circle class="wheels-dot" cx="446.4" cy="38.0" r="4.6"></circle>
+<text class="note" x="446.4" y="128.0" text-anchor="middle">103.3</text>
+<text class="note" x="203.4" y="62.0" text-anchor="middle">stopped</text>
+<g><title>0.49 rad/s, stamped 103.1 s, published at 103.12 s</title><circle class="estimate-dot" cx="154.8" cy="78" r="4.6"></circle></g>
+<text x="154.8" y="96.0" text-anchor="middle">fused</text>
+<path class="dimension" d="M122.4,42.6 V78"></path>
+<path class="message" d="M122.4,78 H145.6"></path>
+<path class="message-head" d="M149.8,78 l-5,-3 v6 z"></path>
+<g><title>0.49 rad/s, stamped 103.2 s, published at 103.2 s</title><circle class="estimate-dot" cx="284.4" cy="78" r="4.6"></circle></g>
+<text x="284.4" y="96.0" text-anchor="middle">predicted</text>
+<path class="dimension" d="M284.4,42.6 V78"></path>
+<g><title>0.4656 rad/s, stamped 103.3 s, published at 103.32 s</title><circle class="estimate-dot" cx="478.8" cy="78" r="4.6"></circle></g>
+<text x="478.8" y="96.0" text-anchor="middle">fused</text>
+<path class="dimension" d="M446.4,42.6 V78"></path>
+<path class="message" d="M446.4,78 H469.6"></path>
+<path class="message-head" d="M473.8,78 l-5,-3 v6 z"></path>
+<path class="dimension" d="M122.4,20 H284.4 M122.4,17 V23 M284.4,17 V23"></path>
+<text class="note" x="203.4" y="15.0" text-anchor="middle">sensor_timeout 0.1 s</text>
+</svg>
 <ul class="lv-legend lv-keys">
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="wheels-dot" cx="12" cy="6" r="4.6"></circle></svg>a wheel message, every 100 ms of ROS time, published at its stamp. The axis labels its stamps in s</li>
 <li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="imu-dot" cx="12" cy="6" r="3.2"></circle></svg>a valid IMU sample, every 20 ms, published at its stamp</li>
@@ -7214,6 +7466,7 @@
 </ul>
 <figcaption>Each drawing spans 3 wheel messages of a phase of robot_rates, about 260 ms, in a recorded run at the diffbot commit 2fa558d, with robot_localization's debug trace, ROS time to the right.</figcaption>
 </figure>
+</div>
 
 <p>The table follows the first two wheel messages of the lower drawing, one column for each. All times are ROS times:</p>
 <table>
