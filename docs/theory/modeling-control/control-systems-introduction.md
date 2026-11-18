@@ -189,7 +189,7 @@ An open loop controller for the same wheel could apply a fixed motor command for
 If the wheel slows down under a load, for example on a carpet, that command stays the same, and the wheel turns less far than planned.
 The closed loop measures the slowdown, and the controller raises the motor command.
 If the motor has enough torque, the wheel gets back to its target speed.
-If the motor command has reached its largest value, the wheel stays slower, and the measured speed shows by how much.
+If even the largest motor command supplies too little torque for this load, the wheel stays below its target speed, and the measured speed shows by how much.
 [PID Controllers](../../packages/diffbot_base/pid.md) describes this controller for the robots.
 
 !!! note "Closed Feedback Loop Pros"
