@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -4723,7 +4723,15 @@
 <li><strong>Remote access:</strong> <em>Enable SSH</em> with password authentication.</li>
 </ul>
 </li>
-<li><strong>Write:</strong> check the summary and click <em>Write</em>. Imager warns that this erases everything on the card. Click <em>I understand, erase and write</em> to go on. If Imager asks for your PC's administrator password, enter it. Let the writing and the check (<em>Verifying</em>) finish. When the page <em>Write complete!</em> says that you can remove the card safely, put it into the Raspberry Pi and switch it on.</li>
+<li>
+<p><strong>Write:</strong> check the summary and click <em>Write</em>. Imager then goes through these screens:</p>
+<ol>
+<li><strong>Erase:</strong> Imager names the storage device that it is about to erase. Check that this is the device you selected in the storage step, your microSD card, and not another drive of your PC. Then click <em>I understand, erase and write</em>. If Imager asks for your PC's administrator password, enter it.</li>
+<li><strong>Writing and Verifying:</strong> Imager writes the image to the card, then reads the card back and compares it with the image (<em>Verifying</em>). Wait until both have finished.</li>
+<li><strong>Done:</strong> the page <em>Write complete!</em> says below the customisations whether you can remove the card. If it says that Imager is ejecting the storage device, leave the card in the reader and wait. If it says that the storage device was ejected and can be removed safely, remove the card. If the page shows an <em>Eject</em> button instead, click it, and wait until the page says that you can remove the card safely. If ejecting fails, close any program that still uses the card and click <em>Eject</em> again.</li>
+</ol>
+<p>Then put the card into the Raspberry Pi and switch it on.</p>
+</li>
 </ol>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:13"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><input id="__tabbed_1_4" name="__tabbed_1" type="radio"><input id="__tabbed_1_5" name="__tabbed_1" type="radio"><input id="__tabbed_1_6" name="__tabbed_1" type="radio"><input id="__tabbed_1_7" name="__tabbed_1" type="radio"><input id="__tabbed_1_8" name="__tabbed_1" type="radio"><input id="__tabbed_1_9" name="__tabbed_1" type="radio"><input id="__tabbed_1_10" name="__tabbed_1" type="radio"><input id="__tabbed_1_11" name="__tabbed_1" type="radio"><input id="__tabbed_1_12" name="__tabbed_1" type="radio"><input id="__tabbed_1_13" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Device</label><label for="__tabbed_1_2">OS</label><label for="__tabbed_1_3">Storage</label><label for="__tabbed_1_4">Hostname</label><label for="__tabbed_1_5">Localisation</label><label for="__tabbed_1_6">User</label><label for="__tabbed_1_7">Wi-Fi</label><label for="__tabbed_1_8">Remote access</label><label for="__tabbed_1_9">Summary</label><label for="__tabbed_1_10">Erase</label><label for="__tabbed_1_11">Writing</label><label for="__tabbed_1_12">Verifying</label><label for="__tabbed_1_13">Done</label></div>
 <div class="tabbed-content">
@@ -4756,6 +4764,7 @@
 </div>
 <div class="tabbed-block">
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Raspberry Pi Imager's warning after clicking Write: you are about to erase all data on the selected SD card, with the buttons Cancel and I understand, erase and write" src="../images/imager-erase.png" style="border: 1px solid var(--md-default-fg-color--lightest)"></a></p>
+<p>The red line names the device that Imager erases, here <em>Generic SD Card Reader</em>. Go on only if it is the microSD card you selected in the storage step.</p>
 </div>
 <div class="tabbed-block">
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Raspberry Pi Imager writing the image to the card, at 51 percent" src="../images/imager-writing.png" style="border: 1px solid var(--md-default-fg-color--lightest)"></a></p>
@@ -4765,6 +4774,7 @@
 </div>
 <div class="tabbed-block">
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Raspberry Pi Imager's page Write complete: the choices, the customisations applied, and that the card was ejected and can be removed" src="../images/imager-done.png" style="border: 1px solid var(--md-default-fg-color--lightest)"></a></p>
+<p>The line below the customisations says when you can remove the card. Here Imager has ejected the card by itself. While this line says that Imager is ejecting the card, leave the card in the reader. If the page shows an <em>Eject</em> button instead, click it first, and wait until this line says that you can remove the card safely.</p>
 </div>
 </div>
 </div>
@@ -5317,7 +5327,7 @@
     
     
     
-      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
     <style>
