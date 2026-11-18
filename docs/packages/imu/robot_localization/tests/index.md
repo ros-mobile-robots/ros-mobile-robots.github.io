@@ -10,7 +10,7 @@ Each question below leads to the page of the test that answers it. The pages go 
     - **Answer:** a sample passes only at a ROS time other than 0, and only with the right frame, finite values, valid variances, a stamp close to the ROS time, and a stamp later than the last valid sample's.
     - **Where the test runs:** in Python alone. The unit tests call the validator's class directly, without a ROS master.
 2. **[What does the EKF estimate when the IMU samples are valid, invalid or stop?](stepped-clock.md)**
-    - **Answer:** the estimate's yaw rate $\omega_z$ follows the valid IMU samples, ignores the samples that the validator drops, and goes to the wheels' yaw rate when no valid sample arrives, also at the robot's rates.
+    - **Answer:** the estimate's yaw rate $\omega_z$ follows the valid IMU samples, ignores the samples that the validator drops, and goes to the wheels' yaw rate when no valid sample arrives, also at the robot's rates. The estimate's forward speed $v_x$ follows the wheels', also when their speed changes.
     - **Where the test runs:** the validator and the EKF run as ROS nodes, on a clock that the test steps, without Gazebo.
 3. **[Does the EKF recover a wrong turn in Gazebo?](gazebo.md)**
     - **Answer:** yes. With a wheel separation that is 25 % too large in the drive controller, the wheel odometry's turn falls behind the true turn, and the EKF's turn stays within 0.05 rad of the true turn. In the same simulation, the EKF is the only node that publishes the transform `odom → base_footprint`.
