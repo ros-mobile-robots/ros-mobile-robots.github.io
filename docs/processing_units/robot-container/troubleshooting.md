@@ -118,12 +118,18 @@ After every change of `.env`, run `docker compose up -d` again: Compose recreate
 
 ## The robot runs, but data is missing
 
-### The PC lists the robot's topics, but `rostopic hz` shows no messages
+### `rostopic hz` prints *no new messages* or *does not appear to be published yet*
 
-The nodes found each other through the ROS master, but their direct connections fail.
+No message arrives on the topic. Either no node publishes the topic, or a node does and the messages don't reach the PC. A topic can be listed without a publisher, because a node that only waits for the topic is enough to list it.
 
-- **Check:** `ROS_IP` on each machine is that machine's own address.
-- **Fix:** correct `ROS_IP` on the robot or on the PC. Both directions must work ([ROS Network Setup](../ros-network-setup.md)).
+- **Check:** this command shows who publishes the topic, here for the wheel encoders. On the PC, in the dev container:
+
+    ```console
+    rostopic info /diffbot/measured_joint_states
+    ```
+
+- **If the output says `Publishers: None`:** no node publishes the topic. This topic comes from the Teensy, through rosserial. Look at the bringup's output for the Teensy's connection, with `docker compose logs bringup`, and at the two entries about the Teensy: [*Permission denied* for `/dev/ttyACM0`](#the-bringups-output-shows-permission-denied-for-devttyacm0) and [*Unable to sync with device*](#the-bringups-output-shows-unable-to-sync-with-device).
+- **If the output lists a publisher:** check whether the messages arrive on the robot itself: `docker compose exec bringup /entrypoint.sh rostopic hz /diffbot/measured_joint_states`. If they arrive there and not on the PC, the direct connection between the two machines fails. Then check that `ROS_IP` on each machine is that machine's own address. Both directions must work ([ROS Network Setup](../ros-network-setup.md)).
 - **Then:** on the PC, `rostopic hz /diffbot/measured_joint_states` prints lines with `average rate:`.
 
 ### The bringup's output shows *Unable to sync with device*
@@ -136,7 +142,9 @@ rosserial opened the serial port, but the Teensy doesn't answer.
 
 ### No `/diffbot/scan`
 
-The lidar container doesn't run, or the lidar driver stopped. On a robot without a lidar, and with the ROS master on the Raspberry Pi, no lidar container runs: skip the scan check then.
+The lidar container doesn't run, or the lidar driver stopped. Skip the scan check on a robot without a lidar, and also when the ROS master runs on the Raspberry Pi: no lidar container runs in either case, and none should.
+
+The rest of this entry is for a robot with a lidar and with the ROS master on the PC.
 
 - **Check:** `docker compose ps -a` lists the service `lidar` with the status `Up`.
 - **Fix:** if the list has no `lidar`, first make sure that the ROS master runs on the PC: `roscore` is started there, and `ROS_MASTER_URI` in `.env` has the PC's address ([The ROS master](usage.md#the-ros-master)). Then set `COMPOSE_PROFILES=lidar` in `.env` and run `docker compose up -d`. If the list shows `lidar` as `Exited`, `docker compose logs lidar` prints why.

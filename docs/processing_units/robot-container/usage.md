@@ -14,7 +14,7 @@ Before the first start, flash the Teensy's firmware from your PC ([Microcontroll
 
     Leave `roscore` running in its terminal. [The ROS master](#the-ros-master) explains what this program does. Without a running `roscore`, the robot's containers stop with *unable to contact ROS master*.
 
-2. **On the Raspberry Pi:** in an SSH session, start the robot's containers.
+2. **On the Raspberry Pi:** in an SSH session, start the robot's containers. If this Raspberry Pi was set up before the published image, check first which image its clone starts ([A clone from before the published image](#a-clone-from-before-the-published-image)).
 
     ```console
     cd ~/diffbot/.docker/robot
@@ -33,16 +33,6 @@ Before the first start, flash the Teensy's firmware from your PC ([Microcontroll
 
 Without a PC, the robot starts alone, with the ROS master on the Raspberry Pi: [Without any PC](#without-any-pc).
 
-!!! note "A clone from before the published image"
-    A clone of the diffbot repository from before the published image has a `compose.yaml` that starts an image built on the Raspberry Pi. To see which image your clone starts, on the Raspberry Pi, in `~/diffbot/.docker/robot`:
-
-    ```console
-    docker compose config --images
-    ```
-
-    - **`ghcr.io/ros-mobile-robots/diffbot-robot:noetic`:** the clone starts the published image. Nothing to do.
-    - **`diffbot-robot:noetic`:** the clone starts an image that was built on this Raspberry Pi. [Update to the newest version](versions.md#update-to-the-newest-version) gets the current `compose.yaml` and the published image.
-
 ### What the start command does
 
 The parts of `docker compose up -d`:
@@ -54,6 +44,17 @@ The parts of `docker compose up -d`:
 The command never builds anything. The command downloads the robot's Docker image, [`ghcr.io/ros-mobile-robots/diffbot-robot`](https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot), which CI built and tested, with the robot's packages already compiled ([Where the robot's software comes from](index.md#where-the-robots-software-comes-from)). If the download fails, the command stops with the registry's error ([Troubleshooting](troubleshooting.md#the-download-fails)).
 
 The amd64 image, the one for PCs, is a download of about 0.7 GB. The arm64 image, which the Raspberry Pi downloads, isn't measured yet.
+
+### A clone from before the published image
+
+A clone of the diffbot repository from before the published image has a `compose.yaml` that starts an image built on the Raspberry Pi. This command prints which image your clone starts. On the Raspberry Pi, in `~/diffbot/.docker/robot`:
+
+```console
+docker compose config --images
+```
+
+- **`ghcr.io/ros-mobile-robots/diffbot-robot:noetic`:** the clone starts the published image. Nothing to do.
+- **`diffbot-robot:noetic`:** the clone starts an image that was built on this Raspberry Pi. [Update to the newest version](versions.md#update-to-the-newest-version) gets the current `compose.yaml` and the published image.
 
 ## Where the commands run
 
@@ -181,7 +182,7 @@ A topic that's listed but has no messages isn't enough. So check that messages a
     ```
 
     - **It works when:** a line with `average rate:` appears every second, with a steady rate. On Remo's bench check, the rate was 20 Hz ([the bench record](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)). Then rosserial talks with the firmware, and the encoders are read.
-    - **It doesn't work when:** the command prints *does not appear to be published yet* and waits, or it prints *no new messages*. In the first case no node offers the topic. In the second case a node offers the topic, but no message arrives.
+    - **It doesn't work when:** the command prints *does not appear to be published yet* and waits, or it prints *no new messages*. Both mean that no message arrives. [Troubleshooting](troubleshooting.md#rostopic-hz-prints-no-new-messages-or-does-not-appear-to-be-published-yet) shows how to find out whether a node publishes the topic at all.
     - **To end the command:** press `Ctrl+C`.
 
 2. **The odometry:** the topic `/diffbot/mobile_base_controller/odom` comes from the controller. This command prints one message:
