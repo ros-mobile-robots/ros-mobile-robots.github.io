@@ -1,0 +1,191 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .cut{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .cut-gap{fill:var(--md-default-bg-color);stroke:none}
+.lv-fig .former-stamp,.lv-key .former-stamp{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:3.5 2.5}
+.lv-fig .wheels-line,.lv-key .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:2.4}
+.lv-fig .imu-line,.lv-key .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-fig .estimate-dot,.lv-key .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:2}
+.lv-fig .estimate-range,.lv-key .estimate-range{fill:none;stroke:var(--lv-estimate);stroke-width:2}
+.lv-fig .estimate-path,.lv-key .estimate-path{fill:none;stroke:var(--lv-estimate);stroke-width:1.6;stroke-dasharray:2 2.5}
+.lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
+.lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
+.lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
+.lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
+.lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
+.lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
+.md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
+.md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.lv-fig .valid-line{fill:none;stroke:var(--lv-good);stroke-width:2.2}
+.lv-fig .cleared{fill:none;stroke:var(--lv-good);stroke-width:2}
+.lv-fig .check-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3;stroke-dasharray:2.5 2.5}
+.lv-fig .back-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-fig .back-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-fig .stamp-mark{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .stamp-link{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:1 2}
+.lv-fig .query-mark{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.8}
+.lv-fig .silence{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2}
+.lv-legend .lv-mark.lv-query{border:2px solid var(--md-default-fg-color);border-radius:3px}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
+</style>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<p class="lv-band">The silence starts again</p>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 232" role="img" aria-labelledby="lv-test-silence-9-title"><title id="lv-test-silence-9-title">The silence starts again, test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back: 1: a sample stamped NOW, 100 s, at the ROS time NOW, 100 s. The validator accepts it. 2: a sample stamped NOW + MAX_FUTURE, 100.02 s, at the ROS time RESTART, 50 s. The validator rejects it as FROM_THE_FUTURE. 3: a sample in the frame base_link stamped RESTART, 50 s, at the ROS time RESTART, 50 s. The validator rejects it as WRONG_FRAME. 4: seconds_since_last_valid_sample() at the ROS time RESTART + ONE_SECOND, 51 s returns None. 5: a sample stamped RESTART + SILENCE, 53.5 s, at the ROS time RESTART + SILENCE, 53.5 s. The validator accepts it. 6: seconds_since_last_valid_sample() at the ROS time RESTART + SILENCE + RECENT, 53.6 s returns RECENT, 0.1 s</title>
+<path class="axis" d="M6,196 H293"/>
+<path class="axis" d="M293,196 l-6,-3.5 M293,196 l-6,3.5"/>
+<path class="tick" d="M27.3,196 v4"/>
+<path class="tick" d="M80.7,196 v4"/>
+<path class="tick" d="M142.0,196 v4"/>
+<path class="tick" d="M172.0,196 v4"/>
+<path class="tick" d="M240.0,196 v4"/>
+<path class="tick" d="M248.0,196 v4"/>
+<rect class="cut-gap" x="99.5" y="195.0" width="7.0" height="2.0" rx="0"/>
+<path class="cut" d="M97.5,201 l4,-10 M104.5,201 l4,-10"/>
+<rect class="cut-gap" x="207.5" y="195.0" width="7.0" height="2.0" rx="0"/>
+<path class="cut" d="M205.5,201 l4,-10 M212.5,201 l4,-10"/>
+<text class="note" x="27.3" y="214.0" text-anchor="middle">50 s</text>
+<text class="note" x="80.7" y="214.0" text-anchor="middle">51 s</text>
+<text class="note" x="142.0" y="214.0" text-anchor="middle">53.5 s</text>
+<text class="note" x="172.0" y="226.0" text-anchor="middle">53.6 s</text>
+<text class="note" x="240.0" y="214.0" text-anchor="middle">100 s</text>
+<text class="note" x="248.0" y="226.0" text-anchor="middle">100.02 s</text>
+<text class="note" x="293.0" y="191.0" text-anchor="end">t</text>
+<path class="valid-line" d="M240.0,29.5 V44.0"/>
+<path class="cleared" d="M236.5,40.5 l7.0,7.0 M236.5,47.5 l7.0,-7.0"/>
+<path class="valid-line" d="M142.0,149.5 V196.0"/>
+<path class="check-line" d="M240.0,29.5 V52.0"/>
+<path class="back-line" d="M240.0,52.0 L40.8,52.0"/>
+<path class="back-head" d="M35.8,52.0 L42.8,47.8 L42.8,56.2 z"/>
+<path class="check-line" d="M27.3,59.5 V74.5"/>
+<path class="check-line" d="M27.3,89.5 V112.0"/>
+<path class="check-line" d="M80.7,119.5 V142.0"/>
+<path class="check-line" d="M142.0,149.5 V172.0"/>
+<path class="stamp-link" d="M248.0,61.0 H27.3"/>
+<g><title>The stamp of call 2: NOW + MAX_FUTURE, 100.02 s</title><path class="stamp-mark" d="M243.5,56.5 h9.0 l-4.5,9.0 z"/></g>
+<path class="silence" d="M142.0,172.0 H172.0 M142.0,168 v8"/>
+<text class="mono halo" x="146.0" y="161.5" text-anchor="start">RECENT = 0.1 s</text>
+<g><title>Sample 1: forwarded. a sample stamped NOW, 100 s, at the ROS time NOW, 100 s. The validator accepts it</title><circle class="pass-mark" cx="240.0" cy="22.0" r="7.5"/><text class="letter" x="240.0" y="25.8" text-anchor="middle">1</text></g>
+<text class="note halo" x="251.5" y="26.0" text-anchor="start">valid</text>
+<g><title>Sample 2: dropped. a sample stamped NOW + MAX_FUTURE, 100.02 s, at the ROS time RESTART, 50 s. The validator rejects it as FROM_THE_FUTURE</title><circle class="drop-mark" cx="27.3" cy="52.0" r="7.5"/><text class="letter" x="27.3" y="55.8" text-anchor="middle">2</text></g>
+<text class="mono halo" x="33.8" y="41.5" text-anchor="start">FROM_THE_FUTURE</text>
+<text class="note halo" x="232.5" y="47.0" text-anchor="end">back</text>
+<g><title>Sample 3: dropped. a sample in the frame base_link stamped RESTART, 50 s, at the ROS time RESTART, 50 s. The validator rejects it as WRONG_FRAME</title><circle class="drop-mark" cx="27.3" cy="82.0" r="7.5"/><text class="letter" x="27.3" y="85.8" text-anchor="middle">3</text></g>
+<text class="mono halo" x="38.8" y="86.0" text-anchor="start">WRONG_FRAME</text>
+<g><title>Query 4: seconds_since_last_valid_sample() at the ROS time RESTART + ONE_SECOND, 51 s returns None</title><rect class="query-mark" x="73.2" y="104.5" width="15.0" height="15.0" rx="2"/><text class="letter" x="80.7" y="115.8" text-anchor="middle">4</text></g>
+<text class="mono halo" x="92.2" y="116.0" text-anchor="start">None</text>
+<g><title>Sample 5: forwarded. a sample stamped RESTART + SILENCE, 53.5 s, at the ROS time RESTART + SILENCE, 53.5 s. The validator accepts it</title><circle class="pass-mark" cx="142.0" cy="142.0" r="7.5"/><text class="letter" x="142.0" y="145.8" text-anchor="middle">5</text></g>
+<text class="note halo" x="153.5" y="146.0" text-anchor="start">valid</text>
+<g><title>Query 6: seconds_since_last_valid_sample() at the ROS time RESTART + SILENCE + RECENT, 53.6 s returns RECENT, 0.1 s</title><rect class="query-mark" x="164.5" y="164.5" width="15.0" height="15.0" rx="2"/><text class="letter" x="172.0" y="175.8" text-anchor="middle">6</text></g>
+</svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 232" role="img" aria-labelledby="lv-test-silence-9-wide-title"><title id="lv-test-silence-9-wide-title">The silence starts again, test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back: 1: a sample stamped NOW, 100 s, at the ROS time NOW, 100 s. The validator accepts it. 2: a sample stamped NOW + MAX_FUTURE, 100.02 s, at the ROS time RESTART, 50 s. The validator rejects it as FROM_THE_FUTURE. 3: a sample in the frame base_link stamped RESTART, 50 s, at the ROS time RESTART, 50 s. The validator rejects it as WRONG_FRAME. 4: seconds_since_last_valid_sample() at the ROS time RESTART + ONE_SECOND, 51 s returns None. 5: a sample stamped RESTART + SILENCE, 53.5 s, at the ROS time RESTART + SILENCE, 53.5 s. The validator accepts it. 6: seconds_since_last_valid_sample() at the ROS time RESTART + SILENCE + RECENT, 53.6 s returns RECENT, 0.1 s</title>
+<path class="axis" d="M10.8,196 H527.4"/>
+<path class="axis" d="M527.4,196 l-6,-3.5 M527.4,196 l-6,3.5"/>
+<path class="tick" d="M49.1,196 v4"/>
+<path class="tick" d="M145.3,196 v4"/>
+<path class="tick" d="M255.6,196 v4"/>
+<path class="tick" d="M309.6,196 v4"/>
+<path class="tick" d="M432.0,196 v4"/>
+<path class="tick" d="M446.4,196 v4"/>
+<rect class="cut-gap" x="182.0" y="195.0" width="7.0" height="2.0" rx="0"/>
+<path class="cut" d="M179.8,201 l4,-10 M186.8,201 l4,-10"/>
+<rect class="cut-gap" x="376.4" y="195.0" width="7.0" height="2.0" rx="0"/>
+<path class="cut" d="M374.2,201 l4,-10 M381.2,201 l4,-10"/>
+<text class="note" x="49.1" y="214.0" text-anchor="middle">50 s</text>
+<text class="note" x="145.3" y="214.0" text-anchor="middle">51 s</text>
+<text class="note" x="255.6" y="214.0" text-anchor="middle">53.5 s</text>
+<text class="note" x="309.6" y="226.0" text-anchor="middle">53.6 s</text>
+<text class="note" x="432.0" y="214.0" text-anchor="middle">100 s</text>
+<text class="note" x="446.4" y="226.0" text-anchor="middle">100.02 s</text>
+<text class="note" x="527.4" y="191.0" text-anchor="end">t</text>
+<path class="valid-line" d="M432.0,29.5 V44.0"/>
+<path class="cleared" d="M428.6,40.5 l7.0,7.0 M428.6,47.5 l7.0,-7.0"/>
+<path class="valid-line" d="M255.6,149.5 V196.0"/>
+<path class="check-line" d="M432.0,29.5 V52.0"/>
+<path class="back-line" d="M432.0,52.0 L66.8,52.0"/>
+<path class="back-head" d="M57.8,52.0 L70.4,47.8 L70.4,56.2 z"/>
+<path class="check-line" d="M49.1,59.5 V74.5"/>
+<path class="check-line" d="M49.1,89.5 V112.0"/>
+<path class="check-line" d="M145.3,119.5 V142.0"/>
+<path class="check-line" d="M255.6,149.5 V172.0"/>
+<path class="stamp-link" d="M446.4,61.0 H49.1"/>
+<g><title>The stamp of call 2: NOW + MAX_FUTURE, 100.02 s</title><path class="stamp-mark" d="M441.9,56.5 h9.0 l-4.5,9.0 z"/></g>
+<path class="silence" d="M255.6,172.0 H309.6 M255.6,168 v8"/>
+<text class="mono halo" x="259.6" y="161.5" text-anchor="start">RECENT = 0.1 s</text>
+<g><title>Sample 1: forwarded. a sample stamped NOW, 100 s, at the ROS time NOW, 100 s. The validator accepts it</title><circle class="pass-mark" cx="432.0" cy="22.0" r="7.5"/><text class="letter" x="432.0" y="25.8" text-anchor="middle">1</text></g>
+<text class="note halo" x="443.5" y="26.0" text-anchor="start">valid</text>
+<g><title>Sample 2: dropped. a sample stamped NOW + MAX_FUTURE, 100.02 s, at the ROS time RESTART, 50 s. The validator rejects it as FROM_THE_FUTURE</title><circle class="drop-mark" cx="49.1" cy="52.0" r="7.5"/><text class="letter" x="49.1" y="55.8" text-anchor="middle">2</text></g>
+<text class="mono halo" x="55.6" y="41.5" text-anchor="start">FROM_THE_FUTURE</text>
+<text class="note halo" x="424.4" y="47.0" text-anchor="end">back</text>
+<g><title>Sample 3: dropped. a sample in the frame base_link stamped RESTART, 50 s, at the ROS time RESTART, 50 s. The validator rejects it as WRONG_FRAME</title><circle class="drop-mark" cx="49.1" cy="82.0" r="7.5"/><text class="letter" x="49.1" y="85.8" text-anchor="middle">3</text></g>
+<text class="mono halo" x="60.7" y="86.0" text-anchor="start">WRONG_FRAME</text>
+<g><title>Query 4: seconds_since_last_valid_sample() at the ROS time RESTART + ONE_SECOND, 51 s returns None</title><rect class="query-mark" x="137.7" y="104.5" width="14.9" height="15.0" rx="2"/><text class="letter" x="145.3" y="115.8" text-anchor="middle">4</text></g>
+<text class="mono halo" x="156.8" y="116.0" text-anchor="start">None</text>
+<g><title>Sample 5: forwarded. a sample stamped RESTART + SILENCE, 53.5 s, at the ROS time RESTART + SILENCE, 53.5 s. The validator accepts it</title><circle class="pass-mark" cx="255.6" cy="142.0" r="7.5"/><text class="letter" x="255.6" y="145.8" text-anchor="middle">5</text></g>
+<text class="note halo" x="267.1" y="146.0" text-anchor="start">valid</text>
+<g><title>Query 6: seconds_since_last_valid_sample() at the ROS time RESTART + SILENCE + RECENT, 53.6 s returns RECENT, 0.1 s</title><rect class="query-mark" x="302.0" y="164.5" width="14.9" height="15.0" rx="2"/><text class="letter" x="309.6" y="175.8" text-anchor="middle">6</text></g>
+</svg>
+<ul class="lv-legend">
+<li><span class="lv-mark">1</span><strong>✓ accepted:</strong> a sample stamped NOW, 100 s, at NOW, 100 s</li>
+<li><span class="lv-mark lv-drop">2</span><strong>✕ FROM_THE_FUTURE:</strong> a sample stamped NOW + MAX_FUTURE, 100.02 s, at RESTART, 50 s</li>
+<li><span class="lv-mark lv-drop">3</span><strong>✕ WRONG_FRAME:</strong> a sample in the frame base_link stamped RESTART, 50 s, at RESTART, 50 s</li>
+<li><span class="lv-mark lv-query">4</span><strong>returns None:</strong> seconds_since_last_valid_sample() at RESTART + ONE_SECOND, 51 s</li>
+<li><span class="lv-mark">5</span><strong>✓ accepted:</strong> a sample stamped RESTART + SILENCE, 53.5 s, at RESTART + SILENCE, 53.5 s</li>
+<li><span class="lv-mark lv-query">6</span><strong>returns RECENT, 0.1 s:</strong> seconds_since_last_valid_sample() at RESTART + SILENCE + RECENT, 53.6 s</li>
+</ul>
+<figcaption>After the clock went back, the first valid sample starts the silence again.</figcaption>
+</figure>
+</div>
