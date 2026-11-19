@@ -73,7 +73,7 @@
 </style>
 <div class="lv-space">
 <figure class="lv-figure lv-large lv-layouts">
-<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 436" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. If the clock went back, the clock check sets the attributes last_valid_stamp and last_valid_arrival_time of the validator to None. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. For a sample that passes every step, the validator stores the stamp in last_valid_stamp and t in last_valid_arrival_time, and the node forwards the sample</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 449" role="img" aria-labelledby="lv-test-decision-title"><title id="lv-test-decision-title">The validator's decision about a sample that arrives at the ROS time t, from top to bottom: the clock, the clock check, and checks 1 to 5. If the clock went back, the clock check sets the attributes last_valid_stamp and last_valid_arrival_time of the validator to None. A sample that fails a step is dropped with the reason to the right of the step, and the node counts the reason. For a sample that passes every step, the validator stores the stamp in last_valid_stamp and t in last_valid_arrival_time, and the node forwards the sample</title>
 <rect class="item" x="2.0" y="2.0" width="296.0" height="22.0" rx="4"/>
 <text class="strong" x="150.0" y="17.0" text-anchor="middle">a sample arrives at the ROS time t</text>
 <path class="message" d="M291,47.0 V385.0"/>
@@ -166,10 +166,11 @@
 <path class="message" d="M284,356.5 H291"/>
 <path class="message" d="M79.0,374.0 V385.0"/>
 <path class="message-head" d="M79.0,386.0 l-4,-8 h8 z"/>
-<rect class="pass-mark" x="2.0" y="386.0" width="154.0" height="48.0" rx="4"/>
+<rect class="pass-mark" x="2.0" y="386.0" width="154.0" height="61.0" rx="4"/>
 <text class="strong" x="79.0" y="401.0" text-anchor="middle">valid: returns None</text>
-<text class="note" x="79.0" y="414.0" text-anchor="middle">stores the stamp and t</text>
-<text class="note" x="79.0" y="427.0" text-anchor="middle">node forwards the sample</text>
+<text class="note" x="79.0" y="414.0" text-anchor="middle">last_valid_stamp: stamp</text>
+<text class="note" x="79.0" y="427.0" text-anchor="middle">last_valid_arrival_time: t</text>
+<text class="note" x="79.0" y="440.0" text-anchor="middle">node forwards the sample</text>
 <rect class="drop-mark" x="172.0" y="386.0" width="126.0" height="48.0" rx="4"/>
 <text class="strong" x="235.0" y="401.0" text-anchor="middle">returns the reason</text>
 <text class="note" x="235.0" y="414.0" text-anchor="middle">node counts the drop</text>
@@ -272,10 +273,11 @@
 <path class="message" d="M344.0,253.0 V302.0"/>
 <path class="message-line" d="M392.0,191.0 L397.0,191.0"/>
 <path class="message-head" d="M402.0,191.0 L395.0,195.2 L395.0,186.8 z"/>
-<rect class="pass-mark" x="402.0" y="167.0" width="136.0" height="48.0" rx="4"/>
-<text class="strong" x="470.0" y="182.0" text-anchor="middle">valid: returns None</text>
-<text class="note" x="470.0" y="195.0" text-anchor="middle">stores the stamp and t</text>
-<text class="note" x="470.0" y="208.0" text-anchor="middle">node forwards the sample</text>
+<rect class="pass-mark" x="402.0" y="160.5" width="136.0" height="61.0" rx="4"/>
+<text class="strong" x="470.0" y="175.5" text-anchor="middle">valid: returns None</text>
+<text class="note" x="470.0" y="188.5" text-anchor="middle">last_valid_stamp: stamp</text>
+<text class="note" x="470.0" y="201.5" text-anchor="middle">last_valid_arrival_time: t</text>
+<text class="note" x="470.0" y="214.5" text-anchor="middle">node forwards the sample</text>
 <rect class="drop-mark" x="402.0" y="231.0" width="136.0" height="48.0" rx="4"/>
 <text class="strong" x="470.0" y="246.0" text-anchor="middle">returns the reason</text>
 <text class="note" x="470.0" y="259.0" text-anchor="middle">node counts the drop</text>

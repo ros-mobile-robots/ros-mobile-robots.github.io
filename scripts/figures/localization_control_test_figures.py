@@ -231,7 +231,6 @@ DECISION_COLLECT_X = 291  # of that line
 DECISION_LINE_HEIGHT = 13  # between the baselines of a box's lines
 DECISION_GAP = 12  # between two boxes, for an arrow
 DECISION_START_HEIGHT = 22  # of the box of the arriving sample
-DECISION_END_LINES = 3  # of each of the two boxes at the bottom
 DECISION_REASON_CHARACTERS = 16  # the most in a line of a reason's name
 # Wide: the steps from left to right in rows of STEPS_PER_WIDE_ROW, each drop reason below its
 # step, and the two ends at the right of the last row. The line that collects the reasons runs
@@ -380,8 +379,9 @@ DECISION_STEPS = (
                  ('no last valid', 'stamp, or this', 'stamp is later'), 96, 'NOT_NEWER'),
 )
 DECISION_START = 'a sample arrives at the ROS time t'
-VALID_END = (('valid: returns None', 'strong'), ('stores the stamp and t', 'note'),
-             ('node forwards the sample', 'note'))
+# The two ends of the decision, each a box with its own number of lines
+VALID_END = (('valid: returns None', 'strong'), ('last_valid_stamp: stamp', 'note'),
+             ('last_valid_arrival_time: t', 'note'), ('node forwards the sample', 'note'))
 DROP_END = (('returns the reason', 'strong'), ('node counts the drop', 'note'),
             ('and throttles warnings', 'note'))
 
@@ -876,7 +876,7 @@ def validator_decision() -> Figure:
                       VALID_END)
     draw_decision_end(figure, DECISION_RIGHT_X, end_top, DECISION_RIGHT_WIDTH, 'drop-mark',
                       DROP_END)
-    figure.height = round(end_top + decision_box_height(DECISION_END_LINES) + 2)
+    figure.height = round(end_top + decision_box_height(max(len(VALID_END), len(DROP_END))) + 2)
     return figure
 
 
@@ -891,7 +891,7 @@ def wide_rows(steps: Sequence[DecisionStep], steps_per_row: int) -> List[WideRow
                               for step in row_steps]
         if start + steps_per_row >= len(steps):
             # The end box of the drop stands in the last row's line of reasons
-            reason_line_counts.append(DECISION_END_LINES)
+            reason_line_counts.append(len(DROP_END))
         reason_top = top + step_height + WIDE_NO_HEIGHT
         collect_y = reason_top + decision_box_height(max(reason_line_counts)) + WIDE_LANE_GAP
         x = WIDE_ROW_X + (WIDE_ROW_INDENT if rows else 0)
@@ -966,14 +966,15 @@ def validator_decision_wide(steps_per_row: int = STEPS_PER_WIDE_ROW) -> Figure:
     # The two ends stand at the right of the last row: the valid end after the last step, the
     # end of the drop below it, where the collecting line arrives from below
     end_x = last.end_x() + WIDE_GAP
-    end_height = decision_box_height(DECISION_END_LINES)
+    valid_end_height = decision_box_height(len(VALID_END))
+    drop_end_height = decision_box_height(len(DROP_END))
     figure.route(((last.end_x(), last.middle_y()), (end_x, last.middle_y())), 'message')
-    draw_decision_end(figure, end_x, last.middle_y() - end_height / 2, WIDE_END_WIDTH,
+    draw_decision_end(figure, end_x, last.middle_y() - valid_end_height / 2, WIDE_END_WIDTH,
                       'pass-mark', VALID_END)
     draw_decision_end(figure, end_x, last.reason_top, WIDE_END_WIDTH, 'drop-mark', DROP_END)
     end_middle_x = end_x + WIDE_END_WIDTH / 2
     figure.route(((collect_start_x, last.collect_y), (end_middle_x, last.collect_y),
-                  (end_middle_x, last.reason_top + end_height)), 'message')
+                  (end_middle_x, last.reason_top + drop_end_height)), 'message')
     row_right = max(row.end_x() + WIDE_LANE_GAP - 2 for row in rows[:-1]) if rows[:-1] else 0
     figure.width = round(max(end_x + WIDE_END_WIDTH, row_right) + 2)
     figure.height = round(last.collect_y + 5)
