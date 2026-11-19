@@ -34,9 +34,9 @@ The filter publishes its estimate in two forms, which navigation and RViz use:
     The EKF runs in the simulation and in the tests that [How it's tested](#how-its-tested) lists. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet. Remo's URDF model in remo_description includes the IMU's position and orientation as the same bench checks confirmed them. DiffBot uses the same BNO055, but its mounting and the firmware still need checking on DiffBot. The variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's time limits, are starting values, not measurements.
 
 ??? info "Reading the code on this page"
-    - The excerpts on this page show fixed revisions: the diffbot repository at one commit, robot_localization 2.7.7, ros_controllers 0.22.0, gazebo_ros_pkgs 2.9.3, the navigation stack 1.17.3 and ROS's common_msgs at one commit. The line numbers are those of the original files.
+    - The excerpts on this page show fixed revisions: robot_localization 2.7.7, ros_controllers 0.22.0, gazebo_ros_pkgs 2.9.3, the navigation stack 1.17.3, ROS's common_msgs at one commit, and the diffbot repository at the commit of the change that each example describes. The line numbers are those of the original files.
     - The link in the sentence before an excerpt opens that revision and those lines on GitHub.
-    - Where a section names a function, a class, a member or a setting of the code, the name links to its line at that revision or to the section of this page that shows it, or the section shows the name in an excerpt. A file name links to the file, for the diffbot repository to its current version.
+    - Where a section names a function, a class, a member or a setting of the code, the name links to its line at that revision or to the section of this page that shows it, or the section shows the name in an excerpt. A file name links to the file at a fixed revision, for the diffbot repository at the commit that the example uses.
 
 ## What goes in and what comes out
 
