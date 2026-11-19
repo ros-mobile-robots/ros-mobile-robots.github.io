@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -4986,7 +4986,7 @@
 <span class="nt">&lt;/test&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong>This simulation runs without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>:</strong> <code>sim_drive_diffbot.test</code> doesn't pass <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a>, so the drive controller's <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>enable_odom_tf</code></a> is <code>true</code>.</li>
+<li><strong>This simulation runs without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>:</strong> <code>sim_drive_diffbot.test</code> doesn't pass <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a>, so the drive controller's <a href="../../#what-the-launch-files-do-with-ekf"><code>enable_odom_tf</code></a> is <code>true</code>.</li>
 <li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/sim_drive_diffbot.test#L50"><code>publisher</code></a>:</strong> the private parameter names the node that the test expects. In the simulation, the drive controller is not a node of its own. <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control"><code>gazebo_ros_control</code></a> loads the controller into Gazebo's process, whose node name is <code>/gazebo</code>.</li>
 <li><strong>A simulation of its own:</strong> rostest starts the simulation again for each test node of the file, as <a href="../../../../../development/simulation-test/#1-the-test-file">the test file on Simulation Test</a> explains. So the test sees the transforms of a fresh simulation.</li>
 </ul>
@@ -5127,12 +5127,12 @@
 </code></pre></div></td></tr></tbody></table></div>
 <ol>
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_odom_tf.py#L31-L33"><code>setUpClass()</code></a> creates the test's node and the observer. The observer counts from this moment on.</li>
-<li>The test reads the expected node's name from its private parameter <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/sim_drive_diffbot.test#L50"><code>publisher</code></a>.</li>
+<li>The test reads the expected node's name from its private parameter <a href="#where-the-test-runs"><code>publisher</code></a>.</li>
 <li>It waits for a first transform <code>odom → base_footprint</code>, at most <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_odom_tf.py#L23"><code>STARTUP_TIMEOUT</code></a>, 120 s of wall time. Gazebo and the controller spawner need a while to start. Without a transform, the test fails with the message <code>nobody published odom → base_footprint</code>.</li>
-<li>It waits <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/odom_tf_observer.py#L22"><code>OBSERVE</code></a>, 3 s of simulation time, while the observer keeps counting.</li>
+<li>It waits <a href="#the-observer"><code>OBSERVE</code></a>, 3 s of simulation time, while the observer keeps counting.</li>
 <li>It compares the names of the nodes in the counts with the expected one. <a href="https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertEqual"><code>assertEqual([expected], list(counts))</code></a> passes only when the counts have exactly this one node. A second publisher fails the test, and so does a different one.</li>
 </ol>
-<p><a href="../gazebo/#who-publishes-the-transform"><code>test_ekf_is_the_only_odom_tf_publisher</code></a> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a> does the same in the simulation with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. It expects <code>/diffbot/ekf_localization</code>, and it also expects the controller's parameter <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>enable_odom_tf</code></a> to be <code>false</code>. <a href="../gazebo/#who-publishes-the-transform">Who publishes the transform</a> on the Gazebo test's page shows this test.</p>
+<p><a href="../gazebo/#who-publishes-the-transform"><code>test_ekf_is_the_only_odom_tf_publisher</code></a> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a> does the same in the simulation with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. It expects <code>/diffbot/ekf_localization</code>, and it also expects the controller's parameter <a href="../../#what-the-launch-files-do-with-ekf"><code>enable_odom_tf</code></a> to be <code>false</code>. <a href="../gazebo/#who-publishes-the-transform">Who publishes the transform</a> on the Gazebo test's page shows this test.</p>
 <p>The table lists what the observer counted in a run in the dev container's image, at the commit <code>3ef4a91</code> of <a href="https://github.com/ros-mobile-robots/diffbot/pull/154">diffbot#154</a>:</p>
 <table>
 <thead>
@@ -5181,9 +5181,9 @@
 <h2 id="what-the-test-doesnt-show">What the test doesn't show</h2>
 <ul>
 <li><strong>Transforms from before the test node started:</strong> rostest starts the test node after the simulation's nodes, and the topic <code>/tf</code> doesn't repeat old messages. The observer doesn't count a transform that was published before it subscribed. The drive controller and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> usually start seconds later, after Gazebo has spawned the robot, but nothing guarantees this order.</li>
-<li><strong>A publisher that starts late:</strong> the observer watches for <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/odom_tf_observer.py#L22"><code>OBSERVE</code></a>, 3 s of simulation time, after the first transform. The test doesn't see a node that starts to publish the transform after that.</li>
+<li><strong>A publisher that starts late:</strong> the observer watches for <a href="#the-observer"><code>OBSERVE</code></a>, 3 s of simulation time, after the first transform. The test doesn't see a node that starts to publish the transform after that.</li>
 <li><strong>The transform's values:</strong> the test counts who publishes. <a href="../gazebo/">The test in Gazebo</a> compares the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s heading with the robot's true heading.</li>
-<li><strong>The real robot:</strong> on the robot, the drive controller runs in the hardware interface's node, not in <code>/gazebo</code>. This test runs in the simulation only. The <a href="../switch/">switch test</a> checks that the robot's launch files set <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>enable_odom_tf</code></a> for both positions of <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a>.</li>
+<li><strong>The real robot:</strong> on the robot, the drive controller runs in the hardware interface's node, not in <code>/gazebo</code>. This test runs in the simulation only. The <a href="../switch/">switch test</a> checks that the robot's launch files set <a href="../../#what-the-launch-files-do-with-ekf"><code>enable_odom_tf</code></a> for both positions of <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a>.</li>
 </ul>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->

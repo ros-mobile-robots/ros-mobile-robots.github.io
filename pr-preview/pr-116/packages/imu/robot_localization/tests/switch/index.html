@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -3259,6 +3259,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-pass-proves-and-what-a-failure-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a pass proves and what a failure means
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What a pass proves and what a failure means">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-test-doesnt-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the test doesn't show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-five-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3307,28 +3346,6 @@
     <span class="md-ellipsis">
       
         The simulation with navigation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-it" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run it
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-the-test-doesnt-show" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What the test doesn't show
       
     </span>
   </a>
@@ -4682,6 +4699,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-pass-proves-and-what-a-failure-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a pass proves and what a failure means
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What a pass proves and what a failure means">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-test-doesnt-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the test doesn't show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-five-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4730,28 +4786,6 @@
     <span class="md-ellipsis">
       
         The simulation with navigation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-it" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run it
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-the-test-doesnt-show" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What the test doesn't show
       
     </span>
   </a>
@@ -4871,15 +4905,14 @@
 
 
 <h1 id="test-the-ekf-switch-of-the-launch-files">Test: The ekf Switch of the Launch Files</h1>
-<p>This page belongs to <a href="../../">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a>. <a href="../">Tests of the Localization</a> lists the five tests by the question that each answers. This page walks through <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py"><code>test_ekf_switch.py</code></a>, the test of the <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> argument in the launch files.</p>
-<p>The <code>ekf</code> argument has to do several things at once in several launch files, as <a href="../../#which-launch-file-starts-what">Which launch file starts what</a> shows. With <code>ekf:=true</code>, a launch file that starts the robot or the simulation starts the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and turns off the drive controller's transform <code>odom → base_footprint</code>. A launch file that starts a planner makes the planner read the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry by default. <code>diffbot_navigation</code>'s <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch"><code>move_base.launch</code></a> also takes the argument <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch#L8"><code>odom_topic</code></a>, which names another topic. Without <code>ekf:=true</code>, none of this may happen. The test proves that the launch files are written this way, for both positions of the switch and for its default. The test reads the launch files and starts nothing. So the test doesn't prove that the nodes run or that they work together. The <a href="../stepped-clock/">stepped-clock test</a> and the <a href="../gazebo/">test in Gazebo</a> start them.</p>
+<p>The <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> argument has to do several things at once in several launch files, as <a href="../../#which-launch-file-starts-what">Which launch file starts what</a> shows. With <code>ekf:=true</code>, a launch file that starts the robot or the simulation starts the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and turns off the drive controller's transform <code>odom → base_footprint</code>. A launch file that starts a planner makes the planner read the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry by default. <code>diffbot_navigation</code>'s <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch"><code>move_base.launch</code></a> also takes the argument <a href="#the-planners-odometry-topic"><code>odom_topic</code></a>, which names another topic. Without <code>ekf:=true</code>, none of this may happen. The test proves that the launch files are written this way, for both positions of the switch and for its default. The test reads the launch files and starts nothing. So the test doesn't prove that the nodes run or that they work together. The <a href="../stepped-clock/">stepped-clock test</a> and the <a href="../gazebo/">test in Gazebo</a> start them.</p>
 <h2 id="two-launch-files-read-without-starting-them">Two launch files, read without starting them</h2>
 <p>roslaunch has a loader that reads a launch file and everything that the file includes, and returns what roslaunch would start: the nodes, the parameters and the remappings. The test calls this loader and looks at the result. No ROS master and no node run. Two examples show what the loader returns, in a run at the commit <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py"><code>27d72a4</code></a> of the diffbot repository:</p>
 <ol>
-<li><strong>A launch file that starts the simulation:</strong> for <code>roslaunch diffbot_gazebo diffbot.launch ekf:=true</code>, the loader returns nine nodes. Two of them are the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, <code>/diffbot/ekf_localization</code>, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator, <code>/diffbot/imu_validator</code>. The parameter <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>/diffbot/mobile_base_controller/enable_odom_tf</code></a> is <code>False</code>, so the drive controller doesn't publish the transform <code>odom → base_footprint</code>. Without the <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> argument, the loader returns seven nodes, without these two, and <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>enable_odom_tf</code></a> is <code>True</code>.</li>
+<li><strong>A launch file that starts the simulation:</strong> for <code>roslaunch diffbot_gazebo diffbot.launch ekf:=true</code>, the loader returns nine nodes. Two of them are the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, <code>/diffbot/ekf_localization</code>, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator, <code>/diffbot/imu_validator</code>. The parameter <a href="../../#what-the-launch-files-do-with-ekf"><code>/diffbot/mobile_base_controller/enable_odom_tf</code></a> is <code>False</code>, so the drive controller doesn't publish the transform <code>odom → base_footprint</code>. Without the <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> argument, the loader returns seven nodes, without these two, and <a href="../../#what-the-launch-files-do-with-ekf"><code>enable_odom_tf</code></a> is <code>True</code>.</li>
 <li><strong>A launch file that starts only a planner:</strong> for <code>roslaunch diffbot_navigation move_base.launch ekf:=true</code>, the loader returns one node, the planner <code>/move_base</code>. The planner's name <code>odom</code> is remapped to <code>/diffbot/odometry/filtered</code>, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry. Without the <code>ekf</code> argument, <code>odom</code> is remapped to <code>/diffbot/mobile_base_controller/odom</code>, the drive controller's wheel odometry. This launch file starts no <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and sets no <code>enable_odom_tf</code>, so the test checks only the planner's topic here.</li>
 </ol>
-<p>The figure shows this flow from top to bottom, for the first example. The test's function <a href="#reading-a-launch-file-without-starting-it"><code>load()</code></a> gives the launch file and its arguments to roslaunch's loader, <a href="https://github.com/ros/ros_comm/blob/1.17.0/tools/roslaunch/src/roslaunch/config.py#L411"><code>load_config_default()</code></a>. <code>load()</code> returns the loader's result as a <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L55-L60"><code>LaunchConfiguration</code></a> with three fields, and the test's assertions look at these fields. The box at the bottom left names one of these assertions for the first example. The dashed box is what roslaunch would do after loading, which the test leaves out.</p>
+<p>The figure shows this flow from top to bottom, for the first example. The test's function <a href="#reading-a-launch-file-without-starting-it"><code>load()</code></a> gives the launch file and its arguments to roslaunch's loader, <a href="#reading-a-launch-file-without-starting-it"><code>load_config_default()</code></a>. <code>load()</code> returns the loader's result as a <a href="#reading-a-launch-file-without-starting-it"><code>LaunchConfiguration</code></a> with three fields, and the test's assertions look at these fields. The box at the bottom left names one of these assertions for the first example. The dashed box is what roslaunch would do after loading, which the test leaves out.</p>
 <style>
 .md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
 .lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
@@ -4992,6 +5025,62 @@
 <figcaption>How <code>test_ekf_switch.py</code> works, from top to bottom, for one of its launch files.</figcaption>
 </figure>
 
+<h2 id="run-it">Run it</h2>
+<p>Run the test alone from a shell in the built workspace of the <a href="../../../../../development/dev-container/">dev container</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/catkin_ws</span>
+<span class="go">source devel/setup.bash</span>
+<span class="go">cd src/diffbot/diffbot_gazebo/test</span>
+<span class="go">python3 -m unittest -v test_ekf_switch</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The test needs no ROS master and no Gazebo. A pass prints one line for each of the five tests, each ending in <code>ok</code>, and <code>OK</code> at the end. catkin runs the test with the repository's other tests.</p>
+<details class="example">
+<summary>The registration, the output of a run and the test dependencies</summary>
+<p>catkin runs the test with the repository's other tests. The excerpt shows where <code>diffbot_gazebo</code> registers the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/CMakeLists.txt#L225-L226"><code>CMakeLists.txt</code>, lines 225–226</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_gazebo/CMakeLists.txt: the test's registration</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
+<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># The ekf switch in the launch files, both ways, without starting them</span>
+<span class="nb">catkin_add_nosetests</span><span class="p">(</span><span class="s">test/test_ekf_switch.py</span><span class="p">)</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The test needs no ROS master and no Gazebo. In a run at the commit <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py"><code>27d72a4</code></a> in the dev container's image, the test printed one line for each of its five tests, and <code>OK</code> at the end because every test passed:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">test_bringup_starts_the_ekf_and_the_validator_only_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
+<span class="go">test_navigation_simulation_starts_the_ekf_for_its_planner_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
+<span class="go">test_planner_reads_an_explicit_odom_topic_also_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
+<span class="go">test_planners_read_the_filtered_odometry_only_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
+<span class="go">test_simulation_starts_the_ekf_and_the_validator_only_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
+
+<span class="go">----------------------------------------------------------------------</span>
+<span class="go">Ran 5 tests in 6.574s</span>
+
+<span class="go">OK</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The test loads the launch files of <code>diffbot_bringup</code>, <code>diffbot_navigation</code> and <code>diffbot_mbf</code>, so <code>diffbot_gazebo</code>'s <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/package.xml"><code>package.xml</code></a> lists these three packages as test dependencies.</p>
+</details>
+<h2 id="what-a-pass-proves-and-what-a-failure-means">What a pass proves and what a failure means</h2>
+<p>A pass proves these results of roslaunch's loader:</p>
+<ul>
+<li><strong>The robot and the simulation:</strong> with <code>ekf:=true</code>, <code>diffbot_bringup</code>'s two launch files and the two simulation files <code>diffbot.launch</code> start the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and turn off the drive controller's transform. With <code>ekf:=false</code> and by default, they start neither node and keep the transform on.</li>
+<li><strong>The planners:</strong> the four planner launch files of <a href="#the-five-tests">the table</a> give the planner the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry with <code>ekf:=true</code> and the wheel odometry by default. <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch"><code>move_base.launch</code></a> keeps an explicit <a href="#the-planners-odometry-topic"><code>odom_topic</code></a> also with <code>ekf:=true</code>.</li>
+<li><strong>The simulation with navigation:</strong> with <code>ekf:=true</code>, <code>diffbot_navigation</code>'s <code>diffbot.launch</code> starts the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the validator, turns off the controller's transform and gives its planner the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry.</li>
+</ul>
+<p>A failure's message includes the launch file with its arguments and names what is missing or wrong, such as a node that doesn't start or the planner's <code>odom</code> remapped to another topic.</p>
+<h3 id="what-the-test-doesnt-show">What the test doesn't show</h3>
+<ul>
+<li><strong>Running nodes:</strong> the loader reads the launch files. Nothing starts, so the test can't see whether a node runs, publishes or finds its transforms.</li>
+<li><strong><code>robot_state_publisher</code> in every file:</strong> the test asserts <code>robot_state_publisher</code> for the two bringup files and for the two simulation files named <code>diffbot.launch</code>, of <code>diffbot_gazebo</code> and of <code>diffbot_control</code>. The test doesn't assert the node for <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_bringup/launch/minimal.launch"><code>minimal.launch</code></a>, which doesn't start <code>robot_state_publisher</code>.</li>
+<li><strong><code>ekf:=false</code> for the planners:</strong> for the planners' launch files, the test loads the default and <code>ekf:=true</code>.</li>
+<li><strong>Other ways to start the robot:</strong> the <a href="../../../../../processing_units/robot-container/usage/">robot container</a> starts <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_bringup/launch/bringup.launch"><code>bringup.launch</code></a> without <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a>. The test doesn't read the container's settings.</li>
+</ul>
 <h2 id="the-five-tests">The five tests</h2>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py"><code>test_ekf_switch.py</code></a> has five tests. Each test loads one kind of launch file:</p>
 <table>
@@ -5004,27 +5093,27 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L166-L168"><code>test_bringup_starts_the_ekf_and_the_validator_only_with_ekf_true</code></a></td>
+<td style="text-align: left;"><a href="#both-positions-of-the-switch"><code>test_bringup_starts_the_ekf_and_the_validator_only_with_ekf_true</code></a></td>
 <td style="text-align: left;"><code>diffbot_bringup</code>: <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_bringup/launch/bringup.launch"><code>bringup.launch</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_bringup/launch/bringup_with_laser.launch"><code>bringup_with_laser.launch</code></a></td>
 <td style="text-align: left;"><a href="#both-positions-of-the-switch">Both positions of the switch</a></td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L170-L172"><code>test_simulation_starts_the_ekf_and_the_validator_only_with_ekf_true</code></a></td>
+<td style="text-align: left;"><a href="#both-positions-of-the-switch"><code>test_simulation_starts_the_ekf_and_the_validator_only_with_ekf_true</code></a></td>
 <td style="text-align: left;"><code>diffbot_gazebo</code>: <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/launch/diffbot.launch"><code>diffbot.launch</code></a>. <code>diffbot_control</code>: <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_control/launch/diffbot.launch"><code>diffbot.launch</code></a></td>
 <td style="text-align: left;"><a href="#both-positions-of-the-switch">Both positions of the switch</a></td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L174-L182"><code>test_planners_read_the_filtered_odometry_only_with_ekf_true</code></a></td>
+<td style="text-align: left;"><a href="#the-planners-odometry-topic"><code>test_planners_read_the_filtered_odometry_only_with_ekf_true</code></a></td>
 <td style="text-align: left;"><code>diffbot_navigation</code>: <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch"><code>move_base.launch</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot_navigation.launch"><code>diffbot_navigation.launch</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot_hw.launch"><code>diffbot_hw.launch</code></a>. <code>diffbot_mbf</code>: <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_mbf/launch/amcl_demo.launch"><code>amcl_demo.launch</code></a></td>
 <td style="text-align: left;"><a href="#the-planners-odometry-topic">The planner's odometry topic</a></td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L184-L187"><code>test_planner_reads_an_explicit_odom_topic_also_with_ekf_true</code></a></td>
+<td style="text-align: left;"><a href="#the-planners-odometry-topic"><code>test_planner_reads_an_explicit_odom_topic_also_with_ekf_true</code></a></td>
 <td style="text-align: left;"><code>diffbot_navigation</code>: <code>move_base.launch</code></td>
 <td style="text-align: left;"><a href="#the-planners-odometry-topic">The planner's odometry topic</a></td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L189-L194"><code>test_navigation_simulation_starts_the_ekf_for_its_planner_with_ekf_true</code></a></td>
+<td style="text-align: left;"><a href="#the-simulation-with-navigation"><code>test_navigation_simulation_starts_the_ekf_for_its_planner_with_ekf_true</code></a></td>
 <td style="text-align: left;"><code>diffbot_navigation</code>: <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot.launch"><code>diffbot.launch</code></a></td>
 <td style="text-align: left;"><a href="#the-simulation-with-navigation">The simulation with navigation</a></td>
 </tr>
@@ -5035,7 +5124,7 @@
 <ul>
 <li><strong>The nodes:</strong> the table leaves out the namespace <code>/diffbot</code> of the nodes <code>ekf_localization</code>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_control/scripts/imu_validator.py"><code>imu_validator</code></a> and <code>robot_state_publisher</code>.</li>
 <li><strong>A planner reads a topic:</strong> the planner's node is among the nodes, and the node's name <code>odom</code> is remapped to this topic.</li>
-<li><strong>The controller's odometry and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry:</strong> the topics <code>/diffbot/mobile_base_controller/odom</code> and <code>/diffbot/odometry/filtered</code>, the test's <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L35"><code>WHEEL_ODOMETRY_TOPIC</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L36"><code>FILTERED_TOPIC</code></a>.</li>
+<li><strong>The controller's odometry and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s odometry:</strong> the topics <code>/diffbot/mobile_base_controller/odom</code> and <code>/diffbot/odometry/filtered</code>, the test's <a href="#reading-a-launch-file-without-starting-it"><code>WHEEL_ODOMETRY_TOPIC</code></a> and <a href="#reading-a-launch-file-without-starting-it"><code>FILTERED_TOPIC</code></a>.</li>
 </ul>
 <div class="readable-table">
 <table>
@@ -5098,15 +5187,16 @@
     <span class="n">description</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">package</span><span class="p">,</span> <span class="n">launch_file</span><span class="p">]</span> <span class="o">+</span> <span class="n">argv</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">LaunchConfiguration</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
+<details class="example">
+<summary>The result's fields, and the constants</summary>
 <ul>
 <li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L63-L74"><code>load()</code></a>:</strong> takes a package, the name of a launch file in the package's <code>launch</code> folder and the launch arguments. <code>load('diffbot_gazebo', 'diffbot.launch', ekf='true')</code> stands for the command <code>roslaunch diffbot_gazebo diffbot.launch ekf:=true</code>.</li>
 <li><strong><a href="https://github.com/ros/ros_comm/blob/1.17.0/tools/roslaunch/src/roslaunch/config.py#L411"><code>load_config_default()</code></a>:</strong> is roslaunch's loader. The loader resolves the includes, the arguments and the conditions such as <code>if="$(arg ekf)"</code>, as roslaunch does before it starts anything.</li>
 <li><strong><code>nodes</code>:</strong> a dictionary from each node's full name, for example <code>/diffbot/ekf_localization</code>, to roslaunch's description of the node. The loader keeps a node's namespace and its name apart, so <code>load()</code> joins them.</li>
 <li><strong><code>parameters</code>:</strong> a dictionary from each parameter's full name to its value.</li>
-<li><strong><code>description</code>:</strong> the launch file with its arguments, as text. Every failure message starts with this text.</li>
+<li><strong><code>description</code>:</strong> the launch file with its arguments, as text. Every failure message includes this text.</li>
 </ul>
-<details class="example">
-<summary>The constants of <code>test_ekf_switch.py</code>, lines 31–50</summary>
+<p><strong>The constants of <code>test_ekf_switch.py</code>:</strong></p>
 <p>The excerpt shows the names that the test looks for, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L31-L50"><code>test_ekf_switch.py</code>, lines 31–50</a>. The name of a constant ends in <code>_NODE</code> for a node, in <code>_TOPIC</code> for a topic and in <code>_PARAMETER</code> for a parameter. <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L40"><code>SWITCHED_OFF</code></a> holds the two ways to run without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, <code>ekf:=false</code> and no <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> argument. <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L44-L50"><code>EKF_PARAMETERS</code></a> holds five parameters of the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and of the validator with the values that <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_control/config/ekf.yaml"><code>ekf.yaml</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_control/launch/ekf.launch"><code>ekf.launch</code></a> give them.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: the constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span>
 <span class="normal">32</span>
@@ -5150,7 +5240,10 @@
 </code></pre></div></td></tr></tbody></table></div>
 </details>
 <h2 id="both-positions-of-the-switch">Both positions of the switch</h2>
-<p>The first two tests call <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L146-L149"><code>assert_ekf_switch()</code></a> for the four launch files that start the robot or the simulation. The excerpt shows the two tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L166-L172"><code>test_ekf_switch.py</code>, lines 166–172</a>:</p>
+<p>The first two tests call <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L146-L149"><code>assert_ekf_switch()</code></a> for the four launch files that start the robot or the simulation. <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L131-L137"><code>assert_ekf_on()</code></a> checks the switch with <code>ekf:=true</code>, and <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L139-L144"><code>assert_ekf_off()</code></a> with <code>ekf:=false</code> and without the argument.</p>
+<details class="example">
+<summary>The two tests, the checks on and off, and the assertion methods</summary>
+<p>The excerpt shows the two tests, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L166-L172"><code>test_ekf_switch.py</code>, lines 166–172</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: the bringup files and the two simulation files</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
@@ -5206,18 +5299,17 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><strong>Off</strong>, <code>assert_ekf_off()</code>, once with <code>ekf:=false</code> and once without the argument:</p>
 <ol>
-<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L99-L103"><code>assert_no_ekf_nodes_start()</code></a>: neither <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L31"><code>EKF_NODE</code></a>, which is <code>/diffbot/ekf_localization</code>, nor <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L32"><code>VALIDATOR_NODE</code></a>, which is <code>/diffbot/imu_validator</code>, is among the nodes.</li>
-<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L105-L113"><code>assert_controller_odom_tf(configuration, enabled=True)</code></a>: the parameter <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L34"><code>ODOM_TF_PARAMETER</code></a>, which is <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>/diffbot/mobile_base_controller/enable_odom_tf</code></a>, is set, and its value is <code>True</code>. So the drive controller publishes the transform.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L99-L103"><code>assert_no_ekf_nodes_start()</code></a>: neither <a href="#reading-a-launch-file-without-starting-it"><code>EKF_NODE</code></a>, which is <code>/diffbot/ekf_localization</code>, nor <a href="#reading-a-launch-file-without-starting-it"><code>VALIDATOR_NODE</code></a>, which is <code>/diffbot/imu_validator</code>, is among the nodes.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L105-L113"><code>assert_controller_odom_tf(configuration, enabled=True)</code></a>: the parameter <a href="#reading-a-launch-file-without-starting-it"><code>ODOM_TF_PARAMETER</code></a>, which is <a href="../../#what-the-launch-files-do-with-ekf"><code>/diffbot/mobile_base_controller/enable_odom_tf</code></a>, is set, and its value is <code>True</code>. So the drive controller publishes the transform.</li>
 </ol>
 <p><strong>On</strong>, <code>assert_ekf_on()</code>, with <code>ekf:=true</code>:</p>
 <ol>
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L94-L97"><code>assert_ekf_nodes_start()</code></a>: both nodes are among the nodes, <code>EKF_NODE</code> from the package <a href="http://docs.ros.org/en/noetic/api/robot_localization/html/index.html"><code>robot_localization</code></a> with the executable <code>ekf_localization_node</code>, and <code>VALIDATOR_NODE</code> from <code>diffbot_control</code> with <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code></a>.</li>
-<li><code>assert_controller_odom_tf(configuration, enabled=False)</code>: <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>enable_odom_tf</code></a> is set, and its value is <code>False</code>. So only the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the transform.</li>
-<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L115-L120"><code>assert_ekf_reads_the_controller_and_the_validator()</code></a>: the five parameters in <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L44-L50"><code>EKF_PARAMETERS</code></a> have their values. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> works in the frame <code>odom</code> for the frame <code>base_footprint</code>, reads the topics <code>mobile_base_controller/odom</code> and <code>imu/data_validated</code>, and the validator expects the frame <code>imu_link</code>.</li>
-<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L122-L129"><code>assert_state_publisher_starts()</code></a>: <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L33"><code>STATE_PUBLISHER_NODE</code></a>, which is <code>/diffbot/robot_state_publisher</code>, is among the nodes. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs the transform between <code>imu_link</code> and <code>base_footprint</code>, which TF has from <code>robot_state_publisher</code>.</li>
+<li><code>assert_controller_odom_tf(configuration, enabled=False)</code>: <a href="../../#what-the-launch-files-do-with-ekf"><code>enable_odom_tf</code></a> is set, and its value is <code>False</code>. So only the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> publishes the transform.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L115-L120"><code>assert_ekf_reads_the_controller_and_the_validator()</code></a>: the five parameters in <a href="#reading-a-launch-file-without-starting-it"><code>EKF_PARAMETERS</code></a> have their values. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> works in the frame <code>odom</code> for the frame <code>base_footprint</code>, reads the topics <code>mobile_base_controller/odom</code> and <code>imu/data_validated</code>, and the validator expects the frame <code>imu_link</code>.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L122-L129"><code>assert_state_publisher_starts()</code></a>: <a href="#reading-a-launch-file-without-starting-it"><code>STATE_PUBLISHER_NODE</code></a>, which is <code>/diffbot/robot_state_publisher</code>, is among the nodes. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> needs the transform between <code>imu_link</code> and <code>base_footprint</code>, which TF has from <code>robot_state_publisher</code>.</li>
 </ol>
-<details class="example">
-<summary>The assertion methods on the nodes and the parameters, lines 85–129</summary>
+<p><strong>The assertion methods on the nodes and the parameters:</strong></p>
 <p>The excerpt shows the methods that <code>assert_ekf_on()</code> and <code>assert_ekf_off()</code> call, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L85-L129"><code>test_ekf_switch.py</code>, lines 85–129</a>. <code>assert_controller_odom_tf()</code> uses <a href="https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertIs"><code>assertIs()</code></a>: a parameter that the launch file doesn't set gives <code>None</code>, which is neither <code>True</code> nor <code>False</code>, so the check fails for a missing parameter in both positions.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: the assertions on the nodes and the parameters</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 85</span>
 <span class="normal"> 86</span>
@@ -5309,42 +5401,42 @@
                   <span class="s1">'</span><span class="si">{}</span><span class="s1"> starts the EKF without robot_state_publisher'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                       <span class="n">configuration</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
 </code></pre></div></td></tr></tbody></table></div>
-</details>
 <p>The launch file has to write <code>enable_odom_tf</code> in both positions, because a parameter stays on the ROS parameter server as long as the ROS master runs. A <code>false</code> from a launch with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> would otherwise remain for a later launch without it.</p>
+</details>
 <h2 id="the-planners-odometry-topic">The planner's odometry topic</h2>
-<p>A planner reads the robot's velocity from an odometry topic. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, the planner has to read the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s estimate, so that its velocity and the transform come from the same estimate. In a launch file, the planner's node gets the topic as a remapping of the name <code>odom</code>. The excerpt shows what the test asserts about this remapping, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L151-L164"><code>test_ekf_switch.py</code>, lines 151–164</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: the planner's odometry</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
+<p>A planner reads the robot's velocity from an odometry topic. With the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on, the planner has to read the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s estimate, so that its velocity and the transform come from the same estimate. The test checks the remapping of the planner's name <code>odom</code> with <code>ekf:=true</code> and without it, and that an explicit <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch#L8"><code>odom_topic</code></a> wins.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L159-L164"><code>assert_planner_follows_the_switch()</code></a> loads a planner's launch file without the <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> argument and with <code>ekf:=true</code>. The excerpt shows it, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L159-L164"><code>test_ekf_switch.py</code>, lines 159–164</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: assert_planner_follows_the_switch()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
 <span class="normal">163</span>
-<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_planner_odometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">:</span> <span class="n">LaunchConfiguration</span><span class="p">,</span> <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                            <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Assert that the planner node_name reads its odometry from topic."""</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span>
-                  <span class="s2">"</span><span class="si">{}</span><span class="s2"> doesn't start </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">node_name</span><span class="p">))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">remapping</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">],</span> <span class="s1">'odom'</span><span class="p">),</span>
-                     <span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">'s odom"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">node_name</span><span class="p">))</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">assert_planner_follows_the_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">launch_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_planner_follows_the_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">launch_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                                       <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Assert that the planner reads the EKF's odometry with ekf:=true only."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_planner_odometry</span><span class="p">(</span><span class="n">load</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">launch_file</span><span class="p">),</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">WHEEL_ODOMETRY_TOPIC</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_planner_odometry</span><span class="p">(</span><span class="n">load</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">launch_file</span><span class="p">,</span> <span class="n">ekf</span><span class="o">=</span><span class="s1">'true'</span><span class="p">),</span> <span class="n">node_name</span><span class="p">,</span>
                                  <span class="n">FILTERED_TOPIC</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
-<ul>
-<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L151-L157"><code>assert_planner_odometry()</code></a>:</strong> the planner's node is among the nodes, and its name <code>odom</code> is remapped to <code>topic</code>.</li>
-<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L159-L164"><code>assert_planner_follows_the_switch()</code></a>:</strong> without the <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> argument, the planner reads <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L35"><code>WHEEL_ODOMETRY_TOPIC</code></a>, the topic <code>/diffbot/mobile_base_controller/odom</code>. With <code>ekf:=true</code>, the planner reads <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L36"><code>FILTERED_TOPIC</code></a>, the topic <code>/diffbot/odometry/filtered</code>.</li>
-</ul>
+<p>Without the argument, the planner has to read <a href="#reading-a-launch-file-without-starting-it"><code>WHEEL_ODOMETRY_TOPIC</code></a>, the topic <code>/diffbot/mobile_base_controller/odom</code>. With <code>ekf:=true</code>, it has to read <a href="#reading-a-launch-file-without-starting-it"><code>FILTERED_TOPIC</code></a>, the topic <code>/diffbot/odometry/filtered</code>.</p>
+<details class="example">
+<summary>The check of one planner, the helper <code>remapping()</code> and the two tests</summary>
+<p>In a launch file, the planner's node gets the topic as a remapping of the name <code>odom</code>. The excerpt shows what the test asserts about this remapping, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L151-L157"><code>test_ekf_switch.py</code>, lines 151–157</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: assert_planner_odometry()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_planner_odometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">:</span> <span class="n">LaunchConfiguration</span><span class="p">,</span> <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                            <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Assert that the planner node_name reads its odometry from topic."""</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span>
+                  <span class="s2">"</span><span class="si">{}</span><span class="s2"> doesn't start </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">node_name</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">remapping</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">],</span> <span class="s1">'odom'</span><span class="p">),</span>
+                     <span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">'s odom"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">node_name</span><span class="p">))</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L151-L157"><code>assert_planner_odometry()</code></a> checks that the planner's node is among the nodes and that its name <code>odom</code> is remapped to <code>topic</code>.</p>
 <p><code>assert_planner_odometry()</code> reads the remapping with the helper <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L77-L79"><code>remapping()</code></a>. The excerpt shows the helper, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L77-L79"><code>test_ekf_switch.py</code>, lines 77–79</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: remapping()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">77</span>
 <span class="normal">78</span>
@@ -5383,13 +5475,17 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_planner_odometry</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="n">MOVE_BASE_NODE</span><span class="p">,</span> <span class="s1">'/other/odom'</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong>Three files with <code>move_base</code>:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch"><code>move_base.launch</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot_navigation.launch"><code>diffbot_navigation.launch</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot_hw.launch"><code>diffbot_hw.launch</code></a> of <code>diffbot_navigation</code> start the planner <code>/move_base</code>, the test's <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L37"><code>MOVE_BASE_NODE</code></a>.</li>
-<li><strong>One file with Move Base Flex:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_mbf/launch/amcl_demo.launch"><code>amcl_demo.launch</code></a> of <code>diffbot_mbf</code> starts the planner <code>/move_base_flex</code>, the test's <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L38"><code>MOVE_BASE_FLEX_NODE</code></a>.</li>
+<li><strong>Three files with <code>move_base</code>:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch"><code>move_base.launch</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot_navigation.launch"><code>diffbot_navigation.launch</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot_hw.launch"><code>diffbot_hw.launch</code></a> of <code>diffbot_navigation</code> start the planner <code>/move_base</code>, the test's <a href="#reading-a-launch-file-without-starting-it"><code>MOVE_BASE_NODE</code></a>.</li>
+<li><strong>One file with Move Base Flex:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_mbf/launch/amcl_demo.launch"><code>amcl_demo.launch</code></a> of <code>diffbot_mbf</code> starts the planner <code>/move_base_flex</code>, the test's <a href="#reading-a-launch-file-without-starting-it"><code>MOVE_BASE_FLEX_NODE</code></a>.</li>
 <li><strong>An explicit topic wins:</strong> <code>move_base.launch</code> has an <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/move_base.launch#L8"><code>odom_topic</code></a> argument. Its default is the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s topic with <code>ekf:=true</code> and the controller's topic without it. With <code>odom_topic:=/other/odom</code> and <code>ekf:=true</code>, the planner reads <code>/other/odom</code>.</li>
 </ul>
 <p>These launch files start no <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, so the test checks nothing else in them.</p>
+</details>
 <h2 id="the-simulation-with-navigation">The simulation with navigation</h2>
-<p><code>diffbot_navigation</code>'s <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot.launch"><code>diffbot.launch</code></a> starts the simulation and a planner together and passes <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> to both. The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L189-L194"><code>test_ekf_switch.py</code>, lines 189–194</a>:</p>
+<p><code>diffbot_navigation</code>'s <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_navigation/launch/diffbot.launch"><code>diffbot.launch</code></a> starts the simulation and a planner together and passes <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a> to both.</p>
+<details class="example">
+<summary>The test</summary>
+<p>The excerpt shows the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L189-L194"><code>test_ekf_switch.py</code>, lines 189–194</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">test_ekf_switch.py: the simulation with navigation</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
@@ -5402,51 +5498,8 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_controller_odom_tf</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assert_planner_odometry</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="n">MOVE_BASE_NODE</span><span class="p">,</span> <span class="n">FILTERED_TOPIC</span><span class="p">)</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>With <code>ekf:=true</code>, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the validator start, <a href="https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251"><code>enable_odom_tf</code></a> is <code>False</code>, and <code>/move_base</code> reads <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py#L36"><code>FILTERED_TOPIC</code></a>, the topic <code>/diffbot/odometry/filtered</code>. <code>open_rviz:=false</code> leaves RViz out of what the loader reads.</p>
-<h2 id="run-it">Run it</h2>
-<p>catkin runs the test with the repository's other tests. The excerpt shows where <code>diffbot_gazebo</code> registers the test, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/CMakeLists.txt#L225-L226"><code>CMakeLists.txt</code>, lines 225–226</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_gazebo/CMakeLists.txt: the test's registration</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
-<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># The ekf switch in the launch files, both ways, without starting them</span>
-<span class="nb">catkin_add_nosetests</span><span class="p">(</span><span class="s">test/test_ekf_switch.py</span><span class="p">)</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>Run the test alone from a shell in the built workspace of the <a href="../../../../../development/dev-container/">dev container</a>:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/catkin_ws</span>
-<span class="go">source devel/setup.bash</span>
-<span class="go">cd src/diffbot/diffbot_gazebo/test</span>
-<span class="go">python3 -m unittest -v test_ekf_switch</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>The test needs no ROS master and no Gazebo. In a run at the commit <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py"><code>27d72a4</code></a> in the dev container's image, the test printed one line for each of its five tests, and <code>OK</code> at the end because every test passed:</p>
-<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">test_bringup_starts_the_ekf_and_the_validator_only_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
-<span class="go">test_navigation_simulation_starts_the_ekf_for_its_planner_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
-<span class="go">test_planner_reads_an_explicit_odom_topic_also_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
-<span class="go">test_planners_read_the_filtered_odometry_only_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
-<span class="go">test_simulation_starts_the_ekf_and_the_validator_only_with_ekf_true (test_ekf_switch.TestEkfSwitch) ... ok</span>
-
-<span class="go">----------------------------------------------------------------------</span>
-<span class="go">Ran 5 tests in 6.574s</span>
-
-<span class="go">OK</span>
-</code></pre></div></td></tr></tbody></table></div>
-<p>The test loads the launch files of <code>diffbot_bringup</code>, <code>diffbot_navigation</code> and <code>diffbot_mbf</code>, so <code>diffbot_gazebo</code>'s <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/package.xml"><code>package.xml</code></a> lists these three packages as test dependencies.</p>
-<h2 id="what-the-test-doesnt-show">What the test doesn't show</h2>
-<ul>
-<li><strong>Running nodes:</strong> the loader reads the launch files. Nothing starts, so the test can't see whether a node runs, publishes or finds its transforms.</li>
-<li><strong><code>robot_state_publisher</code> in every file:</strong> the test asserts <code>robot_state_publisher</code> for the two bringup files and for the two simulation files named <code>diffbot.launch</code>, of <code>diffbot_gazebo</code> and of <code>diffbot_control</code>. The test doesn't assert the node for <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_bringup/launch/minimal.launch"><code>minimal.launch</code></a>, which doesn't start <code>robot_state_publisher</code>.</li>
-<li><strong><code>ekf:=false</code> for the planners:</strong> for the planners' launch files, the test loads the default and <code>ekf:=true</code>.</li>
-<li><strong>Other ways to start the robot:</strong> the <a href="../../../../../processing_units/robot-container/usage/">robot container</a> starts <a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_bringup/launch/bringup.launch"><code>bringup.launch</code></a> without <a href="../../#what-the-launch-files-do-with-ekf"><code>ekf</code></a>. The test doesn't read the container's settings.</li>
-</ul>
+<p>With <code>ekf:=true</code>, the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and the validator start, <a href="../../#what-the-launch-files-do-with-ekf"><code>enable_odom_tf</code></a> is <code>False</code>, and <code>/move_base</code> reads <a href="#reading-a-launch-file-without-starting-it"><code>FILTERED_TOPIC</code></a>, the topic <code>/diffbot/odometry/filtered</code>. <code>open_rviz:=false</code> leaves RViz out of what the loader reads.</p>
+</details>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->
