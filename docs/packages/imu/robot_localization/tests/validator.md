@@ -95,7 +95,7 @@ The method runs two steps, each in a method of its own: first [`drop_reason()`](
 
 `drop_reason()` works in three steps:
 
-1. **No clock:** if a sample arrives at the ROS time 0 s, lines 288 and 289 return [`DropReason.NO_CLOCK`](#dropreason-the-reasons-to-drop-a-sample) at once. The validator reads 0 s as "no clock yet", as the comment in lines 286 and 287 says, so the method skips step 2, the clock check. The clock check compares the current ROS time with `last_checked_ros_time`, the ROS time of the last clock check. At startup, before the first message on `/clock`, a new validator has no earlier check. Now suppose that the validator last checked the clock at 100 s and a clock publisher sends 0 s. A sample that arrives at 0 s leaves the validator's attributes as they are: 100 s in `last_checked_ros_time`, and the last valid sample's stamp and arrival time in `last_valid_stamp` and `last_valid_arrival_time`. If the next check reads 0.02 s, the check sets `last_valid_stamp` and `last_valid_arrival_time` to `None`, because 0.02 s is earlier than 100 s. That next check can come from a sample or from a diagnostics report. [A test in Before the checks: no clock](#before-the-checks-no-clock) and [two tests of the silence](#testsecondssincelastvalidsample-the-silence) check that a sample at 0 s changes none of the three attributes.
+1. **No clock:** if a sample arrives at the ROS time 0 s, lines 288 and 289 return [`DropReason.NO_CLOCK`](#dropreason-the-reasons-to-drop-a-sample) at once. The validator reads 0 s as "no clock yet", as the comment in lines 286 and 287 says, so the method skips step 2, the clock check. The clock check compares the current ROS time with `last_checked_ros_time`, the ROS time of the last clock check. At startup, before the first message on `/clock`, a new validator has no earlier check. Now suppose that the validator last checked the clock at 100 s and a clock publisher sends 0 s. A sample that arrives at 0 s leaves the validator's attributes as they are: 100 s in `last_checked_ros_time`, and the last valid sample's stamp and arrival time in `last_valid_stamp` and `last_valid_arrival_time`. If the next check reads 0.02 s, the check sets `last_valid_stamp` and `last_valid_arrival_time` to `None`, because 0.02 s is earlier than 100 s. That next check can come from a sample or from a diagnostics report. [A test in Before the checks: no clock](#before-the-checks-no-clock) and [two tests of the silence](#after-a-sample-at-the-ros-time-0) check that a sample at 0 s changes none of the three attributes.
 2. **A clock that went back:** [`clear_last_valid_sample_times_if_clock_went_back(now)`](#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back) clears `last_valid_stamp` and `last_valid_arrival_time` if `now` is earlier than `last_checked_ros_time`. The method then stores `now` in `last_checked_ros_time` for the next clock check.
 3. **The checks:** the loop calls the checks in the tuple `sample_checks`, one after the other. The first check that returns a reason ends the loop, and the method returns that reason. The later checks don't run. When every check has returned `None`, the method returns `None`.
 
@@ -306,7 +306,7 @@ So the validator rejects every sample at the ROS time 0 before the checks, with 
 2. **The 2nd call, lines 128 and 129, at `ROS_TIME_ZERO`, 0 s:** a sample stamped `SHORTLY_BEFORE` before `NOW`, 99.99 s. The validator returns `NO_CLOCK` before the clock check. Both attributes stay 100 s.
 3. **The 3rd call, lines 133 and 134, at `NOW` plus `ONE_MILLISECOND`, 100.001 s:** a sample stamped `NOW` again. The clock check finds 100.001 s later than `last_checked_ros_time`, 100 s, and stores 100.001 s. `last_valid_stamp` is still 100 s, so [check 5](#check-5-the-order-of-the-stamps) rejects the sample as `NOT_NEWER`.
 
-The third call's own clock check finds no clock that went back, because its ROS time is not earlier than `NOW`. So only the second call could have changed `last_valid_stamp`. A validator that checked the clock before it returned `NO_CLOCK` would take 0 s for a clock that went back and set its attributes `last_valid_stamp` and `last_valid_arrival_time` to `None`. A validator that stored the second sample's stamp would compare the third stamp with 99.99 s. Either would accept the third sample, and the test fails for both. [Two tests of the silence](#testsecondssincelastvalidsample-the-silence) check the other two attributes.
+The third call's own clock check finds no clock that went back, because its ROS time is not earlier than `NOW`. So only the second call could have changed `last_valid_stamp`. A validator that checked the clock before it returned `NO_CLOCK` would take 0 s for a clock that went back and set its attributes `last_valid_stamp` and `last_valid_arrival_time` to `None`. A validator that stored the second sample's stamp would compare the third stamp with 99.99 s. Either would accept the third sample, and the test fails for both. [Two tests of the silence](#after-a-sample-at-the-ros-time-0) check the other two attributes.
 
 ### Check 1: the frame
 
@@ -406,18 +406,49 @@ The figure shows the two tests, each on its own axis at the new ROS time:
 
 The [validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) report an error when no sample was forwarded for too long. The time behind this error comes from [`seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence), which returns the silence $t - t_\text{valid}$ in s, or `None` when no sample was valid since the clock last went back.
 
-The class derives from [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-assertions) too. So each test starts with a new validator, and the tests give the validator their samples through `assert_accepted()` and `assert_rejected()`. The class adds a helper of its own, `assert_silence()`, for the comparison of the silence. The excerpt shows the class's first lines, the helper and the first three tests, from [`test_imu_validator.py`, lines 216–242]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L216-L242):
+The class derives from [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-assertions) too. So each test starts with a new validator, and the tests give the validator their samples through `assert_accepted()` and `assert_rejected()`. The class adds a helper of its own, `assert_silence()`, for the comparison of the silence. The excerpt shows the class's first lines and the helper, from [`test_imu_validator.py`, lines 216–224]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L216-L224):
 
-```python title="test_imu_validator.py: the silence grows" linenums="216"
---8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:216:242"
+```python title="test_imu_validator.py: the class and assert_silence()" linenums="216"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:216:224"
 ```
 
-- **`assert_silence()`:** calls `seconds_since_last_valid_sample(now)` and compares the result with `expected`. `assertAlmostEqual()` rounds the difference of the two numbers to seven decimal places, its default, and expects zero.
+`assert_silence(expected, now)` calls `seconds_since_last_valid_sample(now)` and compares the result with `expected`. If the method returns `None`, line 223 fails the test with a message that names the expected silence. Otherwise `assertAlmostEqual()` rounds the difference of the two numbers to seven decimal places, its default, and expects zero.
+
+The class's nine tests come in four groups, each with a figure. A figure draws each test of its group in a drawing of its own. Read the drawings as follows:
+
+- **A row:** one call of the test, in the order of the test's lines, from top to bottom. The list below the drawing gives each call with the same number, the test's names for its times and their values.
+- **A circle:** a sample that the test gives the validator. A solid green circle is a sample that the validator accepts. A dashed red circle is a sample that the validator rejects, with the drop reason beside it.
+- **A square:** a call of `seconds_since_last_valid_sample()`, with `None` beside it or the silence that it returns.
+- **The axis:** the ROS time $t$ of the calls. Each mark stands at the ROS time of its call. Two slanted strokes leave out a stretch of time, and each part of the axis between them has its own scale.
+- **A triangle:** a sample's stamp $t_s$, where it differs from the ROS time of the sample's arrival. A dotted line joins the triangle to the sample's mark.
+- **A green line:** `last_valid_arrival_time`, $t_\text{valid}$. The line runs down from the valid sample that stored it. A cross ends the line above the row of the call that sets the attribute to `None`.
+- **A dashed gray line:** `last_checked_ros_time`, the ROS time of the last clock check. The line runs down from each call that checks the clock to the next call that checks it. A sample at the ROS time 0 doesn't check the clock, so the line passes its row. Where the dashed line and the green line stand at the same time, the dashed line lies on the green one.
+- **An arrow to the left, "back":** the call's ROS time is earlier than `last_checked_ros_time`, so the clock went back.
+- **A dimension line:** the silence $t - t_\text{valid}$ that a call of `seconds_since_last_valid_sample()` returns, with the test's name for the expected value.
+
+### Before and after a valid sample
+
+The first three tests show where the silence counts from. The first test asks a new validator for the silence. The second asks after one valid sample, and the third after a valid sample and a rejected one:
+
+--8<-- "includes/localization-test-validator-silence-grows.html"
+
+The excerpt shows the three tests, from [`test_imu_validator.py`, lines 226–242]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L226-L242):
+
+```python title="test_imu_validator.py: the silence grows" linenums="226"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:226:242"
+```
+
 - **Before the first valid sample:** the method returns `None`.
 - **After a valid sample:** the valid sample is stamped `SHORTLY_BEFORE`, 0.01 s, before it arrives at `NOW`. `SILENCE`, 3.5 s, after the arrival, the method returns 3.5 s and not 3.51 s, because the silence counts from the arrival and not from the stamp. `SILENCE` has a fraction of a second, so a silence counted in whole seconds would fail too.
-- **While samples are rejected:** a sample that the validator rejects with [`DropReason.TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample) doesn't end the silence. `SILENCE`, 3.5 s, after the valid sample, the method returns 3.5 s.
+- **While samples are rejected:** a sample that the validator rejects with [`DropReason.TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample) doesn't end the silence. The rejected sample is stamped `ONE_SECOND` after `NOW`, later than the valid sample's stamp, so [check 5](#check-5-the-order-of-the-stamps) would let it through. The sample arrives `SILENCE` after `NOW`, when its stamp is 2.5 s old, more than `MAX_AGE`. So check 4 rejects the sample before check 5 runs. At the same ROS time, `SILENCE`, 3.5 s, after the valid sample, the method returns 3.5 s.
 
-The next two tests show that a sample at the ROS time 0 leaves the other two attributes as they are. The excerpt shows them, from [`test_imu_validator.py`, lines 244–260]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L244-L260):
+### After a sample at the ROS time 0
+
+A sample at the ROS time 0 returns [`NO_CLOCK`](#dropreason-the-reasons-to-drop-a-sample) before the clock check and leaves the validator's attributes as they are. A test in [Before the checks: no clock](#before-the-checks-no-clock) checks this for `last_valid_stamp`. The next two tests check the other two attributes, `last_valid_arrival_time` and `last_checked_ros_time`. Both give the validator the same two samples, a valid one at `NOW` and one at the ROS time 0. They differ in the ROS time at which they ask for the silence:
+
+--8<-- "includes/localization-test-validator-silence-zero.html"
+
+The excerpt shows the two tests, from [`test_imu_validator.py`, lines 244–260]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L244-L260):
 
 ```python title="test_imu_validator.py: the silence after a sample at 0 s" linenums="244"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:244:260"
@@ -426,7 +457,13 @@ The next two tests show that a sample at the ROS time 0 leaves the other two att
 - **The arrival time:** a valid sample arrives at `NOW`, and a sample stamped 99.99 s, `SHORTLY_BEFORE` before `NOW`, returns `NO_CLOCK` at `ROS_TIME_ZERO`. At 100.1 s, `RECENT` after `NOW`, the method returns 0.1 s, counted from the arrival at `NOW`. A validator that cleared `last_valid_arrival_time` at 0 s would return `None`, and one that stored the stamp 99.99 s there would return 0.11 s.
 - **The last clock check:** the same two calls, then the method is asked at 99.999 s, `ONE_MILLISECOND` before `NOW`. `last_checked_ros_time` is still 100 s, so the clock went back, and the method returns `None`. A validator that stored 0 s or the stamp 99.99 s as the last clock check would find no clock that went back and return −0.001 s.
 
-The next three tests are about a clock that goes back while no valid sample arrives. The excerpt shows them, from [`test_imu_validator.py`, lines 262–288]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L262-L288):
+### After the clock goes back
+
+The next three tests are about a clock that goes back while no valid sample arrives. In each test, a valid sample arrives at `NOW`, and a later call has an earlier ROS time:
+
+--8<-- "includes/localization-test-validator-silence-clock-back.html"
+
+The excerpt shows the three tests, from [`test_imu_validator.py`, lines 262–288]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L262-L288):
 
 ```python title="test_imu_validator.py: the silence after the clock goes back" linenums="262"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:262:288"
@@ -436,7 +473,13 @@ The next three tests are about a clock that goes back while no valid sample arri
 - **Back by less than the silence:** a valid sample arrives at the ROS time `NOW`, 100 s. The method is asked at the ROS time 103.5 s, `SILENCE` after `NOW`, and returns a silence of 3.5 s. Then the method is asked at 100.1 s, `NOW` plus `RECENT`. The clock went back by 3.4 s, less than the silence, so the new ROS time is still later than the arrival of the valid sample, and $t - t_\text{valid}$ would be 0.1 s, a silence that [`health()`](#testhealth-the-status) reports as OK. The method returns `None` all the same, and at 101 s, `ONE_SECOND` after `NOW`, as well. A sample from before the clock went back says nothing about the IMU in the new time.
 - **Shown by a rejected sample:** a valid sample arrives at the ROS time `NOW`, 100 s, and the method returns a silence of 3.5 s at 103.5 s. Then the clock goes back. The first call in the new time is a sample that arrives at 100.1 s, `NOW` plus `RECENT`, stamped 99 s, `ONE_SECOND` before `NOW`, which the validator rejects as too old. The validator checks the clock also for a sample that a check rejects, so in this call the validator sets its attributes `last_valid_stamp` and `last_valid_arrival_time` to `None`. The method returns `None` at 104.5 s, `SILENCE` plus `ONE_SECOND` after `NOW`. This last call is later than the call at 103.5 s, so its own clock check finds no clock that went back. Only the rejected sample's call can have cleared the two attributes. A sample at the ROS time 0 would not show that the clock went back: the validator rejects such a sample before the clock check.
 
-The last test of the class follows the silence through a whole restart. The excerpt shows the test, from [`test_imu_validator.py`, lines 290–303]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L290-L303):
+### The first valid sample after the clock went back
+
+The last test of the class follows the silence through a whole restart, from a valid sample before the clock goes back to the first valid sample after it:
+
+--8<-- "includes/localization-test-validator-silence-restart.html"
+
+The excerpt shows the test, from [`test_imu_validator.py`, lines 290–303]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L290-L303):
 
 ```python title="test_imu_validator.py: the silence starts again" linenums="290"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:290:303"

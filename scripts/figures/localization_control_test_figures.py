@@ -1,11 +1,13 @@
 """Generate the figures of the two test pages of diffbot_control's EKF tests as inline SVG.
 
 The pages are docs/packages/imu/robot_localization/tests/validator.md and stepped-clock.md. The
-script writes eight includes that follow the site's light and dark colors. The first shows the
+script writes twelve includes that follow the site's light and dark colors. The first shows the
 validator's decision about one sample. The next three show the samples that the unit tests in
 diffbot_control/test/test_imu_validator.py of the diffbot repository give the validator, on time
 axes, one include for each section of validator.md that has such a figure. The samples' letters
-A to M run through these three includes:
+A to M run through these three includes. The four silence includes show the tests of
+seconds_since_last_valid_sample(), one drawing per test, with the test's calls in rows above
+the ROS time's axis:
 
 - includes/localization-test-validator-decision.html: the steps of the validator's
   drop_reason_or_record() for one sample, with the drop reason of each step and the two ends.
@@ -14,6 +16,9 @@ A to M run through these three includes:
   stamp, E to I.
 - includes/localization-test-validator-clock-back.html: the clock goes back, to 0.02 s with J
   and K, and to 50 s with L and M.
+- includes/localization-test-validator-silence-grows.html, -silence-zero.html,
+  -silence-clock-back.html and -silence-restart.html: the silence before and after a valid
+  sample, after a sample at the ROS time 0, after the clock went back, and when it starts again.
 - includes/localization-test-stepped-clock-step.html: the messages of one step of
   diffbot_control/test/test_ekf_synthetic.py between the test, the validator and the EKF,
   numbered as the docstring of the test's step() numbers what one step does.
@@ -40,7 +45,9 @@ positions stretched: Layout and layout_figure().
 The drawing of one step keeps its one layout, because its three nodes need no more width.
 
 The tests' constants are copied here, each with the constant's name, because this repository
-can't import the tests. What runs of the stepped-clock test printed or recorded is measured
+can't import the tests. So are the silence tests' calls. tests/test_localization_figures.py
+reads the test file at the commit that mkdocs.yml pins and checks that the copies equal it.
+What runs of the stepped-clock test printed or recorded is measured
 data. It is read from scripts/figures/data/localization-stepped-clock-test-runs.jsonl, one line
 per run, with the run's scenario, the commit of the diffbot repository, the date and the
 environment. A line without a scenario is a run of invalid_imu_samples from before the test
@@ -54,14 +61,17 @@ Run from the repository root after changing a figure:
     python3 scripts/figures/localization_control_test_figures.py
 """
 
+import functools
 import json
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
+from typing import Union
 
 from localization_figures import band
 from localization_figures import CHECKS_WIDTH
@@ -106,6 +116,13 @@ REPEAT_DELAY_MS = 1  # ONE_MILLISECOND, from the arrival of the first sample to 
 # test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back
 RESTART_S = 50  # RESTART
 OLD_AFTER_RESTART_S = 1  # ONE_SECOND, how much earlier than RESTART sample L is stamped
+# TestSecondsSinceLastValidSample: the constants that its tests use, by their names in the test
+# file, in s. The tests write each ROS time and each stamp as a sum or difference of these names
+SILENCE_TEST_TIMES: Dict[str, float] = {
+    'NOW': NOW_S, 'ROS_TIME_ZERO': 0, 'RESTART': RESTART_S, 'SILENCE': 3.5, 'RECENT': 0.1,
+    'ONE_SECOND': 1.0, 'ONE_MILLISECOND': 0.001, 'SHORTLY_BEFORE': SHORTLY_BEFORE_S,
+    'MAX_FUTURE': MAX_FUTURE_S,
+}
 
 # The four time axes of the validator figure. Above each axis is a band, ZONE_HEIGHT high,
 # that holds the samples' marks
@@ -143,6 +160,20 @@ BACK_FIRST_CUT_X = 54
 BACK_NOW_X = 160
 BACK_SECOND_CUT_X = 222
 BACK_FUTURE_X = 254  # of the sample from before the clock went back
+# The silence tests: one row per call of a test, from top to bottom in the order of the calls,
+# above an axis of the ROS time. The axis has parts, each to its own scale, with a cut between
+# two parts
+SILENCE_FIRST_ROW_Y = 22
+SILENCE_ROW_PITCH = 30
+SILENCE_AXIS_BELOW_LAST_ROW = 24  # from the last row down to the axis
+SILENCE_CUT_GAP = 18  # between two parts of the axis, with the cut in the middle
+SILENCE_LABEL_LINE = 12  # between the two lines of the axis's labels, where labels would touch
+STAMP_MARK_HALF_WIDTH = 4.5  # of the triangle at a sample's stamp
+CLEARED_HALF_SIZE = 3.5  # of the cross at the end of a cleared arrival time
+CLEARED_ABOVE_ROW = 8  # from the row of the call that clears it up to that cross
+STAMP_BELOW_ROW = 9  # of a stamp whose row's line holds an arrow
+LABEL_GAP = 4  # from a mark to the text beside it
+CHARACTER_WIDTH = 6.2  # an estimate for the labels' text, 11 px, in units of the drawing
 
 # test_ekf_synthetic.py's constants
 STEP_S = 0.02  # STEP
@@ -337,6 +368,22 @@ ROBOT_RATES_RULES = (
 )
 
 
+# The silence tests' drawings and legends only
+SILENCE_RULES = (
+    ('.lv-fig .valid-line', 'fill:none;stroke:var(--lv-good);stroke-width:2.2'),
+    ('.lv-fig .cleared', 'fill:none;stroke:var(--lv-good);stroke-width:2'),
+    ('.lv-fig .check-line', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.3;'
+                            'stroke-dasharray:2.5 2.5'),
+    ('.lv-fig .back-line', f'fill:none;stroke:{FG};stroke-width:1.4'),
+    ('.lv-fig .back-head', f'fill:{FG};stroke:none'),
+    ('.lv-fig .stamp-mark', f'fill:{BG};stroke:{FG};stroke-width:1.3'),
+    ('.lv-fig .stamp-link', f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:1 2'),
+    ('.lv-fig .query-mark', f'fill:{BG};stroke:{FG};stroke-width:1.8'),
+    ('.lv-fig .silence', f'fill:none;stroke:{FG};stroke-width:1.2'),
+    ('.lv-legend .lv-mark.lv-query', f'border:2px solid {FG};border-radius:3px'),
+)
+
+
 class Layout(NamedTuple):
     """One of the two layouts of a drawing with a time axis.
 
@@ -418,6 +465,133 @@ class Run(NamedTuple):
     end_of_phase_2: float
     end_of_phase_6: float
     phase_6_steps: int  # the steps until the filter published again, plus AFTER_RESET_STEPS
+
+
+class SampleCall(NamedTuple):
+    """A sample that a silence test gives the validator, by assert_accepted() or assert_rejected().
+
+    The times are written as the test writes them, with the names of SILENCE_TEST_TIMES: for
+    example 'NOW - SHORTLY_BEFORE' for NOW - seconds(SHORTLY_BEFORE).
+    """
+
+    stamp: str  # the sample's stamp, make_imu_sample()'s argument
+    now: str  # the ROS time of the call
+    reason: str = ''  # the DropReason member that assert_rejected() expects, '' if accepted
+    frame_id: str = ''  # the sample's frame where the test sets one, '' for FRAME
+
+
+class SilenceQuery(NamedTuple):
+    """A call of seconds_since_last_valid_sample() in a silence test, and what the test expects."""
+
+    now: str  # the ROS time of the call
+    silence: Optional[str]  # assert_silence()'s expected value, None for assertIsNone()
+
+
+SilenceCall = Union[SampleCall, SilenceQuery]
+
+
+class AxisPart(NamedTuple):
+    """A part of a silence test's time axis, to its own scale. A cut lies between two parts."""
+
+    start: float  # s, the ROS time at the part's left end
+    end: float  # s
+    width: float  # in the narrow layout
+
+
+class SilenceTest(NamedTuple):
+    """A test of TestSecondsSinceLastValidSample: its calls in their order, and its drawing."""
+
+    name: str  # the test method's name
+    title: str  # the heading above the test's drawing
+    calls: Tuple[SilenceCall, ...]
+    axis_parts: Tuple[AxisPart, ...]  # from left to right
+
+
+# The tests of TestSecondsSinceLastValidSample in test_imu_validator.py, in the file's order,
+# with their calls in the order of the test's lines
+SILENCE_TESTS = (
+    SilenceTest(
+        'test_silence_is_none_before_the_first_valid_sample', 'Before the first valid sample',
+        (SilenceQuery('NOW', None),),
+        (AxisPart(99.5, 100.5, 260),)),
+    SilenceTest(
+        'test_silence_is_the_time_since_the_last_valid_sample', 'After a valid sample',
+        (SampleCall('NOW - SHORTLY_BEFORE', 'NOW'), SilenceQuery('NOW + SILENCE', 'SILENCE')),
+        (AxisPart(99.97, 100.03, 150), AxisPart(103.4, 103.6, 90))),
+    SilenceTest(
+        'test_silence_keeps_growing_while_samples_are_rejected', 'While samples are rejected',
+        (SampleCall('NOW', 'NOW'),
+         SampleCall('NOW + ONE_SECOND', 'NOW + SILENCE', 'TOO_OLD'),
+         SilenceQuery('NOW + SILENCE', 'SILENCE')),
+        (AxisPart(99.7, 103.8, 260),)),
+    SilenceTest(
+        'test_silence_keeps_growing_after_a_sample_at_ros_time_zero', 'The arrival time',
+        (SampleCall('NOW', 'NOW'),
+         SampleCall('NOW - SHORTLY_BEFORE', 'ROS_TIME_ZERO', 'NO_CLOCK'),
+         SilenceQuery('NOW + RECENT', 'RECENT')),
+        (AxisPart(-0.1, 0.1, 30), AxisPart(99.97, 100.13, 220))),
+    SilenceTest(
+        'test_silence_is_none_before_the_last_check_after_a_sample_at_ros_time_zero',
+        'The last clock check',
+        (SampleCall('NOW', 'NOW'),
+         SampleCall('NOW - SHORTLY_BEFORE', 'ROS_TIME_ZERO', 'NO_CLOCK'),
+         SilenceQuery('NOW - ONE_MILLISECOND', None)),
+        (AxisPart(-0.1, 0.1, 30), AxisPart(99.985, 99.995, 60),
+         AxisPart(99.9965, 100.0015, 140))),
+    SilenceTest(
+        'test_silence_is_none_after_the_clock_goes_back_without_samples', 'Without samples',
+        (SampleCall('NOW', 'NOW'), SilenceQuery('RESTART', None),
+         SilenceQuery('RESTART + SILENCE', None)),
+        (AxisPart(49.7, 53.8, 190), AxisPart(99.8, 100.2, 60))),
+    SilenceTest(
+        'test_silence_is_none_after_the_clock_goes_back_less_than_the_silence',
+        'Back by less than the silence',
+        (SampleCall('NOW', 'NOW'), SilenceQuery('NOW + SILENCE', 'SILENCE'),
+         SilenceQuery('NOW + RECENT', None), SilenceQuery('NOW + ONE_SECOND', None)),
+        (AxisPart(99.9, 101.2, 180), AxisPart(103.3, 103.7, 70))),
+    SilenceTest(
+        'test_silence_is_none_when_a_rejected_sample_shows_the_clock_went_back',
+        'Shown by a rejected sample',
+        (SampleCall('NOW', 'NOW'), SilenceQuery('NOW + SILENCE', 'SILENCE'),
+         SampleCall('NOW - ONE_SECOND', 'NOW + RECENT', 'TOO_OLD'),
+         SilenceQuery('NOW + SILENCE + ONE_SECOND', None)),
+        (AxisPart(98.9, 99.1, 30), AxisPart(99.95, 100.25, 90), AxisPart(103.3, 104.7, 100))),
+    SilenceTest(
+        'test_silence_restarts_with_the_first_valid_sample_after_the_clock_goes_back',
+        'The silence starts again',
+        (SampleCall('NOW', 'NOW'),
+         SampleCall('NOW + MAX_FUTURE', 'RESTART', 'FROM_THE_FUTURE'),
+         SampleCall('RESTART', 'RESTART', 'WRONG_FRAME', 'base_link'),
+         SilenceQuery('RESTART + ONE_SECOND', None),
+         SampleCall('RESTART + SILENCE', 'RESTART + SILENCE'),
+         SilenceQuery('RESTART + SILENCE + RECENT', 'RECENT')),
+        (AxisPart(49.75, 51.25, 80), AxisPart(53.4, 53.7, 90), AxisPart(99.95, 100.1, 60))),
+)
+# The figures of the silence section: the include, and the tests that each shows, by name
+SILENCE_FIGURES = (
+    ('includes/localization-test-validator-silence-grows.html', SILENCE_TESTS[0:3]),
+    ('includes/localization-test-validator-silence-zero.html', SILENCE_TESTS[3:5]),
+    ('includes/localization-test-validator-silence-clock-back.html', SILENCE_TESTS[5:8]),
+    ('includes/localization-test-validator-silence-restart.html', SILENCE_TESTS[8:9]),
+)
+
+
+class ValidatorAttributes(NamedTuple):
+    """The two attributes of the validator that the silence depends on, ROS times in s."""
+
+    last_valid_arrival_time: Optional[float]
+    last_checked_ros_time: Optional[float]
+
+
+class TracedCall(NamedTuple):
+    """A call of a silence test, and what the validator does in it."""
+
+    call: SilenceCall
+    now: float  # s, the ROS time of the call
+    checks_the_clock: bool  # False for a sample at the ROS time 0: it returns NO_CLOCK before
+    clock_went_back: bool
+    after: ValidatorAttributes  # the attributes after the call
+    silence: Optional[float]  # s, what a query returns, None also for a sample
 
 
 class Phases(NamedTuple):
@@ -1039,12 +1213,463 @@ def write_validator_clock_back() -> None:
         LAYOUT_FIGURE_RULES, LAYOUT_FIGURE_CLASSES)
 
 
+def time_of(expression: str) -> float:
+    """Return the time in s of a sum or difference of SILENCE_TEST_TIMES' names.
+
+    For example 'NOW + SILENCE' is 103.5 s.
+    """
+    first, *rest = expression.split(' ')
+    total = SILENCE_TEST_TIMES[first]
+    for sign, name in zip(rest[::2], rest[1::2]):
+        if sign not in '+-':
+            raise ValueError(f'{expression} is not a sum or difference of names')
+        total += SILENCE_TEST_TIMES[name] if sign == '+' else -SILENCE_TEST_TIMES[name]
+    return round(total, 9)
+
+
+def shown(expression: str) -> str:
+    """Return a time's expression as the page writes it, with a minus sign."""
+    return expression.replace(' - ', ' − ')
+
+
+def seconds_text(value: float) -> str:
+    """Return a time in s as a figure writes it, for example 99.999 s."""
+    return f'{round(value, 6):g} s'
+
+
+def trace_silence_test(test: SilenceTest) -> List[TracedCall]:
+    """Return each call of a test with what the validator does in it, and check the test's results.
+
+    A model of what ImuValidator in imu_validator.py does with the two attributes that
+    seconds_since_last_valid_sample() reads:
+
+    1. A sample at the ROS time 0 returns NO_CLOCK and changes neither attribute.
+    2. Every other call checks the clock: if its ROS time is earlier than
+       last_checked_ros_time, the clock went back, and the call sets last_valid_arrival_time to
+       None. Then the call stores its ROS time in last_checked_ros_time.
+    3. A sample that the validator accepts stores its ROS time in last_valid_arrival_time.
+    4. A query returns its ROS time minus last_valid_arrival_time, or None.
+
+    A ValueError says that the model and the test's expected results disagree.
+    """
+    attributes = ValidatorAttributes(None, None)
+    traced = []
+    for call in test.calls:
+        now = time_of(call.now)
+        checks_the_clock = isinstance(call, SilenceQuery) or now != 0
+        last_check = attributes.last_checked_ros_time
+        went_back = checks_the_clock and last_check is not None and now < last_check
+        arrival = None if went_back else attributes.last_valid_arrival_time
+        if isinstance(call, SampleCall) and not call.reason:
+            arrival = now
+        if isinstance(call, SampleCall) and (call.reason == 'NO_CLOCK') == checks_the_clock:
+            raise ValueError(f'{test.name}: NO_CLOCK is for a sample at the ROS time 0 only')
+        silence = None
+        if isinstance(call, SilenceQuery):
+            silence = None if arrival is None else round(now - arrival, 9)
+            expected = None if call.silence is None else time_of(call.silence)
+            if silence != expected:
+                raise ValueError(f'{test.name}: the model returns {silence} at {call.now}, the '
+                                 f'test expects {call.silence}')
+        attributes = ValidatorAttributes(arrival, now if checks_the_clock else last_check)
+        traced.append(TracedCall(call, now, checks_the_clock, went_back, attributes, silence))
+    return traced
+
+
+def axis_part_x(parts: Sequence[AxisPart], index: int) -> float:
+    """Return the x position of the left end of an axis part."""
+    return AXIS_START_X + sum(part.width + SILENCE_CUT_GAP for part in parts[:index])
+
+
+def silence_x(parts: Sequence[AxisPart], time: float) -> float:
+    """Return the x position of a ROS time, which lies in one of the axis parts."""
+    for index, part in enumerate(parts):
+        if part.start <= time <= part.end:
+            return axis_part_x(parts, index) + (time - part.start) / (part.end - part.start) * (
+                part.width)
+    raise ValueError(f'no part of the axis holds the ROS time {time} s')
+
+
+def label_lines(xs_and_texts: Sequence[Tuple[float, str]]) -> List[int]:
+    """Return the line, 0 or 1, of each label below an axis, so that no two labels touch.
+
+    The labels are centered at their x positions, which are in ascending order.
+    """
+    lines: List[int] = []
+    right_ends = [-1000.0, -1000.0]  # of the last label of each line
+    for x, text in xs_and_texts:
+        half_width = len(text) * CHARACTER_WIDTH / 2
+        line = 0 if x - half_width > right_ends[0] + LABEL_GAP else 1
+        right_ends[line] = x + half_width
+        lines.append(line)
+    return lines
+
+
+def silence_labels(test: SilenceTest) -> List[Tuple[float, str]]:
+    """Return the times that the axis of a test labels, as (x, text): every call's and stamp's."""
+    times = {time_of(call.now) for call in test.calls}
+    times |= {time_of(call.stamp) for call in test.calls if isinstance(call, SampleCall)}
+    return [(silence_x(test.axis_parts, time), seconds_text(time)) for time in sorted(times)]
+
+
+def silence_height(test: SilenceTest) -> int:
+    """Return the height of a test's drawing: its rows, the axis and the axis's labels."""
+    axis_y = SILENCE_FIRST_ROW_Y + (len(test.calls) - 1) * SILENCE_ROW_PITCH + (
+        SILENCE_AXIS_BELOW_LAST_ROW)
+    line_count = max(label_lines(silence_labels(test))) + 1
+    return round(axis_y + LABEL_BELOW_AXIS + (line_count - 1) * SILENCE_LABEL_LINE + 6)
+
+
+def draw_silence_axis(figure: Figure, test: SilenceTest, axis_y: float) -> None:
+    """Add a test's time axis: its parts and cuts, a tick and a label at each time it shows."""
+    labels = silence_labels(test)
+    draw_axis(figure, AXIS_START_X - 8, axis_y, [x for x, _ in labels])
+    for index in range(1, len(test.axis_parts)):
+        draw_cut(figure, axis_part_x(test.axis_parts, index) - SILENCE_CUT_GAP / 2, axis_y)
+    for (x, text), line in zip(labels, label_lines(labels)):
+        figure.text(x, axis_y + LABEL_BELOW_AXIS + line * SILENCE_LABEL_LINE, text, 'note',
+                    'middle')
+    figure.text(AXIS_END_X + 7, axis_y - 5, 't', 'note', 'end')
+
+
+def row_y(index: int) -> float:
+    """Return the y position of the row of a test's call with this index."""
+    return SILENCE_FIRST_ROW_Y + index * SILENCE_ROW_PITCH
+
+
+def draw_arrival_lines(figure: Figure, test: SilenceTest, traced: Sequence[TracedCall],
+                       axis_y: float) -> None:
+    """Add a line down from each accepted sample: the arrival time that the validator keeps.
+
+    The line ends with a cross above the row of the call that clears it, at the mark of the next
+    accepted sample, or else at the axis.
+    """
+    for index, step in enumerate(traced):
+        if not isinstance(step.call, SampleCall) or step.call.reason:
+            continue
+        x = silence_x(test.axis_parts, step.now)
+        end_y, cleared = axis_y, False
+        for later_index in range(index + 1, len(traced)):
+            later = traced[later_index]
+            if later.clock_went_back:
+                end_y, cleared = row_y(later_index) - CLEARED_ABOVE_ROW, True
+                break
+            if isinstance(later.call, SampleCall) and not later.call.reason:
+                end_y = row_y(later_index) - LARGE_MARK_RADIUS
+                break
+        figure.path(f'M{x:.1f},{row_y(index) + LARGE_MARK_RADIUS:.1f} V{end_y:.1f}',
+                    'valid-line')
+        if cleared:
+            half = CLEARED_HALF_SIZE
+            figure.path(f'M{x - figure.fixed(half):.1f},{end_y - half:.1f} l{2 * half},{2 * half} '
+                        f'M{x - figure.fixed(half):.1f},{end_y + half:.1f} '
+                        f'l{2 * half},{-2 * half}', 'cleared')
+
+
+def last_check_before(traced: Sequence[TracedCall], index: int) -> Optional[float]:
+    """Return last_checked_ros_time before a call, the ROS time that its clock check compares."""
+    return traced[index - 1].after.last_checked_ros_time if index else None
+
+
+def arrival_before(traced: Sequence[TracedCall], index: int) -> Optional[float]:
+    """Return last_valid_arrival_time before a call."""
+    return traced[index - 1].after.last_valid_arrival_time if index else None
+
+
+def draw_check_lines(figure: Figure, test: SilenceTest, traced: Sequence[TracedCall]) -> None:
+    """Add a dotted line from each call that checks the clock down to the next one that does.
+
+    The line stands at the ROS time that the next clock check compares with,
+    last_checked_ros_time. Where the next call's ROS time is earlier, the clock went back: an
+    arrow leads from the line to that call's mark.
+    """
+    checking = [index for index, step in enumerate(traced) if step.checks_the_clock]
+    for index, next_index in zip(checking, checking[1:]):
+        x = silence_x(test.axis_parts, traced[index].now)
+        next_x = silence_x(test.axis_parts, traced[next_index].now)
+        next_y = row_y(next_index)
+        end_y = next_y - LARGE_MARK_RADIUS if next_x == x else next_y
+        figure.path(f'M{x:.1f},{row_y(index) + LARGE_MARK_RADIUS:.1f} V{end_y:.1f}',
+                    'check-line')
+        if traced[next_index].clock_went_back:
+            mark_edge = next_x + figure.fixed(LARGE_MARK_RADIUS + 1)
+            figure.route(((x, next_y), (mark_edge, next_y)), 'back')
+
+
+def back_span(test: SilenceTest, traced: Sequence[TracedCall],
+              index: int) -> Optional[Tuple[float, float]]:
+    """Return the x span of the arrow of a call whose clock check finds a clock that went back."""
+    last_check = last_check_before(traced, index)
+    if not traced[index].clock_went_back or last_check is None:
+        return None
+    return (silence_x(test.axis_parts, traced[index].now),
+            silence_x(test.axis_parts, last_check))
+
+
+def stamp_lane_y(test: SilenceTest, traced: Sequence[TracedCall], index: int) -> float:
+    """Return the y position of a sample's stamp: on its row's line, or below it under an arrow."""
+    step = traced[index]
+    arrow = back_span(test, traced, index)
+    if arrow and isinstance(step.call, SampleCall):
+        stamp_x = silence_x(test.axis_parts, time_of(step.call.stamp))
+        x = silence_x(test.axis_parts, step.now)
+        if max(stamp_x, x) > arrow[0] and min(stamp_x, x) < arrow[1]:
+            return row_y(index) + STAMP_BELOW_ROW
+    return row_y(index)
+
+
+def draw_stamp(figure: Figure, test: SilenceTest, traced: Sequence[TracedCall],
+               index: int) -> None:
+    """Add the triangle at a sample's stamp and a dotted line to the sample's mark.
+
+    Only for a sample whose stamp differs from the ROS time of its arrival.
+    """
+    step = traced[index]
+    if not isinstance(step.call, SampleCall):
+        return
+    stamp_x = silence_x(test.axis_parts, time_of(step.call.stamp))
+    x = silence_x(test.axis_parts, step.now)
+    if stamp_x == x:
+        return
+    y = stamp_lane_y(test, traced, index)
+    half = STAMP_MARK_HALF_WIDTH
+    figure.path(f'M{stamp_x:.1f},{y:.1f} H{x:.1f}', 'stamp-link')
+    add_with_title(figure, f'The stamp of call {index + 1}: {shown(step.call.stamp)}, '
+                           f'{seconds_text(time_of(step.call.stamp))}',
+                   f'<path class="stamp-mark" d="M{stamp_x - figure.fixed(half):.1f},'
+                   f'{y - half:.1f} h{2 * half} l{-half},{2 * half} z"/>')
+
+
+def draw_silence(figure: Figure, test: SilenceTest, index: int, step: TracedCall) -> None:
+    """Add the silence that a query returns as a dimension line from the arrival time.
+
+    The label stands above the line and the marks. A label longer than the line starts at the
+    arrival time's line.
+    """
+    if not isinstance(step.call, SilenceQuery) or step.silence is None:
+        return
+    arrival = step.after.last_valid_arrival_time
+    assert arrival is not None and step.call.silence is not None
+    start_x = silence_x(test.axis_parts, arrival)
+    x = silence_x(test.axis_parts, step.now)
+    y = row_y(index)
+    figure.path(f'M{start_x:.1f},{y:.1f} H{x:.1f} M{start_x:.1f},{y - 4} v8', 'silence')
+    label = f'{step.call.silence} = {seconds_text(step.silence)}'
+    label_y = y - LARGE_MARK_RADIUS - 3
+    width = figure.fixed(len(label) * CHARACTER_WIDTH)
+    if width + figure.fixed(2 * LABEL_GAP) <= x - start_x - figure.fixed(LARGE_MARK_RADIUS):
+        figure.text((start_x + x - figure.fixed(LARGE_MARK_RADIUS)) / 2, label_y, label,
+                    'mono halo', 'middle')
+    else:
+        figure.text(start_x + figure.fixed(LABEL_GAP), label_y, label, 'mono halo')
+
+
+def outcome_text(step: TracedCall) -> str:
+    """Return the text beside a call's mark: the drop reason, valid, or what a query returns."""
+    if isinstance(step.call, SampleCall):
+        return step.call.reason or 'valid'
+    return 'None' if step.silence is None else ''
+
+
+class RowSpans(NamedTuple):
+    """The x spans that the lines and marks of other calls take in a call's row.
+
+    on_line: on the row's line, beside the call's mark. above: above the line, where a text
+    above the mark stands.
+    """
+
+    on_line: List[Tuple[float, float]]
+    above: List[Tuple[float, float]]
+
+
+def row_spans(figure: Figure, test: SilenceTest, traced: Sequence[TracedCall],
+              index: int) -> RowSpans:
+    """Return the spans that lines, arrows and stamps take in a call's row."""
+    step = traced[index]
+    stamp_half = figure.fixed(STAMP_MARK_HALF_WIDTH)
+    line_half = figure.fixed(CLEARED_HALF_SIZE + 1)
+    x = silence_x(test.axis_parts, step.now)
+    spans = RowSpans([], [])
+    if isinstance(step.call, SampleCall) and stamp_lane_y(test, traced, index) == row_y(index):
+        stamp_x = silence_x(test.axis_parts, time_of(step.call.stamp))
+        spans.on_line.append((min(stamp_x, x) - stamp_half, max(stamp_x, x) + stamp_half))
+    arrow = back_span(test, traced, index)
+    if arrow:
+        spans.on_line.append(arrow)
+    # The lines that come down from the calls above: the arrival time and the last clock check
+    for time, passes_the_line in (
+            (arrival_before(traced, index), not step.clock_went_back),
+            (last_check_before(traced, index), not step.checks_the_clock)):
+        if time is None:
+            continue
+        line_x = silence_x(test.axis_parts, time)
+        line_span = (line_x - line_half, line_x + line_half)
+        spans.above.append(line_span)
+        # The cross of an arrival time that this call clears stands close above the line
+        if passes_the_line or step.clock_went_back:
+            spans.on_line.append(line_span)
+    return spans
+
+
+def is_free(span: Tuple[float, float], taken: Sequence[Tuple[float, float]]) -> bool:
+    """Return whether a span lies in the drawing and touches none of the taken spans."""
+    inside = 2 <= span[0] and span[1] <= AXIS_END_X + 7
+    return inside and all(span[1] < start or span[0] > end for start, end in taken)
+
+
+def draw_outcome(figure: Figure, test: SilenceTest, traced: Sequence[TracedCall],
+                 index: int) -> None:
+    """Add the text beside a call's mark where it touches no other line, and label an arrow back.
+
+    The text stands right of the mark, else left of it, else above the row's line to the right
+    or the left. The word back stands above an arrow where the arrow has room for it.
+    """
+    step = traced[index]
+    x = silence_x(test.axis_parts, step.now)
+    y = row_y(index)
+    spans = row_spans(figure, test, traced, index)
+    text = outcome_text(step)
+    if text:
+        css_class = 'note halo' if text == 'valid' else 'mono halo'
+        width = figure.fixed(len(text) * CHARACTER_WIDTH)
+        beside = figure.fixed(LARGE_MARK_RADIUS + LABEL_GAP)
+        above = figure.fixed(LARGE_MARK_RADIUS - 1)
+        above_y = y - LARGE_MARK_RADIUS - 3
+        places = (
+            ((x + beside, x + beside + width), spans.on_line, y + 4, 'start'),
+            ((x - beside - width, x - beside), spans.on_line, y + 4, 'end'),
+            ((x + above, x + above + width), spans.above, above_y, 'start'),
+            ((x - above - width, x - above), spans.above, above_y, 'end'),
+        )
+        free = [place for place in places if is_free(place[0], place[1])] or [places[2]]
+        span, _, text_y, anchor = free[0]
+        figure.text(span[0] if anchor == 'start' else span[1], text_y, text, css_class, anchor)
+        if text_y != y + 4:
+            spans.above.append(span)
+    arrow = back_span(test, traced, index)
+    if arrow:
+        word = 'back'
+        end = arrow[1] - figure.fixed(CLEARED_HALF_SIZE + LABEL_GAP)
+        span = (end - figure.fixed(len(word) * CHARACTER_WIDTH), end)
+        if span[0] > arrow[0] + figure.fixed(LARGE_MARK_RADIUS) and is_free(span, spans.above):
+            figure.text(end, y - 5, word, 'note halo', 'end')
+
+
+def draw_call_mark(figure: Figure, test: SilenceTest, index: int, step: TracedCall) -> None:
+    """Add a call's mark with its number: a circle for a sample, a square for a query."""
+    x = silence_x(test.axis_parts, step.now)
+    y = row_y(index)
+    number = str(index + 1)
+    explanation = call_explanation(step)
+    if isinstance(step.call, SampleCall):
+        figure.mark(Sample(number, x, not step.call.reason, explanation), x, y,
+                    LARGE_MARK_RADIUS)
+        return
+    radius = LARGE_MARK_RADIUS
+    add_with_title(
+        figure, f'Query {number}: {explanation}',
+        f'<rect class="query-mark" x="{x - figure.fixed(radius):.1f}" y="{y - radius:.1f}" '
+        f'width="{figure.fixed(2 * radius):.1f}" height="{2 * radius:.1f}" rx="2"/>'
+        f'<text class="letter" x="{x:.1f}" y="{y + radius / 2:.1f}" text-anchor="middle">'
+        f'{number}</text>')
+
+
+def call_explanation(step: TracedCall) -> str:
+    """Return what a call of a silence test does, with the test's names and their values."""
+    at = f'at the ROS time {shown(step.call.now)}, {seconds_text(step.now)}'
+    if isinstance(step.call, SampleCall):
+        frame = f' in the frame {step.call.frame_id}' if step.call.frame_id else ''
+        stamp = (f'a sample{frame} stamped {shown(step.call.stamp)}, '
+                 f'{seconds_text(time_of(step.call.stamp))}, {at}')
+        if not step.call.reason:
+            return f'{stamp}. The validator accepts it'
+        return f'{stamp}. The validator rejects it as {step.call.reason}'
+    if step.silence is None:
+        return f'seconds_since_last_valid_sample() {at} returns None'
+    return (f'seconds_since_last_valid_sample() {at} returns {step.call.silence}, '
+            f'{seconds_text(step.silence)}')
+
+
+def silence_test_drawing(test: SilenceTest, number: int, layout: Layout) -> Figure:
+    """Return the drawing of a silence test: its calls in rows above the ROS time's axis."""
+    traced = trace_silence_test(test)
+    title = f'{test.title}, {test.name}: ' + '. '.join(
+        f'{index + 1}: {call_explanation(step)}' for index, step in enumerate(traced))
+    figure = layout_figure(f'lv-test-silence-{number}', layout, title, silence_height(test))
+    axis_y = row_y(len(traced) - 1) + SILENCE_AXIS_BELOW_LAST_ROW
+    draw_silence_axis(figure, test, axis_y)
+    draw_arrival_lines(figure, test, traced, axis_y)
+    draw_check_lines(figure, test, traced)
+    for index, step in enumerate(traced):
+        draw_stamp(figure, test, traced, index)
+        draw_silence(figure, test, index, step)
+    for index, step in enumerate(traced):
+        draw_call_mark(figure, test, index, step)
+        draw_outcome(figure, test, traced, index)
+    return figure
+
+
+def call_line(index: int, step: TracedCall) -> str:
+    """Return a legend line for a call: its numbered mark, its outcome and the call itself."""
+    number = str(index + 1)
+    if isinstance(step.call, SilenceQuery):
+        mark = f'<span class="lv-mark lv-query">{number}</span>'
+        outcome = 'returns None' if step.silence is None else (
+            f'returns {step.call.silence}, {seconds_text(step.silence)}')
+        call = f'seconds_since_last_valid_sample() at {shown(step.call.now)}, ' + (
+            seconds_text(step.now))
+    else:
+        accepted = not step.call.reason
+        mark = f'<span class="lv-mark{"" if accepted else " lv-drop"}">{number}</span>'
+        outcome = '✓ accepted' if accepted else f'✕ {step.call.reason}'
+        frame = f' in the frame {step.call.frame_id}' if step.call.frame_id else ''
+        call = (f'a sample{frame} stamped {shown(step.call.stamp)}, '
+                f'{seconds_text(time_of(step.call.stamp))}, at {shown(step.call.now)}, '
+                f'{seconds_text(step.now)}')
+    return f'{mark}<strong>{escape(outcome)}:</strong> {escape(call)}'
+
+
+def write_silence_figure(path: str, tests: Sequence[SilenceTest], first_number: int,
+                         caption: str) -> None:
+    """Write the include of some silence tests: per test a heading, its drawing and its calls."""
+    parts = []
+    for number, test in enumerate(tests, start=first_number):
+        traced = trace_silence_test(test)
+        parts.append(band(test.title))
+        parts.append(two_layouts(functools.partial(silence_test_drawing, test, number)))
+        parts.append(legend([call_line(index, step) for index, step in enumerate(traced)]))
+    write_layout_parts(path, parts, caption, LAYOUT_FIGURE_RULES + SILENCE_RULES,
+                       LAYOUT_FIGURE_CLASSES)
+
+
+SILENCE_CAPTIONS = (
+    'Three tests, one drawing each, with the calls from top to bottom and the ROS time to the '
+    'right. The silence counts from the arrival of the last valid sample. In the third test, the '
+    f"sample rejected at {seconds_text(time_of('NOW + SILENCE'))} leaves the silence at "
+    f"{seconds_text(SILENCE_TEST_TIMES['SILENCE'])}.",
+    'A sample at the ROS time 0 changes neither last_valid_arrival_time nor '
+    'last_checked_ros_time.',
+    'The clock goes back while no valid sample arrives. The silence is then None, also when only '
+    'a rejected sample shows the jump.',
+    'After the clock went back, the first valid sample starts the silence again.',
+)
+
+
+def write_validator_silence() -> None:
+    """Write the four includes of the silence section: the tests of the silence, in rows."""
+    first_number = 1
+    for (path, tests), caption in zip(SILENCE_FIGURES, SILENCE_CAPTIONS):
+        write_silence_figure(path, tests, first_number, caption)
+        first_number += len(tests)
+
+
 def write_validator_tests() -> None:
-    """Write the four includes of the validator's page: its decision, and the tests' samples."""
+    """Write the eight includes of the validator's page: its decision and the tests' calls."""
     write_validator_decision()
     write_validator_limits()
     write_validator_order()
     write_validator_clock_back()
+    write_validator_silence()
 
 
 def rate_y(rate: float) -> float:
@@ -1839,7 +2464,7 @@ def write_between_wheels() -> None:
 
 
 def main() -> None:
-    """Write the eight includes of the test pages."""
+    """Write the twelve includes of the test pages."""
     write_validator_tests()
     write_one_step()
     write_stepped_clock_test()

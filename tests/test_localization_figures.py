@@ -2,11 +2,12 @@
 
 localization_figures.py writes the figures of the Localization page as twelve includes.
 localization_control_test_figures.py and localization_gazebo_test_figures.py write the figures
-of the chapter's test pages as eight and three includes.
+of the chapter's test pages as twelve and three includes.
 
 Run from the repository root: python -m unittest discover -s tests
 """
 
+import ast
 import collections
 import functools
 from html.parser import HTMLParser
@@ -16,6 +17,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -27,6 +29,8 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 import unittest
+import urllib.error
+import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
 FIGURES = ROOT / 'scripts' / 'figures'
@@ -45,7 +49,11 @@ INCLUDE_NAMES = {
         'localization-test-stepped-clock-step.html', 'localization-test-stepped-clock.html',
         'localization-test-validator-clock-back.html',
         'localization-test-validator-decision.html', 'localization-test-validator-limits.html',
-        'localization-test-validator-order.html'],
+        'localization-test-validator-order.html',
+        'localization-test-validator-silence-clock-back.html',
+        'localization-test-validator-silence-grows.html',
+        'localization-test-validator-silence-restart.html',
+        'localization-test-validator-silence-zero.html'],
     'localization_gazebo_test_figures.py': [
         'localization-test-gazebo.html', 'localization-test-odom-tf.html',
         'localization-test-switch.html'],
@@ -60,6 +68,10 @@ TWO_LAYOUT_DRAWINGS = {
     'localization-test-validator-decision.html': 1,
     'localization-test-validator-limits.html': 1,
     'localization-test-validator-order.html': 1,
+    'localization-test-validator-silence-clock-back.html': 3,
+    'localization-test-validator-silence-grows.html': 3,
+    'localization-test-validator-silence-restart.html': 1,
+    'localization-test-validator-silence-zero.html': 2,
 }
 # A viewBox as the scripts write it: the origin, then the width and the height
 VIEW_BOX = re.compile(r'0 0 (\d+) (\d+)')
@@ -410,6 +422,247 @@ def changes_by_added_rules(page: str, include_names: Sequence[str],
     return changes
 
 
+# The diffbot test file that the validator page's time-axis figures draw. The page's excerpts
+# come from the commit that mkdocs.yml pins as ekf_test_src_raw, and so does this file
+PINNED_TEST_FILE = 'diffbot_control/test/test_imu_validator.py'
+# The test class whose tests the silence figures draw, one drawing per test
+SILENCE_TEST_CLASS = 'TestSecondsSinceLastValidSample'
+# A call of a silence test as the test file writes it: ('sample', stamp, now, drop reason,
+# frame) or ('query', now, expected silence), with the times as sums and differences of names
+ParsedCall = Tuple[Optional[str], ...]
+
+
+@functools.lru_cache(maxsize=None)
+def pinned_source(path: str) -> str:
+    """Return a file of the diffbot repository at the commit that mkdocs.yml pins for the tests.
+
+    The download needs the network, as the site's build does. Without it, the caller skips the
+    test, except in CI, where the variable CI is set and a missing file fails.
+    """
+    pin = re.search(r'^\s*ekf_test_src_raw:\s*(\S+)',
+                    (ROOT / 'mkdocs.yml').read_text(encoding='utf-8'), re.MULTILINE)
+    assert pin is not None, 'mkdocs.yml has no ekf_test_src_raw'
+    with urllib.request.urlopen(f'{pin.group(1)}/{path}', timeout=30) as response:
+        return response.read().decode('utf-8')
+
+
+def pinned_test_tree(test_case: unittest.TestCase) -> ast.Module:
+    """Return the syntax tree of the pinned test file, or skip the test without the network.
+
+    An answer of the server, such as 404 for a file missing at the pin, fails the test
+    everywhere. No connection or no answer in time skips it, except in CI.
+    """
+    try:
+        return ast.parse(pinned_source(PINNED_TEST_FILE))
+    except urllib.error.HTTPError:
+        raise
+    except (urllib.error.URLError, socket.timeout, TimeoutError, ConnectionError) as error:
+        if os.environ.get('CI'):
+            raise
+        test_case.skipTest(f'{PINNED_TEST_FILE} at the pinned commit needs the network: {error}')
+
+
+def bound_arguments(call: ast.Call, parameters: Sequence[str]) -> Dict[str, ast.expr]:
+    """Return a call's arguments by the names of the parameters, positional ones in order.
+
+    A ValueError says that the call has an argument that the parameters don't name, or one
+    that the figures can't read, such as *args.
+    """
+    if len(call.args) > len(parameters) or any(
+            isinstance(argument, ast.Starred) for argument in call.args):
+        raise ValueError(f'more positional arguments than {parameters}: {ast.dump(call)}')
+    bound = dict(zip(parameters, call.args))
+    for keyword in call.keywords:
+        if keyword.arg is None or keyword.arg not in parameters or keyword.arg in bound:
+            raise ValueError(f'an argument that {parameters} lacks: {ast.dump(call)}')
+        bound[keyword.arg] = keyword.value
+    return bound
+
+
+def seconds_of(node: ast.expr, names: Dict[str, float]) -> float:
+    """Return the value in s of a test file's expression of times.
+
+    The expression holds numbers, names of constants, rospy.Time() and rospy.Duration() of
+    seconds and nanoseconds, the test's helper seconds(), and the four basic operations.
+    """
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        return float(node.value)
+    if isinstance(node, ast.Name):
+        return names[node.id]
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+        return -seconds_of(node.operand, names)
+    if isinstance(node, ast.BinOp):
+        left, right = seconds_of(node.left, names), seconds_of(node.right, names)
+        operations = {ast.Add: left + right, ast.Sub: left - right}
+        if isinstance(node.op, (ast.Add, ast.Sub)):
+            return operations[type(node.op)]
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        if isinstance(node.op, ast.Div):
+            return left / right
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and (
+            node.func.attr in ('Time', 'Duration')):
+        bound = bound_arguments(node, ('secs', 'nsecs'))
+        whole = seconds_of(bound['secs'], names) if 'secs' in bound else 0.0
+        nanoseconds = seconds_of(bound['nsecs'], names) if 'nsecs' in bound else 0.0
+        return whole + nanoseconds * 1e-9
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and (
+            node.func.id == 'seconds'):
+        return seconds_of(bound_arguments(node, ('value',))['value'], names)
+    raise ValueError(f'no time: {ast.dump(node)}')
+
+
+def pinned_constants(tree: ast.Module) -> Dict[str, float]:
+    """Return the test file's constants that are times or numbers, in s for a time."""
+    constants: Dict[str, float] = {}
+    for statement in tree.body:
+        if (isinstance(statement, ast.Assign) and len(statement.targets) == 1
+                and isinstance(statement.targets[0], ast.Name)):
+            try:
+                constants[statement.targets[0].id] = seconds_of(statement.value, constants)
+            except (ValueError, KeyError):
+                continue  # a text, a list or a message
+    return constants
+
+
+def names_of(node: ast.expr, local: Dict[str, str]) -> str:
+    """Return a test file's expression of times as the figures write it, such as NOW + RECENT.
+
+    A local variable stands for the expression assigned to it, and seconds() for its argument.
+    """
+    if isinstance(node, ast.Name):
+        return local.get(node.id, node.id)
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and (
+            node.func.id == 'seconds'):
+        return names_of(bound_arguments(node, ('value',))['value'], local)
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub)):
+        right = names_of(node.right, local)
+        if isinstance(node.op, ast.Sub) and (' + ' in right or ' - ' in right):
+            raise ValueError('a difference of a sum needs parentheses, which a figure lacks')
+        sign = '+' if isinstance(node.op, ast.Add) else '-'
+        return f'{names_of(node.left, local)} {sign} {right}'
+    raise ValueError(f'no expression of names: {ast.dump(node)}')
+
+
+# The parameters of the test file's calls that the silence figures show, in their order
+SAMPLE_PARAMETERS = ('stamp', 'frame_id', 'yaw_rate')
+CALL_PARAMETERS = {
+    'assert_accepted': ('message', 'now', 'msg'),
+    'assert_rejected': ('reason', 'message', 'now', 'msg'),
+    'assert_silence': ('expected', 'now'),
+    'assertIsNone': ('obj', 'msg'),
+}
+
+
+def default_stamp(tree: ast.Module) -> str:
+    """Return the name of the stamp that make_imu_sample() gives a sample by default."""
+    for statement in tree.body:
+        if isinstance(statement, ast.FunctionDef) and statement.name == 'make_imu_sample':
+            parameters = tuple(argument.arg for argument in statement.args.args)
+            default = statement.args.defaults[0]
+            assert parameters == SAMPLE_PARAMETERS, parameters
+            assert isinstance(default, ast.Name), ast.dump(default)
+            return default.id
+    raise ValueError('the test file has no make_imu_sample()')
+
+
+def parsed_sample(node: ast.expr, local: Dict[str, str], stamp_default: str) -> Tuple[str, str]:
+    """Return the stamp and the frame ('' for the default) of a make_imu_sample() call.
+
+    A ValueError says that the call sets what a figure doesn't show: the yaw rate, or a frame
+    that isn't a text or that is empty, which the figures write for the default frame.
+    """
+    assert isinstance(node, ast.Call) and isinstance(node.func, ast.Name), ast.dump(node)
+    assert node.func.id == 'make_imu_sample', node.func.id
+    bound = bound_arguments(node, SAMPLE_PARAMETERS)
+    if 'yaw_rate' in bound:
+        raise ValueError('a sample with its own yaw rate, which no figure shows')
+    stamp = names_of(bound['stamp'], local) if 'stamp' in bound else stamp_default
+    frame = bound.get('frame_id')
+    if frame is not None and not (isinstance(frame, ast.Constant)
+                                  and isinstance(frame.value, str) and frame.value):
+        raise ValueError(f'a frame that is not a text or is empty: {ast.dump(frame)}')
+    return stamp, frame.value if isinstance(frame, ast.Constant) else ''
+
+
+def is_attribute_of(node: ast.expr, names: Sequence[str]) -> bool:
+    """Return whether node is an attribute chain such as self.validator, given as its names."""
+    for name in reversed(names[1:]):
+        if not (isinstance(node, ast.Attribute) and node.attr == name):
+            return False
+        node = node.value
+    return isinstance(node, ast.Name) and node.id == names[0]
+
+
+def parsed_call(node: ast.Call, local: Dict[str, str], stamp_default: str) -> ParsedCall:
+    """Return a call of a silence test: a sample through an assertion, or a query.
+
+    The assertions are the test case's own, and the query goes to the test's validator,
+    self.validator: the one validator that a drawing shows.
+    """
+    assert isinstance(node.func, ast.Attribute), ast.dump(node)
+    if not is_attribute_of(node.func.value, ('self',)):
+        raise ValueError(f'a call on another object than the test: {ast.dump(node.func)}')
+    method = node.func.attr
+    if method not in CALL_PARAMETERS:
+        raise ValueError(f'a silence test calls {method}(), which no figure shows')
+    bound = bound_arguments(node, CALL_PARAMETERS[method])
+    if method == 'assert_accepted':
+        stamp, frame = parsed_sample(bound['message'], local, stamp_default)
+        return ('sample', stamp, names_of(bound['now'], local), '', frame)
+    if method == 'assert_rejected':
+        reason = bound['reason']
+        assert isinstance(reason, ast.Attribute), ast.dump(reason)
+        stamp, frame = parsed_sample(bound['message'], local, stamp_default)
+        return ('sample', stamp, names_of(bound['now'], local), reason.attr, frame)
+    if method == 'assert_silence':
+        return ('query', names_of(bound['now'], local), names_of(bound['expected'], local))
+    query = bound['obj']
+    assert isinstance(query, ast.Call) and isinstance(query.func, ast.Attribute)
+    assert query.func.attr == 'seconds_since_last_valid_sample', query.func.attr
+    if not is_attribute_of(query.func.value, ('self', 'validator')):
+        raise ValueError(f'a query of another validator: {ast.dump(query.func.value)}')
+    return ('query', names_of(bound_arguments(query, ('now',))['now'], local), None)
+
+
+def pinned_silence_tests(tree: ast.Module) -> List[Tuple[str, List[ParsedCall]]]:
+    """Return the tests of the silence class in the file's order, each with its calls."""
+    stamp_default = default_stamp(tree)
+    classes = [node for node in tree.body
+               if isinstance(node, ast.ClassDef) and node.name == SILENCE_TEST_CLASS]
+    assert len(classes) == 1, SILENCE_TEST_CLASS
+    tests = []
+    for method in classes[0].body:
+        if not (isinstance(method, ast.FunctionDef) and method.name.startswith('test_')):
+            continue
+        local: Dict[str, str] = {}
+        calls = []
+        for statement in method.body:
+            if (isinstance(statement, ast.Assign) and len(statement.targets) == 1
+                    and isinstance(statement.targets[0], ast.Name)):
+                local[statement.targets[0].id] = names_of(statement.value, local)
+            elif isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call):
+                calls.append(parsed_call(statement.value, local, stamp_default))
+            else:
+                raise ValueError(f'{method.name}: a statement that no figure shows')
+        tests.append((method.name, calls))
+    return tests
+
+
+def figure_calls(control: ModuleType, test: Tuple[object, ...]) -> List[ParsedCall]:
+    """Return the calls of a silence figure's test in the parsed form of the test file.
+
+    control is the control tests' figure script, test one of its SILENCE_TESTS.
+    """
+    calls: List[ParsedCall] = []
+    for call in getattr(test, 'calls'):
+        if isinstance(call, control.SampleCall):
+            calls.append(('sample', call.stamp, call.now, call.reason, call.frame_id))
+        else:
+            calls.append(('query', call.now, call.silence))
+    return calls
+
+
 class TestIncludes(unittest.TestCase):
     """Each script writes the repository's includes, whatever the locale's encoding is.
 
@@ -554,6 +807,117 @@ class TestLayouts(unittest.TestCase):
                    for found in re.findall(r'\bid="([^"]+)"', include_text(include_name))]
             repeated = [name for name, count in collections.Counter(ids).items() if count > 1]
             self.assertEqual(repeated, [], f'{page} has an id more than once')
+
+
+class TestSilenceFigures(unittest.TestCase):
+    """The silence figures draw the pinned test file's silence tests, with its calls and values.
+
+    The figures' script can't import the tests, so it copies them: the tests' names, their calls
+    with the names of the times, and the constants behind those names.
+    """
+
+    def test_figures_show_the_pinned_silence_tests_with_their_calls(self) -> None:
+        control = load_script('localization_control_test_figures.py')
+        pinned = pinned_silence_tests(pinned_test_tree(self))
+        drawn = [(test.name, figure_calls(control, test)) for test in control.SILENCE_TESTS]
+        self.assertEqual(drawn, pinned)
+
+    def test_figures_use_the_pinned_values_of_the_times(self) -> None:
+        control = load_script('localization_control_test_figures.py')
+        constants = pinned_constants(pinned_test_tree(self))
+        for name, value in control.SILENCE_TEST_TIMES.items():
+            self.assertAlmostEqual(value, constants[name], places=9, msg=name)
+
+    def test_copied_constants_of_the_other_time_axes_equal_the_pinned_ones(self) -> None:
+        control = load_script('localization_control_test_figures.py')
+        constants = pinned_constants(pinned_test_tree(self))
+        # The script's copy, the test file's name, and the unit of the copy in s
+        copies = (
+            ('NOW_S', 'NOW', 1), ('MAX_AGE_S', 'MAX_AGE', 1), ('MAX_FUTURE_S', 'MAX_FUTURE', 1),
+            ('ONE_MICROSECOND_S', 'ONE_MICROSECOND', 1), ('JUST_TOO_OLD_S', 'JUST_TOO_OLD', 1),
+            ('JUST_TOO_FAR_AHEAD_S', 'JUST_TOO_FAR_AHEAD', 1),
+            ('SHORTLY_BEFORE_S', 'SHORTLY_BEFORE', 1), ('ORDER_LATER_NS', 'ONE_NANOSECOND', 1e-9),
+            ('FAR_AHEAD_S', 'FAR_AHEAD', 1), ('RESTART_NEAR_ZERO_S', 'RESTART_NEAR_ZERO', 1),
+            ('REPEAT_DELAY_MS', 'ONE_MILLISECOND', 1e-3), ('RESTART_S', 'RESTART', 1),
+            ('OLD_AFTER_RESTART_S', 'ONE_SECOND', 1),
+        )
+        for copy, name, unit in copies:
+            self.assertAlmostEqual(getattr(control, copy) * unit, constants[name], places=9,
+                                   msg=copy)
+
+    def test_figures_show_each_silence_test_once_in_the_order_of_the_file(self) -> None:
+        control = load_script('localization_control_test_figures.py')
+        shown = [test for _, tests in control.SILENCE_FIGURES for test in tests]
+        self.assertEqual(shown, list(control.SILENCE_TESTS))
+
+    def test_model_rejects_a_test_whose_expected_silence_it_does_not_return(self) -> None:
+        control = load_script('localization_control_test_figures.py')
+        test = control.SILENCE_TESTS[1]
+        wrong = test._replace(calls=test.calls[:-1] + (control.SilenceQuery('NOW + SILENCE',
+                                                                            'RECENT'),))
+        with self.assertRaises(ValueError):
+            control.trace_silence_test(wrong)
+
+    def test_model_returns_none_after_the_clock_went_back(self) -> None:
+        control = load_script('localization_control_test_figures.py')
+        traced = control.trace_silence_test(control.SILENCE_TESTS[6])
+        self.assertEqual([step.clock_went_back for step in traced], [False, False, True, False])
+        self.assertEqual([step.after.last_valid_arrival_time for step in traced],
+                         [100, 100, None, None])
+
+
+def parsed_snippet(test_body: str) -> List[Tuple[str, List[ParsedCall]]]:
+    """Return the silence tests of a small test file with one test of the given body."""
+    source = (
+        'def make_imu_sample(stamp=NOW, frame_id=FRAME, yaw_rate=YAW_RATE):\n'
+        '    pass\n'
+        f'class {SILENCE_TEST_CLASS}(ValidatorTestCase):\n'
+        '    def test_it(self):\n'
+        f'        {test_body}\n')
+    return pinned_silence_tests(ast.parse(source))
+
+
+class TestPinnedFileParser(unittest.TestCase):
+    """The reader of the pinned test file binds every argument or rejects the call.
+
+    An argument that the reader skipped, or a call that a drawing can't show, would let a
+    changed test still match the figures.
+    """
+
+    def test_sample_with_a_stamp_by_keyword_has_that_stamp(self) -> None:
+        tests = parsed_snippet(
+            'self.assert_accepted(make_imu_sample(stamp=NOW - seconds(SHORTLY_BEFORE)), NOW)')
+        self.assertEqual(tests, [('test_it', [('sample', 'NOW - SHORTLY_BEFORE', 'NOW', '', '')])])
+
+    def test_difference_of_a_sum_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            parsed_snippet('self.assert_silence(SILENCE, NOW - seconds(SILENCE + RECENT))')
+
+    def test_time_with_nanoseconds_by_keyword_counts_them(self) -> None:
+        node = ast.parse('rospy.Time(0, nsecs=1)', mode='eval').body
+        self.assertAlmostEqual(seconds_of(node, {}), 1e-9, places=15)
+
+    def test_sample_with_its_own_yaw_rate_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            parsed_snippet('self.assert_accepted(make_imu_sample(NOW, yaw_rate=0.0), NOW)')
+
+    def test_call_with_an_unknown_keyword_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            parsed_snippet('self.assert_silence(SILENCE, NOW, delta=0.1)')
+
+    def test_query_of_another_validator_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            parsed_snippet('self.assertIsNone(imu_validator.ImuValidator()'
+                           '.seconds_since_last_valid_sample(NOW))')
+
+    def test_sample_with_an_empty_frame_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            parsed_snippet("self.assert_accepted(make_imu_sample(NOW, frame_id=''), NOW)")
+
+    def test_query_of_the_tests_validator_is_read(self) -> None:
+        tests = parsed_snippet(
+            'self.assertIsNone(self.validator.seconds_since_last_valid_sample(RESTART))')
+        self.assertEqual(tests, [('test_it', [('query', 'RESTART', None)])])
 
 
 class TestDecisionSteps(unittest.TestCase):
