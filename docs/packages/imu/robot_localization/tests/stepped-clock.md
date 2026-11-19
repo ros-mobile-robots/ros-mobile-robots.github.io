@@ -603,7 +603,7 @@ The test asserts the header stamp of one output in each wheel period, at any tim
 
 ## Runs
 
-The runs on this page are runs of the commit [`3882a19`](https://github.com/ros-mobile-robots/diffbot/commit/3882a19cbda8543f5a0f1c5d4f0965caa90d4f3d) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples) and 31 s for [`robot_rates`](#the-robots-rates-robot_rates).
+The runs on this page are runs of the commit [`3882a19`](https://github.com/ros-mobile-robots/diffbot/commit/3882a19cbda8543f5a0f1c5d4f0965caa90d4f3d) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), whose files are those of its merge commit [`7d428c2`](https://github.com/ros-mobile-robots/diffbot/commit/7d428c282c073ad4b99a76cab834276daadb5a6f), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples) and 31 s for [`robot_rates`](#the-robots-rates-robot_rates).
 
 ### `invalid_imu_samples`
 
