@@ -508,7 +508,7 @@ The phase checks these things, in this order:
 
 ## Runs
 
-The runs on this page are runs of the commit [`666652a`](https://github.com/ros-mobile-robots/diffbot/commit/666652a9a09dec41946fb76926215b91ed8f5613) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. This commit has the same test, launch files and validator as the commit of the page's excerpts. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples) and 31 s for [`robot_rates`](#the-robots-rates-robot_rates).
+The runs on this page are runs of the commit [`3882a19`](https://github.com/ros-mobile-robots/diffbot/commit/3882a19cbda8543f5a0f1c5d4f0965caa90d4f3d) of [diffbot#220](https://github.com/ros-mobile-robots/diffbot/pull/220), in the dev container's image. Each scenario passed in 12 runs of 12, with the same printed values in each run. The rostest command took 17 s of wall time for [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples) and 31 s for [`robot_rates`](#the-robots-rates-robot_rates).
 
 ### `invalid_imu_samples`
 

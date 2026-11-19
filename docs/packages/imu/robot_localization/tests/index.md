@@ -52,7 +52,7 @@ To run one test file, use its command from the list. Each item names what a pass
     python3 -m unittest -v test_imu_validator
     ```
 
-    A pass ends with the line `OK`, after `Ran 28 tests`.
+    A pass ends with the line `OK`, after `Ran 30 tests`.
 
 - **[`test_ekf_synthetic.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_ekf_synthetic.py), [EKF on a Stepped Clock](stepped-clock.md#runs):** rostest runs one scenario for each `.test` file.
 
