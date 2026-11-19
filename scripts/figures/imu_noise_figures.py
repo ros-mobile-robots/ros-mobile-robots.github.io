@@ -313,7 +313,7 @@ def intervals_figure() -> Figure:
         figure.path(f'M{start:.1f},{axis_y - 24} H{end:.1f} M{start:.1f},{axis_y - 27} v6 '
                     f'M{end:.1f},{axis_y - 27} v6', 'long-interval' if is_long else 'dimension')
         figure.text((start + end) / 2, axis_y - 30, f'{later - earlier} ms',
-                    'verdict-drop' if is_long else '', 'middle')
+                    'strong' if is_long else '', 'middle')
     for number, stamp in enumerate(stamps, start=1):
         x = interval_x(stamp, pixels_per_ms)
         figure.circle(x, axis_y, 8, 'pass-mark')
@@ -356,7 +356,7 @@ def stamps_back_figure() -> Figure:
         if not advances:
             label = 'repeated' if later == earlier else f'{earlier - later} ms earlier'
             figure.text(max(start_x, end_x) + 14, (start_y + end_y) / 2 + 4, label,
-                        'verdict-drop')
+                        'strong')
     for number, (x, y) in enumerate(points, start=1):
         figure.circle(x, y, 8, 'pass-mark')
         figure.text(x, y + 4, str(number), 'letter', 'middle')
@@ -401,10 +401,10 @@ def measured_figure() -> Figure:
         figure.text(covariance_x, y + 17, '0.0' if measured else '−1.0', 'mono strong')
         figure.text(DRAWING_WIDTH - 12, y + 17, 'angular_velocity.z', 'mono quiet', 'end')
         if measured:
-            figure.text(covariance_x, y + 36, '✓ a reading', 'verdict-pass')
+            figure.text(covariance_x, y + 36, '✓ a reading', 'strong')
             figure.text(DRAWING_WIDTH - 12, y + 36, f'{yaw_rate} rad/s', 'strong', 'end')
         else:
-            figure.text(covariance_x, y + 36, '✕ not measured', 'verdict-drop')
+            figure.text(covariance_x, y + 36, '✕ not measured', 'strong')
             figure.text(DRAWING_WIDTH - 12, y + 36, 'not used', 'note', 'end')
     return figure
 
