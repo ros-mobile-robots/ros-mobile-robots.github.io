@@ -4723,12 +4723,12 @@
 </li>
 </ol>
 <h2 id="how-the-tests-run">How the tests run</h2>
-<p>The five test files are Python tests, written with Python's <a href="https://docs.python.org/3/library/unittest.html"><code>unittest</code></a> module: each file defines its tests as methods of a <code>unittest.TestCase</code> class. catkin runs the five files with the workspace's other tests. The packages register them in their <code>CMakeLists.txt</code> with two macros:</p>
+<p>The five test files are Python tests, written with Python's <a href="https://docs.python.org/3/library/unittest.html"><code>unittest</code></a> module: each file defines its tests as methods of a <a href="https://docs.python.org/3/library/unittest.html#unittest.TestCase"><code>unittest.TestCase</code></a> class. catkin runs the five files with the workspace's other tests. The packages register them in their <code>CMakeLists.txt</code> with two functions:</p>
 <ul>
-<li><strong><code>catkin_add_nosetests()</code>:</strong> for the two files without ROS nodes. The test runner <a href="https://nose.readthedocs.io/en/latest/">nose</a> finds the <code>TestCase</code> classes in the file and runs their tests.</li>
-<li><strong><code>add_rostest()</code>:</strong> for the three files that start nodes. rostest starts the nodes of the test's <code>.test</code> launch file, then the test file.</li>
+<li><strong><a href="https://github.com/ros/catkin/blob/0.8.12/cmake/test/nosetests.cmake#L29"><code>catkin_add_nosetests()</code></a>:</strong> for the two files without ROS nodes. The test runner <a href="https://nose.readthedocs.io/en/latest/">nose</a> finds the <a href="https://docs.python.org/3/library/unittest.html#unittest.TestCase"><code>TestCase</code></a> classes in the file and runs their tests.</li>
+<li><strong><a href="https://github.com/ros/ros_comm/blob/1.17.0/tools/rostest/cmake/rostest-extras.cmake.em#L7"><code>add_rostest()</code></a>:</strong> for the three files that start nodes. rostest starts the nodes of the test's <code>.test</code> launch file, then the test file.</li>
 </ul>
-<p>catkin's guides <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> and <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst">Configuring rostest</a> explain the two macros. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same tests on every pull request, as <a href="../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> explains.</p>
+<p>catkin's guides <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> and <a href="https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst">Configuring rostest</a> explain the two functions. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs the same tests on every pull request, as <a href="../../../../development/ci/#ekf-tests">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> explains.</p>
 <h2 id="run-the-tests">Run the tests</h2>
 <p>Run the commands in the <a href="../../../../development/dev-container/">dev container</a>, in a shell in which its built Noetic workspace <code>~/catkin_ws</code> is sourced, as the container's setup leaves it. These commands run every test of the workspace, as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does, from the workspace's folder:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -4741,7 +4741,7 @@
 <p>To run one test file, use its command from the list. Each item names what a passing run prints. The test's page shows the whole output and what the test doesn't show.</p>
 <ul>
 <li>
-<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_imu_validator.py"><code>test_imu_validator.py</code></a>, <a href="validator/#run-the-tests"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Sample Validator</a>:</strong> Python's <code>unittest</code> runs the file from its folder.</p>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/3882a19cbda8543f5a0f1c5d4f0965caa90d4f3d/diffbot_control/test/test_imu_validator.py"><code>test_imu_validator.py</code></a>, <a href="validator/#run-the-tests"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Sample Validator</a>:</strong> Python's <a href="https://docs.python.org/3/library/unittest.html"><code>unittest</code></a> runs the file from its folder.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_control/test</span>
 <span class="go">python3 -m unittest -v test_imu_validator</span>
@@ -4749,7 +4749,7 @@
 <p>A pass ends with the line <code>OK</code>, after <code>Ran 30 tests</code>.</p>
 </li>
 <li>
-<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/test/test_ekf_synthetic.py"><code>test_ekf_synthetic.py</code></a>, <a href="stepped-clock/#runs"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on a Stepped Clock</a>:</strong> rostest runs one scenario for each <code>.test</code> file.</p>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/3882a19cbda8543f5a0f1c5d4f0965caa90d4f3d/diffbot_control/test/test_ekf_synthetic.py"><code>test_ekf_synthetic.py</code></a>, <a href="stepped-clock/#runs"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> on a Stepped Clock</a>:</strong> rostest runs one scenario for each <code>.test</code> file.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_control ekf_synthetic.test</span>
 <span class="go">rostest diffbot_control ekf_synthetic_robot_rates.test</span>
@@ -4757,7 +4757,7 @@
 <p>For each command, look for <code>* RESULT: SUCCESS</code> under <code>SUMMARY</code> at the end of the output.</p>
 </li>
 <li>
-<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a>, <a href="gazebo/#run-it"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> in Gazebo</a>:</strong> rostest starts the simulation of one robot with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_ekf.py"><code>test_ekf.py</code></a>, <a href="gazebo/#run-it"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> in Gazebo</a>:</strong> rostest starts the simulation of one robot with the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_gazebo sim_ekf_diffbot.test</span>
 <span class="go">rostest diffbot_gazebo sim_ekf_remo.test</span>
@@ -4765,7 +4765,7 @@
 <p>For each command, look for <code>* RESULT: SUCCESS</code> under <code>SUMMARY</code> at the end of the output.</p>
 </li>
 <li>
-<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_ekf_switch.py"><code>test_ekf_switch.py</code></a>, <a href="switch/#run-it">The ekf Switch</a>:</strong> Python's <code>unittest</code> runs the file from its folder.</p>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490/diffbot_gazebo/test/test_ekf_switch.py"><code>test_ekf_switch.py</code></a>, <a href="switch/#run-it">The ekf Switch</a>:</strong> Python's <code>unittest</code> runs the file from its folder.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">roscd diffbot_gazebo/test</span>
 <span class="go">python3 -m unittest -v test_ekf_switch</span>
@@ -4773,7 +4773,7 @@
 <p>A pass ends with the line <code>OK</code>, after <code>Ran 5 tests</code>.</p>
 </li>
 <li>
-<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a>, <a href="odom-tf/#run-it">The Transform's Publisher</a>:</strong> rostest starts the simulation of one robot without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and runs all five test nodes of the file, this test among them.</p>
+<p><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_gazebo/test/test_odom_tf.py"><code>test_odom_tf.py</code></a>, <a href="odom-tf/#run-it">The Transform's Publisher</a>:</strong> rostest starts the simulation of one robot without the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> and runs all five test nodes of the file, this test among them.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_gazebo sim_drive_diffbot.test</span>
 <span class="go">rostest diffbot_gazebo sim_drive_remo.test</span>
