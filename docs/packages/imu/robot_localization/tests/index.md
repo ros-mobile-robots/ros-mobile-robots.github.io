@@ -45,7 +45,7 @@ The second line builds the workspace and runs every registered test, the five fi
 
 To run one test file, use its command from the list. Each item names what a passing run prints. The test's page shows the whole output and what the test doesn't show.
 
-- **[`test_imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_imu_validator.py), [IMU Sample Validator](validator.md#run-the-tests):** Python's `unittest` runs the file from its folder.
+- **[`test_imu_validator.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py), [IMU Sample Validator](validator.md#run-the-tests):** Python's `unittest` runs the file from its folder.
 
     ```console
     roscd diffbot_control/test
@@ -54,7 +54,7 @@ To run one test file, use its command from the list. Each item names what a pass
 
     A pass ends with the line `OK`, after `Ran 30 tests`.
 
-- **[`test_ekf_synthetic.py`]({{ diffbot_repo_url }}/diffbot_control/test/test_ekf_synthetic.py), [EKF on a Stepped Clock](stepped-clock.md#runs):** rostest runs one scenario for each `.test` file.
+- **[`test_ekf_synthetic.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py), [EKF on a Stepped Clock](stepped-clock.md#runs):** rostest runs one scenario for each `.test` file.
 
     ```console
     rostest diffbot_control ekf_synthetic.test
@@ -63,7 +63,7 @@ To run one test file, use its command from the list. Each item names what a pass
 
     For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output.
 
-- **[`test_ekf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf.py), [EKF in Gazebo](gazebo.md#run-it):** rostest starts the simulation of one robot with the EKF.
+- **[`test_ekf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py), [EKF in Gazebo](gazebo.md#run-it):** rostest starts the simulation of one robot with the EKF.
 
     ```console
     rostest diffbot_gazebo sim_ekf_diffbot.test
@@ -72,7 +72,7 @@ To run one test file, use its command from the list. Each item names what a pass
 
     For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output.
 
-- **[`test_ekf_switch.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf_switch.py), [The ekf Switch](switch.md#run-it):** Python's `unittest` runs the file from its folder.
+- **[`test_ekf_switch.py`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py), [The ekf Switch](switch.md#run-it):** Python's `unittest` runs the file from its folder.
 
     ```console
     roscd diffbot_gazebo/test
@@ -81,7 +81,7 @@ To run one test file, use its command from the list. Each item names what a pass
 
     A pass ends with the line `OK`, after `Ran 5 tests`.
 
-- **[`test_odom_tf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_odom_tf.py), [The Transform's Publisher](odom-tf.md#run-it):** rostest starts the simulation of one robot without the EKF and runs all five test nodes of the file, this test among them.
+- **[`test_odom_tf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py), [The Transform's Publisher](odom-tf.md#run-it):** rostest starts the simulation of one robot without the EKF and runs all five test nodes of the file, this test among them.
 
     ```console
     rostest diffbot_gazebo sim_drive_diffbot.test

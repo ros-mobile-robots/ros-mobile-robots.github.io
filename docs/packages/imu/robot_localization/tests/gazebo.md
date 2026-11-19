@@ -1,6 +1,6 @@
 # Test: The EKF in Gazebo
 
-This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_ekf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_ekf.py), the test that turns the simulated robot with the EKF on.
+This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_ekf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py), the test that turns the simulated robot with the EKF on.
 
 The test proves one thing in the simulation: when the wheel odometry reports a wrong turn, the EKF's heading $\theta$ still follows the robot's true turn, because the filter takes the yaw rate $\omega_z$ from the IMU. The test makes the wheel odometry wrong on purpose. It gives the drive controller a wheel separation $b_c$ that is 25 % larger than the simulated robot's wheel separation $b$. The same simulation also checks that only the EKF publishes the transform `odom → base_footprint`. Both simulated robots run the test, DiffBot and Remo. The test doesn't show how the filter behaves on the real robot. [What the test doesn't show](#what-the-test-doesnt-show) lists the differences.
 
@@ -37,7 +37,7 @@ The same calculation for Remo gives 0.003 rad and 0.374 rad. [The checks on the 
 
 ## What the simulation starts
 
-Two rostest files run the test, [`sim_ekf_diffbot.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test) for the simulated DiffBot and [`sim_ekf_remo.test`]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_ekf_remo.test) for the simulated Remo. A rostest file is a launch file with a `<test>` element. rostest starts the file's nodes, runs the test node and stops everything when the test node ends, as [the test file on Simulation Test](../../../../development/simulation-test.md#1-the-test-file) explains. The excerpt shows what DiffBot's file starts, from [`sim_ekf_diffbot.test`, lines 9–21]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test#L9-L21):
+Two rostest files run the test, [`sim_ekf_diffbot.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test) for the simulated DiffBot and [`sim_ekf_remo.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_remo.test) for the simulated Remo. A rostest file is a launch file with a `<test>` element. rostest starts the file's nodes, runs the test node and stops everything when the test node ends, as [the test file on Simulation Test](../../../../development/simulation-test.md#1-the-test-file) explains. The excerpt shows what DiffBot's file starts, from [`sim_ekf_diffbot.test`, lines 9–21]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test#L9-L21):
 
 ```xml title="sim_ekf_diffbot.test: the simulation with the EKF, the wheel separation and the test node" linenums="9"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/sim_ekf_diffbot.test:9:21"

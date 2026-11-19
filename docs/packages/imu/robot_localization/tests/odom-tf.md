@@ -1,6 +1,6 @@
 # Test: Who Publishes the Transform
 
-This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_odom_tf.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_odom_tf.py) and its helper [`odom_tf_observer.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/odom_tf_observer.py).
+This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_odom_tf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py) and its helper [`odom_tf_observer.py`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py).
 
 The transform `odom → base_footprint` says where the robot is in the `odom` frame. Exactly one node may publish it on the topic `/tf`. With two publishers, the robot's pose would jump between their two estimates. Without the EKF, the drive controller publishes the transform. With the EKF, the EKF publishes it and the drive controller doesn't, as [How it fits together](../../robot_localization.md#how-it-fits-together) explains. The test proves in the simulation that exactly the expected node publishes the transform while the test watches. It doesn't check the transform's values, and it doesn't run on the real robot. [What the test doesn't show](#what-the-test-doesnt-show) lists the limits.
 

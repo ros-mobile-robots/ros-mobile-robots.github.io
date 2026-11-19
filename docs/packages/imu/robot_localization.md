@@ -126,19 +126,19 @@ This section goes through the nodes and the topics of [the loop figure](#the-loo
 
 1. **The source of the sensors' values:** the real robot and the simulation differ here.
     - **Real robot:** the firmware on the Teensy reads the wheel encoders and the BNO055. rosserial, the connection between the Teensy and the robot's single-board computer (SBC), turns what the firmware sends into ROS topics. The firmware publishes the wheels' angles and the wheels' angular velocities $\omega_\text{l}$ and $\omega_\text{r}$, in rad/s, on the topic `/diffbot/measured_joint_states`. The firmware publishes the IMU's samples on the topic `/diffbot/imu/data_raw` at 50 Hz, as [IMU: Bosch BNO055](driver-bno055.md) explains.
-    - **Simulation:** Gazebo computes the wheel joints' angles and the IMU sensor's values. The Gazebo plugin [`gazebo_ros_control`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control) reads the wheel joints' angles inside Gazebo, without a topic. The IMU sensor's plugin publishes the topic `/diffbot/imu/gazebo`, and the small adapter [`imu_raw_adapter.py`]({{ diffbot_repo_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) republishes its samples on the topic `/diffbot/imu/data_raw`, as the [Simulation page's IMU section](../../diffbot_gazebo.md#inertial-measurement-unit-imu) explains.
+    - **Simulation:** Gazebo computes the wheel joints' angles and the IMU sensor's values. The Gazebo plugin [`gazebo_ros_control`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control) reads the wheel joints' angles inside Gazebo, without a topic. The IMU sensor's plugin publishes the topic `/diffbot/imu/gazebo`, and the small adapter [`imu_raw_adapter.py`]({{ ekf_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) republishes its samples on the topic `/diffbot/imu/data_raw`, as the [Simulation page's IMU section](../../diffbot_gazebo.md#inertial-measurement-unit-imu) explains.
 2. **The wheels' branch, the drive controller:** [`mobile_base_controller`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L23), a [diff_drive_controller](http://wiki.ros.org/diff_drive_controller), computes the wheel odometry from the wheels' angles and publishes the wheel odometry on the topic `/diffbot/mobile_base_controller/odom`. On the real robot, the drive controller runs in the node `diffbot_base`, whose hardware interface takes the wheels' angles from the topic `/diffbot/measured_joint_states`. In the simulation, the drive controller runs inside Gazebo, in `gazebo_ros_control`. With the EKF on, the drive controller doesn't publish the transform `odom → base_footprint`. Two nodes that publish the same transform would make the robot's pose jump between their two estimates.
-3. **The IMU's branch, the IMU sample validator:** the node [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py) subscribes to the topic `/diffbot/imu/data_raw`. The validator checks each sample against what this EKF configuration needs and forwards the valid samples on the topic `/diffbot/imu/data_validated`, with their stamps and values unchanged. [The IMU sample validator](#the-imu-sample-validator) lists its checks.
+3. **The IMU's branch, the IMU sample validator:** the node [`imu_validator.py`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py) subscribes to the topic `/diffbot/imu/data_raw`. The validator checks each sample against what this EKF configuration needs and forwards the valid samples on the topic `/diffbot/imu/data_validated`, with their stamps and values unchanged. [The IMU sample validator](#the-imu-sample-validator) lists its checks.
 4. **The EKF:** the node `/diffbot/ekf_localization` subscribes to the wheel odometry on the topic `/diffbot/mobile_base_controller/odom` and to the validated samples on the topic `/diffbot/imu/data_validated`. The EKF fuses the two. The EKF publishes the filtered odometry on the topic `/diffbot/odometry/filtered` and the transform `odom → base_footprint` on the topic `/tf`.
 5. **The readers of the two outputs:** RViz can show both outputs, as in the figure's sketch, for the real robot and for the simulation alike. For the topic, RViz needs an Odometry display, which [Comparing the two odometries](#comparing-the-two-odometries) sets up. The planner in `move_base` or in Move Base Flex reads both outputs too. [The two outputs](#the-two-outputs) names every node that reads them.
 6. **The velocity commands:** a node that wants the robot to move publishes [`geometry_msgs/Twist`](http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) messages on the topic `/diffbot/mobile_base_controller/cmd_vel`. The drive controller subscribes to this topic and uses two values of a command: `linear.x`, the target forward speed $v_x^*$ in m/s, and `angular.z`, the target yaw rate $\omega_z^*$ in rad/s. The launch files of the diffbot repository start three kinds of nodes that publish commands:
-    - **A teleop node for the keyboard:** [`keyboard_teleop.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/keyboard_teleop.launch) starts `teleop_twist_keyboard`, which turns key presses into commands.
-    - **A teleop window:** in the simulation, [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch) starts `rqt_robot_steering`, a window with sliders to drive the robot.
+    - **A teleop node for the keyboard:** [`keyboard_teleop.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/keyboard_teleop.launch) starts `teleop_twist_keyboard`, which turns key presses into commands.
+    - **A teleop window:** in the simulation, [`diffbot_control.launch`]({{ ekf_src_url }}/diffbot_control/launch/diffbot_control.launch) starts `rqt_robot_steering`, a window with sliders to drive the robot.
     - **The planner:** `move_base` and Move Base Flex compute the commands that lead the robot to a goal. With `ekf:=true`, the planner reads the EKF's two outputs, so the EKF's estimate is part of the loop. [The planners' odometry topic](#the-planners-odometry-topic) shows the lines that connect the planner to both topics.
 
-    The EKF doesn't read the velocity commands. robot_localization can use the commands in its prediction with the setting [`use_control`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L924), whose default is `false`, as robot_localization's [description of `use_control`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#use-control) says. [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) doesn't set `use_control`, so the figure has no arrow from the commands to the EKF.
+    The EKF doesn't read the velocity commands. robot_localization can use the commands in its prediction with the setting [`use_control`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L924), whose default is `false`, as robot_localization's [description of `use_control`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#use-control) says. [`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) doesn't set `use_control`, so the figure has no arrow from the commands to the EKF.
 
-7. **The way back to the wheels:** the drive controller first limits the command's velocities and accelerations to the limits in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). From the limited command, the drive controller computes two target wheel speeds in rad/s, the angular velocities $\omega_\text{l}^*$ for the left wheel and $\omega_\text{r}^*$ for the right wheel:
+7. **The way back to the wheels:** the drive controller first limits the command's velocities and accelerations to the limits in [`diffbot_control.yaml`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml). From the limited command, the drive controller computes two target wheel speeds in rad/s, the angular velocities $\omega_\text{l}^*$ for the left wheel and $\omega_\text{r}^*$ for the right wheel:
 
     $$
     \omega_\text{l}^* = \frac{v_x^* - \omega_z^* \, b / 2}{r}, \qquad \omega_\text{r}^* = \frac{v_x^* + \omega_z^* \, b / 2}{r}
@@ -147,7 +147,7 @@ This section goes through the nodes and the topics of [the loop figure](#the-loo
     $b$ is the wheel separation and $r$ is the wheel radius, both in m. The real robot and the simulation differ in what happens to the two targets.
 
     - **Real robot:** the hardware interface in the node `diffbot_base` publishes the two targets on the topic `/diffbot/wheel_cmd_velocities`. The firmware on the Teensy receives them through rosserial. For each motor, a [proportional–integral–derivative (PID) controller](../diffbot_base/pid.md) in the firmware compares the wheel's target with the wheel's angular velocity that the encoder measures, $\omega_\text{l}$ or $\omega_\text{r}$, and sets the motor driver's output for this motor. [Low-Level PID Approach](../diffbot_base/low-level.md) explains the firmware.
-    - **Simulation:** `gazebo_ros_control` gets the two targets inside Gazebo, without a topic. For each wheel joint, a PID controller of `gazebo_ros_control` compares the target with the joint's angular velocity and applies a torque $\tau$ in N m to the joint. [Turning a wheel-speed command into torque](../../theory/modeling-control/wheel-dynamics-simulation.md#turning-a-wheel-speed-command-into-torque) explains this PID controller. The controller's gains are in the robot's `pid.yaml`, for Remo [`diffbot_control/config/remo/pid.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/remo/pid.yaml).
+    - **Simulation:** `gazebo_ros_control` gets the two targets inside Gazebo, without a topic. For each wheel joint, a PID controller of `gazebo_ros_control` compares the target with the joint's angular velocity and applies a torque $\tau$ in N m to the joint. [Turning a wheel-speed command into torque](../../theory/modeling-control/wheel-dynamics-simulation.md#turning-a-wheel-speed-command-into-torque) explains this PID controller. The controller's gains are in the robot's `pid.yaml`, for Remo [`diffbot_control/config/remo/pid.yaml`]({{ ekf_src_url }}/diffbot_control/config/remo/pid.yaml).
 
     The wheels turn, the robot moves, and the sensors of step 1 measure the motion.
 
@@ -172,7 +172,7 @@ The collapsed box shows the code of step 7, from a velocity command to the wheel
     --8<-- "https://raw.githubusercontent.com/ros-controls/ros_controllers/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp:491:500"
     ```
 
-    On the real robot, the control loop of the node `diffbot_base` calls the hardware interface's function [`DiffBotHWInterface::write()`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L163) after each `update()` of the drive controller. `write()` first scales the left target by `(gain_ - trim_) / motor_constant_` and the right target by `(gain_ + trim_) / motor_constant_`. Both factors are 1 with the settings [`gain`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L6), [`trim`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L7) and [`motor_constant`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L8) in [`base.yaml`]({{ diffbot_repo_url }}/diffbot_base/config/base.yaml). `write()` then copies the two targets from `joint_velocity_commands_` into the message `wheel_cmd_msg` and publishes the message, as [lines 169–186 of `diffbot_hw_interface.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L169-L186) show:
+    On the real robot, the control loop of the node `diffbot_base` calls the hardware interface's function [`DiffBotHWInterface::write()`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L163) after each `update()` of the drive controller. `write()` first scales the left target by `(gain_ - trim_) / motor_constant_` and the right target by `(gain_ + trim_) / motor_constant_`. Both factors are 1 with the settings [`gain`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L6), [`trim`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L7) and [`motor_constant`]({{ ekf_src_url }}/diffbot_base/config/base.yaml#L8) in [`base.yaml`]({{ ekf_src_url }}/diffbot_base/config/base.yaml). `write()` then copies the two targets from `joint_velocity_commands_` into the message `wheel_cmd_msg` and publishes the message, as [lines 169–186 of `diffbot_hw_interface.cpp`]({{ ekf_src_url }}/diffbot_base/src/diffbot_hw_interface.cpp#L169-L186) show:
 
     ```cpp linenums="169"
     --8<-- "{{ ekf_src_raw }}/diffbot_base/src/diffbot_hw_interface.cpp:169:186"
@@ -190,7 +190,7 @@ The collapsed box shows the code of step 7, from a velocity command to the wheel
     --8<-- "https://raw.githubusercontent.com/ros-simulation/gazebo_ros_pkgs/2.9.3/gazebo_ros_control/src/default_robot_hw_sim.cpp:370:380"
     ```
 
-[`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) in `diffbot_control` starts the validator and the EKF, for the robot and the simulation alike.
+[`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch) in `diffbot_control` starts the validator and the EKF, for the robot and the simulation alike.
 
 ## Running it
 
@@ -198,12 +198,12 @@ The `ekf` argument switches the EKF on. The EKF is off by default. Pass `ekf:=tr
 
 | Where | Command |
 |:--|:--|
-| On the robot, when you start the bringup yourself | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or [`bringup_with_laser.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup_with_laser.launch)) |
+| On the robot, when you start the bringup yourself | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or [`bringup_with_laser.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup_with_laser.launch)) |
 | In the simulation | `roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true` |
 | Simulation with navigation | `roslaunch diffbot_navigation diffbot.launch model:=remo ekf:=true` |
 | Navigation on the development PC, for a robot that runs with the EKF | `roslaunch diffbot_navigation diffbot_hw.launch model:=remo ekf:=true` |
 
-The four commands start these launch files: [`diffbot_bringup/launch/bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch), [`diffbot_gazebo/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_navigation/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot.launch) and [`diffbot_navigation/launch/diffbot_hw.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot_hw.launch).
+The four commands start these launch files: [`diffbot_bringup/launch/bringup.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup.launch), [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_navigation/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot.launch) and [`diffbot_navigation/launch/diffbot_hw.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot_hw.launch).
 
 ### Which launch file starts what
 
@@ -229,9 +229,9 @@ roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true
 ```
 
 !!! note "With the robot container"
-    In the [robot container](../../processing_units/robot-container/usage.md), Docker Compose starts [`bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch) for you, without `ekf`, as the `bringup` service's command in [`compose.yaml`]({{ diffbot_repo_url }}/.docker/robot/compose.yaml) says. So `robot_state_publisher` runs there and the EKF is off. The container's settings have no switch for the EKF. The issue [Robot container: a setting that starts the bringup with the EKF (diffbot#202)](https://github.com/ros-mobile-robots/diffbot/issues/202) asks for such a setting. Don't start a second bringup by hand next to the container's.
+    In the [robot container](../../processing_units/robot-container/usage.md), Docker Compose starts [`bringup.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup.launch) for you, without `ekf`, as the `bringup` service's command in [`compose.yaml`]({{ ekf_src_url }}/.docker/robot/compose.yaml) says. So `robot_state_publisher` runs there and the EKF is off. The container's settings have no switch for the EKF. The issue [Robot container: a setting that starts the bringup with the EKF (diffbot#202)](https://github.com/ros-mobile-robots/diffbot/issues/202) asks for such a setting. Don't start a second bringup by hand next to the container's.
 
-The figure shows which files this command reads on the real robot, [`bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch), [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch), [`diffbot_base/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) and [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
+The figure shows which files this command reads on the real robot, [`bringup.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup.launch), [`minimal.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/minimal.launch), [`diffbot_base/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_base/launch/diffbot.launch) and [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
 
 <p class="lv-badge-line"><span class="lv-badge">Real robot</span></p>
 
@@ -255,21 +255,21 @@ graph TB
 
 This command also starts the following nodes, which the figure leaves out:
 
-- **rosserial:** [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch) also starts rosserial, the connection to the Teensy.
-- **The hardware interface:** [`diffbot_base/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) also starts the hardware interface `diffbot_base`, which runs the drive controller.
-- **The lidar:** [`bringup_with_laser.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup_with_laser.launch) does the same as [`bringup.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/bringup.launch) and also starts the lidar.
+- **rosserial:** [`minimal.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/minimal.launch) also starts rosserial, the connection to the Teensy.
+- **The hardware interface:** [`diffbot_base/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_base/launch/diffbot.launch) also starts the hardware interface `diffbot_base`, which runs the drive controller.
+- **The lidar:** [`bringup_with_laser.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup_with_laser.launch) does the same as [`bringup.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup.launch) and also starts the lidar.
 
 `minimal.launch` takes the `ekf` argument because the bringup files pass `ekf` through `minimal.launch`. Starting `minimal.launch` on its own with `ekf:=true` doesn't read the bringup file, so nothing starts `robot_state_publisher`. Without another publisher that provides the transform between `imu_link` and `base_footprint`, the EKF can't use the IMU's samples, and the EKF's estimate follows the wheels.
 
 #### In the simulation
 
-In the simulation, you start `diffbot_gazebo`'s [`diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch):
+In the simulation, you start `diffbot_gazebo`'s [`diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch):
 
 ```console
 roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true
 ```
 
-The figure shows which files this command reads in the simulation, [`diffbot_gazebo/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch) and [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
+The figure shows which files this command reads in the simulation, [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_control.launch`]({{ ekf_src_url }}/diffbot_control/launch/diffbot_control.launch) and [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
 
 <p class="lv-badge-line"><span class="lv-badge">Simulation</span></p>
 
@@ -289,18 +289,18 @@ graph TB
   class STATE_PUBLISHER view;
 ```
 
-This command also reads one more file, which the figure leaves out. [`diffbot_gazebo/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch) also includes [`diffbot_view.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot_view.launch). That file starts Gazebo through gazebo_ros's [`empty_world.launch`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/launch/empty_world.launch), the adapter [`imu_raw_adapter.py`]({{ diffbot_repo_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) and the node that puts the robot into Gazebo. Gazebo runs the drive controller.
+This command also reads one more file, which the figure leaves out. [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch) also includes [`diffbot_view.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot_view.launch). That file starts Gazebo through gazebo_ros's [`empty_world.launch`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/launch/empty_world.launch), the adapter [`imu_raw_adapter.py`]({{ ekf_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) and the node that puts the robot into Gazebo. Gazebo runs the drive controller.
 
 #### What the launch files do with `ekf`
 
-The file at the end of the thick arrows uses the `ekf` value. On the real robot, that file is [`diffbot_base/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch). In the simulation, that file is [`diffbot_control.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/diffbot_control.launch). Each of these two launch files loads the drive controller's configuration and then does two things with its `ekf` value, in two lines. The excerpt shows the two lines, from [`diffbot_base/launch/diffbot.launch`, lines 45–46]({{ ekf_src_url }}/diffbot_base/launch/diffbot.launch#L45-L46). `diffbot_control.launch` has the same two lines:
+The file at the end of the thick arrows uses the `ekf` value. On the real robot, that file is [`diffbot_base/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_base/launch/diffbot.launch). In the simulation, that file is [`diffbot_control.launch`]({{ ekf_src_url }}/diffbot_control/launch/diffbot_control.launch). Each of these two launch files loads the drive controller's configuration and then does two things with its `ekf` value, in two lines. The excerpt shows the two lines, from [`diffbot_base/launch/diffbot.launch`, lines 45–46]({{ ekf_src_url }}/diffbot_base/launch/diffbot.launch#L45-L46). `diffbot_control.launch` has the same two lines:
 
 ```xml title="diffbot_base/launch/diffbot.launch: the two lines that use ekf" linenums="45"
 --8<-- "{{ ekf_src_raw }}/diffbot_base/launch/diffbot.launch:45:46"
 ```
 
 1. **Line 45 sets the drive controller's parameter `enable_odom_tf`:** the parameter says whether the drive controller publishes the transform `odom → base_footprint`. The line's value stands at the line's end: `$(eval not arg('ekf'))`, which turns the value of `ekf` around. So the line writes `false` with the EKF and `true` without the EKF. With the EKF, the EKF publishes the transform, and the drive controller must not.
-2. **Line 46 includes [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch):** the file starts the validator and the EKF. The line includes the file only if `ekf` is true.
+2. **Line 46 includes [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch):** the file starts the validator and the EKF. The line includes the file only if `ekf` is true.
 
 Line 45 writes the parameter in both cases, also the `true`, for this reason: a parameter stays on the ROS parameter server as long as the ROS master runs, also after the launch that wrote the parameter has ended. Suppose that the line wrote only the `false`, and only with the EKF. Then this sequence would go wrong:
 
@@ -314,7 +314,7 @@ Because line 45 writes `true` without the EKF, every start sets the value that f
 
 #### The planners' odometry topic
 
-The navigation launch files pass `ekf` on in the same way. [`diffbot_navigation/launch/diffbot.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot.launch) includes `diffbot_gazebo`'s [`diffbot.launch`]({{ diffbot_repo_url }}/diffbot_gazebo/launch/diffbot.launch) and [`move_base.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/move_base.launch) and passes `ekf` to both.
+The navigation launch files pass `ekf` on in the same way. [`diffbot_navigation/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot.launch) includes `diffbot_gazebo`'s [`diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch) and [`move_base.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/move_base.launch) and passes `ekf` to both.
 
 `move_base.launch` starts no EKF. The file uses its `ekf` argument to choose the odometry topic that the planner reads. Line 8 computes the default of the argument `odom_topic` from `ekf`: `/diffbot/odometry/filtered` with the EKF, and the wheel odometry's topic `/diffbot/mobile_base_controller/odom` without the EKF. The excerpt shows the two arguments in lines 7 and 8, and above them the argument `cmd_vel_topic` for the topic of the planner's velocity commands, from [`move_base.launch`, lines 6–8]({{ ekf_src_url }}/diffbot_navigation/launch/move_base.launch#L6-L8):
 
@@ -332,8 +332,8 @@ Line 27 connects the planner's output in the same way. The planner publishes its
 
 So with `ekf:=true`, the planner's velocities and the transform come from the same estimate. Two more files work in the same way:
 
-- **Move Base Flex:** [`move_base.launch.xml`]({{ diffbot_repo_url }}/diffbot_mbf/launch/includes/move_base.launch.xml) has the same argument and the same remapping, as the collapsed box shows.
-- **Navigation for the real robot:** [`diffbot_hw.launch`]({{ diffbot_repo_url }}/diffbot_navigation/launch/diffbot_hw.launch) starts no EKF. Its `ekf` argument only selects the odometry that the planner reads, for a robot whose bringup runs with `ekf:=true`.
+- **Move Base Flex:** [`move_base.launch.xml`]({{ ekf_src_url }}/diffbot_mbf/launch/includes/move_base.launch.xml) has the same argument and the same remapping, as the collapsed box shows.
+- **Navigation for the real robot:** [`diffbot_hw.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot_hw.launch) starts no EKF. Its `ekf` argument only selects the odometry that the planner reads, for a robot whose bringup runs with `ekf:=true`.
 
 ??? quote "move_base.launch.xml: the same lines for Move Base Flex"
     The excerpt shows the three arguments, from [`move_base.launch.xml`, lines 5–7]({{ ekf_src_url }}/diffbot_mbf/launch/includes/move_base.launch.xml#L5-L7):
@@ -385,7 +385,7 @@ With the robot's own wheel separation, the two odometries hardly differ in this 
 
 ## What the filter fuses
 
-[`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) configures the filter. For each input, a list of 15 booleans says which values of the input's messages the filter fuses: [`odom0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L55-L59) for the wheel odometry and [`imu0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L74-L78) for the IMU. [The two lists](#the-two-lists) shows both lists.
+[`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) configures the filter. For each input, a list of 15 booleans says which values of the input's messages the filter fuses: [`odom0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L55-L59) for the wheel odometry and [`imu0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L74-L78) for the IMU. [The two lists](#the-two-lists) shows both lists.
 
 To **fuse** means that the filter corrects its estimate $\hat{\mathbf{x}}$ with a measurement $\mathbf{z}$. One measurement can hold several values, for example the wheel odometry's three velocities, and the filter uses them together in one correction. Each value counts by its certainty. The filter computes the weights from two uncertainties: the covariance of the measurement, which holds the variance $\sigma^2$ of each of its values, and the covariance of the filter's own estimate. The smaller a measured value's variance is next to the estimate's uncertainty, the closer the estimate moves to the measured value.
 
@@ -408,7 +408,7 @@ $$
 \mathbf{x} = (\,x,\ y,\ z,\ \text{roll},\ \text{pitch},\ \theta,\ v_x,\ v_y,\ v_z,\ \omega_x,\ \omega_y,\ \omega_z,\ a_x,\ a_y,\ a_z\,)
 $$
 
-The table shows the state's five groups of three variables, with the labels that the comments in [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) use and the names on [robot_localization's parameter page](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-config), which gives the same order:
+The table shows the state's five groups of three variables, with the labels that the comments in [`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) use and the names on [robot_localization's parameter page](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#sensor-config), which gives the same order:
 
 | Group | Symbols | Unit | Labels in `ekf.yaml` | Names on the parameter page |
 |:--|:--|:--|:--|:--|
@@ -555,7 +555,7 @@ What fills the elements, and what the filter does with them:
 
 These settings supply the numbers on the diagonals:
 
-- **The wheel odometry's variances:** the drive controller publishes the values of its parameter [`twist_covariance_diagonal`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L37) in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml), on the robot and in the simulation.
+- **The wheel odometry's variances:** the drive controller publishes the values of its parameter [`twist_covariance_diagonal`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L37) in [`diffbot_control.yaml`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml), on the robot and in the simulation.
 - **The IMU's variance on the robot:** the firmware publishes its setting [`angular_velocity_variance`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71), 4 · 10⁻⁴ (rad/s)². [What the firmware publishes](driver-bno055.md#what-the-firmware-publishes) on the BNO055 page lists the firmware's settings. The value is a starting value from the datasheet's noise and offsets. The [bench checks](driver-bno055.md#bench-checks) on the same page measured the gyroscope's noise with the robot at rest: a variance of 2 to 6 · 10⁻⁷ (rad/s)². The starting value stays for now, because driving adds vibration and drift, which a recording at rest doesn't show.
 - **The IMU's variance in the simulation:** the simulated sensor publishes the square of `gaussianNoise`, the noise of 0.005 rad/s that the sensor adds to each value. The setting stands in DiffBot's [`common_sensors.xacro`]({{ ekf_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L251) and in Remo's [`common_sensors.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L261).
 
@@ -609,7 +609,7 @@ So the two lists can't change these seven variables. A `false` at their position
 
 ### The other settings
 
-This section explains the settings of [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) that the sections above don't, in the order of the file. Each setting comes with its lines of the file.
+This section explains the settings of [`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) that the sections above don't, in the order of the file. Each setting comes with its lines of the file.
 
 - **`frequency`:** the filter produces its estimate 50 times per second, at the [`frequency`](https://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html#frequency) of 50 Hz, the IMU's rate. In each of these runs, the filter processes the measurements that have arrived, up to the ROS time, and publishes the estimate. The excerpt shows the setting with its comment, from [`ekf.yaml`, lines 8–12]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L8-L12):
 
@@ -617,7 +617,7 @@ This section explains the settings of [`ekf.yaml`]({{ diffbot_repo_url }}/diffbo
     --8<-- "{{ ekf_src_raw }}/diffbot_control/config/ekf.yaml:8:12"
     ```
 
-    The inputs don't have to arrive at this rate. In the simulation, the wheel odometry arrives at a nominal 50 Hz too, in simulation time, the drive controller's [`publish_rate`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L25) in [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml). On the robot, the wheel odometry arrives at most 10 times per second, as the collapsed box explains.
+    The inputs don't have to arrive at this rate. In the simulation, the wheel odometry arrives at a nominal 50 Hz too, in simulation time, the drive controller's [`publish_rate`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L25) in [`diffbot_control.yaml`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml). On the robot, the wheel odometry arrives at most 10 times per second, as the collapsed box explains.
 
     ??? info "Why the robot's wheel odometry arrives at most 10 times per second"
         Two rates in the code limit the wheel odometry on the robot:
@@ -681,7 +681,7 @@ This section explains the settings of [`ekf.yaml`]({{ diffbot_repo_url }}/diffbo
 
 ## The IMU sample validator
 
-The IMU sample validator is the ROS node `/diffbot/imu_validator`, from [`imu_validator.py`]({{ diffbot_repo_url }}/diffbot_control/scripts/imu_validator.py). The validator subscribes to the topic `/diffbot/imu/data_raw` and forwards each valid sample on the topic `/diffbot/imu/data_validated` with its stamp and values unchanged (rospy numbers `header.seq` again for each publisher), which the EKF reads. The validator drops every other sample.
+The IMU sample validator is the ROS node `/diffbot/imu_validator`, from [`imu_validator.py`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py). The validator subscribes to the topic `/diffbot/imu/data_raw` and forwards each valid sample on the topic `/diffbot/imu/data_validated` with its stamp and values unchanged (rospy numbers `header.seq` again for each publisher), which the EKF reads. The validator drops every other sample.
 
 ### Why the EKF needs the validator
 
@@ -706,7 +706,7 @@ $$
 - **When $\Delta t = 0$:** the filter skips the prediction and corrects its estimate with the measurement. $t_\text{filter}$ stays.
 - **When $\Delta t < 0$:** the filter skips the prediction too, and corrects its estimate at $t_\text{filter}$ with the older measurement. $t_\text{filter}$ stays.
 
-**3. The filter doesn't go back in time:** [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L893) at its default `false`, which robot_localization's [description of `smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) explains, so the filter doesn't return to $t_s$ to process a late measurement in its place.
+**3. The filter doesn't go back in time:** [`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) leaves [`smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L893) at its default `false`, which robot_localization's [description of `smooth_lagged_data`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/doc/state_estimation_nodes.rst#smooth_lagged_data) explains, so the filter doesn't return to $t_s$ to process a late measurement in its place.
 
 The figure shows the second and the third fact for a current and for a late IMU sample:
 
@@ -746,7 +746,7 @@ Neither setting looks at a sample's age, its frame or a repeated stamp.
 
 A sample is valid only if it passes all five checks. For each sample, the node calls [`drop_reason_or_record()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L258) of the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails. For a valid sample, the method stores the sample's stamp and the ROS time of its arrival in two attributes of the validator, `last_valid_stamp` and `last_valid_arrival_time`, and returns `None`, which stands for "no reason to drop". The validator's tests page walks through the method in [`drop_reason_or_record()`: the decision about a sample](robot_localization/tests/validator.md#drop_reason_or_record-the-decision-about-a-sample). In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
 
-Before the first check, the node drops every sample while the ROS time is zero, because it can't judge a stamp without a clock. In the simulation, the parameter `/use_sim_time` is true, and the ROS time is the time of the last message on Gazebo's topic `/clock`. Until the node has received the first message there, the ROS time is zero. On the robot, the ROS time is the SBC's system clock, which doesn't read zero. The validator's tests page explains this in [Where the ROS time comes from](robot_localization/tests/validator.md#where-the-ros-time-comes-from). [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33) are the node's parameters, which [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) sets.
+Before the first check, the node drops every sample while the ROS time is zero, because it can't judge a stamp without a clock. In the simulation, the parameter `/use_sim_time` is true, and the ROS time is the time of the last message on Gazebo's topic `/clock`. Until the node has received the first message there, the ROS time is zero. On the robot, the ROS time is the SBC's system clock, which doesn't read zero. The validator's tests page explains this in [Where the ROS time comes from](robot_localization/tests/validator.md#where-the-ros-time-comes-from). [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33) are the node's parameters, which [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch) sets.
 
 #### Checks 1 to 3: the sample's form
 
@@ -824,7 +824,7 @@ The two cases are reduced examples. The updates of this configuration also hold 
 
 --8<-- "includes/localization-distance.html"
 
-[`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets no rejection threshold, so this test is off for both inputs. The filter's other handling of an input stays: the stamp-order check, the transform into `base_footprint`, the selection by the [two lists](#the-two-lists), and leaving out values that are not finite. The test is off for two reasons:
+[`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) sets no rejection threshold, so this test is off for both inputs. The filter's other handling of an input stays: the stamp-order check, the transform into `base_footprint`, the selection by the [two lists](#the-two-lists), and leaving out values that are not finite. The test is off for two reasons:
 
 - **The robot's variances are starting values:** the firmware and the drive controller publish fixed variances. Whether these fit while the robot drives isn't checked yet. A threshold counts in these uncertainties, so a number chosen today would mean little.
 - **A threshold needs recorded drives:** a threshold that is too tight rejects valid changes of the motion, for example the start of a turn. Recordings at rest can't show how the test behaves when the robot accelerates, turns and slips.
@@ -913,7 +913,7 @@ Five test files check the EKF and the IMU sample validator without the robot, in
 | Test | What the test checks |
 |:--|:--|
 | [IMU Sample Validator](robot_localization/tests/validator.md) | The validator's checks alone, without a ROS master: each reason to drop a sample, the limits [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33), a clock that goes back, and the diagnostics |
-| [EKF on a Stepped Clock](robot_localization/tests/stepped-clock.md) | The validator and the filter of [`ekf.launch`]({{ diffbot_repo_url }}/diffbot_control/launch/ekf.launch) on a clock that the test steps: the estimate's yaw rate $\omega_z$ with valid IMU samples, and with samples that are old, from the future, repeated or out of order. At the robot's rates, the IMU at 50 Hz and the wheel odometry at 10 Hz: the estimate, and, when the IMU stops, that each 100 ms wheel period contains the header stamp of one output |
+| [EKF on a Stepped Clock](robot_localization/tests/stepped-clock.md) | The validator and the filter of [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch) on a clock that the test steps: the estimate's yaw rate $\omega_z$ with valid IMU samples, and with samples that are old, from the future, repeated or out of order. At the robot's rates, the IMU at 50 Hz and the wheel odometry at 10 Hz: the estimate, and, when the IMU stops, that each 100 ms wheel period contains the header stamp of one output |
 | [EKF in Gazebo](robot_localization/tests/gazebo.md) | DiffBot and Remo in the simulation, with a wheel separation that is 25 % too large in the drive controller: the filter's turn follows the robot's true turn, not the wheel odometry's |
 | [The ekf Switch](robot_localization/tests/switch.md) | The launch files with `ekf` true, false and by default: which nodes start, the value of [`enable_odom_tf`]({{ ekf_src_url }}/diffbot_base/launch/diffbot.launch#L45), and which odometry the planners read |
 | [The Transform's Publisher](robot_localization/tests/odom-tf.md) | Without the EKF, only the drive controller publishes the transform `odom → base_footprint` on the topic `/tf` |
