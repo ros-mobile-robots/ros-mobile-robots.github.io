@@ -34,9 +34,9 @@ The filter publishes its estimate in two forms, which navigation and RViz use:
     The EKF runs in the simulation and in the tests that [How it's tested](#how-its-tested) lists. On Remo, the IMU's rate, axes and noise passed the [bench checks](driver-bno055.md#bench-checks), but the EKF itself hasn't run on a robot yet. Remo's URDF model in remo_description includes the IMU's position and orientation as the same bench checks confirmed them. DiffBot uses the same BNO055, but its mounting and the firmware still need checking on DiffBot. The variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's time limits, are starting values, not measurements.
 
 ??? info "Reading the code on this page"
-    - The excerpts on this page show fixed revisions: the diffbot repository at one commit, robot_localization 2.7.7, ros_controllers 0.22.0, gazebo_ros_pkgs 2.9.3, the navigation stack 1.17.3 and ROS's common_msgs at one commit. The line numbers are those of the original files.
+    - The excerpts on this page show fixed revisions: robot_localization 2.7.7, ros_controllers 0.22.0, gazebo_ros_pkgs 2.9.3, the navigation stack 1.17.3, ROS's common_msgs at one commit, and the diffbot repository at the commit of the change that each example describes. The line numbers are those of the original files.
     - The link in the sentence before an excerpt opens that revision and those lines on GitHub.
-    - Where a section names a function, a class, a member or a setting of the code, the name links to its line at that revision or to the section of this page that shows it, or the section shows the name in an excerpt. A file name links to the file, for the diffbot repository to its current version.
+    - Where a section names a function, a class, a member or a setting of the code, the name links to its line at that revision or to the section of this page that shows it, or the section shows the name in an excerpt. A file name links to the file at a fixed revision, for the diffbot repository at the commit that the example uses.
 
 ## What goes in and what comes out
 
@@ -377,7 +377,7 @@ The configuration has four displays:
 RViz draws the robot's frames and the URDF model at the pose that the transform `odom → base_footprint` gives. With `ekf:=true`, the EKF publishes this transform. So the pose of the robot's frames in the RViz window is the EKF's estimate. What the RobotModel display adds to the frames depends on the robot:
 
 - **DiffBot:** the display draws DiffBot's body.
-- **Remo:** with these settings, the window shows Remo's frames and the scan, and no body. [STL files](../remo_description.md#stl-files) on the Remo Description page says which mesh files the public `remo_description` repository has and how to get Remo's meshes. To see Remo's body without the meshes, tick **[Collision Enabled](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/robot_model_display.cpp#L64)** in the RobotModel display. The display then draws the collision shapes of Remo's URDF model, as in the picture of [Comparing the two odometries](#comparing-the-two-odometries).
+- **Remo:** with these settings and the placeholder meshes of the public `remo_description` repository, the window shows Remo's frames and the scan, and no body. With Remo's mesh files installed, the same settings draw Remo's body, because the configuration shows the URDF model's visual shapes. [STL files](../remo_description.md#stl-files) on the Remo Description page says which mesh files that repository has and how to get Remo's meshes. To see Remo's body without the meshes, tick **[Collision Enabled](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/robot_model_display.cpp#L64)** in the RobotModel display. The display then draws the collision shapes of Remo's URDF model, as in the picture of [Comparing the two odometries](#comparing-the-two-odometries).
 
 The configuration has no Odometry display, so the window doesn't draw the messages of the topic `/diffbot/odometry/filtered`. To see these messages, add an Odometry display in the RViz window:
 
