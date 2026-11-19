@@ -24,12 +24,12 @@ Each question below leads to the page of the test that answers it. The pages go 
 
 ## How the tests run
 
-The five test files are Python tests, written with Python's [`unittest`](https://docs.python.org/3/library/unittest.html) module: each file defines its tests as methods of a `unittest.TestCase` class. catkin runs the five files with the workspace's other tests. The packages register them in their `CMakeLists.txt` with two macros:
+The five test files are Python tests, written with Python's [`unittest`](https://docs.python.org/3/library/unittest.html) module: each file defines its tests as methods of a [`unittest.TestCase`](https://docs.python.org/3/library/unittest.html#unittest.TestCase) class. catkin runs the five files with the workspace's other tests. The packages register them in their `CMakeLists.txt` with two functions:
 
-- **`catkin_add_nosetests()`:** for the two files without ROS nodes. The test runner [nose](https://nose.readthedocs.io/en/latest/) finds the `TestCase` classes in the file and runs their tests.
-- **`add_rostest()`:** for the three files that start nodes. rostest starts the nodes of the test's `.test` launch file, then the test file.
+- **[`catkin_add_nosetests()`](https://github.com/ros/catkin/blob/0.8.12/cmake/test/nosetests.cmake#L29):** for the two files without ROS nodes. The test runner [nose](https://nose.readthedocs.io/en/latest/) finds the [`TestCase`](https://docs.python.org/3/library/unittest.html#unittest.TestCase) classes in the file and runs their tests.
+- **[`add_rostest()`](https://github.com/ros/ros_comm/blob/1.17.0/tools/rostest/cmake/rostest-extras.cmake.em#L7):** for the three files that start nodes. rostest starts the nodes of the test's `.test` launch file, then the test file.
 
-catkin's guides [Configuring Python nose tests](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) and [Configuring rostest](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) explain the two macros. CI runs the same tests on every pull request, as [Testing and CI](../../../../development/ci.md#ekf-tests) explains.
+catkin's guides [Configuring Python nose tests](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) and [Configuring rostest](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) explain the two functions. CI runs the same tests on every pull request, as [Testing and CI](../../../../development/ci.md#ekf-tests) explains.
 
 ## Run the tests
 
@@ -45,7 +45,7 @@ The second line builds the workspace and runs every registered test, the five fi
 
 To run one test file, use its command from the list. Each item names what a passing run prints. The test's page shows the whole output and what the test doesn't show.
 
-- **[`test_imu_validator.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py), [IMU Sample Validator](validator.md#run-the-tests):** Python's `unittest` runs the file from its folder.
+- **[`test_imu_validator.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py), [IMU Sample Validator](validator.md#run-the-tests):** Python's [`unittest`](https://docs.python.org/3/library/unittest.html) runs the file from its folder.
 
     ```console
     roscd diffbot_control/test

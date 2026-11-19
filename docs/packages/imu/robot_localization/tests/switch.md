@@ -1,39 +1,39 @@
 # Test: The ekf Switch of the Launch Files
 
-This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_ekf_switch.py`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py), the test of the `ekf` argument in the launch files.
+This page belongs to [Localization: Wheel Odometry and IMU (EKF)](../../robot_localization.md). [Tests of the Localization](index.md) lists the five tests by the question that each answers. This page walks through [`test_ekf_switch.py`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py), the test of the [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) argument in the launch files.
 
-The `ekf` argument has to do several things at once in several launch files, as [Which launch file starts what](../../robot_localization.md#which-launch-file-starts-what) shows. With `ekf:=true`, a launch file that starts the robot or the simulation starts the EKF and the IMU sample validator and turns off the drive controller's transform `odom → base_footprint`. A launch file that starts a planner makes the planner read the EKF's odometry by default. `diffbot_navigation`'s `move_base.launch` also takes the argument `odom_topic`, which names another topic. Without `ekf:=true`, none of this may happen. The test proves that the launch files are written this way, for both positions of the switch and for its default. The test reads the launch files and starts nothing. So the test doesn't prove that the nodes run or that they work together. The [stepped-clock test](stepped-clock.md) and the [test in Gazebo](gazebo.md) start them.
+The `ekf` argument has to do several things at once in several launch files, as [Which launch file starts what](../../robot_localization.md#which-launch-file-starts-what) shows. With `ekf:=true`, a launch file that starts the robot or the simulation starts the EKF and the IMU sample validator and turns off the drive controller's transform `odom → base_footprint`. A launch file that starts a planner makes the planner read the EKF's odometry by default. `diffbot_navigation`'s [`move_base.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/move_base.launch) also takes the argument [`odom_topic`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/move_base.launch#L8), which names another topic. Without `ekf:=true`, none of this may happen. The test proves that the launch files are written this way, for both positions of the switch and for its default. The test reads the launch files and starts nothing. So the test doesn't prove that the nodes run or that they work together. The [stepped-clock test](stepped-clock.md) and the [test in Gazebo](gazebo.md) start them.
 
 ## Two launch files, read without starting them
 
 roslaunch has a loader that reads a launch file and everything that the file includes, and returns what roslaunch would start: the nodes, the parameters and the remappings. The test calls this loader and looks at the result. No ROS master and no node run. Two examples show what the loader returns, in a run at the commit [`27d72a4`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py) of the diffbot repository:
 
-1. **A launch file that starts the simulation:** for `roslaunch diffbot_gazebo diffbot.launch ekf:=true`, the loader returns nine nodes. Two of them are the EKF, `/diffbot/ekf_localization`, and the IMU sample validator, `/diffbot/imu_validator`. The parameter `/diffbot/mobile_base_controller/enable_odom_tf` is `False`, so the drive controller doesn't publish the transform `odom → base_footprint`. Without the `ekf` argument, the loader returns seven nodes, without these two, and `enable_odom_tf` is `True`.
+1. **A launch file that starts the simulation:** for `roslaunch diffbot_gazebo diffbot.launch ekf:=true`, the loader returns nine nodes. Two of them are the EKF, `/diffbot/ekf_localization`, and the IMU sample validator, `/diffbot/imu_validator`. The parameter [`/diffbot/mobile_base_controller/enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) is `False`, so the drive controller doesn't publish the transform `odom → base_footprint`. Without the [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) argument, the loader returns seven nodes, without these two, and [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) is `True`.
 2. **A launch file that starts only a planner:** for `roslaunch diffbot_navigation move_base.launch ekf:=true`, the loader returns one node, the planner `/move_base`. The planner's name `odom` is remapped to `/diffbot/odometry/filtered`, the EKF's odometry. Without the `ekf` argument, `odom` is remapped to `/diffbot/mobile_base_controller/odom`, the drive controller's wheel odometry. This launch file starts no EKF and sets no `enable_odom_tf`, so the test checks only the planner's topic here.
 
-The figure shows this flow from top to bottom, for the first example. The test's function [`load()`](#reading-a-launch-file-without-starting-it) gives the launch file and its arguments to roslaunch's loader, `load_config_default()`. `load()` returns the loader's result as a `LaunchConfiguration` with three fields, and the test's assertions look at these fields. The box at the bottom left names one of these assertions for the first example. The dashed box is what roslaunch would do after loading, which the test leaves out.
+The figure shows this flow from top to bottom, for the first example. The test's function [`load()`](#reading-a-launch-file-without-starting-it) gives the launch file and its arguments to roslaunch's loader, [`load_config_default()`](https://github.com/ros/ros_comm/blob/1.17.0/tools/roslaunch/src/roslaunch/config.py#L411). `load()` returns the loader's result as a [`LaunchConfiguration`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L55-L60) with three fields, and the test's assertions look at these fields. The box at the bottom left names one of these assertions for the first example. The dashed box is what roslaunch would do after loading, which the test leaves out.
 
 --8<-- "includes/localization-test-switch.html"
 
 ## The five tests
 
-`test_ekf_switch.py` has five tests. Each test loads one kind of launch file:
+[`test_ekf_switch.py`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py) has five tests. Each test loads one kind of launch file:
 
 | Test | Launch files | What it checks |
 |:--|:--|:--|
-| `test_bringup_starts_the_ekf_and_the_validator_only_with_ekf_true` | `diffbot_bringup`: `bringup.launch`, `bringup_with_laser.launch` | [Both positions of the switch](#both-positions-of-the-switch) |
-| `test_simulation_starts_the_ekf_and_the_validator_only_with_ekf_true` | `diffbot_gazebo`: `diffbot.launch`. `diffbot_control`: `diffbot.launch` | [Both positions of the switch](#both-positions-of-the-switch) |
-| `test_planners_read_the_filtered_odometry_only_with_ekf_true` | `diffbot_navigation`: `move_base.launch`, `diffbot_navigation.launch`, `diffbot_hw.launch`. `diffbot_mbf`: `amcl_demo.launch` | [The planner's odometry topic](#the-planners-odometry-topic) |
-| `test_planner_reads_an_explicit_odom_topic_also_with_ekf_true` | `diffbot_navigation`: `move_base.launch` | [The planner's odometry topic](#the-planners-odometry-topic) |
-| `test_navigation_simulation_starts_the_ekf_for_its_planner_with_ekf_true` | `diffbot_navigation`: `diffbot.launch` | [The simulation with navigation](#the-simulation-with-navigation) |
+| [`test_bringup_starts_the_ekf_and_the_validator_only_with_ekf_true`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L166-L168) | `diffbot_bringup`: [`bringup.launch`]({{ ekf_switch_src_url }}/diffbot_bringup/launch/bringup.launch), [`bringup_with_laser.launch`]({{ ekf_switch_src_url }}/diffbot_bringup/launch/bringup_with_laser.launch) | [Both positions of the switch](#both-positions-of-the-switch) |
+| [`test_simulation_starts_the_ekf_and_the_validator_only_with_ekf_true`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L170-L172) | `diffbot_gazebo`: [`diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_gazebo/launch/diffbot.launch). `diffbot_control`: [`diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_control/launch/diffbot.launch) | [Both positions of the switch](#both-positions-of-the-switch) |
+| [`test_planners_read_the_filtered_odometry_only_with_ekf_true`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L174-L182) | `diffbot_navigation`: [`move_base.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/move_base.launch), [`diffbot_navigation.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/diffbot_navigation.launch), [`diffbot_hw.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/diffbot_hw.launch). `diffbot_mbf`: [`amcl_demo.launch`]({{ ekf_switch_src_url }}/diffbot_mbf/launch/amcl_demo.launch) | [The planner's odometry topic](#the-planners-odometry-topic) |
+| [`test_planner_reads_an_explicit_odom_topic_also_with_ekf_true`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L184-L187) | `diffbot_navigation`: `move_base.launch` | [The planner's odometry topic](#the-planners-odometry-topic) |
+| [`test_navigation_simulation_starts_the_ekf_for_its_planner_with_ekf_true`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L189-L194) | `diffbot_navigation`: [`diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/diffbot.launch) | [The simulation with navigation](#the-simulation-with-navigation) |
 
 The two simulation files named `diffbot.launch` are different files. [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_gazebo/launch/diffbot.launch) starts the simulation without RViz. [`diffbot_control/launch/diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_control/launch/diffbot.launch) starts the same simulation and RViz.
 
 The next table lists what the test asserts. Each group of rows is one kind of launch file. A row is one way in which the test loads the files of its group: on the left the launch arguments, on the right what the test asserts about the nodes and the parameters that roslaunch would start. The table uses three short forms:
 
-- **The nodes:** the table leaves out the namespace `/diffbot` of the nodes `ekf_localization`, `imu_validator` and `robot_state_publisher`.
+- **The nodes:** the table leaves out the namespace `/diffbot` of the nodes `ekf_localization`, [`imu_validator`]({{ ekf_switch_src_url }}/diffbot_control/scripts/imu_validator.py) and `robot_state_publisher`.
 - **A planner reads a topic:** the planner's node is among the nodes, and the node's name `odom` is remapped to this topic.
-- **The controller's odometry and the EKF's odometry:** the topics `/diffbot/mobile_base_controller/odom` and `/diffbot/odometry/filtered`, the test's `WHEEL_ODOMETRY_TOPIC` and `FILTERED_TOPIC`.
+- **The controller's odometry and the EKF's odometry:** the topics `/diffbot/mobile_base_controller/odom` and `/diffbot/odometry/filtered`, the test's [`WHEEL_ODOMETRY_TOPIC`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L35) and [`FILTERED_TOPIC`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L36).
 
 <div class="readable-table">
 <table>
@@ -62,15 +62,15 @@ The excerpt shows the test's own result type and the function that calls the loa
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:55:74"
 ```
 
-- **`load()`:** takes a package, the name of a launch file in the package's `launch` folder and the launch arguments. `load('diffbot_gazebo', 'diffbot.launch', ekf='true')` stands for the command `roslaunch diffbot_gazebo diffbot.launch ekf:=true`.
-- **`load_config_default()`:** is roslaunch's loader. The loader resolves the includes, the arguments and the conditions such as `if="$(arg ekf)"`, as roslaunch does before it starts anything.
+- **[`load()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L63-L74):** takes a package, the name of a launch file in the package's `launch` folder and the launch arguments. `load('diffbot_gazebo', 'diffbot.launch', ekf='true')` stands for the command `roslaunch diffbot_gazebo diffbot.launch ekf:=true`.
+- **[`load_config_default()`](https://github.com/ros/ros_comm/blob/1.17.0/tools/roslaunch/src/roslaunch/config.py#L411):** is roslaunch's loader. The loader resolves the includes, the arguments and the conditions such as `if="$(arg ekf)"`, as roslaunch does before it starts anything.
 - **`nodes`:** a dictionary from each node's full name, for example `/diffbot/ekf_localization`, to roslaunch's description of the node. The loader keeps a node's namespace and its name apart, so `load()` joins them.
 - **`parameters`:** a dictionary from each parameter's full name to its value.
 - **`description`:** the launch file with its arguments, as text. Every failure message starts with this text.
 
 ??? example "The constants of `test_ekf_switch.py`, lines 31–50"
 
-    The excerpt shows the names that the test looks for, from [`test_ekf_switch.py`, lines 31–50]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L31-L50). The name of a constant ends in `_NODE` for a node, in `_TOPIC` for a topic and in `_PARAMETER` for a parameter. `SWITCHED_OFF` holds the two ways to run without the EKF, `ekf:=false` and no `ekf` argument. `EKF_PARAMETERS` holds five parameters of the EKF and of the validator with the values that [`ekf.yaml`]({{ ekf_switch_src_url }}/diffbot_control/config/ekf.yaml) and [`ekf.launch`]({{ ekf_switch_src_url }}/diffbot_control/launch/ekf.launch) give them.
+    The excerpt shows the names that the test looks for, from [`test_ekf_switch.py`, lines 31–50]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L31-L50). The name of a constant ends in `_NODE` for a node, in `_TOPIC` for a topic and in `_PARAMETER` for a parameter. [`SWITCHED_OFF`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L40) holds the two ways to run without the EKF, `ekf:=false` and no [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) argument. [`EKF_PARAMETERS`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L44-L50) holds five parameters of the EKF and of the validator with the values that [`ekf.yaml`]({{ ekf_switch_src_url }}/diffbot_control/config/ekf.yaml) and [`ekf.launch`]({{ ekf_switch_src_url }}/diffbot_control/launch/ekf.launch) give them.
 
     ```python title="test_ekf_switch.py: the constants" linenums="31"
     --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:31:50"
@@ -78,13 +78,13 @@ The excerpt shows the test's own result type and the function that calls the loa
 
 ## Both positions of the switch
 
-The first two tests call `assert_ekf_switch()` for the four launch files that start the robot or the simulation. The excerpt shows the two tests, from [`test_ekf_switch.py`, lines 166–172]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L166-L172):
+The first two tests call [`assert_ekf_switch()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L146-L149) for the four launch files that start the robot or the simulation. The excerpt shows the two tests, from [`test_ekf_switch.py`, lines 166–172]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L166-L172):
 
 ```python title="test_ekf_switch.py: the bringup files and the two simulation files" linenums="166"
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:166:172"
 ```
 
-`assert_ekf_switch()` checks the switch in both positions. The excerpt shows `assert_ekf_on()`, `assert_ekf_off()` and `assert_ekf_switch()`, from [`test_ekf_switch.py`, lines 131–149]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L131-L149):
+`assert_ekf_switch()` checks the switch in both positions. The excerpt shows [`assert_ekf_on()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L131-L137), [`assert_ekf_off()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L139-L144) and `assert_ekf_switch()`, from [`test_ekf_switch.py`, lines 131–149]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L131-L149):
 
 ```python title="test_ekf_switch.py: the switch on, off, and both" linenums="131"
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:131:149"
@@ -92,19 +92,19 @@ The first two tests call `assert_ekf_switch()` for the four launch files that st
 
 **Off**, `assert_ekf_off()`, once with `ekf:=false` and once without the argument:
 
-1. `assert_no_ekf_nodes_start()`: neither `EKF_NODE`, which is `/diffbot/ekf_localization`, nor `VALIDATOR_NODE`, which is `/diffbot/imu_validator`, is among the nodes.
-2. `assert_controller_odom_tf(configuration, enabled=True)`: the parameter `ODOM_TF_PARAMETER`, which is `/diffbot/mobile_base_controller/enable_odom_tf`, is set, and its value is `True`. So the drive controller publishes the transform.
+1. [`assert_no_ekf_nodes_start()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L99-L103): neither [`EKF_NODE`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L31), which is `/diffbot/ekf_localization`, nor [`VALIDATOR_NODE`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L32), which is `/diffbot/imu_validator`, is among the nodes.
+2. [`assert_controller_odom_tf(configuration, enabled=True)`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L105-L113): the parameter [`ODOM_TF_PARAMETER`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L34), which is [`/diffbot/mobile_base_controller/enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251), is set, and its value is `True`. So the drive controller publishes the transform.
 
 **On**, `assert_ekf_on()`, with `ekf:=true`:
 
-1. `assert_ekf_nodes_start()`: both nodes are among the nodes, `EKF_NODE` from the package `robot_localization` with the executable `ekf_localization_node`, and `VALIDATOR_NODE` from `diffbot_control` with `imu_validator.py`.
-2. `assert_controller_odom_tf(configuration, enabled=False)`: `enable_odom_tf` is set, and its value is `False`. So only the EKF publishes the transform.
-3. `assert_ekf_reads_the_controller_and_the_validator()`: the five parameters in `EKF_PARAMETERS` have their values. The EKF works in the frame `odom` for the frame `base_footprint`, reads the topics `mobile_base_controller/odom` and `imu/data_validated`, and the validator expects the frame `imu_link`.
-4. `assert_state_publisher_starts()`: `STATE_PUBLISHER_NODE`, which is `/diffbot/robot_state_publisher`, is among the nodes. The EKF needs the transform between `imu_link` and `base_footprint`, which TF has from `robot_state_publisher`.
+1. [`assert_ekf_nodes_start()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L94-L97): both nodes are among the nodes, `EKF_NODE` from the package [`robot_localization`](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html) with the executable `ekf_localization_node`, and `VALIDATOR_NODE` from `diffbot_control` with [`imu_validator.py`]({{ ekf_switch_src_url }}/diffbot_control/scripts/imu_validator.py).
+2. `assert_controller_odom_tf(configuration, enabled=False)`: [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) is set, and its value is `False`. So only the EKF publishes the transform.
+3. [`assert_ekf_reads_the_controller_and_the_validator()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L115-L120): the five parameters in [`EKF_PARAMETERS`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L44-L50) have their values. The EKF works in the frame `odom` for the frame `base_footprint`, reads the topics `mobile_base_controller/odom` and `imu/data_validated`, and the validator expects the frame `imu_link`.
+4. [`assert_state_publisher_starts()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L122-L129): [`STATE_PUBLISHER_NODE`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L33), which is `/diffbot/robot_state_publisher`, is among the nodes. The EKF needs the transform between `imu_link` and `base_footprint`, which TF has from `robot_state_publisher`.
 
 ??? example "The assertion methods on the nodes and the parameters, lines 85–129"
 
-    The excerpt shows the methods that `assert_ekf_on()` and `assert_ekf_off()` call, from [`test_ekf_switch.py`, lines 85–129]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L85-L129). `assert_controller_odom_tf()` uses `assertIs()`: a parameter that the launch file doesn't set gives `None`, which is neither `True` nor `False`, so the check fails for a missing parameter in both positions.
+    The excerpt shows the methods that `assert_ekf_on()` and `assert_ekf_off()` call, from [`test_ekf_switch.py`, lines 85–129]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L85-L129). `assert_controller_odom_tf()` uses [`assertIs()`](https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertIs): a parameter that the launch file doesn't set gives `None`, which is neither `True` nor `False`, so the check fails for a missing parameter in both positions.
 
     ```python title="test_ekf_switch.py: the assertions on the nodes and the parameters" linenums="85"
     --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:85:129"
@@ -120,10 +120,10 @@ A planner reads the robot's velocity from an odometry topic. With the EKF on, th
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:151:164"
 ```
 
-- **`assert_planner_odometry()`:** the planner's node is among the nodes, and its name `odom` is remapped to `topic`.
-- **`assert_planner_follows_the_switch()`:** without the `ekf` argument, the planner reads `WHEEL_ODOMETRY_TOPIC`, the topic `/diffbot/mobile_base_controller/odom`. With `ekf:=true`, the planner reads `FILTERED_TOPIC`, the topic `/diffbot/odometry/filtered`.
+- **[`assert_planner_odometry()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L151-L157):** the planner's node is among the nodes, and its name `odom` is remapped to `topic`.
+- **[`assert_planner_follows_the_switch()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L159-L164):** without the [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) argument, the planner reads [`WHEEL_ODOMETRY_TOPIC`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L35), the topic `/diffbot/mobile_base_controller/odom`. With `ekf:=true`, the planner reads [`FILTERED_TOPIC`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L36), the topic `/diffbot/odometry/filtered`.
 
-`assert_planner_odometry()` reads the remapping with the helper `remapping()`. The excerpt shows the helper, from [`test_ekf_switch.py`, lines 77–79]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L77-L79):
+`assert_planner_odometry()` reads the remapping with the helper [`remapping()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L77-L79). The excerpt shows the helper, from [`test_ekf_switch.py`, lines 77–79]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L77-L79):
 
 ```python title="test_ekf_switch.py: remapping()" linenums="77"
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:77:79"
@@ -137,21 +137,21 @@ The excerpt shows the two tests that use these methods, from [`test_ekf_switch.p
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:174:187"
 ```
 
-- **Three files with `move_base`:** `move_base.launch`, `diffbot_navigation.launch` and `diffbot_hw.launch` of `diffbot_navigation` start the planner `/move_base`, the test's `MOVE_BASE_NODE`.
-- **One file with Move Base Flex:** `amcl_demo.launch` of `diffbot_mbf` starts the planner `/move_base_flex`, the test's `MOVE_BASE_FLEX_NODE`.
-- **An explicit topic wins:** `move_base.launch` has an `odom_topic` argument. Its default is the EKF's topic with `ekf:=true` and the controller's topic without it. With `odom_topic:=/other/odom` and `ekf:=true`, the planner reads `/other/odom`.
+- **Three files with `move_base`:** [`move_base.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/move_base.launch), [`diffbot_navigation.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/diffbot_navigation.launch) and [`diffbot_hw.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/diffbot_hw.launch) of `diffbot_navigation` start the planner `/move_base`, the test's [`MOVE_BASE_NODE`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L37).
+- **One file with Move Base Flex:** [`amcl_demo.launch`]({{ ekf_switch_src_url }}/diffbot_mbf/launch/amcl_demo.launch) of `diffbot_mbf` starts the planner `/move_base_flex`, the test's [`MOVE_BASE_FLEX_NODE`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L38).
+- **An explicit topic wins:** `move_base.launch` has an [`odom_topic`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/move_base.launch#L8) argument. Its default is the EKF's topic with `ekf:=true` and the controller's topic without it. With `odom_topic:=/other/odom` and `ekf:=true`, the planner reads `/other/odom`.
 
 These launch files start no EKF, so the test checks nothing else in them.
 
 ## The simulation with navigation
 
-`diffbot_navigation`'s `diffbot.launch` starts the simulation and a planner together and passes `ekf` to both. The excerpt shows the test, from [`test_ekf_switch.py`, lines 189–194]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L189-L194):
+`diffbot_navigation`'s [`diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/diffbot.launch) starts the simulation and a planner together and passes [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) to both. The excerpt shows the test, from [`test_ekf_switch.py`, lines 189–194]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L189-L194):
 
 ```python title="test_ekf_switch.py: the simulation with navigation" linenums="189"
 --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:189:194"
 ```
 
-With `ekf:=true`, the EKF and the validator start, `enable_odom_tf` is `False`, and `/move_base` reads `FILTERED_TOPIC`, the topic `/diffbot/odometry/filtered`. `open_rviz:=false` leaves RViz out of what the loader reads.
+With `ekf:=true`, the EKF and the validator start, [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) is `False`, and `/move_base` reads [`FILTERED_TOPIC`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L36), the topic `/diffbot/odometry/filtered`. `open_rviz:=false` leaves RViz out of what the loader reads.
 
 ## Run it
 
@@ -192,4 +192,4 @@ The test loads the launch files of `diffbot_bringup`, `diffbot_navigation` and `
 - **Running nodes:** the loader reads the launch files. Nothing starts, so the test can't see whether a node runs, publishes or finds its transforms.
 - **`robot_state_publisher` in every file:** the test asserts `robot_state_publisher` for the two bringup files and for the two simulation files named `diffbot.launch`, of `diffbot_gazebo` and of `diffbot_control`. The test doesn't assert the node for [`minimal.launch`]({{ ekf_switch_src_url }}/diffbot_bringup/launch/minimal.launch), which doesn't start `robot_state_publisher`.
 - **`ekf:=false` for the planners:** for the planners' launch files, the test loads the default and `ekf:=true`.
-- **Other ways to start the robot:** the [robot container](../../../../processing_units/robot-container/usage.md) starts `bringup.launch` without `ekf`. The test doesn't read the container's settings.
+- **Other ways to start the robot:** the [robot container](../../../../processing_units/robot-container/usage.md) starts [`bringup.launch`]({{ ekf_switch_src_url }}/diffbot_bringup/launch/bringup.launch) without [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf). The test doesn't read the container's settings.

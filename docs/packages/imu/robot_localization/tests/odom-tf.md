@@ -8,8 +8,8 @@ The check runs in two simulations:
 
 | Simulation | Test | Expected publisher |
 |:--|:--|:--|
-| Without the EKF: `sim_drive_diffbot.test`, `sim_drive_remo.test` | [`test_expected_node_is_the_only_odom_tf_publisher`](#the-test) in `test_odom_tf.py` | `/gazebo`, the node that runs the drive controller in the simulation |
-| With the EKF: `sim_ekf_diffbot.test`, `sim_ekf_remo.test` | [`test_ekf_is_the_only_odom_tf_publisher`](gazebo.md#who-publishes-the-transform) in `test_ekf.py` | `/diffbot/ekf_localization` |
+| Without the EKF: [`sim_drive_diffbot.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test), [`sim_drive_remo.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_remo.test) | [`test_expected_node_is_the_only_odom_tf_publisher`](#the-test) in `test_odom_tf.py` | `/gazebo`, the node that runs the drive controller in the simulation |
+| With the EKF: [`sim_ekf_diffbot.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test), [`sim_ekf_remo.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_remo.test) | [`test_ekf_is_the_only_odom_tf_publisher`](gazebo.md#who-publishes-the-transform) in [`test_ekf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py) | `/diffbot/ekf_localization` |
 
 The figure shows both simulations, each in a drawing of its own. On the left of a drawing are the two possible publishers of the transform, the drive controller and the EKF. In the simulation, the drive controller runs in Gazebo's node `/gazebo`, which the drawing names in the controller's box. A solid green box with a ✓ publishes the transform, and a dashed box doesn't. On the right is the observer in the test node, which reads the topic `/tf` and counts the transforms `odom → base_footprint` by their `callerid`, the name of the node that published them. [The observer](#the-observer) explains `callerid`. The list under a drawing names the node that the test expects and gives the observer's counts in a saved run, as an example of a passing run.
 
@@ -17,27 +17,27 @@ The figure shows both simulations, each in a drawing of its own. On the left of 
 
 ## Where the test runs
 
-The simulation test files run `test_odom_tf.py` as their fifth test node. The excerpt shows the test node in DiffBot's file, from [`sim_drive_diffbot.test`, lines 41–51]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L41-L51):
+The simulation test files run [`test_odom_tf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py) as their fifth test node. The excerpt shows the test node in DiffBot's file, from [`sim_drive_diffbot.test`, lines 41–51]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L41-L51):
 
 ```xml title="sim_drive_diffbot.test: the test node of test_odom_tf.py" linenums="41"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/sim_drive_diffbot.test:41:51"
 ```
 
-- **This simulation runs without the EKF:** `sim_drive_diffbot.test` doesn't pass `ekf`, so the drive controller's `enable_odom_tf` is `true`.
-- **`publisher`:** the private parameter names the node that the test expects. In the simulation, the drive controller is not a node of its own. `gazebo_ros_control` loads the controller into Gazebo's process, whose node name is `/gazebo`.
+- **This simulation runs without the EKF:** `sim_drive_diffbot.test` doesn't pass [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf), so the drive controller's [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) is `true`.
+- **[`publisher`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L50):** the private parameter names the node that the test expects. In the simulation, the drive controller is not a node of its own. [`gazebo_ros_control`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control) loads the controller into Gazebo's process, whose node name is `/gazebo`.
 - **A simulation of its own:** rostest starts the simulation again for each test node of the file, as [the test file on Simulation Test](../../../../development/simulation-test.md#1-the-test-file) explains. So the test sees the transforms of a fresh simulation.
 
-`sim_drive_remo.test` has the same test node for the simulated Remo, named `odom_tf_remo`.
+[`sim_drive_remo.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_remo.test) has the same test node for the simulated Remo, named [`odom_tf_remo`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_remo.test#L49).
 
 ## The observer
 
-`OdomTfObserver` subscribes to the topic `/tf` and counts the transforms `odom → base_footprint` for each publishing node. Both tests use it. The excerpt shows its constants, from [`odom_tf_observer.py`, lines 17–23]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L17-L23):
+[`OdomTfObserver`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L26-L66) subscribes to the topic `/tf` and counts the transforms `odom → base_footprint` for each publishing node. Both tests use it. The excerpt shows its constants, from [`odom_tf_observer.py`, lines 17–23]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L17-L23):
 
 ```python title="odom_tf_observer.py: the constants" linenums="17"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/odom_tf_observer.py:17:23"
 ```
 
-`OBSERVE` is 3 s of simulation time, Gazebo's clock. `POLL_INTERVAL` is 0.1 s of wall time, the computer's clock.
+[`OBSERVE`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L22) is 3 s of simulation time, Gazebo's clock. [`POLL_INTERVAL`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L23) is 0.1 s of wall time, the computer's clock.
 
 The excerpt shows how the observer subscribes and how it counts, from [`odom_tf_observer.py`, lines 33–50]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L33-L50):
 
@@ -45,10 +45,10 @@ The excerpt shows how the observer subscribes and how it counts, from [`odom_tf_
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/odom_tf_observer.py:33:50"
 ```
 
-- **`counts_by_publisher`:** a `Counter` from a node's name to the number of transforms `odom → base_footprint` that this node published.
-- **The subscriber:** reads the topic `/tf`, whose messages are of the type `tf2_msgs/TFMessage`. One message can carry several transforms.
+- **`counts_by_publisher`:** a [`Counter`](https://docs.python.org/3/library/collections.html#collections.Counter) from a node's name to the number of transforms `odom → base_footprint` that this node published.
+- **The subscriber:** reads the topic `/tf`, whose messages are of the type [`tf2_msgs/TFMessage`](https://github.com/ros/geometry2/blob/0.7.7/tf2_msgs/msg/TFMessage.msg). One message can carry several transforms.
 - **`callerid`:** a message on a topic doesn't name its sender. rospy attaches the connection's header to each message that it receives, and the header's `callerid` is the name of the node that published the message. This is how the observer knows who published a transform.
-- **The two `if` conditions:** `on_tf()` counts a transform only if its parent frame `header.frame_id` is `PARENT_FRAME`, `odom`, and its `child_frame_id` is `CHILD_FRAME`, `base_footprint`. The topic `/tf` also carries the transforms of the robot's joints, which the observer ignores.
+- **The two `if` conditions:** [`on_tf()`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L41-L50) counts a transform only if its parent frame `header.frame_id` is [`PARENT_FRAME`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L19), `odom`, and its [`child_frame_id`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/TransformStamped.msg#L9) is [`CHILD_FRAME`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L20), `base_footprint`. The topic `/tf` also carries the transforms of the robot's joints, which the observer ignores.
 - **The lock:** rospy calls `on_tf()` in one thread for each publisher of the topic `/tf`, and the test reads the counts in another thread. The lock lets one thread at a time change or read the counter.
 
 The excerpt shows the two methods that the tests call, from [`odom_tf_observer.py`, lines 52–66]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L52-L66):
@@ -57,24 +57,24 @@ The excerpt shows the two methods that the tests call, from [`odom_tf_observer.p
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/odom_tf_observer.py:52:66"
 ```
 
-- **`counts()`:** returns a copy of the counts as a dictionary, for example `{'/gazebo': 155}`.
-- **`wait_for_first_transform()`:** waits until the observer has counted a first transform and returns whether one came. The wait ends after `timeout` seconds of wall time, so it ends also when the simulation's clock doesn't run.
+- **[`counts()`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L52-L55):** returns a copy of the counts as a dictionary, for example `{'/gazebo': 155}`.
+- **[`wait_for_first_transform()`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L57-L66):** waits until the observer has counted a first transform and returns whether one came. The wait ends after `timeout` seconds of wall time, so it ends also when the simulation's clock doesn't run.
 
 ## The test
 
-The excerpt shows the test class of `test_odom_tf.py`, from [`test_odom_tf.py`, lines 26–43]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py#L26-L43):
+The excerpt shows the test class of [`test_odom_tf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py), from [`test_odom_tf.py`, lines 26–43]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py#L26-L43):
 
 ```python title="test_odom_tf.py: the test" linenums="26"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_odom_tf.py:26:43"
 ```
 
-1. `setUpClass()` creates the test's node and the observer. The observer counts from this moment on.
-2. The test reads the expected node's name from its private parameter `publisher`.
-3. It waits for a first transform `odom → base_footprint`, at most `STARTUP_TIMEOUT`, 120 s of wall time. Gazebo and the controller spawner need a while to start. Without a transform, the test fails with the message `nobody published odom → base_footprint`.
-4. It waits `OBSERVE`, 3 s of simulation time, while the observer keeps counting.
-5. It compares the names of the nodes in the counts with the expected one. `assertEqual([expected], list(counts))` passes only when the counts have exactly this one node. A second publisher fails the test, and so does a different one.
+1. [`setUpClass()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py#L31-L33) creates the test's node and the observer. The observer counts from this moment on.
+2. The test reads the expected node's name from its private parameter [`publisher`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L50).
+3. It waits for a first transform `odom → base_footprint`, at most [`STARTUP_TIMEOUT`]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py#L23), 120 s of wall time. Gazebo and the controller spawner need a while to start. Without a transform, the test fails with the message `nobody published odom → base_footprint`.
+4. It waits [`OBSERVE`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L22), 3 s of simulation time, while the observer keeps counting.
+5. It compares the names of the nodes in the counts with the expected one. [`assertEqual([expected], list(counts))`](https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertEqual) passes only when the counts have exactly this one node. A second publisher fails the test, and so does a different one.
 
-`test_ekf_is_the_only_odom_tf_publisher` in `test_ekf.py` does the same in the simulation with the EKF. It expects `/diffbot/ekf_localization`, and it also expects the controller's parameter `enable_odom_tf` to be `false`. [Who publishes the transform](gazebo.md#who-publishes-the-transform) on the Gazebo test's page shows this test.
+[`test_ekf_is_the_only_odom_tf_publisher`](gazebo.md#who-publishes-the-transform) in [`test_ekf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py) does the same in the simulation with the EKF. It expects `/diffbot/ekf_localization`, and it also expects the controller's parameter [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) to be `false`. [Who publishes the transform](gazebo.md#who-publishes-the-transform) on the Gazebo test's page shows this test.
 
 The table lists what the observer counted in a run in the dev container's image, at the commit `3ef4a91` of [diffbot#154](https://github.com/ros-mobile-robots/diffbot/pull/154):
 
@@ -111,6 +111,6 @@ odom → base_footprint published by: {'/gazebo': 155}
 ## What the test doesn't show
 
 - **Transforms from before the test node started:** rostest starts the test node after the simulation's nodes, and the topic `/tf` doesn't repeat old messages. The observer doesn't count a transform that was published before it subscribed. The drive controller and the EKF usually start seconds later, after Gazebo has spawned the robot, but nothing guarantees this order.
-- **A publisher that starts late:** the observer watches for `OBSERVE`, 3 s of simulation time, after the first transform. The test doesn't see a node that starts to publish the transform after that.
+- **A publisher that starts late:** the observer watches for [`OBSERVE`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L22), 3 s of simulation time, after the first transform. The test doesn't see a node that starts to publish the transform after that.
 - **The transform's values:** the test counts who publishes. [The test in Gazebo](gazebo.md) compares the EKF's heading with the robot's true heading.
-- **The real robot:** on the robot, the drive controller runs in the hardware interface's node, not in `/gazebo`. This test runs in the simulation only. The [switch test](switch.md) checks that the robot's launch files set `enable_odom_tf` for both positions of `ekf`.
+- **The real robot:** on the robot, the drive controller runs in the hardware interface's node, not in `/gazebo`. This test runs in the simulation only. The [switch test](switch.md) checks that the robot's launch files set [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) for both positions of [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf).

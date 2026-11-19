@@ -43,10 +43,10 @@ Two rostest files run the test, [`sim_ekf_diffbot.test`]({{ ekf_src_url }}/diffb
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/sim_ekf_diffbot.test:9:21"
 ```
 
-- **`sim_drive.launch`:** starts the simulation that the other simulation tests use too. `ekf` set to `true` switches the EKF on.
-- **`gazebo_port`:** is the port of this test file's Gazebo server. Each simulation test file has a port of its own, because catkin runs the test files at the same time.
-- **`wheel_separation`:** the `<param>` line comes after the include, so its value replaces the value that the included files loaded from the robot's `geometry.yaml`. 0.1725 m is 1.25 times DiffBot's 0.138 m. `sim_ekf_remo.test` sets 0.18 m, 1.25 times Remo's 0.144 m.
-- **The test node:** `ekf_diffbot` runs `test_ekf.py`. The node's private parameter `model` names the robot whose `geometry.yaml` the test reads.
+- **[`sim_drive.launch`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive.launch):** starts the simulation that the other simulation tests use too. [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) set to `true` switches the EKF on.
+- **[`gazebo_port`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test#L11):** is the port of this test file's Gazebo server. Each simulation test file has a port of its own, because catkin runs the test files at the same time.
+- **[`wheel_separation`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test#L15):** the `<param>` line comes after the include, so its value replaces the value that the included files loaded from the robot's [`geometry.yaml`]({{ ekf_src_url }}/diffbot_control/config/diffbot/geometry.yaml). 0.1725 m is 1.25 times DiffBot's 0.138 m. `sim_ekf_remo.test` sets 0.18 m, 1.25 times Remo's 0.144 m.
+- **The test node:** [`ekf_diffbot`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test#L17) runs [`test_ekf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py). The node's private parameter [`model`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test#L20) names the robot whose `geometry.yaml` the test reads.
 
 The next excerpt shows how `ekf` reaches the drive controller's launch file, from [`sim_drive.launch`, lines 15–25]({{ ekf_src_url }}/diffbot_gazebo/test/sim_drive.launch#L15-L25):
 
@@ -54,11 +54,11 @@ The next excerpt shows how `ekf` reaches the drive controller's launch file, fro
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/sim_drive.launch:15:25"
 ```
 
-`diffbot_view.launch` starts Gazebo's server and spawns the robot from its URDF model. `diffbot_control.launch` loads the drive controller's configuration, with the robot's `geometry.yaml`, and starts the controllers. With `ekf` true, `diffbot_control.launch` also sets the controller's `enable_odom_tf` to `false` and includes `ekf.launch`, which starts the IMU sample validator and the EKF, as [Which launch file starts what](../../robot_localization.md#which-launch-file-starts-what) shows.
+[`diffbot_view.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot_view.launch) starts Gazebo's server and spawns the robot from its URDF model. [`diffbot_control.launch`]({{ ekf_src_url }}/diffbot_control/launch/diffbot_control.launch) loads the drive controller's configuration, with the robot's `geometry.yaml`, and starts the controllers. With `ekf` true, `diffbot_control.launch` also sets the controller's [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251) to `false` and includes [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch), which starts the IMU sample validator and the EKF, as [Which launch file starts what](../../robot_localization.md#which-launch-file-starts-what) shows.
 
 ## Why a wrong wheel separation
 
-The drive controller, `diff_drive_controller`, uses its `wheel_separation` parameter twice. It turns a commanded yaw rate into two wheel speeds, and it turns the wheels' movement back into the odometry's yaw rate. $b$ is the wheel separation of the simulated robot, the distance between its two wheels in the URDF model. $b_c = 1.25\,b$ is the controller's value. The factor 1.25 is the test's [`SEPARATION_SCALE`](#the-constants). For a commanded yaw rate $\omega_\text{cmd}$, the controller makes the right wheel's speed $v_r$ larger than the left wheel's speed $v_l$ by
+The drive controller, `diff_drive_controller`, uses its [`wheel_separation`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L282) parameter twice. It turns a commanded yaw rate into two wheel speeds, and it turns the wheels' movement back into the odometry's yaw rate. $b$ is the wheel separation of the simulated robot, the distance between its two wheels in the URDF model. $b_c = 1.25\,b$ is the controller's value. The factor 1.25 is the test's [`SEPARATION_SCALE`](#the-constants). For a commanded yaw rate $\omega_\text{cmd}$, the controller makes the right wheel's speed $v_r$ larger than the left wheel's speed $v_l$ by
 
 $$
 v_r - v_l = \omega_\text{cmd}\, b_c
@@ -72,7 +72,7 @@ $$
 
 The wheel odometry divides the same speed difference by $b_c$ and reports $\omega_\text{cmd}$. So the robot turns 25 % more than its wheel odometry says. This constant error stands in for the errors of a real robot's wheels, slip and a wheel separation that is a little off. The simulated IMU measures the robot's true yaw rate $\omega_z$. A filter that follows the IMU ends at the true heading, and a filter that follows the wheels ends where the wheel odometry ends.
 
-The test commands $\omega_\text{cmd}$ = 0.5 rad/s (`TURN_VELOCITY`) for 3 s (`DURATION`). For these round numbers, the wheel odometry reports 1.5 rad and the robot turns 1.875 rad.
+The test commands $\omega_\text{cmd}$ = 0.5 rad/s ([`TURN_VELOCITY`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L54)) for 3 s ([`DURATION`](#the-constants)). For these round numbers, the wheel odometry reports 1.5 rad and the robot turns 1.875 rad.
 
 In a run, the measured turns are a little smaller than these round numbers, as [the figure](#the-turn-from-above) shows. The true turn stays 1.25 times the wheel odometry's turn.
 
@@ -80,7 +80,7 @@ In a run, the measured turns are a little smaller than these round numbers, as [
 
 ??? example "The constants of `test_ekf.py`, lines 41–69"
 
-    The excerpt shows the topics, the names and the numbers of the test, from [`test_ekf.py`, lines 41–69]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L41-L69). `STARTUP_TIMEOUT` and `POLL_INTERVAL` are seconds of wall time, the computer's clock. `DURATION` and `SETTLE` are seconds of simulation time, Gazebo's clock.
+    The excerpt shows the topics, the names and the numbers of the test, from [`test_ekf.py`, lines 41–69]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L41-L69). [`STARTUP_TIMEOUT`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L60) and [`POLL_INTERVAL`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L61) are seconds of wall time, the computer's clock. [`DURATION`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L55) and [`SETTLE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L62) are seconds of simulation time, Gazebo's clock.
 
     ```python title="test_ekf.py: the constants" linenums="41"
     --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:41:69"
@@ -88,7 +88,7 @@ In a run, the measured turns are a little smaller than these round numbers, as [
 
 ## Reading the three headings
 
-The test compares three headings $\theta$ of the robot: the true heading from Gazebo, the heading of the wheel odometry and the heading of the EKF's estimate. Each of these three sources publishes on a topic. The class `HeadingObserver` subscribes to the topics and keeps the latest heading of each source. [Waiting until everything runs](#waiting-until-everything-runs) and [The turn](#the-turn) show where the test reads them.
+The test compares three headings $\theta$ of the robot: the true heading from Gazebo, the heading of the wheel odometry and the heading of the EKF's estimate. Each of these three sources publishes on a topic. The class [`HeadingObserver`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L114-L175) subscribes to the topics and keeps the latest heading of each source. [Waiting until everything runs](#waiting-until-everything-runs) and [The turn](#the-turn) show where the test reads them.
 
 A message of these topics carries a pose, not a heading. The excerpt shows the two functions that turn a pose into a heading and two headings into a turn, from [`test_ekf.py`, lines 86–94]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L86-L94):
 
@@ -96,10 +96,10 @@ A message of these topics carries a pose, not a heading. The excerpt shows the t
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:86:94"
 ```
 
-- **`yaw()`:** a pose stores its orientation as a quaternion. `euler_from_quaternion()` returns roll, pitch and yaw, and `yaw()` returns the third, the heading $\theta$.
-- **`turned()`:** returns the change of the heading from `start` to `end`, between $-\pi$ and $\pi$. The turn of this test is less than 2 rad, so the result is the turn itself.
+- **[`yaw()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L86-L89):** a pose stores its orientation as a quaternion. [`euler_from_quaternion()`](https://github.com/ros/geometry/blob/1.13.2/tf/src/tf/transformations.py#L1089) returns roll, pitch and yaw, and `yaw()` returns the third, the heading $\theta$.
+- **[`turned()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L92-L94):** returns the change of the heading from `start` to `end`, between $-\pi$ and $\pi$. The turn of this test is less than 2 rad, so the result is the turn itself.
 
-The next excerpt shows the type `Headings` and how a `HeadingObserver` starts, from [`test_ekf.py`, lines 106–134]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L106-L134):
+The next excerpt shows the type [`Headings`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L106-L111) and how a `HeadingObserver` starts, from [`test_ekf.py`, lines 106–134]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L106-L134):
 
 ```python title="test_ekf.py: Headings and HeadingObserver.__init__()" linenums="106"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:106:134"
@@ -108,7 +108,7 @@ The next excerpt shows the type `Headings` and how a `HeadingObserver` starts, f
 - **`Headings`:** the robot's heading at one moment by each source, in rad. `true` is from Gazebo, `odometry` from the drive controller's wheel odometry and `ekf` from the EKF's estimate.
 - **`true_heading`, `odometry_heading` and `ekf_heading`:** the observer's latest heading of each source. Each is `None` until the first message of its source arrives.
 - **`sample_count`:** the number of samples that the IMU sample validator forwarded since the observer was created.
-- **The four subscribers:** they read the drive controller's wheel odometry ([`WHEEL_ODOMETRY_TOPIC`](#the-constants)), the EKF's estimate (`FILTERED_TOPIC`), Gazebo's model states (`MODEL_STATES_TOPIC`), which carry the robot's true pose, and the validator's output (`VALIDATED_IMU_TOPIC`). The subscriber of the model states keeps one message, `MODEL_STATES_QUEUE_SIZE`, because only the latest true pose matters. The subscriber of the validated samples keeps up to 100 messages, `IMU_QUEUE_SIZE`, because the test counts every sample.
+- **The four subscribers:** they read the drive controller's wheel odometry ([`WHEEL_ODOMETRY_TOPIC`](#the-constants)), the EKF's estimate ([`FILTERED_TOPIC`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L43)), Gazebo's model states ([`MODEL_STATES_TOPIC`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L45)), which carry the robot's true pose, and the validator's output ([`VALIDATED_IMU_TOPIC`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L44)). The subscriber of the model states keeps one message, [`MODEL_STATES_QUEUE_SIZE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L51), because only the latest true pose matters. The subscriber of the validated samples keeps up to 100 messages, [`IMU_QUEUE_SIZE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L52), because the test counts every sample.
 - **`lock`:** several threads use the observer's four values, the three headings and `sample_count`. rospy has one receiving thread for each publisher connection of a subscribed topic, and calls the subscriber's callback in that thread. Each of the four topics has one publisher, so the four callbacks run in four threads. The test itself runs in the test node's main thread, which calls [`setUpClass()`](#waiting-until-everything-runs) and the tests and reads the observer. The lock lets one thread at a time read or change the four values. So the test gets the three headings as one copy, and no callback changes a heading while the test copies them. The three headings are the latest of each source, not headings of the same instant.
 
 Each callback stores what the test needs from one message. The excerpt shows the four callbacks, from [`test_ekf.py`, lines 136–155]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L136-L155):
@@ -117,9 +117,9 @@ Each callback stores what the test needs from one message. The excerpt shows the
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:136:155"
 ```
 
-- **`on_wheel_odometry()` and `on_filtered_odometry()`:** both topics carry `nav_msgs/Odometry` messages. Each callback stores the heading of the message's pose, `yaw(message.pose.pose)`.
-- **`on_model_states()`:** Gazebo publishes the poses of all models in one message. The callback takes the pose of the model named `MODEL_NAME`. Gazebo's model of the robot is named `diffbot` for DiffBot and for Remo.
-- **`on_validated_imu()`:** counts a sample that the IMU sample validator forwarded.
+- **[`on_wheel_odometry()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L136-L139) and [`on_filtered_odometry()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L141-L144):** both topics carry [`nav_msgs/Odometry`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg) messages. Each callback stores the heading of the message's pose, `yaw(message.pose.pose)`.
+- **[`on_model_states()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L146-L150):** Gazebo publishes the poses of all models in one message. The callback takes the pose of the model named [`MODEL_NAME`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L46). Gazebo's model of the robot is named `diffbot` for DiffBot and for Remo.
+- **[`on_validated_imu()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L152-L155):** counts a sample that the IMU sample validator forwarded.
 - **`with self.lock`:** each callback takes the lock before it changes its value and gives the lock back at the end of the `with` block. While another thread holds the lock, the callback waits.
 
 The test reads the observer through three methods, and each holds the lock while it reads. The excerpt shows them, from [`test_ekf.py`, lines 157–175]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L157-L175):
@@ -128,40 +128,40 @@ The test reads the observer through three methods, and each holds the lock while
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:157:175"
 ```
 
-- **`latest()`:** returns the latest heading of each source as one `Headings`. It returns `None` until each of the three sources has sent a heading.
-- **`silent_sources()`:** returns the names of the sources that haven't sent a heading yet, out of `Gazebo`, `odometry` and `EKF`. `setUpClass()` puts them into its failure message.
-- **`validated_sample_count()`:** returns the number of validated IMU samples so far.
+- **[`latest()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L157-L163):** returns the latest heading of each source as one `Headings`. It returns `None` until each of the three sources has sent a heading.
+- **[`silent_sources()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L165-L170):** returns the names of the sources that haven't sent a heading yet, out of `Gazebo`, `odometry` and `EKF`. `setUpClass()` puts them into its failure message.
+- **[`validated_sample_count()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L172-L175):** returns the number of validated IMU samples so far.
 
 ## Waiting until everything runs
 
-unittest calls `setUpClass()` once, before the first test of the class. `setUpClass()` creates the test's node, a [`HeadingObserver`](#reading-the-three-headings), the observer of the topic `/tf` and the publisher of the velocity commands. Then it waits until `ready()` returns true. The excerpt shows both methods, from [`test_ekf.py`, lines 185–204]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L185-L204):
+unittest calls [`setUpClass()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L186-L198) once, before the first test of the class. `setUpClass()` creates the test's node, a [`HeadingObserver`](#reading-the-three-headings), the observer of the topic `/tf` and the publisher of the velocity commands. Then it waits until [`ready()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L201-L204) returns true. The excerpt shows both methods, from [`test_ekf.py`, lines 185–204]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L185-L204):
 
 ```python title="test_ekf.py: setUpClass() and ready()" linenums="185"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:185:204"
 ```
 
 - **`cls.heading_observer`:** from its creation on, the `HeadingObserver` keeps the latest headings and counts the validated IMU samples.
-- **`cls.odom_tf_observer`:** `OdomTfObserver()` starts to count who publishes the transform `odom → base_footprint`, for the second test. [The Transform's Publisher](odom-tf.md#the-observer) explains this observer.
+- **`cls.odom_tf_observer`:** [`OdomTfObserver()`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L26-L66) starts to count who publishes the transform `odom → base_footprint`, for the second test. [The Transform's Publisher](odom-tf.md#the-observer) explains this observer.
 - **`cls.command`:** publishes the velocity commands on [`CMD_VEL_TOPIC`](#the-constants), the drive controller's command topic.
-- **`ready()`:** is true when `latest()` returns headings, so a heading arrived from each of the three sources, and the drive controller has connected to the command topic. ROS loses a command that is published before this connection exists.
-- **`STARTUP_TIMEOUT`:** after 120 s of wall time, `setUpClass()` raises an `AssertionError`. Its message names the sources that sent no heading, from `silent_sources()`, and the number of subscribers to the commands.
+- **`ready()`:** is true when [`latest()`](#reading-the-three-headings) returns headings, so a heading arrived from each of the three sources, and the drive controller has connected to the command topic. ROS loses a command that is published before this connection exists.
+- **[`STARTUP_TIMEOUT`](#the-constants):** after 120 s of wall time, `setUpClass()` raises an [`AssertionError`](https://docs.python.org/3/library/exceptions.html#AssertionError). Its message names the sources that sent no heading, from [`silent_sources()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L165-L170), and the number of subscribers to the commands.
 
 ## The turn
 
-`measure_turn()` turns the robot on the spot and returns what each source saw. It reads the headings with `latest_headings()`. The excerpt shows both methods, from [`test_ekf.py`, lines 206–233]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L206-L233):
+[`measure_turn()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L212-L233) turns the robot on the spot and returns what each source saw. It reads the headings with [`latest_headings()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L206-L210). The excerpt shows both methods, from [`test_ekf.py`, lines 206–233]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L206-L233):
 
 ```python title="test_ekf.py: latest_headings() and measure_turn()" linenums="206"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:206:233"
 ```
 
-`latest_headings()` returns what [`latest()`](#reading-the-three-headings) of the `HeadingObserver` returns. Its `assert` stops the test if that is `None`. After [`setUpClass()`](#waiting-until-everything-runs), which waited for a heading of each source, `latest()` returns a `Headings`.
+`latest_headings()` returns what [`latest()`](#reading-the-three-headings) of the [`HeadingObserver`](#reading-the-three-headings) returns. Its `assert` stops the test if that is `None`. After [`setUpClass()`](#waiting-until-everything-runs), which waited for a heading of each source, `latest()` returns a [`Headings`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L106-L111).
 
 1. `measure_turn()` reads the three headings with `latest_headings()` into `start`, notes the count of validated IMU samples and reads the simulation time.
-2. For [`DURATION`](#the-constants), 3 s of simulation time, it publishes a `Twist` command with `angular.z` set to `TURN_VELOCITY`, 0.5 rad/s, at `COMMAND_RATE`, 20 times per second. A positive yaw rate is a left turn. The command has no forward speed, so the robot turns on the spot.
-3. It computes the rate of the validated IMU samples: the number of samples that `validated_sample_count()` counted during the turn, divided by the time that the turn took.
+2. For [`DURATION`](#the-constants), 3 s of simulation time, it publishes a [`Twist`](http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) command with `angular.z` set to [`TURN_VELOCITY`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L54), 0.5 rad/s, at [`COMMAND_RATE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L56), 20 times per second. A positive yaw rate is a left turn. The command has no forward speed, so the robot turns on the spot.
+3. It computes the rate of the validated IMU samples: the number of samples that [`validated_sample_count()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L172-L175) counted during the turn, divided by the time that the turn took.
 4. In the `finally` block, it publishes a command of zero. The robot stops also when an error ends the loop early.
-5. It waits `SETTLE`, 1 s of simulation time, until the robot stands.
-6. It reads the three headings again into `stopped` and returns a `TurnMeasurement`. For each source, `turned()` gives the turn from the heading in `start` to the heading in `stopped`, for example `turned(start.true, stopped.true)`.
+5. It waits [`SETTLE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L62), 1 s of simulation time, until the robot stands.
+6. It reads the three headings again into `stopped` and returns a [`TurnMeasurement`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L72-L83). For each source, [`turned()`](#reading-the-three-headings) gives the turn from the heading in `start` to the heading in `stopped`, for example `turned(start.true, stopped.true)`.
 
 The excerpt shows the result's type, from [`test_ekf.py`, lines 72–83]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L72-L83):
 
@@ -169,7 +169,7 @@ The excerpt shows the result's type, from [`test_ekf.py`, lines 72–83]({{ ekf_
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:72:83"
 ```
 
-`report()` returns the three turns as one line of text. The test prints this line and puts it into the message of a failed check.
+[`report()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L80-L83) returns the three turns as one line of text. The test prints this line and puts it into the message of a failed check.
 
 ## The checks on the turn
 
@@ -187,12 +187,12 @@ The next excerpt shows the four assertion methods, from [`test_ekf.py`, lines 23
 
 In the list, $\Delta\theta_\text{true}$ is the robot's true turn, $\Delta\theta_\text{odom}$ the wheel odometry's turn and $\Delta\theta_\text{EKF}$ the turn of the EKF's estimate, as in [the figure](#the-turn-from-above).
 
-1. **The wheel separation is the scaled one**, `assert_wheel_separation_is_scaled()`: the parameter `/diffbot/mobile_base_controller/wheel_separation` is [`SEPARATION_SCALE`](#the-constants) times the `wheel_separation` in the robot's `geometry.yaml`, within `SEPARATION_TOLERANCE`, 10⁻⁶ m. This check shows that the rostest file's value reached the controller's parameter and still fits the robot's geometry.
-2. **The validator forwards the IMU**, `assert_validated_imu_rate()`: during the turn, the samples on the topic `/diffbot/imu/data_validated` arrived at more than `MIN_IMU_RATE_SHARE` times `IMU_RATE`, 0.9 · 50 Hz = 45 Hz. Without the validated samples, the EKF would have only the wheel odometry.
-3. **The wheel odometry falls behind**, `assert_odometry_falls_behind()`: $\Delta\theta_\text{true} - \Delta\theta_\text{odom}$ is more than `MIN_ODOMETRY_ERROR`, 0.15 rad. This check shows that the error that the test needs is there. With the scaled separation, the wheel odometry reports 1 / 1.25 of the true turn, so the difference is a fifth of the true turn.
-4. **The EKF follows the true turn**, `assert_ekf_follows_the_true_turn()`: $|\Delta\theta_\text{EKF} - \Delta\theta_\text{true}|$ is at most `EKF_TOLERANCE`, 0.05 rad.
+1. **The wheel separation is the scaled one**, [`assert_wheel_separation_is_scaled()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L235-L242): the parameter [`/diffbot/mobile_base_controller/wheel_separation`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test#L15) is [`SEPARATION_SCALE`](#the-constants) times the [`wheel_separation`]({{ ekf_src_url }}/diffbot_control/config/diffbot/geometry.yaml#L15) in the robot's [`geometry.yaml`]({{ ekf_src_url }}/diffbot_control/config/diffbot/geometry.yaml), within [`SEPARATION_TOLERANCE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L64), 10⁻⁶ m. This check shows that the rostest file's value reached the controller's parameter and still fits the robot's geometry.
+2. **The validator forwards the IMU**, [`assert_validated_imu_rate()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L244-L248): during the turn, the samples on the topic `/diffbot/imu/data_validated` arrived at more than [`MIN_IMU_RATE_SHARE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L65) times [`IMU_RATE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L57), 0.9 · 50 Hz = 45 Hz. Without the validated samples, the EKF would have only the wheel odometry.
+3. **The wheel odometry falls behind**, [`assert_odometry_falls_behind()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L250-L254): $\Delta\theta_\text{true} - \Delta\theta_\text{odom}$ is more than [`MIN_ODOMETRY_ERROR`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L68), 0.15 rad. This check shows that the error that the test needs is there. With the scaled separation, the wheel odometry reports 1 / 1.25 of the true turn, so the difference is a fifth of the true turn.
+4. **The EKF follows the true turn**, [`assert_ekf_follows_the_true_turn()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L256-L259): $|\Delta\theta_\text{EKF} - \Delta\theta_\text{true}|$ is at most [`EKF_TOLERANCE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L69), 0.05 rad.
 
-`assert_wheel_separation_is_scaled()` gets the robot's own value from `nominal_wheel_separation()`. The excerpt shows this function, from [`test_ekf.py`, lines 97–103]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L97-L103):
+`assert_wheel_separation_is_scaled()` gets the robot's own value from [`nominal_wheel_separation()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L97-L103). The excerpt shows this function, from [`test_ekf.py`, lines 97–103]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L97-L103):
 
 ```python title="test_ekf.py: nominal_wheel_separation()" linenums="97"
 --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:97:103"
@@ -209,9 +209,9 @@ With the EKF on, the EKF has to publish the transform `odom → base_footprint`,
 ```
 
 1. The test waits until `self.odom_tf_observer` has seen a first transform `odom → base_footprint`, at most [`STARTUP_TIMEOUT`](#the-constants).
-2. It waits `OBSERVE`, 3 s of simulation time, while the observer keeps counting.
-3. It expects exactly one publishing node in the observer's counts, `EKF_NODE`, which is `/diffbot/ekf_localization`.
-4. It expects the controller's parameter `enable_odom_tf`, which `ODOM_TF_PARAMETER` names, to be `false`.
+2. It waits [`OBSERVE`]({{ ekf_src_url }}/diffbot_gazebo/test/odom_tf_observer.py#L22), 3 s of simulation time, while the observer keeps counting.
+3. It expects exactly one publishing node in the observer's counts, [`EKF_NODE`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L47), which is `/diffbot/ekf_localization`.
+4. It expects the controller's parameter [`enable_odom_tf`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L251), which [`ODOM_TF_PARAMETER`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L48) names, to be `false`.
 
 This observer counts from [`setUpClass()`](#waiting-until-everything-runs) on. unittest runs a class's test methods in alphabetical order, so the turn test runs first, and the count covers the turn too. In the saved run, the observer counted 375 transforms for DiffBot and 371 for Remo, all from `/diffbot/ekf_localization`. [The Transform's Publisher](odom-tf.md) explains the observer and the same check without the EKF.
 
@@ -224,7 +224,7 @@ rostest diffbot_gazebo sim_ekf_diffbot.test
 rostest diffbot_gazebo sim_ekf_remo.test
 ```
 
-[Run it](../../../../development/simulation-test.md#run-it) and [Read the results](../../../../development/simulation-test.md#read-the-results) on Simulation Test explain rostest's options, its output and its result files. A passing run of `sim_ekf_diffbot.test` ends with:
+[Run it](../../../../development/simulation-test.md#run-it) and [Read the results](../../../../development/simulation-test.md#read-the-results) on Simulation Test explain rostest's options, its output and its result files. A passing run of [`sim_ekf_diffbot.test`]({{ ekf_src_url }}/diffbot_gazebo/test/sim_ekf_diffbot.test) ends with:
 
 ```console
 [diffbot_gazebo.rosunit-ekf_diffbot/test_ekf_follows_the_true_turn_with_a_wrong_wheel_separation][passed]
