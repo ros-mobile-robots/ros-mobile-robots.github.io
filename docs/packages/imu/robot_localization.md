@@ -113,7 +113,7 @@ The following nodes read the two outputs when `ekf:=true`:
 - **The topic:** the local planner that `move_base` and Move Base Flex load, by default [`DWAPlannerROS`](https://github.com/ros-planning/navigation/blob/1.17.3/dwa_local_planner/include/dwa_local_planner/dwa_planner_ros.h#L66), reads the robot's current velocities from the topic `/diffbot/odometry/filtered`: $v_x$, $v_y$ and $\omega_z$, the message's fields `twist.twist.linear.x`, `twist.twist.linear.y` and `twist.twist.angular.z`. [The planners' odometry topic](#the-planners-odometry-topic) shows the launch files' lines that select this topic. RViz can show the topic's poses with an Odometry display, as in [Comparing the two odometries](#comparing-the-two-odometries).
 - **The transform:** everything that asks TF where the robot is. RViz places the robot in its view with the transform. amcl, which localizes the robot on a map, asks TF for the robot's pose in the `odom` frame. The planners' costmaps ask TF for the robot's pose in their own frames, the local costmap in `odom` and the global costmap in `map`. Each of these requests passes through the transform `odom → base_footprint`.
 
-The planner's subscriber is the function [`odomCallback()`](https://github.com/ros-planning/navigation/blob/1.17.3/base_local_planner/src/odometry_helper_ros.cpp#L48) of the class [`OdometryHelperRos`](https://github.com/ros-planning/navigation/blob/1.17.3/base_local_planner/include/base_local_planner/odometry_helper_ros.h#L48), which copies the three velocities and [`child_frame_id`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg#L5) from each message, as [lines 48–59 of `odometry_helper_ros.cpp`](https://github.com/ros-planning/navigation/blob/1.17.3/base_local_planner/src/odometry_helper_ros.cpp#L48-L59) in the navigation stack 1.17.3 show:
+The planner's subscriber is the function [`odomCallback()`](https://github.com/ros-planning/navigation/blob/1.17.3/base_local_planner/src/odometry_helper_ros.cpp#L48) of the class [`OdometryHelperRos`](https://github.com/ros-planning/navigation/blob/1.17.3/base_local_planner/include/base_local_planner/odometry_helper_ros.h#L48), which copies the three velocities and [`child_frame_id`](#the-messages-and-their-fields) from each message, as [lines 48–59 of `odometry_helper_ros.cpp`](https://github.com/ros-planning/navigation/blob/1.17.3/base_local_planner/src/odometry_helper_ros.cpp#L48-L59) in the navigation stack 1.17.3 show:
 
 ??? quote "odometry_helper_ros.cpp, lines 48–59: the velocities that the local planner reads"
     ```cpp linenums="48"
@@ -385,7 +385,7 @@ With the robot's own wheel separation, the two odometries hardly differ in this 
 
 ## What the filter fuses
 
-[`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) configures the filter. For each input, a list of 15 booleans says which values of the input's messages the filter fuses: [`odom0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L55-L59) for the wheel odometry and [`imu0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L74-L78) for the IMU. [The two lists](#the-two-lists) shows both lists.
+[`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) configures the filter. For each input, a list of 15 booleans says which values of the input's messages the filter fuses: [`odom0_config`](#the-two-lists) for the wheel odometry and [`imu0_config`](#the-two-lists) for the IMU. [The two lists](#the-two-lists) shows both lists.
 
 To **fuse** means that the filter corrects its estimate $\hat{\mathbf{x}}$ with a measurement $\mathbf{z}$. One measurement can hold several values, for example the wheel odometry's three velocities, and the filter uses them together in one correction. Each value counts by its certainty. The filter computes the weights from two uncertainties: the covariance of the measurement, which holds the variance $\sigma^2$ of each of its values, and the covariance of the filter's own estimate. The smaller a measured value's variance is next to the estimate's uncertainty, the closer the estimate moves to the measured value.
 
@@ -418,7 +418,7 @@ The table shows the state's five groups of three variables, with the labels that
 | Angular velocity | $\omega_x$, $\omega_y$, $\omega_z$ | rad/s | `vroll`, `vpitch`, `vyaw` | the rates of roll, pitch and yaw |
 | Linear acceleration | $a_x$, $a_y$, $a_z$ | m/s² | `ax`, `ay`, `az` | $\ddot X$, $\ddot Y$, $\ddot Z$ |
 
-The position and the orientation are the robot's pose in the filter's [`world_frame`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L23), here `odom`. The velocities and the acceleration are in the robot's own frame, the filter's [`base_link_frame`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L20), here `base_footprint`. The yaw rate $\omega_z$ is the rate at which the heading $\theta$ changes.
+The position and the orientation are the robot's pose in the filter's [`world_frame`](#the-other-settings), here `odom`. The velocities and the acceleration are in the robot's own frame, the filter's [`base_link_frame`](#the-other-settings), here `base_footprint`. The yaw rate $\omega_z$ is the rate at which the heading $\theta$ changes.
 
 ### The two lists
 
@@ -440,7 +440,7 @@ The figure shows both lists in the file's layout. A green cell with a check mark
 
 The filter fuses four values, the four cells with a check mark in the figure. The list below describes each of the four values with three entries:
 
-- **Message field:** the field of the input's message that carries the value, of a [`nav_msgs/Odometry`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg) message for the wheel odometry and of a [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message for the IMU.
+- **Message field:** the field of the input's message that carries the value, of a [`nav_msgs/Odometry`](#the-messages-and-their-fields) message for the wheel odometry and of a [`sensor_msgs/Imu`](#the-messages-and-their-fields) message for the IMU.
 - **Variance:** the element of the message's covariance that holds the value's variance $\sigma^2$, and the variance's number.
 - **Frame:** the coordinate frame in which the message gives the value.
 
@@ -487,7 +487,7 @@ Of an odometry message, the filter uses these fields:
 - **`twist.twist`:** the velocities. `twist.twist.linear.x` is the forward speed $v_x$, `twist.twist.linear.y` is the sideways speed $v_y$ and `twist.twist.angular.z` is the yaw rate $\omega_z$.
 - **[`twist.covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/TwistWithCovariance.msg#L9):** the covariance of the velocities, 36 numbers.
 
-The filter doesn't read the message's `pose`, because [`odom0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L55-L59) fuses no pose value.
+The filter doesn't read the message's `pose`, because [`odom0_config`](#the-two-lists) fuses no pose value.
 
 The IMU's samples arrive as [`sensor_msgs/Imu`](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html) messages on the topic `/diffbot/imu/data_validated`. The collapsed box shows the message's definition with its comments, from [`Imu.msg`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) in ROS's common_msgs:
 
@@ -503,7 +503,7 @@ Of an IMU sample, the filter uses these fields:
 - **`angular_velocity`:** the angular velocity about the three axes of `imu_link`. After the rotation into `base_footprint`, its z component is the yaw rate $\omega_z$.
 - **[`angular_velocity_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21):** the covariance of the angular velocity, 9 numbers.
 
-The filter doesn't read the sample's `orientation` and `linear_acceleration`, because [`imu0_config`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L74-L78) fuses no orientation and no acceleration.
+The filter doesn't read the sample's `orientation` and `linear_acceleration`, because [`imu0_config`](#the-two-lists) fuses no orientation and no acceleration.
 
 #### The variances
 
@@ -517,13 +517,13 @@ $$
 \end{pmatrix}
 $$
 
-A message has no type for a matrix, so it stores the matrix as an array, row by row, as the comments in [`TwistWithCovariance.msg`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/TwistWithCovariance.msg#L5) and [`Imu.msg`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21) say: first the elements of row 0, then those of row 1, and so on. With $n$ rows and $n$ columns, counted from 0, the element in row $i$ and column $j$ has the index $k$ in the array:
+A message has no type for a matrix, so it stores the matrix as an array, row by row, as the comments in [`TwistWithCovariance.msg`](#the-messages-and-their-fields) and [`Imu.msg`](#the-messages-and-their-fields) say: first the elements of row 0, then those of row 1, and so on. With $n$ rows and $n$ columns, counted from 0, the element in row $i$ and column $j$ has the index $k$ in the array:
 
 $$
 k = n\,i + j
 $$
 
-[`twist.covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/TwistWithCovariance.msg#L9), the field of a [`nav_msgs/Odometry`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg) message, holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n = 6$. Its variances lie at the indices 0, 7, 14, 21, 28 and 35. [`angular_velocity_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21) of a [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message holds the 3 × 3 matrix above, with $n = 3$ and the variances at 0, 4 and 8. The figure shows both matrices with the index of each element:
+[`twist.covariance`](#the-messages-and-their-fields), the field of a [`nav_msgs/Odometry`](#the-messages-and-their-fields) message, holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n = 6$. Its variances lie at the indices 0, 7, 14, 21, 28 and 35. [`angular_velocity_covariance`](#the-messages-and-their-fields) of a [`sensor_msgs/Imu`](#the-messages-and-their-fields) message holds the 3 × 3 matrix above, with $n = 3$ and the variances at 0, 4 and 8. The figure shows both matrices with the index of each element:
 
 --8<-- "includes/localization-covariances.html"
 
@@ -561,10 +561,10 @@ These settings supply the numbers on the diagonals:
 
 #### The frames
 
-The filter turns every velocity into its [`base_link_frame`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml#L20), here `base_footprint`, before the filter fuses the value:
+The filter turns every velocity into its [`base_link_frame`](#the-other-settings), here `base_footprint`, before the filter fuses the value:
 
-- **The wheel odometry's velocities $v_x$, $v_y$ and $\omega_z$:** a [`nav_msgs/Odometry`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg) message names the frame of its velocities in [`child_frame_id`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/nav_msgs/msg/Odometry.msg#L5), which is `base_footprint` already. So the filter takes the three velocities as they are.
-- **The IMU's angular velocity $\boldsymbol\omega = (\omega_x, \omega_y, \omega_z)$:** a [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message names its frame in `header.frame_id`, here `imu_link`. The filter rotates the angular velocity into `base_footprint` with the transform from TF. In the URDF models of both robots, the z axis of `imu_link` points up like the robot's z axis. So the rotation leaves the yaw rate $\omega_z$, the field `angular_velocity.z`, as it is.
+- **The wheel odometry's velocities $v_x$, $v_y$ and $\omega_z$:** a [`nav_msgs/Odometry`](#the-messages-and-their-fields) message names the frame of its velocities in [`child_frame_id`](#the-messages-and-their-fields), which is `base_footprint` already. So the filter takes the three velocities as they are.
+- **The IMU's angular velocity $\boldsymbol\omega = (\omega_x, \omega_y, \omega_z)$:** a [`sensor_msgs/Imu`](#the-messages-and-their-fields) message names its frame in `header.frame_id`, here `imu_link`. The filter rotates the angular velocity into `base_footprint` with the transform from TF. In the URDF models of both robots, the z axis of `imu_link` points up like the robot's z axis. So the rotation leaves the yaw rate $\omega_z$, the field `angular_velocity.z`, as it is.
 
 The collapsed box shows where robot_localization 2.7.7 reads these fields and frames.
 
@@ -575,7 +575,7 @@ The collapsed box shows where robot_localization 2.7.7 reads these fields and fr
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp:1794:1804"
     ```
 
-    For an IMU sample, robot_localization copies `angular_velocity` and the nine elements of [`angular_velocity_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21) into a velocity measurement with the same target frame, as [lines 558–574 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L558-L574) show:
+    For an IMU sample, robot_localization copies `angular_velocity` and the nine elements of [`angular_velocity_covariance`](#the-messages-and-their-fields) into a velocity measurement with the same target frame, as [lines 558–574 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L558-L574) show:
 
     ```cpp linenums="558"
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp:558:574"
@@ -744,13 +744,13 @@ Neither setting looks at a sample's age, its frame or a repeated stamp.
 
 ### The five checks
 
-A sample is valid only if it passes all five checks. For each sample, the node calls [`drop_reason_or_record()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L258) of the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203), which runs the checks and returns the reason of the first one that fails. For a valid sample, the method stores the sample's stamp and the ROS time of its arrival in two attributes of the validator, `last_valid_stamp` and `last_valid_arrival_time`, and returns `None`, which stands for "no reason to drop". The validator's tests page walks through the method in [`drop_reason_or_record()`: the decision about a sample](robot_localization/tests/validator.md#drop_reason_or_record-the-decision-about-a-sample). In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
+A sample is valid only if it passes all five checks. For each sample, the node calls [`drop_reason_or_record()`](robot_localization/tests/validator.md#drop_reason_or_record-the-decision-about-a-sample) of the class [`ImuValidator`](robot_localization/tests/validator.md#what-the-tests-call), which runs the checks and returns the reason of the first one that fails. For a valid sample, the method stores the sample's stamp and the ROS time of its arrival in two attributes of the validator, `last_valid_stamp` and `last_valid_arrival_time`, and returns `None`, which stands for "no reason to drop". The validator's tests page walks through the method in [`drop_reason_or_record()`: the decision about a sample](robot_localization/tests/validator.md#drop_reason_or_record-the-decision-about-a-sample). In the figures and in the text, $t$ is the ROS time, the node's clock at the moment the sample arrives. $t_s$ is the sample's stamp, and $t_\text{last}$ is the stamp of the last sample that the node forwarded.
 
-Before the first check, the node drops every sample while the ROS time is zero, because it can't judge a stamp without a clock. In the simulation, the parameter [`/use_sim_time`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/impl/simtime.py#L71-L93) is true, and the ROS time is the time of the last message on Gazebo's topic `/clock`. Until the node has received the first message there, the ROS time is zero. On the robot, the ROS time is the SBC's system clock, which doesn't read zero. The validator's tests page explains this in [Where the ROS time comes from](robot_localization/tests/validator.md#where-the-ros-time-comes-from). [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33) are the node's parameters, which [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch) sets.
+Before the first check, the node drops every sample while the ROS time is zero, because it can't judge a stamp without a clock. In the simulation, the parameter [`/use_sim_time`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/impl/simtime.py#L71-L93) is true, and the ROS time is the time of the last message on Gazebo's topic `/clock`. Until the node has received the first message there, the ROS time is zero. On the robot, the ROS time is the SBC's system clock, which doesn't read zero. The validator's tests page explains this in [Where the ROS time comes from](robot_localization/tests/validator.md#where-the-ros-time-comes-from). [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), [`max_age`](#check-4-the-stamp-against-the-ros-time) and [`max_future`](#check-4-the-stamp-against-the-ros-time) are the node's parameters, which [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch) sets.
 
 #### Checks 1 to 3: the sample's form
 
-The first three checks look at the sample's frame, values and variances, fields of its [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message. Each of the three figures shows the fields that its check reads, for a sample that passes and for one that the node drops.
+The first three checks look at the sample's frame, values and variances, fields of its [`sensor_msgs/Imu`](#the-messages-and-their-fields) message. Each of the three figures shows the fields that its check reads, for a sample that passes and for one that the node drops.
 
 **1. The frame:** [`check_frame()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L305) checks that the sample's `header.frame_id` is the node's parameter [`frame_id`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L31), `imu_link`. The EKF needs this frame to turn the measured rate into the robot's frame with TF.
 
@@ -791,7 +791,7 @@ When the ROS time goes back, for example after a call of the service `/gazebo/re
 
 ### What the validator doesn't check
 
-- **Other fields of the message:** the orientation, the acceleration's covariance, or whether a covariance matrix is positive definite. So the validator doesn't validate every field of a [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message.
+- **Other fields of the message:** the orientation, the acceleration's covariance, or whether a covariance matrix is positive definite. So the validator doesn't validate every field of a [`sensor_msgs/Imu`](#the-messages-and-their-fields) message.
 - **Whether a value is plausible:** the validator looks at a sample's form and its time only. A yaw rate $\omega_z$ of 100 rad/s with a fresh stamp is valid.
 
 The validator also never gives an old sample a new stamp.
@@ -912,10 +912,10 @@ Five test files check the EKF and the IMU sample validator without the robot, in
 
 | Test | What the test checks |
 |:--|:--|
-| [IMU Sample Validator](robot_localization/tests/validator.md) | The validator's checks alone, without a ROS master: each reason to drop a sample, the limits [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33), a clock that goes back, and the diagnostics |
+| [IMU Sample Validator](robot_localization/tests/validator.md) | The validator's checks alone, without a ROS master: each reason to drop a sample, the limits [`max_age`](#check-4-the-stamp-against-the-ros-time) and [`max_future`](#check-4-the-stamp-against-the-ros-time), a clock that goes back, and the diagnostics |
 | [EKF on a Stepped Clock](robot_localization/tests/stepped-clock.md) | The validator and the filter of [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch) on a clock that the test steps: the estimate's yaw rate $\omega_z$ with valid IMU samples, and with samples that are old, from the future, repeated or out of order. At the robot's rates, the IMU at 50 Hz and the wheel odometry at 10 Hz: the estimate, and, when the IMU stops, that each 100 ms wheel period contains the header stamp of one output |
 | [EKF in Gazebo](robot_localization/tests/gazebo.md) | DiffBot and Remo in the simulation, with a wheel separation that is 25 % too large in the drive controller: the filter's turn follows the robot's true turn, not the wheel odometry's |
-| [The ekf Switch](robot_localization/tests/switch.md) | The launch files with [`ekf`](#what-the-launch-files-do-with-ekf) true, false and by default: which nodes start, the value of [`enable_odom_tf`]({{ ekf_src_url }}/diffbot_base/launch/diffbot.launch#L45), and which odometry the planners read |
+| [The ekf Switch](robot_localization/tests/switch.md) | The launch files with [`ekf`](#what-the-launch-files-do-with-ekf) true, false and by default: which nodes start, the value of [`enable_odom_tf`](#what-the-launch-files-do-with-ekf), and which odometry the planners read |
 | [The Transform's Publisher](robot_localization/tests/odom-tf.md) | Without the EKF, only the drive controller publishes the transform `odom → base_footprint` on the topic `/tf` |
 
 These tests don't show four things:
@@ -934,7 +934,7 @@ These tests don't show four things:
     ??? info "The code behind the two poses after a reset"
         The statements follow from the functions [`RosFilter::reset()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L161) and [`FilterBase::reset()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L78) of robot_localization 2.7.7, the class [`Odometry`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/include/diff_drive_controller/odometry.h#L59) of ros_controllers 0.22.0 with its methods in [`odometry.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/odometry.cpp), and [`GazeboRosControlPlugin::Reset()`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp#L261) of gazebo_ros_pkgs 2.9.3.
 
-- **Starting values:** the robot's variances and the validator's time limits are not measured yet. These are the variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's [`max_age`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch#L33). The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest only, and measurements while driving still have to show the values that the EKF should use. So on the robot, the filter's weights of the two inputs are a first choice. In the simulation, the IMU's variance describes the Gaussian noise that the simulated sensor adds.
+- **Starting values:** the robot's variances and the validator's time limits are not measured yet. These are the variances that the firmware and the drive controller publish on the robot, and the IMU sample validator's [`max_age`](#check-4-the-stamp-against-the-ros-time) and [`max_future`](#check-4-the-stamp-against-the-ros-time). The [bench checks](driver-bno055.md#bench-checks) measured the IMU's noise at rest only, and measurements while driving still have to show the values that the EKF should use. So on the robot, the filter's weights of the two inputs are a first choice. In the simulation, the IMU's variance describes the Gaussian noise that the simulated sensor adds.
 - **Drift:** the pose drifts over time, as with any odometry. The gyroscope helps with the heading, but no input measures the position independently of the wheels, so the position's drift remains. A map-based localization such as amcl corrects the drift in the `map` frame.
 
 ## More about robot_localization

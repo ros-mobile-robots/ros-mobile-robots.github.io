@@ -6,7 +6,7 @@
 
 Two examples show the validator's decision before the code. Each example gives one sample to a new validator, one that has seen no sample yet, at the ROS time $t$ = 100 s. This is the ROS time of most tests, their constant [`NOW`](#the-constants-and-the-helpers). Both samples are in the frame `imu_link`, with finite values and positive variances, as the firmware sends them. They differ only in their stamp $t_s$:
 
-- **Sample B, stamped $t_s$ = 99.900000 s:** its age $t - t_s$ is 0.100000 s, exactly [`max_age`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch#L32). The validator accepts B, and the node forwards the sample.
+- **Sample B, stamped $t_s$ = 99.900000 s:** its age $t - t_s$ is 0.100000 s, exactly [`max_age`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time). The validator accepts B, and the node forwards the sample.
 - **Sample A, stamped $t_s$ = 99.899999 s:** its age $t - t_s$ is 0.100001 s, 1 µs more than `max_age`. The validator rejects A as [`TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample), and the node drops the sample.
 
 The figure shows the decision's steps in the order of its arrows. A sample that meets a step's condition goes on to the next step. A sample that doesn't takes the arrow "no" to its drop reason, in a dashed red box. The numbers 1 to 5 are those of [the five checks](../../robot_localization.md#the-five-checks) on the Localization page.
@@ -22,7 +22,7 @@ The figure shows the decision's steps in the order of its arrows. A sample that 
     The decision has two ends:
 
     - **Accepted:** [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) stores the sample's stamp $t_s$ in the validator's attribute `last_valid_stamp` and its arrival time $t$ in `last_valid_arrival_time`, and returns `None`. The node counts the sample as forwarded and publishes the sample for the EKF. The tests check this end with [`assert_accepted()`](#validatortestcase-a-new-validator-and-two-assertions).
-    - **Rejected:** `drop_reason_or_record()` returns the reason. The validator stores neither the sample's stamp nor its arrival time in `last_valid_stamp` and `last_valid_arrival_time`. At a ROS time other than 0, the clock check has already stored the call's ROS time in `last_checked_ros_time`. The node counts the sample under this reason, which the [diagnostics](#testsamplecounts-the-numbers-of-a-report) report, and passes a warning to [`rospy.logwarn_throttle()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/core.py#L242) with the period [`WARNING_PERIOD`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L102), 5 s. The tests check this end with [`assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions).
+    - **Rejected:** `drop_reason_or_record()` returns the reason. The validator stores neither the sample's stamp nor its arrival time in `last_valid_stamp` and `last_valid_arrival_time`. At a ROS time other than 0, the clock check has already stored the call's ROS time in `last_checked_ros_time`. The node counts the sample under this reason, which the [diagnostics](#testsamplecounts-the-numbers-of-a-report) report, and passes a warning to [`rospy.logwarn_throttle()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/core.py#L242) with the period [`WARNING_PERIOD`](#where-the-ros-time-comes-from), 5 s. The tests check this end with [`assert_rejected()`](#validatortestcase-a-new-validator-and-two-assertions).
 
 ## Run the tests
 
@@ -89,19 +89,19 @@ A pass prints one line for each test, with `ok` at its end, and ends with `Ran 3
 
 A pass means that, for the tests' samples and times, the validator decides as [the five checks](../../robot_localization.md#the-five-checks) describe, and that its diagnostics report the expected silence, level and counts.
 
-A failure names the test and the assertion, with the value that came back. The test's name says which decision went wrong, and its section below shows the test. For example, a failure of `test_validator_accepts_a_sample_max_age_old_and_rejects_an_older_one` means that the age limit of check 4 moved or its comparison changed.
+A failure names the test and the assertion, with the value that came back. The test's name says which decision went wrong, and its section below shows the test. For example, a failure of [`test_validator_accepts_a_sample_max_age_old_and_rejects_an_older_one`](#check-4-the-two-time-limits) means that the age limit of check 4 moved or its comparison changed.
 
 ### What the tests don't show
 
-- **The node:** no test creates an `ImuValidatorNode`, with its topics, parameters and lock.
-- **The real clock and the real IMU:** whether `max_age` and `max_future` fit the robot's USB link is a measurement on the robot.
+- **The node:** no test creates an [`ImuValidatorNode`](#where-the-ros-time-comes-from), with its topics, parameters and lock.
+- **The real clock and the real IMU:** whether [`max_age`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) and [`max_future`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) fit the robot's USB link is a measurement on the robot.
 - **Values that the validator doesn't check:** a finite but implausible value passes by design.
 
 ??? note "The details"
 
-    - **The node:** the class [`ImuValidatorNode`](#where-the-ros-time-comes-from) reads the parameters, subscribes to the topic `imu/data_raw`, publishes on the topic `imu/data_validated` and on the topic `/diagnostics`, and reads the ROS time in a lock around each sample. The unit tests don't create an `ImuValidatorNode`: they call the methods of [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203-L356) directly. The [stepped-clock test](stepped-clock.md) runs the node with the EKF and checks its counts on the topic `/diagnostics`.
-    - **The real clock and the real IMU:** every time in these tests is a number that the test chose. Whether [`max_age`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch#L32) and [`max_future`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch#L33) fit the delays of the robot's USB link is a measurement on the robot, as [Limits](../../robot_localization.md#limits) says. The issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#219)](https://github.com/ros-mobile-robots/diffbot/issues/219) measures it.
-    - **The fields that the validator doesn't check:** the [overview](../../robot_localization.md#what-the-validator-doesnt-check) lists them. No test sends a sample with an implausible but finite value, because the validator accepts such a sample by design. The EKF doesn't drop such a value either. The first measurement initializes the filter. For each later measurement, robot_localization's EKF computes the difference between the measurement and the filter's prediction and corrects the estimate with this difference, unless a rejection threshold finds the difference too large ([`ekf.cpp`, lines 164–189](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L164-L189)), as the same section of the overview explains. The IMU's threshold for the angular velocity, [`imu0_twist_rejection_threshold`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1417), defaults to the largest `double` ([`ros_filter.cpp`, line 1418](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1418)), and [`ekf.yaml`]({{ ekf_test_src_url }}/diffbot_control/config/ekf.yaml) sets none. So a large but finite yaw rate in a valid sample moves the estimate.
+    - **The node:** the class [`ImuValidatorNode`](#where-the-ros-time-comes-from) reads the parameters, subscribes to the topic `imu/data_raw`, publishes on the topic `imu/data_validated` and on the topic `/diagnostics`, and reads the ROS time in a lock around each sample. The unit tests don't create an `ImuValidatorNode`: they call the methods of [`ImuValidator`](#what-the-tests-call) directly. The [stepped-clock test](stepped-clock.md) runs the node with the EKF and checks its counts on the topic `/diagnostics`.
+    - **The real clock and the real IMU:** every time in these tests is a number that the test chose. Whether [`max_age`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) and [`max_future`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) fit the delays of the robot's USB link is a measurement on the robot, as [Limits](../../robot_localization.md#limits) says. The issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#219)](https://github.com/ros-mobile-robots/diffbot/issues/219) measures it.
+    - **The fields that the validator doesn't check:** the [overview](../../robot_localization.md#what-the-validator-doesnt-check) lists them. No test sends a sample with an implausible but finite value, because the validator accepts such a sample by design. The EKF doesn't drop such a value either. The first measurement initializes the filter. For each later measurement, robot_localization's EKF computes the difference between the measurement and the filter's prediction and corrects the estimate with this difference, unless a rejection threshold finds the difference too large ([`ekf.cpp`, lines 164–189](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L164-L189)), as the same section of the overview explains. The IMU's threshold for the angular velocity, [`imu0_twist_rejection_threshold`](../../robot_localization.md#what-the-validator-doesnt-check), defaults to the largest `double` ([`ros_filter.cpp`, line 1418](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1418)), and [`ekf.yaml`]({{ ekf_test_src_url }}/diffbot_control/config/ekf.yaml) sets none. So a large but finite yaw rate in a valid sample moves the estimate.
 
 ## The test classes
 
@@ -111,8 +111,8 @@ The file holds the 30 tests in four test classes, one for each part of [`imu_val
 |:--|:--|:--|:--|
 | [`TestImuValidator`](#testimuvalidator-which-samples-are-valid) | 12 | [`ImuValidator.drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) | Which samples the validator accepts, and the reason for each sample that it rejects |
 | [`TestSecondsSinceLastValidSample`](#testsecondssincelastvalidsample-the-silence) | 9 | [`ImuValidator.seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) | The time since the last valid sample, which the diagnostics report, also when the clock goes back |
-| [`TestHealth`](#testhealth-the-status) | 5 | [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143-L160) | The level of the diagnostics status: OK, warning or error |
-| [`TestSampleCounts`](#testsamplecounts-the-numbers-of-a-report) | 4 | [`SampleCounts`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L163-L190) | The counts of forwarded and dropped samples in a diagnostics report |
+| [`TestHealth`](#testhealth-the-status) | 5 | [`health()`](#testhealth-the-status) | The level of the diagnostics status: OK, warning or error |
+| [`TestSampleCounts`](#testsamplecounts-the-numbers-of-a-report) | 4 | [`SampleCounts`](#testsamplecounts-the-numbers-of-a-report) | The counts of forwarded and dropped samples in a diagnostics report |
 
 A fifth class, [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-assertions), holds no tests. It gives the first two test classes a new validator for each test and two assertions about the validator's decision on a sample.
 
@@ -122,11 +122,11 @@ The sections below explain each method that the tests call or that runs inside t
 
 ### Where the ROS time comes from
 
-`ImuValidator` never reads the ROS clock. Its methods get the ROS time $t$ as their argument `now`: from the node on the robot and in the simulation, and in the tests a time that the test chooses, most often [`NOW`](#the-constants-and-the-helpers), 100 s.
+[`ImuValidator`](#what-the-tests-call) never reads the ROS clock. Its methods get the ROS time $t$ as their argument `now`: from the node on the robot and in the simulation, and in the tests a time that the test chooses, most often [`NOW`](#the-constants-and-the-helpers), 100 s.
 
 ??? note "The node's callback, and what the ROS clock returns"
 
-    [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203-L356) never reads the ROS clock itself. Its methods [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) and [`seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) get the ROS time $t$ as their argument `now`. The caller decides which time that is:
+    [`ImuValidator`](#what-the-tests-call) never reads the ROS clock itself. Its methods [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) and [`seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) get the ROS time $t$ as their argument `now`. The caller decides which time that is:
 
     - **On the robot and in the simulation:** the node's class [`ImuValidatorNode`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L359) calls the two methods. For each sample, rospy calls the node's callback [`on_sample()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L383-L398), which reads the ROS time with [`rospy.Time.now()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/rostime.py#L144) and passes it to `drop_reason_or_record()` as `now`. For each diagnostics report, the node's method [`take_snapshot()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L415) reads the ROS time in the same way and passes it to `seconds_since_last_valid_sample()`.
     - **In the tests:** each test passes a ROS time that it chooses, most often [`NOW`](#the-constants-and-the-helpers), 100 s. So a test can put any ROS time next to any stamp $t_s$, and needs no clock and no waiting.
@@ -140,7 +140,7 @@ The sections below explain each method that the tests call or that runs inside t
     `on_sample()` stores the method's result in the variable `drop_reason`. The result is either `None` or a reason to drop the sample:
 
     - **`None`:** Python's value for "nothing", here "no reason to drop the sample". The node counts the sample as forwarded and publishes the sample on the topic `imu/data_validated`.
-    - **A reason:** a member of [`DropReason`](#dropreason-the-reasons-to-drop-a-sample). The node counts the sample by this reason with `count_dropped()`. After the lock, the callback passes a warning with the reason's text to [`rospy.logwarn_throttle()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/core.py#L242) with the period [`WARNING_PERIOD`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L102), 5 s, which leaves out repeated warnings within that period.
+    - **A reason:** a member of [`DropReason`](#dropreason-the-reasons-to-drop-a-sample). The node counts the sample by this reason with [`count_dropped()`](#testsamplecounts-the-numbers-of-a-report). After the lock, the callback passes a warning with the reason's text to [`rospy.logwarn_throttle()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/core.py#L242) with the period [`WARNING_PERIOD`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L102), 5 s, which leaves out repeated warnings within that period.
 
     The lock `self.lock` around both calls keeps the diagnostics timer, which runs in another thread, from reading the validator in the middle of a sample.
 
@@ -153,14 +153,14 @@ The sections below explain each method that the tests call or that runs inside t
 
 ### `drop_reason_or_record()`: the decision about a sample
 
-`drop_reason_or_record(message, now)` decides about one sample, stamped $t_s$, that arrives at the ROS time $t$, `now`. The method returns the first reason to drop the sample, or records the sample's stamp and arrival time and returns `None`.
+[`drop_reason_or_record(message, now)`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L258-L275) decides about one sample, stamped $t_s$, that arrives at the ROS time $t$, `now`. The method returns the first reason to drop the sample, or records the sample's stamp and arrival time and returns `None`.
 
 ??? note "The two arguments, and what the name says"
 
     [`drop_reason_or_record(message, now)`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L258-L275) decides about one sample. The node calls the method once for each sample, and the tests call the method through [two assertions](#validatortestcase-a-new-validator-and-two-assertions). Its two arguments are:
 
-    - **`message`:** the sample, a [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message. The sample carries its own time, the stamp $t_s$ in `header.stamp`, which the sender writes into the message. On the robot, the Teensy's firmware stamps each sample with rosserial's ROS time when it starts to read the BNO055. That time estimates when the BNO055 measured, because the sensor doesn't report that time, as the [firmware's IMU publisher]({{ ekf_test_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L36-L38) explains. In the simulation, Gazebo's IMU plugin stamps each sample with the simulation time of the measurement. The header also carries the frame of the values, `header.frame_id`. [The messages and their fields](../../robot_localization.md#the-messages-and-their-fields) on the Localization page lists the sample's fields.
-    - **`now`:** the ROS time $t$ at which the sample arrives at the validator, a [`rospy.Time`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/rostime.py#L95). The sample's way from the sender to the node takes time, so $t$ is usually a little later than $t_s$. On the robot, [rosserial synchronizes](https://github.com/ros-drivers/rosserial/blob/0.9.1/rosserial_client/src/ros_lib/ros/node_handle.h#L354-L383) the Teensy's clock only approximately with the SBC's clock. The remaining offset can put $t_s$ a little after $t$. Check 4 allows a stamp up to [`max_future`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch#L33), 0.02 s, ahead.
+    - **`message`:** the sample, a [`sensor_msgs/Imu`](../../robot_localization.md#the-messages-and-their-fields) message. The sample carries its own time, the stamp $t_s$ in `header.stamp`, which the sender writes into the message. On the robot, the Teensy's firmware stamps each sample with rosserial's ROS time when it starts to read the BNO055. That time estimates when the BNO055 measured, because the sensor doesn't report that time, as the [firmware's IMU publisher]({{ ekf_test_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L36-L38) explains. In the simulation, Gazebo's IMU plugin stamps each sample with the simulation time of the measurement. The header also carries the frame of the values, `header.frame_id`. [The messages and their fields](../../robot_localization.md#the-messages-and-their-fields) on the Localization page lists the sample's fields.
+    - **`now`:** the ROS time $t$ at which the sample arrives at the validator, a [`rospy.Time`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/rostime.py#L95). The sample's way from the sender to the node takes time, so $t$ is usually a little later than $t_s$. On the robot, [rosserial synchronizes](https://github.com/ros-drivers/rosserial/blob/0.9.1/rosserial_client/src/ros_lib/ros/node_handle.h#L354-L383) the Teensy's clock only approximately with the SBC's clock. The remaining offset can put $t_s$ a little after $t$. Check 4 allows a stamp up to [`max_future`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), 0.02 s, ahead.
 
     The validator checks both the frame and the stamp: [check 1](../../robot_localization.md#checks-1-to-3-the-samples-form) the frame, [check 4](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) the stamp $t_s$ against the ROS time $t$, and [check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) the stamp $t_s$ against the stamp of the last valid sample.
 
@@ -176,7 +176,7 @@ The method runs two steps, each in a method of its own: first [`drop_reason()`](
 
 #### Step 1: `drop_reason()`, the decision
 
-`drop_reason()` returns the first reason to drop the sample, or `None` when the sample passes every check: first the clock, then the clock check, then the six check functions in their order. A sample that would fail two checks gets the reason of the earlier one.
+[`drop_reason()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L277-L295) returns the first reason to drop the sample, or `None` when the sample passes every check: first the clock, then the clock check, then the six check functions in their order. A sample that would fail two checks gets the reason of the earlier one.
 
 ??? example "`drop_reason()` and the order of the checks"
 
@@ -198,11 +198,11 @@ The method runs two steps, each in a method of its own: first [`drop_reason()`](
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:222:230"
     ```
 
-    The six functions are [the five checks](../../robot_localization.md#the-five-checks) of the Localization page. Check 4 has two functions, one for each time limit: [`check_not_too_far_ahead()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L326-L328) and [`check_not_too_old()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L330-L332). A sample that would fail two checks gets the reason of the earlier one, as sample A in [Check 4: the two time limits](#check-4-the-two-time-limits) shows.
+    The six functions are [the five checks](../../robot_localization.md#the-five-checks) of the Localization page. Check 4 has two functions, one for each time limit: [`check_not_too_far_ahead()`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) and [`check_not_too_old()`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time). A sample that would fail two checks gets the reason of the earlier one, as sample A in [Check 4: the two time limits](#check-4-the-two-time-limits) shows.
 
 #### Step 2: `record_valid_sample_times()`, a valid sample
 
-Only for a valid sample, `record_valid_sample_times()` stores the sample's stamp in `last_valid_stamp` and its arrival time in `last_valid_arrival_time`. So the stamp of a dropped sample never becomes the last valid stamp.
+Only for a valid sample, [`record_valid_sample_times()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L297-L303) stores the sample's stamp in `last_valid_stamp` and its arrival time in `last_valid_arrival_time`. So the stamp of a dropped sample never becomes the last valid stamp.
 
 ??? example "`record_valid_sample_times()`, and what a call changes"
 
@@ -222,11 +222,11 @@ Only for a valid sample, `record_valid_sample_times()` stores the sample's stamp
     | A check drops the sample | unchanged, or set to `None` when `now` shows that the clock went back | `now` |
     | The ROS time is 0 s ([`NO_CLOCK`](#dropreason-the-reasons-to-drop-a-sample)) | unchanged | unchanged |
 
-    So the stamp of a dropped sample never becomes $t_\text{last}$. The node counts every dropped sample by its reason, `NO_CLOCK` included, and passes a warning to [`rospy.logwarn_throttle()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/core.py#L242) with the period [`WARNING_PERIOD`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L102), 5 s.
+    So the stamp of a dropped sample never becomes $t_\text{last}$. The node counts every dropped sample by its reason, `NO_CLOCK` included, and passes a warning to [`rospy.logwarn_throttle()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/core.py#L242) with the period [`WARNING_PERIOD`](#where-the-ros-time-comes-from), 5 s.
 
 #### Why one method runs both steps
 
-The node and the tests both call `drop_reason_or_record()`. So neither can record the times of a dropped sample or forget those of a valid one.
+The node and the tests both call [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample). So neither can record the times of a dropped sample or forget those of a valid one.
 
 ??? note "What each of the two mistakes would do"
 
@@ -260,7 +260,7 @@ When a call's ROS time is earlier than `last_checked_ros_time`, the ROS time of 
     - **Check 5:** with no stamp $t_\text{last}$ to compare with, check 5 lets the next sample through. If checks 1 to 4 pass too, the sample is valid, and its stamp becomes the new $t_\text{last}$.
     - **The silence:** [`seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) returns `None` until a sample is valid again. A diagnostics report in that time shows the error "no IMU sample forwarded yet, or since the clock went back". At 50 Hz, samples are spaced 20 ms apart. The silence becomes a number again only when a sample passes all five checks.
 
-    The table follows two samples through a new validator, one that has seen no sample yet, with the values of the test [`test_validator_accepts_a_stamp_once_after_the_clock_goes_back`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L196-L204) in [A clock that goes back](#a-clock-that-goes-back):
+    The table follows two samples through a new validator, one that has seen no sample yet, with the values of the test [`test_validator_accepts_a_stamp_once_after_the_clock_goes_back`](#a-clock-that-goes-back) in [A clock that goes back](#a-clock-that-goes-back):
 
     - **The first sample:** is stamped 100 s and arrives at the ROS time 100 s. Both values are the test's [`NOW`](#the-constants-and-the-helpers).
     - **Sample J:** arrives after the clock went back, as after a call of `/gazebo/reset_simulation`. J is stamped 0.02 s and arrives at the ROS time 0.02 s. Both values are the test's constant [`RESTART_NEAR_ZERO`](#the-constants-and-the-helpers).
@@ -282,7 +282,7 @@ When a call's ROS time is earlier than `last_checked_ros_time`, the ROS time of 
 
 ### `seconds_since_last_valid_sample()`: the silence
 
-`seconds_since_last_valid_sample(now)` checks the clock first. Then it returns the silence $t - t_\text{valid}$ in s, the ROS time since the last valid sample arrived, or `None` when no sample was valid since the clock last went back. The [validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) report this silence.
+[`seconds_since_last_valid_sample(now)`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L342-L356) checks the clock first. Then it returns the silence $t - t_\text{valid}$ in s, the ROS time since the last valid sample arrived, or `None` when no sample was valid since the clock last went back. The [validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) report this silence.
 
 ??? example "`seconds_since_last_valid_sample()`"
 
@@ -299,7 +299,7 @@ When a call's ROS time is earlier than `last_checked_ros_time`, the ROS time of 
 
 ### `DropReason`: the reasons to drop a sample
 
-`DropReason` holds one member for each of the seven reasons to drop a sample, each with the text that the log and the diagnostics show, such as `TOO_OLD` with `too old`.
+[`DropReason`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L106-L118) holds one member for each of the seven reasons to drop a sample, each with the text that the log and the diagnostics show, such as [`TOO_OLD`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L117) with `too old`.
 
 ??? example "The seven members, and `DropReason` in the code"
 
@@ -308,12 +308,12 @@ When a call's ROS time is earlier than `last_checked_ros_time`, the ROS time of 
     | Member | Returned by | Text in the log and on `/diagnostics` |
     |:--|:--|:--|
     | [`NO_CLOCK`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L112) | [`drop_reason()`](#step-1-drop_reason-the-decision) itself, before the checks, at the ROS time 0 | `no ROS clock` |
-    | [`WRONG_FRAME`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L113) | [Check 1](../../robot_localization.md#checks-1-to-3-the-samples-form), [`check_frame()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L305-L307) | `wrong frame` |
-    | [`NOT_FINITE`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L114) | [Check 2](../../robot_localization.md#checks-1-to-3-the-samples-form), [`check_finite_values()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L309-L314) | `not finite` |
-    | [`INVALID_ANGULAR_VELOCITY_COVARIANCE`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L115) | [Check 3](../../robot_localization.md#checks-1-to-3-the-samples-form), [`check_angular_velocity_covariance()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L316-L324) | `invalid angular velocity covariance` |
-    | [`FROM_THE_FUTURE`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L116) | [Check 4](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), [`check_not_too_far_ahead()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L326-L328) | `from the future` |
-    | [`TOO_OLD`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L117) | [Check 4](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), [`check_not_too_old()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L330-L332) | `too old` |
-    | [`NOT_NEWER`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L118) | [Check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample), [`check_stamp_later_than_last_valid()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L334-L340) | `not newer than the last one` |
+    | [`WRONG_FRAME`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L113) | [Check 1](../../robot_localization.md#checks-1-to-3-the-samples-form), [`check_frame()`](../../robot_localization.md#checks-1-to-3-the-samples-form) | `wrong frame` |
+    | [`NOT_FINITE`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L114) | [Check 2](../../robot_localization.md#checks-1-to-3-the-samples-form), [`check_finite_values()`](../../robot_localization.md#checks-1-to-3-the-samples-form) | `not finite` |
+    | [`INVALID_ANGULAR_VELOCITY_COVARIANCE`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L115) | [Check 3](../../robot_localization.md#checks-1-to-3-the-samples-form), [`check_angular_velocity_covariance()`](../../robot_localization.md#checks-1-to-3-the-samples-form) | `invalid angular velocity covariance` |
+    | [`FROM_THE_FUTURE`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L116) | [Check 4](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), [`check_not_too_far_ahead()`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) | `from the future` |
+    | [`TOO_OLD`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L117) | [Check 4](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), [`check_not_too_old()`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) | `too old` |
+    | [`NOT_NEWER`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L118) | [Check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample), [`check_stamp_later_than_last_valid()`](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) | `not newer than the last one` |
 
     [`DropReason`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L106-L118) is an [enumeration](https://docs.python.org/3/library/enum.html), a fixed set of named members, one for each reason to drop a sample. The excerpt shows the class, from [`imu_validator.py`, lines 105–118]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L105-L118):
 
@@ -327,7 +327,7 @@ When a call's ROS time is earlier than `last_checked_ros_time`, the ROS time of 
 
 ## The constants and the helpers
 
-The tests share constants, such as `NOW`, 100 s, the ROS time of most checks, and two helpers: `make_imu_sample()` builds a sample like the firmware's that is valid at `NOW` for a new validator, and `seconds()` turns a number of seconds into a `rospy.Duration`.
+The tests share constants, such as [`NOW`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L23), 100 s, the ROS time of most checks, and two helpers: [`make_imu_sample()`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L68-L84) builds a sample like the firmware's that is valid at `NOW` for a new validator, and [`seconds()`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L87-L89) turns a number of seconds into a [`rospy.Duration`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/rostime.py#L59).
 
 ??? example "The constants of `test_imu_validator.py`"
 
@@ -345,14 +345,14 @@ The tests share constants, such as `NOW`, 100 s, the ROS time of most checks, an
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:68:89"
     ```
 
-    - **`make_imu_sample()`:** returns a [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message like the firmware's. With the defaults of its three arguments, the sample is valid at the ROS time `NOW` for a new validator, one that has seen no sample yet. If the last valid sample has the same stamp, [check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) drops the new sample. With the defaults, the sample's stamp $t_s$ is `NOW`, its frame is `imu_link` and its yaw rate $\omega_z$ is [`YAW_RATE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L57), 0.5 rad/s. The accelerometer's reading on the upward axis, $f_z$, is [`GRAVITY`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L58), 9.81 m/s², as for an IMU at rest. `orientation_covariance[0]` is −1, which marks the orientation as unavailable, as in the firmware's message.
+    - **`make_imu_sample()`:** returns a [`sensor_msgs/Imu`](../../robot_localization.md#the-messages-and-their-fields) message like the firmware's. With the defaults of its three arguments, the sample is valid at the ROS time `NOW` for a new validator, one that has seen no sample yet. If the last valid sample has the same stamp, [check 5](../../robot_localization.md#check-5-the-stamp-against-the-last-forwarded-sample) drops the new sample. With the defaults, the sample's stamp $t_s$ is `NOW`, its frame is `imu_link` and its yaw rate $\omega_z$ is [`YAW_RATE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L57), 0.5 rad/s. The accelerometer's reading on the upward axis, $f_z$, is [`GRAVITY`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L58), 9.81 m/s², as for an IMU at rest. `orientation_covariance[0]` is −1, which marks the orientation as unavailable, as in the firmware's message.
     - **The variances:** each variance on the diagonal of the angular velocity's covariance $\boldsymbol\Sigma_{\boldsymbol\omega}$, such as $\sigma^2_{\omega_z}$, is [`ANGULAR_VELOCITY_VARIANCE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L59), 4 · 10⁻⁴ (rad/s)². Each variance on the diagonal of `linear_acceleration_covariance` is [`LINEAR_ACCELERATION_VARIANCE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L60), 10⁻² (m/s²)². Both have the size of the firmware's variances.
     - **Valid and invalid samples:** the tests override the defaults of `stamp`, `frame_id` or `yaw_rate`, or change a field of the returned message, to build the samples that they need. A later stamp gives the next valid sample, for example. An invalid sample differs from the valid one in one property, so that the sample aims at one check. A sample can fail a later check too, as sample A of [the time limits](#check-4-the-two-time-limits) does.
     - **`seconds()`:** turns a number of seconds into a `rospy.Duration`, which a test adds to `NOW` or subtracts from it.
 
 ### `ValidatorTestCase`: a new validator and two assertions
 
-`TestImuValidator` and `TestSecondsSinceLastValidSample` derive from `ValidatorTestCase`. Its `setUp()` gives each test a new validator. Its assertions `assert_accepted()` and `assert_rejected()` call `drop_reason_or_record()` once, as the node does for each sample, and check that the validator accepts the sample or rejects it with the expected reason.
+[`TestImuValidator`](#testimuvalidator-which-samples-are-valid) and [`TestSecondsSinceLastValidSample`](#testsecondssincelastvalidsample-the-silence) derive from [`ValidatorTestCase`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L92-L110). Its [`setUp()`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L100-L101) gives each test a new validator. Its assertions [`assert_accepted()`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L103-L105) and [`assert_rejected()`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L107-L110) call [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) once, as the node does for each sample, and check that the validator accepts the sample or rejects it with the expected reason.
 
 ??? example "`ValidatorTestCase` in the code"
 
@@ -362,7 +362,7 @@ The tests share constants, such as `NOW`, 100 s, the ROS time of most checks, an
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:92:110"
     ```
 
-    - **`setUp()`:** unittest calls `setUp()` before each test method. So each test of a class that derives from `ValidatorTestCase` starts with a new [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203-L356) in `self.validator`, one that has seen no sample yet. No test depends on the samples of another test. [`FRAME`](#the-constants-and-the-helpers), [`MAX_AGE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L25) and [`MAX_FUTURE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L26) are the values that [`ekf.launch`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch) gives the validator's node.
+    - **`setUp()`:** unittest calls `setUp()` before each test method. So each test of a class that derives from `ValidatorTestCase` starts with a new [`ImuValidator`](#what-the-tests-call) in `self.validator`, one that has seen no sample yet. No test depends on the samples of another test. [`FRAME`](#the-constants-and-the-helpers), [`MAX_AGE`](#the-constants-and-the-helpers) and [`MAX_FUTURE`](#the-constants-and-the-helpers) are the values that [`ekf.launch`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch) gives the validator's node.
     - **`assert_accepted(message, now)`:** calls [`drop_reason_or_record(message, now)`](#drop_reason_or_record-the-decision-about-a-sample) once, the same method that the node calls once for each sample, and checks the result with [`assertIsNone()`](https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertIsNone). A result of `None` means that the sample has no drop reason: the validator accepts the sample and stores the sample's stamp in `last_valid_stamp` and its arrival time in `last_valid_arrival_time`. For any other result, `assertIsNone()` stops the test, and unittest reports the test as failed, with the drop reason that came back instead of `None`.
     - **`assert_rejected(reason, message, now)`:** calls `drop_reason_or_record(message, now)` once too, and compares the result with the expected `reason` by [`assertEqual()`](https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertEqual). `assertEqual()` compares its first two arguments and fails the test when they differ. The tests of this file give `assertEqual()` the expected value first and the result second, and `assert_rejected()` does the same. So the assertion holds when the validator rejects the sample with the expected reason. The validator doesn't store a rejected sample's stamp or arrival time in `last_valid_stamp` and `last_valid_arrival_time`. Only the clock check, which runs before the checks at any ROS time other than 0, stores the call's ROS time in `last_checked_ros_time`.
     - **`msg`:** the optional last argument of both assertions. The type `Optional[str]` says that `msg` is a text or `None`, and `= None` makes `None` the default. When the assertion fails, unittest adds the text to its report of the failure. The tests of [check 1](#check-1-the-frame), [check 2](#check-2-the-values) and [check 3](#check-3-the-variances) run a loop over several cases and give each assertion a text that names the case, so that a failure says which case the validator decided wrongly.
@@ -373,7 +373,7 @@ The tests share constants, such as `NOW`, 100 s, the ROS time of most checks, an
 
 ## `TestImuValidator`: which samples are valid
 
-The class tests `drop_reason_or_record()`, one reason to drop a sample at a time, in the order of the checks. Each test starts with a new validator.
+The class tests [`drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample), one reason to drop a sample at a time, in the order of the checks. Each test starts with a new validator.
 
 ??? example "The class in the code"
 
@@ -387,7 +387,7 @@ The class tests `drop_reason_or_record()`, one reason to drop a sample at a time
 
 ### A valid sample
 
-`test_validator_accepts_valid_samples` is the class's baseline. The validator accepts a sample stamped `NOW` at `NOW`, and then the IMU's next sample at 50 Hz, stamped and arriving 0.02 s later.
+[`test_validator_accepts_valid_samples`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L116-L118) is the class's baseline. The validator accepts a sample stamped [`NOW`](#the-constants-and-the-helpers) at `NOW`, and then the IMU's next sample at 50 Hz, stamped and arriving 0.02 s later.
 
 ??? example "The test"
 
@@ -404,11 +404,11 @@ The class tests `drop_reason_or_record()`, one reason to drop a sample at a time
 
     So the first line checks that the validator accepts the sample. In the node, [`on_sample()`](#where-the-ros-time-comes-from) forwards an accepted sample.
 
-    The second line checks a second sample in the same way. The sample is stamped [`MAX_FUTURE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L26), 0.02 s, later than the first, and arrives at a ROS time that is 0.02 s later too. This sample is the next one of the IMU at 50 Hz. The validator accepts the sample, because its stamp is later than the first sample's.
+    The second line checks a second sample in the same way. The sample is stamped [`MAX_FUTURE`](#the-constants-and-the-helpers), 0.02 s, later than the first, and arrives at a ROS time that is 0.02 s later too. This sample is the next one of the IMU at 50 Hz. The validator accepts the sample, because its stamp is later than the first sample's.
 
 ### Before the checks: no clock
 
-At the ROS time 0, the validator has no clock yet. It rejects every sample with `NO_CLOCK` before the checks, because a stamp can't be judged against this time. A second test checks that such a sample leaves `last_valid_stamp` as it is.
+At the ROS time 0, the validator has no clock yet. It rejects every sample with [`NO_CLOCK`](#dropreason-the-reasons-to-drop-a-sample) before the checks, because a stamp can't be judged against this time. A second test checks that such a sample leaves `last_valid_stamp` as it is.
 
 ??? example "The two tests"
 
@@ -436,14 +436,14 @@ At the ROS time 0, the validator has no clock yet. It rejects every sample with 
     [`test_validator_rejects_the_same_stamp_again_after_a_sample_at_ros_time_zero`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L123-L134) checks that a sample at the ROS time 0 leaves `last_valid_stamp` as it is, because [`drop_reason()`](#step-1-drop_reason-the-decision) returns `NO_CLOCK` before the clock check. The test gives one validator three samples:
 
     1. **The 1st call, at the ROS time [`NOW`](#the-constants-and-the-helpers), 100 s:** a sample stamped `NOW` is valid. The validator stores 100 s in its attributes `last_valid_stamp` and `last_checked_ros_time`.
-    2. **The 2nd call, at `ROS_TIME_ZERO`, 0 s:** a sample stamped [`SHORTLY_BEFORE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L36) before `NOW`, 99.99 s. The validator returns `NO_CLOCK` before the clock check. Both attributes stay 100 s.
+    2. **The 2nd call, at `ROS_TIME_ZERO`, 0 s:** a sample stamped [`SHORTLY_BEFORE`](#the-constants-and-the-helpers) before `NOW`, 99.99 s. The validator returns `NO_CLOCK` before the clock check. Both attributes stay 100 s.
     3. **The 3rd call, at `NOW` plus [`ONE_MILLISECOND`](#the-constants-and-the-helpers), 100.001 s:** a sample stamped `NOW` again. The clock check finds 100.001 s later than `last_checked_ros_time`, 100 s, and stores 100.001 s. `last_valid_stamp` is still 100 s, so [check 5](#check-5-the-order-of-the-stamps) rejects the sample as [`NOT_NEWER`](#dropreason-the-reasons-to-drop-a-sample).
 
     The third call's own clock check finds no clock that went back, because its ROS time is not earlier than `NOW`. So only the second call could have changed `last_valid_stamp`. A validator that checked the clock before it returned `NO_CLOCK` would take 0 s for a clock that went back and set its attributes `last_valid_stamp` and `last_valid_arrival_time` to `None`. A validator that stored the second sample's stamp would compare the third stamp with 99.99 s. Either would accept the third sample, and the test fails for both. [Two tests of the silence](#after-a-sample-at-the-ros-time-0) check the other two attributes.
 
 ### Check 1: the frame
 
-A sample in the frame `base_link` or in an empty frame is rejected as `WRONG_FRAME`.
+A sample in the frame `base_link` or in an empty frame is rejected as [`WRONG_FRAME`](#dropreason-the-reasons-to-drop-a-sample).
 
 ??? example "The test"
 
@@ -457,7 +457,7 @@ A sample in the frame `base_link` or in an empty frame is rejected as `WRONG_FRA
 
 ### Check 2: the values
 
-A sample with NaN, +∞ or −∞ as its yaw rate or as its acceleration is rejected as `NOT_FINITE`.
+A sample with NaN, +∞ or −∞ as its yaw rate or as its acceleration is rejected as [`NOT_FINITE`](#dropreason-the-reasons-to-drop-a-sample).
 
 ??? example "The test"
 
@@ -471,11 +471,11 @@ A sample with NaN, +∞ or −∞ as its yaw rate or as its acceleration is reje
 
 ### Check 3: the variances
 
-Three samples, each with one defect in the angular velocity's covariance, are rejected as `INVALID_ANGULAR_VELOCITY_COVARIANCE`: an unavailable angular velocity, a zero variance of the yaw rate, and NaN off the diagonal.
+Three samples, each with one defect in the angular velocity's covariance, are rejected as [`INVALID_ANGULAR_VELOCITY_COVARIANCE`](#dropreason-the-reasons-to-drop-a-sample): an unavailable angular velocity, a zero variance of the yaw rate, and NaN off the diagonal.
 
 ??? example "The test"
 
-    Check 3 looks at the covariance $\boldsymbol\Sigma_{\boldsymbol\omega}$ of the angular velocity $\boldsymbol\omega$, the field [`angular_velocity_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21). Its nine values have to be finite, and its three variances on the diagonal, $\sigma^2_{\omega_x}$, $\sigma^2_{\omega_y}$ and $\sigma^2_{\omega_z}$, have to be positive. [The variances](../../robot_localization.md#the-variances) on the Localization page shows how the message stores the 3 × 3 matrix as nine numbers, row by row. The excerpt shows the test, from [`test_imu_validator.py`, lines 153–164]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L153-L164):
+    Check 3 looks at the covariance $\boldsymbol\Sigma_{\boldsymbol\omega}$ of the angular velocity $\boldsymbol\omega$, the field [`angular_velocity_covariance`](../../robot_localization.md#the-messages-and-their-fields). Its nine values have to be finite, and its three variances on the diagonal, $\sigma^2_{\omega_x}$, $\sigma^2_{\omega_y}$ and $\sigma^2_{\omega_z}$, have to be positive. [The variances](../../robot_localization.md#the-variances) on the Localization page shows how the message stores the 3 × 3 matrix as nine numbers, row by row. The excerpt shows the test, from [`test_imu_validator.py`, lines 153–164]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L153-L164):
 
     ```python title="test_imu_validator.py: three invalid covariances" linenums="153"
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:153:164"
@@ -483,9 +483,9 @@ Three samples, each with one defect in the angular velocity's covariance, are re
 
     The test builds three samples, each with one defect in $\boldsymbol\Sigma_{\boldsymbol\omega}$, and expects [`DropReason.INVALID_ANGULAR_VELOCITY_COVARIANCE`](#dropreason-the-reasons-to-drop-a-sample) for each. The text in each pair of `cases` is the `msg` of a failure:
 
-    - **`unavailable`:** the first element is −1 and the others are 0. This is how a [`sensor_msgs/Imu`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg) message says that it carries no angular velocity. Check 3 reads the three variances $\sigma^2_{\omega_x}$, $\sigma^2_{\omega_y}$ and $\sigma^2_{\omega_z}$ as −1, 0 and 0 (rad/s)², so none of them is positive.
+    - **`unavailable`:** the first element is −1 and the others are 0. This is how a [`sensor_msgs/Imu`](../../robot_localization.md#the-messages-and-their-fields) message says that it carries no angular velocity. Check 3 reads the three variances $\sigma^2_{\omega_x}$, $\sigma^2_{\omega_y}$ and $\sigma^2_{\omega_z}$ as −1, 0 and 0 (rad/s)², so none of them is positive.
     - **`zero_variance`:** the variance of the yaw rate $\sigma^2_{\omega_z}$, the element with the index [`YAW_RATE_VARIANCE_INDEX`](#the-constants-and-the-helpers), 8, is 0 (rad/s)².
-    - **`nan_off_the_diagonal`:** the covariance $\sigma_{\omega_x \omega_y}$, the element with the index [`OFF_DIAGONAL_INDEX`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L65), 1, is NaN. This element is not a variance, so the test shows that the check looks at all nine values.
+    - **`nan_off_the_diagonal`:** the covariance $\sigma_{\omega_x \omega_y}$, the element with the index [`OFF_DIAGONAL_INDEX`](#the-constants-and-the-helpers), 1, is NaN. This element is not a variance, so the test shows that the check looks at all nine values.
 
 ### Check 4: the two time limits
 
@@ -499,7 +499,7 @@ The figure shows the samples of these two tests on a time axis. The sections on 
 
 --8<-- "includes/localization-test-validator-limits.html"
 
-The validator has to accept B and C, so each limit itself is still valid, and reject A as `TOO_OLD` and D as `FROM_THE_FUTURE`.
+The validator has to accept B and C, so each limit itself is still valid, and reject A as [`TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample) and D as [`FROM_THE_FUTURE`](#dropreason-the-reasons-to-drop-a-sample).
 
 ??? note "How to read the three time-axis figures"
 
@@ -521,7 +521,7 @@ The validator has to accept B and C, so each limit itself is still valid, and re
 
 ### Check 5: the order of the stamps
 
-Check 5 lets a stamp through only when it is later than $t_\text{last}$, the stamp of the last valid sample. After a valid sample stamped `NOW`, a sample with the same stamp or an earlier one is rejected as `NOT_NEWER`, a sample 1 ns later is accepted, and a rejected sample from the future doesn't become $t_\text{last}$:
+Check 5 lets a stamp through only when it is later than $t_\text{last}$, the stamp of the last valid sample. After a valid sample stamped [`NOW`](#the-constants-and-the-helpers), a sample with the same stamp or an earlier one is rejected as [`NOT_NEWER`](#dropreason-the-reasons-to-drop-a-sample), a sample 1 ns later is accepted, and a rejected sample from the future doesn't become $t_\text{last}$:
 
 --8<-- "includes/localization-test-validator-order.html"
 
@@ -537,10 +537,10 @@ Check 5 lets a stamp through only when it is later than $t_\text{last}$, the sta
 
     1. A valid sample stamped [`NOW`](#the-constants-and-the-helpers). The validator stores `NOW` in `last_valid_stamp`, as $t_\text{last}$.
     2. Sample F, stamped `NOW` again. The validator rejects the sample with [`DropReason.NOT_NEWER`](#dropreason-the-reasons-to-drop-a-sample), because F's stamp is not later than $t_\text{last}$. A stamp is valid only once, until the clock goes back.
-    3. Sample E, stamped [`SHORTLY_BEFORE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L36), 0.01 s, before `NOW`. `SHORTLY_BEFORE` is a tenth of [`MAX_AGE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L25), so check 4 lets E through, and check 5 rejects the sample with the same reason.
-    4. Sample G, stamped [`ONE_NANOSECOND`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L28), 1 ns, after `NOW`, the smallest step of a ROS stamp. G arrives [`ONE_MILLISECOND`](#the-constants-and-the-helpers), 1 ms, after `NOW`, so after its own stamp. A ROS time before `NOW` would be a clock that went back and would clear `last_valid_stamp`. The validator accepts the sample.
+    3. Sample E, stamped [`SHORTLY_BEFORE`](#the-constants-and-the-helpers), 0.01 s, before `NOW`. `SHORTLY_BEFORE` is a tenth of [`MAX_AGE`](#the-constants-and-the-helpers), so check 4 lets E through, and check 5 rejects the sample with the same reason.
+    4. Sample G, stamped [`ONE_NANOSECOND`](#the-constants-and-the-helpers), 1 ns, after `NOW`, the smallest step of a ROS stamp. G arrives [`ONE_MILLISECOND`](#the-constants-and-the-helpers), 1 ms, after `NOW`, so after its own stamp. A ROS time before `NOW` would be a clock that went back and would clear `last_valid_stamp`. The validator accepts the sample.
 
-    [`test_validator_accepts_a_new_sample_after_rejecting_a_future_one`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L188-L194) shows what $t_\text{last}$ is not. After a valid sample stamped `NOW`, the test sends sample H, stamped [`FAR_AHEAD`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L38), 5 s, ahead. Check 4 rejects H with [`DropReason.FROM_THE_FUTURE`](#dropreason-the-reasons-to-drop-a-sample). Then the test sends sample I, stamped 0.02 s after `NOW`. The validator accepts I. If the validator stored the stamp of the rejected sample H in `last_valid_stamp`, every sample of the next 5 s would count as not newer.
+    [`test_validator_accepts_a_new_sample_after_rejecting_a_future_one`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L188-L194) shows what $t_\text{last}$ is not. After a valid sample stamped `NOW`, the test sends sample H, stamped [`FAR_AHEAD`](#the-constants-and-the-helpers), 5 s, ahead. Check 4 rejects H with [`DropReason.FROM_THE_FUTURE`](#dropreason-the-reasons-to-drop-a-sample). Then the test sends sample I, stamped 0.02 s after `NOW`. The validator accepts I. If the validator stored the stamp of the rejected sample H in `last_valid_stamp`, every sample of the next 5 s would count as not newer.
 
 ### A clock that goes back
 
@@ -557,7 +557,7 @@ After the ROS time went back, the order check starts over, but check 4 judges th
     ```
 
     - **[`test_validator_accepts_a_stamp_once_after_the_clock_goes_back`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L196-L204):** the first sample is stamped [`NOW`](#the-constants-and-the-helpers), 100 s, and arrives at the ROS time `NOW`. The validator accepts this sample. Then the ROS time is [`RESTART_NEAR_ZERO`](#the-constants-and-the-helpers), 0.02 s, as after a reset of the simulation. This test is the first axis of the figure. Sample J is stamped `RESTART_NEAR_ZERO` and arrives at the ROS time `RESTART_NEAR_ZERO`. This stamp is far older than $t_\text{last}$, 100 s. The validator accepts J all the same, because the order check started over. The order check works again from this sample on: the test sends the same stamp once more, [`ONE_MILLISECOND`](#the-constants-and-the-helpers), 1 ms, later, and expects [`DropReason.NOT_NEWER`](#dropreason-the-reasons-to-drop-a-sample). This second sample is K.
-    - **[`test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L206-L213):** starting over applies to the order check only. The first sample is again stamped `NOW`, 100 s, and arrives at the ROS time `NOW`. Then the ROS time is [`RESTART`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L45), 50 s, and both of the next samples arrive at this ROS time. This test is the second axis of the figure. Sample M is stamped 100.02 s, `NOW` plus [`MAX_FUTURE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L26). This stamp was valid before the clock went back and is 50.02 s ahead of the new ROS time. The validator rejects M with [`DropReason.FROM_THE_FUTURE`](#dropreason-the-reasons-to-drop-a-sample). Sample L is stamped 49 s, [`ONE_SECOND`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L31), 1 s, before `RESTART`, and the validator rejects L with [`DropReason.TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample).
+    - **[`test_validator_rejects_stamps_outside_time_limits_after_the_clock_goes_back`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L206-L213):** starting over applies to the order check only. The first sample is again stamped `NOW`, 100 s, and arrives at the ROS time `NOW`. Then the ROS time is [`RESTART`](#the-constants-and-the-helpers), 50 s, and both of the next samples arrive at this ROS time. This test is the second axis of the figure. Sample M is stamped 100.02 s, `NOW` plus [`MAX_FUTURE`](#the-constants-and-the-helpers). This stamp was valid before the clock went back and is 50.02 s ahead of the new ROS time. The validator rejects M with [`DropReason.FROM_THE_FUTURE`](#dropreason-the-reasons-to-drop-a-sample). Sample L is stamped 49 s, [`ONE_SECOND`](#the-constants-and-the-helpers), 1 s, before `RESTART`, and the validator rejects L with [`DropReason.TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample).
 
 ## `TestSecondsSinceLastValidSample`: the silence
 
@@ -604,12 +604,12 @@ The first three tests show where the silence counts from. The first test asks a 
     ```
 
     - **Before the first valid sample:** the method returns `None`.
-    - **After a valid sample:** the valid sample is stamped [`SHORTLY_BEFORE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L36), 0.01 s, before it arrives at [`NOW`](#the-constants-and-the-helpers). [`SILENCE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L48), 3.5 s, after the arrival, the method returns 3.5 s and not 3.51 s, because the silence counts from the arrival and not from the stamp. `SILENCE` has a fraction of a second, so a silence counted in whole seconds would fail too.
-    - **While samples are rejected:** a sample that the validator rejects with [`DropReason.TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample) doesn't end the silence. The rejected sample is stamped [`ONE_SECOND`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L31) after `NOW`, later than the valid sample's stamp, so [check 5](#check-5-the-order-of-the-stamps) would let it through. The sample arrives `SILENCE` after `NOW`, when its stamp is 2.5 s old, more than [`MAX_AGE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L25). So check 4 rejects the sample before check 5 runs. At the same ROS time, `SILENCE`, 3.5 s, after the valid sample, the method returns 3.5 s.
+    - **After a valid sample:** the valid sample is stamped [`SHORTLY_BEFORE`](#the-constants-and-the-helpers), 0.01 s, before it arrives at [`NOW`](#the-constants-and-the-helpers). [`SILENCE`](#the-constants-and-the-helpers), 3.5 s, after the arrival, the method returns 3.5 s and not 3.51 s, because the silence counts from the arrival and not from the stamp. `SILENCE` has a fraction of a second, so a silence counted in whole seconds would fail too.
+    - **While samples are rejected:** a sample that the validator rejects with [`DropReason.TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample) doesn't end the silence. The rejected sample is stamped [`ONE_SECOND`](#the-constants-and-the-helpers) after `NOW`, later than the valid sample's stamp, so [check 5](#check-5-the-order-of-the-stamps) would let it through. The sample arrives `SILENCE` after `NOW`, when its stamp is 2.5 s old, more than [`MAX_AGE`](#the-constants-and-the-helpers). So check 4 rejects the sample before check 5 runs. At the same ROS time, `SILENCE`, 3.5 s, after the valid sample, the method returns 3.5 s.
 
 ### After a sample at the ROS time 0
 
-A sample at the ROS time 0 returns `NO_CLOCK` before the clock check and leaves the validator's attributes as they are. The two tests check `last_valid_arrival_time` and `last_checked_ros_time`:
+A sample at the ROS time 0 returns [`NO_CLOCK`](#dropreason-the-reasons-to-drop-a-sample) before the clock check and leaves the validator's attributes as they are. The two tests check `last_valid_arrival_time` and `last_checked_ros_time`:
 
 --8<-- "includes/localization-test-validator-silence-zero.html"
 
@@ -623,7 +623,7 @@ A sample at the ROS time 0 returns `NO_CLOCK` before the clock check and leaves 
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:244:260"
     ```
 
-    - **The arrival time:** a valid sample arrives at `NOW`, and a sample stamped 99.99 s, [`SHORTLY_BEFORE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L36) before `NOW`, returns `NO_CLOCK` at [`ROS_TIME_ZERO`](#the-constants-and-the-helpers). At 100.1 s, [`RECENT`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L50) after `NOW`, the method returns 0.1 s, counted from the arrival at `NOW`. A validator that cleared `last_valid_arrival_time` at 0 s would return `None`, and one that stored the stamp 99.99 s there would return 0.11 s.
+    - **The arrival time:** a valid sample arrives at `NOW`, and a sample stamped 99.99 s, [`SHORTLY_BEFORE`](#the-constants-and-the-helpers) before `NOW`, returns `NO_CLOCK` at [`ROS_TIME_ZERO`](#the-constants-and-the-helpers). At 100.1 s, [`RECENT`](#the-constants-and-the-helpers) after `NOW`, the method returns 0.1 s, counted from the arrival at `NOW`. A validator that cleared `last_valid_arrival_time` at 0 s would return `None`, and one that stored the stamp 99.99 s there would return 0.11 s.
     - **The last clock check:** the same two calls, then the method is asked at 99.999 s, [`ONE_MILLISECOND`](#the-constants-and-the-helpers) before `NOW`. `last_checked_ros_time` is still 100 s, so the clock went back, and the method returns `None`. A validator that stored 0 s or the stamp 99.99 s as the last clock check would find no clock that went back and return −0.001 s.
 
 ### After the clock goes back
@@ -640,8 +640,8 @@ The next three tests are about a clock that goes back while no valid sample arri
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:262:288"
     ```
 
-    - **Without samples:** a valid sample arrives at the ROS time [`NOW`](#the-constants-and-the-helpers), 100 s. Then the method is asked at the ROS time [`RESTART`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L45), 50 s, and [`SILENCE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L48) later, at 53.5 s, and returns `None` both times. The method itself notices that the clock went back, because the method checks the clock with [`clear_last_valid_sample_times_if_clock_went_back()`](#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back) in each call.
-    - **Back by less than the silence:** a valid sample arrives at the ROS time `NOW`, 100 s. The method is asked at the ROS time 103.5 s, `SILENCE` after `NOW`, and returns a silence of 3.5 s. Then the method is asked at 100.1 s, `NOW` plus [`RECENT`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L50). The clock went back by 3.4 s, less than the silence, so the new ROS time is still later than the arrival of the valid sample, and $t - t_\text{valid}$ would be 0.1 s, a silence that [`health()`](#testhealth-the-status) reports as OK. The method returns `None` all the same, and at 101 s, [`ONE_SECOND`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L31) after `NOW`, as well. A sample from before the clock went back says nothing about the IMU in the new time.
+    - **Without samples:** a valid sample arrives at the ROS time [`NOW`](#the-constants-and-the-helpers), 100 s. Then the method is asked at the ROS time [`RESTART`](#the-constants-and-the-helpers), 50 s, and [`SILENCE`](#the-constants-and-the-helpers) later, at 53.5 s, and returns `None` both times. The method itself notices that the clock went back, because the method checks the clock with [`clear_last_valid_sample_times_if_clock_went_back()`](#clear_last_valid_sample_times_if_clock_went_back-a-clock-that-goes-back) in each call.
+    - **Back by less than the silence:** a valid sample arrives at the ROS time `NOW`, 100 s. The method is asked at the ROS time 103.5 s, `SILENCE` after `NOW`, and returns a silence of 3.5 s. Then the method is asked at 100.1 s, `NOW` plus [`RECENT`](#the-constants-and-the-helpers). The clock went back by 3.4 s, less than the silence, so the new ROS time is still later than the arrival of the valid sample, and $t - t_\text{valid}$ would be 0.1 s, a silence that [`health()`](#testhealth-the-status) reports as OK. The method returns `None` all the same, and at 101 s, [`ONE_SECOND`](#the-constants-and-the-helpers) after `NOW`, as well. A sample from before the clock went back says nothing about the IMU in the new time.
     - **Shown by a rejected sample:** a valid sample arrives at the ROS time `NOW`, 100 s, and the method returns a silence of 3.5 s at 103.5 s. Then the clock goes back. The first call in the new time is a sample that arrives at 100.1 s, `NOW` plus `RECENT`, stamped 99 s, `ONE_SECOND` before `NOW`, which the validator rejects as too old. The validator checks the clock also for a sample that a check rejects, so in this call the validator sets its attributes `last_valid_stamp` and `last_valid_arrival_time` to `None`. The method returns `None` at 104.5 s, `SILENCE` plus `ONE_SECOND` after `NOW`. This last call is later than the call at 103.5 s, so its own clock check finds no clock that went back. Only the rejected sample's call can have cleared the two attributes. A sample at the ROS time 0 would not show that the clock went back: the validator rejects such a sample before the clock check.
 
 ### The first valid sample after the clock went back
@@ -658,18 +658,18 @@ The last test of the class follows the silence through a whole restart, from a v
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:290:303"
     ```
 
-    A valid sample arrives at the ROS time [`NOW`](#the-constants-and-the-helpers), 100 s. Then the ROS time is [`RESTART`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L45), 50 s. At this ROS time, the validator rejects a sample from the future and a sample with the wrong frame. At 51 s, [`ONE_SECOND`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L31) after `RESTART`, the method still returns `None`. At 53.5 s, [`SILENCE`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L48) after `RESTART`, a valid sample arrives. At 53.6 s, [`RECENT`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L50), 0.1 s, after that sample, the method returns 0.1 s.
+    A valid sample arrives at the ROS time [`NOW`](#the-constants-and-the-helpers), 100 s. Then the ROS time is [`RESTART`](#the-constants-and-the-helpers), 50 s. At this ROS time, the validator rejects a sample from the future and a sample with the wrong frame. At 51 s, [`ONE_SECOND`](#the-constants-and-the-helpers) after `RESTART`, the method still returns `None`. At 53.5 s, [`SILENCE`](#the-constants-and-the-helpers) after `RESTART`, a valid sample arrives. At 53.6 s, [`RECENT`](#the-constants-and-the-helpers), 0.1 s, after that sample, the method returns 0.1 s.
 
 ## `TestHealth`: the status
 
-`health()` turns the [silence](#seconds_since_last_valid_sample-the-silence) and the number of samples dropped since the report before into the level of the diagnostics status. A silence error comes before the warning about new drops. The table shows the level that each of the five tests of [`TestHealth`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L306-L331) expects:
+[`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143-L160) turns the [silence](#seconds_since_last_valid_sample-the-silence) and the number of samples dropped since the report before into the level of the diagnostics status. A silence error comes before the warning about new drops. The table shows the level that each of the five tests of [`TestHealth`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L306-L331) expects:
 
 | Silence | New drops | Level that the test expects |
 |:--|:--|:--|
-| `None`: no valid sample yet | 0 | `ERROR` |
-| `SILENCE_LIMIT`, 1 s | 0 | `OK` |
+| `None`: no valid sample yet | 0 | [`ERROR`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/diagnostic_msgs/msg/DiagnosticStatus.msg#L7) |
+| [`SILENCE_LIMIT`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L101), 1 s | 0 | [`OK`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/diagnostic_msgs/msg/DiagnosticStatus.msg#L5) |
 | `SILENCE_LIMIT` plus [`ONE_MILLISECOND`](#the-constants-and-the-helpers), 1.001 s | 0 | `ERROR` |
-| [`RECENT`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L50), 0.1 s | [`NEW_DROP_COUNT`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L51), 3 | `WARN`, and the message contains the number 3 |
+| [`RECENT`](#the-constants-and-the-helpers), 0.1 s | [`NEW_DROP_COUNT`](#the-constants-and-the-helpers), 3 | [`WARN`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/diagnostic_msgs/msg/DiagnosticStatus.msg#L6), and the message contains the number 3 |
 | `RECENT`, 0.1 s | 0 | `OK` |
 | `None`, and 1.001 s | 3 | `ERROR` for both: silence comes before the warning |
 
@@ -679,11 +679,11 @@ One test checks the limit of the silence. The excerpt shows it, from [`test_imu_
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:312:316"
 ```
 
-With no new drops, a silence of exactly `SILENCE_LIMIT`, 1 s, is still `OK`, and 1 ms more is `ERROR`. The test reads the limit from `imu_validator`, so it doesn't repeat its value. [The validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) says what the levels mean on the robot.
+With no new drops, a silence of exactly `SILENCE_LIMIT`, 1 s, is still `OK`, and 1 ms more is `ERROR`. The test reads the limit from [`imu_validator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py), so it doesn't repeat its value. [The validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) says what the levels mean on the robot.
 
 ??? example "The function `health()`"
 
-    `health()` returns a `Health`, a named tuple of the level and the message. The node calls the function once for each diagnostics report, with the numbers of one [snapshot](#testsamplecounts-the-numbers-of-a-report). The excerpt shows the function, from [`imu_validator.py`, lines 143–160]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143-L160):
+    `health()` returns a [`Health`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L126-L130), a named tuple of the level and the message. The node calls the function once for each diagnostics report, with the numbers of one [snapshot](#testsamplecounts-the-numbers-of-a-report). The excerpt shows the function, from [`imu_validator.py`, lines 143–160]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143-L160):
 
     ```python title="imu_validator.py: health()" linenums="143"
     --8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:143:160"
@@ -707,12 +707,12 @@ With no new drops, a silence of exactly `SILENCE_LIMIT`, 1 s, is still `OK`, and
 
 ## `TestSampleCounts`: the numbers of a report
 
-`SampleCounts` counts the forwarded and the dropped samples. For each diagnostics report, `take_snapshot()` returns the numbers of one report, among them `new_drop_count`, the samples dropped since the report before. The four tests:
+[`SampleCounts`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L163-L190) counts the forwarded and the dropped samples. For each diagnostics report, [`take_snapshot()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L180-L190) returns the numbers of one report, among them `new_drop_count`, the samples dropped since the report before. The four tests:
 
-- **`test_snapshot_has_the_forwarded_count_and_the_drops_by_reason`:** the counts by reason, and the silence that the test passed.
-- **`test_snapshot_counts_a_dropped_sample_as_new_only_once`:** a dropped sample is new in the next snapshot and not in the one after.
-- **`test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report`:** the same when `health()` reports an error.
-- **`test_snapshot_keeps_its_numbers_when_more_samples_arrive`:** a report's numbers all come from one moment.
+- **[`test_snapshot_has_the_forwarded_count_and_the_drops_by_reason`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L340-L350):** the counts by reason, and the silence that the test passed.
+- **[`test_snapshot_counts_a_dropped_sample_as_new_only_once`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L352-L358):** a dropped sample is new in the next snapshot and not in the one after.
+- **[`test_snapshot_counts_a_dropped_sample_as_new_once_also_in_an_error_report`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L360-L368):** the same when [`health()`](#testhealth-the-status) reports an error.
+- **[`test_snapshot_keeps_its_numbers_when_more_samples_arrive`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L370-L376):** a report's numbers all come from one moment.
 
 ??? example "`SampleCounts` and `take_snapshot()`"
 
