@@ -65,14 +65,14 @@ A pass ends with `* RESULT: SUCCESS` under `SUMMARY`, after one `[passed]` line 
 
 ## What a pass proves and what a failure means
 
-A pass proves that in the simulation, with a wheel odometry that reports a turn 25 % too small, the EKF's turn lies within 0.05 rad of the true turn, the wheel odometry's turn falls more than 0.15 rad behind, the validator forwards the IMU's samples at more than 45 Hz, and only the EKF publishes the transform `odom → base_footprint`.
+A pass proves that in the simulation, with the controller's wheel separation 25 % too large, so that the wheel odometry reports about 20 % less than the true turn, the EKF's turn lies within 0.05 rad of the true turn, the wheel odometry's turn falls more than 0.15 rad behind, the validator forwards the IMU's samples at more than 45 Hz, and only the EKF publishes the transform `odom → base_footprint`.
 
 A failure names the test and the check. The turn test checks four things in a fixed order, from [the setup](#the-checks-on-the-turn) to the EKF's turn, so the first failing check says how far the run got. A missing source of a heading fails before the turn, with the names of the silent sources.
 
 ### What the test doesn't show
 
 - **The real gyroscope:** the simulated IMU has noise but no bias and no mounting error.
-- **The real robot's rates and delays:** in the simulation, both inputs arrive on time.
+- **The real robot's rates and delays:** in the simulation, both inputs are stamped with the simulation's time. The rate check counts the validated IMU samples over the turn, so it doesn't show that each message arrived on time.
 - **Other errors of the wheels:** one constant factor on a turn on the spot, no varying slip, no driving forward.
 - **The position and turns of more than $\pi$:** the test compares the three turns only.
 
@@ -255,12 +255,20 @@ In the list, $\Delta\theta_\text{true}$ is the robot's true turn, $\Delta\theta_
 3. **The wheel odometry falls behind**, [`assert_odometry_falls_behind()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L250-L254): $\Delta\theta_\text{true} - \Delta\theta_\text{odom}$ is more than [`MIN_ODOMETRY_ERROR`](#the-constants), 0.15 rad. This check shows that the error that the test needs is there. With the scaled separation, the wheel odometry reports 1 / 1.25 of the true turn, so the difference is a fifth of the true turn.
 4. **The EKF follows the true turn**, [`assert_ekf_follows_the_true_turn()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L256-L259): $|\Delta\theta_\text{EKF} - \Delta\theta_\text{true}|$ is at most [`EKF_TOLERANCE`](#the-constants), 0.05 rad.
 
-??? example "The four assertion methods and the robot's own wheel separation"
+Checks 3 and 4 compare the turns. The excerpt shows them, from [`test_ekf.py`, lines 250–259]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L250-L259):
 
-    The next excerpt shows the four assertion methods, from [`test_ekf.py`, lines 235–259]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L235-L259):
+```python title="test_ekf.py: the checks of the turns" linenums="250"
+--8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:250:259"
+```
 
-    ```python title="test_ekf.py: the four assertions" linenums="235"
-    --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:235:259"
+Both messages end with `measurement.report()`, the three turns, so a failure shows the measured values.
+
+??? example "The first two assertion methods and the robot's own wheel separation"
+
+    The next excerpt shows the first two assertion methods, from [`test_ekf.py`, lines 235–248]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L235-L248):
+
+    ```python title="test_ekf.py: the first two assertions" linenums="235"
+    --8<-- "{{ ekf_src_raw }}/diffbot_gazebo/test/test_ekf.py:235:248"
     ```
 
     `assert_wheel_separation_is_scaled()` gets the robot's own value from [`nominal_wheel_separation()`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L97-L103). The excerpt shows this function, from [`test_ekf.py`, lines 97–103]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py#L97-L103):

@@ -53,9 +53,13 @@ The test needs no ROS master and no Gazebo. A pass prints one line for each of t
 
 ## What a pass proves and what a failure means
 
-A pass proves that, as roslaunch's loader reads them, the launch files that start the robot or the simulation start the EKF and the IMU sample validator and turn off the drive controller's transform only with `ekf:=true`, and that the planners read the EKF's odometry with `ekf:=true` unless an explicit topic is given.
+A pass proves these results of roslaunch's loader:
 
-A failure message starts with the launch file and its arguments, then names what is missing or wrong, such as a node that doesn't start or a remapping to another topic.
+- **The robot and the simulation:** with `ekf:=true`, `diffbot_bringup`'s two launch files and the two simulation files `diffbot.launch` start the EKF and the IMU sample validator and turn off the drive controller's transform. With `ekf:=false` and by default, they start neither node and keep the transform on.
+- **The planners:** the four planner launch files of [the table](#the-five-tests) give the planner the EKF's odometry with `ekf:=true` and the wheel odometry by default. [`move_base.launch`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/move_base.launch) keeps an explicit [`odom_topic`](#the-planners-odometry-topic) also with `ekf:=true`.
+- **The simulation with navigation:** with `ekf:=true`, `diffbot_navigation`'s `diffbot.launch` starts the EKF and the validator, turns off the controller's transform and gives its planner the EKF's odometry.
+
+A failure's message includes the launch file with its arguments and names what is missing or wrong, such as a node that doesn't start or the planner's `odom` remapped to another topic.
 
 ### What the test doesn't show
 
@@ -117,7 +121,7 @@ The excerpt shows the test's own result type and the function that calls the loa
     - **[`load_config_default()`](https://github.com/ros/ros_comm/blob/1.17.0/tools/roslaunch/src/roslaunch/config.py#L411):** is roslaunch's loader. The loader resolves the includes, the arguments and the conditions such as `if="$(arg ekf)"`, as roslaunch does before it starts anything.
     - **`nodes`:** a dictionary from each node's full name, for example `/diffbot/ekf_localization`, to roslaunch's description of the node. The loader keeps a node's namespace and its name apart, so `load()` joins them.
     - **`parameters`:** a dictionary from each parameter's full name to its value.
-    - **`description`:** the launch file with its arguments, as text. Every failure message starts with this text.
+    - **`description`:** the launch file with its arguments, as text. Every failure message includes this text.
 
     **The constants of `test_ekf_switch.py`:**
 
@@ -171,16 +175,23 @@ The first two tests call [`assert_ekf_switch()`]({{ ekf_switch_src_url }}/diffbo
 
 A planner reads the robot's velocity from an odometry topic. With the EKF on, the planner has to read the EKF's estimate, so that its velocity and the transform come from the same estimate. The test checks the remapping of the planner's name `odom` with `ekf:=true` and without it, and that an explicit [`odom_topic`]({{ ekf_switch_src_url }}/diffbot_navigation/launch/move_base.launch#L8) wins.
 
-??? example "The checks, the helper `remapping()` and the two tests"
+[`assert_planner_follows_the_switch()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L159-L164) loads a planner's launch file without the [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) argument and with `ekf:=true`. The excerpt shows it, from [`test_ekf_switch.py`, lines 159–164]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L159-L164):
 
-    In a launch file, the planner's node gets the topic as a remapping of the name `odom`. The excerpt shows what the test asserts about this remapping, from [`test_ekf_switch.py`, lines 151–164]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L151-L164):
+```python title="test_ekf_switch.py: assert_planner_follows_the_switch()" linenums="159"
+--8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:159:164"
+```
 
-    ```python title="test_ekf_switch.py: the planner's odometry" linenums="151"
-    --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:151:164"
+Without the argument, the planner has to read [`WHEEL_ODOMETRY_TOPIC`](#reading-a-launch-file-without-starting-it), the topic `/diffbot/mobile_base_controller/odom`. With `ekf:=true`, it has to read [`FILTERED_TOPIC`](#reading-a-launch-file-without-starting-it), the topic `/diffbot/odometry/filtered`.
+
+??? example "The check of one planner, the helper `remapping()` and the two tests"
+
+    In a launch file, the planner's node gets the topic as a remapping of the name `odom`. The excerpt shows what the test asserts about this remapping, from [`test_ekf_switch.py`, lines 151–157]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L151-L157):
+
+    ```python title="test_ekf_switch.py: assert_planner_odometry()" linenums="151"
+    --8<-- "{{ ekf_switch_src_raw }}/diffbot_gazebo/test/test_ekf_switch.py:151:157"
     ```
 
-    - **[`assert_planner_odometry()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L151-L157):** the planner's node is among the nodes, and its name `odom` is remapped to `topic`.
-    - **[`assert_planner_follows_the_switch()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L159-L164):** without the [`ekf`](../../robot_localization.md#what-the-launch-files-do-with-ekf) argument, the planner reads [`WHEEL_ODOMETRY_TOPIC`](#reading-a-launch-file-without-starting-it), the topic `/diffbot/mobile_base_controller/odom`. With `ekf:=true`, the planner reads [`FILTERED_TOPIC`](#reading-a-launch-file-without-starting-it), the topic `/diffbot/odometry/filtered`.
+    [`assert_planner_odometry()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L151-L157) checks that the planner's node is among the nodes and that its name `odom` is remapped to `topic`.
 
     `assert_planner_odometry()` reads the remapping with the helper [`remapping()`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L77-L79). The excerpt shows the helper, from [`test_ekf_switch.py`, lines 77–79]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py#L77-L79):
 

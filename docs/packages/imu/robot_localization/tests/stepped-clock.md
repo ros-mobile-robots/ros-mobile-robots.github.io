@@ -1,6 +1,6 @@
 # Test: The EKF on a Stepped Clock
 
-[`test_ekf_synthetic.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py) runs the two nodes of [`ekf.launch`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch), the [IMU sample validator](../../robot_localization.md#the-imu-sample-validator) and robot_localization's EKF, with the parameters that the robot and the simulation use. The test computes their inputs itself: wheel odometry and IMU samples that report a constant yaw rate $\omega_z$. The test also owns the clock. It publishes the topic `/clock` and moves the ROS time $t$ on in steps of 20 ms. So the test decides which messages are published, with which stamps and at which ROS time, without Gazebo and without a robot.
+[`test_ekf_synthetic.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py) runs the two nodes of [`ekf.launch`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch), the [IMU sample validator](../../robot_localization.md#the-imu-sample-validator) and robot_localization's EKF, with the parameters that the robot and the simulation use. The test computes their inputs itself: wheel odometry and IMU samples. The test also owns the clock. It publishes the topic `/clock` and moves the ROS time $t$ on in steps of 20 ms. So the test decides which messages are published, with which stamps and at which ROS time, without Gazebo and without a robot.
 
 ## One step of the clock
 
@@ -31,27 +31,27 @@ A pass ends with `* RESULT: SUCCESS` under `SUMMARY`. catkin registers both file
 
 ## What a pass proves and what a failure means
 
-The file holds two scenarios. A scenario is one test that runs its phases in order on one filter, from the filter's start:
+Each of the two scenarios is one test that runs its phases in order on one filter, from the filter's start:
 
-- **[`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples):** both inputs in every step, 50 times per second of ROS time, as in the simulation. A pass proves that the estimate of the yaw rate $\omega_z$ follows the IMU while valid samples arrive, goes to the wheels' yaw rate when none arrive, keeps out the samples that the validator drops, and follows the IMU again after the clock went back. The validator's counts on `/diagnostics` match the samples that the test sent.
-- **[`robot_rates`](#the-robots-rates-robot_rates):** the robot's nominal rates, the IMU in every step and the wheel odometry in every fifth step. A pass proves that the estimate follows the IMU's yaw rate and the wheels' forward speed $v_x$, also when the speed changes, and that after the IMU stops each 100 ms wheel period holds the header stamp of one output, with the wheels' yaw rate.
+- **[`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples):** a wheel message in every step, 50 times per second of ROS time, as in the simulation, and IMU samples in phases 1 to 6. A pass proves that the estimate of the yaw rate $\omega_z$ follows the IMU while valid samples arrive, goes to the wheels' yaw rate when none arrive, keeps out the samples that the validator drops, and follows the IMU again after the clock went back. The validator's counts on `/diagnostics` match the samples that the test sent.
+- **[`robot_rates`](#the-robots-rates-robot_rates):** the robot's nominal rates: a wheel message in every fifth step, and an IMU sample in every step until the IMU stops in phase 2. A pass proves that the estimate follows the IMU's yaw rate and the wheels' forward speed $v_x$, also when the speed changes, and that after the IMU stops, each of the 20 measured wheel periods of 100 ms holds one wheel message and the header stamp of exactly one output. The last output then has the wheels' forward speed and yaw rate.
 
-A failure names the scenario and the assertion. Each assertion's message names its phase, for example "phase 1: the forward speed comes from the wheels". A step that gets no output from the filter fails with "no EKF output for the step at" and the step's ROS time, which shows that the filter stopped publishing.
+A failure names the scenario and the assertion. The messages of the phases' checks name their phase, for example "phase 1: the forward speed comes from the wheels". A step fails with "no EKF output for the step at" and the step's ROS time when no new output stamped from the step's time to the clock's new time arrives within [`WAIT`](#the-inputs), 5 s of wall time. Then the filter stopped publishing, or it published only outputs with other stamps.
 
 ### What the test doesn't show
 
 - **The rates on the robot:** [`robot_rates`](#the-robots-rates-robot_rates) uses the robot's nominal rates, not measured ones.
 - **Whether [`sensor_timeout`](../../robot_localization.md#the-other-settings) fits the robot:** the scenario runs with one wheel message per period, without jitter.
-- **The two clocks of the robot's inputs:** in the test, both inputs of a step have the same stamp.
+- **The two clocks of the robot's inputs:** in the test, a step's wheel message and its valid IMU sample have the same stamp.
 - **Real sensors:** the inputs have no noise, no bias and no delay.
 - **The pose and the transform:** the test checks the speed, the yaw rate and the output's frames.
-- **Where the validator's limits lie:** the samples to drop lie far outside the limits. The [unit tests](validator.md#check-4-the-two-time-limits) check the boundary.
+- **Where the validator's limits lie:** the samples that phases 2 and 4 send to be dropped lie far outside the time limits. The [unit tests](validator.md#check-4-the-two-time-limits) check the boundary.
 
 ??? note "The details"
 
     - **The rates on the robot:** the scenario [`robot_rates`](#the-robots-rates-robot_rates) uses the robot's nominal rates, the IMU at 50 Hz and the wheel odometry at 10 Hz. These rates are not measured on the robot yet. The issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures them.
     - **Whether [`sensor_timeout`](../../robot_localization.md#the-other-settings) fits the robot:** the scenario runs with the robot's `sensor_timeout` of 0.1 s, the nominal wheel period. The filter runs its update 50 times per second, [`frequency`](../../robot_localization.md#the-other-settings) in [`ekf.yaml`]({{ ekf_test_src_url }}/diffbot_control/config/ekf.yaml). An update whose queue holds no new measurement predicts without one, and publishes the prediction, when the time since the filter's last measurement computes to at least `sensor_timeout` ([`ros_filter.cpp`, lines 680–711](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L680-L711)). In [phase 2](#phase-2-of-robot_rates-the-imu-stops), only the wheels report, every 0.1 s. The update at a wheel message's stamp runs before that message is in the filter's queue. In the first period, that update still fuses the last IMU sample, and the next update fuses the wheel message. In 8 of the other 19 periods, the time since the last measurement computes to 0.1 s or a little more at that update, and the update publishes a prediction. In the other 11, it computes to a little less, and the next update, 20 ms later, fuses the wheel message. With a larger value, for example 0.12 s, the update at a wheel message's stamp wouldn't predict, and the next update would fuse the message, if the message is in the queue by then. The price: when all inputs stop, the filter predicts first at the first update at which the time since its last measurement computes to at least 0.12 s. With the last measurement at 103.20 s, 103.32 s minus 103.20 s computes to 0.11999999999999034 s, so the first prediction comes at 103.34 s, 0.14 s after the last measurement. On the robot, the value has to cover the wheel period and the delay of the wheel messages. The issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures both and sets the value.
-    - **The two clocks of the robot's inputs:** in the test, a wheel message and an IMU sample of the same step have the same stamp. On the robot, the wheel odometry is stamped with the time of the control loop, and the IMU's samples with the time of the Teensy, which rosserial keeps in step with the robot's single-board computer (SBC). The test doesn't show how the filter handles a difference between the two.
+    - **The two clocks of the robot's inputs:** in the test, a wheel message and a valid IMU sample of the same step have the same stamp. On the robot, the wheel odometry is stamped with the time of the control loop, and the IMU's samples with the time of the Teensy, which rosserial keeps in step with the robot's single-board computer (SBC). The test doesn't show how the filter handles a difference between the two.
     - **Real sensors:** the inputs have no noise, no bias and no delay. How the real gyroscope behaves is a measurement on the robot, as [Limits](../../robot_localization.md#limits) says.
     - **The pose and the transform:** the test checks the forward speed $v_x$ and the yaw rate $\omega_z$ of the filter's output, and the two frame names in the output's message: `header.frame_id` has to be `odom` and [`child_frame_id`](../../robot_localization.md#the-messages-and-their-fields) `base_footprint`. [`assert_fused_estimate()`](#the-code-of-one-step) checks them in [`test_ekf_synthetic.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py), which the excerpt in [the code of one step](#the-code-of-one-step) shows. It doesn't check the position, the heading $\theta$ or the transform `odom → base_footprint` on the topic `/tf`. The [test in Gazebo](gazebo.md) compares the heading with the simulated robot's true turn.
     - **Where the validator's limits lie:** the samples that phases 2 and 4 send to be dropped are stamped 0.5 s before or after the step's time, far outside [`max_age`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), 0.1 s, and [`max_future`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), 0.02 s. So the test shows that the running node drops clearly invalid samples, not where the boundary between valid and invalid lies. The validator's unit tests check the boundary: the validator accepts a sample exactly at a limit and rejects one 1 µs beyond it, as [Check 4: the two time limits](validator.md#check-4-the-two-time-limits) shows.
@@ -64,7 +64,7 @@ Each `.test` file includes [`ekf_synthetic.launch`]({{ ekf_test_src_url }}/diffb
 
     Each scenario has a `.test` file of its own, a launch file that rostest reads. rostest starts a ROS master and the nodes that the file declares, and runs the test node. So each scenario starts with a fresh EKF and a fresh validator, and no scenario sees what another one left in the filter.
 
-    Both `.test` files include the same nodes from [`ekf_synthetic.launch`]({{ ekf_test_src_url }}/diffbot_control/test/ekf_synthetic.launch). The collapsed box shows this launch file:
+    Both `.test` files include the same nodes from [`ekf_synthetic.launch`]({{ ekf_test_src_url }}/diffbot_control/test/ekf_synthetic.launch).
 
     **The nodes of both scenarios: `ekf_synthetic.launch`:**
 
@@ -79,7 +79,7 @@ Each `.test` file includes [`ekf_synthetic.launch`]({{ ekf_test_src_url }}/diffb
     - **`robot_state_publisher`:** publishes the fixed joints of this URDF model, the joint `imu_joint` among them. From them, TF knows where the IMU's frame `imu_link` sits on `base_footprint`, as on the robot. The EKF needs this transform to use the IMU's samples.
     - **[`ekf.launch`]({{ ekf_test_src_url }}/diffbot_control/launch/ekf.launch):** starts the nodes `/diffbot/imu_validator` and `/diffbot/ekf_localization` with the parameters of the robot: the validator's [`max_age`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) and [`max_future`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time), and [`ekf.yaml`]({{ ekf_test_src_url }}/diffbot_control/config/ekf.yaml) for the filter.
 
-    The first `.test` file runs the scenario [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples), the second the scenario [`robot_rates`](#the-robots-rates-robot_rates). The collapsed box shows both files:
+    The first `.test` file runs the scenario [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples), the second the scenario [`robot_rates`](#the-robots-rates-robot_rates).
 
     **The two `.test` files:**
 
@@ -98,7 +98,7 @@ Each `.test` file includes [`ekf_synthetic.launch`]({{ ekf_test_src_url }}/diffb
     - **The `<include>` tag:** starts the nodes of `ekf_synthetic.launch`.
     - **The `<test>` tag:** runs [`test_ekf_synthetic.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py) as the test node. `args` gives the node the argument `--scenario` with the scenario's name. `time-limit` gives the test 120 s of wall time.
 
-    The test node picks the scenario's class by this argument, as the collapsed box shows:
+    The test node picks the scenario's class by this argument.
 
     **How the test node picks its scenario:**
 
@@ -112,11 +112,11 @@ Each `.test` file includes [`ekf_synthetic.launch`]({{ ekf_test_src_url }}/diffb
     2. [`scenario_from_arguments()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L808-L816) reads `--scenario` with Python's [`argparse`](https://docs.python.org/3/library/argparse.html). [`parse_known_args()`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.parse_known_args) leaves the other arguments alone, such as the path of the result file that rostest adds. The dictionary [`SCENARIOS`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L802-L805) maps the name to the scenario's class.
     3. [`rospy.init_node()`](https://github.com/ros/ros_comm/blob/1.17.0/clients/rospy/src/rospy/client.py#L190) starts the test node, and [`rostest.rosrun()`](https://github.com/ros/ros_comm/blob/1.17.0/tools/rostest/src/rostest/__init__.py#L109) runs the test method of that class and writes its result.
 
-    `diffbot_control` registers both files with [`add_rostest()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) in its [`CMakeLists.txt`]({{ ekf_test_src_url }}/diffbot_control/CMakeLists.txt), so CI runs them with the workspace's other tests, as [Testing and CI](../../../../development/ci.md#ekf-tests) describes. To run only one scenario, open a shell in which the workspace is sourced:
+    `diffbot_control` registers both files with [`add_rostest()`](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) in its [`CMakeLists.txt`]({{ ekf_test_src_url }}/diffbot_control/CMakeLists.txt), so CI runs them with the workspace's other tests, as [Testing and CI](../../../../development/ci.md#ekf-tests) describes.
 
 ## The inputs
 
-In every step, the wheel odometry reports [`WHEEL_INPUT`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L157), 0.1 m/s and 0.4 rad/s, and the IMU sends [`VALID_SAMPLE`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L146), stamped with the step's ROS time and reporting 0.5 rad/s. A sample that the validator has to drop differs in its stamp or in its frame. The messages have no noise.
+A wheel message reports [`WHEEL_INPUT`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L157), 0.1 m/s and 0.4 rad/s. A valid IMU sample, [`VALID_SAMPLE`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L146), is in the frame `imu_link`, is stamped with the step's ROS time and reports 0.5 rad/s. A sample that the validator has to drop is in the same frame, reports 2.0 rad/s and differs from a valid sample in its stamp. The messages have no noise. Which inputs a step sends depends on the phase, as the tables of [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples) and [`robot_rates`](#the-robots-rates-robot_rates) list.
 
 ??? example "The constants, the wheel message and the IMU samples"
 
@@ -175,7 +175,7 @@ Before the first step, [`setUp()`]({{ ekf_test_src_url }}/diffbot_control/test/t
 
 ??? example "`setUp()`, the arrival log and the waits"
 
-    The class [`SteppedClockTestCase`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L257-L432) holds what both scenarios share: the topics, the steps of the clock and the comparisons. Each scenario is a subclass with one test method. unittest calls [`setUp()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L266-L294) before the test method. In short, `setUp()` sets the test's ROS time to 100 s, creates the topics' publishers and subscribers, publishes the first clock message, and waits until the validator and the EKF are connected and TF has the IMU's transform. The collapsed box shows the code:
+    The class [`SteppedClockTestCase`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L257-L432) holds what both scenarios share: the topics, the steps of the clock and the comparisons. Each scenario is a subclass with one test method. unittest calls [`setUp()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L266-L294) before the test method. In short, `setUp()` sets the test's ROS time to 100 s, creates the topics' publishers and subscribers, publishes the first clock message, and waits until the validator and the EKF are connected and TF has the IMU's transform.
 
     **`setUp()`, [`on_validated()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L296-L298) and [`all_connected()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L300-L305):**
 
@@ -190,7 +190,7 @@ Before the first step, [`setUp()`]({{ ekf_test_src_url }}/diffbot_control/test/t
     3. `setUp()` publishes the clock for the first time, at `START`.
     4. `setUp()` waits until the validator and the EKF are connected to the test's topics, with `all_connected()`, and until TF has the transform from `imu_link` to `base_footprint`. Then it sleeps [`TF_DELIVERY`](#the-inputs), 1 s of wall time, so that the EKF's own TF listener has the transform too.
 
-    The three logs are objects of the class [`ArrivalLog`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L164-L194). rospy calls a subscriber's callback in a thread of its own, while the test's thread reads what arrived. A lock guards every access, so the test's thread never reads a log while a callback changes it. The collapsed box shows the class:
+    The three logs are objects of the class [`ArrivalLog`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L164-L194). rospy calls a subscriber's callback in a thread of its own, while the test's thread reads what arrived. A lock guards every access, so the test's thread never reads a log while a callback changes it.
 
     **`ArrivalLog`:**
 
@@ -304,7 +304,7 @@ In every step, the wheel odometry reports 0.1 m/s and 0.4 rad/s. The table lists
 
     The figure shows the seven phases from left to right, one step every 20 ms of ROS time. The rows "IMU valid" and "IMU to drop" show the samples of one step: ✓ is a valid sample, ✕ is a sample that the validator has to drop. The chart below the rows shows the yaw rate $\omega_z$ that the wheel odometry and the valid IMU samples report, the range that the test accepts for the last output of each phase, the limit for the outputs that the test keeps in phases 2 to 5, and the estimates that the test printed in a run. The run printed the first and the last estimate of phase 2, so phase 2 has two markers. The three lists below the chart explain each mark and give its numbers.
 
-    In every step of every phase, the wheel odometry reports [`WHEEL_INPUT`](#the-inputs): [`SPEED`](#the-inputs), 0.1 m/s, and [`WHEEL_RATE`](#the-inputs), 0.4 rad/s, as with a wheel separation that is too large in the drive controller's configuration. The table lists what changes from phase to phase:
+    In every step of every phase, the wheel odometry reports [`WHEEL_INPUT`](#the-inputs): [`SPEED`](#the-inputs), 0.1 m/s, and [`WHEEL_RATE`](#the-inputs), 0.4 rad/s, as with a wheel separation that is too large in the drive controller's configuration.
 
     Two helpers hold the comparisons. The excerpt shows them, from [`test_ekf_synthetic.py`, lines 399–410]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L399-L410). [`assert_yaw_rate()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L399-L404) checks one output against `expected` ± `delta`. [`assert_stays_at_most()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L406-L410) checks that none of a phase's kept outputs is above `limit`. The test keeps one output per step, the last one that [`step()`](#the-code-of-one-step) finds when its wait ends:
 
@@ -321,8 +321,6 @@ The wheels report 0.4 rad/s and the IMU 0.5 rad/s, for 150 steps, 3 s of ROS tim
 ```python title="test_ekf_synthetic.py: the checks of assert_fused_estimate()" linenums="422"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:422:426"
 ```
-
-The first two checks are the frames, the third the forward speed and the last the yaw rate:
 
 - **The frames:** the last output is in the frame `odom` with the child frame `base_footprint`, as [`ekf.yaml`]({{ ekf_test_src_url }}/diffbot_control/config/ekf.yaml) sets them.
 - **The forward speed $v_x$:** [`SPEED`](#the-inputs), 0.1 m/s, within [`SPEED_TOLERANCE`](#the-inputs), 0.002 m/s. Only the wheel odometry carries a forward speed, so this check shows that the filter fuses the wheel odometry.
@@ -405,7 +403,7 @@ The validator's counts on the topic `/diagnostics` have to equal the test's own 
 
 ## The robot's rates: `robot_rates`
 
-On the robot, the IMU publishes at 50 Hz and the wheel odometry at most 10 times per second. The scenario `robot_rates` sends the IMU's samples in every step and a wheel message in every fifth step, in two phases:
+The robot's nominal rates are 50 Hz for the IMU and 10 Hz for the wheel odometry. The scenario `robot_rates` uses them, in two phases:
 
 --8<-- "includes/localization-test-stepped-clock-robot-rates.html"
 
@@ -428,7 +426,7 @@ On the robot, the IMU publishes at 50 Hz and the wheel odometry at most 10 times
 
     The figure shows the two phases from left to right, over the ROS time $t$. The rows "wheels" and "IMU" mark each wheel message and each IMU sample. On a narrow screen, the ticks of the IMU's samples, 20 ms apart, merge into a band. So the bracket at the top marks one wheel period of 100 ms: 5 IMU samples and 1 wheel message. The chart below the rows shows the yaw rate $\omega_z$ that the inputs report, the range that the test accepts for the last output of each phase, and the filter's estimate in each of its outputs, recorded in a run of the scenario. The chart ends with the last of the 20 wheel periods that phase 2 measures, at 105.00 s, so the messages after these periods lie beyond the chart. The lists below the chart explain each mark and give its numbers. [The figure in phase 2](#phase-2-of-robot_rates-the-imu-stops) shows three wheel messages of each phase in close-up.
 
-    The IMU samples report [`IMU_RATE`](#the-inputs), 0.5 rad/s, as in [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples). The wheel odometry reports [`WHEEL_RATE`](#the-inputs), 0.4 rad/s, in each of its messages, and a forward speed that changes once in phase 1. The table lists the two phases:
+    The IMU samples report [`IMU_RATE`](#the-inputs), 0.5 rad/s, as in [`invalid_imu_samples`](#the-seven-phases-of-invalid_imu_samples). The wheel odometry reports [`WHEEL_RATE`](#the-inputs), 0.4 rad/s, in each of its messages, and a forward speed that changes once in phase 1.
 
 ### Phase 1 of `robot_rates`: the estimate follows the IMU and the wheels' speed
 
@@ -469,7 +467,7 @@ The phase runs 150 steps, 3 s of ROS time, with a valid IMU sample in each step 
 
 ### Phase 2 of `robot_rates`: the IMU stops
 
-The phase sends no IMU sample. The wheel messages go on, one in every fifth step, for [`IMU_STOPPED_WHEEL_PERIODS`](#the-inputs), 20 wheel periods of 100 ms. The phase checks that the filter publishes one output stamped in each wheel period, and the wheels' speed and yaw rate. The figure shows three wheel messages of each phase, with each output's header stamp and the ROS time at which the filter published it:
+The phase sends no IMU sample. The wheel messages go on, one in every fifth step, for [`IMU_STOPPED_WHEEL_PERIODS`](#the-inputs), 20 wheel periods of 100 ms. The figure shows three wheel messages of each phase, with each output's header stamp and the ROS time at which the filter published it:
 
 --8<-- "includes/localization-test-stepped-clock-between-wheels.html"
 
@@ -481,7 +479,13 @@ The table follows the first two wheel messages of the lower drawing, one column 
 | Output's header stamp | 103.10 s | 103.20 s |
 | Published at | 103.12 s | 103.20 s |
 
-The test asserts the header stamp of one output in each wheel period, at any time within the period, so a wheel message that reaches the filter late can still pass. In the recorded run, each of the 20 outputs is stamped with its wheel message's time: 12 published 20 ms later by the update that fused the message, 8 at their stamp by a prediction at the sensor timeout.
+[`assert_one_output_per_period()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L741-L747) checks the outputs' header stamps, not when the filter published them. The excerpt shows it, from [`test_ekf_synthetic.py`, lines 741–747]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L741-L747):
+
+```python title="test_ekf_synthetic.py: one output stamp per wheel period" linenums="741"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:741:747"
+```
+
+The method turns each output's header stamp into the index of its wheel period. The indices have to be 0, 1, 2 and so on: one output stamp in each period, in the order of the periods, at any time within the period. So a wheel message that reaches the filter late can still pass. In the recorded run, each of the 20 outputs is stamped with its wheel message's time: 12 published 20 ms later by the update that fused the message, 8 at their stamp by a prediction at the sensor timeout.
 
 ??? example "The phase in detail: the code, how the filter stamps and publishes, and the checks"
 
@@ -583,14 +587,13 @@ The test asserts the header stamp of one output in each wheel period, at any tim
     - **`wait_for_messages_from()`:** waits with [`wait_until()`](#before-the-first-step), at most [`WAIT`](#the-inputs), until the test's subscriber has the extra period's wheel message, stamped at its start, and an output stamped at that start or later. Each subscription receives the messages of its one publisher in their order and runs their callbacks in that order. So when these two messages have arrived, the callbacks of all earlier wheel messages and outputs have run. The extra period moves the clock on by a whole wheel period first, so that the filter publishes an output even when the extra wheel message reaches the filter late. The method doesn't fail. It returns the names of the messages that didn't arrive.
     - **[`outputs_within_the_periods()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L713-L716) and [`wheel_message_stamps_within_the_periods()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L718-L722):** take the outputs and the wheel messages' stamps that lie within the measured periods, by `within_wheel_periods()`, from all that the test received, in the order of arrival. The extra period's messages lie after the last measured period, so they don't count.
 
-    The excerpt shows the two assertions of the periods, from [`test_ekf_synthetic.py`, lines 731–747]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L731-L747):
+    The excerpt shows the assertion of the wheel messages, from [`test_ekf_synthetic.py`, lines 731–739]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L731-L739):
 
-    ```python title="test_ekf_synthetic.py: the two assertions of the wheel periods" linenums="731"
-    --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:731:747"
+    ```python title="test_ekf_synthetic.py: one wheel message per wheel period" linenums="731"
+    --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:731:739"
     ```
 
-    - **[`assert_one_wheel_message_per_period()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L731-L739):** the stamps of the received wheel messages have to be exactly the periods' starts, in their order, one message at the start of each period. A failure names the starts without a wheel message.
-    - **[`assert_one_output_per_period()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L741-L747):** turns each output's header stamp into its period's index. The list of indices has to be 0, 1, 2 and so on, one output stamp in each period, in the order of the periods.
+    In [`assert_one_wheel_message_per_period()`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L731-L739), the stamps of the received wheel messages have to be exactly the periods' starts, in their order, one message at the start of each period. A failure names the starts without a wheel message.
 
     The phase checks these things, in this order:
 

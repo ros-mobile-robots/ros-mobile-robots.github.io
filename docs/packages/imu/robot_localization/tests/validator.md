@@ -89,7 +89,7 @@ A pass prints one line for each test, with `ok` at its end, and ends with `Ran 3
 
 A pass means that, for the tests' samples and times, the validator decides as [the five checks](../../robot_localization.md#the-five-checks) describe, and that its diagnostics report the expected silence, level and counts.
 
-A failure names the test and the assertion, with the value that came back. The test's name says which decision went wrong, and its section below shows the test. For example, a failure of [`test_validator_accepts_a_sample_max_age_old_and_rejects_an_older_one`](#check-4-the-two-time-limits) means that the age limit of check 4 moved or its comparison changed.
+A failure names the test and the assertion, with the value that came back. The test's name says which decision went wrong, and its section below shows the test. For example, [`test_validator_accepts_a_sample_max_age_old_and_rejects_an_older_one`](#check-4-the-two-time-limits) expects that the validator accepts a sample exactly 0.1 s old and rejects one 1 µs older as [`TOO_OLD`](#dropreason-the-reasons-to-drop-a-sample). Its failure shows which of the two decisions differed and the value that came back. The tests give the validator their own limits, so a changed launch parameter [`max_age`](../../robot_localization.md#check-4-the-stamp-against-the-ros-time) doesn't make them fail.
 
 ### What the tests don't show
 
@@ -118,7 +118,7 @@ A fifth class, [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-
 
 ## What the tests call
 
-The sections below explain each method that the tests call or that runs inside these calls, with the code in closed boxes. [The five checks](../../robot_localization.md#the-five-checks) on the Localization page explain the checks themselves.
+Most tests call the class [`ImuValidator`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L203-L356), which holds the validator's checks without the ROS node around them. The sections below explain the class's methods that the tests call or that run inside these calls, and the reasons to drop a sample that the class returns, with the code in closed boxes. [The five checks](../../robot_localization.md#the-five-checks) on the Localization page explain the checks themselves.
 
 ### Where the ROS time comes from
 
