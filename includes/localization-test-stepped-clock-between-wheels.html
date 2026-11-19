@@ -1,0 +1,291 @@
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.lv-fig .cut{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .cut-gap{fill:var(--md-default-bg-color);stroke:none}
+.lv-fig .former-stamp,.lv-key .former-stamp{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6;stroke-dasharray:3.5 2.5}
+.lv-fig .wheels-line,.lv-key .wheels-line{fill:none;stroke:var(--lv-wheels);stroke-width:2.4}
+.lv-fig .imu-line,.lv-key .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-fig .estimate-dot,.lv-key .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:2}
+.lv-fig .estimate-range,.lv-key .estimate-range{fill:none;stroke:var(--lv-estimate);stroke-width:2}
+.lv-fig .estimate-path,.lv-key .estimate-path{fill:none;stroke:var(--lv-estimate);stroke-width:1.6;stroke-dasharray:2 2.5}
+.lv-fig .limit,.lv-key .limit{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
+.lv-fig .phase-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:1.5 2.5}
+.lv-fig .clock-jump{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-large.lv-layouts .lv-fig .letter{font-size:11px}
+.lv-large.lv-layouts .lv-fig .sign{font-size:12.5px;font-weight:700}
+.lv-large.lv-layouts .lv-fig .index{font-size:11px}
+.lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:4px;stroke-linejoin:round}
+.lv-fig .lifeline{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-fig .message,.lv-fig .message-line,.lv-key .message{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3}
+.lv-fig .message-head,.lv-key .message-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-legend .lv-key{display:inline-block;width:2em;height:1em;vertical-align:-.12em;margin-right:.4em;overflow:visible}
+.lv-legend.lv-keys .lv-sign{display:inline-block;width:2em;margin-right:.4em;text-align:center;text-indent:0;font-weight:700}
+.md-typeset ul.lv-legend.lv-keys li{padding-left:2.4em;text-indent:-2.4em}
+.lv-legend .lv-key.lv-narrow{width:1.45em;margin-right:.35em}
+.md-typeset ul.lv-legend.lv-row{display:flex;flex-wrap:wrap;gap:.1em 1.1em}
+.md-typeset ul.lv-legend.lv-row li{margin:0;padding-left:0;text-indent:0}
+.lv-fig .wheels-tick,.lv-key .wheels-tick{fill:none;stroke:var(--lv-wheels);stroke-width:1.6}
+.lv-fig .imu-tick,.lv-key .imu-tick{fill:none;stroke:var(--lv-imu);stroke-width:.8}
+.lv-fig .wheels-dot,.lv-key .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-fig .imu-dot,.lv-key .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:.8}
+.lv-fig .estimate-trace,.lv-key .estimate-trace{fill:none;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-key .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
+</style>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-layouts">
+<p class="lv-band">Phase 1: the IMU running</p>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 102" role="img" aria-labelledby="lv-test-between-wheels-running-title"><title id="lv-test-between-wheels-running-title">Phase 1, IMU running: an IMU sample in every step, a wheel message in every fifth, and an EKF output in every step</title>
+<text class="note" x="2.0" y="20.0" text-anchor="start">wheels</text>
+<text class="note" x="2.0" y="40.0" text-anchor="start">IMU</text>
+<text class="note" x="2.0" y="60.0" text-anchor="start">EKF</text>
+<path class="axis" d="M50,78 H291.0"/>
+<path class="axis" d="M291.0,78 l-6,-3.5 M291.0,78 l-6,3.5"/>
+<path class="tick" d="M50.0,78 v4"/>
+<path class="tick" d="M68.0,78 v4"/>
+<path class="tick" d="M86.0,78 v4"/>
+<path class="tick" d="M104.0,78 v4"/>
+<path class="tick" d="M122.0,78 v4"/>
+<path class="tick" d="M140.0,78 v4"/>
+<path class="tick" d="M158.0,78 v4"/>
+<path class="tick" d="M176.0,78 v4"/>
+<path class="tick" d="M194.0,78 v4"/>
+<path class="tick" d="M212.0,78 v4"/>
+<path class="tick" d="M230.0,78 v4"/>
+<path class="tick" d="M248.0,78 v4"/>
+<path class="tick" d="M266.0,78 v4"/>
+<path class="tick" d="M284.0,78 v4"/>
+<circle class="wheels-dot" cx="68.0" cy="16.0" r="4.6"/>
+<text class="note" x="68.0" y="94.0" text-anchor="middle">102.7</text>
+<circle class="wheels-dot" cx="158.0" cy="16.0" r="4.6"/>
+<text class="note" x="158.0" y="94.0" text-anchor="middle">102.8</text>
+<circle class="wheels-dot" cx="248.0" cy="16.0" r="4.6"/>
+<text class="note" x="248.0" y="94.0" text-anchor="middle">102.9</text>
+<circle class="imu-dot" cx="50.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="68.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="86.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="104.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="122.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="140.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="158.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="176.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="194.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="212.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="230.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="248.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="266.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="284.0" cy="36.0" r="3.2"/>
+<g><title>0.5 rad/s, stamped 102.66 s, published at 102.68 s</title><circle class="estimate-dot" cx="50.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.68 s, published at 102.7 s</title><circle class="estimate-dot" cx="68.0" cy="56" r="4.6"/></g>
+<g><title>0.4992 rad/s, stamped 102.7 s, published at 102.72 s</title><circle class="estimate-dot" cx="86.0" cy="56" r="4.6"/></g>
+<g><title>0.4997 rad/s, stamped 102.72 s, published at 102.74 s</title><circle class="estimate-dot" cx="104.0" cy="56" r="4.6"/></g>
+<g><title>0.4999 rad/s, stamped 102.74 s, published at 102.76 s</title><circle class="estimate-dot" cx="122.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.76 s, published at 102.78 s</title><circle class="estimate-dot" cx="140.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.78 s, published at 102.8 s</title><circle class="estimate-dot" cx="158.0" cy="56" r="4.6"/></g>
+<g><title>0.4992 rad/s, stamped 102.8 s, published at 102.82 s</title><circle class="estimate-dot" cx="176.0" cy="56" r="4.6"/></g>
+<g><title>0.4997 rad/s, stamped 102.82 s, published at 102.84 s</title><circle class="estimate-dot" cx="194.0" cy="56" r="4.6"/></g>
+<g><title>0.4999 rad/s, stamped 102.84 s, published at 102.86 s</title><circle class="estimate-dot" cx="212.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.86 s, published at 102.88 s</title><circle class="estimate-dot" cx="230.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.88 s, published at 102.9 s</title><circle class="estimate-dot" cx="248.0" cy="56" r="4.6"/></g>
+<g><title>0.4992 rad/s, stamped 102.9 s, published at 102.92 s</title><circle class="estimate-dot" cx="266.0" cy="56" r="4.6"/></g>
+<g><title>0.4997 rad/s, stamped 102.92 s, published at 102.94 s</title><circle class="estimate-dot" cx="284.0" cy="56" r="4.6"/></g>
+</svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 102" role="img" aria-labelledby="lv-test-between-wheels-running-wide-title"><title id="lv-test-between-wheels-running-wide-title">Phase 1, IMU running: an IMU sample in every step, a wheel message in every fifth, and an EKF output in every step</title>
+<text class="note" x="3.6" y="20.0" text-anchor="start">wheels</text>
+<text class="note" x="3.6" y="40.0" text-anchor="start">IMU</text>
+<text class="note" x="3.6" y="60.0" text-anchor="start">EKF</text>
+<path class="axis" d="M90.0,78 H523.8"/>
+<path class="axis" d="M523.8,78 l-6,-3.5 M523.8,78 l-6,3.5"/>
+<path class="tick" d="M90.0,78 v4"/>
+<path class="tick" d="M122.4,78 v4"/>
+<path class="tick" d="M154.8,78 v4"/>
+<path class="tick" d="M187.2,78 v4"/>
+<path class="tick" d="M219.6,78 v4"/>
+<path class="tick" d="M252.0,78 v4"/>
+<path class="tick" d="M284.4,78 v4"/>
+<path class="tick" d="M316.8,78 v4"/>
+<path class="tick" d="M349.2,78 v4"/>
+<path class="tick" d="M381.6,78 v4"/>
+<path class="tick" d="M414.0,78 v4"/>
+<path class="tick" d="M446.4,78 v4"/>
+<path class="tick" d="M478.8,78 v4"/>
+<path class="tick" d="M511.2,78 v4"/>
+<circle class="wheels-dot" cx="122.4" cy="16.0" r="4.6"/>
+<text class="note" x="122.4" y="94.0" text-anchor="middle">102.7</text>
+<circle class="wheels-dot" cx="284.4" cy="16.0" r="4.6"/>
+<text class="note" x="284.4" y="94.0" text-anchor="middle">102.8</text>
+<circle class="wheels-dot" cx="446.4" cy="16.0" r="4.6"/>
+<text class="note" x="446.4" y="94.0" text-anchor="middle">102.9</text>
+<circle class="imu-dot" cx="90.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="122.4" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="154.8" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="187.2" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="219.6" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="252.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="284.4" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="316.8" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="349.2" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="381.6" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="414.0" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="446.4" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="478.8" cy="36.0" r="3.2"/>
+<circle class="imu-dot" cx="511.2" cy="36.0" r="3.2"/>
+<g><title>0.5 rad/s, stamped 102.66 s, published at 102.68 s</title><circle class="estimate-dot" cx="90.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.68 s, published at 102.7 s</title><circle class="estimate-dot" cx="122.4" cy="56" r="4.6"/></g>
+<g><title>0.4992 rad/s, stamped 102.7 s, published at 102.72 s</title><circle class="estimate-dot" cx="154.8" cy="56" r="4.6"/></g>
+<g><title>0.4997 rad/s, stamped 102.72 s, published at 102.74 s</title><circle class="estimate-dot" cx="187.2" cy="56" r="4.6"/></g>
+<g><title>0.4999 rad/s, stamped 102.74 s, published at 102.76 s</title><circle class="estimate-dot" cx="219.6" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.76 s, published at 102.78 s</title><circle class="estimate-dot" cx="252.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.78 s, published at 102.8 s</title><circle class="estimate-dot" cx="284.4" cy="56" r="4.6"/></g>
+<g><title>0.4992 rad/s, stamped 102.8 s, published at 102.82 s</title><circle class="estimate-dot" cx="316.8" cy="56" r="4.6"/></g>
+<g><title>0.4997 rad/s, stamped 102.82 s, published at 102.84 s</title><circle class="estimate-dot" cx="349.2" cy="56" r="4.6"/></g>
+<g><title>0.4999 rad/s, stamped 102.84 s, published at 102.86 s</title><circle class="estimate-dot" cx="381.6" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.86 s, published at 102.88 s</title><circle class="estimate-dot" cx="414.0" cy="56" r="4.6"/></g>
+<g><title>0.5 rad/s, stamped 102.88 s, published at 102.9 s</title><circle class="estimate-dot" cx="446.4" cy="56" r="4.6"/></g>
+<g><title>0.4992 rad/s, stamped 102.9 s, published at 102.92 s</title><circle class="estimate-dot" cx="478.8" cy="56" r="4.6"/></g>
+<g><title>0.4997 rad/s, stamped 102.92 s, published at 102.94 s</title><circle class="estimate-dot" cx="511.2" cy="56" r="4.6"/></g>
+</svg>
+<p class="lv-band">Phase 2: the IMU stopped</p>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 136" role="img" aria-labelledby="lv-test-between-wheels-stopped-title"><title id="lv-test-between-wheels-stopped-title">Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF output per wheel message, stamped with the message's time: fused in the next update, or predicted at the time of the message</title>
+<text class="note" x="2.0" y="42.0" text-anchor="start">wheels</text>
+<text class="note" x="2.0" y="62.0" text-anchor="start">IMU</text>
+<text class="note" x="2.0" y="82.0" text-anchor="start">EKF</text>
+<path class="axis" d="M50,112 H291.0"/>
+<path class="axis" d="M291.0,112 l-6,-3.5 M291.0,112 l-6,3.5"/>
+<path class="tick" d="M50.0,112 v4"/>
+<path class="tick" d="M68.0,112 v4"/>
+<path class="tick" d="M86.0,112 v4"/>
+<path class="tick" d="M104.0,112 v4"/>
+<path class="tick" d="M122.0,112 v4"/>
+<path class="tick" d="M140.0,112 v4"/>
+<path class="tick" d="M158.0,112 v4"/>
+<path class="tick" d="M176.0,112 v4"/>
+<path class="tick" d="M194.0,112 v4"/>
+<path class="tick" d="M212.0,112 v4"/>
+<path class="tick" d="M230.0,112 v4"/>
+<path class="tick" d="M248.0,112 v4"/>
+<path class="tick" d="M266.0,112 v4"/>
+<path class="tick" d="M284.0,112 v4"/>
+<circle class="wheels-dot" cx="68.0" cy="38.0" r="4.6"/>
+<text class="note" x="68.0" y="128.0" text-anchor="middle">103.1</text>
+<circle class="wheels-dot" cx="158.0" cy="38.0" r="4.6"/>
+<text class="note" x="158.0" y="128.0" text-anchor="middle">103.2</text>
+<circle class="wheels-dot" cx="248.0" cy="38.0" r="4.6"/>
+<text class="note" x="248.0" y="128.0" text-anchor="middle">103.3</text>
+<text class="note" x="113.0" y="62.0" text-anchor="middle">stopped</text>
+<g><title>0.49 rad/s, stamped 103.1 s, published at 103.12 s</title><circle class="estimate-dot" cx="86.0" cy="78" r="4.6"/></g>
+<text x="86.0" y="96.0" text-anchor="middle">fused</text>
+<path class="dimension" d="M68.0,42.6 V78"/>
+<path class="message" d="M68.0,78 H76.9"/>
+<path class="message-head" d="M80.9,78 l-5,-3 v6 z"/>
+<g><title>0.49 rad/s, stamped 103.2 s, published at 103.2 s</title><circle class="estimate-dot" cx="158.0" cy="78" r="4.6"/></g>
+<text x="158.0" y="96.0" text-anchor="middle">predicted</text>
+<path class="dimension" d="M158.0,42.6 V78"/>
+<g><title>0.4656 rad/s, stamped 103.3 s, published at 103.32 s</title><circle class="estimate-dot" cx="266.0" cy="78" r="4.6"/></g>
+<text x="266.0" y="96.0" text-anchor="middle">fused</text>
+<path class="dimension" d="M248.0,42.6 V78"/>
+<path class="message" d="M248.0,78 H256.9"/>
+<path class="message-head" d="M260.9,78 l-5,-3 v6 z"/>
+<path class="dimension" d="M68.0,20 H158.0 M68.0,17 V23 M158.0,17 V23"/>
+<text class="note" x="113.0" y="15.0" text-anchor="middle">sensor_timeout 0.1 s</text>
+</svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 136" role="img" aria-labelledby="lv-test-between-wheels-stopped-wide-title"><title id="lv-test-between-wheels-stopped-wide-title">Phase 2, IMU stopped: a wheel message in every fifth step, and one EKF output per wheel message, stamped with the message's time: fused in the next update, or predicted at the time of the message</title>
+<text class="note" x="3.6" y="42.0" text-anchor="start">wheels</text>
+<text class="note" x="3.6" y="62.0" text-anchor="start">IMU</text>
+<text class="note" x="3.6" y="82.0" text-anchor="start">EKF</text>
+<path class="axis" d="M90.0,112 H523.8"/>
+<path class="axis" d="M523.8,112 l-6,-3.5 M523.8,112 l-6,3.5"/>
+<path class="tick" d="M90.0,112 v4"/>
+<path class="tick" d="M122.4,112 v4"/>
+<path class="tick" d="M154.8,112 v4"/>
+<path class="tick" d="M187.2,112 v4"/>
+<path class="tick" d="M219.6,112 v4"/>
+<path class="tick" d="M252.0,112 v4"/>
+<path class="tick" d="M284.4,112 v4"/>
+<path class="tick" d="M316.8,112 v4"/>
+<path class="tick" d="M349.2,112 v4"/>
+<path class="tick" d="M381.6,112 v4"/>
+<path class="tick" d="M414.0,112 v4"/>
+<path class="tick" d="M446.4,112 v4"/>
+<path class="tick" d="M478.8,112 v4"/>
+<path class="tick" d="M511.2,112 v4"/>
+<circle class="wheels-dot" cx="122.4" cy="38.0" r="4.6"/>
+<text class="note" x="122.4" y="128.0" text-anchor="middle">103.1</text>
+<circle class="wheels-dot" cx="284.4" cy="38.0" r="4.6"/>
+<text class="note" x="284.4" y="128.0" text-anchor="middle">103.2</text>
+<circle class="wheels-dot" cx="446.4" cy="38.0" r="4.6"/>
+<text class="note" x="446.4" y="128.0" text-anchor="middle">103.3</text>
+<text class="note" x="203.4" y="62.0" text-anchor="middle">stopped</text>
+<g><title>0.49 rad/s, stamped 103.1 s, published at 103.12 s</title><circle class="estimate-dot" cx="154.8" cy="78" r="4.6"/></g>
+<text x="154.8" y="96.0" text-anchor="middle">fused</text>
+<path class="dimension" d="M122.4,42.6 V78"/>
+<path class="message" d="M122.4,78 H145.6"/>
+<path class="message-head" d="M149.8,78 l-5,-3 v6 z"/>
+<g><title>0.49 rad/s, stamped 103.2 s, published at 103.2 s</title><circle class="estimate-dot" cx="284.4" cy="78" r="4.6"/></g>
+<text x="284.4" y="96.0" text-anchor="middle">predicted</text>
+<path class="dimension" d="M284.4,42.6 V78"/>
+<g><title>0.4656 rad/s, stamped 103.3 s, published at 103.32 s</title><circle class="estimate-dot" cx="478.8" cy="78" r="4.6"/></g>
+<text x="478.8" y="96.0" text-anchor="middle">fused</text>
+<path class="dimension" d="M446.4,42.6 V78"/>
+<path class="message" d="M446.4,78 H469.6"/>
+<path class="message-head" d="M473.8,78 l-5,-3 v6 z"/>
+<path class="dimension" d="M122.4,20 H284.4 M122.4,17 V23 M284.4,17 V23"/>
+<text class="note" x="203.4" y="15.0" text-anchor="middle">sensor_timeout 0.1 s</text>
+</svg>
+<ul class="lv-legend lv-keys">
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="wheels-dot" cx="12" cy="6" r="4.6"/></svg>a wheel message, every 100 ms of ROS time, published at its stamp. The axis labels its stamps in s</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="imu-dot" cx="12" cy="6" r="3.2"/></svg>a valid IMU sample, every 20 ms, published at its stamp</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><circle class="estimate-dot" cx="12" cy="6" r="4.6"/></svg>an EKF output, at the ROS time of the filter's update that published it, from robot_localization's debug trace. The filter fuses the inputs of one step in its update 20 ms later</li>
+<li><svg class="lv-key lv-narrow" viewBox="0 0 24 12" aria-hidden="true"><path class="tick" d="M12,3 v7"/></svg>a tick on the axis: one of the filter's updates, 50 per second of ROS time</li>
+<li><svg class="lv-key" viewBox="0 0 24 12" aria-hidden="true"><path class="message" d="M2,6 H17"/><path class="message-head" d="M22,6 l-5,-3 v6 z"/></svg>in phase 2: from an output's header stamp, the time of its wheel message, to the ROS time at which the filter published it, 20 ms later for a fused output. A predicted output is published at its stamp</li>
+<li><span class="lv-sign"></span><strong>fused:</strong> in the trace, the filter fused the wheel message and published the result, stamped with the message's time</li>
+<li><span class="lv-sign"></span><strong>predicted:</strong> in the trace, the filter predicted to the time of the wheel message, without a measurement, because the ROS time was 0.1 s or more, its sensor_timeout, past its last measurement. It published the prediction, stamped with that time. It fuses the wheel message in the next update, but publishes no second output with the same stamp. The next output contains the message</li>
+</ul>
+<figcaption>Each drawing spans 3 wheel messages of a phase of robot_rates, about 260 ms, in a recorded run at the diffbot commit 3882a19, with robot_localization's debug trace, ROS time to the right.</figcaption>
+</figure>
+</div>
