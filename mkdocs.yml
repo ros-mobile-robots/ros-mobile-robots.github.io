@@ -92,6 +92,19 @@ extra:
   # diffbot #154. Update both when that code changes, and check the excerpts' line ranges
   ekf_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/ead34027a9507c65d7415f93817177340d60d549
   ekf_src_url: https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549
+  # The diffbot commit that the excerpts on the test pages EKF on a Stepped Clock and IMU Sample
+  # Validator (robot_localization/tests/stepped-clock.md and validator.md) and the Localization
+  # page's links into imu_validator.py show: the merge commit of diffbot #220. Update both when
+  # that code changes, and check the excerpts' line ranges and the links' lines on the three
+  # pages against the new commit
+  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7d428c282c073ad4b99a76cab834276daadb5a6f
+  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7d428c282c073ad4b99a76cab834276daadb5a6f
+  # The diffbot commit that the excerpts and the links on the test page The ekf Switch
+  # (robot_localization/tests/switch.md) show: the merge commit of diffbot #215, whose
+  # test_ekf_switch.py also loads diffbot_control's diffbot.launch. Update both when the test
+  # changes, and check the excerpts' line ranges against the new commit
+  ekf_switch_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/27d72a42785ca00d59ff197ada39ca91666c3490
+  ekf_switch_src_url: https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
@@ -253,7 +266,15 @@ nav:
     - SLAM: diffbot_slam.md
     - Move Base Flex: diffbot_mbf.md
     - Perception: diffbot_perception.md
-    - Localization (robot_localization): packages/imu/robot_localization.md
+    - Localization (robot_localization):
+      - Overview: packages/imu/robot_localization.md
+      - Tests:
+        - packages/imu/robot_localization/tests/index.md
+        - IMU Sample Validator: packages/imu/robot_localization/tests/validator.md
+        - EKF on a Stepped Clock: packages/imu/robot_localization/tests/stepped-clock.md
+        - EKF in Gazebo: packages/imu/robot_localization/tests/gazebo.md
+        - The ekf Switch: packages/imu/robot_localization/tests/switch.md
+        - The Transform's Publisher: packages/imu/robot_localization/tests/odom-tf.md
   - Robotics Theory:
     - theory/index.md
     # Hidden until written: Linear Algebra, Programming, Pinhole Camera Model, Recursive State Estimation
