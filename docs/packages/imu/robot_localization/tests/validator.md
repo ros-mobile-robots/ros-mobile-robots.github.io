@@ -30,8 +30,8 @@ The file holds the 30 tests in four test classes, one for each part of [`imu_val
 |:--|:--|:--|:--|
 | [`TestImuValidator`](#testimuvalidator-which-samples-are-valid) | 12 | [`ImuValidator.drop_reason_or_record()`](#drop_reason_or_record-the-decision-about-a-sample) | Which samples the validator accepts, and the reason for each sample that it rejects |
 | [`TestSecondsSinceLastValidSample`](#testsecondssincelastvalidsample-the-silence) | 9 | [`ImuValidator.seconds_since_last_valid_sample()`](#seconds_since_last_valid_sample-the-silence) | The time since the last valid sample, which the diagnostics report, also when the clock goes back |
-| [`TestHealth`](#testhealth-the-status) | 5 | [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143) | The level of the diagnostics status: OK, warning or error |
-| [`TestSampleCounts`](#testsamplecounts-the-numbers-of-a-report) | 4 | [`SampleCounts`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L163) | The counts of forwarded and dropped samples in a diagnostics report |
+| [`TestHealth`](#testhealth-the-status) | 5 | [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143-L160) | The level of the diagnostics status: OK, warning or error |
+| [`TestSampleCounts`](#testsamplecounts-the-numbers-of-a-report) | 4 | [`SampleCounts`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L163-L190) | The counts of forwarded and dropped samples in a diagnostics report |
 
 A fifth class, [`ValidatorTestCase`](#validatortestcase-a-new-validator-and-two-assertions), holds no tests. It gives the first two test classes a new validator for each test and two assertions about the validator's decision on a sample.
 
@@ -489,7 +489,19 @@ A valid sample arrives at the ROS time `NOW`, 100 s. Then the ROS time is `RESTA
 
 ## `TestHealth`: the status
 
-`health()` turns two numbers into the level and the message of the diagnostics status: the [silence](#seconds_since_last_valid_sample-the-silence) $t - t_\text{valid}$ in s, or `None`, and the number of samples dropped since the report before. The function reads no clock and keeps no state, so each call is independent of the others. The excerpt shows the class's five tests, from [`test_imu_validator.py`, lines 309–331]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L309-L331):
+[`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143-L160) turns two numbers into the level and the message of the diagnostics status: the [silence](#seconds_since_last_valid_sample-the-silence) $t - t_\text{valid}$ in s, or `None`, and the number of samples dropped since the report before. The node calls the function once for each diagnostics report, with the numbers of one [snapshot](#testsamplecounts-the-numbers-of-a-report). [The validator's diagnostics](../../robot_localization.md#the-validators-diagnostics) on the Localization page says what the levels mean for the robot and shows a report. The excerpt shows the function, from [`imu_validator.py`, lines 143–160]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143-L160):
+
+```python title="imu_validator.py: health()" linenums="143"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:143:160"
+```
+
+The function returns a `Health`, a named tuple of the level and the message. It looks at three conditions in their order and returns at the first one that holds:
+
+1. **No valid sample:** the silence is `None`, before the first valid sample or since the clock went back. Lines 150–152 return `ERROR`.
+2. **A silence that is too long:** the silence is longer than [`SILENCE_LIMIT`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L101), 1 s. Lines 153–156 return `ERROR`, with the silence in the message.
+3. **New drops:** `new_drop_count` is more than 0. Lines 157–159 return `WARN`, with the number in the message.
+
+When none of the three holds, line 160 returns `OK`. So a silence comes before the warning about new drops. The function reads no clock and keeps no state, so each call is independent of the others. The excerpt shows the class's five tests, from [`test_imu_validator.py`, lines 309–331]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L309-L331):
 
 ```python title="test_imu_validator.py: the level of the status" linenums="309"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:309:331"
@@ -508,7 +520,13 @@ A valid sample arrives at the ROS time `NOW`, 100 s. Then the ROS time is `RESTA
 
 ## `TestSampleCounts`: the numbers of a report
 
-`SampleCounts` counts the forwarded samples and the dropped samples by their reason. `take_snapshot()` returns the numbers of one diagnostics report as a `DiagnosticSnapshot`. The excerpt shows the first two tests, from [`test_imu_validator.py`, lines 340–358]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L340-L358):
+[`SampleCounts`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L163-L190) counts the forwarded samples and the dropped samples by their reason, without ROS communication. The node's callback [`on_sample()`](#where-the-ros-time-comes-from) calls `count_forwarded()` for each forwarded sample and `count_dropped()` for each dropped one. For each diagnostics report, the node calls the method `take_snapshot()`, which returns the numbers of one report as a `DiagnosticSnapshot`. This named tuple has four fields: `forwarded_count`, `drops_by_reason`, `new_drop_count` and `seconds_since_last_valid_sample`. The excerpt shows the class, from [`imu_validator.py`, lines 163–190]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L163-L190):
+
+```python title="imu_validator.py: SampleCounts" linenums="163"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:163:190"
+```
+
+`take_snapshot()` counts the new drops in lines 186–188. Line 186 adds up all dropped samples. Line 187 subtracts `drop_count_at_last_snapshot`, the number that the snapshot before counted, and line 188 stores the new total for the next snapshot. Line 189 copies `drops_by_reason` into a new dictionary, so a snapshot keeps its numbers when more samples arrive. The excerpt shows the first two tests, from [`test_imu_validator.py`, lines 340–358]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py#L340-L358):
 
 ```python title="test_imu_validator.py: the counts of a snapshot" linenums="340"
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_imu_validator.py:340:358"

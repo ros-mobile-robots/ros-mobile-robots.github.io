@@ -864,6 +864,14 @@ The issue [EKF: evaluate outlier rejection on recorded drives (diffbot#205)](htt
 
 The validator publishes its counts on the topic `/diagnostics`, next to the EKF's own status there: how many samples it forwarded, and how many it dropped for which reason. The function [`health()`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L143) sets the status. The status is an error in three cases: before the validator has forwarded its first sample, after the ROS time went back until the validator forwards a sample again, and when the validator forwarded no sample for more than [`SILENCE_LIMIT`]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L101), 1 s. The status is a warning when the validator dropped samples since its last report. [`TestHealth`: the status](robot_localization/tests/validator.md#testhealth-the-status) on the validator's tests page lists the level for each case.
 
+??? example "The conditions of `health()`, `imu_validator.py`, lines 150–160"
+
+    `health()` looks at three conditions in their order, and the first one that holds sets the level and the message. The excerpt shows them, from [`imu_validator.py`, lines 150–160]({{ ekf_test_src_url }}/diffbot_control/scripts/imu_validator.py#L150-L160):
+
+    ```python title="imu_validator.py: the conditions of health()" linenums="150"
+    --8<-- "{{ ekf_test_src_raw }}/diffbot_control/scripts/imu_validator.py:150:160"
+    ```
+
 `rostopic echo /diagnostics` prints the reports as text. `rosrun rqt_runtime_monitor rqt_runtime_monitor` shows them in a window, sorted into errors, warnings and OK, with the values of the entry that you click. rqt_robot_monitor shows nothing here, because it reads the topic `/diagnostics_agg` of a diagnostic aggregator, which the launch files don't start.
 
 The example comes from the simulation, at the commit [`ead3402`](https://github.com/ros-mobile-robots/diffbot/commit/ead34027a9507c65d7415f93817177340d60d549) of the diffbot repository, with Remo and `ekf:=true`. Five IMU samples stamped 0.5 s before the ROS time were sent by hand on the topic `/diffbot/imu/data_raw`, next to the simulated IMU's own samples. The validator dropped four of them before its report at the ROS time 16 s, and the fifth before its next report. The picture shows the report at 16 s in rqt_runtime_monitor, next to the two entries of robot_localization's node:

@@ -265,7 +265,13 @@ The wheels report 0.4 rad/s and the IMU 0.5 rad/s, for 150 steps, 3 s of ROS tim
 --8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:462:466"
 ```
 
-[`assert_fused_estimate()`](#the-code-of-one-step) checks the last output:
+[`assert_fused_estimate()`](#the-code-of-one-step) checks the last output. The excerpt shows its checks, from [`test_ekf_synthetic.py`, lines 422–426]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py#L422-L426):
+
+```python title="test_ekf_synthetic.py: the checks of assert_fused_estimate()" linenums="422"
+--8<-- "{{ ekf_test_src_raw }}/diffbot_control/test/test_ekf_synthetic.py:422:426"
+```
+
+Lines 422 and 423 check the frames, line 424 the forward speed and lines 425 and 426 the yaw rate:
 
 - **The frames:** the last output is in the frame `odom` with the child frame `base_footprint`, as [`ekf.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/ekf.yaml) sets them.
 - **The forward speed $v_x$:** `SPEED`, 0.1 m/s, within `SPEED_TOLERANCE`, 0.002 m/s. Only the wheel odometry carries a forward speed, so this check shows that the filter fuses the wheel odometry.
