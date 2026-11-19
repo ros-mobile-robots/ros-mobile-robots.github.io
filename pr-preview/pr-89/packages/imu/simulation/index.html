@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -3220,9 +3220,34 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../robot_localization/" class="md-nav__link">
+    
+    
+      
         
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14">
+        
+          
+          <label class="md-nav__link" for="__nav_4_14" id="__nav_4_14_label" tabindex="">
+            
   
   
   <span class="md-ellipsis">
@@ -3236,7 +3261,276 @@
   
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Localization (robot_localization)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot_localization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14_2">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../robot_localization/tests/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_14_2" id="__nav_4_14_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_14_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tests
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot_localization/tests/validator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU Sample Validator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot_localization/tests/stepped-clock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EKF on a Stepped Clock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot_localization/tests/gazebo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EKF in Gazebo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot_localization/tests/switch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The ekf Switch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robot_localization/tests/odom-tf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Transform's Publisher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4808,7 +5102,7 @@
 <p class="admonition-title">Reading the code</p>
 <ul>
 <li>The excerpts on these pages show fixed revisions, with their comments. Their line numbers match the original files.</li>
-<li>The diffbot repository's source is at two commits. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, its plugin, its adapter and its tests are at <a href="https://github.com/ros-mobile-robots/diffbot/tree/cd41eadbbec48859d82baf991f587e86fa387814"><code>cd41ead</code></a>, the commit that added them. This commit has no <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and no <code>ekf:=true</code>. Both are at <a href="https://github.com/ros-mobile-robots/diffbot/tree/ead34027a9507c65d7415f93817177340d60d549"><code>ead3402</code></a>, the commit of the <a href="../robot_localization/">Localization</a> pages, which these pages use for the validator.</li>
+<li>The diffbot repository's source is at two commits. The simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, its plugin, its adapter and its tests are at <a href="https://github.com/ros-mobile-robots/diffbot/tree/cd41eadbbec48859d82baf991f587e86fa387814"><code>cd41ead</code></a>, the commit that added them. This commit has no <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator and no <code>ekf:=true</code>. Both are at <a href="https://github.com/ros-mobile-robots/diffbot/tree/ead34027a9507c65d7415f93817177340d60d549"><code>ead3402</code></a>, the merge commit of the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>, which these pages use for the validator and <code>ekf:=true</code>. The <a href="../robot_localization/">Localization</a> pages show the validator's code at the commits that their sections name.</li>
 <li>Remo's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model is at remo_description 2.5.0, and ROS's and Gazebo's sources are at one commit or one release each.</li>
 <li>The link above each excerpt opens that revision and those lines on GitHub.</li>
 <li>The numbers that a page calls "from a run" come from one run of Remo's simulation at these revisions, in the dev container. Another run gives other noise, and can give other times.</li>
@@ -5227,7 +5521,7 @@
 <li><strong>Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor</strong> measures the angular velocity <span class="arithmatex">\(\boldsymbol\omega\)</span> and the specific force <span class="arithmatex">\(\mathbf f\)</span> at <code>imu_link</code>, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s frame, at the rate that the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model sets, 50 times per second. Gazebo computes both from the simulated robot's motion. <a href="measurement-to-message/#part-1-gazebos-imu-sensor-measures">Part 1: Gazebo's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor measures</a> shows the lines of Gazebo's source code, and <a href="position-and-axes/">Position and Axes</a> shows where <code>imu_link</code> sits on each robot.</li>
 <li><strong>The robots' own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin</strong> reads the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sensor's latest values when it publishes. The plugin publishes at most 50 times per second, and only while its topic has a subscriber. The plugin makes a <code>sensor_msgs/Imu</code> message from these values and publishes the message on <code>/diffbot/imu/gazebo</code>. The plugin adds the noise to both vectors, writes the variance <span class="arithmatex">\(\sigma^2\)</span> into their covariances and sets the stamp and the frame. The noise's <span class="arithmatex">\(\sigma\)</span> of 0.005 rad/s and 0.005 m/s² is the plugin's parameter <code>gaussianNoise</code> in the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model. <a href="measurement-to-message/#reading-the-sensor-and-adding-noise">Reading the sensor and adding noise</a> shows where the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model sets this parameter and which lines of the plugin use it. The plugin is a copy of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> plugin of ROS's gazebo_plugins package, because the original can stop the simulation's clock for good while the controllers start. <a href="plugin/">The Robots' Own <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> Plugin</a> explains why.</li>
 <li><strong>The adapter</strong>, <code>imu_raw_adapter.py</code>, gives the simulated message the form of the message that the real robot's firmware publishes. The plugin's message has an orientation <span class="arithmatex">\(\mathbf q\)</span>, and the firmware's message has none. The firmware reads only the BNO055's angular velocity and acceleration, because the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses only the yaw rate, as <a href="../driver-bno055/#what-the-firmware-publishes">what the firmware publishes</a> explains. So the adapter subscribes to <code>/diffbot/imu/gazebo</code>, marks the orientation unavailable and publishes the message on <code>/diffbot/imu/data_raw</code>. The stamp, the frame, the two vectors and their covariances stay as the plugin set them. The plugin's orientation is not ready to use, because the plugin adds noise to each of the quaternion's four numbers. <a href="measurement-to-message/#part-3-the-adapter">Part 3: the adapter</a> shows the adapter's code.</li>
-<li><strong>The <a href="../robot_localization/#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a></strong> subscribes to <code>/diffbot/imu/data_raw</code> and forwards the samples that pass its checks on <code>/diffbot/imu/data_validated</code>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> subscribes to. A forwarded sample keeps its stamp, its frame, its measurements and its covariances. Its <code>header.seq</code> is the validator's own count, as for <a href="measurement-to-message/#part-3-the-adapter">the adapter</a>. The validator drops a sample while the ROS time is still zero, when the sample's frame isn't <code>imu_link</code>, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code> in <code>diffbot_control</code></a>, at the Localization pages' commit <code>ead3402</code>. The validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run only with <code>ekf:=true</code>, as <a href="../robot_localization/#running-it">running the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> shows.</li>
+<li><strong>The <a href="../robot_localization/#the-imu-sample-validator"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sample validator</a></strong> subscribes to <code>/diffbot/imu/data_raw</code> and forwards the samples that pass its checks on <code>/diffbot/imu/data_validated</code>, which the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> subscribes to. A forwarded sample keeps its stamp, its frame, its measurements and its covariances. Its <code>header.seq</code> is the validator's own count, as for <a href="measurement-to-message/#part-3-the-adapter">the adapter</a>. The validator drops a sample while the ROS time is still zero, when the sample's frame isn't <code>imu_link</code>, when a value or a variance isn't usable, or when the sample's stamp is too old, too far ahead or not newer than the last one. The validator's code is <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/scripts/imu_validator.py"><code>imu_validator.py</code> in <code>diffbot_control</code></a>, at the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>'s merge commit <code>ead3402</code>. The validator and the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> run only with <code>ekf:=true</code>, as <a href="../robot_localization/#running-it">running the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> shows.</li>
 <li><strong>The tests</strong>, <code>test_imu.py</code> and <code>test_imu_reset.py</code>, subscribe to <code>/diffbot/imu/data_raw</code> and check the messages in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>, as <a href="tests/">Tests</a> explains.</li>
 </ol>
 <h2 id="the-simulation-and-the-real-robot">The simulation and the real robot</h2>
