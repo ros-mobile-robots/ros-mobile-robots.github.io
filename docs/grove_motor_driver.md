@@ -37,10 +37,46 @@ pip3 install smbus
 
 ### Connection
 
-Afterwards the I2C port of the motor should be connected to the I2C port 1 of the Raspberry Pi 4 B. 
-Don't forget to remove the jumper on the motor driver board which would provide power to the Pi.
-However, it is also not required to connect VCC and GND of the I2C connector. 
-Only the SDA (data) and SCL (clock) wires are required.
+Connect the I2C port of the motor driver to the I2C port 1 of the Raspberry Pi 4 B.
+Two things matter for this connection: the voltage of the two signals and a common ground.
+
+- **Signal voltage:** The motor driver's I2C bus works with 5 V ([Seeed's specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications)). The Raspberry Pi's GPIO pins work with 3.3 V and aren't 5 V tolerant ([Raspberry Pi's documentation of the 40-pin GPIO header](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)). So the data line SDA and the clock line SCL go through a bidirectional I2C level shifter, for example [Adafruit's BSS138 level converter](https://www.adafruit.com/product/757). The level shifter connects the 3.3 V signals on its low side with the 5 V signals on its high side.
+- **Common ground:** Each board measures the voltages on SDA and SCL against its own ground. On DiffBot, the two boards have separate supplies: a power bank for the Raspberry Pi and four AA batteries for the motor driver ([Power Supply](power-supply.md)). So the grounds of the Raspberry Pi, the level shifter and the motor driver have to be connected.
+
+Switch off both supplies before you connect the wires: shut down the Raspberry Pi and unplug its power bank, and take the batteries out of the motor driver's holder.
+With Adafruit's converter as the example, each row is one wire. The pins of the Raspberry Pi are those of its 40-pin header ([I2C pinout](https://pinout.xyz/pinout/i2c)), and the level shifter's pins are named as printed on its board:
+
+| From | To |
+| --- | --- |
+| Raspberry Pi pin 1, 3.3 V | Level shifter `LV` |
+| Motor driver's I2C connector, VCC | Level shifter `HV` |
+| Raspberry Pi pin 6, GND | Level shifter `GND`, on the `LV` side |
+| Level shifter `GND`, on the `HV` side | Motor driver's I2C connector, GND |
+| Raspberry Pi pin 3, SDA | Level shifter `A1` |
+| Level shifter `B1` | Motor driver's I2C connector, SDA |
+| Raspberry Pi pin 5, SCL | Level shifter `A2` |
+| Level shifter `B2` | Motor driver's I2C connector, SCL |
+
+The level shifter connects `A1` with `B1` and `A2` with `B2` itself. Don't connect these pins with a wire.
+
+Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and 5 V from the motor driver.
+The motor driver makes these 5 V from its batteries, with its own regulator.
+Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the I2C connector, and Seeed asks for the jumper when 5 V should be supplied to the I2C bus ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
+Connect this VCC pin only to the level shifter's `HV`, never to the Raspberry Pi, which has its own supply.
+The GND pin of the I2C connector is connected to the board's ground, with or without the jumper.
+
+Keep the motor driver powered whenever the Raspberry Pi has power.
+Without its batteries, the motor driver would get current from the Raspberry Pi's 3.3 V side through the level shifter and the SDA and SCL wires.
+These wires end at the board's microcontroller, an ATmega8 ([Seeed's schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)), and each of its pins has a protection diode to its supply line ([ATmega8 datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf), I/O Ports).
+The level shifter keeps the two sides apart only when the Raspberry Pi's side is off ([Philips application note AN97055](https://cdn-shop.adafruit.com/datasheets/an97055.pdf), section 2.3.4).
+So change the batteries in this order:
+
+1. Stop the motors and shut down the Raspberry Pi.
+2. Unplug the Raspberry Pi's power bank. After a shutdown, the Raspberry Pi keeps power on its header while the power bank is plugged in ([Raspberry Pi's bootloader documentation, `POWER_OFF_ON_HALT`](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#POWER_OFF_ON_HALT)).
+3. Replace all four batteries.
+4. Plug the power bank in again, which starts the Raspberry Pi.
+
+This wiring follows the specifications of the two boards. It isn't tested on a DiffBot yet.
 
 Make sure to set the address with the dip switches on the motor driver to `0x0f` because this is the default address used
 in the library files.
