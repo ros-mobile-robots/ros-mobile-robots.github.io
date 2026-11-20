@@ -4894,16 +4894,24 @@ interface</a>.</p>
 various nuisances of the physical robot, including differences in motors,
 wheels, and the asymmetry of the robot. It's simple and easily interpretable,
 too.</p>
-<p>The two PIDs work to ensure that the wheels spin at the desired speed, but not
-that the robot drives the desired way though. There are other factors such as
-slightly different wheel raddi <span class="arithmatex">\(R\)</span> which lead to different rotational velocities
-<span class="arithmatex">\(\dot{\phi}_{l/r}\)</span> (translational velocity <span class="arithmatex">\(v_{l/r} = \dot{\phi}_{l/r} \cdot R\)</span>) and therefore different traveled distances for each wheel (left and right) <span class="arithmatex">\(d_{l/r}\)</span>:</p>
+<p>The two PIDs make each wheel turn at its target angular velocity <span class="arithmatex">\(\dot{\phi}_{l/r}\)</span>, the rate at which the wheel turns about its axle.
+They don't make sure that the robot drives the commanded path.
+One reason is that the two wheel radii <span class="arithmatex">\(R_{l/r}\)</span> differ slightly.
+Take a wheel with the radius <span class="arithmatex">\(R_{l/r}\)</span> that rolls forward without slipping and turns with a constant <span class="arithmatex">\(\dot{\phi}_{l/r}\)</span> for the time <span class="arithmatex">\(\Delta t\)</span>.
+It moves over the ground with the speed <span class="arithmatex">\(v_{l/r} = R_{l/r} \cdot \dot{\phi}_{l/r}\)</span> and travels the distance <span class="arithmatex">\(d_{l/r}\)</span>:</p>
 <div class="arithmatex">\[
-\begin{aligned}
-d_{l/r} &amp;= v_{l/r} \cdot \Delta t \\
-d_{l/r} &amp;= \frac{\dot{\phi}_{l/r}}{R} \cdot \Delta t
-\end{aligned}
+d_{l/r} = v_{l/r} \cdot \Delta t = R_{l/r} \cdot \dot{\phi}_{l/r} \cdot \Delta t
 \]</div>
+<p>For example, Remo's nominal wheel radius is 0.033 m (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/remo/geometry.yaml"><code>geometry.yaml</code></a>).
+A wheel with this radius that turns with 2 rad/s for 3 s travels</p>
+<div class="arithmatex">\[
+d = 0.033\,\text{m} \cdot 2\,\tfrac{\text{rad}}{\text{s}} \cdot 3\,\text{s} = 0.198\,\text{m}
+\]</div>
+<p>An angle in radians is the ratio of two lengths, so the result is in metres.
+Remo's two wheels measure 65.5 mm and 66.5 mm in diameter, as the comment in the same file says.
+With radii of 0.03275 m and 0.03325 m, the same 2 rad/s for 3 s give 0.1965 m and 0.1995 m.
+One wheel travels 3 mm further, although both wheels turn equally fast.
+So the robot turns toward the wheel with the smaller radius, which travels the shorter distance.</p>
 <p>These mechanical variations "can't be seen" by the encoders alone. For example
 assume you want the robot to go straight, you would set the two desired
 rotational wheel velocities <span class="arithmatex">\(\dot{\phi}_{l/r}\)</span>'s to be equal - but still the
@@ -4921,7 +4929,7 @@ distances of the two wheels.</p>
 <div class="arithmatex">\[
 d_{l/r} = R_{l/r} \cdot \Delta \phi_{l/r}
 \]</div>
-<p>where <span class="arithmatex">\(\Delta \phi_{l/r}\)</span> are the rotations of each wheel (more accurately, of each motor), and <span class="arithmatex">\(R_{l/r}\)</span> is the radius of each wheel. If the radii are exactly the same, then <span class="arithmatex">\(R_l = R_r = R\)</span> and the approach using only two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers would work because controlling <span class="arithmatex">\(\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}\)</span> is equivalent to controlling <span class="arithmatex">\(\Delta \phi_{l/r,k}\)</span>, as the time interval we can assume known.</p>
+<p>where <span class="arithmatex">\(\Delta \phi_{l/r}\)</span> is the angle that each wheel turns about its axle in <span class="arithmatex">\(\Delta t\)</span>, and <span class="arithmatex">\(R_{l/r}\)</span> is the radius of each wheel. The equation assumes again that the wheels roll without slipping. The angle is the wheel's, not the motor's. The motor's shaft turns faster than the wheel, by the ratio of the gearbox between them, so the motor's angle times the wheel radius would give too long a distance. If the radii are exactly the same, then <span class="arithmatex">\(R_l = R_r = R\)</span> and the approach using only two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers would work because controlling <span class="arithmatex">\(\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}\)</span> is equivalent to controlling <span class="arithmatex">\(\Delta \phi_{l/r,k}\)</span>, as the time interval we can assume known.</p>
 <p>In practice, <span class="arithmatex">\(R_l = R_r = R\)</span> does not hold because of manufacturing tolerances, deformable material of the wheels generating different surfaces of contact with the ground depending on their assembly and robot mass distribution, etc.</p>
 <p>The trim parameter <span class="arithmatex">\(t\)</span> we define as something that adjusts the relationship between the commands sent to the motors (imagine voltage <span class="arithmatex">\(V\)</span>) and the angular speed of each wheel (<span class="arithmatex">\(\dot{\phi}\)</span>):</p>
 <div class="arithmatex">\[
