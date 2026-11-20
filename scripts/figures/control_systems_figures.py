@@ -5,7 +5,9 @@ Both are inline SVG that follows the site's light and dark colors:
 - includes/control-systems-system.html: a system as actuators, process and sensors, with its
   inputs, outputs and observations. It has the styles for both figures;
 - includes/control-systems-closed-loop.html: the same system with a controller that closes the
-  loop from the observations back to the commands;
+  loop from the observations back to the commands. It holds two layouts of the figure, a wide one
+  for wider screens, with the forward path to the right and the feedback path back below it, and
+  a tall one for phones. CSS shows one of them;
 - includes/control-systems-agent.html: an agent of perception, planner and controller between the
   sensors and the actuators. Its title sits in the group's top left corner, clear of the arrow
   that enters the group from the sensors.
@@ -38,6 +40,20 @@ RIGHT_BOX_WIDTH = 120
 BOX_HEIGHT = 44
 # The system's chain runs down the middle of its figure
 SYSTEM_X = WIDTH / 2
+# The closed loop's wide layout, for screens at least WIDE_FROM wide: the forward path runs right
+# along WIDE_ROW to the actuators, the process and the sensors stand in a column at WIDE_RIGHT_X,
+# and the feedback path runs back left along WIDE_BOTTOM. WIDE_WIDTH fits the page's article, which
+# is 688 px wide on 1280 and 1440 px screens, so the text keeps its size
+WIDE_FROM = '60em'
+WIDE_WIDTH = 680
+WIDE_HEIGHT = 344
+WIDE_ROW = 100
+WIDE_COMPARISON_X = 170
+WIDE_CONTROLLER_X = 330
+WIDE_CONTROLLER_WIDTH = 140
+WIDE_BOTTOM = 290
+WIDE_RIGHT_X = 520
+WIDE_RIGHT_WIDTH = 156
 
 # The id of each figure element, for links to the figure
 FIGURE_IDS = {
@@ -60,6 +76,8 @@ PROCESS: Sequence[Line] = (('Process and environment', 'name'),
                            ('wheel, robot and ground', 'example'))
 SENSORS: Sequence[Line] = (('Sensors', 'name'), ('wheel encoder', 'example'))
 LEGEND = "Blue: an example, the speed of one of the robot's wheels"
+CLOSED_LOOP_TITLE = ('A closed control loop: reference, comparison, controller, actuators, '
+                     'process, sensors, and the observations fed back to the comparison')
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -67,6 +85,10 @@ RULES = (
     ('.md-typeset figure.cs-figure', 'margin:1em auto;width:100%;max-width:480px'),
     ('.cs-fig', 'width:100%;height:auto;--cs-example:#1e63c4;'
                 'font-family:var(--md-text-font-family,Roboto),sans-serif'),
+    ('.cs-fig-wide', 'display:none'),
+    (f'@media screen and (min-width:{WIDE_FROM})',
+     '.md-typeset figure.cs-figure.cs-has-wide{max-width:none}'
+     '.cs-fig-wide{display:block}.cs-fig-tall{display:none}'),
     ('[data-md-color-scheme=slate] .cs-fig', '--cs-example:#82b1ff'),
     ('.cs-fig text', f'fill:{FG};font-size:12px'),
     ('.cs-fig .block', f'fill:var(--md-default-bg-color);stroke:{FG_LIGHT};stroke-width:1'),
@@ -96,12 +118,19 @@ def style_element(rules: Sequence[Tuple[str, str]]) -> str:
 
 
 class Figure:
-    """Collect the SVG elements of one figure."""
+    """Collect the SVG elements of one figure, or of one layout of a figure.
 
-    def __init__(self, name: str, height: int, title: str) -> None:
+    layout is the CSS class of a layout, cs-fig-wide or cs-fig-tall, and empty for a figure that
+    has one layout only.
+    """
+
+    def __init__(self, name: str, height: int, title: str, width: int = WIDTH,
+                 layout: str = '') -> None:
         self.name = name
         self.height = height
         self.title = title
+        self.width = width
+        self.layout = layout
         self.elements: List[str] = []
 
     def box(self, y: float, lines: Sequence[Line], x: float = BOX_X,
@@ -145,7 +174,8 @@ class Figure:
         head = (f'<marker id="{self.name}-head" viewBox="0 0 10 10" refX="9" refY="5" '
                 'markerWidth="7" markerHeight="7" orient="auto">'
                 '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
-        return (f'<svg class="cs-fig" viewBox="0 0 {WIDTH} {self.height}" role="img" '
+        css_class = f'cs-fig {self.layout}' if self.layout else 'cs-fig'
+        return (f'<svg class="{css_class}" viewBox="0 0 {self.width} {self.height}" role="img" '
                 f'aria-labelledby="{self.name}-title"><title id="{self.name}-title">'
                 f'{escape(self.title)}</title><defs>{head}</defs>\n'
                 + '\n'.join(self.elements) + '\n</svg>')
@@ -171,10 +201,8 @@ def system_figure() -> Figure:
 
 
 def closed_loop_figure() -> Figure:
-    """Return the figure of the system with a controller that closes the loop."""
-    figure = Figure('cs-loop', 428,
-                    'A closed control loop: reference, comparison, controller, actuators, '
-                    'process, sensors, and the observations fed back to the comparison')
+    """Return the tall layout of the closed loop, for phones: the loop runs down and back up."""
+    figure = Figure('cs-loop', 428, CLOSED_LOOP_TITLE, layout='cs-fig-tall')
     comparison_y = 84
     figure.arrow(f'M{FORWARD_X},6 V{comparison_y - 14}')
     figure.signal(FORWARD_X + 6, 24, 'reference', 'target wheel speed', 1)
@@ -196,6 +224,44 @@ def closed_loop_figure() -> Figure:
     figure.arrow(f'M{FEEDBACK_X},240 V{comparison_y} H{FORWARD_X + 14}')
     figure.signal(FORWARD_X + 22, comparison_y - 20, 'observations', 'measured wheel speed', 6)
     figure.text(WIDTH / 2, 420, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def wide_closed_loop_figure() -> Figure:
+    """Return the wide layout of the closed loop: reference on the left, feedback path below.
+
+    The forward path runs right from the reference through the comparison and the controller to
+    the actuators. The process and the sensors follow down a column on the right, and the
+    observations run back left along the bottom into the comparison's minus input.
+    """
+    figure = Figure('cs-loop-wide', WIDE_HEIGHT, CLOSED_LOOP_TITLE, width=WIDE_WIDTH,
+                    layout='cs-fig-wide')
+    right_center_x = WIDE_RIGHT_X + WIDE_RIGHT_WIDTH / 2
+    process_y = WIDE_BOTTOM - 114
+    figure.arrow(f'M4,{WIDE_ROW} H{WIDE_COMPARISON_X - 14}')
+    figure.signal(8, 56, 'reference', 'target wheel speed', 1)
+    figure.circle(WIDE_COMPARISON_X, WIDE_ROW, 13, 'block')
+    figure.text(WIDE_COMPARISON_X - 13, WIDE_ROW - 12, '+', 'sign', 'end')
+    figure.text(WIDE_COMPARISON_X + 8, WIDE_ROW + 30, '\u2212', 'sign')
+    figure.arrow(f'M{WIDE_COMPARISON_X + 13},{WIDE_ROW} H{WIDE_CONTROLLER_X}')
+    figure.signal(WIDE_COMPARISON_X + 20, 56, 'error', 'target minus measured', 2)
+    controller = (('Controller', 'name'), ('PID in the firmware', 'example'))
+    figure.box(WIDE_ROW - BOX_HEIGHT / 2, controller, x=WIDE_CONTROLLER_X,
+               width=WIDE_CONTROLLER_WIDTH)
+    figure.arrow(f'M{WIDE_CONTROLLER_X + WIDE_CONTROLLER_WIDTH},{WIDE_ROW} H{WIDE_RIGHT_X}')
+    figure.signal(WIDE_CONTROLLER_X + WIDE_CONTROLLER_WIDTH + 6, 56, 'commands', 'motor command',
+                  3)
+    figure.box(WIDE_ROW - BOX_HEIGHT / 2, ACTUATORS, x=WIDE_RIGHT_X, width=WIDE_RIGHT_WIDTH)
+    figure.arrow(f'M{right_center_x},{WIDE_ROW + BOX_HEIGHT / 2} V{process_y}')
+    figure.signal(right_center_x - 136, 146, 'inputs', 'torque on the wheel', 4)
+    figure.box(process_y, PROCESS, x=WIDE_RIGHT_X, width=WIDE_RIGHT_WIDTH)
+    figure.arrow(f'M{right_center_x},{process_y + BOX_HEIGHT} V{WIDE_BOTTOM - BOX_HEIGHT / 2}')
+    figure.signal(right_center_x - 104, WIDE_BOTTOM - 54, 'outputs', 'wheel speed', 5)
+    figure.box(WIDE_BOTTOM - BOX_HEIGHT / 2, SENSORS, x=WIDE_RIGHT_X, width=WIDE_RIGHT_WIDTH)
+    figure.arrow(f'M{WIDE_RIGHT_X},{WIDE_BOTTOM} H{WIDE_COMPARISON_X} V{WIDE_ROW + 13}')
+    figure.signal(WIDE_COMPARISON_X + 20, WIDE_BOTTOM - 26, 'observations', 'measured wheel speed',
+                  6)
+    figure.text(WIDE_WIDTH / 2, WIDE_HEIGHT - 8, LEGEND, 'legend', 'middle')
     return figure
 
 
@@ -234,26 +300,32 @@ def agent_figure() -> Figure:
     return figure
 
 
-def write_include(path: str, figure: Figure, caption: str, style: str = '') -> None:
-    """Write a figure with its caption to an include, after the style element if one is given."""
+def write_include(path: str, figures: Sequence[Figure], caption: str, style: str = '') -> None:
+    """Write a figure with its caption to an include, after the style element if one is given.
+
+    figures holds the figure's layouts: one, or the wide and the tall one, which CSS switches.
+    """
+    figure_class = 'cs-figure cs-has-wide' if len(figures) > 1 else 'cs-figure'
+    svgs = '\n'.join(figure.svg() for figure in figures)
     with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{style}<figure class="cs-figure" id="{FIGURE_IDS[path]}">\n'
-                      f'{figure.svg()}\n<figcaption>{caption}</figcaption>\n</figure>\n')
+        include.write(f'{style}<figure class="{figure_class}" id="{FIGURE_IDS[path]}">\n'
+                      f'{svgs}\n<figcaption>{caption}</figcaption>\n</figure>\n')
 
 
 def main() -> None:
     """Write the three includes."""
-    write_include('includes/control-systems-system.html', system_figure(),
+    write_include('includes/control-systems-system.html', [system_figure()],
                   'A system from its actuators to its sensors. Read the figure from top to '
                   'bottom. In the example, the measured wheel speed comes about like this: the '
                   "wheel turns, the encoder's two Hall sensors give pulses, the Teensy counts "
                   'their edges, and the firmware computes the angular velocity from the change of '
                   'the count and the time it took.',
                   style_element(RULES) + '\n')
-    write_include('includes/control-systems-closed-loop.html', closed_loop_figure(),
+    write_include('includes/control-systems-closed-loop.html',
+                  [wide_closed_loop_figure(), closed_loop_figure()],
                   'A closed loop. Start at the reference (1) and follow the numbers around '
                   'the loop, back to the comparison in the circle.')
-    write_include('includes/control-systems-agent.html', agent_figure(),
+    write_include('includes/control-systems-agent.html', [agent_figure()],
                   'An agent between the sensors and the actuators. Perception gives its estimate '
                   'to the planner and to the controller, and the planner gives the reference path '
                   'to the controller.')

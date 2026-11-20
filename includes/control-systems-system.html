@@ -1,6 +1,8 @@
 <style>
 .md-typeset figure.cs-figure{margin:1em auto;width:100%;max-width:480px}
 .cs-fig{width:100%;height:auto;--cs-example:#1e63c4;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.cs-fig-wide{display:none}
+@media screen and (min-width:60em){.md-typeset figure.cs-figure.cs-has-wide{max-width:none}.cs-fig-wide{display:block}.cs-fig-tall{display:none}}
 [data-md-color-scheme=slate] .cs-fig{--cs-example:#82b1ff}
 .cs-fig text{fill:var(--md-default-fg-color);font-size:12px}
 .cs-fig .block{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}

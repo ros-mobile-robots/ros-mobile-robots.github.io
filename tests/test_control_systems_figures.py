@@ -7,6 +7,7 @@ Run from the repository root: python -m unittest discover -s tests
 
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -81,6 +82,56 @@ class TestSignal(unittest.TestCase):
         label = signal_label(number=0)
         self.assertIn('class="number-disc"', label)
         self.assertIn('>0</text>', label)
+
+
+# The width of the page's article on 1280 and 1440 px screens, measured in the browser
+ARTICLE_WIDTH = 688  # px
+
+
+class TestClosedLoopLayouts(unittest.TestCase):
+    """The closed loop's include holds a wide and a tall layout, and CSS shows one of them.
+
+    Both layouts show the same six numbered signals and share the caption and the title.
+    """
+
+    def setUp(self) -> None:
+        self.wide = control_systems_figures.wide_closed_loop_figure().svg()
+        self.tall = control_systems_figures.closed_loop_figure().svg()
+        self.include = (ROOT / 'includes' / 'control-systems-closed-loop.html').read_text(
+            encoding='utf-8')
+        self.styles = (ROOT / 'includes' / 'control-systems-system.html').read_text(
+            encoding='utf-8')
+
+    def test_include_holds_the_wide_layout_then_the_tall_one_and_one_caption(self) -> None:
+        self.assertIn('<figure class="cs-figure cs-has-wide" id="closed-loop-figure">',
+                      self.include)
+        self.assertLess(self.include.index(self.wide), self.include.index(self.tall))
+        self.assertEqual(self.include.count('<figcaption>'), 1)
+
+    def test_css_shows_the_wide_layout_only_from_the_wide_screen_width(self) -> None:
+        self.assertIn('.cs-fig-wide{display:none}', self.styles)
+        self.assertIn(f'@media screen and (min-width:{control_systems_figures.WIDE_FROM}){{'
+                      '.md-typeset figure.cs-figure.cs-has-wide{max-width:none}'
+                      '.cs-fig-wide{display:block}.cs-fig-tall{display:none}}', self.styles)
+
+    def test_both_layouts_have_the_same_title(self) -> None:
+        for svg in (self.wide, self.tall):
+            self.assertIn(f'{control_systems_figures.CLOSED_LOOP_TITLE}</title>', svg)
+
+    def test_each_layout_points_its_arrows_to_its_own_arrowhead(self) -> None:
+        for name, svg in (('cs-loop-wide', self.wide), ('cs-loop', self.tall)):
+            self.assertIn(f'<marker id="{name}-head"', svg)
+            self.assertEqual(set(re.findall(r'marker-end="url\(#([\w-]+)\)"', svg)),
+                             {f'{name}-head'})
+
+    def test_both_layouts_show_the_six_numbered_signals(self) -> None:
+        for svg in (self.wide, self.tall):
+            numbers = re.findall(r'class="number"[^>]*>(\d)</text>', svg)
+            self.assertEqual(sorted(numbers), ['1', '2', '3', '4', '5', '6'])
+
+    def test_wide_layout_fits_the_pages_article(self) -> None:
+        self.assertLessEqual(control_systems_figures.WIDE_WIDTH, ARTICLE_WIDTH)
+        self.assertIn(f'viewBox="0 0 {control_systems_figures.WIDE_WIDTH} ', self.wide)
 
 
 if __name__ == '__main__':
