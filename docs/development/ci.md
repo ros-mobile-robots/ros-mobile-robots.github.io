@@ -11,7 +11,7 @@ Every pull request and every push to the default branch runs automated checks wi
 | Dev container | [`.github/workflows/devcontainer.yml`]({{ diffbot_repo_url }}/.github/workflows/devcontainer.yml) | Builds the [dev container](dev-container.md) image, creates the container (which builds the workspace), then builds and runs the tests in it |
 | PR description | [`.github/workflows/pr_description.yml`]({{ diffbot_repo_url }}/.github/workflows/pr_description.yml) | Checks that the pull request's description links its documentation: the docs pull request, a page on this site, or `None` ([how](#pr-description)) |
 | Robot container | [`.github/workflows/robot_container.yml`]({{ diffbot_repo_url }}/.github/workflows/robot_container.yml) | Builds the [robot image](../processing_units/robot-container/index.md) when it or its packages change, natively on GitHub's arm64 and amd64 runners. It checks the settings template and runs the image's smoke test without hardware, in the image and through Docker Compose |
-| Simulation video | [`.github/workflows/sim_video.yml`]({{ diffbot_repo_url }}/.github/workflows/sim_video.yml) | Only on request: records a video of DiffBot driving the simulation test's commands in Gazebo ([how to ask for one](#simulation-video)) |
+| Simulation video | [`.github/workflows/sim_video.yml`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml) | Only on request: records a video of DiffBot driving the simulation test's commands in Gazebo ([how to ask for one](#simulation-video)) |
 
 ### industrial_ci
 
@@ -40,7 +40,7 @@ So a broken Dockerfile, a missing dependency or a failing build shows up in the 
 
 The [simulation test](simulation-test.md) checks numbers: the odometry and the true pose after each drive. To see the drive itself, ask CI for a video, or record one on your computer:
 
-- **On a pull request:** add the label `sim-video` ([applying a label](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels#applying-a-label) needs triage or write access to the repository, so ask a maintainer if you don't have it). Each time the label is added, the workflow records one video of the pull request merged with its base branch. For another one, remove the label and add it again.
+- **On a pull request:** add the label [`sim-video`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml#L37) ([applying a label](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels#applying-a-label) needs triage or write access to the repository, so ask a maintainer if you don't have it). Each time the label is added, the workflow records one video of the pull request merged with its base branch. For another one, remove the label and add it again.
 - **On a branch:** in the repository's [Actions tab](https://github.com/ros-mobile-robots/diffbot/actions/workflows/sim_video.yml), choose "Run workflow" and the branch ([manually running a workflow](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow) needs write access).
 - **On your computer:** run the recorder in the [dev container](dev-container.md), with the workspace built. The output folder must be new or empty:
 
@@ -64,20 +64,20 @@ A failed recording shows in the summary and in the step "Record the video", and 
 
 #### How the recording works
 
-CI's runners have no screen and no graphics card, but Gazebo's camera needs a display to render. [`record_drive_video.sh`]({{ sim_video_src_url }}/diffbot_gazebo/scripts/record_drive_video.sh) in `diffbot_gazebo` does this:
+CI's runners have no screen and no graphics card, but Gazebo's camera needs a display to render. [`record_drive_video.sh`]({{ sim_video_src_url }}/diffbot_gazebo/scripts/record_drive_video.sh) in [`diffbot_gazebo`](../diffbot_gazebo.md#simulate-diffbot-in-gazebo) does this:
 
 1. [`make_video_world.py`]({{ sim_video_src_url }}/diffbot_gazebo/scripts/make_video_world.py) copies the test's world and adds a camera, which saves each frame as an image file, and a grid on the floor that shows how far the robot drove.
 2. [Xvfb](https://www.x.org/releases/current/doc/man/man1/Xvfb.1.xhtml), a virtual X server, is the display. It keeps the picture in memory instead of showing it on a screen. Mesa draws the frames on the CPU ([`LIBGL_ALWAYS_SOFTWARE`](https://docs.mesa3d.org/envvars.html#envvar-LIBGL_ALWAYS_SOFTWARE)).
 3. [`sim_video.launch`]({{ sim_video_src_url }}/diffbot_gazebo/launch/sim_video.launch) starts the Gazebo server, without its window, and the controllers. It turns on [lockstep](https://classic.gazebosim.org/tutorials?tut=lockstep_physics_sensors): the physics wait for the camera, so the camera saves a frame every 1/30 s of simulation time. Rendering on the CPU can slow the simulation down, but the video still plays at simulation time. On GitHub's runner, the simulation ran at about real time while recording ([run 42252902806](https://github.com/ros-mobile-robots/diffbot/actions/runs/42252902806)).
 4. [`drive_for_video.py`]({{ sim_video_src_url }}/diffbot_gazebo/scripts/drive_for_video.py) waits until the clock runs, the controller listens and the camera saves frames, then drives.
-5. [`encode_drive_video.py`]({{ sim_video_src_url }}/diffbot_gazebo/scripts/encode_drive_video.py) cuts the frames to the drive, encodes them with [ffmpeg](https://ffmpeg.org/), checks the video with ffprobe and writes the JSON file.
+5. [`encode_drive_video.py`]({{ sim_video_src_url }}/diffbot_gazebo/scripts/encode_drive_video.py) cuts the frames to the drive, encodes them with [ffmpeg](https://ffmpeg.org/), checks the video with [ffprobe]({{ sim_video_src_url }}/diffbot_gazebo/scripts/encode_drive_video.py#L165-L172) and writes the JSON file.
 
 Starting the display, the drive and the encoding have time limits, and in CI the step "Record the video" stops after 20 minutes. A failed step stops the recorder with an error, and the recorder stops every process that it started.
 
-The recording is a job in a workflow of its own, [`sim_video.yml`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml). The workflow runs on `pull_request` with read access and no secrets, so it can also run for pull requests from forks, once a maintainer approves the run where GitHub asks for that.
+The recording is a job in a workflow of its own, [`sim_video.yml`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml). The workflow runs on [`pull_request`]({{ sim_video_src_url }}/.github/workflows/sim_video.yml#L16-L25) with read access and no secrets, so it can also run for pull requests from forks, once a maintainer approves the run where GitHub asks for that.
 
 ??? info "Why the recording is a workflow of its own"
-    The dev container's job `noetic` is a required check. A label condition on that job would skip it for every other label, and GitHub counts a skipped required job as passed ([jobs with conditions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)). So the recording has a workflow of its own.
+    The dev container's job [`noetic`]({{ sim_video_src_url }}/.github/workflows/devcontainer.yml#L13) is a required check. A label condition on that job would skip it for every other label, and GitHub counts a skipped required job as passed ([jobs with conditions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)). So the recording has a workflow of its own.
 
 ### PR description
 
