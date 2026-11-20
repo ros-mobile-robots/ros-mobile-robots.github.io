@@ -59,7 +59,7 @@ A URDF link has three separate descriptions ([URDF link specification](https://w
 - **Collision:** the geometry that the physics engine checks for contacts. Its shape decides where the wheel touches the ground.
 - **Inertial:** the mass, the center of mass and the inertia tensor. They decide how the wheel accelerates under a torque.
 
-They don't have to agree. DiffBot's and Remo's wheels look like their mesh, collide as a sphere and are modeled with a solid cylinder's inertia.
+They don't have to agree. DiffBot's and Remo's wheels look like their mesh, collide as a sphere and are modeled with a solid cylinder's inertia. The [explorer on Robot Description](../../robot-description.md#explore-the-robot-models) shows the three descriptions of every link of both robots in 3D.
 
 ### Where does a wheel push on the ground?
 

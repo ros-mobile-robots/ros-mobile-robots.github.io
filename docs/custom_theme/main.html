@@ -39,6 +39,21 @@
         <link rel="stylesheet" href="{{ 'js/interactive/interactive.css' | url }}">
         <script type="module" src="{{ 'js/interactive/motion-lab.js' | url }}"></script>
         {% endif %}
+        {#- The URDF explorer. Its small script shows the button. three.js and urdf-loader, which the
+            import map names, are only fetched when the reader opens the 3D view -#}
+        {% if page and page.content and 'data-ix="urdf-explorer"' in page.content %}
+        <link rel="stylesheet" href="{{ 'js/interactive/interactive.css' | url }}">
+        <meta name="ix-urdf-explorer" content="{{ 'resources/urdf-explorer/' | url }}">
+        <script type="importmap">
+        {"imports": {
+          "three": "./{{ 'js/three-0.170.0/build/three.module.min.js' | url }}",
+          "three/addons/": "./{{ 'js/three-0.170.0/examples/jsm/' | url }}",
+          "three/examples/jsm/": "./{{ 'js/three-0.170.0/examples/jsm/' | url }}",
+          "urdf-loader": "./{{ 'js/urdf-loader-0.13.1/URDFLoader.js' | url }}"
+        }}
+        </script>
+        <script type="module" src="{{ 'js/interactive/urdf-explorer.js' | url }}"></script>
+        {% endif %}
 {% endblock libs %}
 
 
