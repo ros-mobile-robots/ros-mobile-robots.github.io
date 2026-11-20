@@ -14,7 +14,7 @@ Every pull request and every push to the default branch runs automated checks wi
 
 ### industrial_ci
 
-industrial_ci starts an Ubuntu 20.04 container, installs ROS Noetic and the workspace's dependencies with rosdep, then builds the workspace with catkin and runs the tests. The workflow runs it in one job, `industrial_ci (noetic, main)`.
+industrial_ci starts an Ubuntu 20.04 container and sets up ROS Noetic in it. Then it installs the workspace's dependencies with rosdep, builds the workspace with catkin and runs the tests. The workflow runs industrial_ci in one job, `industrial_ci (noetic, main)`.
 
 For Noetic, both settings of `ROS_REPO`, `main` and `testing`, select the same frozen package repository. `ROS_REPO` names the apt repository that the ROS packages come from. For a ROS distribution that still gets updates, `main` has the packages that users install, and `testing` gets new package versions first ([ROS testing repository](http://wiki.ros.org/ShadowRepository)). Noetic reached its end of life on May 31, 2025, after its final package release ([announcement](https://discourse.openrobotics.org/t/new-packages-for-noetic-2025-05-29-final/44003)). A snapshot is a frozen copy of a package repository on snapshots.ros.org. For an end-of-life distribution, industrial_ci installs the packages from the distribution's final snapshot, with `main` as with `testing` ([`_use_repo_or_final_snapshot`](https://github.com/ros-industrial/industrial_ci/blob/125164b9f1883cdf1858897a7146d1bebf2be5c6/industrial_ci/src/ros.sh#L152-L166) in industrial_ci's `ros.sh`). A job with `testing` would install the same packages, so the workflow has only the job with `main`.
 
