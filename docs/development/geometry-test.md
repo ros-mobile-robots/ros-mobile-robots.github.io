@@ -8,17 +8,17 @@ The [simulation test](simulation-test.md) drives the robots in Gazebo and would 
 
 The test protects against a change on one side without the other:
 
-- **A length that differs:** diff_drive_controller computes the odometry and the wheel commands from `wheel_radius` and `wheel_separation`. With a value that differs from the URDF, these calculations no longer fit the robot that the URDF describes and that Gazebo simulates.
-- **A joint list in the wrong order:** on the real robot, the hardware interface sends the wheel commands in the order of its `joints` list. In the wrong order, the left wheel's command drives the right motor. Gazebo doesn't use this list.
+- **A length that differs:** [diff_drive_controller](../packages/imu/robot_localization.md#how-it-fits-together) computes the odometry and the wheel commands from [`wheel_radius`](../packages/imu/robot_localization.md#how-it-fits-together) and [`wheel_separation`](../packages/imu/robot_localization/tests/gazebo.md#why-a-wrong-wheel-separation). With a value that differs from the URDF, these calculations no longer fit the robot that the URDF describes and that Gazebo simulates.
+- **A joint list in the wrong order:** on the real robot, the hardware interface sends the wheel commands in the order of its [`joints`](#the-hardware-interfaces-joint-order) list. In the wrong order, the left wheel's command drives the right motor. Gazebo doesn't use this list.
 
 The figure shows what goes into the test, what the test compares, and what comes out.
 
 --8<-- "includes/geometry-test-flow.html"
 
-- **In:** the robot model and the controller configuration, as the launch files of the robot and of the simulation load them. `roslaunch --dump-params` reads the launch files without starting a node ([step 1](#1-the-launch-files-supply-the-values)). The URDF arrives as the parameter `robot_description`, and the controller's values as parameters such as `wheel_radius`.
+- **In:** the robot model and the controller configuration, as the launch files of the robot and of the simulation load them. `roslaunch --dump-params` reads the launch files without starting a node ([step 1](#1-the-launch-files-supply-the-values)). The URDF arrives as the parameter [`robot_description`](#1-the-launch-files-supply-the-values), and the controller's values as parameters such as `wheel_radius`.
 - **Compared:** six checks ([step 3](#3-the-checks)).
     - Two compare lengths: the radius of the wheels' collision shapes with `wheel_radius`, and the distance between the wheel joints with `wheel_separation`.
-    - Three check the joints that the controller names in `left_wheel` and `right_wheel`: each side has a name, the names are continuous joints of the URDF, and each joint has a velocity interface.
+    - Three check the joints that the controller names in [`left_wheel`](#the-controller-names-a-wheel-on-each-side) and [`right_wheel`](#the-controller-names-a-wheel-on-each-side): each side has a name, the names are continuous joints of the URDF, and each joint has a velocity interface.
     - One checks that the hardware interface's `joints` list holds the same joints, the left one first ([joint order](#the-hardware-interfaces-joint-order)).
 - **Out:** the test passes when both lengths agree within 0.1 mm and all joint checks pass. Otherwise one or more checks fail, and the test names each problem ([Run it](#run-it) shows such a message). For example, with Remo's radius of 0.033 m in the URDF, a `wheel_radius` of 0.03305 m passes, and 0.0332 m fails with a message for each wheel.
 
@@ -36,10 +36,10 @@ The table gives Remo's nominal values on both sides of each comparison:
 </div>
 
 - **The radii** are the wheels' collision shapes: the simple spheres that Gazebo uses for contacts, not the meshes you see.
-- **The separation** is the straight-line distance between the two wheel joints, the points the wheels turn about. `front_left_wheel_joint` is at y = 0.072 m and `front_right_wheel_joint` at y = −0.072 m, with the same x and z.
+- **The separation** is the straight-line distance between the two wheel joints, the points the wheels turn about. [`front_left_wheel_joint`](#the-wheel-separation) is at y = 0.072 m and [`front_right_wheel_joint`](#the-wheel-separation) at y = −0.072 m, with the same x and z.
 - **The tolerance** is 0.1 mm: a larger difference fails.
 
-xacro computes the URDF's values from the YAML files of the robot's description package, for Remo [`front_wheel.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/front_wheel.yaml) and [`base.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/base.yaml) in [remo_description](https://github.com/ros-mobile-robots/remo_description/tree/2.0.0), for DiffBot the same files in [`diffbot_description/config/diffbot`]({{ geometry_src_url }}/diffbot_description/config/diffbot). The test compares these nominal values only. A calibration of the real robot belongs in diff_drive_controller's multipliers, such as [`wheel_separation_multiplier`](http://wiki.ros.org/diff_drive_controller#Parameters), "used to account for a difference between the robot model and a real robot". The test leaves them alone.
+[xacro](../diffbot_gazebo.md#troubleshooting) computes the URDF's values from the YAML files of the robot's description package, for Remo [`front_wheel.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/front_wheel.yaml) and [`base.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/2.0.0/config/remo/base.yaml) in [remo_description](https://github.com/ros-mobile-robots/remo_description/tree/2.0.0), for DiffBot the same files in [`diffbot_description/config/diffbot`]({{ geometry_src_url }}/diffbot_description/config/diffbot). The test compares these nominal values only. A calibration of the real robot belongs in diff_drive_controller's multipliers, such as [`wheel_separation_multiplier`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L206-L208), which scales the nominal wheel separation. The test leaves them alone.
 
 ## Run it
 
