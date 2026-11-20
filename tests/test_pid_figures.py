@@ -6,6 +6,7 @@ Run from the repository root: python -m unittest discover -s tests
 import contextlib
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -147,6 +148,74 @@ class TestMain(unittest.TestCase):
                     self.assertRaisesRegex(ValueError, 'ticks are .* not the logged 5.5 rad/s'):
                 pid_figures.main()
             self.assertEqual(include.read_bytes(), include_before)
+
+
+# The width of the PID page's article on 1280 and 1440 px screens, measured in the browser
+ARTICLE_WIDTH = 688  # px
+# The values of the logged step that both layouts show: target, error, motor command, duty cycle,
+# ticks and measured speed
+STEP_VALUES = ('6.06 rad/s', '0.50 rad/s', '>96<', '37.5 %', '>24<', '5.56 rad/s')
+
+
+class TestLayouts(unittest.TestCase):
+    """The include holds a wide and a tall layout of the figure, and CSS shows one of them.
+
+    Both layouts show the logged step's values and share the caption and the accessible name.
+    """
+
+    def setUp(self) -> None:
+        self.wide = pid_figures.wide_feedback_loop(pid_figures.LOGGED_STEP).svg()
+        self.tall = pid_figures.tall_feedback_loop(pid_figures.LOGGED_STEP).svg()
+        self.include = (ROOT / 'includes' / INCLUDE_NAME).read_text(encoding='utf-8')
+
+    def test_include_holds_the_wide_layout_then_the_tall_one_and_one_caption(self) -> None:
+        self.assertIn(self.wide, self.include)
+        self.assertIn(self.tall, self.include)
+        self.assertLess(self.include.index(self.wide), self.include.index(self.tall))
+        self.assertEqual(self.include.count('<figcaption>'), 1)
+
+    def test_css_shows_the_wide_layout_only_from_the_wide_screen_width(self) -> None:
+        self.assertIn('.pid-loop-wide{display:none}', self.include)
+        self.assertIn(f'@media screen and (min-width:{pid_figures.WIDE_FROM}){{'
+                      '.md-typeset figure.pid-loop-figure{max-width:none}'
+                      '.pid-loop-wide{display:block}.pid-loop-tall{display:none}}',
+                      self.include)
+
+    def test_both_layouts_have_the_same_accessible_name(self) -> None:
+        for name, svg in (('pid-loop-wide', self.wide), ('pid-loop-tall', self.tall)):
+            self.assertIn(f'<title id="{name}-title">{pid_figures.TITLE}</title>', svg)
+            self.assertIn(f'aria-labelledby="{name}-title"', svg)
+
+    def test_each_layout_points_its_arrows_to_its_own_arrowhead(self) -> None:
+        for name, svg in (('pid-loop-wide', self.wide), ('pid-loop-tall', self.tall)):
+            self.assertIn(f'<marker id="{name}-head"', svg)
+            self.assertEqual(set(re.findall(r'marker-end="url\(#([\w-]+)\)"', svg)),
+                             {f'{name}-head'})
+
+    def test_both_layouts_show_the_values_of_the_logged_step(self) -> None:
+        for svg in (self.wide, self.tall):
+            for value in STEP_VALUES:
+                self.assertIn(value, svg)
+
+    def test_wide_layout_and_its_boxes_fit_the_pid_pages_article(self) -> None:
+        self.assertLessEqual(pid_figures.WIDE_WIDTH, ARTICLE_WIDTH)
+        boxes = (pid_figures.WIDE_SBC, pid_figures.WIDE_FIRMWARE, pid_figures.WIDE_PID,
+                 pid_figures.WIDE_SPEED, pid_figures.WIDE_DRIVER, pid_figures.WIDE_MOTOR,
+                 pid_figures.WIDE_ENCODER)
+        for box in boxes:
+            self.assertLessEqual(box.x + box.width, pid_figures.WIDE_WIDTH, box)
+            self.assertLessEqual(box.y + box.height, pid_figures.WIDE_TIME_Y, box)
+
+
+class TestFormula(unittest.TestCase):
+    """Figure.formula() writes a formula's subscripts below the line and escapes its text."""
+
+    def test_formula_writes_subscripts_below_the_line(self) -> None:
+        figure = pid_figures.Figure('pid-loop-wide', 100, 100)
+        figure.formula(50, 20, [('u', False), ('raw', True), (' < 255', False)])
+        self.assertEqual(figure.elements, [
+            '<text class="formula" x="50" y="20" text-anchor="middle">u'
+            '<tspan baseline-shift="sub" font-size="8.5">raw</tspan> &lt; 255</text>'])
 
 
 if __name__ == '__main__':
