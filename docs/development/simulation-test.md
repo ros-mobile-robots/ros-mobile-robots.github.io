@@ -19,13 +19,15 @@ catkin_test_results build
 
 The first command builds the workspace and runs every registered test, but it doesn't fail when a test fails. The second one sums up the result files and fails if any test failed.
 
-To run the test for one robot, use its test file, `sim_drive_diffbot.test` or `sim_drive_remo.test`:
+To run the test for one robot, use its test file, [`sim_drive_diffbot.test`](#1-the-test-file) or [`sim_drive_remo.test`](#1-the-test-file):
 
 ```console
 rostest diffbot_gazebo sim_drive_diffbot.test
 ```
 
-With `--text`, rostest prints the nodes' output in the terminal instead of log files, but it doesn't collect the test results then: it can report success although a check failed. Use `--text` to watch a run, and the command without it to check the result.
+With [`--text`](https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest/src/rostest/rostest_main.py#L86-L88), [rostest](#1-the-test-file) prints the nodes' output in the terminal instead of log files, but it doesn't collect the test results then: it can report success although a check failed. Use `--text` to watch a run, and the command without it to check the result.
+
+To see the drive instead of its numbers, CI records a video of DiffBot driving the test's commands when you ask for one ([Simulation video](ci.md#simulation-video)).
 
 ## Read the results
 

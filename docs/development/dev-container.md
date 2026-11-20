@@ -161,9 +161,11 @@ catkin build
 ```
 
 ??? info "Why ROS and the workspace are ready in every terminal"
-    The image adds `source /opt/ros/noetic/setup.bash` to `~/.bashrc`. When the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new interactive Bash terminal reads `~/.bashrc`. Scripts and other non-interactive commands don't; they need to source the two files themselves.
+    The image adds `source /opt/ros/noetic/setup.bash` to [`~/.bashrc`]({{ sim_video_src_url }}/.devcontainer/noetic/Dockerfile#L75-L78). When the container is created, [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh) builds the workspace with `catkin build` and adds `source ~/catkin_ws/devel/setup.bash`. Every new interactive Bash terminal reads `~/.bashrc`. Scripts and other non-interactive commands don't; they need to source the two files themselves.
 
 How the image, the container, VS Code, the network and the display access work in detail: [How the Dev Container Works](dev-container-internals.md).
+
+To save a video of DiffBot driving the simulation test's commands, see [Simulation video](ci.md#simulation-video).
 
 ## Updating
 
