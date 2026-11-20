@@ -6,7 +6,7 @@ A simulated robot can show effects that its kinematic model can't explain:
 - Its wheels jitter when it turns on the spot.
 - A higher motor gain, meant to follow the commands better, makes the model explode at spawn.
 
-All three come from parts of the simulation that the [kinematic model](modeling-differential-drive-robot.md) and [odometry](odometry.md) leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for [ROS 1 Noetic](https://wiki.ros.org/noetic) with [Gazebo Classic 11](../../simulators.md#what-diffbot-and-remo-use-gazebo-classic-11) and its default physics engine, [ODE](https://www.ode.org/) (Open Dynamics Engine). Two kinds of parameters are specific to that setup: the friction and contact settings (`mu1`, `mu2`, `fdir1`, `kp`, `kd`, `minDepth`, `maxVel`) are written for ODE, and the wheel's velocity PID comes from `gazebo_ros_control`. The [new Gazebo for ROS 2](../../simulators.md#the-new-gazebo-for-ros-2) has no ODE: it uses DART by default and `gz_ros2_control` instead, so these settings can have other names, other effects or none there, and have to be checked again. The ideas carry over: where a wheel pushes on the ground, how its inertia responds to a torque, and, when a sampled motor controller computes the torque, why its gain depends on the update interval.
+All three come from parts of the simulation that the [kinematic model](modeling-differential-drive-robot.md) and [odometry](odometry.md) leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for [ROS 1 Noetic](https://wiki.ros.org/noetic) with [Gazebo Classic 11](../../simulators.md#what-diffbot-and-remo-use-gazebo-classic-11) and its default physics engine, [ODE](https://www.ode.org/) (Open Dynamics Engine). Two kinds of parameters are specific to that setup: the friction and contact settings ([`mu1`](#how-much-tangential-force-can-a-contact-carry), [`mu2`](#how-much-tangential-force-can-a-contact-carry), [`fdir1`](#how-much-tangential-force-can-a-contact-carry), [`kp`](#how-stiff-is-a-contact), [`kd`](#how-stiff-is-a-contact), [`minDepth`](#how-much-penetration-is-tolerated), [`maxVel`](#how-much-penetration-is-tolerated)) are written for ODE, and the wheel's velocity PID comes from [`gazebo_ros_control`](#turning-a-wheel-speed-command-into-torque). The [new Gazebo for ROS 2](../../simulators.md#the-new-gazebo-for-ros-2) has no ODE: it uses DART by default and [`gz_ros2_control`](https://control.ros.org/jazzy/doc/gz_ros2_control/doc/index.html) instead, so these settings can have other names, other effects or none there, and have to be checked again. The ideas carry over: where a wheel pushes on the ground, how its inertia responds to a torque, and, when a sampled motor controller computes the torque, why its gain depends on the update interval.
 
 After this page, you can:
 
@@ -174,19 +174,19 @@ A positive allowance isn't always wrong: the ODE user guide suggests a small sur
 
 ### From URDF to SDF
 
-Gazebo converts the URDF to SDF, its own format. The `<gazebo reference="...">` elements of a link set its collision's surface ([Using a URDF in Gazebo](https://classic.gazebosim.org/tutorials?tut=ros_urdf)). `gz sdf -p robot.urdf` shows the result:
+Gazebo converts the URDF to SDF, its own format. The [`<gazebo reference="...">`](https://classic.gazebosim.org/tutorials?tut=ros_urdf) elements of a link set its collision's surface ([Using a URDF in Gazebo](https://classic.gazebosim.org/tutorials?tut=ros_urdf)). `gz sdf -p robot.urdf` shows the result:
 
-| URDF `<gazebo>` element | SDF element in `collision/surface` | Meaning | Default |
+| URDF [`<gazebo>`](https://classic.gazebosim.org/tutorials?tut=ros_urdf) element | SDF element in [`collision/surface`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf) | Meaning | Default |
 |---|---|---|---|
-| `mu1`, `mu2` | `friction/ode/mu`, `mu2` | friction coefficients in the two pyramid directions | 1, 1 |
-| `fdir1` | `friction/ode/fdir1` | first friction direction, in the collision frame | none (0 0 0) |
-| `kp`, `kd` | `contact/ode/kp`, `kd` | contact stiffness (N/m) and damping (N s/m) | $10^{12}$, 1 |
-| `minDepth` | `contact/ode/min_depth` | penetration allowance (m) | 0 |
-| `maxVel` | `contact/ode/max_vel` | maximum correction velocity (m/s) | 0.01 |
+| [`mu1`](https://classic.gazebosim.org/tutorials?tut=ros_urdf), [`mu2`](https://classic.gazebosim.org/tutorials?tut=ros_urdf) | [`friction/ode/mu`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L54-L60), `mu2` | friction coefficients in the two pyramid directions | 1, 1 |
+| [`fdir1`](https://classic.gazebosim.org/tutorials?tut=ros_urdf) | [`friction/ode/fdir1`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L68-L73) | first friction direction, in the collision frame | none (0 0 0) |
+| [`kp`](https://classic.gazebosim.org/tutorials?tut=ros_urdf), [`kd`](https://classic.gazebosim.org/tutorials?tut=ros_urdf) | [`contact/ode/kp`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L188-L193), `kd` | contact stiffness (N/m) and damping (N s/m) | $10^{12}$, 1 |
+| [`minDepth`](https://classic.gazebosim.org/tutorials?tut=ros_urdf) | [`contact/ode/min_depth`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L197-L199) | penetration allowance (m) | 0 |
+| [`maxVel`](https://classic.gazebosim.org/tutorials?tut=ros_urdf) | [`contact/ode/max_vel`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L194-L196) | maximum correction velocity (m/s) | 0.01 |
 
 The defaults are from the SDFormat 1.7 specification that Gazebo 11 uses ([`surface.sdf`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L52-L199)).
 
-For example, this is the collision of Remo's front left wheel in the output of `gz sdf -p`, from [remo_description 2.0.0](https://github.com/ros-mobile-robots/remo_description/tree/2.0.0) with its default arguments and Gazebo 11.15.1. The sphere is the collision shape, `contact` holds the stiffness, damping and penetration settings, and `friction` the two coefficients. `fdir1` doesn't appear, because Remo leaves it unset:
+For example, this is the collision of Remo's front left wheel in the output of `gz sdf -p`, from [remo_description 2.0.0](https://github.com/ros-mobile-robots/remo_description/tree/2.0.0) with its default arguments and Gazebo 11.15.1. The sphere is the collision shape, [`contact`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L134) holds the stiffness, damping and penetration settings, and [`friction`](https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L13) the two coefficients. `fdir1` doesn't appear, because Remo leaves it unset:
 
 ```xml
 <collision name='front_left_wheel_collision'>
@@ -215,7 +215,7 @@ For example, this is the collision of Remo's front left wheel in the output of `
 </collision>
 ```
 
-To see your own model's output, expand its xacro file to a URDF and convert it, as in [Troubleshooting](../../diffbot_gazebo.md#troubleshooting) on the Gazebo Package page.
+To see your own model's output, expand its [xacro](../../diffbot_gazebo.md#troubleshooting) file to a URDF and convert it, as in [Troubleshooting](../../diffbot_gazebo.md#troubleshooting) on the Gazebo Package page.
 
 ## Turning a wheel-speed command into torque
 
