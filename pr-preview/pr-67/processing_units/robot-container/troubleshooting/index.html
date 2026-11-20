@@ -5285,7 +5285,7 @@
 <h3 id="docker-compose-up-or-pull-stops-with-not-found-or-manifest-unknown"><code>docker compose up</code> or <code>pull</code> stops with <em>not found</em> or <em>manifest unknown</em></h3>
 <p>The registry answered, but it has no version under the name that Compose asked for.</p>
 <ul>
-<li><strong>Check:</strong> <code>docker compose config --images</code> prints the image name that Compose uses, once per service. Without <code>ROBOT_IMAGE</code> in <code>.env</code>, that's <code>ghcr.io/ros-mobile-robots/diffbot-robot:noetic</code>. The <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot">package's page</a> lists the versions that exist.</li>
+<li><strong>Check:</strong> <code>docker compose config --images</code> prints the image name that Compose uses, once per service. Without <a href="../setup/#all-settings"><code>ROBOT_IMAGE</code></a> in <a href="../setup/#when-compose-reads-env"><code>.env</code></a>, that's <code>ghcr.io/ros-mobile-robots/diffbot-robot:noetic</code>. The <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot">package's page</a> lists the versions that exist.</li>
 <li><strong>Fix:</strong> correct the name or the version in <code>ROBOT_IMAGE</code>, or remove the line for the newest version (<a href="../versions/#versions">Versions</a>).</li>
 <li><strong>Then:</strong> <code>docker compose pull</code> ends without an error, and <code>docker compose up -d</code> starts the containers.</li>
 </ul>
@@ -5293,7 +5293,7 @@
 <p>The registry answered, but it doesn't let a reader without a login download the image. That happens for a name that the registry doesn't have at all, and for a package that isn't public.</p>
 <ul>
 <li><strong>Check:</strong> <code>docker compose config --images</code> prints the image name that Compose uses. If the name is the expected one, <code>ghcr.io/ros-mobile-robots/diffbot-robot</code> with a tag, open the <a href="https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot">package's page</a> in a browser that isn't logged in to GitHub. A public package shows its versions there.</li>
-<li><strong>Fix:</strong> correct a wrong name in <code>ROBOT_IMAGE</code>. If the name is right and the page doesn't show the package, the image isn't published for everyone yet: report that in the <a href="https://github.com/ros-mobile-robots/diffbot/issues">diffbot repository's issues</a>. Until then, <a href="../versions/#your-own-build">your own build</a> runs the robot.</li>
+<li><strong>Fix:</strong> correct a wrong name in <a href="../setup/#all-settings"><code>ROBOT_IMAGE</code></a>. If the name is right and the page doesn't show the package, the image isn't published for everyone yet: report that in the <a href="https://github.com/ros-mobile-robots/diffbot/issues">diffbot repository's issues</a>. Until then, <a href="../versions/#your-own-build">your own build</a> runs the robot.</li>
 <li><strong>Then:</strong> <code>docker compose pull</code> ends without an error.</li>
 </ul>
 <h2 id="the-containers-dont-start">The containers don't start</h2>
@@ -5301,18 +5301,18 @@
 <p>The folder for ROS's log files is missing.</p>
 <ul>
 <li><strong>Check:</strong> <code>ls -ld ~/robot-data</code></li>
-<li><strong>Fix:</strong> <code>mkdir -p ~/robot-data</code>, or set <code>ROBOT_DATA</code> to the folder that you use (<a href="../setup/#8-the-folder-for-logs">step 8</a>).</li>
+<li><strong>Fix:</strong> <code>mkdir -p ~/robot-data</code>, or set <a href="../setup/#all-settings"><code>ROBOT_DATA</code></a> to the folder that you use (<a href="../setup/#8-the-folder-for-logs">step 8</a>).</li>
 <li><strong>Then:</strong> <code>docker compose up -d</code> creates the containers.</li>
 </ul>
 <h3 id="compose-stops-with-error-gathering-device-information-for-devteensy-or-devrplidar">Compose stops with <em>error gathering device information</em> for <code>/dev/teensy</code> or <code>/dev/rplidar</code></h3>
 <p>A serial device that the settings name isn't there.</p>
 <ul>
 <li><strong>Check:</strong> <code>ls -l /dev/teensy /dev/rplidar</code> and <code>lsusb</code></li>
-<li><strong>Fix:</strong> plug the device in, and install the udev rules (<a href="../setup/#7-stable-device-names">step 7</a>). On a robot without a lidar, remove <code>COMPOSE_PROFILES=lidar</code> from <code>.env</code>.</li>
+<li><strong>Fix:</strong> plug the device in, and install the udev rules (<a href="../setup/#7-stable-device-names">step 7</a>). On a robot without a lidar, remove <a href="../setup/#all-settings"><code>COMPOSE_PROFILES=lidar</code></a> from <a href="../setup/#when-compose-reads-env"><code>.env</code></a>.</li>
 <li><strong>Then:</strong> <code>ls -l</code> shows each name as a link to the kernel's device, and <code>docker compose up -d</code> creates the containers.</li>
 </ul>
 <h3 id="a-setting-in-env-has-no-effect">A setting in <code>.env</code> has no effect</h3>
-<p>A variable with the same name in the Raspberry Pi's shell wins over <code>.env</code> (<a href="../setup/#when-compose-reads-env">When Compose reads <code>.env</code></a>).</p>
+<p>A variable with the same name in the Raspberry Pi's shell wins over <a href="../setup/#9-settings"><code>.env</code></a> (<a href="../setup/#when-compose-reads-env">When Compose reads <code>.env</code></a>).</p>
 <ul>
 <li><strong>Check:</strong> <code>docker compose config --environment</code> shows the value that Compose uses.</li>
 <li><strong>Fix:</strong> remove the variable's <code>export</code>, for example from <code>~/.bashrc</code>, and log in again.</li>
@@ -5322,7 +5322,7 @@
 <p>The user in the container isn't in the group that owns the Teensy's device (<a href="../setup/#why-dialout_gid-is-a-number">Why <code>DIALOUT_GID</code> is a number</a>).</p>
 <ul>
 <li><strong>Check:</strong> <code>stat -Lc %g /dev/teensy</code> prints the group's number.</li>
-<li><strong>Fix:</strong> write that number into <code>DIALOUT_GID</code> in <code>.env</code>, then run <code>docker compose up -d</code>.</li>
+<li><strong>Fix:</strong> write that number into <code>DIALOUT_GID</code> in <a href="../setup/#when-compose-reads-env"><code>.env</code></a>, then run <code>docker compose up -d</code>.</li>
 <li><strong>Then:</strong> the bringup's output goes on with <em>Requesting topics...</em> after <em>Connecting to /dev/ttyACM0</em>.</li>
 </ul>
 <h3 id="the-bringup-stops-with-cannot-create-log-directory-and-permission-denied-for-homerosroslog">The bringup stops with <em>cannot create log directory</em> and <em>Permission denied</em> for <code>/home/ros/.ros/log</code></h3>
@@ -5333,21 +5333,21 @@
 <li><strong>Then:</strong> <code>docker compose ps -a</code> shows the bringup as <code>Up</code>.</li>
 </ul>
 <h3 id="the-bringup-or-the-lidar-stops-with-unable-to-contact-ros-master">The bringup or the lidar stops with <em>unable to contact ROS master</em></h3>
-<p>No ROS master answers at the address in <code>ROS_MASTER_URI</code>.</p>
+<p>No ROS master answers at the address in <a href="../setup/#all-settings"><code>ROS_MASTER_URI</code></a>.</p>
 <ul>
-<li><strong>Check:</strong> <code>roscore</code> runs on the PC. From the Raspberry Pi, <code>ping</code> the PC's address.</li>
+<li><strong>Check:</strong> <a href="../usage/#the-ros-master"><code>roscore</code></a> runs on the PC. From the Raspberry Pi, <code>ping</code> the PC's address.</li>
 <li><strong>Fix:</strong> start <code>roscore</code> first, then run <code>docker compose up -d</code>. Correct <code>ROS_MASTER_URI</code> if the address is wrong. A PC with <abbr title="Windows Subsystem for Linux. Runs a Linux distribution such as Ubuntu inside Windows.">WSL</abbr> 2 needs <a href="../../ros-network-setup/#work-machine-on-windows-wsl-2">mirrored networking</a>.</li>
 <li><strong>Then:</strong> <code>docker compose ps -a</code> shows the containers as <code>Up</code>, and the bringup's output shows <code>ROS_MASTER_URI</code> with the PC's address.</li>
 </ul>
 <h3 id="the-bringup-or-the-lidar-stops-with-run_id-on-parameter-server-does-not-match-declared-run_id">The bringup or the lidar stops with <em>run_id on parameter server does not match declared run_id</em></h3>
-<p>Without <code>ROS_MASTER_URI</code> and with the lidar, both containers started a ROS master.</p>
+<p>Without <a href="../setup/#all-settings"><code>ROS_MASTER_URI</code></a> and with the lidar, both containers started a ROS master.</p>
 <ul>
 <li><strong>Check:</strong> <code>docker compose ps -a</code> shows one of the two containers as <code>Exited</code>.</li>
 <li><strong>Fix:</strong> <code>docker compose --profile lidar down</code>. Then use the robot alone without the lidar, or the ROS master on the PC (<a href="../usage/#without-any-pc">Without any PC</a>).</li>
 <li><strong>Then:</strong> <code>docker compose ps -a</code> shows every listed container as <code>Up</code>.</li>
 </ul>
 <h3 id="docker-compose-exec-bringup-with-a-ros-command-stops-with-executable-file-not-found-in-path"><code>docker compose exec bringup</code> with a ROS command stops with <em>executable file not found in $PATH</em></h3>
-<p>The command has no <code>/entrypoint.sh</code> in front of the ROS command, so ROS isn't loaded (<a href="../usage/#on-the-robot-alone">On the robot alone</a>).</p>
+<p>The command has no <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/entrypoint.sh"><code>/entrypoint.sh</code></a> in front of the ROS command, so ROS isn't loaded (<a href="../usage/#on-the-robot-alone">On the robot alone</a>).</p>
 <ul>
 <li><strong>Fix:</strong> put the script in front: <code>docker compose exec bringup /entrypoint.sh rostopic list</code></li>
 <li><strong>Then:</strong> the command prints the list of topics.</li>
@@ -5355,11 +5355,11 @@
 <h3 id="the-lidar-still-runs-after-removing-compose_profileslidar">The lidar still runs after removing <code>COMPOSE_PROFILES=lidar</code></h3>
 <p>Without the profile, Compose no longer stops the lidar container.</p>
 <ul>
-<li><strong>Check:</strong> <code>docker compose ps -a</code> still lists the service <code>lidar</code>.</li>
+<li><strong>Check:</strong> <code>docker compose ps -a</code> still lists the service <a href="../setup/#how-composeyaml-uses-the-settings"><code>lidar</code></a>.</li>
 <li><strong>Fix:</strong> <code>docker compose --profile lidar down</code>, then <code>docker compose up -d</code>.</li>
 <li><strong>Then:</strong> <code>docker compose ps -a</code> lists the bringup alone.</li>
 </ul>
-<p>After every change of <code>.env</code>, run <code>docker compose up -d</code> again: Compose recreates the containers whose settings changed. To switch the lidar off, run <code>docker compose down</code> first, while <code>COMPOSE_PROFILES=lidar</code> is still set.</p>
+<p>After every change of <a href="../setup/#when-compose-reads-env"><code>.env</code></a>, run <code>docker compose up -d</code> again: Compose recreates the containers whose settings changed. To switch the lidar off, run <code>docker compose down</code> first, while <a href="../setup/#all-settings"><code>COMPOSE_PROFILES=lidar</code></a> is still set.</p>
 <h2 id="the-robot-runs-but-data-is-missing">The robot runs, but data is missing</h2>
 <h3 id="rostopic-hz-prints-no-new-messages-or-does-not-appear-to-be-published-yet"><code>rostopic hz</code> prints <em>no new messages</em> or <em>does not appear to be published yet</em></h3>
 <p>No message arrives on the topic. Either no node publishes the topic, or a node does and the messages don't reach the PC. A topic can be listed without a publisher, because a node that only waits for the topic is enough to list it.</p>
@@ -5371,18 +5371,18 @@
 <p>The command gives one of three answers, each with its own next step.</p>
 </li>
 <li>
-<p><strong>If the output is <code>ERROR: Unknown topic</code>:</strong> the ROS master that the PC asks doesn't know the topic at all. On the PC, <code>rosnode list</code> has to list <code>/diffbot/diffbot_base</code>. If the node is missing, check on the Raspberry Pi that the bringup is <code>Up</code> (<code>docker compose ps -a</code>) and that the bringup's output shows <code>ROS_MASTER_URI</code> with the address of the PC that runs <code>roscore</code> (<a href="../usage/#2-the-containers-output-shows-no-error">The containers' output shows no error</a>). On the PC, <code>echo $ROS_MASTER_URI</code> prints the address that the PC's tools ask. If the bringup is <code>Up</code> and the two addresses agree, the node <code>diffbot_base</code> itself may have stopped while the bringup went on. <code>docker compose logs bringup</code> then has a line with <code>diffbot_base</code> and <em>process has died</em> or <em>process has finished</em>. Stop the containers and start them again.</p>
+<p><strong>If the output is <code>ERROR: Unknown topic</code>:</strong> the ROS master that the PC asks doesn't know the topic at all. On the PC, <code>rosnode list</code> has to list <a href="../../../packages/diffbot_base/"><code>/diffbot/diffbot_base</code></a>. If the node is missing, check on the Raspberry Pi that the bringup is <code>Up</code> (<code>docker compose ps -a</code>) and that the bringup's output shows <a href="../setup/#all-settings"><code>ROS_MASTER_URI</code></a> with the address of the PC that runs <a href="../usage/#the-ros-master"><code>roscore</code></a> (<a href="../usage/#2-the-containers-output-shows-no-error">The containers' output shows no error</a>). On the PC, <code>echo $ROS_MASTER_URI</code> prints the address that the PC's tools ask. If the bringup is <code>Up</code> and the two addresses agree, the node <code>diffbot_base</code> itself may have stopped while the bringup went on. <code>docker compose logs bringup</code> then has a line with <code>diffbot_base</code> and <em>process has died</em> or <em>process has finished</em>. Stop the containers and start them again.</p>
 </li>
-<li><strong>If the output says <code>Publishers: None</code>:</strong> no node publishes the topic. This topic comes from the Teensy, through rosserial. Look at the bringup's output for the Teensy's connection, with <code>docker compose logs bringup</code>, and at the two entries about the Teensy: <a href="#the-bringups-output-shows-permission-denied-for-devttyacm0"><em>Permission denied</em> for <code>/dev/ttyACM0</code></a> and <a href="#the-bringups-output-shows-unable-to-sync-with-device"><em>Unable to sync with device</em></a>.</li>
+<li><strong>If the output says <code>Publishers: None</code>:</strong> no node publishes the topic. This topic comes from the Teensy, through <a href="../../teensy-mcu/#other-boards-such-as-an-arduino">rosserial</a>. Look at the bringup's output for the Teensy's connection, with <code>docker compose logs bringup</code>, and at the two entries about the Teensy: <a href="#the-bringups-output-shows-permission-denied-for-devttyacm0"><em>Permission denied</em> for <code>/dev/ttyACM0</code></a> and <a href="#the-bringups-output-shows-unable-to-sync-with-device"><em>Unable to sync with device</em></a>.</li>
 <li><strong>If the output lists a publisher:</strong> check whether the messages arrive on the robot itself. On the Raspberry Pi: <code>docker compose exec bringup /entrypoint.sh rostopic hz /diffbot/measured_joint_states</code><ul>
-<li><strong>Messages arrive on the robot, but not on the PC:</strong> the direct connection between the two machines fails. Check that <code>ROS_IP</code> on each machine is that machine's own address. Both directions must work (<a href="../../ros-network-setup/">ROS Network Setup</a>).</li>
+<li><strong>Messages arrive on the robot, but not on the PC:</strong> the direct connection between the two machines fails. Check that <a href="../setup/#3-fixed-ip-addresses"><code>ROS_IP</code></a> on each machine is that machine's own address. Both directions must work (<a href="../../ros-network-setup/">ROS Network Setup</a>).</li>
 <li><strong>No message arrives on the robot either:</strong> the publisher is registered, but it doesn't send. Look at the bringup's output for rosserial and the Teensy, with <code>docker compose logs bringup</code>.</li>
 </ul>
 </li>
 <li><strong>Then:</strong> on the PC, <code>rostopic hz /diffbot/measured_joint_states</code> prints lines with <code>average rate:</code>.</li>
 </ul>
 <h3 id="the-bringups-output-shows-unable-to-sync-with-device">The bringup's output shows <em>Unable to sync with device</em></h3>
-<p>rosserial opened the serial port, but the Teensy doesn't answer.</p>
+<p><a href="../../teensy-mcu/#other-boards-such-as-an-arduino">rosserial</a> opened the serial port, but the Teensy doesn't answer.</p>
 <ul>
 <li><strong>Check:</strong> the Teensy has the firmware, and the USB cable carries data, not only power.</li>
 <li><strong>Fix:</strong> flash the firmware (<a href="../../teensy-mcu/">Microcontroller</a>), then run <code>docker compose down</code> and <code>docker compose up -d</code>.</li>
@@ -5392,8 +5392,8 @@
 <p>The lidar container doesn't run, or the lidar driver stopped. Skip the scan check on a robot without a lidar, and also when the ROS master runs on the Raspberry Pi: no lidar container runs in either case, and none should.</p>
 <p>The rest of this entry is for a robot with a lidar and with the ROS master on the PC.</p>
 <ul>
-<li><strong>Check:</strong> <code>docker compose ps -a</code> lists the service <code>lidar</code> with the status <code>Up</code>.</li>
-<li><strong>Fix:</strong> if the list has no <code>lidar</code>, first make sure that the ROS master runs on the PC: <code>roscore</code> is started there, and <code>ROS_MASTER_URI</code> in <code>.env</code> has the PC's address (<a href="../usage/#the-ros-master">The ROS master</a>). Then set <code>COMPOSE_PROFILES=lidar</code> in <code>.env</code> and run <code>docker compose up -d</code>. If the list shows <code>lidar</code> as <code>Exited</code>, <code>docker compose logs lidar</code> prints why.</li>
+<li><strong>Check:</strong> <code>docker compose ps -a</code> lists the service <a href="../setup/#how-composeyaml-uses-the-settings"><code>lidar</code></a> with the status <code>Up</code>.</li>
+<li><strong>Fix:</strong> if the list has no <code>lidar</code>, first make sure that the ROS master runs on the PC: <a href="https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/roslaunch/scripts/roscore"><code>roscore</code></a> is started there, and <a href="../setup/#all-settings"><code>ROS_MASTER_URI</code></a> in <a href="../setup/#when-compose-reads-env"><code>.env</code></a> has the PC's address (<a href="../usage/#the-ros-master">The ROS master</a>). Then set <a href="../setup/#all-settings"><code>COMPOSE_PROFILES=lidar</code></a> in <code>.env</code> and run <code>docker compose up -d</code>. If the list shows <code>lidar</code> as <code>Exited</code>, <code>docker compose logs lidar</code> prints why.</li>
 <li><strong>Then:</strong> on the PC, <code>rostopic hz /diffbot/scan</code> prints lines with <code>average rate:</code>.</li>
 </ul>
 <h2 id="logging-in-and-dockers-permissions">Logging in and Docker's permissions</h2>

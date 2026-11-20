@@ -5104,8 +5104,8 @@
 <h2 id="3-fixed-ip-addresses">3. Fixed IP addresses</h2>
 <p>ROS on the robot and on your PC find each other by IP address. Two settings hold the addresses, on both machines:</p>
 <ul>
-<li><strong><code>ROS_MASTER_URI</code>:</strong> where the ROS master runs. That's usually your PC, where you start <code>roscore</code>. Both machines get the same value: <code>http://</code>, the PC's address and <code>11311</code>, the master's port.</li>
-<li><strong><code>ROS_IP</code>:</strong> the machine's own address. The Raspberry Pi gets its own, and the PC its own. ROS tells the other machine to reach this machine's nodes at this address.</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L13-L16"><code>ROS_MASTER_URI</code></a>:</strong> where the ROS master runs. That's usually your PC, where you start <a href="../usage/#the-ros-master"><code>roscore</code></a>. Both machines get the same value: <code>http://</code>, the PC's address and <code>11311</code>, the master's port.</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L17"><code>ROS_IP</code></a>:</strong> the machine's own address. The Raspberry Pi gets its own, and the PC its own. ROS tells the other machine to reach this machine's nodes at this address.</li>
 </ul>
 <p>With this page's example addresses, <code>192.168.1.10</code> for the PC and <code>192.168.1.20</code> for the Raspberry Pi, the Raspberry Pi gets in its <a href="#9-settings">settings</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">Raspberry Pi: .docker/robot/.env</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -5207,7 +5207,7 @@
 <li><strong>Docker Engine</strong> (<code>docker-ce</code>, or <code>docker.io</code> from Ubuntu): the background service <code>dockerd</code>, which builds images and runs containers. <strong>containerd</strong> is the part underneath that starts the containers.</li>
 <li><strong>The Docker CLI</strong> (<code>docker-ce-cli</code>, part of <code>docker.io</code> in Ubuntu): the <code>docker</code> command.</li>
 <li><strong>Buildx</strong> (<code>docker-buildx-plugin</code> or <code>docker-buildx</code>): the builder that <code>docker build</code> and Compose use.</li>
-<li><strong>Compose</strong> (<code>docker-compose-plugin</code> or <code>docker-compose-v2</code>): the <code>docker compose</code> command. It reads a <code>compose.yaml</code> file that describes the containers, their devices and their settings, so one command starts them all.</li>
+<li><strong>Compose</strong> (<code>docker-compose-plugin</code> or <code>docker-compose-v2</code>): the <code>docker compose</code> command. It reads a <a href="./#how-composeyaml-uses-the-settings"><code>compose.yaml</code></a> file that describes the containers, their devices and their settings, so one command starts them all.</li>
 </ul>
 <p>That's all the robot needs: it downloads one Docker image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself (<a href="../versions/#your-own-build">Your own build</a>). Members of the <code>docker</code> group can control Docker without <code>sudo</code>, which amounts to root access on the Raspberry Pi (<a href="https://docs.docker.com/engine/security/#docker-daemon-attack-surface">Docker's security notes</a>).</p>
 </div>
@@ -5217,7 +5217,7 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~</span>
 <span class="go">git clone https://github.com/ros-mobile-robots/diffbot.git</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Git is already installed on Ubuntu Server. Cloning needs no GitHub account and no Git settings: your name, email and editor only matter when you commit changes (<a href="../../../getting-started/git-and-github/">Git and GitHub</a>). The robot's Docker files are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot"><code>.docker/robot</code></a>. The Raspberry Pi needs the repository for them: <code>compose.yaml</code>, the settings template and the udev rules. The robot's packages come compiled in the image, so the clone's package code is only used if you build the image yourself. The dot at the start of the folder name hides it from a plain <code>ls</code>, like <code>.github</code>. In this repository, it marks folders for tools, apart from the ROS packages. It's not Docker's own settings folder <code>~/.docker</code>.</p>
+<p>Git is already installed on Ubuntu Server. Cloning needs no GitHub account and no Git settings: your name, email and editor only matter when you commit changes (<a href="../../../getting-started/git-and-github/">Git and GitHub</a>). The robot's Docker files are in <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot"><code>.docker/robot</code></a>. The Raspberry Pi needs the repository for them: <a href="./#how-composeyaml-uses-the-settings"><code>compose.yaml</code></a>, the settings template and the udev rules. The robot's packages come compiled in the image, so the clone's package code is only used if you build the image yourself. The dot at the start of the folder name hides it from a plain <code>ls</code>, like <code>.github</code>. In this repository, it marks folders for tools, apart from the ROS packages. It's not Docker's own settings folder <code>~/.docker</code>.</p>
 <p>After the next steps, the robot's files are in these places on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -5233,7 +5233,7 @@
 │       └── .env          your settings
 └── robot-data/           ROS logs (step 8)
 </code></pre></div></td></tr></tbody></table></div>
-<p><code>.env</code> is a copy of <code>env.example</code> with your <a href="#9-settings">settings</a>. Inside the containers, the user is <code>ros</code>, with a home folder of its own. The robot's ROS packages are built into the image, so every container started from it has them, in the workspace <code>catkin_ws</code>:</p>
+<p><a href="./#when-compose-reads-env"><code>.env</code></a> is a copy of <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example"><code>env.example</code></a> with your <a href="#9-settings">settings</a>. Inside the containers, the user is <code>ros</code>, with a home folder of its own. The robot's ROS packages are built into the image, so every container started from it has them, in the workspace <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/Dockerfile#L68"><code>catkin_ws</code></a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
@@ -5248,7 +5248,7 @@
 └── .ros/                 ~/robot-data from the Raspberry Pi (step 8)
     └── log/              ROS's log files
 </code></pre></div></td></tr></tbody></table></div>
-<p><a href="../image/#how-the-image-is-built">Image and Tests</a> explains how the workspace gets into the image. <code>.ros</code> isn't part of the image: Compose mounts the Raspberry Pi's folder <code>~/robot-data</code> there, so the logs stay on the Raspberry Pi when the containers are removed.</p>
+<p><a href="../image/#how-the-image-is-built">Image and Tests</a> explains how the workspace gets into the image. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L41-L46"><code>.ros</code></a> isn't part of the image: Compose mounts the Raspberry Pi's folder <code>~/robot-data</code> there, so the logs stay on the Raspberry Pi when the containers are removed.</p>
 <h2 id="7-stable-device-names">7. Stable device names</h2>
 <p>The Linux kernel numbers serial devices in the order they appear, so the Teensy isn't always <code>/dev/ttyACM0</code>. <a href="https://manpages.ubuntu.com/manpages/noble/en/man7/udev.7.html">udev</a>, the service that creates the device files, can add fixed names by rules. The repository's <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/99-diffbot-robot.rules">rules</a> name the Teensy <code>/dev/teensy</code> and the lidar <code>/dev/rplidar</code>, recognized by their USB vendor and product IDs. Install the rules and check the names, on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
@@ -5274,7 +5274,7 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p>The containers write ROS's log files into this folder. Inside the container, they run as the user <code>ros</code> with the user ID (UID) 1000, so the folder must be writable for UID 1000. The first user on Ubuntu, the one from Imager, usually has that ID, which <code>id -u</code> shows. If it shows another number, give the folder to UID 1000: <code>sudo chown 1000:1000 ~/robot-data</code>.</p>
 <h2 id="9-settings">9. Settings</h2>
-<p>The settings are in the file <code>.env</code> in the folder <code>~/diffbot/.docker/robot</code>, next to <code>compose.yaml</code>. Create it from the template <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example"><code>env.example</code></a>, which explains each setting, and edit it, on the Raspberry Pi:</p>
+<p>The settings are in the file <a href="./#when-compose-reads-env"><code>.env</code></a> in the folder <code>~/diffbot/.docker/robot</code>, next to <a href="./#how-composeyaml-uses-the-settings"><code>compose.yaml</code></a>. Create it from the template <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example"><code>env.example</code></a>, which explains each setting, and edit it, on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">cd ~/diffbot/.docker/robot</span>
@@ -5293,7 +5293,7 @@
 <ol>
 <li>The robot this Raspberry Pi is in: <code>remo</code> or <code>diffbot</code>. It selects the robot's <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> model, the description of its links and joints, and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.</li>
 <li>Starts the lidar driver too. Leave this line out on a robot without a lidar, and when the ROS master runs on the Raspberry Pi instead of your PC (<a href="../usage/#without-any-pc">Without any PC</a>). To switch the lidar off later, run <code>docker compose down</code> while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.</li>
-<li>The PC that runs <code>roscore</code>: <code>http://</code> and the PC's IP address, and <code>11311</code>, the ROS master's port (<a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI"><code>ROS_MASTER_URI</code></a>).</li>
+<li>The PC that runs <a href="../usage/#the-ros-master"><code>roscore</code></a>: <code>http://</code> and the PC's IP address, and <code>11311</code>, the ROS master's port (<a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI"><code>ROS_MASTER_URI</code></a>).</li>
 <li>The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address (<a href="https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME"><code>ROS_IP</code></a>).</li>
 </ol>
 <p>On your PC, set <code>ROS_MASTER_URI</code> to the same value, and <code>ROS_IP</code> to the PC's own address, as in <a href="#3-fixed-ip-addresses">step 3</a>. Without <code>ROS_MASTER_URI</code>, the bringup starts its own ROS master on the robot, which is enough to check the robot alone. Leave the lidar line out then (<a href="../usage/#without-any-pc">Without any PC</a>).</p>
@@ -5305,14 +5305,14 @@
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>bringup
 lidar
 </code></pre></div></td></tr></tbody></table></div>
-<p>Without the lidar line, it prints <code>bringup</code> alone. An error instead of the names points to the line of <code>.env</code> or <code>compose.yaml</code> that Compose can't read.</p>
+<p>Without the lidar line, it prints <a href="./#how-composeyaml-uses-the-settings"><code>bringup</code></a> alone. An error instead of the names points to the line of <code>.env</code> or <code>compose.yaml</code> that Compose can't read.</p>
 <p>The Raspberry Pi is set up now. Continue with <a href="../usage/#start">Start</a>.</p>
 <p>The rest of this page is reference: when Compose reads <code>.env</code>, every setting, and how <code>compose.yaml</code> uses them.</p>
 <h3 id="when-compose-reads-env">When Compose reads <code>.env</code></h3>
-<p>Neither the Raspberry Pi's shell nor the containers read <code>.env</code>. Docker Compose does:</p>
+<p>Neither the Raspberry Pi's shell nor the containers read <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L1-L7"><code>.env</code></a>. Docker Compose does:</p>
 <ol>
-<li><strong>Each time you run <code>docker compose</code>:</strong> in <code>~/diffbot/.docker/robot</code>, with <code>up</code>, <code>ps</code>, <code>logs</code>, <code>down</code> or any other command, Compose reads <code>.env</code> from that folder and fills its values into <code>compose.yaml</code>, wherever the file says <code>${NAME}</code> (<a href="https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/">variable interpolation</a>). <code>docker compose config</code> shows <code>compose.yaml</code> with the values filled in.</li>
-<li><strong>When <code>docker compose up</code> creates the containers:</strong> <code>ROS_MASTER_URI</code>, <code>ROS_IP</code> and <code>ROS_HOSTNAME</code> become environment variables inside them. roslaunch and the nodes read them when they start, to find the ROS master and to tell the other nodes where they can be reached. The other settings stay with Compose: they choose the image, the devices, the group, the logs folder, the robot model and, with <code>COMPOSE_PROFILES</code>, which containers run.</li>
+<li><strong>Each time you run <code>docker compose</code>:</strong> in <code>~/diffbot/.docker/robot</code>, with <code>up</code>, <code>ps</code>, <code>logs</code>, <code>down</code> or any other command, Compose reads <code>.env</code> from that folder and fills its values into <a href="./#how-composeyaml-uses-the-settings"><code>compose.yaml</code></a>, wherever the file says <code>${NAME}</code> (<a href="https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/">variable interpolation</a>). <code>docker compose config</code> shows <code>compose.yaml</code> with the values filled in.</li>
+<li><strong>When <code>docker compose up</code> creates the containers:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L36"><code>ROS_MASTER_URI</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L37"><code>ROS_IP</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L38"><code>ROS_HOSTNAME</code></a> become environment variables inside them. <a href="https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/roslaunch">roslaunch</a> and the nodes read them when they start, to find the ROS master and to tell the other nodes where they can be reached. The other settings stay with Compose: they choose the image, the devices, the group, the logs folder, the robot model and, with <a href="./#all-settings"><code>COMPOSE_PROFILES</code></a>, which containers run.</li>
 <li><strong>A running container keeps the values it was created with:</strong> after changing <code>.env</code>, run <code>docker compose up -d</code> again. Compose then recreates the containers whose settings changed.</li>
 </ol>
 <p>A variable with the same name in the Raspberry Pi's shell wins over <code>.env</code> (<a href="https://docs.docker.com/compose/how-tos/environment-variables/envvars-precedence/">precedence</a>), for example an <code>export ROS_MASTER_URI=…</code> in <code>~/.bashrc</code>, left from a native ROS installation. <code>docker compose config --environment</code> lists the values that Compose uses.</p>
@@ -5327,14 +5327,14 @@ lidar
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>ROBOT_MODEL</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L9-L11"><code>ROBOT_MODEL</code></a></td>
 <td style="text-align: left;"><code>remo</code></td>
 <td style="text-align: left;"><code>remo</code> or <code>diffbot</code>, the robot the container runs on</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>COMPOSE_PROFILES</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L19-L25"><code>COMPOSE_PROFILES</code></a></td>
 <td style="text-align: left;">not set</td>
-<td style="text-align: left;"><code>lidar</code> starts the lidar container too. Only together with <code>ROS_MASTER_URI</code>, the ROS master on the PC</td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L66"><code>lidar</code></a> starts the lidar container too. Only together with <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L13-L16"><code>ROS_MASTER_URI</code></a>, the ROS master on the PC</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>ROS_MASTER_URI</code></td>
@@ -5342,39 +5342,39 @@ lidar
 <td style="text-align: left;">The ROS master on the PC. Without it, the bringup starts a master on the robot</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>ROS_IP</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L17"><code>ROS_IP</code></a></td>
 <td style="text-align: left;">not set</td>
-<td style="text-align: left;">The robot's own IP address. <code>ROS_HOSTNAME</code> with a name works too, if the PC can look up that name</td>
+<td style="text-align: left;">The robot's own IP address. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L38"><code>ROS_HOSTNAME</code></a> with a name works too, if the PC can look up that name</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>TEENSY_DEVICE</code>, <code>LIDAR_DEVICE</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L27-L28"><code>TEENSY_DEVICE</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L29"><code>LIDAR_DEVICE</code></a></td>
 <td style="text-align: left;"><code>/dev/teensy</code>, <code>/dev/rplidar</code></td>
 <td style="text-align: left;">The serial devices on the Raspberry Pi, from <a href="#7-stable-device-names">step 7</a></td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>DIALOUT_GID</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L31-L33"><code>DIALOUT_GID</code></a></td>
 <td style="text-align: left;"><code>20</code></td>
 <td style="text-align: left;">The number of the group that owns the serial devices on the Raspberry Pi</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>ROBOT_DATA</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L35-L37"><code>ROBOT_DATA</code></a></td>
 <td style="text-align: left;"><code>~/robot-data</code></td>
 <td style="text-align: left;">The folder for logs, from <a href="#8-the-folder-for-logs">step 8</a></td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>ROBOT_IMAGE</code></td>
+<td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/env.example#L39-L45"><code>ROBOT_IMAGE</code></a></td>
 <td style="text-align: left;"><code>ghcr.io/ros-mobile-robots/diffbot-robot:noetic</code></td>
 <td style="text-align: left;">The name of the Docker image to run. The default is the newest published version. <a href="../versions/#versions">Versions</a> explains the name's parts and how to set one fixed version, and <a href="../versions/#your-own-build">Your own build</a> how to run an image that you built</td>
 </tr>
 </tbody>
 </table>
 <h3 id="why-dialout_gid-is-a-number">Why <code>DIALOUT_GID</code> is a number</h3>
-<p>Inside the container, the user <code>ros</code> may open the Teensy's device only as a member of the group that owns it, <code>dialout</code> on Ubuntu. Docker can add a group to the container's user by name or by number. It looks a name up in the container's own list of groups. There, the same name could have another number than on the Raspberry Pi. So <code>compose.yaml</code> adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:</p>
+<p>Inside the container, the user <code>ros</code> may open the Teensy's device only as a member of the group that owns it, <code>dialout</code> on Ubuntu. Docker can add a group to the container's user by name or by number. It looks a name up in the container's own list of groups. There, the same name could have another number than on the Raspberry Pi. So <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L33-L34"><code>compose.yaml</code></a> adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">stat -Lc %g /dev/teensy</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p><a href="https://manpages.ubuntu.com/manpages/noble/man1/stat.1.html"><code>stat</code></a> shows a file's details, and <code>%g</code> its group's number. <code>-L</code> follows the link <code>/dev/teensy</code> to the real device. Without it, <code>stat</code> shows the group of the link itself. Write the number into <code>.env</code>: Compose doesn't run commands in it.</p>
+<p><a href="https://manpages.ubuntu.com/manpages/noble/man1/stat.1.html"><code>stat</code></a> shows a file's details, and <code>%g</code> its group's number. <code>-L</code> follows the link <code>/dev/teensy</code> to the real device. Without it, <code>stat</code> shows the group of the link itself. Write the number into <a href="./#when-compose-reads-env"><code>.env</code></a>: Compose doesn't run commands in it.</p>
 <h3 id="how-composeyaml-uses-the-settings">How <code>compose.yaml</code> uses the settings</h3>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml"><code>compose.yaml</code></a> describes two services, <code>bringup</code> and <code>lidar</code>. A service is a container that Compose starts, with its image, devices and settings. What both containers share is written once, in the block <code>x-robot</code>, and each service takes it over with <code>&lt;&lt;: *robot</code>. The two boxes below go through the file line by line.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml"><code>compose.yaml</code></a> describes two services, <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L56-L60"><code>bringup</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L64-L70"><code>lidar</code></a>. A service is a container that Compose starts, with its image, devices and settings. What both containers share is written once, in the block <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L24-L51"><code>x-robot</code></a>, and each service takes it over with <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L57"><code>&lt;&lt;: *robot</code></a>. The two boxes below go through the file line by line.</p>
 <details class="info">
 <summary>What both services share: the block <code>x-robot</code></summary>
 <p>These lines of <code>compose.yaml</code> hold the settings that the bringup and the lidar container have in common (lines 23–51):</p>
@@ -5437,12 +5437,12 @@ lidar
 <span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>image</code></strong> (line 28): the image from <code>ROBOT_IMAGE</code>, or the published one. Compose writes <code>${NAME:-default}</code> for a setting with a default.</li>
-<li><strong><code>network_mode: host</code></strong> (line 30): the containers use the Raspberry Pi's network directly, so their ROS nodes are reachable at its IP address, like native ones. ROS 1 needs this: besides the master's port 11311, every node opens its own random port, and the other nodes connect to it directly (<a href="../../ros-network-setup/">ROS Network Setup</a>).</li>
-<li><strong><code>group_add</code></strong> (lines 33–34): the group with the number from <code>DIALOUT_GID</code>.</li>
-<li><strong><code>environment</code></strong> (lines 35–38): the environment variables inside the containers. <code>ROS_MASTER_URI</code>, <code>ROS_IP</code> and <code>ROS_HOSTNAME</code> are listed without a value: Compose takes their values from <code>.env</code>, or from the shell, when it creates the containers. A variable that's set in neither isn't set in the containers either (<a href="https://docs.docker.com/reference/compose-file/services/#environment"><code>environment</code></a>).</li>
-<li><strong><code>volumes</code></strong> (lines 41–46): mounts the logs folder as the containers' <code>~/.ros</code>, where ROS writes its logs. Compose doesn't create a missing folder: Docker would create it for root, and the user <code>ros</code> couldn't write into it.</li>
-<li><strong><code>logging</code></strong> (lines 50–51): Docker's <a href="https://docs.docker.com/engine/logging/drivers/local/">local log format</a>. By default, it keeps at most five files of 20 MB per container and deletes the oldest, so the containers' output can't fill the SD card. Docker's default format, json-file, keeps everything unless rotation is configured.</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L28"><code>image</code></a></strong> (line 28): the image from <a href="./#all-settings"><code>ROBOT_IMAGE</code></a>, or the published one. Compose writes <code>${NAME:-default}</code> for a setting with a default.</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L30"><code>network_mode: host</code></a></strong> (line 30): the containers use the Raspberry Pi's network directly, so their ROS nodes are reachable at its IP address, like native ones. ROS 1 needs this: besides the master's port 11311, every node opens its own random port, and the other nodes connect to it directly (<a href="../../ros-network-setup/">ROS Network Setup</a>).</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L33-L34"><code>group_add</code></a></strong> (lines 33–34): the group with the number from <a href="#why-dialout_gid-is-a-number"><code>DIALOUT_GID</code></a>.</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L35-L38"><code>environment</code></a></strong> (lines 35–38): the environment variables inside the containers. <a href="./#all-settings"><code>ROS_MASTER_URI</code></a>, <a href="./#all-settings"><code>ROS_IP</code></a> and <a href="./#all-settings"><code>ROS_HOSTNAME</code></a> are listed without a value: Compose takes their values from <a href="./#when-compose-reads-env"><code>.env</code></a>, or from the shell, when it creates the containers. A variable that's set in neither isn't set in the containers either (<a href="https://docs.docker.com/reference/compose-file/services/#environment"><code>environment</code></a>).</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L41-L46"><code>volumes</code></a></strong> (lines 41–46): mounts the logs folder as the containers' <code>~/.ros</code>, where ROS writes its logs. Compose doesn't create a missing folder: Docker would create it for root, and the user <code>ros</code> couldn't write into it.</li>
+<li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L50-L51"><code>logging</code></a></strong> (lines 50–51): Docker's <a href="https://docs.docker.com/engine/logging/drivers/local/">local log format</a>. By default, it keeps at most five files of 20 MB per container and deletes the oldest, so the containers' output can't fill the SD card. Docker's default format, json-file, keeps everything unless rotation is configured.</li>
 </ul>
 </details>
 <details class="info">
@@ -5485,10 +5485,10 @@ lidar
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roslaunch diffbot_bringup lidar.launch</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><strong><code>bringup</code></strong> (lines 56–60): <code>devices</code> passes the Teensy into the container as <code>/dev/ttyACM0</code>, where the bringup's launch file expects it. <code>command</code> starts <code>bringup.launch</code> with the robot model from <code>ROBOT_MODEL</code>.</li>
-<li><strong><code>lidar</code></strong> (lines 64–70): runs only with the profile <code>lidar</code>, which <code>COMPOSE_PROFILES</code> selects. Compose starts it after the bringup (<code>depends_on</code>). It gets the lidar as <code>/dev/ttyUSB0</code> and starts <code>lidar.launch</code>, the lidar driver alone.</li>
+<li><strong><code>bringup</code></strong> (lines 56–60): <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L58-L59"><code>devices</code></a> passes the Teensy into the container as <code>/dev/ttyACM0</code>, where the bringup's launch file expects it. <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L60"><code>command</code></a> starts <a href="../../../packages/imu/robot_localization/#on-the-real-robot"><code>bringup.launch</code></a> with the robot model from <a href="./#all-settings"><code>ROBOT_MODEL</code></a>.</li>
+<li><strong><code>lidar</code></strong> (lines 64–70): runs only with the profile <code>lidar</code>, which <a href="./#all-settings"><code>COMPOSE_PROFILES</code></a> selects. Compose starts it after the bringup (<a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/.docker/robot/compose.yaml#L67"><code>depends_on</code></a>). It gets the lidar as <code>/dev/ttyUSB0</code> and starts <a href="https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9/diffbot_bringup/launch/lidar.launch"><code>lidar.launch</code></a>, the lidar driver alone.</li>
 </ul>
-<p>Neither service has a <code>build</code> section. So <code>compose.yaml</code> only runs an image, and a failed download is an error. The build of your own image is in a second file (<a href="../versions/#your-own-build">Your own build</a>).</p>
+<p>Neither service has a <a href="../versions/#on-the-raspberry-pi"><code>build</code></a> section. So <code>compose.yaml</code> only runs an image, and a failed download is an error. The build of your own image is in a second file (<a href="../versions/#your-own-build">Your own build</a>).</p>
 </details>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
