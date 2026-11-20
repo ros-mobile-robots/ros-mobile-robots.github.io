@@ -34,6 +34,11 @@
           [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
         </style>
         {% endif %}
+        {#- Interactive figures: their styles and scripts, served from the theme, only on pages that have one -#}
+        {% if page and page.content and 'data-ix="motion-lab"' in page.content %}
+        <link rel="stylesheet" href="{{ 'js/interactive/interactive.css' | url }}">
+        <script type="module" src="{{ 'js/interactive/motion-lab.js' | url }}"></script>
+        {% endif %}
 {% endblock libs %}
 
 

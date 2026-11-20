@@ -30,6 +30,27 @@ jobs:
       - name: build documentation
         run: mkdocs build --strict
 
+  browser:
+    # The interactive figures in the built pages, in headless Chromium: they start without errors,
+    # show the numbers that their generators computed, and keep their static version when their
+    # scripts can't run. The tests answer every request to another host themselves, so no ad or
+    # Analytics request leaves the runner (tests/browser/local_site.py)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt -r tests/browser/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - name: build documentation
+        run: mkdocs build --strict
+      - name: test the interactive figures
+        run: python -m unittest discover -s tests/browser -v
+
   deploy:
     # Only pushes to main publish the site, not pull requests or manual runs
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
