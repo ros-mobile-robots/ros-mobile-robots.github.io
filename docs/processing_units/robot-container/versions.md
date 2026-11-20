@@ -23,7 +23,7 @@ ghcr.io/ros-mobile-robots/diffbot-robot:noetic
 | `noetic` | The newest version that CI published from the branch `noetic-devel`. This tag moves to each new version |
 | `noetic-<commit>` | The version that was built from that commit, with the commit's full 40 characters. This tag never moves |
 
-The registry only stores the versions. A version runs on the robot after a pull: Docker downloads the version from the registry and keeps it on the Raspberry Pi. The setting `ROBOT_IMAGE` in `.env` holds the name that Compose pulls and starts ([All settings](setup.md#all-settings)). Without this setting, the name is the one above, with the tag `noetic`.
+The registry only stores the versions. A version runs on the robot after a pull: Docker downloads the version from the registry and keeps it on the Raspberry Pi. The setting [`ROBOT_IMAGE`]({{ robot_container_src_url }}/.docker/robot/env.example#L39-L45) in [`.env`](setup.md#when-compose-reads-env) holds the name that Compose pulls and starts ([All settings](setup.md#all-settings)). Without this setting, the name is the one above, with the tag `noetic`.
 
 That gives three choices, from the most frequent to the rarest:
 
@@ -35,13 +35,13 @@ That gives three choices, from the most frequent to the rarest:
 
 ### Update to the newest version
 
-Without `ROBOT_IMAGE`, the robot runs the tag `noetic`. To update, on the Raspberry Pi:
+Without [`ROBOT_IMAGE`](setup.md#all-settings), the robot runs the tag `noetic`. To update, on the Raspberry Pi:
 
 ```console
 git pull && docker compose pull --policy always && docker compose up -d
 ```
 
-1. `git pull` updates your clone of the repository, with `compose.yaml` and the udev rules.
+1. `git pull` updates your clone of the repository, with [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings) and the udev rules.
 2. `docker compose pull --policy always` asks the registry for `noetic` again, and downloads the image if there's a newer one.
 3. `docker compose up -d` recreates the containers with the downloaded image.
 
@@ -51,7 +51,7 @@ git pull && docker compose pull --policy always && docker compose up -d
 
 Each published version also has a tag with the full commit it was built from: `noetic-<commit>`. The [package's page](https://github.com/orgs/ros-mobile-robots/packages/container/package/diffbot-robot) lists these tags. The page also lists two tags per version that end in `-amd64` and `-arm64`. They are the version's two builds, one per processor architecture. Use the tag without such an ending: Docker then picks the build for the Raspberry Pi by itself.
 
-To stay on one version, or to go back to an earlier one, copy that version's whole tag from the package's page and set the name in `.env`:
+To stay on one version, or to go back to an earlier one, copy that version's whole tag from the package's page and set the name in [`.env`](setup.md#when-compose-reads-env):
 
 ```bash title=".docker/robot/.env"
 ROBOT_IMAGE=ghcr.io/ros-mobile-robots/diffbot-robot:noetic-<commit>
@@ -92,16 +92,16 @@ A version covers the Docker image, and nothing else. Three more parts decide wha
 
 | Part | Where the part comes from | How to see the part's state |
 |:--|:--|:--|
-| **The Docker image:** ROS Noetic, the robot's compiled packages and the entrypoint script | The registry, in the version that `ROBOT_IMAGE` names | [Which version runs](#which-version-runs) prints the image's commit |
-| **Your clone, `~/diffbot`:** `compose.yaml` and the udev rules | `git clone`, updated by `git pull` | [A clone's commit and its local changes](#a-clones-commit-and-its-local-changes) |
-| **`.env`:** your settings | You. Nothing else changes `.env` | `cat ~/diffbot/.docker/robot/.env` |
+| **The Docker image:** ROS Noetic, the robot's compiled packages and the entrypoint script | The registry, in the version that [`ROBOT_IMAGE`](setup.md#all-settings) names | [Which version runs](#which-version-runs) prints the image's commit |
+| **Your clone, `~/diffbot`:** [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings) and the udev rules | `git clone`, updated by `git pull` | [A clone's commit and its local changes](#a-clones-commit-and-its-local-changes) |
+| **[`.env`](setup.md#when-compose-reads-env):** your settings | You. Nothing else changes `.env` | `cat ~/diffbot/.docker/robot/.env` |
 | **The Teensy's firmware:** the program that drives the motors and reads the encoders | Your last flash, from the PC | The Teensy doesn't report the firmware's commit. Note the commit when you flash |
 
 udev uses the copy of the rules that [step 7](setup.md#7-stable-device-names) of the setup installed, not the file in your clone. After a `git pull` that changed the rules, install them again.
 
 ### A clone's commit and its local changes
 
-Two of the parts above come from a Git clone: `compose.yaml` from the clone on the Raspberry Pi, and the firmware from the clone on your PC. A commit describes a clone only if no file in the clone differs from that commit. So note two things. Run these two commands in the clone:
+Two of the parts above come from a Git clone: [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings) from the clone on the Raspberry Pi, and the firmware from the clone on your PC. A commit describes a clone only if no file in the clone differs from that commit. So note two things. Run these two commands in the clone:
 
 ```console
 git rev-parse HEAD
@@ -109,7 +109,7 @@ git status --short
 ```
 
 - **`git rev-parse HEAD`:** prints the commit that the clone is at. The command prints the same commit after you changed a file without committing the change.
-- **`git status --short`:** lists the files that differ from that commit. No output means that no file that Git tracks differs from the commit. Git ignores `.env`, your settings, on purpose. The test report records them on their own.
+- **`git status --short`:** lists the files that differ from that commit. No output means that no file that Git tracks differs from the commit. Git ignores [`.env`](setup.md#when-compose-reads-env), your settings, on purpose. The test report records them on their own.
 
 If `git status --short` lists files, keep the changes with your notes. This command writes them to a file:
 
@@ -125,7 +125,7 @@ A test report, for example for the robot test in [diffbot#109](https://github.co
 
 1. **The Docker image's commit:** this commit says which code the containers run. [Which version runs](#which-version-runs) has the command that prints it.
 
-2. **The clone's commit and local changes:** they say which `compose.yaml` was used. The same holds for the udev rules, if the installed rules are the clone's ([What a version covers](#what-a-version-covers)). These commands print the commit and list the changed files of the clone in `~/diffbot`:
+2. **The clone's commit and local changes:** they say which [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings) was used. The same holds for the udev rules, if the installed rules are the clone's ([What a version covers](#what-a-version-covers)). These commands print the commit and list the changed files of the clone in `~/diffbot`:
 
     ```console
     git -C ~/diffbot rev-parse HEAD
@@ -134,7 +134,7 @@ A test report, for example for the robot test in [diffbot#109](https://github.co
 
     If the second command lists files, save the changes with the report, as [A clone's commit and its local changes](#a-clones-commit-and-its-local-changes) shows.
 
-3. **The settings:** what Compose made of them. `docker compose config` prints `compose.yaml` with every setting filled in, from `.env`, from variables in the shell and from the defaults. Run `docker compose config` right after the start, in the same shell. The output then shows what the containers were started with. This command saves the output for the report:
+3. **The settings:** what Compose made of them. `docker compose config` prints `compose.yaml` with every setting filled in, from [`.env`](setup.md#when-compose-reads-env), from variables in the shell and from the defaults. Run `docker compose config` right after the start, in the same shell. The output then shows what the containers were started with. This command saves the output for the report:
 
     ```console
     docker compose config > ~/robot-settings.yaml
@@ -150,22 +150,22 @@ The image has to be built for arm64, the Raspberry Pi's processor architecture. 
 
 | Where | How the image is built for arm64 | What is known |
 |:--|:--|:--|
-| [On the Raspberry Pi](#on-the-raspberry-pi) | Natively. The Raspberry Pi is an arm64 computer | Remo's Raspberry Pi 4 B built the image in 14 min 20 s, at the diffbot repository's commit `3541965` ([the bench record](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)). The build command on this page, with the file `compose.build.yaml`, hasn't run on a Raspberry Pi yet |
+| [On the Raspberry Pi](#on-the-raspberry-pi) | Natively. The Raspberry Pi is an arm64 computer | Remo's Raspberry Pi 4 B built the image in 14 min 20 s, at the diffbot repository's commit `3541965` ([the bench record](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)). The build command on this page, with the file [`compose.build.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml), hasn't run on a Raspberry Pi yet |
 | [On your PC](#on-your-pc-for-the-raspberry-pi) | Under emulation, on a PC with an amd64 processor. The emulator QEMU runs the arm64 programs of the build on that processor | Not tested yet. The build time isn't measured |
 
 For comparison: CI builds the published image natively, on an arm64 computer of GitHub, in about two minutes ([How it's tested](image.md#how-its-tested)).
 
 ### On the Raspberry Pi
 
-`compose.yaml`, the file that runs the robot, never builds an image. A second file next to it, [`compose.build.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml), holds the build. These lines of the file define the build's one service ([lines 11–17]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L11-L17)):
+[`compose.yaml`](setup.md#how-composeyaml-uses-the-settings), the file that runs the robot, never builds an image. A second file next to it, [`compose.build.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml), holds the build. These lines of the file define the build's one service ([lines 11–17]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L11-L17)):
 
 ```yaml title="compose.build.yaml" linenums="11"
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.build.yaml:11:17"
 ```
 
-- **`robot-image`** (line 12): the service's name. The build has a service of its own, apart from `bringup` and `lidar` in `compose.yaml`.
-- **`image`** (line 13): the build's name, `diffbot-robot:local`. The name is fixed in this file, and `ROBOT_IMAGE` doesn't change it. So your build never gets the name of the published image, and a later start can't take your build for a published version.
-- **`build`** (lines 14–17): tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in `.docker/robot`. Its `context` is the whole repository, the folder whose files the Dockerfile can copy into the image.
+- **[`robot-image`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L12)** (line 12): the service's name. The build has a service of its own, apart from [`bringup`](setup.md#how-composeyaml-uses-the-settings) and [`lidar`](setup.md#how-composeyaml-uses-the-settings) in `compose.yaml`.
+- **[`image`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L13)** (line 13): the build's name, `diffbot-robot:local`. The name is fixed in this file, and [`ROBOT_IMAGE`](setup.md#all-settings) doesn't change it. So your build never gets the name of the published image, and a later start can't take your build for a published version.
+- **[`build`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L14-L17)** (lines 14–17): tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot). Its [`context`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L16) is the whole repository, the folder whose files the Dockerfile can copy into the image.
 
 Three steps build the image and run it:
 
@@ -177,7 +177,7 @@ Three steps build the image and run it:
 
     The first build downloads the official ROS Docker image and compiles the robot's packages. Later builds reuse the steps whose input didn't change, so they're usually much faster.
 
-2. **Choose your build in `.env`:**
+2. **Choose your build in [`.env`](setup.md#when-compose-reads-env):**
 
     ```bash title=".docker/robot/.env"
     ROBOT_IMAGE=diffbot-robot:local
@@ -198,9 +198,9 @@ After another change of the code, repeat steps 1 and 3. To go back to the publis
 !!! warning "Not tested yet"
     These steps follow Docker's documentation for a build under emulation. They haven't been run with the robot's Docker image yet, and their build time isn't measured. CI doesn't check them either: it builds and tests the arm64 image natively, on GitHub's arm64 runner. Setting up the builder may need a privileged container, or an emulator registered on the PC. So use a computer where that is allowed.
 
-A PC with an amd64 processor can build the arm64 Docker image too, as an emulated build. That's one of the three ways to a multi-platform build that Docker's guide names ([the guide's section on the strategies](https://docs.docker.com/build/building/multi-platform/#strategies)). An emulated build isn't cross compilation, where a compiler on the PC would produce arm64 programs. Here the compiler is an arm64 program itself, and the emulator QEMU runs the compiler on the PC's processor. So the Dockerfile needs no change, but the build steps can run much slower than on an arm64 computer. A computer with an arm64 processor needs no emulation and builds the image natively.
+A PC with an amd64 processor can build the arm64 Docker image too, as an emulated build. That's one of the three ways to a multi-platform build that Docker's guide names ([the guide's section on the strategies](https://docs.docker.com/build/building/multi-platform/#strategies)). An emulated build isn't cross compilation, where a compiler on the PC would produce arm64 programs. Here the compiler is an arm64 program itself, and the emulator QEMU runs the compiler on the PC's processor. So the [Dockerfile](image.md#how-the-image-is-built) needs no change, but the build steps can run much slower than on an arm64 computer. A computer with an arm64 processor needs no emulation and builds the image natively.
 
-This page offers the emulated build because that build uses the Dockerfile as the file is ([the guide's section on QEMU](https://docs.docker.com/build/building/multi-platform/#qemu)). The Dockerfile installs the packages with apt and rosdep and compiles the workspace with catkin, all inside the image that is being built. So all of these programs are arm64 programs. Cross compilation would need another Dockerfile: one with a build stage that runs on the PC's own architecture, and with a compiler that is told to produce arm64 programs ([the guide's section on cross-compilation](https://docs.docker.com/build/building/multi-platform/#cross-compilation)). The robot's Dockerfile has no such stage.
+This page offers the emulated build because that build uses the Dockerfile as the file is ([the guide's section on QEMU](https://docs.docker.com/build/building/multi-platform/#qemu)). The Dockerfile installs the packages with apt and [rosdep](image.md#how-the-image-is-built) and compiles the workspace with [catkin](../ros-setup.md#build-tool-catkin_tools), all inside the image that is being built. So all of these programs are arm64 programs. Cross compilation would need another Dockerfile: one with a build stage that runs on the PC's own architecture, and with a compiler that is told to produce arm64 programs ([the guide's section on cross-compilation](https://docs.docker.com/build/building/multi-platform/#cross-compilation)). The robot's Dockerfile has no such stage.
 
 1. **Check for emulation:** the builder that Docker uses on the PC has to support arm64. This command lists the builders with their platforms, and marks the selected one with `*`. On your PC:
 
@@ -210,7 +210,7 @@ This page offers the emulated build because that build uses the Dockerfile as th
 
     The selected builder has to list `linux/arm64` among its platforms. Docker Desktop's builder does. With Docker Engine on Linux, Docker's guide names two ways to get there:
 
-    - **A builder with the `docker-container` driver:** its BuildKit image brings the emulator along, so nothing is registered on the PC ([the guide's section on a custom builder](https://docs.docker.com/build/building/multi-platform/#custom-builder)). Buildx starts this builder as a privileged container ([the driver's source](https://github.com/docker/buildx/blob/v0.30.1/driver/docker-container/driver.go)). The builder doesn't end with the build: Docker starts the builder again after a restart, until you remove the builder with `docker buildx rm` and the builder's name ([Docker's page on this driver](https://docs.docker.com/build/builders/drivers/docker-container/)).
+    - **A builder with the [`docker-container`](https://github.com/docker/buildx/blob/v0.30.1/docs/reference/buildx_create.md#docker-container-driver) driver:** its [BuildKit](https://github.com/moby/buildkit/blob/v0.26.1/docs/multi-platform.md) image brings the emulator along, so nothing is registered on the PC ([the guide's section on a custom builder](https://docs.docker.com/build/building/multi-platform/#custom-builder)). Buildx starts this builder as a privileged container ([the driver's source](https://github.com/docker/buildx/blob/v0.30.1/driver/docker-container/driver.go)). The builder doesn't end with the build: Docker starts the builder again after a restart, until you remove the builder with `docker buildx rm` and the builder's name ([Docker's page on this driver](https://docs.docker.com/build/builders/drivers/docker-container/)).
     - **QEMU registered on the PC:** the guide registers the emulator with the PC's kernel, through a privileged container ([the guide's section on QEMU](https://docs.docker.com/build/building/multi-platform/#qemu)).
 
 2. **Build the image for arm64:** this command builds the image from the files of your clone. Run the command on your PC, in the root folder of your clone of the diffbot repository:
@@ -229,7 +229,7 @@ This page offers the emulated build because that build uses the Dockerfile as th
 
     `docker save` writes the image as an archive, `gzip` compresses the archive, `ssh` sends the archive to the Raspberry Pi, and `docker load` reads the archive into the Raspberry Pi's Docker.
 
-4. **Start the copied image:** set `ROBOT_IMAGE=diffbot-robot:local` in `.env`. Then start the containers with the copied image. On the Raspberry Pi, in `~/diffbot/.docker/robot`:
+4. **Start the copied image:** set [`ROBOT_IMAGE=diffbot-robot:local`](setup.md#all-settings) in [`.env`](setup.md#when-compose-reads-env). Then start the containers with the copied image. On the Raspberry Pi, in `~/diffbot/.docker/robot`:
 
     ```console
     docker compose up -d --pull never
