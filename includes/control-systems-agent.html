@@ -1,0 +1,27 @@
+<figure class="cs-figure" id="agent-figure">
+<svg class="cs-fig" viewBox="0 0 360 414" role="img" aria-labelledby="cs-agent-title"><title id="cs-agent-title">An agent: perception turns the observations into an estimate, the planner makes a reference path from it, and the controller computes the commands</title><defs><marker id="cs-agent-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="block" x="115.0" y="6" width="130" height="36" rx="5"/>
+<text class="name" x="180.0" y="28.0" text-anchor="middle">Sensors</text>
+<path class="arrow" d="M180.0,42 V103" marker-end="url(#cs-agent-head)"/>
+<text x="188.0" y="62" text-anchor="start">observations</text>
+<rect class="group" x="10" y="74" width="340" height="258" rx="5"/>
+<text class="group-name" x="22" y="94" text-anchor="start">Agent</text>
+<rect class="block" x="115.0" y="104" width="130" height="36" rx="5"/>
+<text class="name" x="180.0" y="126.0" text-anchor="middle">Perception</text>
+<path class="arrow" d="M150.0,140 V156 H85 V187" marker-end="url(#cs-agent-head)"/>
+<text x="93" y="176" text-anchor="start">estimate</text>
+<rect class="block" x="20.0" y="188" width="130" height="36" rx="5"/>
+<text class="name" x="85.0" y="210.0" text-anchor="middle">Planner</text>
+<path class="arrow" d="M210.0,140 V279" marker-end="url(#cs-agent-head)"/>
+<text x="218.0" y="214" text-anchor="start">estimate</text>
+<path class="arrow" d="M85,224 V298 H114.0" marker-end="url(#cs-agent-head)"/>
+<text x="93" y="254" text-anchor="start">reference path</text>
+<rect class="block" x="115.0" y="280" width="130" height="36" rx="5"/>
+<text class="name" x="180.0" y="302.0" text-anchor="middle">Controller</text>
+<path class="arrow" d="M180.0,316 V371" marker-end="url(#cs-agent-head)"/>
+<text x="188.0" y="356" text-anchor="start">commands</text>
+<rect class="block" x="115.0" y="372" width="130" height="36" rx="5"/>
+<text class="name" x="180.0" y="394.0" text-anchor="middle">Actuators</text>
+</svg>
+<figcaption>An agent between the sensors and the actuators. Perception gives its estimate to the planner and to the controller, and the planner gives the reference path to the controller.</figcaption>
+</figure>

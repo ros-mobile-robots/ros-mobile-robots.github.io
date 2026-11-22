@@ -30,6 +30,151 @@ motors into account.
 
     See [the code of `diff_drive_controller`](https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460) where the `joint_command_velocity` is calculated. 
 
+## The feedback loop of one wheel
+
+A feedback loop measures the value that it controls and corrects the difference to the value that is wanted.
+Here, the controlled value is a wheel's angular velocity $\dot{\phi}$, in rad/s.
+Each wheel has its own loop. Both loops run in the firmware on the Teensy, 20 times per second ([`UPDATE_RATE_CONTROL`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L30) in `diffbot_base_config.h`).
+In each of these control steps, [`WheelControl::step()`]({{ pid_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L86-L95) calls two functions of [`BaseController`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L42-L55):
+
+1. [`read()`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L447-L467) measures both wheel speeds with the encoders.
+2. [`write()`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L470-L489) computes a new motor command for each wheel with its PID and sends the command to the motor driver. After one second without a wheel command from the Raspberry Pi ([`COMMAND_TIMEOUT_MS`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L39)), the firmware stops the motors and skips `write()` until the next command arrives.
+
+The figure shows the loop of Remo's left wheel. The right wheel's loop is the same, with its own PID, motor and encoder.
+
+--8<-- "includes/pid-feedback-loop.html"
+
+Each signal has a unit. The signals that the formulas below use also have a symbol:
+
+| | Signal | Unit |
+| --: | --- | --- |
+| 1 | Target wheel speed $\dot{\phi}_\text{target}$ | rad/s |
+| 2 | Error $e$ | rad/s |
+| 3 | Motor command $u$ | a whole number from −255 to 255 |
+| 4 | PWM duty cycle | % |
+| 5 | Rotation of the motor and the wheel | rad |
+| 6 | Ticks since the previous control step | ticks |
+| 7 | Measured wheel speed $\dot{\phi}_\text{measured}$ | rad/s |
+
+The blue values in the figure are one control step of Remo's left wheel.
+In that run, Remo was commanded to drive at 0.2 m/s with its wheels off the ground ([bench record](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6661807745)).
+The firmware logged the target, the measured speed, the PID's three terms and the motor command of this step.
+The PWM duty cycle (4) and the ticks (6) are calculated from the logged values.
+
+A control step measures first and commands second.
+The firmware's main loop calls `step()` on every pass, and `step()` returns early until the next control step is due, [lines 86–95]({{ pid_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L86-L95):
+
+```cpp title="wheel_control.h: step()" linenums="86" hl_lines="6 8"
+--8<-- "{{ pid_src_raw }}/diffbot_firmware/lib/wheel_control/wheel_control.h:86:95"
+```
+
+[`stopWhenCommandExpires()`]({{ pid_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L100-L109) stops the motors once the last wheel command is `COMMAND_TIMEOUT_MS` old.
+[`control_period_ms_`]({{ pid_src_url }}/diffbot_firmware/src/main.cpp#L56) is 50 ms. The control step runs on the first pass of the main loop at which the Teensy's millisecond counter has advanced by at least 50 since the last control step. The encoder measures the actual time between two reads.
+`controller_.read()` measures the wheel's speed over the interval since the previous step.
+`controller_.write()` then sets the motor command, which normally acts until the next step's `write()`.
+So the measured 5.56 rad/s (7) is the result of the previous motor command, and the 96 (3) is the new one.
+The example takes each interval as the nominal 50 ms.
+Follow the values around the loop:
+
+1. **Target wheel speed:** On the Raspberry Pi, [`diff_drive_controller`](../imu/robot_localization.md#how-it-fits-together) converts the commanded robot velocity into a target angular velocity for each wheel. With Remo's wheel radius of 0.033 m, 0.2 m/s is $\dot{\phi}_\text{target}$ = 0.2 m/s / 0.033 m = 6.06 rad/s. The hardware interface publishes both targets on the topic [`wheel_cmd_velocities`](../../development/simulation-test.md#on-the-real-robot). The firmware stores the left one in [`wheel_cmd_velocity_left_`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L244-L248).
+
+2. **Error:** [`PID::compute()`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.cpp#L16-L43) starts with the comparison. Its variable [`error`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.cpp#L21) is the error $e$, the target minus the measured speed:
+
+    $$
+    \begin{aligned}
+    e &= \dot{\phi}_\text{target} - \dot{\phi}_\text{measured} \\
+      &= 6.06\,\tfrac{\text{rad}}{\text{s}} - 5.56\,\tfrac{\text{rad}}{\text{s}} = 0.50\,\tfrac{\text{rad}}{\text{s}}
+    \end{aligned}
+    $$
+
+    The error is positive, so the wheel is too slow.
+
+3. **Motor command:** `PID::compute()` turns the error into the motor command $u$ in two parts. First, it adds three terms. Their sum is the PID's raw output $u_\text{raw}$:
+
+    $$
+    \begin{aligned}
+    u_\text{raw} = {} & K_P \cdot e + K_I \cdot \sum e \\
+                     & + K_D \cdot (e - e_\text{previous})
+    \end{aligned}
+    $$
+
+    $\sum e$ is the sum of the errors of the control steps so far, and $e - e_\text{previous}$ is the change of the error since the previous step. The gains are $K_P = 0.6$, $K_I = 0.3$ and $K_D = 0.5$ ([`K_P`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L23), [`K_I`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L24) and [`K_D`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L25) in `diffbot_base_config.h`). In the example, the sum is 322.20 rad/s, and the error is the same as in the previous step:
+
+    $$
+    \begin{aligned}
+    u_\text{raw} = {} & 0.6 \cdot 0.50 + 0.3 \cdot 322.20 \\
+                     & + 0.5 \cdot 0.00 = 96.96
+    \end{aligned}
+    $$
+
+    Second, the raw output becomes a whole number within the motor driver's range. `PID::compute()` returns −255 for a raw output below −255, and 255 for a raw output above 255 ([`PWM_MIN`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L80) and [`PWM_MAX`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L79)). `write()` stores the returned value in the integer [`motor_cmd_left_`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L484), which drops the fractional part. The result is the motor command $u$, a whole number from −255 to 255. The sign is the direction, and 255 is the largest amount that the motor driver takes. Here, 96.96 lies within the range, so only the fraction is dropped, and $u$ = 96. A raw output of 300 would give $u$ = 255.
+
+    ??? example "The firmware's code of the error, the raw output and the motor command"
+        `PID::compute()` computes the error, the three terms and their sum, and limits the sum to the range from [`min_val_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L21) to [`max_val_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L22), [lines 16–43]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.cpp#L16-L43):
+
+        ```cpp title="pid.cpp: compute()" linenums="16"
+        --8<-- "{{ pid_src_raw }}/diffbot_firmware/lib/pid/pid.cpp:16:43"
+        ```
+
+        [`proportional_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L26) is $e$, [`integral_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L27) is $\sum e$, and [`derivative_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L28) is $e - e_\text{previous}$. [`kp_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L23), [`ki_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L24) and [`kd_`]({{ pid_src_url }}/diffbot_firmware/lib/pid/pid.h#L25) are the gains. When the target and the error are both zero, the function clears the sum.
+
+        `write()` calls `compute()` for each wheel with the target and the measured speed, and stores the result in the integers `motor_cmd_left_` and [`motor_cmd_right_`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L485), [lines 481–488]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L481-L488):
+
+        ```cpp title="base_controller.h: write()" linenums="481"
+        --8<-- "{{ pid_src_raw }}/diffbot_firmware/lib/base_controller/base_controller.h:481:488"
+        ```
+
+        The PIDs get `PWM_MIN` and `PWM_MAX` as their limits, −255 and 255 ([`PWM_BITS`]({{ pid_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L27) is 8 in `diffbot_base_config.h`).
+
+4. **PWM duty cycle:** [`AdafruitMotorController::setSpeed()`]({{ pid_src_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36) sends the direction and the amount 96 to the motor driver, the Adafruit DC Motor + Stepper FeatherWing. The driver switches the motor's supply voltage on and off many times per second, which is called pulse-width modulation (PWM). The duty cycle is the share of each PWM period during which the voltage is on. For the amount 96, the voltage is on for 96 × 16 of the 4096 steps of each PWM period, a duty cycle of 37.5 % ([`Adafruit_DCMotor::setSpeed()`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256)). The higher the duty cycle, the faster the motor turns.
+
+5. **Rotation:** The motor turns the wheel through its gearbox.
+
+6. **Ticks since the previous control step:** The encoder in the motor has two Hall sensors. The Teensy counts the edges of their two signals as ticks, 542 for one turn of the wheel ([`encoder_resolution`]({{ pid_src_url }}/diffbot_base/config/base.yaml#L5) in `base.yaml`). The count runs on from one step to the next. [`Encoder::jointState()`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39) reads it and subtracts the count of the previous step. The difference, [`delta_ticks`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L27), is the ticks since the previous step. The debug output doesn't show `delta_ticks`. With the nominal 50 ms between two steps, the measured speed corresponds to 24 ticks, so the figure shows this calculated count. The count is an estimate: 25 ticks in an interval of 52.1 ms give the same rounded 5.56 rad/s.
+
+7. **Measured wheel speed:** `Encoder::jointState()` converts `delta_ticks` to an angle and divides the angle by [`dts`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L24), the time since the previous step, which it measures with the Teensy's clock. With 24 ticks in 50 ms: 24 · 2π / 542 = 0.278 rad, and 0.278 rad / 0.05 s = 5.56 rad/s. `read()` stores this value as [`joint_state_left_.angular_velocity_`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L449-L457) and publishes it to the Raspberry Pi on the topic [`measured_joint_states`](../../development/simulation-test.md#on-the-real-robot). `write()` then compares it with the target (2).
+
+    ??? example "The firmware's code of the ticks and the measured speed"
+        `Encoder::jointState()` computes `delta_ticks` and the angular velocity, [lines 14–39]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39):
+
+        ```cpp title="encoder_diffbot.cpp: jointState()" linenums="14" hl_lines="3 11 14 15 20"
+        --8<-- "{{ pid_src_raw }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp:14:39"
+        ```
+
+        [`encoder.read()`](https://www.pjrc.com/teensy/td_libs_Encoder.html) returns the running count. [`prev_encoder_ticks_`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.h#L126) and [`prev_update_us_`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.h#L124) keep the count and the time of the previous call, so `delta_ticks` and `dts` cover the time since then. [`ticksToAngle()`]({{ pid_src_url }}/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L52-L57) multiplies the ticks by 2π / 542.
+
+??? example "The firmware's debug output of this control step"
+    If the parameter [`/diffbot/debug/base_controller`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L401) is true when the firmware starts, the firmware logs the values of its latest control step, nominally five times per second:
+
+    - `wheel_cmd_velocity_left_` is the target wheel speed (1), and [`measured_ang_vel_left`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L524) is the measured wheel speed (7).
+    - `motor_cmd_left_` is the motor command (3).
+    - The three values after `(p, i, d)` are the error (2), the sum of the errors and the change of the error.
+    - [`ticks_left_`]({{ pid_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L460) is the encoder's running count since its last reset. It isn't `delta_ticks`, the ticks since the previous step (6).
+
+    ```console
+    Read:
+    ticks_left_: 1389
+    ticks_right_: 1442
+    measured_ang_vel_left: 5.56
+    measured_ang_vel_right: 5.56
+    wheel_cmd_velocity_left_: 6.06
+    wheel_cmd_velocity_right_: 6.06
+    Write:
+    motor_cmd_left_: 96
+    motor_cmd_right_: 93
+    pid_left_errors (p, i, d): 0.50 322.20 0.00
+    pid_right_error (p, i, d): 0.50 309.91 0.23
+    ```
+
+The example shows three properties of this PID that matter for tuning:
+
+- **The sum of the errors holds the motor command:** It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.
+- **The limit doesn't stop the sum:** While the wheel stays slower than its target, each control step adds a positive error to the sum, also while the raw output is above 255 and the motor command stays at 255. This is called integral windup. The stored sum can keep the drive high as the wheel reaches its target. If the wheel overshoots, the error turns negative and starts reducing the sum. After a command timeout, the firmware resets both PIDs and clears their sums.
+- **The gains belong to the control rate:** The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the elapsed time between two steps. With another `UPDATE_RATE_CONTROL`, the same $K_I$ and $K_D$ have another effect.
+
+## Driving straight
+
+`diff_drive_controller` doesn't use the measured wheel speeds to correct its wheel-speed commands.
 For this reason a PID controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:
 
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -129,17 +274,28 @@ various nuisances of the physical robot, including differences in motors,
 wheels, and the asymmetry of the robot. It's simple and easily interpretable,
 too.
 
-The two PIDs work to ensure that the wheels spin at the desired speed, but not
-that the robot drives the desired way though. There are other factors such as
-slightly different wheel raddi $R$ which lead to different rotational velocities
-$\dot{\phi}_{l/r}$ (translational velocity $v_{l/r} = \dot{\phi}_{l/r} \cdot R$) and therefore different traveled distances for each wheel (left and right) $d_{l/r}$:
+The two PIDs make each wheel turn at its target angular velocity $\dot{\phi}_{l/r}$, the rate at which the wheel turns about its axle.
+They don't make sure that the robot drives the commanded path.
+One reason is that the two wheel radii $R_{l/r}$ differ slightly.
+Take a wheel with the radius $R_{l/r}$ that rolls forward without slipping and turns with a constant $\dot{\phi}_{l/r}$ for the time $\Delta t$.
+It moves over the ground with the speed $v_{l/r} = R_{l/r} \cdot \dot{\phi}_{l/r}$ and travels the distance $d_{l/r}$:
 
 $$
-\begin{aligned}
-d_{l/r} &= v_{l/r} \cdot \Delta t \\
-d_{l/r} &= \frac{\dot{\phi}_{l/r}}{R} \cdot \Delta t
-\end{aligned}
+d_{l/r} = v_{l/r} \cdot \Delta t = R_{l/r} \cdot \dot{\phi}_{l/r} \cdot \Delta t
 $$
+
+For example, Remo's nominal wheel radius is 0.033 m ([`geometry.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/remo/geometry.yaml)).
+A wheel with this radius that turns with 2 rad/s for 3 s travels
+
+$$
+d = 0.033\,\text{m} \cdot 2\,\tfrac{\text{rad}}{\text{s}} \cdot 3\,\text{s} = 0.198\,\text{m}
+$$
+
+An angle in radians is the ratio of two lengths, so the result is in metres.
+Remo's two wheels measure 65.5 mm and 66.5 mm in diameter, as the comment in the same file says.
+With radii of 0.03275 m and 0.03325 m, the same 2 rad/s for 3 s give 0.1965 m and 0.1995 m.
+One wheel travels 3 mm further, although both wheels turn equally fast.
+So the robot turns toward the wheel with the smaller radius, which travels the shorter distance.
 
 These mechanical variations "can't be seen" by the encoders alone. For example
 assume you want the robot to go straight, you would set the two desired
@@ -164,7 +320,7 @@ $$
 d_{l/r} = R_{l/r} \cdot \Delta \phi_{l/r}
 $$
 
-where $\Delta \phi_{l/r}$ are the rotations of each wheel (more accurately, of each motor), and $R_{l/r}$ is the radius of each wheel. If the radii are exactly the same, then $R_l = R_r = R$ and the approach using only two PID controllers would work because controlling $\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}$ is equivalent to controlling $\Delta \phi_{l/r,k}$, as the time interval we can assume known.
+where $\Delta \phi_{l/r}$ is the angle that each wheel turns about its axle in $\Delta t$, and $R_{l/r}$ is the radius of each wheel. The equation assumes again that the wheels roll without slipping. The angle is the wheel's, not the motor's. The motor's shaft turns faster than the wheel, by the ratio of the gearbox between them, so the motor's angle times the wheel radius would give too long a distance. If the radii are exactly the same, then $R_l = R_r = R$ and the approach using only two PID controllers would work because controlling $\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}$ is equivalent to controlling $\Delta \phi_{l/r,k}$, as the time interval we can assume known.
 
 In practice, $R_l = R_r = R$ does not hold because of manufacturing tolerances, deformable material of the wheels generating different surfaces of contact with the ground depending on their assembly and robot mass distribution, etc.
 
