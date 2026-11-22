@@ -39,7 +39,7 @@ Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules)
 - **Terms and links:** define a term where the page first uses it, and give every link a text that says what it leads to, never "here" or a bare number. Between two headings, link a code name's destination once, at its first name. A citation next to a claim keeps its link.
 - **Quantities:** give every value its unit, in SI units with a space (`0.5 kg`, `3 s`). Give a quantity its symbol too on a page that has a formula or a figure with that symbol, such as "the yaw rate $\omega_z$ (rad/s)".
 - **Code:** introduce every code excerpt with a full sentence, show the excerpt for every line range you point to, and use the code's own names in the text. A configuration list whose meaning lies in the position of its values gets a table with one row per position.
-- **Figures and order:** draw a figure where the page explains a flow, a structure or a sequence over time, and let the sections follow the order of execution.
+- **Figures and order:** draw a figure where the page explains a flow, a structure or a sequence over time, and let the sections follow the order of execution. [AGENTS.md](AGENTS.md#structure) says which kind of figure fits which question.
 - **Tests:** a feature's pages include a tests page that explains each test in order (what it sets up, what goes in, what happens, what is checked and with which tolerance), with the code excerpts and a picture per test.
 - **Sources:** link the primary source next to a claim: the code at a pinned commit, the official documentation, or the measurement.
 - **The current state:** describe how things are. How they got there belongs in the pull requests, not on the page.
