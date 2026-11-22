@@ -11,7 +11,7 @@ This section explains how DiffBot and Remo are developed: where the code lives, 
 | [diffbot](https://github.com/ros-mobile-robots/diffbot) | ROS packages, Teensy firmware, dev container, CI | `noetic-devel` |
 | [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) | This documentation site | `main` |
 | [remo_description](https://github.com/ros-mobile-robots/remo_description) | Remo's URDF description. The STL meshes come with the [Remo files on Gumroad](https://fjp.gumroad.com/l/GnMpU) | `main` |
-| [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models) | Display models of off-the-shelf parts, such as wheels, lidars and boards, with the CadQuery generators that make them | `main` |
+| [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models) | Display models of off-the-shelf parts, such as wheels, lidars and boards, with the generators that make them in [CadQuery](https://cadquery.readthedocs.io/en/latest/), a Python library for CAD models | `main` |
 
 ## Roadmap
 
@@ -38,10 +38,10 @@ A feature isn't finished until it's documented: code changes in diffbot come wit
 
 The code follows the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) and the [ROS Quality](http://wiki.ros.org/Quality) guidelines where possible, including the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Pages on this site link to the REPs that apply.
 
-Each repository states its own rules for code, tests and documentation in its `AGENTS.md`, for people and for coding agents alike. `CONTRIBUTING.md` in the same repository is the short form ([diffbot](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/CONTRIBUTING.md), [remo_description](https://github.com/ros-mobile-robots/remo_description/blob/main/CONTRIBUTING.md), [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models/blob/main/CONTRIBUTING.md), [this site]({{ docs_repo_url }}/CONTRIBUTING.md)). Open the guide of what you change:
+Each repository has a `CONTRIBUTING.md` ([diffbot](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/CONTRIBUTING.md), [remo_description](https://github.com/ros-mobile-robots/remo_description/blob/main/CONTRIBUTING.md), [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models/blob/main/CONTRIBUTING.md), [this site]({{ docs_repo_url }}/CONTRIBUTING.md)), which says how to set up, test and open a pull request, and an `AGENTS.md` with the detailed rules, for people and for coding agents alike. Start with `CONTRIBUTING.md`. For the rules of what you change, open its guide:
 
 - **The robots' ROS packages, firmware or tests:** [diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md). A function does one thing, a name says what a thing is, values that belong together travel as one type, and a test's name says what the test checks.
-- **Remo's robot model:** [remo_description's AGENTS.md](https://github.com/ros-mobile-robots/remo_description/blob/main/AGENTS.md), for the [xacro](../diffbot_gazebo.md#troubleshooting) files and the configuration files of the parts.
+- **Remo's robot model:** [remo_description's AGENTS.md](https://github.com/ros-mobile-robots/remo_description/blob/main/AGENTS.md), for the [xacro](http://wiki.ros.org/xacro) files and the configuration files of the parts.
 - **A model of an off-the-shelf part:** [robot_component_models' AGENTS.md](https://github.com/ros-mobile-robots/robot_component_models/blob/main/AGENTS.md), for the generators that make the meshes and the sources of each model.
 - **A page of this site:** [this site's AGENTS.md]({{ docs_repo_url }}/AGENTS.md), which [Writing docs](#writing-docs) sums up.
 

@@ -144,7 +144,7 @@ The code blocks show the files at the diffbot commit that this page pins, with t
 
 ### 1. The test file
 
-A [`.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L1) file is a launch file for [rostest](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest). [`sim_drive_diffbot.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test) includes the launch file that starts DiffBot in Gazebo, and has two [`<test>`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L12-L24) elements:
+A `.test` file is a launch file for [rostest](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest). [`sim_drive_diffbot.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test) includes the launch file that starts DiffBot in Gazebo, and has two [`<test>`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L12-L24) elements:
 
 ```xml title="sim_drive_diffbot.test"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/sim_drive_diffbot.test"
@@ -210,7 +210,7 @@ The constants at the top of the file name the commands, [lines 36–44]({{ diffb
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:179:201"
 ```
 
-It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a [`RelativePose`](#relative_pose), with how far the robot moved forward and to the left, and how much it turned (`relative_pose()`). [`motions`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L189) describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
+`test_forward()` has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a [`RelativePose`](#relative_pose), with how far the robot moved forward and to the left, and how much it turned (`relative_pose()`). [`motions`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L189) describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
 
 #### `measure_motion()`
 
@@ -302,13 +302,13 @@ Lines 203–223 show [`test_turn()`]({{ diffbot_src_url }}/diffbot_gazebo/test/t
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:203:223"
 ```
 
-It commands the angular velocity instead of the linear one and expects 0.5 rad/s for 3 s, so 1.5 rad to the left; the controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. [`math.hypot(forward, left)`](https://docs.python.org/3/library/math.html#math.hypot) is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever `test_forward()` left the robot; that doesn't matter, because it checks only the motion from there.
+`test_turn()` commands an angular velocity of 0.5 rad/s for 3 s instead of a linear one, and expects a turn of 1.5 rad to the left. The controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. [`math.hypot(forward, left)`](https://docs.python.org/3/library/math.html#math.hypot) is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever `test_forward()` left the robot. That doesn't matter, because `test_turn()` checks only the motion from there.
 
 | Check | Expected | Measured | Fails when |
 |:--|:--|:--|:--|
 | [`turned`](#relative_pose) | 1.5 ± 0.3 rad | 1.47 to 1.50 rad | The robot turns 20 % too slow or too fast, turns right, for example with swapped wheel joints, or doesn't turn |
 | Distance from the start | 0 ± 0.15 m | Odometry below 0.01 m, true pose 0.03 to 0.05 m | It drives off instead of turning on the spot |
-| Odometry and true `turned` | Within 0.1 rad | At most 0.03 rad apart | They turn clearly differently: a [`wheel_radius`](#three-views-of-the-motion) 10 % off gave 0.14 to 0.17 rad, a [`wheel_separation`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L218-L223) 10 % too big 0.12 to 0.15 rad |
+| Odometry and true `turned` | Within 0.1 rad | At most 0.03 rad apart | They turn clearly differently: a [`wheel_radius`](#three-views-of-the-motion) 10 % off gave 0.14 to 0.17 rad, a `wheel_separation` 10 % too big 0.12 to 0.15 rad ([the measurements in `test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L218-L223)) |
 
 **Why the true pose moves 3 to 5 cm during a turn on the spot.** The test tracks [`base_footprint`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L213-L216), which lies behind the axle's midpoint: 1.85 cm on DiffBot and 3.6 cm on Remo. As the robot turns, that point follows a small arc. The controller computes the motion as if `base_footprint` were at the axle's midpoint. It doesn't account for this offset, so its odometry reports almost no translation during the turn.
 
@@ -324,7 +324,7 @@ $$
 
 A separation set too big makes it turn farther, one set too small makes it turn less. That's why comparing the odometry with the true pose can show the mistake.
 
-In the tested cases only the agreement check caught it; a large enough error would fail the commanded-turn check too. A separation 10 % too big failed for both robots, at 0.12 and 0.15 rad. A separation 5 % too small failed for DiffBot, at 0.10 rad, but passed for Remo, at 0.075 rad: its true turn of about 1.424 rad is close to the 1.5 rad × 0.95 = 1.425 rad that the formula predicts, so for Remo the check catches separation errors from about 7 %. DiffBot already turns 0.03 rad less than its odometry, so for DiffBot the check is more sensitive to a separation that is too small. The test catches large configuration errors, but it can't tell whether the separation is right to within a few percent.
+In the tested cases, only the agreement check caught it. A large enough error would fail the commanded-turn check too. A separation 10 % too big failed for both robots, at 0.12 and 0.15 rad. A separation 5 % too small failed for DiffBot, at 0.10 rad, but passed for Remo, at 0.075 rad: its true turn of about 1.424 rad is close to the 1.5 rad × 0.95 = 1.425 rad that the formula predicts, so for Remo the check catches separation errors from about 7 %. DiffBot already turns 0.03 rad less than its odometry, so for DiffBot the check is more sensitive to a separation that is too small. The test catches large configuration errors, but it can't tell whether the separation is right to within a few percent.
 
 ### 6. `publishtest`
 
@@ -363,7 +363,7 @@ The checks that compare the odometry and the true pose allow these differences. 
 
 ## How to add a test
 
-As an example, this adds a test that drives backward. It runs for both robots, because both test files run [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py).
+As an example, the steps below add a test that drives backward. It runs for both robots, because both test files run [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py).
 
 1. **Write the test method.** Add it to the [`TestDrive`](#3-connecting-to-the-robot) class in `test_drive.py`, next to [`test_forward()`](#4-test_forward). The highlighted lines are the ones that differ from `test_forward()`:
 
@@ -380,7 +380,7 @@ As an example, this adds a test that drives backward. It runs for both robots, b
         self.assertAlmostEqual(odom_motion.forward, true_motion.forward, delta=0.03, msg=motions)
     ```
 
-    A negative linear velocity drives backward, so [`forward`](#relative_pose) is negative: −0.6 m are expected. The tolerances are copied from `test_forward()` for a start. The method's name must start with `test`, so that [unittest](https://docs.python.org/3.8/library/unittest.html#unittest.TestLoader.testMethodPrefix) runs it, and it says what the test checks, as a sentence: the subject, the result, then the condition. unittest runs it first, before `test_forward()`, because of the alphabetical order. That's fine, because each test checks only its own motion.
+    A negative linear velocity drives backward, so [`forward`](#relative_pose) is negative: −0.6 m are expected. The tolerances are copied from `test_forward()` for a start. The method's name must start with `test`, so that [unittest](https://docs.python.org/3.8/library/unittest.html#unittest.TestLoader.testMethodPrefix) runs it, and it says what the test checks, as a sentence: the subject, the result, then the condition when one is needed. This name needs none. unittest runs it first, before `test_forward()`, because of the alphabetical order. That's fine, because each test checks only its own motion.
 
 2. **Run it** for both robots, as in [Run it](#run-it):
 
