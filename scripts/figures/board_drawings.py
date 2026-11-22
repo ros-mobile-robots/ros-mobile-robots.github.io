@@ -100,6 +100,7 @@ def board_rules(scope: str) -> Tuple[Tuple[str, str], ...]:
         (f'[data-md-color-scheme=slate] {scope} .hall-sensor',
          'fill:#111;stroke:#e0e0e0;stroke-width:0.8'),
         (f'{scope} .connector', 'fill:#f4f4f4;stroke:#999;stroke-width:0.8'),
+        (f'{scope} .imu-board', 'fill:#2450a6;stroke:#142e66;stroke-width:0.8'),
     )
 
 
@@ -175,3 +176,21 @@ def draw_encoder_disc(drawing: Drawing, center_x: float, center_y: float) -> Non
         drawing.elements.append(
             f'<rect class="hall-sensor" x="{sensor_x - 3:.1f}" y="{sensor_y - 2.5:.1f}" '
             f'width="6" height="5" transform="{rotation}"/>')
+
+
+def draw_bno055_breakout(drawing: Drawing, x: float, y: float) -> None:
+    """Add Adafruit's BNO055 breakout at (x, y), upright: the board, its holes, pads and chips.
+
+    The four mounting holes sit in the corners, six pads along the left edge (VIN to RST) and four
+    along the right edge (PS0 to ADR). The BNO055 is the square chip in the middle.
+    """
+    drawing.rect(x, y, 22, 28, 'imu-board', 2)
+    for corner_x, corner_y in ((4, 4), (18, 4), (4, 24), (18, 24)):
+        drawing.circle(x + corner_x, y + corner_y, 2.4, 'pad')
+        drawing.circle(x + corner_x, y + corner_y, 1.2, 'ring-hole')
+    for index in range(6):
+        drawing.circle(x + 2.4, y + 8.5 + index * 2.3, 0.9, 'pad')
+    for index in range(4):
+        drawing.circle(x + 19.6, y + 10.5 + index * 2.3, 0.9, 'pad')
+    drawing.rect(x + 13, y + 3, 4, 8, 'chip', 0.5)
+    drawing.rect(x + 8, y + 11.5, 7, 7, 'chip', 0.5)

@@ -9,8 +9,9 @@ tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, u
 # DiffBot Base Package - Low Level Approach
 
 [DiffBot Base](index.md) introduces the two parts of the base controller. This
-page explains both: first the low-level firmware on the Teensy, then the
-high-level hardware interface on the robot's computer.
+page explains both: first the low-level firmware on the
+[microcontroller (MCU)](../../processing_units/teensy-mcu.md#why-a-microcontroller),
+a Teensy, then the high-level hardware interface on the robot's computer.
 
 ## Implementing the low-level base controller for Remo
 
@@ -131,12 +132,13 @@ Teensy 4.0, [lines 30–37]({{ low_level_src_url }}/diffbot_firmware/platformio.
 The firmware talks to the robot's computer with
 [rosserial](../../processing_units/teensy-mcu.md#other-boards-such-as-an-arduino), drives the motors
 with Adafruit's [Motor Shield V2 library](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/library-reference) and uses
-[`Wire`](https://www.pjrc.com/teensy/td_libs_Wire.html) for the I2C bus that the motor driver and
-the IMU share.
+[`Wire`](https://www.pjrc.com/teensy/td_libs_Wire.html) for the I2C bus on pins 18 (SDA) and 19 (SCL),
+which the motor driver and the IMU share.
 
 [`diffbot_base_config.h`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h) holds Remo's settings, which the firmware is built with:
 
-- **Encoder pins:** the Teensy's pins for the encoders' Hall effect sensors.
+- **Encoder pins:** the Teensy's pins for the encoders' Hall effect sensors, 5 and 6
+  for the left encoder, 7 and 8 for the right one.
 - **Motor terminals:** the Adafruit motor driver can drive four DC motors. For
   the cable routing, Remo uses terminals [`M4`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L20) and [`M3`]({{ low_level_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L21) for the left and the
   right motor.
@@ -149,6 +151,10 @@ the IMU share.
 - **IMU:** the BNO055's address and the IMU publisher's settings in
   [`IMU_PUBLISHER_CONFIG`](../imu/driver-bno055.md#what-the-firmware-publishes), for example `enabled` false for a robot without
   an IMU.
+
+The figure shows what Remo's MCU connects to and over which wire. Trace the USB cable to the robot's computer, the I²C bus to the IMU and the motor driver, the motor driver's outputs to the motors, and the encoder signals back to the MCU's pins.
+
+--8<-- "includes/low-level-wiring.html"
 
 The firmware's own libraries are in the [`lib`]({{ low_level_src_url }}/diffbot_firmware/lib) folder:
 
@@ -679,10 +685,14 @@ command arrived.
 
 ### The firmware's design
 
-The diagram shows the firmware's parts and how they connect. A solid arrow
-points from a part to the part it uses. A line without an arrow is a message
-connection, and the messages can go either way or both ways. On a narrow
-screen, the diagram scrolls sideways.
+The diagram shows which code handles a wheel command and runs the next control
+step, with the IMU's update beside it. A solid arrow points from the code that
+calls to the code it calls. A dotted line is a ROS topic. In the MCU firmware,
+"in" and "out" say whether a topic's messages come in to the MCU or go out from
+it. On the robot's computer, `serial_node.py` passes these topics over the USB
+cable. The wires to the hardware are in the
+[figure of the MCU's connections](#the-firmware-project-and-its-libraries).
+On a narrow screen, the diagram scrolls sideways.
 
 <div class="wide-diagram" markdown>
 
@@ -693,7 +703,7 @@ graph TB
     ROS[Other ROS nodes]
     SN[rosserial_python's<br/>serial_node.py]
   end
-  subgraph TEENSY [Teensy firmware]
+  subgraph MCU [MCU firmware]
     NH[SyncedNodeHandleT:<br/>rosserial's node handle]
     SUB[RosWheelCommandSubscriber]
     WC[WheelControl,<br/>with a private<br/>CommandTimeout]
@@ -702,21 +712,17 @@ graph TB
     IP[ImuPublisher]
     BNO[Bno055 driver<br/>on an I2cBus]
   end
-  FW[Motor driver<br/>FeatherWing]
-  IMU[BNO055 sensor]
-  HW ---|wheel topics| SN
-  ROS ---|imu/data_raw| SN
+  HW -.-|wheel topics| SN
+  ROS -.-|imu/data_raw| SN
   SN ---|USB| NH
-  NH ---|wheel states, reset<br/>and PID gains| BC
-  NH ---|wheel commands| SUB
+  NH -.-|wheel commands in| SUB
+  NH -.-|wheel states out,<br/>reset and PID gains in| BC
   SUB -->|receiveCommand| WC
   WC --> BC
   LOOP -->|step| WC
   LOOP --> IP
-  NH ---|imu/data_raw| IP
+  NH -.-|imu/data_raw out| IP
   IP --> BNO
-  BC -->|I2C| FW
-  BNO -->|I2C| IMU
 ```
 
 </div>
@@ -739,10 +745,14 @@ There are two kinds of ports. They differ in who calls whom:
 | Who implements the functions | the core | an adapter |
 | Other names | driving, inbound | driven, outbound |
 
-For `WheelControl`, these are the ports and their adapters:
+The figure shows `WheelControl` with its ports, once on the microcontroller and once in the unit tests. Follow the arrows from the code that calls to the code that is called. On the microcontroller, `RosWheelCommandSubscriber` calls [`receiveCommand()`](#a-wheel-command-arrives) from its callback, [`loop()`](#the-loop-excerpt) calls `step()`, and [`BaseController`](#the-firmwares-design) and [`RosTimeoutLogger`]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L42-L47) implement the secondary ports. The [unit tests](#the-unit-tests) call the primary ports themselves, and `FakeBaseController` and `FakeTimeoutLog` implement the secondary ones.
 
-- **Primary ports:** [`receiveCommand()`](#a-wheel-command-arrives) and `step()`. `RosWheelCommandSubscriber` calls `receiveCommand()` from its callback, and [`loop()`](#the-loop-excerpt) calls `step()`.
-- **Secondary ports:** [`Controller`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L45-L57), the four functions `setWheelTargets()`, `read()`, `write()` and `eStop()`, and `LogTimeout`, the logger's call operator. On the robot, [`BaseController`](#the-firmwares-design) and [`RosTimeoutLogger`]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L42-L47) implement them. In the [unit tests](#the-unit-tests), `FakeBaseController` and `FakeTimeoutLog` do.
+--8<-- "includes/low-level-ports.html"
+
+Each port consists of these functions:
+
+- **Primary ports:** `receiveCommand()` and `step()`.
+- **Secondary ports:** [`Controller`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L45-L57), the four functions `setWheelTargets()`, `read()`, `write()` and `eStop()`, and `LogTimeout`, a call without arguments that logs the timeout.
 
 `Controller` and `LogTimeout` are hard to see in the code, because no class has these names. Each is a template parameter of `WheelControl`, and `WheelControl`'s class comment ([lines 27–51]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_control.h#L27-L51)) says what each port has to do. The compiler checks that the type used has the functions and argument types that `WheelControl` calls, but not that the functions behave as the port requires. [`I2cBus`]({{ low_level_src_url }}/diffbot_firmware/lib/imu/i2c_bus.h#L9-L31), a port of the IMU driver, is an abstract class instead.
 
