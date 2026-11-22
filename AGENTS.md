@@ -82,7 +82,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 | `the test of #138 will measure that` | `the [floor odometry test](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure that` |
 | `the IMU measures the yaw rate` | `the IMU measures the yaw rate $\omega_z$ (rad/s)` |
 | `the wheel separation from the robot's model` | `the wheel separation from the robot's URDF model` |
-| ``[`step()`](#the-step-excerpt) checks the command's age. When the command is too old, [`step()`](#the-step-excerpt) releases the motors.`` | ``[`step()`](#the-step-excerpt) checks the command's age. When the command is too old, `step()` releases the motors.`` |
+| ``[`step()`](#the-step-excerpt) checks the command's age. When the command has expired, [`step()`](#the-step-excerpt) calls `eStop()` once.`` | ``[`step()`](#the-step-excerpt) checks the command's age. When the command has expired, `step()` calls `eStop()` once.`` |
 
 ### Code and configuration on a page
 
@@ -101,7 +101,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 - **What comes first:** a page that explains code opens with what the reader needs before the code: what the feature does, the path its data or commands take, and its limits. The code walkthrough follows.
 - **Order:** sections follow the order of execution, and a heading says what its section is: "The checks before a call publishes", not "When the plugin publishes".
 - **One home per explanation:** explain each thing in one place. Other sections and pages link that place instead of explaining it again.
-- **A changed heading:** change a heading when the page gets clearer, also when other pages link it. The strict build finds the broken links in this repository. Search the robots' repositories for the page's address too, and fix their links there.
+- **A changed heading:** change a heading when the page gets clearer, also when other pages link it. The strict build checks the links between the site's pages, not the links from other places. Search the robots' repositories for the page's address and the old anchor, fix their links there, and check that what they say about the section is still true.
 - **Figures:** a figure where a page explains a flow, a structure or a sequence over time. A Mermaid diagram for who calls or includes whom, a generated figure (`scripts/figures/`) for geometry, time lines and signals. The sections' names and order follow the figure.
 - **Lists:** a bold label at the start of a bullet ends with a colon, not a period. Steps are a numbered list.
 - **Semicolons:** few. Write two short sentences or a list. Run `grep -n ';'` on the pages you changed before you push.
@@ -121,7 +121,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 
 The scripts (`scripts/`, `hooks/`, `macros/`), the tests (`tests/`) and the theme's JavaScript (`docs/custom_theme/js/`) follow the same rules as the robots' code:
 
-- **Where the rules hold:** in every file you add. In an older file, in every line that you add or change at module level, such as an import or a constant, and in the whole of every function, class and test that you add or change. The rest of an older file keeps its form until it changes. `scripts/figures/localization_figures.py` and `tests/test_localization_figures.py` follow the rules. `scripts/figures/simulation_test_figures.py` and `wheel_dynamics_figures.py` are older: each has its own `esc()`, functions without type hints, and includes that are written without an encoding.
+- **Where the rules hold:** in every file you add. In an older file, in every line that you add or change at module level, such as an import or a constant, and in the whole of every function, class and test that you add or change. The rest of an older file keeps its form until it changes. `scripts/figures/localization_figures.py` and `tests/test_localization_figures.py` follow the rules. `scripts/figures/simulation_test_figures.py` and `wheel_dynamics_figures.py` are older: each has its own `esc()`, functions without type hints, and includes that are written without an encoding. Several newer scripts, such as `pid_figures.py`, still define their own `escape()`, `style_element()` and `Figure`. When a second figure script needs the same drawing helper, the helper moves into the shared module.
 - **What CI checks:** the unit tests, the strict build and the spelling. No workflow runs flake8 or mypy in this repository. Run both yourself on the Python files you changed, as [Check the Python style](#check-the-python-style) shows, and say in the pull request what they reported. Neither tool reads JavaScript.
 - **Functions:** one thing per function, named for it. A `main()` reads as the list of its steps, and a function that checks several things becomes one function per check and one that runs them.
 - **Names:** a name says what the thing is or does. A function that returns a figure is called `…_figure()`, not after the quantity it draws. One word for one thing. No one-letter names outside a formula that defines them.
@@ -195,7 +195,7 @@ let animationRequest = requestAnimationFrame(drawNextFrame);
 
 - **One topic:** one topic per pull request and per commit.
 - **Branch:** `docs/…`, `fix/…`, `feat/…`, `chore/…`, `refactor/…` or `test/…`, followed by a short topic in kebab-case, such as `docs/dev-container`.
-- **Title and description:** pull requests are squash-merged. The title is the commit subject, `Page: what changed`, 65 characters or fewer before GitHub's PR-number suffix. The whole description becomes the commit message: what and why, then how it was checked, at which commit, and the limits. Lists of files, counts and the history of the review stay out. Use the pull request template.
+- **Title and description:** pull requests are squash-merged. The title is the commit subject, `Page: what changed`, 65 characters or fewer before GitHub's PR-number suffix. The whole description becomes the commit message: what and why, then how it was checked, at which commit, and the limits. The results of the checks belong there. Lists of files, link counts and the history of the review stay out. Use the pull request template.
 - **Issues:** end the description with `Closes #N` when the pull request resolves issue N. For an issue that stays open, name the issue without a closing keyword, as in `Part of #N`.
 - **Signed commits:** sign every commit with GPG, `git commit -S`. `git log --show-signature -1` shows the signature of the last commit. A coding agent that can't sign stops and reports that, and doesn't commit unsigned.
 - **AI tools:** no attribution lines for AI tools in commits or pull requests (`Co-Authored-By:` for a tool, "Generated with …"). No disclosure of AI use is needed.
