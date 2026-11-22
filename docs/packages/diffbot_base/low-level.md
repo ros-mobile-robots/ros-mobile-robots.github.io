@@ -168,9 +168,9 @@ The firmware's own libraries are in the [`lib`]({{ low_level_src_url }}/diffbot_
 
 [`main.cpp`]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp) creates the firmware's objects as globals, and their
 constructors connect them. `setup()` initializes them, and [`loop()`](#the-loop-excerpt) runs the
-scheduled work. `WheelControl` gets its controller and its logger from these
-objects, and its times from its callers: the subscriber stamps each command
-with the Teensy's clock, and `loop()` passes the time of each step. So the unit
+scheduled work. [`WheelControl`](#the-step-excerpt) gets its controller and its logger from these
+objects, and its times from its callers: the subscriber passes the Teensy's
+time alongside each valid command, and `loop()` passes the time of each step. So the unit
 tests can put fakes in place of the controller and the logger, and pass their
 own times. In the order of the file:
 
@@ -234,7 +234,7 @@ own times. In the order of the file:
     - `ArduinoClock` gives the Teensy's clock, `millis()` and `micros()`, to the
       parts that need it. The unit tests replace it with a fake clock.
     - `RosTimeoutLogger` sends the timeout warning to the robot's computer with
-      [`nh.logwarn()`](https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L510-L530). [`WheelControl`](#the-step-excerpt) calls this logger after it has
+      [`nh.logwarn()`](https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L510-L530). `WheelControl` calls this logger after it has
       stopped the motors.
     - `WHEEL_CONTROL_CONFIG` holds the wheel control's two times: the command
       timeout, [`COMMAND_TIMEOUT_MS`](#the-command-timeout), and the control period, 50 ms at an
@@ -312,8 +312,8 @@ After `setup()`, `loop()` schedules the work at three configured intervals:
 the control step every 50 ms (`UPDATE_RATE_CONTROL`, 20 Hz), the debug output
 every 200 ms while debugging is on (`UPDATE_RATE_DEBUG`, 5 Hz), and with the IMU
 enabled a sampling slot every 20 ms, the period in `IMU_PUBLISHER_CONFIG`. The
-IMU publishes a sample only while the sensor is ready and its clock is
-synchronized. Each pass of `loop()` runs four parts, one after the other:
+IMU publisher can publish a sample only when the BNO055 is ready and the
+rosserial node handle has synchronized its clock with the robot's computer. Each pass of `loop()` runs four parts, one after the other:
 
 1. `loop()` reads the Teensy's clock, `millis()`, as [`now_ms`]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L123) and hands it to
    `wheel_control.step()`.
