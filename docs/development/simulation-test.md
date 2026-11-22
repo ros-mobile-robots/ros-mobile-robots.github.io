@@ -210,7 +210,7 @@ The constants at the top of the file name the commands, [lines 36–44]({{ diffb
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:179:201"
 ```
 
-It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a [`RelativePose`](#relative_pose), with how far the robot moved forward and to the left, and how much it turned ([`relative_pose()`][s-rel]). [`motions`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L189) describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
+It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a [`RelativePose`](#relative_pose), with how far the robot moved forward and to the left, and how much it turned (`relative_pose()`). [`motions`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L189) describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
 
 #### `measure_motion()`
 
