@@ -8,7 +8,7 @@ Find your change in this list. Each line says what to run or check, and links th
 
 - **Every change:** the strict build and the spelling check pass on your PC ([Commands](#commands)). Then look at which checks GitHub ran on your pull request: a stacked pull request and a pull request from a fork get fewer ([Checks on a pull request](#checks-on-a-pull-request)).
 - **A page:** every number, parameter, file name, command and link you write is checked against its source: the pinned code, the official documentation, or a measurement you can point to. Say in the pull request what you checked. Every code excerpt has a full sentence before it, and every line range the text points to has its excerpt. `grep -n ';'` on the changed pages finds no sentence that two short ones would say better ([Writing rules](#writing-rules)).
-- **A page with figures or wide tables:** look at the page in light and dark, on a narrow screen too.
+- **A page with figures or wide tables:** look at the page in light and dark, on a narrow screen too, and scroll every box that scrolls sideways to its end.
 - **A page that explains a feature:** the page links the feature's tests page, or is that page ([A feature's tests](#a-features-tests)).
 - **A Python script, hook, macro or test:** the unit tests pass, new logic has a test, and flake8 and mypy report nothing in the code that you added or changed: a new file, a line at module level, and the whole of a function, a class or a test that you touched ([Check the Python style](#check-the-python-style)). After a change to a figure script, regenerate the script's includes and commit them with the script.
 - **The theme's JavaScript:** the rules for functions and names hold, and new logic comes with a test that CI runs, as in Python ([Code in this repository](#code-in-this-repository)). No tool checks the style of JavaScript here, so also look at a page that uses the script, with `venv/bin/mkdocs serve`.
@@ -66,11 +66,14 @@ A page is for a reader who is new to its topic. They should be able to follow it
 - **Why:** explain why, in short, plain sentences, one idea per paragraph. Theory pages teach concepts with the robots as examples. Package and setup pages say how to do something.
 - **Terms:** define a term where a page first uses it, and link it to the page that explains it. `includes/glossary.yml` holds the terms that many pages share.
 - **Links:** a link's text says what the link leads to: the title of the page or section, the path of the file, or what the issue is about. Never "here", "this" or a bare number.
+- **One link per destination:** between two headings, link each destination once, at the first code name that points there: to the site's explanation if there is one, otherwise to the pinned code. Later names for the same destination stay inline code. The source link before each excerpt stays.
 - **Quantities:** a value always has its unit, in SI units with a space (`0.5 kg`, `3 s`). A quantity also has its symbol on a page that has a formula or a figure with that symbol: from where the page first names the quantity, and the same symbol after that, as in "the yaw rate $\omega_z$ (rad/s)". A page of setup steps without formulas needs no symbols.
 - **Which model:** say which one you mean, the robot's URDF model (the xacro files), the SDF model that Gazebo converts it to, or the real robot. Never "the model" alone where two of them are near.
 - **Where a command runs:** on the PC, in the dev container or on the robot.
 - **The current state:** describe how things are. How the code or the text got there belongs in the pull request: no "now", "no longer", "previously". Don't name contributors or their decisions.
 - **Sources:** link the primary source next to the claim: the pinned code, the official documentation, or the measurement. Say so when something was not tested on the robot.
+- **Example, test or measurement:** say which one a value comes from: an example on a figure, a unit test, or a measurement on the robot. Say what a test really checks, such as the order of calls on a fake controller, and not more.
+- **Issues:** say what an issue does as it stands: it proposes, plans or tracks the work, and for which branch.
 - **Plain words:** no "it" or "this" that the reader has to guess, and no summary in jargon. Say what the thing does.
 
 | Don't | Do |
@@ -79,6 +82,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 | `the test of #138 will measure that` | `the [floor odometry test](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure that` |
 | `the IMU measures the yaw rate` | `the IMU measures the yaw rate $\omega_z$ (rad/s)` |
 | `the wheel separation from the robot's model` | `the wheel separation from the robot's URDF model` |
+| ``[`step()`](#the-step-excerpt) checks the command's age. When the command is too old, [`step()`](#the-step-excerpt) releases the motors.`` | ``[`step()`](#the-step-excerpt) checks the command's age. When the command is too old, `step()` releases the motors.`` |
 
 ### Code and configuration on a page
 
@@ -94,7 +98,10 @@ A page is for a reader who is new to its topic. They should be able to follow it
 
 ### Structure
 
+- **What comes first:** a page that explains code opens with what the reader needs before the code: what the feature does, the path its data or commands take, and its limits. The code walkthrough follows.
 - **Order:** sections follow the order of execution, and a heading says what its section is: "The checks before a call publishes", not "When the plugin publishes".
+- **One home per explanation:** explain each thing in one place. Other sections and pages link that place instead of explaining it again.
+- **A changed heading:** change a heading when the page gets clearer, also when other pages link it. The strict build finds the broken links in this repository. Search the robots' repositories for the page's address too, and fix their links there.
 - **Figures:** a figure where a page explains a flow, a structure or a sequence over time. A Mermaid diagram for who calls or includes whom, a generated figure (`scripts/figures/`) for geometry, time lines and signals. The sections' names and order follow the figure.
 - **Lists:** a bold label at the start of a bullet ends with a colon, not a period. Steps are a numbered list.
 - **Semicolons:** few. Write two short sentences or a list. Run `grep -n ';'` on the pages you changed before you push.
@@ -188,7 +195,7 @@ let animationRequest = requestAnimationFrame(drawNextFrame);
 
 - **One topic:** one topic per pull request and per commit.
 - **Branch:** `docs/…`, `fix/…`, `feat/…`, `chore/…`, `refactor/…` or `test/…`, followed by a short topic in kebab-case, such as `docs/dev-container`.
-- **Title and description:** pull requests are squash-merged. The title is the commit subject, `Page: what changed`, 65 characters or fewer before GitHub's PR-number suffix. The whole description becomes the commit message: what and why, then how it was checked. Use the pull request template.
+- **Title and description:** pull requests are squash-merged. The title is the commit subject, `Page: what changed`, 65 characters or fewer before GitHub's PR-number suffix. The whole description becomes the commit message: what and why, then how it was checked, at which commit, and the limits. Lists of files, counts and the history of the review stay out. Use the pull request template.
 - **Issues:** end the description with `Closes #N` when the pull request resolves issue N. For an issue that stays open, name the issue without a closing keyword, as in `Part of #N`.
 - **Signed commits:** sign every commit with GPG, `git commit -S`. `git log --show-signature -1` shows the signature of the last commit. A coding agent that can't sign stops and reports that, and doesn't commit unsigned.
 - **AI tools:** no attribution lines for AI tools in commits or pull requests (`Co-Authored-By:` for a tool, "Generated with …"). No disclosure of AI use is needed.
