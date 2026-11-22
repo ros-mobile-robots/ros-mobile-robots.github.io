@@ -11,6 +11,7 @@ This section explains how DiffBot and Remo are developed: where the code lives, 
 | [diffbot](https://github.com/ros-mobile-robots/diffbot) | ROS packages, Teensy firmware, dev container, CI | `noetic-devel` |
 | [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) | This documentation site | `main` |
 | [remo_description](https://github.com/ros-mobile-robots/remo_description) | Remo's URDF description. The STL meshes come with the [Remo files on Gumroad](https://fjp.gumroad.com/l/GnMpU) | `main` |
+| [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models) | Display models of off-the-shelf parts, such as wheels, lidars and boards, with the CadQuery generators that make them | `main` |
 
 ## Roadmap
 
