@@ -186,7 +186,7 @@ The two callbacks are in [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:135:145"
 ```
 
-rospy calls them in background threads whenever a message arrives, so [`odom_pose`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L137) and [`true_pose`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L145) always hold the latest pose. [`msg.name.index(MODEL_NAME)`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L145) finds the robot's position in the list of model names, and its pose is at the same position in [`msg.pose`](https://docs.ros.org/en/noetic/api/gazebo_msgs/html/msg/ModelStates.html).
+rospy calls them in background threads whenever a message arrives, so [`odom_pose`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L137) and [`true_pose`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L145) always hold the latest pose. `msg.name.index(MODEL_NAME)` finds the robot's position in the list of model names, and its pose is at the same position in [`msg.pose`](https://docs.ros.org/en/noetic/api/gazebo_msgs/html/msg/ModelStates.html).
 
 Both convert the ROS pose to a [`Pose2D`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L47-L52), a [named tuple](https://docs.python.org/3/library/typing.html#typing.NamedTuple) with $x$, $y$ and the heading $\theta$, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). The function [`to_pose2d()` in lines 69–78]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L69-L78) does the conversion and takes the heading from the orientation's yaw:
 
@@ -210,7 +210,7 @@ The constants at the top of the file name the commands, [lines 36–44]({{ diffb
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:179:201"
 ```
 
-It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: [`odom_motion`](#measure_motion) with the odometry, and [`true_motion`](#measure_motion) with the true pose. Each one is a [`RelativePose`](#relative_pose), with how far the robot moved forward and to the left, and how much it turned ([`relative_pose()`][s-rel]). [`motions`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L189) describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
+It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a [`RelativePose`](#relative_pose), with how far the robot moved forward and to the left, and how much it turned ([`relative_pose()`][s-rel]). [`motions`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L189) describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
 
 #### `measure_motion()`
 
@@ -230,7 +230,7 @@ The method [`drive()` in lines 147–157]({{ diffbot_src_url }}/diffbot_gazebo/t
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:147:157"
 ```
 
-- A [`Twist`](https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) holds a linear and an angular velocity, each as a 3D vector. A differential drive robot can only drive along its x axis, [`linear.x`](https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) in m/s, and turn about its z axis, [`angular.z`](https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) in rad/s, positive to the left. The controller ignores the other values.
+- A [`Twist`](https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) holds a linear and an angular velocity, each as a 3D vector. A differential drive robot can only drive along its x axis, `linear.x` in m/s, and turn about its z axis, `angular.z` in rad/s, positive to the left. The controller ignores the other values.
 - [`rospy.Time.now()`](../packages/imu/robot_localization/tests/validator.md#where-the-ros-time-comes-from) and [`rospy.Rate`](https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/clients/rospy/src/rospy/timer.py#L90-L103) follow Gazebo's clock ([step 2][s2]), so `duration` and `COMMAND_RATE` are in simulation time. Why the command is sent 20 times per second is in the comment above `COMMAND_RATE`.
 
 #### `stop()`
@@ -365,7 +365,7 @@ The checks that compare the odometry and the true pose allow these differences. 
 
 As an example, this adds a test that drives backward. It runs for both robots, because both test files run [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py).
 
-1. **Write the test method.** Add it to the [`TestDrive`](#3-connecting-to-the-robot) class in [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py), next to [`test_forward()`](#4-test_forward). The highlighted lines are the ones that differ from `test_forward()`:
+1. **Write the test method.** Add it to the [`TestDrive`](#3-connecting-to-the-robot) class in `test_drive.py`, next to [`test_forward()`](#4-test_forward). The highlighted lines are the ones that differ from `test_forward()`:
 
     ```python title="test_backward_drive_matches_the_command() (example)" hl_lines="3 5"
     def test_backward_drive_matches_the_command(self) -> None:
