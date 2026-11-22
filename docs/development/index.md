@@ -37,10 +37,11 @@ A feature isn't finished until it's documented: code changes in diffbot come wit
 
 The code follows the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) and the [ROS Quality](http://wiki.ros.org/Quality) guidelines where possible, including the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Pages on this site link to the REPs that apply.
 
-Each repository states its own rules for code, tests and documentation in its `AGENTS.md`, for people and for coding agents alike. `CONTRIBUTING.md` in the same repository is the short form ([diffbot](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/CONTRIBUTING.md), [remo_description](https://github.com/ros-mobile-robots/remo_description/blob/main/CONTRIBUTING.md), [this site]({{ docs_repo_url }}/CONTRIBUTING.md)). Open the guide of what you change:
+Each repository states its own rules for code, tests and documentation in its `AGENTS.md`, for people and for coding agents alike. `CONTRIBUTING.md` in the same repository is the short form ([diffbot](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/CONTRIBUTING.md), [remo_description](https://github.com/ros-mobile-robots/remo_description/blob/main/CONTRIBUTING.md), [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models/blob/main/CONTRIBUTING.md), [this site]({{ docs_repo_url }}/CONTRIBUTING.md)). Open the guide of what you change:
 
 - **The robots' ROS packages, firmware or tests:** [diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md). A function does one thing, a name says what a thing is, values that belong together travel as one type, and a test's name says what the test checks.
 - **Remo's robot model:** [remo_description's AGENTS.md](https://github.com/ros-mobile-robots/remo_description/blob/main/AGENTS.md), for the [xacro](../diffbot_gazebo.md#troubleshooting) files and the configuration files of the parts.
+- **A model of an off-the-shelf part:** [robot_component_models' AGENTS.md](https://github.com/ros-mobile-robots/robot_component_models/blob/main/AGENTS.md), for the generators that make the meshes and the sources of each model.
 - **A page of this site:** [this site's AGENTS.md]({{ docs_repo_url }}/AGENTS.md), which [Writing docs](#writing-docs) sums up.
 
 Where these rules and the guides below differ, the repository's rules win.
