@@ -11,6 +11,7 @@ import sys
 import tempfile
 from typing import Counter as CounterType
 from typing import Dict
+from typing import List
 from typing import Set
 from typing import Tuple
 import unittest
@@ -24,13 +25,21 @@ SCRIPT = ROOT / 'scripts' / 'figures' / 'low_level_figures.py'
 INCLUDE_NAMES = ['low-level-ports.html', 'low-level-wiring.html']
 TEXT = re.compile(r'<text(?: class="([^"]*)")?[^>]*>([^<]*)</text>')
 CODE_TEXT = re.compile(r'<text class="code" x="([^"]+)" y="([^"]+)"[^>]*>([^<]*)</text>')
+NOTE_TEXT = re.compile(r'<text class="note" x="[^"]+" y="([^"]+)"[^>]*>([^<]*)</text>')
+CORE_POLYGON = re.compile(r'<polygon class="core" points="([^"]+)"/>')
 # How far below or above its port's label an adapter's name stands in the tall layout, at most
 ARROW_REACH = 60
-# Which code each port connects to, on the microcontroller and in the tests. The tests' own box,
-# which calls both primary ports, has no port of its own to pair with
-PORT_PAIRS = {('receiveCommand()', 'RosWheelCommandSubscriber'), ('step()', 'loop()'),
-              ('Controller', 'BaseController'), ('LogTimeout', 'RosTimeoutLogger'),
-              ('Controller', 'FakeBaseController'), ('LogTimeout', 'FakeTimeoutLog')}
+# Which code each port connects to, in each environment, as diffbot_firmware/src/main.cpp and
+# test/test_wheel_control/test_wheel_control.cpp at the pinned commit connect them. The tests'
+# own box, which calls both primary ports, has no port of its own to pair with
+ENVIRONMENT_PAIRS = {
+    'On the microcontroller': {('receiveCommand()', 'RosWheelCommandSubscriber'),
+                               ('step()', 'loop()'), ('Controller', 'BaseController'),
+                               ('LogTimeout', 'RosTimeoutLogger')},
+    'In the unit tests': {('Controller', 'FakeBaseController'),
+                          ('LogTimeout', 'FakeTimeoutLog')},
+}
+PORT_PAIRS = set().union(*ENVIRONMENT_PAIRS.values())
 
 
 def run_script() -> Dict[str, bytes]:
@@ -78,6 +87,27 @@ def port_pairs(figure: low_level_figures.Figure, wide: bool) -> Set[Tuple[str, s
     return pairs
 
 
+def environment_alone(environment: low_level_figures.Environment,
+                      wide: bool) -> low_level_figures.Figure:
+    """Return a layout that draws one environment alone, as the wide or the tall layout does."""
+    if wide:
+        figure = low_level_figures.Figure('test', 'll-ports', low_level_figures.WIDE_WIDTH, 300)
+        low_level_figures.wide_environment(figure, environment, 0)
+    else:
+        figure = low_level_figures.Figure('test', 'll-ports', low_level_figures.TALL_WIDTH, 400)
+        low_level_figures.tall_environment(figure, environment, 0)
+    return figure
+
+
+def core_corners(figure: low_level_figures.Figure) -> List[Tuple[float, float]]:
+    """Return the corners of the first core hexagon in a layout, from the top clockwise."""
+    match = CORE_POLYGON.search(''.join(figure.elements))
+    if match is None:
+        raise ValueError('the layout draws no core')
+    return [(float(x), float(y)) for x, y in
+            (corner.split(',') for corner in match.group(1).split())]
+
+
 class TestIncludes(unittest.TestCase):
     """The script writes the repository's includes, so that they show what the script draws."""
 
@@ -108,12 +138,29 @@ class TestLayouts(unittest.TestCase):
         self.assertEqual(port_pairs(low_level_figures.wide_ports(), wide=True), PORT_PAIRS)
         self.assertEqual(port_pairs(low_level_figures.tall_ports(), wide=False), PORT_PAIRS)
 
+    def test_each_environment_shows_its_own_adapters_in_both_layouts(self) -> None:
+        for environment in low_level_figures.ENVIRONMENTS:
+            for wide in (True, False):
+                with self.subTest(environment=environment.title, wide=wide):
+                    figure = environment_alone(environment, wide)
+                    self.assertEqual(port_pairs(figure, wide),
+                                     ENVIRONMENT_PAIRS[environment.title])
+
+    def test_the_core_note_stands_between_the_upright_edges_in_the_wide_layout(self) -> None:
+        figure = environment_alone(low_level_figures.ENVIRONMENTS[0], wide=True)
+        upper_corner_y, lower_corner_y = core_corners(figure)[1][1], core_corners(figure)[2][1]
+        notes = {text: float(y) for y, text in NOTE_TEXT.findall(''.join(figure.elements))}
+        self.assertGreater(notes['and its CommandTimeout'], upper_corner_y)
+        self.assertLess(notes['and its CommandTimeout'], lower_corner_y)
+
     def test_both_wiring_layouts_carry_the_same_labels(self) -> None:
         wide, tall = low_level_figures.wide_wiring(), low_level_figures.tall_wiring()
         classes = ('code', 'name', 'note', 'wire-label')
         self.assertEqual(texts(wide, *classes), texts(tall, *classes))
 
     def test_the_wiring_names_each_motors_output_and_encoder_pins(self) -> None:
+        # Remo's settings in diffbot_firmware/lib/config/diffbot_base_config.h, lines 9-21, at
+        # the commit that mkdocs.yml pins as low_level_src_url. Compare them again on a repin
         labels = texts(low_level_figures.wide_wiring(), 'note')
         self.assertIn('left: M4, pins 5 and 6', labels)
         self.assertIn('right: M3, pins 7 and 8', labels)

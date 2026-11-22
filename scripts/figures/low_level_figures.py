@@ -11,9 +11,10 @@ follows the site's light and dark colors. CSS shows one of the layouts.
 
 The names, pins and motor outputs come from the firmware at the commit that the page pins:
 WheelControl's template parameters and functions in diffbot_firmware/lib/wheel_control/
-wheel_control.h, the adapters in src/main.cpp, the fakes in test/test_wheel_control/
-test_wheel_control.cpp, and the pins and outputs in lib/config/diffbot_base_config.h. The I2C
-pins are the ones of the Teensy's bus Wire, which the BNO055's page lists.
+wheel_control.h, the adapters that src/main.cpp defines or connects, the fakes in test/fakes/
+fake_base_controller.h, which test/test_wheel_control/test_wheel_control.cpp uses, and the pins
+and outputs in lib/config/diffbot_base_config.h. The I2C pins are the ones of the Teensy's bus
+Wire, which the BNO055's page lists.
 
 Run from the repository root after changing a figure:
 
@@ -228,7 +229,7 @@ def wide_wiring() -> Figure:
     bus_y = wire_tab.y + wire_tab.height / 2
     figure.wire((Point(wire_tab.x + wire_tab.width, bus_y), Point(460, bus_y)), LineKind.I2C)
     figure.wire((Point(430, bus_y), Point(430, 54), Point(460, 54)), LineKind.I2C)
-    figure.text(424, 92, 'I²C bus', 'wire-label', 'end')
+    figure.text(424, 92, 'I2C bus', 'wire-label', 'end')
     draw_bno055_breakout(figure, 460, 40)
     labels(figure, 492, 52, [('BNO055', 'name'), ('IMU breakout', 'note')], 'start')
     draw_motor_driver_board(figure, 460, 118)
@@ -268,7 +269,7 @@ def tall_wiring() -> Figure:
     pins_bottom = wire_tab.y + wire_tab.height
     figure.wire((Point(90, pins_bottom), Point(90, 240)), LineKind.I2C)
     figure.wire((Point(41, 262), Point(41, 240), Point(152, 240), Point(152, 266)), LineKind.I2C)
-    figure.text(96, 234, 'I²C bus', 'wire-label')
+    figure.text(96, 234, 'I2C bus', 'wire-label')
     draw_bno055_breakout(figure, 30, 262)
     labels(figure, 41, 306, [('BNO055', 'name'), ('IMU breakout', 'note')])
     draw_motor_driver_board(figure, 130, 266)
@@ -289,7 +290,7 @@ def tall_wiring() -> Figure:
 def wiring_caption() -> str:
     """Return the wiring figure's caption, which both layouts share."""
     return ("Remo's microcontroller (MCU), here a Teensy 4.0, and what it connects to. The thick "
-            "line is the USB cable to the robot's computer. The dashed lines are the I²C bus "
+            "line is the USB cable to the robot's computer. The dashed lines are the I2C bus "
             '<code>Wire</code>, which the BNO055 and the motor FeatherWing share. The dash-dotted '
             "line is the FeatherWing's motor outputs, and the dotted line the encoder signals "
             'back to the MCU. The figure draws one of the two motors.')
@@ -371,7 +372,7 @@ def wide_environment(figure: Figure, environment: Environment, top: float) -> No
                     Point(center.x - half_width, center.y + half_height / 2),
                     Point(center.x - half_width, center.y - half_height / 2)), 'core')
     figure.text(center.x, center.y - half_height / 2 - 6, 'WheelControl', 'core-name', 'middle')
-    figure.text(center.x, center.y + half_height / 2 + 17, 'and its CommandTimeout', 'note',
+    figure.text(center.x, center.y - half_height / 2 + 8, 'and its CommandTimeout', 'note',
                 'middle')
     port_ys = (center.y - PORT_GAP / 2, center.y + PORT_GAP / 2)
     left_edge, right_edge = center.x - half_width, center.x + half_width

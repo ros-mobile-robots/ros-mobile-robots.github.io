@@ -2,8 +2,9 @@
 
 A figure that shows the hardware draws its parts with these functions, so that a part looks the
 same in every figure: the Raspberry Pi 4 B, the Teensy 4.0, the Adafruit DC Motor FeatherWing, the
-DG01D-E gear motor with its wheel, and the motor's encoder seen from the motor's end. The parts
-keep the colors of the real ones in both color schemes. board_rules() returns their CSS.
+DG01D-E gear motor with its wheel, the motor's encoder seen from the motor's end, and Adafruit's
+BNO055 breakout. The parts keep the colors of the real ones in both color schemes. board_rules()
+returns their CSS.
 
 The module also holds what a figure script needs to write SVG: escape(), style_element() and
 Drawing, which collects the elements of one layout and draws its rectangles, circles, lines,
