@@ -45,8 +45,8 @@ The unit test
 [`test_wheel_control`]({{ low_level_src_url }}/diffbot_firmware/test/test_wheel_control/test_wheel_control.cpp)
 uses the same times in two of its tests, with a fake controller in place of
 the encoders and the motors. One test checks that the control step at 150 ms
-calls `read()` and then `write()`. The other checks that the step at 1100 ms
-calls `eStop()`, then the timeout log, then `read()`. No test steps through the
+calls [`read()`](#the-step-excerpt) and then `write()`. The other checks that the step at 1100 ms
+calls [`eStop()`](#when-a-command-is-too-old), then the timeout log, then `read()`. No test steps through the
 control steps every 50 ms in between: the figure draws them as the loop runs
 them on schedule. On the robot, the first check at or after 1100 ms finds the
 expiry, which is later when a pass of the firmware's loop takes long.
@@ -56,13 +56,13 @@ expiry, which is later when a pass of the firmware's loop takes long.
    speeds go to [`BaseController`](#the-firmwares-design), and the command timeout starts again. Nothing
    drives the motors yet.
 2. **150 ms, a control step:** [`loop()`](#the-loop-excerpt) runs a control step every 50 ms. The
-   step reads the encoders with [`read()`](#the-step-excerpt) and publishes the wheel states for the
+   step reads the encoders with `read()` and publishes the wheel states for the
    robot's computer. Then `write()` lets the two PIDs compute the motor outputs
    from the targets and sets the motors.
 3. **From 200 ms on:** the control steps repeat every 50 ms, with the same
    targets.
 4. **1100 ms, the command is 1000 ms old:** `step()` finds that the command
-   has expired. [`eStop()`](#when-a-command-is-too-old) sets the targets and both motor outputs to
+   has expired. `eStop()` sets the targets and both motor outputs to
    zero, which releases the motors, and then the firmware logs the timeout. The
    unit test checks this order of calls: [`eStop log read`](#the-unit-tests).
 5. **After that:** the control steps only read and publish the wheel states.
@@ -160,7 +160,7 @@ The firmware's own libraries are in the [`lib`]({{ low_level_src_url }}/diffbot_
 | [`encoder`]({{ low_level_src_url }}/diffbot_firmware/lib/encoder) | [`diffbot::Encoder`](#the-encoders-speed), based on PJRC's [Encoder library](https://www.pjrc.com/teensy/td_libs_Encoder.html): the ticks of a quadrature encoder, and the wheel's angle and speed |
 | [`pid`]({{ low_level_src_url }}/diffbot_firmware/lib/pid) | `diffbot::PID`, which computes a motor output from the speed error |
 | [`command_timeout`]({{ low_level_src_url }}/diffbot_firmware/lib/command_timeout) | [`CommandTimeout`](#when-a-command-is-too-old), which decides when the last wheel command is too old |
-| [`wheel_control`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control) | [`WheelControl`](#the-step-excerpt), which drives the wheels only while the commands are new, and [`WheelCommand`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_command.h#L6-L11), a command's two target speeds |
+| [`wheel_control`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control) | [`WheelControl`](#the-step-excerpt), which lets a scheduled control step drive the motors only if the last command is new when the step begins, and [`WheelCommand`]({{ low_level_src_url }}/diffbot_firmware/lib/wheel_control/wheel_command.h#L6-L11), a command's two target speeds |
 | [`ros_wheel_commands`]({{ low_level_src_url }}/diffbot_firmware/lib/ros_wheel_commands) | [`RosWheelCommandSubscriber`](#a-wheel-command-arrives), which receives the wheel commands over rosserial |
 | [`imu`]({{ low_level_src_url }}/diffbot_firmware/lib/imu) | the BNO055's driver and publisher, the I2C bus, and the node handle that tells when its clock is synchronized, explained on [IMU (BNO055)](../imu/driver-bno055.md) |
 
@@ -168,9 +168,11 @@ The firmware's own libraries are in the [`lib`]({{ low_level_src_url }}/diffbot_
 
 [`main.cpp`]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp) creates the firmware's objects as globals, and their
 constructors connect them. `setup()` initializes them, and [`loop()`](#the-loop-excerpt) runs the
-scheduled work. The wheel control gets its controller, its logger and its clock
-from these objects, so the unit tests can put fakes in their place. In the
-order of the file:
+scheduled work. `WheelControl` gets its controller and its logger from these
+objects, and its times from its callers: the subscriber stamps each command
+with the Teensy's clock, and `loop()` passes the time of each step. So the unit
+tests can put fakes in place of the controller and the logger, and pass their
+own times. In the order of the file:
 
 1. **The node handle:** other classes, such as [`BaseController`](#the-firmwares-design), use the global
    ROS node handle to publish and subscribe. Its
@@ -306,11 +308,12 @@ The motor controllers' [`begin(uint16_t freq)`]({{ low_level_src_url }}/diffbot_
 `setup()` itself, because `MotorControllerIntf` has no `begin()` or `setup()`.
 Such a function would tie the interface to motor drivers that need one.
 
-After `setup()`, `loop()` runs the control step at `UPDATE_RATE_CONTROL`,
-20 Hz, the debug output at `UPDATE_RATE_DEBUG`, 5 Hz, and the IMU's samples
-every 20 ms, the
-period in `IMU_PUBLISHER_CONFIG`. Each pass of `loop()` runs four parts, one
-after the other:
+After `setup()`, `loop()` schedules the work at three configured intervals:
+the control step every 50 ms (`UPDATE_RATE_CONTROL`, 20 Hz), the debug output
+every 200 ms while debugging is on (`UPDATE_RATE_DEBUG`, 5 Hz), and with the IMU
+enabled a sampling slot every 20 ms, the period in `IMU_PUBLISHER_CONFIG`. The
+IMU publishes a sample only while the sensor is ready and its clock is
+synchronized. Each pass of `loop()` runs four parts, one after the other:
 
 1. `loop()` reads the Teensy's clock, `millis()`, as [`now_ms`]({{ low_level_src_url }}/diffbot_firmware/src/main.cpp#L123) and hands it to
    `wheel_control.step()`.
@@ -348,8 +351,9 @@ The control step takes these steps at the control rate:
 2. In [`BaseController::write()`]({{ low_level_src_url }}/diffbot_firmware/lib/base_controller/base_controller.h#L470-L489), the PIDs compute the motor outputs from the
    speed error, the difference between the target and the measured wheel
    speed, and the motor controllers set the motors. The targets come from the
-   last wheel command. `step()` calls `write()` only while the last command is
-   new, that is, while `timedOut()` is false.
+   last wheel command. `step()` calls `write()` only if the last command was
+   new when the step began, that is, if `timedOut()` was false at the check
+   before `read()`.
 3. `step()` stores the current time in `last_control_ms_`, so that the next
    step comes one control period later.
 
