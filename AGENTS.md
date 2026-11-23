@@ -43,13 +43,15 @@ GitHub runs up to three workflows by itself when a pull request is opened or get
 | Fork, into `main` | Yes | Yes | No |
 | Fork, into another branch | No | No | No |
 
-A pull request from a fork by a contributor who has never had a change merged into this repository waits until a maintainer approves its workflow runs. Until then, the runs show the status "Awaiting approval".
+A pull request from a fork by a contributor who has never had a change merged into this repository waits until a maintainer approves its workflow runs. Until then, the pull request shows that its workflows wait for a maintainer's approval.
+
+Changing a pull request's target to `main` doesn't start the checks. They start with its next commit, or when it is closed and reopened.
 
 The preview site is at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`. The triggers are in `.github/workflows/ci.yml`, `lint.yml` and `preview.yml`.
 
 - **A check that didn't run hasn't passed:** run the three commands above on the commit you push. Say in the description which commit that was and what the commands printed.
 - **Stacked pull request from a branch of this repository:** ask a maintainer to [run Documentation CI and Lint by hand](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow) on the pull request's branch. A manual run needs write access. It checks the newest commit that the branch has at that moment, so put the commit that each run shows into the description.
-- **Pull request from a fork:** GitHub publishes no preview for a fork, so look at the pages with `venv/bin/mkdocs serve`. A manual run takes a branch or a tag of this repository, never a fork's branch. For a fork's pull request into another branch than `main`, the results from your PC are therefore the only ones. Changing such a pull request's target to `main` doesn't start the checks. They start with its next commit, or when it is closed and reopened.
+- **Pull request from a fork:** GitHub publishes no preview for a fork, so look at the pages with `venv/bin/mkdocs serve`. A manual run takes a branch or a tag of this repository, never a fork's branch. For a fork's pull request into another branch than `main`, the results from your PC are therefore the only ones.
 
 ## How the site works
 
@@ -134,7 +136,7 @@ The scripts (`scripts/`, `hooks/`, `macros/`), the tests (`tests/`) and the them
 - **Types:** one type for what belongs together (a `NamedTuple` such as `Box(x, y, width, height)`), and an `Enum` for a closed set such as a figure's line kinds. Not bare tuples read by position.
 - **One source for every value:** a text on a figure is built from the constant, not typed again. A value that Python and JavaScript both need travels in the include's data.
 - **Python:** PEP 8 with the settings of ROS 2's `ament_flake8`, PEP 257 docstrings (a function's first line is a command), type hints on every function, tests included (`-> None`). Python 3.12, as in CI.
-- **Figure scripts:** a new figure script takes its common helpers from `scripts/figures/board_drawings.py` instead of copying them: `escape()`, `style_element()`, the class `Drawing` and the drawings of the robots' boards. A helper that a second script needs, such as the site's colors, moves there too. `pid_figures.py` uses the module. `localization_figures.py`, `control_systems_figures.py` and `geometry_test_figures.py` are older and still define their own `escape()`, `style_element()` and `Figure`. A new figure script starts each include that it writes with a comment that names the script. The older includes don't have one yet. Write text files with `encoding='utf-8'`.
+- **Figure scripts:** a new figure script takes its common helpers from `scripts/figures/board_drawings.py` instead of copying them: `escape()`, `style_element()`, the class `Drawing` and the drawings of the robots' boards. A helper that a second script needs moves there too. `pid_figures.py` uses the module. `localization_figures.py`, `control_systems_figures.py` and `geometry_test_figures.py` are older and still define their own `escape()`, `style_element()` and `Figure`. A new figure script starts each include that it writes with a comment that names the script. The older includes don't have one yet. Write text files with `encoding='utf-8'`.
 - **JavaScript:** the same rules for functions and names, and no new globals. Libraries are served from the site, each under a name with its version, such as `katex-0.19.0`.
 - **Tests:** a name says the subject, the observable result and the condition. Leave out the condition when the name is clear without it, as in `test_a_valid_catalog_has_no_errors`. One behavior per test, named values instead of bare numbers, and helpers that assert are called `assert_…`. Older tests keep their names until they change. `venv/bin/python -m unittest discover -s tests -v` runs the tests.
 - **Tests for new logic:** new logic in Python comes with a unit test that CI runs. CI runs the unit tests only for a pull request into `main` ([Checks on a pull request](#checks-on-a-pull-request)). For any other pull request, run them on your PC and put the result into the description. The theme's JavaScript has no tests yet: say in the pull request which interaction you tried in the browser and what you saw.
