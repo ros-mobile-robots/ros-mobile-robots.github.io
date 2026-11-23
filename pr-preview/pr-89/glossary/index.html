@@ -4598,6 +4598,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4687,6 +4691,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../development/firmware-unit-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Unit Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../development/geometry-test/" class="md-nav__link">
         
   
@@ -4731,6 +4763,111 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../decisions/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/0001-record-architecture-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: Record architecture decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4867,6 +5004,8 @@
 <h1 id="glossary">Glossary</h1>
 <p>Terms and abbreviations used on this site, each with a link to the page that explains it. On every page, hovering an abbreviation, such as <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>, shows its meaning; this page lists them all, which also helps on a phone, where hovering isn't possible.</p>
 <dl>
+<dt><strong><abbr title="Architecture decision record. A short page that records one lasting choice of the project, with the problem, the options, the choice and its reason, and what follows from it.">ADR</abbr></strong>, architecture decision record</dt>
+<dd>A short page that records one lasting choice of the project, with the problem, the options, the choice and its reason, and what follows from it. <a href="../decisions/">More</a></dd>
 <dt><strong><abbr title="Bill of materials. The list of all parts needed to build a robot, with quantities and where to buy them.">BOM</abbr></strong>, bill of materials</dt>
 <dd>The list of all parts needed to build a robot, with quantities and where to buy them. <a href="../components/">More</a></dd>
 <dt><strong>catkin</strong></dt>
@@ -4897,6 +5036,8 @@
 <dd>A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around. <a href="../laser-range-scanner/">More</a></dd>
 <dt><strong><abbr title="Long-term support. A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic.">LTS</abbr></strong>, long-term support</dt>
 <dd>A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic. <a href="../getting-started/set-up-your-pc/">More</a></dd>
+<dt><strong><abbr title="Markdown Architectural Decision Records. A set of Markdown templates for architecture decision records, whose minimal template the records on this site adapt.">MADR</abbr></strong>, Markdown Architectural Decision Records</dt>
+<dd>A set of Markdown templates for architecture decision records, whose minimal template the records on this site adapt. <a href="../decisions/#how-to-write-a-record">More</a></dd>
 <dt><strong><abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr></strong>, microcontroller unit</dt>
 <dd>A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors. <a href="../processing_units/teensy-mcu/">More</a></dd>
 <dt><strong><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr></strong>, Open Dynamics Engine</dt>
@@ -5117,6 +5258,10 @@
       .md-typeset pre > code { padding-right: 3em; }
       /* Highlighted lines still reach the right edge, through that padding */
       .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
+      /* Wide diagrams keep a readable size on a phone and scroll sideways, instead of shrinking
+         to the screen's width, for example the firmware's parts on Low-Level Base Controller */
+      .md-typeset .wide-diagram { overflow-x: auto; }
+      @media screen and (max-width: 44.9375em) { .md-typeset .wide-diagram svg { min-width: 30rem; } }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
