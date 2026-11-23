@@ -122,6 +122,18 @@ class TestShortReads(unittest.TestCase):
             full_count = case.reported_count == figures.SAMPLE_LENGTH_BYTES
             self.assertEqual('available()' in calls, full_count, case.name)
 
+    def test_short_read_lines_note_how_many_bytes_are_missing_behind_a_full_count(
+            self) -> None:
+        missing = 3
+        case = figures.ShortRead('ReportedInFullThreeBytesMissing', figures.SAMPLE_LENGTH_BYTES,
+                                 figures.SAMPLE_LENGTH_BYTES - missing)
+        notes = [line.note for line in figures.short_read_lines(case)
+                 if isinstance(line, figures.WireCall) and line.call == 'available()']
+        self.assertEqual(notes, ['3 bytes short'])
+
+    def test_shortfall_note_says_one_byte_for_a_single_missing_byte(self) -> None:
+        self.assertEqual(figures.shortfall_note(1), 'one byte short')
+
     def test_short_read_lines_read_every_byte_that_arrived(self) -> None:
         for case in figures.SHORT_READS:
             calls = [line.call for line in figures.short_read_lines(case)

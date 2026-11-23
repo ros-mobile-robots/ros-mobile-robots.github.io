@@ -361,13 +361,13 @@ GoogleTest creates a new `WireBusTest` object for each test ([Test Fixtures](htt
 - **A scenario in phases:** the third test checks two calls on the same `bus_`, in numbered phases. A write that the device acknowledges comes first, and the next write, which no device acknowledges, has to fail. Its first check is an [`ASSERT_`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L149-L150) check, because a failed first write would leave nothing to check in phase 2.
 - **A second set of values:** the fourth test writes [`RESET_VALUE`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L33) to [`RESET_REGISTER`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L32) at [`ALTERNATE_DEVICE_ADDRESS`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L27-L31), 0x29, the BNO055's address when its ADR pin is high. Each of these values differs from those of the first three tests, so the test shows that `WireBusT` passes on the values that it gets.
 
-The pictures show each of the four tests as a time line: the values that the test sets on `wire_`, its call of `bus_`, the calls that `WireBusT` makes on `FakeWire`, the result, and the checks. In the second and the third test, `endTransmission()` returns 2, and the write fails:
+The pictures show each of the four tests as a time line: the values that the test sets on `wire_`, its call of `bus_`, the calls that `WireBusT` makes on `FakeWire`, the result, and the checks. In the second test, and in the second write of the third test, `endTransmission()` returns 2, and that write fails:
 
 --8<-- "includes/firmware-unit-tests-write-register.html"
 
 The tests of [`readRegisters()`]({{ firmware_tests_src_url }}/diffbot_firmware/lib/imu/wire_bus.h#L31-L49) compare `wire_.calls` the same way. In a read, the register write ends with a repeated start, `endTransmission(false)`, and only then comes the read request, `requestFrom()`. After a register write that no device acknowledges, no read request may follow. A read of [`CHIP_ID_REGISTER`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L34) from `ALTERNATE_DEVICE_ADDRESS` checks that `WireBusT` passes on that register, and that address in both the register write and the read request.
 
-The pictures show the four tests of `readRegisters()` as time lines. After `requestFrom()`, `readRegisters()` asks `available()` how many bytes arrived and reads them with `read()`, and `calls` lists neither. In the last test, the calls end after the register write:
+The pictures show the four tests of `readRegisters()` as time lines. After `requestFrom()`, `readRegisters()` asks `available()` how many bytes arrived and reads them with `read()`, and `calls` lists neither. Three of the tests compare `wire_.calls`, and the test of a sample's bytes compares the bytes in `data` instead. In the last test, the calls end after the register write:
 
 --8<-- "includes/firmware-unit-tests-read-registers.html"
 

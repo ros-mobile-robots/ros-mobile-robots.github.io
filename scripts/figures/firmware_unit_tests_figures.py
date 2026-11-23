@@ -65,10 +65,15 @@ WIDTH = 340
 # The x of the test's own lines, of the time line, and of the columns of WireBusT's calls
 LEFT_X = 8
 TIME_X = 17
-CALL_X = 32
-RESULT_X = 184
-NOTE_X = 216
+CALL_X = 30
+RESULT_X = 188
+NOTE_X = 220
 RIGHT_X = 334
+# The right edge of the box around the compared calls. calls holds a call's text, not its result,
+# so the box ends before the column of the results
+CALLS_BOX_RIGHT = 183
+# The space between the test's call of bus_ and a box of compared calls, for the box's number
+CALLS_BOX_GAP = 6
 # The vertical distances between lines, in px
 ROW_HEIGHT = 20
 CHECK_HEIGHT = 19
@@ -325,7 +330,8 @@ def write_register_panels() -> Tuple[Panel, ...]:
 
 def read_call(address: int, register: int, length: int) -> str:
     """Return the test's call of readRegisters() with the values of its arguments."""
-    return f'bus_.readRegisters({hex_byte(address)}, {hex_byte(register)}, data, {length})'
+    return (f'bus_.readRegisters({hex_byte(address)}, {hex_byte(register)}, data.data(), '
+            f'{length})')
 
 
 def read_register_panels() -> Tuple[Panel, ...]:
@@ -410,6 +416,11 @@ def check_short_reads(cases: Sequence[ShortRead]) -> None:
         raise ValueError(f'not a short read: {", ".join(full)}')
 
 
+def shortfall_note(missing: int) -> str:
+    """Return the note for the bytes that a read is short of, such as one byte short."""
+    return 'one byte short' if missing == 1 else f'{missing} bytes short'
+
+
 def short_read_lines(case: ShortRead) -> Tuple[Line, ...]:
     """Return the lines of readRegisters() in a case of the parameterized test.
 
@@ -425,8 +436,9 @@ def short_read_lines(case: ShortRead) -> Tuple[Line, ...]:
                 delivered_bytes(case.delivered_count, SAMPLE_LENGTH_BYTES),
                 reported=case.reported_count)]
     if case.reported_count == SAMPLE_LENGTH_BYTES:
-        lines.append(WireCall('available()', 'one byte short', Mark.NOT_RECORDED,
-                              str(case.delivered_count)))
+        lines.append(WireCall('available()',
+                              shortfall_note(SAMPLE_LENGTH_BYTES - case.delivered_count),
+                              Mark.NOT_RECORDED, str(case.delivered_count)))
     lines.append(WireCall(f'read() × {case.delivered_count}', 'until available() is 0',
                           Mark.NOT_RECORDED))
     return tuple(lines)
@@ -562,13 +574,17 @@ def draw_lines(figure: Figure, lines: Sequence[Line]) -> List[float]:
 
 
 def draw_calls_box(figure: Figure, baselines: Sequence[float], badge: int) -> None:
-    """Add the box around the recorded calls that a check compares, with the check's number."""
+    """Add the box around the recorded calls that a check compares, with the check's number.
+
+    The box holds the calls' text and leaves their results outside. The number sits on the box's
+    top right corner.
+    """
     top = baselines[0] - ROW_HEIGHT + 6
     bottom = baselines[-1] + 6
-    width = RIGHT_X + 2 - LEFT_X
+    width = CALLS_BOX_RIGHT - LEFT_X
     figure.background.append(f'<rect class="calls-box" x="{LEFT_X:g}" y="{top:g}" '
                              f'width="{width:g}" height="{bottom - top:g}" rx="4"/>')
-    figure.badge(RIGHT_X - BADGE_RADIUS - 4, top, badge)
+    figure.badge(CALLS_BOX_RIGHT, top, badge)
 
 
 def draw_phase(figure: Figure, phase: Phase) -> None:
@@ -581,6 +597,8 @@ def draw_phase(figure: Figure, phase: Phase) -> None:
     figure.y += 18
     figure.text(LEFT_X, figure.y, phase.call, 'mono')
     time_line_top = figure.y + 5
+    if phase.calls_badge:
+        figure.y += CALLS_BOX_GAP
     recorded = draw_lines(figure, phase.lines)
     if phase.calls_badge:
         draw_calls_box(figure, recorded, phase.calls_badge)
