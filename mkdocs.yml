@@ -76,12 +76,11 @@ extra:
   firmware_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3541965496d50ce629e00054e8d3acd12e4beed5
   firmware_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5
   # The diffbot commit that the excerpts on Firmware Unit Tests show, and that
-  # scripts/figures/firmware_unit_tests_figures.py takes its values from: the head of the diffbot
-  # pull request that adds the GoogleTest environment. Move both to that pull request's merge
-  # commit before this page's pull request merges, and check the excerpts' line ranges and the
-  # script's values
-  firmware_tests_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/07b2936fd8a7db791458f29b42e74f9e3d096961
-  firmware_tests_src_url: https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961
+  # scripts/figures/firmware_unit_tests_figures.py takes its values from: the merge of the diffbot
+  # pull request that adds the GoogleTest environment. Update both when that code changes, and
+  # check the excerpts' line ranges and the script's values against the new commit
+  firmware_tests_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/c3d93b237fcbe01f763f8f4503d921436e2ea742
+  firmware_tests_src_url: https://github.com/ros-mobile-robots/diffbot/blob/c3d93b237fcbe01f763f8f4503d921436e2ea742
   # The diffbot commit that the code excerpts on Geometry Test show. Update both when that code
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885
