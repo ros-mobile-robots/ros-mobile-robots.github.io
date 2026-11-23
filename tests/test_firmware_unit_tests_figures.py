@@ -84,8 +84,8 @@ def all_pictures() -> List[figures.Picture]:
             *(figures.short_read_picture(case) for case in figures.SHORT_READS)]
 
 
-def picture_svg(picture: figures.Picture) -> str:
-    """Return the SVG of a picture, as its figure's include holds it."""
+def picture_figure(picture: figures.Picture) -> str:
+    """Return a picture's HTML as its figure's include holds it: its SVG and its caption."""
     return figures.picture_html(picture, 'test-prefix')
 
 
@@ -96,7 +96,7 @@ class TestDrawing(unittest.TestCase):
         for picture in all_pictures():
             title = f'The time line of the {picture.kind.value} {picture.name}'
             self.assertIn(f'<title id="test-prefix-{picture.name}-title">{title}</title>',
-                          picture_svg(picture))
+                          picture_figure(picture))
 
     def test_short_read_pictures_are_named_as_cases(self) -> None:
         for case in figures.SHORT_READS:
@@ -104,7 +104,7 @@ class TestDrawing(unittest.TestCase):
 
     def test_each_time_line_points_to_its_own_arrowhead(self) -> None:
         for picture in all_pictures():
-            svg = picture_svg(picture)
+            svg = picture_figure(picture)
             head = f'test-prefix-{picture.name}-head'
             self.assertIn(f'<marker id="{head}"', svg)
             self.assertEqual(set(re.findall(r'marker-end="url\(#([\w-]+)\)"', svg)), {head})
@@ -112,19 +112,19 @@ class TestDrawing(unittest.TestCase):
     def test_box_of_the_compared_calls_ends_left_of_the_results(self) -> None:
         boxes = [box for picture in all_pictures()
                  for box in re.findall(r'<rect class="calls-box" x="([\d.]+)" y="[\d.]+" '
-                                       r'width="([\d.]+)"', picture_svg(picture))]
+                                       r'width="([\d.]+)"', picture_figure(picture))]
         self.assertTrue(boxes)
         for x, width in boxes:
             self.assertLess(float(x) + float(width), figures.RESULT_X)
 
     def test_each_check_has_its_number_on_the_time_line_and_in_the_list(self) -> None:
         for picture in all_pictures():
-            svg = picture_svg(picture)
+            svg = picture_figure(picture)
             for check in picture.checks:
                 numbers = re.findall(rf'class="badge-number"[^>]*>{check.badge}</text>', svg)
                 self.assertEqual(len(numbers), 2, f'{picture.name}, check {check.badge}')
 
-    def test_ids_are_unique_on_the_page(self) -> None:
+    def test_ids_are_unique_across_the_three_includes(self) -> None:
         includes = [(ROOT / 'includes' / name).read_text(encoding='utf-8')
                     for name in INCLUDE_NAMES]
         ids = re.findall(r' id="([^"]+)"', ''.join(includes))
