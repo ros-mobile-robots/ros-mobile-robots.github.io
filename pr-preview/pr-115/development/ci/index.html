@@ -5100,7 +5100,7 @@
 
 
 <h1 id="testing-and-ci">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></h1>
-<p>Every pull request and every push to the default branch runs automated checks with <a href="https://docs.github.com/actions">GitHub Actions</a>. A PR is only merged when they pass.</p>
+<p>Pull requests and pushes to the default branch run automated checks with <a href="https://docs.github.com/actions">GitHub Actions</a>. Which checks a pull request gets depends on the repository, and on this site on the branch that the pull request targets (<a href="#this-documentation-site">This documentation site</a>). A PR is only merged when its checks pass.</p>
 <h2 id="diffbot">diffbot</h2>
 <table>
 <thead>
@@ -5320,7 +5320,7 @@
 <h3 id="writing-tests-and-debugging">Writing tests and debugging</h3>
 <p>A new test for a ROS package or for the firmware is registered in one of three ways. Choose by what the test needs:</p>
 <ul>
-<li><strong>Python test that needs no ROS master:</strong> <a href="https://nose.readthedocs.io/">nose</a> runs the test file. <a href="https://docs.ros.org/en/noetic/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-add-nosetests"><code>catkin_add_nosetests</code></a> registers the file in the package's <a href="https://github.com/ros/catkin/blob/0.8.12/doc/howto/format2/python_nose_configuration.rst"><code>CMakeLists.txt</code></a>. Example: <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a>, registered in <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/CMakeLists.txt#L221-L224"><code>diffbot_gazebo/CMakeLists.txt</code></a>.</li>
+<li><strong>Python test that needs no ROS master:</strong> <a href="https://nose.readthedocs.io/">nose</a> runs the test file. <a href="https://docs.ros.org/en/noetic/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-add-nosetests"><code>catkin_add_nosetests</code></a> registers the file in the package's <code>CMakeLists.txt</code>, as catkin's how-to <a href="https://github.com/ros/catkin/blob/0.8.12/doc/howto/format2/python_nose_configuration.rst">Configuring Python nose tests</a> shows. Example: <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/test/test_geometry_consistency.py"><code>test_geometry_consistency.py</code></a>, registered in <a href="https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885/diffbot_gazebo/CMakeLists.txt#L221-L224"><code>diffbot_gazebo/CMakeLists.txt</code></a>.</li>
 <li><strong>Test that needs running ROS nodes:</strong> <a href="http://wiki.ros.org/rostest">rostest</a> runs a <a href="../simulation-test/#1-the-test-file"><code>.test</code></a> file, a launch file that starts the nodes and then the test node. <a href="https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest/cmake/rostest-extras.cmake.em#L7-L58"><code>add_rostest</code></a> registers the file in the same <code>CMakeLists.txt</code>. Example: <a href="https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8/diffbot_gazebo/test/sim_drive_diffbot.test"><code>sim_drive_diffbot.test</code></a> of the <a href="../simulation-test/">simulation test</a>.</li>
 <li><strong>Firmware test on the PC:</strong> PlatformIO's <a href="#firmware-unit-tests"><code>native</code></a> environment builds and runs a <a href="https://docs.platformio.org/en/latest/advanced/unit-testing/frameworks/unity.html">Unity</a> test. The test is a folder in <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_firmware/test"><code>diffbot_firmware/test</code></a>, and its name in <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_firmware/platformio.ini#L45-L53"><code>test_filter</code> of <code>platformio.ini</code></a> registers the folder. Example: <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_firmware/test/test_command_timeout"><code>test_command_timeout</code></a>.</li>
 </ul>
@@ -5333,7 +5333,7 @@
 <ul>
 <li><strong>Workspace build and tests:</strong> in the <a href="../dev-container/">dev container</a>, in <code>~/catkin_ws</code>, run the two commands from the <a href="#dev-container-workflow">dev container workflow</a> above.</li>
 <li>
-<p><strong>Firmware:</strong> build it in its own container, as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does. It needs only Docker, not PlatformIO on your PC. When you change the firmware, build both boards, because the change has to work on both. From your diffbot clone's root folder on the PC, not inside the dev container:</p>
+<p><strong>Firmware:</strong> build it in its own container, as <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> does. It needs only Docker, not PlatformIO on your PC. When you change the firmware, build both boards, because the change has to work on both. Run the commands from your diffbot clone's root folder on the PC, not inside the dev container:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio run -e teensy40</span>
 <span class="go">.docker/firmware/run.sh pio run -e teensy31</span>
@@ -5341,10 +5341,10 @@
 <p><a href="../firmware-container/">Firmware Container</a> explains how to use it, how it works and how your user ID gets into it, and how to install PlatformIO on your PC instead.</p>
 </li>
 <li>
-<p><strong>Firmware unit tests:</strong> in the same container, also from the root folder of your diffbot clone:</p>
+<p><strong>Firmware unit tests:</strong> run them in the same container, also from the root folder of your diffbot clone:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">.docker/firmware/run.sh pio test -e native</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>PlatformIO builds each test folder in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test"><code>diffbot_firmware/test</code></a> for the PC and runs it. It lists every test with <code>PASS</code> or <code>FAIL</code>, and a summary at the end.</p>
+<p>PlatformIO builds each test folder in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test"><code>diffbot_firmware/test</code></a> that <code>test_filter</code> lists for the PC, and runs it. It lists every test with <code>PASS</code> or <code>FAIL</code>, and a summary at the end.</p>
 </li>
 </ul>
 <h2 id="this-documentation-site">This documentation site</h2>
@@ -5375,11 +5375,11 @@
 </tbody>
 </table>
 <p>A pull request into another branch than <code>main</code>, a stacked pull request, therefore gets the preview, but no unit tests and no spelling check. A pull request from a fork into such a branch gets none of the three. A maintainer can start Documentation <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> and Lint by hand on a branch or a tag of this repository. <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/AGENTS.md#checks-on-a-pull-request">Checks on a pull request</a> in this site's AGENTS.md lists the four cases and says what to do in each.</p>
-<p>To run the same checks on your PC, in the repository's root, with Python 3.12 as in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>:</p>
+<p>Run the same checks on your PC, in the repository's root, with Python 3.12 as in <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">python3 -m venv venv &amp;&amp; venv/bin/pip install -r requirements.txt codespell</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">python3.12 -m venv venv &amp;&amp; venv/bin/pip install -r requirements.txt codespell</span>
 <span class="go">venv/bin/python -m unittest discover -s tests -v</span>
 <span class="go">venv/bin/mkdocs build --strict</span>
 <span class="go">venv/bin/codespell</span>
