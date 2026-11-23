@@ -19,7 +19,7 @@ How should the project record such choices, so that a contributor finds each one
 
 ## Decision Outcome
 
-Chosen option: "Architecture decision records in MADR's minimal format, all in this site's repository", because a contributor finds every record in one place, under one numbering, and a choice that concerns several repositories has one home. Each code pull request of a feature has a docs pull request next to it, which is where the record is written and reviewed. A record can link the pages that explain the code and use the site's figures.
+Chosen option: "Architecture decision records in MADR's minimal format, all in this site's repository", because a contributor finds every record in one place, under one numbering, and a choice that concerns several repositories has one home. A code pull request that changes what the robots do usually has a docs pull request next to it, where the record is written and reviewed. A choice without one gets a docs pull request of its own. A record can link the pages that explain the code and use the site's figures.
 
 [Decisions](index.md) says when a change gets a record, how to write one, and has the template.
 
@@ -27,5 +27,5 @@ Chosen option: "Architecture decision records in MADR's minimal format, all in t
 
 - Good, because a record is short: the problem, the options, the choice with its reason, and what follows from the choice.
 - Good, because the records are searchable on the site, next to the pages that explain the code.
-- Bad, because a contributor who reads only a code repository doesn't find the records there. So each record names the repository and branch that it applies to, and the code repositories' `CONTRIBUTING.md` files link [Decisions](index.md). Each gets that link with the next pull request that changes the file.
+- Bad, because a contributor who reads only a code repository doesn't find the records there. So each record names the repository and branch that it applies to, and each code repository adds a link to [Decisions](index.md) to its `CONTRIBUTING.md` when the guide is next edited.
 - Bad, because a record is only as current as its upkeep. A changed choice needs a new record that supersedes the old one.

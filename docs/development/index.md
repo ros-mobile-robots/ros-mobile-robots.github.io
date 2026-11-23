@@ -34,7 +34,7 @@ Issues labelled [`good first issue`](https://github.com/ros-mobile-robots/diffbo
 
 A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site (see [Writing docs](#writing-docs)).
 
-A change that makes a lasting choice, such as an interface or the boundary between two parts, also gets a record on [Decisions](../decisions/index.md), in its docs pull request.
+A change that makes a lasting choice, such as an interface or the boundary between two parts, also gets a record on [Decisions](../decisions/index.md), in its docs pull request or in a docs pull request of its own.
 
 ## Best practices
 
