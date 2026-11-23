@@ -71,6 +71,11 @@
   definition: A release that gets updates for several years, such as Ubuntu 20.04 or ROS Noetic.
   link: getting-started/set-up-your-pc.md
 
+- term: MADR
+  expansion: Markdown Architectural Decision Records
+  definition: A set of Markdown templates for architecture decision records, whose minimal template the records on this site adapt.
+  link: decisions/index.md#how-to-write-a-record
+
 - term: MCU
   expansion: microcontroller unit
   definition: A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.

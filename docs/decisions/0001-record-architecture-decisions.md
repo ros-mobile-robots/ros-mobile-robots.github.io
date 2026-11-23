@@ -12,7 +12,7 @@ How should the project record such choices, so that a contributor finds each one
 
 ## Considered Options
 
-- Architecture decision records in MADR's minimal format, all in this site's repository and on this site under [Decisions](index.md)
+- Architecture decision records in MADR's minimal format, all in this site's repository and on this site under [Decisions](index.md). MADR, the Markdown Architectural Decision Records, is a set of templates for such records, and [How to write a record](index.md#how-to-write-a-record) shows the one that this site adapts.
 - The same records, each in the repository that the choice concerns, with a list on this site
 - An architecture document after the [arc42](https://arc42.org/) template for each repository, whose section 9 holds the decisions
 - No records of their own: issues, pull request descriptions and the pages that explain the code
