@@ -2891,15 +2891,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#timing-with-the-teensys-clock" class="md-nav__link">
+  <a href="#timing-with-the-mcus-clock" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Timing with the Teensy's clock
+        Timing with the MCU's clock
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Timing with the Teensy's clock">
+    <nav class="md-nav" aria-label="Timing with the MCU's clock">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -4919,15 +4919,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#timing-with-the-teensys-clock" class="md-nav__link">
+  <a href="#timing-with-the-mcus-clock" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Timing with the Teensy's clock
+        Timing with the MCU's clock
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Timing with the Teensy's clock">
+    <nav class="md-nav" aria-label="Timing with the MCU's clock">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -5130,11 +5130,11 @@ line numbers, show the firmware at the diffbot commit that this page pins.
 The link before each excerpt opens the same lines on GitHub.</p>
 </div>
 <h3 id="a-wheel-commands-way-through-the-firmware">A wheel command's way through the firmware</h3>
-<p>The robot's computer sends the Teensy wheel commands, about ten per second. Each
+<p>The robot's computer sends the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> wheel commands, about ten per second. Each
 command holds the target speed of each wheel, in rad/s. The firmware stores the
 targets, drives the motors toward them in a control step every 50 ms, and
 releases the motors when no new command comes. The figure follows one command
-that arrives when the Teensy's clock shows 100 ms, with no command after it. The
+that arrives when the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock shows 100 ms, with no command after it. The
 control period is 50 ms and the command timeout 1000 ms, as on the robot.</p>
 <div class="mermaid">graph TB
   T100["100 ms: a wheel command arrives&lt;br/&gt;targets stored,&lt;br/&gt;command timeout restarted"]
@@ -5166,7 +5166,7 @@ expiry, which is later when a pass of the firmware's loop takes long.</p>
    from the targets and sets the motors.</li>
 <li><strong>From 200 ms on:</strong> the control steps repeat every 50 ms, with the same
    targets.</li>
-<li><strong>1100 ms, the command is 1000 ms old:</strong> <code>step()</code> finds that the command
+<li><strong>1100 ms, the command is 1000 ms old:</strong> <code>WheelControl::step()</code>, which <code>loop()</code> calls on every pass, finds that the command
    has expired. <code>eStop()</code> sets the targets and both motor outputs to
    zero, which releases the motors, and then the firmware logs the timeout. The
    unit test checks this order of calls: <a href="#the-unit-tests"><code>eStop log read</code></a>.</li>
@@ -5177,9 +5177,9 @@ expiry, which is later when a pass of the firmware's loop takes long.</p>
 <p>On the robot, the hardware interface sends a command every 100 ms, also while
 the robot stands still, with zero speeds. A valid command holds exactly two
 finite wheel speeds, zeros included. Every valid command restarts the timeout
-when the Teensy processes it. A message that the subscriber drops, for example
+when the firmware processes it. A message that the subscriber drops, for example
 one with a single speed, doesn't. So the
-timeout tells whether valid commands still reach the Teensy, not whether the
+timeout tells whether valid commands still reach the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>, not whether the
 robot should move. On the robot, it expires when the commands stop, for
 example when the <a href="#ros-control-high-level-hardware-interface-for-a-differential-drive-robot"><code>diffbot_base</code></a> node stops.</p>
 <p>The next section compares this stop with a loss of power on the bench. The
@@ -5187,7 +5187,7 @@ sections after it follow the same path through the code: the
 <a href="#the-firmware-project-and-its-libraries">project and its libraries</a>,
 <a href="#connecting-the-firmware-in-maincpp">how <code>main.cpp</code> connects the parts</a>,
 <a href="#the-command-timeout">the command timeout</a> and
-<a href="#timing-with-the-teensys-clock">the timing with the Teensy's clock</a>.
+<a href="#timing-with-the-mcus-clock">the timing with the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock</a>.
 The firmware's design comes last.</p>
 <h3 id="two-kinds-of-stop">Two kinds of stop</h3>
 <p>A bench test on Remo's Teensy 4.0, with the wheels off the ground, shows how the
@@ -5196,9 +5196,9 @@ command timeout differs from a loss of power
 <ul>
 <li><strong>The wheel commands stop:</strong> With the USB cable connected and the wheels
   driving, <code>rosnode kill /diffbot/diffbot_base</code> stopped the hardware interface,
-  the node that sends the wheel commands. The Teensy logged
+  the node that sends the wheel commands. The firmware logged
   <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp#L46"><code>Wheel command timeout: motors stopped</code></a> once, 0.92 s after the node
-  stopped. The timeout counts from the last command that the Teensy processed,
+  stopped. The timeout counts from the last command that the firmware processed,
   and that command's time wasn't logged. With a command every 100 ms, the
   0.92 s is consistent with a last command about 80 ms before the node stopped,
   but no log shows that arrival. The
@@ -5218,11 +5218,11 @@ keep the Teensy powered.</p>
 <p>The firmware is a <a href="https://platformio.org/">PlatformIO</a> project in the
 <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware"><code>diffbot_firmware</code></a> folder of the diffbot repository.
 PlatformIO builds Arduino code for the Teensy and uploads it to the board. It
-runs as an extension of Visual Studio Code, which opens the folder as a
-PlatformIO project because the folder contains <code>platformio.ini</code>, or from the
-command line, as in the <a href="../../../development/firmware-container/">firmware container</a>.
-<code>platformio.ini</code> lists the libraries that the firmware needs, here for Remo's
-Teensy 4.0, <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/platformio.ini#L30-L37">lines 30–37</a>:</p>
+runs as an extension of Visual Studio Code or from the command line, as in the
+<a href="../../../development/firmware-container/">firmware container</a>. Visual Studio Code
+opens the folder as a PlatformIO project because the folder contains
+<code>platformio.ini</code>. That file also lists the libraries that the firmware needs,
+here for Remo's Teensy 4.0, <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/platformio.ini#L30-L37">lines 30–37</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">platformio.ini: Remo's Teensy 4.0</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
@@ -5254,14 +5254,14 @@ which the motor driver and the <abbr title="Inertial measurement unit. A sensor 
 <li><strong><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>:</strong> the gains of the two wheel PIDs, explained on <a href="../pid/"><abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> Controllers</a>.</li>
 <li><strong>Motor output range:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/config/diffbot_base_config.h#L80"><code>PWM_MIN</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/config/diffbot_base_config.h#L79"><code>PWM_MAX</code></a>, −255 and 255.</li>
 <li><strong>Update rates:</strong> how often the control step and the debug output run,
-  explained in <a href="#timing-with-the-teensys-clock">Timing with the Teensy's clock</a>.</li>
+  explained in <a href="#timing-with-the-mcus-clock">Timing with the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock</a>.</li>
 <li><strong>Command timeout:</strong> <a href="#the-command-timeout"><code>COMMAND_TIMEOUT_MS</code></a>, how long the firmware drives the
   motors without a new wheel command.</li>
 <li><strong><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>:</strong> the BNO055's address and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publisher's settings in
   <a href="../../imu/driver-bno055/#what-the-firmware-publishes"><code>IMU_PUBLISHER_CONFIG</code></a>, for example <code>enabled</code> false for a robot without
   an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</li>
 </ul>
-<p>The figure shows what Remo's <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> connects to and over which wire. Trace the USB cable to the robot's computer, the I²C bus to the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the motor driver, the motor driver's outputs to the motors, and the encoder signals back to the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s pins.</p>
+<p>The figure shows what Remo's <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> connects to and over which wire. Trace the USB cable to the robot's computer, the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus to the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the motor driver, the motor driver's outputs to the motors, and the encoder signals back to the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s pins.</p>
 <!-- Generated by scripts/figures/low_level_figures.py. Change the script and run it. -->
 <style>
 .md-typeset figure.ll-wiring-figure{margin:1em auto;width:100%;max-width:480px}
@@ -5350,7 +5350,7 @@ which the motor driver and the <abbr title="Inertial measurement unit. A sensor 
 <text class="wire-label" x="119" y="167" text-anchor="middle">USB cable</text>
 <path class="i2c" d="M400,129 L460,129"></path>
 <path class="i2c" d="M430,129 L430,54 L460,54"></path>
-<text class="wire-label" x="424" y="92" text-anchor="end">I²C bus</text>
+<text class="wire-label" x="424" y="92" text-anchor="end">I2C bus</text>
 <rect class="imu-board" x="460" y="40" width="22" height="28" rx="2"></rect>
 <circle class="pad" cx="464" cy="44" r="2.4"></circle>
 <circle class="ring-hole" cx="464" cy="44" r="1.2"></circle>
@@ -5449,7 +5449,7 @@ which the motor driver and the <abbr title="Inertial measurement unit. A sensor 
 <text class="wire-label" x="72" y="62" text-anchor="start">USB cable</text>
 <path class="i2c" d="M90,215 L90,240"></path>
 <path class="i2c" d="M41,262 L41,240 L152,240 L152,266"></path>
-<text class="wire-label" x="96" y="234" text-anchor="start">I²C bus</text>
+<text class="wire-label" x="96" y="234" text-anchor="start">I2C bus</text>
 <rect class="imu-board" x="30" y="262" width="22" height="28" rx="2"></rect>
 <circle class="pad" cx="34" cy="266" r="2.4"></circle>
 <circle class="ring-hole" cx="34" cy="266" r="1.2"></circle>
@@ -5502,7 +5502,7 @@ which the motor driver and the <abbr title="Inertial measurement unit. A sensor 
 <text class="note" x="260" y="424" text-anchor="middle">left: M4, pins 5 and 6</text>
 <text class="note" x="260" y="438" text-anchor="middle">right: M3, pins 7 and 8</text>
 </svg>
-<figcaption>Remo's microcontroller (MCU), here a Teensy 4.0, and what it connects to. The thick line is the USB cable to the robot's computer. The dashed lines are the I²C bus <code>Wire</code>, which the BNO055 and the motor FeatherWing share. The dash-dotted line is the FeatherWing's motor outputs, and the dotted line the encoder signals back to the MCU. The figure draws one of the two motors.</figcaption>
+<figcaption>Remo's microcontroller (MCU), here a Teensy 4.0, and what it connects to. The thick line is the USB cable to the robot's computer. The dashed lines are the I2C bus <code>Wire</code>, which the BNO055 and the motor FeatherWing share. The dash-dotted line is the FeatherWing's motor outputs, and the dotted line the encoder signals back to the MCU. The figure draws one of the two motors.</figcaption>
 </figure>
 
 <p>The firmware's own libraries are in the <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib"><code>lib</code></a> folder:</p>
@@ -5552,11 +5552,12 @@ which the motor driver and the <abbr title="Inertial measurement unit. A sensor 
 </tr>
 </tbody>
 </table>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/ros_lib/diffbot_msgs"><code>ros_lib/diffbot_msgs</code></a> holds the rosserial message headers of <code>diffbot_msgs</code>, such as <code>WheelsCmdStamped.h</code>, the message of the wheel commands that <code>RosWheelCommandSubscriber</code> receives.</p>
 <h3 id="connecting-the-firmware-in-maincpp">Connecting the firmware in main.cpp</h3>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp"><code>main.cpp</code></a> creates the firmware's objects as globals, and their
 constructors connect them. <code>setup()</code> initializes them, and <a href="#the-loop-excerpt"><code>loop()</code></a> runs the
 scheduled work. <a href="#the-step-excerpt"><code>WheelControl</code></a> gets its controller and its logger from these
-objects, and its times from its callers: the subscriber passes the Teensy's
+objects, and its times from its callers: the subscriber passes the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s
 time alongside each valid command, and <code>loop()</code> passes the time of each step. So the unit
 tests can put fakes in place of the controller and the logger, and pass their
 own times. In the order of the file:</p>
@@ -5564,9 +5565,10 @@ own times. In the order of the file:</p>
 <li>
 <p><strong>The node handle:</strong> other classes, such as <a href="#the-firmwares-design"><code>BaseController</code></a>, use the global
    ROS node handle to publish and subscribe. Its
-   <a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L354-L383"><code>ros::NodeHandle::now()</code></a> gives the ROS time for time stamps. Time
-   intervals come from the Teensy's own clock instead, as
-   <a href="#timing-with-the-teensys-clock">Timing with the Teensy's clock</a> explains,
+   <a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L367-L375"><code>ros::NodeHandle::now()</code></a> gives the ROS time for time stamps. Time
+   intervals come from the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s own clock instead, as
+   <a href="#timing-with-the-mcus-clock">Timing with the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock</a> explains.
+   <code>main.cpp</code> creates the node handle in
    <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp#L20-L22">lines 20–22</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">main.cpp: the node handle</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
 <span class="normal">21</span>
@@ -5689,14 +5691,14 @@ output from the difference between the target and the measured wheel speed.</p>
 </span><span class="w">        </span><span class="n">wheel_control</span><span class="p">,</span><span class="w"> </span><span class="n">wheel_clock</span><span class="p">);</span>
 </code></pre></div></td></tr></tbody></table></div>
 <ul>
-<li><code>ArduinoClock</code> gives the Teensy's clock, <code>millis()</code> and <code>micros()</code>, to the
+<li><code>ArduinoClock</code> gives the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock, <code>millis()</code> and <code>micros()</code>, to the
   parts that need it. The unit tests replace it with a fake clock.</li>
 <li><code>RosTimeoutLogger</code> sends the timeout warning to the robot's computer with
-  <a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L510-L530"><code>nh.logwarn()</code></a>. <code>WheelControl</code> calls this logger after it has
+  <a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L527-L530"><code>nh.logwarn()</code></a>. <code>WheelControl</code> calls this logger after it has
   stopped the motors.</li>
 <li><code>WHEEL_CONTROL_CONFIG</code> holds the wheel control's two times: the command
   timeout, <a href="#the-command-timeout"><code>COMMAND_TIMEOUT_MS</code></a>, and the control period, 50 ms at an
-  <a href="#the-command-timeout-and-the-control-step"><code>UPDATE_RATE_CONTROL</code></a> of 20 Hz. <a href="https://en.cppreference.com/w/cpp/language/static_assert"><code>static_assert</code></a> checks, when the firmware
+  <a href="#the-command-timeout-and-the-control-step"><code>UPDATE_RATE_CONTROL</code></a> of 20 Hz. <a href="https://en.cppreference.com/cpp/language/static_assert"><code>static_assert</code></a> checks, when the firmware
   is compiled, that both times are longer than zero.</li>
 <li><code>wheel_control</code>, a <code>WheelControl</code>, gets the base controller, the times and
   the logger.</li>
@@ -5704,7 +5706,7 @@ output from the difference between the target and the measured wheel speed.</p>
   commands and passes each valid one on to <code>wheel_control</code>, with its arrival
   time from <code>wheel_clock</code>.</li>
 </ul>
-<p><a href="https://en.cppreference.com/w/cpp/language/decltype"><code>decltype(base_controller)</code></a> stands for the base controller's type, so that
+<p><a href="https://en.cppreference.com/cpp/language/decltype"><code>decltype(base_controller)</code></a> stands for the base controller's type, so that
 the long template type doesn't have to be written again. C++ creates these
 global objects in the order in which they appear in the file. So each object
 gets references only to objects that already exist: <code>wheel_control</code> to
@@ -5763,7 +5765,7 @@ publisher takes its time from <code>ArduinoClock</code> too.</p>
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>Debugging is on when the ROS parameter <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/base_controller/base_controller.h#L401"><code>/diffbot/debug/base_controller</code></a> is
-true. <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/base_controller/base_controller.h#L388-L414"><code>BaseController::init()</code></a> reads it at the start. Then the function logs
+true. <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/base_controller/base_controller.h#L388-L414"><code>BaseController::init()</code></a> reads it at the start. Then <code>publishDebugIfDue()</code> logs
 every 200 ms, at an <a href="#the-time-stamps"><code>UPDATE_RATE_DEBUG</code></a> of 5 Hz.</p>
 </li>
 </ol>
@@ -5826,14 +5828,14 @@ the wheel radius. <code>setup()</code> in <code>main.cpp</code> calls both and s
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/ros_wheel_commands/ros_wheel_command_subscriber.h#L64-L73"><code>wheel_commands.subscribe(nh)</code></a> registers the wheel command subscriber. With the
 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> enabled, <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/imu/imu_publisher.h#L59-L64"><code>imu_publisher.advertise()</code></a> registers the <code>imu/data_raw</code> publisher.
 Both come before <code>base_controller.setup()</code>, which starts rosserial and calls
-<a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L187-L334"><code>spinOnce()</code></a> while waiting for the robot's computer. When <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp#L95-L104"><code>serial_node.py</code></a>
-requests the Teensy's topics over USB, <code>spinOnce()</code> answers with the publishers
+<a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L187-L334"><code>spinOnce()</code></a> while waiting for the robot's computer. When <code>serial_node.py</code>
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp#L95-L104">requests the firmware's topics over USB</a>, <code>spinOnce()</code> answers with the publishers
 and subscribers registered so far. After sending that answer, rosserial marks
 the connection ready and <code>base_controller.setup()</code> can finish. The computer
 forwards wheel commands only for a subscriber in that answer.
 <a href="https://docs.arduino.cc/language-reference/en/functions/communication/wire/begin/"><code>Wire.begin()</code></a>
 starts the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus for the motor driver and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
-<p>The subscriber comes first for the command timeout, too. <code>BaseController::setup()</code>
+<p>Registering the subscriber before <code>base_controller.setup()</code> also matters for the command timeout. <code>BaseController::setup()</code>
 and <code>init()</code> already receive messages while they wait for the connection and
 read the parameters. Wheel commands that arrive then reach <code>wheel_control</code>
 already, as <a href="#when-a-command-is-too-old">When a command is too old</a> explains.</p>
@@ -5847,7 +5849,7 @@ enabled a sampling slot every 20 ms, the period in <code>IMU_PUBLISHER_CONFIG</c
 <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publisher can publish a sample only when the BNO055 is ready and the
 rosserial node handle has synchronized its clock with the robot's computer. Each pass of <code>loop()</code> runs four parts, one after the other:</p>
 <ol>
-<li><code>loop()</code> reads the Teensy's clock, <code>millis()</code>, as <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp#L123"><code>now_ms</code></a> and hands it to
+<li><code>loop()</code> reads the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock, <code>millis()</code>, as <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp#L123"><code>now_ms</code></a> and hands it to
    <code>wheel_control.step()</code>.</li>
 <li><a href="#the-imu-update"><code>imu_publisher.update()</code></a> gets no time reading from <code>loop()</code>. With the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>
    enabled, it reads its own clock after <code>wheel_control.step()</code> has returned, a
@@ -5883,8 +5885,8 @@ rosserial node handle has synchronized its clock with the robot's computer. Each
 </span>
 <span class="hll"><span class="w">    </span><span class="n">imu_publisher</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
 </span>
-<span class="w">    </span><span class="n">publishDebugIfDue</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
-
+<span class="hll"><span class="w">    </span><span class="n">publishDebugIfDue</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
+</span>
 <span class="w">    </span><span class="c1">// Parse incoming rosserial bytes and dispatch complete messages after the control step.</span>
 <span class="w">    </span><span class="c1">// The next loop pass reads now_ms after these callbacks. A callback timestamp later than</span>
 <span class="w">    </span><span class="c1">// now_ms would otherwise make unsigned subtraction report an age near 49.7 days</span>
@@ -5966,7 +5968,7 @@ command timeout, also when no control step is due.</p>
 <p><a id="the-imu-update"></a></p>
 <p>After the wheel control's step comes the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, unless <code>enabled</code> is false in
 <code>IMU_PUBLISHER_CONFIG</code>.
-<code>ImuPublisher::update()</code> takes its own reading of the Teensy's clock,
+<code>ImuPublisher::update()</code> takes its own reading of the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock,
 <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/src/main.cpp#L38"><code>Clock::millis()</code></a>, which is <code>millis()</code> on the robot, <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/imu/imu_publisher.h#L100-L112">lines 100–112</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_publisher.h: update()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
 <span class="normal">101</span>
@@ -6011,7 +6013,7 @@ valid message for a subscribed topic, for example the wheel commands' callback.
 <code>nh.spinOnce()</code> comes last, after the wheel control's step, for a reason that
 <a href="#when-the-counters-wrap">When the counters wrap</a> explains.</p>
 <h3 id="the-command-timeout">The command timeout</h3>
-<p>When the robot's computer stops sending wheel commands while the Teensy keeps
+<p>When the robot's computer stops sending wheel commands while the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> keeps
 running, the firmware stops the motors. That happens, for example, when the
 <a href="#ros-control-high-level-hardware-interface-for-a-differential-drive-robot"><code>diffbot_base</code></a> node stops. The
 hardware interface on the robot's computer publishes the wheel commands in
@@ -6051,13 +6053,13 @@ subscribes to <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f
   infinity or NaN ("not a number"). The callback drops any other message. A dropped
   message changes neither the targets nor the command timeout, so broken
   messages can't keep the motors driving.</li>
-<li><strong>The arrival time:</strong> The time of a command comes from the Teensy's clock,
-  <a href="#timing-with-the-teensys-clock"><code>millis()</code></a> when the callback runs, not from the time stamp in the message's
+<li><strong>The arrival time:</strong> The time of a command comes from the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock,
+  <a href="#timing-with-the-mcus-clock"><code>millis()</code></a> when the callback runs, not from the time stamp in the message's
   header. The timeout measures how long ago the callback processed a valid
   command. The bytes can wait in the USB buffer before that. The header's stamp is ROS time from the robot's computer, which jumps when
   that computer's clock is corrected.</li>
 <li><strong>Zero speeds:</strong> Every valid command counts, also one with zero speeds. While
-  the bringup runs, a robot that stands still keeps getting commands and doesn't
+  the <a href="../../../diffbot_bringup/">bringup</a> runs, a robot that stands still keeps getting commands and doesn't
   time out.
   So the timeout doesn't tell how old the last velocity command on <a href="../../imu/robot_localization/#how-it-fits-together"><code>cmd_vel</code></a> is.
   When <code>cmd_vel</code> stops,
@@ -6158,7 +6160,7 @@ drives depends on the command's age when <code>step()</code> checks it.</p>
 <li><strong>A new command:</strong> <a href="#a-wheel-command-arrives"><code>receiveCommand()</code></a> calls
   <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/command_timeout/command_timeout.h#L29-L35"><code>commandArrived()</code></a> for every valid command. <code>commandArrived()</code> stores the
   arrival time and ends a timeout. So only a new command ends a timeout, not a
-  comparison of times. After about 49.7 days, <a href="#timing-with-the-teensys-clock"><code>millis()</code></a> returns to zero, and an
+  comparison of times. After about 49.7 days, <a href="#timing-with-the-mcus-clock"><code>millis()</code></a> returns to zero, and an
   old arrival time could look new again
   (<a href="#when-the-counters-wrap">When the counters wrap</a>).</li>
 <li><strong>The timeout:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/command_timeout/command_timeout.h#L37-L43"><code>update()</code></a> times out once the last command is <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/command_timeout/command_timeout.h#L49"><code>timeout_ms_</code></a>
@@ -6174,9 +6176,8 @@ step excerpt above. <code>stopWhenCommandExpires()</code> notes what
 <code>timedOut()</code> answers, calls <code>update()</code> and asks again. Only on the first pass
 that finds the command expired, when the answer changes from false to true,
 <code>stopWhenCommandExpires()</code> stops the motors with <code>eStop()</code> and then logs the
-timeout. A delayed loop can find the expiry later than the deadline. So the
-motors are stopped and the timeout is logged once per timeout, not on every
-pass. The private <code>stopWhenCommandExpires()</code> keeps the timeout's stop and log
+timeout. So the motors are stopped and the timeout is logged once per timeout,
+not on every pass. A delayed loop can find the expiry later than the deadline. The private <code>stopWhenCommandExpires()</code> keeps the timeout's stop and log
 together, in that order.</p>
 <ul>
 <li><strong>Before the first command:</strong> <code>timedOut()</code> is true before and after <code>update()</code>.
@@ -6219,31 +6220,44 @@ together, in that order.</p>
 <p><code>eStop()</code> sets both target wheel velocities to zero, resets both PIDs, so that no
 stored error drives the motors later, and sets both motors to zero. On the
 Adafruit FeatherWing, zero releases a motor, so the wheels coast without
-braking. Only then the firmware logs the timeout, because sending the log
+braking. Only then does the firmware log the timeout, because sending the log
 message can wait for the USB connection. The control step keeps reading and
 publishing the wheel states.</p>
 <p>A new valid command ends the timeout. The next scheduled control step drives
 again if that command is still less than 1000 ms old when <code>step()</code> checks it.
 The PIDs start from the state cleared by <code>eStop()</code>.</p>
-<p>So the first check at which the last valid command that the Teensy has
-processed is at least 1000 ms old calls <code>eStop()</code>. <code>eStop()</code> sends the release
-to both motors over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>, and the motor driver's library gives the firmware no
-confirmation that a write succeeded. A slow <code>read()</code> in a control step can also
-delay a <code>write()</code> that the check before it allowed, past the deadline. This age
-isn't the time at which the wheels stand still.
+<p>So the first check at which the last valid command that the firmware has
+processed is at least 1000 ms old calls <code>eStop()</code>. The command's age at the
+release is therefore 1000 ms or more. <code>eStop()</code> sends the release to both motors
+over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>, and the motor driver's library gives the firmware no confirmation that
+a write succeeded. A slow <code>read()</code> in a control step can also delay a <code>write()</code>
+that the check before it allowed, past the deadline.
 <a href="#the-loop-excerpt"><code>loop()</code></a> runs its parts one after the other, and each part has to return before
 the next one runs. A part that blocks, for example a log message that waits for
 the USB connection or a slow <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> read, delays the next check. After the
 release, the wheels coast until friction stops them. So three moments follow
 each other: the commands stop, the firmware releases the motors, and the wheels
 come to rest.</p>
-<p>Two cases aren't covered yet. A firmware that hangs never reaches the next
-check, and the motor driver keeps its last output. And nothing bounds how late
-a slow pass of <code>loop()</code> makes the release.
-<a href="https://github.com/ros-mobile-robots/diffbot/issues/190">diffbot#190</a> plans a hardware watchdog, a second
-check of the command's age right before the motor write, and bench
-measurements of the time until the motors are released and until the wheels
-rest.</p>
+<p>The command timeout doesn't cover these cases yet:</p>
+<ul>
+<li><strong>A firmware that hangs:</strong> the firmware never reaches the next check, and the
+  motor driver keeps its last output.</li>
+<li><strong>A restart of the firmware:</strong> no check runs while <code>setup()</code> waits for the
+  robot's computer, and the motor driver keeps its last output until <code>begin()</code>
+  switches the outputs off after that wait. This follows from the order in
+  <a href="#connecting-the-firmware-in-maincpp"><code>setup()</code></a> and wasn't tried on the robot.</li>
+<li><strong>A slow pass of <code>loop()</code>:</strong> nothing bounds how late it makes the release.</li>
+<li><strong>A failed write:</strong> the motor driver's library confirms no write, so nothing
+  tells the firmware whether the release reached the motors.</li>
+<li><strong>The Teensy's program button or an upload:</strong> the Teensy runs its
+  bootloader, the program that loads new firmware, instead of the firmware.
+  Nothing on the Teensy switches the motors off.</li>
+</ul>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/issues/190">diffbot#190</a> tracks these cases. It plans a hardware watchdog: a timer in the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>
+that restarts the firmware when the firmware stops resetting the timer. It also
+plans a second check of the command's age right before the motor write, and
+bench measurements of the time until the motors are released and until the
+wheels rest.</p>
 <h4 id="the-unit-tests">The unit tests</h4>
 <p>Unit tests on the PC check the timeout, the wheel control, the subscriber and the
 <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>'s reset (<a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/test/test_pid/test_pid.cpp"><code>test_pid.cpp</code></a>), in the
@@ -6252,7 +6266,7 @@ rest.</p>
 <ul>
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/test/test_command_timeout/test_command_timeout.cpp"><code>test_command_timeout</code></a> checks <a href="#when-a-command-is-too-old"><code>CommandTimeout</code></a>
   alone, for example that a timeout stays until the next command, also after
-  <a href="#timing-with-the-teensys-clock"><code>millis()</code></a> has returned to zero.</li>
+  <a href="#timing-with-the-mcus-clock"><code>millis()</code></a> has returned to zero.</li>
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/test/test_wheel_control/test_wheel_control.cpp"><code>test_wheel_control</code></a> checks <a href="#the-step-excerpt"><code>WheelControl</code></a>. The tests call
   <a href="#a-wheel-command-arrives"><code>receiveCommand()</code></a> and <code>step()</code> and put two fakes in place of the base
   controller and the timeout logger. The fake controller,
@@ -6269,32 +6283,32 @@ rest.</p>
   <a href="#ports-and-adapters">Ports and adapters</a>.</li>
 <li><a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/test/test_ros_wheel_command_subscriber/test_ros_wheel_command_subscriber.cpp"><code>test_ros_wheel_command_subscriber</code></a> sends messages
   through rosserial's real parser, with a fake serial port. It checks, for
-  example, that the subscriber passes the two values on with the Teensy's time,
+  example, that the subscriber passes the two values on with the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s time,
   not with the header's stamp, and that a dropped message doesn't refresh the
   timeout.</li>
 </ul>
 <p>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> driver's tests use the same idea one level lower: a fake <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus,
 <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/test/fakes/fake_bno055.h#L13-L16"><code>FakeBno055Bus</code></a> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/test/fakes/fake_bno055.h"><code>fake_bno055.h</code></a>, stands in for the BNO055.</p>
-<h3 id="timing-with-the-teensys-clock">Timing with the Teensy's clock</h3>
+<h3 id="timing-with-the-mcus-clock">Timing with the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock</h3>
 <p>The firmware measures three kinds of elapsed time for the wheels: whether 50 ms
 have passed since the last control step, whether 1 s has passed since the last
-wheel command, and how long the encoders took since their last reading. It takes all
-three from the Teensy's own counters.
+wheel command, and how much time has passed since the encoders' last reading. It takes all
+three from the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s own counters.
 <a href="https://docs.arduino.cc/language-reference/en/functions/time/millis/"><code>millis()</code></a>
-counts the milliseconds since the Teensy started, for the control step and the
+counts the milliseconds since the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> started, for the control step and the
 command's age, and also for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s samples and the debug output.
 <a href="https://docs.arduino.cc/language-reference/en/functions/time/micros/"><code>micros()</code></a>
 counts microseconds, for the encoders' speed. A correction of the Raspberry Pi's
 clock doesn't change these counters.</p>
 <h4 id="the-time-stamps">The time stamps</h4>
-<p>Each part keeps the <a href="#timing-with-the-teensys-clock"><code>millis()</code></a> readings that it needs:</p>
+<p>Each part keeps the <a href="#timing-with-the-mcus-clock"><code>millis()</code></a> readings that it needs:</p>
 <ul>
 <li><a href="#when-a-command-is-too-old"><code>CommandTimeout</code></a> keeps the arrival time of the last valid wheel command,
   <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/command_timeout/command_timeout.h#L50"><code>last_command_ms_</code></a>, in the <a href="#the-command-timeout-excerpt"><code>CommandTimeout</code> excerpt</a>
   above.</li>
 <li><a href="#the-step-excerpt"><code>WheelControl</code></a> keeps the time of the last control step, <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/wheel_control/wheel_control.h#L115-L116"><code>last_control_ms_</code></a>.
   <code>last_control_ms_</code> starts at zero, so the first control step is due 50 ms
-  after the Teensy started. The setup takes longer, so the first pass of
+  after the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr> started. The setup takes longer, so the first pass of
   <a href="#the-loop-excerpt"><code>loop()</code></a> already runs a control step. Wheel commands don't move this schedule.</li>
 <li><a href="#the-imu-update"><code>ImuPublisher</code></a> keeps the time of its last sampling slot in <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/imu/imu_publisher.h#L96"><code>sampled_ms_</code></a>.
   This time moves on also when no sample is read or published.</li>
@@ -6377,14 +6391,14 @@ wheel turned by the time since its last reading, <a href="https://github.com/ros
 <span class="p">}</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p><code>dts</code> is the time since the last reading in seconds, from
-<a href="#timing-with-the-teensys-clock"><code>micros()</code></a>, and <code>angular_velocity_</code> is the wheel's
+<a href="#timing-with-the-mcus-clock"><code>micros()</code></a>, and <code>angular_velocity_</code> is the wheel's
 speed in radians per second, although a comment in the code mentions RPM.</p>
 <h4 id="when-the-counters-wrap">When the counters wrap</h4>
 <p><a href="https://docs.arduino.cc/language-reference/en/functions/time/millis/"><code>millis()</code></a> and <a href="https://docs.arduino.cc/language-reference/en/functions/time/micros/"><code>micros()</code></a> return 32-bit unsigned integers. After 2³² counts they
 return to zero: 2³² ms (4,294,967,296 ms) is about 49.7 days, and 2³² µs about
 71.6 minutes. Arduino's reference pages for <code>millis()</code> and <code>micros()</code> round these
 to about 50 days and 70 minutes. The differences are computed with
-<a href="https://en.cppreference.com/w/c/types/integer"><code>uint32_t</code></a>, so <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/wheel_control/wheel_control.h#L89"><code>now_ms - last_control_ms_</code></a> still gives the right number of milliseconds
+<a href="https://en.cppreference.com/c/types/integer"><code>uint32_t</code></a>, so <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/wheel_control/wheel_control.h#L89"><code>now_ms - last_control_ms_</code></a> still gives the right number of milliseconds
 across that return to zero, as long as the two readings are less than one
 counter cycle apart and come from the same run of the firmware.</p>
 <p>That's also why only a new command ends the command timeout. Once timed out,
@@ -6408,12 +6422,12 @@ command arrived.</p>
 <details class="warning">
 <summary>Pitfalls when measuring time on a microcontroller</summary>
 <ul>
-<li><strong>Intervals without ROS time:</strong> Don't measure intervals with ROS time. On the Teensy, <a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L354-L383"><code>nh.now()</code></a>
+<li><strong>Intervals without ROS time:</strong> Don't measure intervals with ROS time. On the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>, <a href="https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/ros/node_handle.h#L367-L375"><code>nh.now()</code></a>
   returns ROS time, which <a href="../../../processing_units/teensy-mcu/#other-boards-such-as-an-arduino">rosserial</a> synchronizes with the robot's computer.
   When that computer's clock is corrected, ROS time can jump. A jump backward
   makes a control step or the command timeout wait too long. A jump forward
   makes a recent command look too old. Clock corrections on the robot's
-  computer don't change the Teensy's counters.</li>
+  computer don't change the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s counters.</li>
 <li><strong>Units and types:</strong> Check the unit and type of every time value. Storing 0.05 s in an
   integer field for whole seconds truncates it to 0, and a check against 0
   passes on every pass of the loop. Keep intervals in milliseconds or
@@ -6446,7 +6460,7 @@ On a narrow screen, the diagram scrolls sideways.</p>
     SUB[RosWheelCommandSubscriber]
     WC[WheelControl,&lt;br/&gt;with a private&lt;br/&gt;CommandTimeout]
     BC[BaseController:&lt;br/&gt;encoders, PIDs,&lt;br/&gt;motor controllers]
-    LOOP[loop]
+    LOOP["loop()"]
     IP[ImuPublisher]
     BNO[Bno055 driver&lt;br/&gt;on an I2cBus]
   end
@@ -6528,7 +6542,7 @@ On a narrow screen, the diagram scrolls sideways.</p>
 <text class="container-name" x="14" y="60" text-anchor="start">On the microcontroller</text>
 <polygon class="core" points="340,54 450,96.5 450,181.5 340,224 230,181.5 230,96.5"></polygon>
 <text class="core-name" x="340" y="90.5" text-anchor="middle">WheelControl</text>
-<text class="note" x="340" y="198.5" text-anchor="middle">and its CommandTimeout</text>
+<text class="note" x="340" y="104.5" text-anchor="middle">and its CommandTimeout</text>
 <rect class="port" x="224" y="115" width="12" height="12" rx="1.5"></rect>
 <text class="code" x="242" y="125" text-anchor="start">receiveCommand()</text>
 <path class="arrow" d="M196,121 L224,121" marker-end="url(#ll-ports-wide-head)"></path>
@@ -6553,7 +6567,7 @@ On a narrow screen, the diagram scrolls sideways.</p>
 <text class="container-name" x="14" y="256" text-anchor="start">In the unit tests</text>
 <polygon class="core" points="340,250 450,292.5 450,377.5 340,420 230,377.5 230,292.5"></polygon>
 <text class="core-name" x="340" y="286.5" text-anchor="middle">WheelControl</text>
-<text class="note" x="340" y="394.5" text-anchor="middle">and its CommandTimeout</text>
+<text class="note" x="340" y="300.5" text-anchor="middle">and its CommandTimeout</text>
 <rect class="port" x="224" y="311" width="12" height="12" rx="1.5"></rect>
 <text class="code" x="242" y="321" text-anchor="start">receiveCommand()</text>
 <path class="arrow" d="M196,317 L224,317" marker-end="url(#ll-ports-wide-head)"></path>
@@ -6638,11 +6652,11 @@ On a narrow screen, the diagram scrolls sideways.</p>
 <li><strong>Secondary ports:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/wheel_control/wheel_control.h#L45-L57"><code>Controller</code></a>, the four functions <code>setWheelTargets()</code>, <code>read()</code>, <code>write()</code> and <code>eStop()</code>, and <code>LogTimeout</code>, a call without arguments that logs the timeout.</li>
 </ul>
 <p><code>Controller</code> and <code>LogTimeout</code> are hard to see in the code, because no class has these names. Each is a template parameter of <code>WheelControl</code>, and <code>WheelControl</code>'s class comment (<a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/wheel_control/wheel_control.h#L27-L51">lines 27–51</a>) says what each port has to do. The compiler checks that the type used has the functions and argument types that <code>WheelControl</code> calls, but not that the functions behave as the port requires. <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_firmware/lib/imu/i2c_bus.h#L9-L31"><code>I2cBus</code></a>, a port of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> driver, is an abstract class instead.</p>
-<p><code>BaseController</code> still mixes control logic with hardware access and calls Arduino functions such as <a href="#timing-with-the-teensys-clock"><code>millis()</code></a> directly. The firmware on <code>noetic-devel</code>, which this page shows, keeps rosserial and gets fixes of today's code. <a href="https://github.com/ros-mobile-robots/diffbot/issues/148">diffbot#148</a> plans the firmware's new structure for the ROS 2 branch, where a new link replaces rosserial, with <a href="https://github.com/ros-mobile-robots/diffbot/issues/165">diffbot#165</a> for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sampler and <a href="https://github.com/ros-mobile-robots/diffbot/issues/166">diffbot#166</a> for the settings.</p>
+<p><code>BaseController</code> still mixes control logic with hardware access and calls Arduino functions such as <a href="#timing-with-the-mcus-clock"><code>millis()</code></a> directly. The firmware on <code>noetic-devel</code>, which this page shows, keeps rosserial and receives fixes only. <a href="https://github.com/ros-mobile-robots/diffbot/issues/148">diffbot#148</a> plans the firmware's new structure for the ROS 2 branch, where a new link replaces rosserial, with <a href="https://github.com/ros-mobile-robots/diffbot/issues/165">diffbot#165</a> for the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> sampler and <a href="https://github.com/ros-mobile-robots/diffbot/issues/166">diffbot#166</a> for the settings.</p>
 <details class="info">
 <summary>Comparison with ros_control on the robot's computer</summary>
-<p>On the robot's computer, <a href="../../../development/simulation-test/#what-runs-in-the-simulation">ros_control</a> separates the controllers from the hardware in a similar way, although it doesn't use these words. <a href="../../imu/robot_localization/#how-it-fits-together"><code>diff_drive_controller</code></a> works on wheel joint handles, which a hardware interface registers: <a href="#ros-control-high-level-hardware-interface-for-a-differential-drive-robot"><code>DiffBotHWInterface</code></a> on the robot, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/include/gazebo_ros_control/default_robot_hw_sim.h"><code>DefaultRobotHWSim</code></a> in Gazebo. Both derive from <code>RobotHW</code>, which lets the controller manager find the joint interfaces. So the same controller runs on the robot and in the simulation, as <code>WheelControl</code> runs on the Teensy and in the unit tests. The separation is weaker, though: the controller and its manager still depend on ROS, while <code>WheelControl</code> needs only C++.</p>
-<p>An outer loop transfers the states and commands. On the robot, <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base.cpp</code></a> calls <code>read()</code>, updates the controller manager and calls <code>write()</code>. In Gazebo, the <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp">plugin</a> calls <code>readSim()</code>, updates the manager and calls <code>writeSim()</code>. The simulation path ends in Gazebo and doesn't send commands to the Teensy.</p>
+<p>On the robot's computer, <a href="../../../development/simulation-test/#what-runs-in-the-simulation">ros_control</a> separates the controllers from the hardware in a similar way, although it doesn't use these words. <a href="../../imu/robot_localization/#how-it-fits-together"><code>diff_drive_controller</code></a> works on wheel joint handles, which a hardware interface registers: <a href="#ros-control-high-level-hardware-interface-for-a-differential-drive-robot"><code>DiffBotHWInterface</code></a> on the robot, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/include/gazebo_ros_control/default_robot_hw_sim.h"><code>DefaultRobotHWSim</code></a> in Gazebo. Both derive from <code>RobotHW</code>, which lets the controller manager find the joint interfaces. So the same controller runs on the robot and in the simulation, as <code>WheelControl</code> runs on the microcontroller and in the unit tests. The separation is weaker, though: the controller and its manager still depend on ROS, while <code>WheelControl</code> needs only C++.</p>
+<p>An outer loop transfers the states and commands. On the robot, <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_base/src/diffbot_base.cpp"><code>diffbot_base.cpp</code></a> calls <code>read()</code>, updates the controller manager and calls <code>write()</code>. In Gazebo, the <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/gazebo_ros_control_plugin.cpp">plugin</a> calls <code>readSim()</code>, updates the manager and calls <code>writeSim()</code>. The simulation path ends in Gazebo and doesn't send commands to the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>.</p>
 </details>
 <p>The next section describes the other end of the USB cable: the hardware
 interface on the robot's computer.</p>
@@ -6778,7 +6792,7 @@ are relevant in the <code>read()</code> method:</p>
 <li>
 <p>The <code>read()</code> method updates the joint values with the latest measurements
    from the encoders, the angular positions (rad) and velocities (rad/s) that
-   the Teensy sent on <code>measured_joint_states</code>,
+   the firmware sent on <code>measured_joint_states</code>,
    <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_base/src/diffbot_hw_interface.cpp#L136-L148">lines 136–148</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot_hw_interface.cpp: read()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">136</span>
 <span class="normal">137</span>
@@ -6872,14 +6886,14 @@ are relevant in the <code>read()</code> method:</p>
    With a gain of 1.0, a trim of 0.0 and a motor constant of 1.0, the
    commands pass unchanged.</li>
 <li>It stamps the message <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_base/src/diffbot_hw_interface.cpp#L179-L180"><code>wheel_cmd_msg</code></a> with <a href="https://github.com/ros/roscpp_core/blob/0.7.3/rostime/include/ros/time.h#L187-L191"><code>ros::Time::now()</code></a>, the ROS
-   time of the robot's computer. The Teensy doesn't use this stamp: it takes
-   a command's arrival time from its own clock.</li>
+   time of the robot's computer. The firmware doesn't use this stamp: it takes
+   a command's arrival time from the <abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>'s clock.</li>
 <li>It appends the left and then the right wheel's command, in rad/s, and
    publishes the message.</li>
 </ol>
 <p>The rest of <code>write()</code> publishes motor values on <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_base/src/diffbot_hw_interface.cpp#L59"><code>motor_left</code></a> and
 <a href="https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5/diffbot_base/src/diffbot_hw_interface.cpp#L60"><code>motor_right</code></a> for another kind of motor driver node, and logs when
-debugging is on. The Teensy doesn't subscribe to these topics.</p>
+debugging is on. The firmware doesn't subscribe to these topics.</p>
 </li>
 </ol>
 <p>These parts of the <code>DiffBotHWInterface</code> class let Remo work with the ROS
