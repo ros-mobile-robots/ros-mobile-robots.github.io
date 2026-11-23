@@ -21,6 +21,7 @@ DRAWINGS = (
     lambda drawing: board_drawings.draw_motor_driver_board(drawing, 0, 0),
     lambda drawing: board_drawings.draw_gear_motor_with_wheel(drawing, 0, 0),
     lambda drawing: board_drawings.draw_encoder_disc(drawing, 30, 30),
+    lambda drawing: board_drawings.draw_bno055_breakout(drawing, 0, 0),
 )
 
 
