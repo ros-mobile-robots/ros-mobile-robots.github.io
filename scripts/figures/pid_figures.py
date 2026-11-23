@@ -40,6 +40,7 @@ from board_drawings import Drawing
 from board_drawings import ENCODER_BOARD_OFFSET
 from board_drawings import escape
 from board_drawings import style_element
+from board_drawings import svg_element
 
 WIDTH = 360
 HEIGHT = 538
@@ -196,18 +197,13 @@ class Figure(Drawing):
         self.elements.append(f'<text class="formula" x="{x:g}" y="{y:g}" '
                              f'text-anchor="{anchor}">{"".join(pieces)}</text>')
 
-    def number(self, x: float, y: float, number: int) -> None:
-        """Add a signal's number in a filled disc around (x, y)."""
-        self.circle(x, y, 8, 'number-disc')
-        self.text(x, y + 3.8, str(number), 'number', 'middle')
-
     def signal(self, x: float, y: float, number: int, names: Sequence[str], value: str = '',
                symbol: str = '') -> None:
         """Add a signal's label: its number, its name on one or more lines, and its value.
 
         The symbol, if one is given, follows the name's last line. The value is the line after.
         """
-        self.number(x + 8, y - 4, number)
+        self.number_disc(x + 8, y - 4, number, 'number-disc', 'number')
         for index, name in enumerate(names):
             last = index == len(names) - 1
             self.text(x + 20, y + 14 * index, name, symbol=symbol if last else '')
@@ -216,13 +212,8 @@ class Figure(Drawing):
 
     def svg(self) -> str:
         """Return the layout as an SVG element."""
-        head = (f'<marker id="{self.name}-head" viewBox="0 0 10 10" refX="9" refY="5" '
-                'markerWidth="7" markerHeight="7" orient="auto">'
-                '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
-        return (f'<svg class="pid-loop {self.name}" viewBox="0 0 {self.width} {self.height}" '
-                f'role="img" aria-labelledby="{self.name}-title"><title id="{self.name}-title">'
-                f'{escape(TITLE)}</title><defs>{head}</defs>\n'
-                + '\n'.join(self.elements) + '\n</svg>')
+        return svg_element(self.name, f'pid-loop {self.name}', (self.width, self.height), TITLE,
+                           self.elements)
 
 
 def measured_speed(ticks: int) -> float:

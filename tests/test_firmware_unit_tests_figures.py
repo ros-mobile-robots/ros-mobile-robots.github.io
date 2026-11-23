@@ -5,10 +5,12 @@ Run from the repository root: python -m unittest discover -s tests
 
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
 from typing import Dict
+from typing import List
 import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -65,15 +67,68 @@ class TestIncludes(unittest.TestCase):
             self.assertEqual(written[name], committed, f'{name} is not what {SCRIPT.name} writes')
 
 
-class TestPanels(unittest.TestCase):
+class TestPictures(unittest.TestCase):
     """Every test and every case of the wire bus suite has one picture."""
 
     def test_pictures_name_each_test_of_the_suite_once_in_the_order_of_the_file(self) -> None:
-        panels = figures.write_register_panels() + figures.read_register_panels()
-        self.assertEqual([panel.name for panel in panels], WIRE_BUS_TESTS)
+        pictures = figures.write_register_pictures() + figures.read_register_pictures()
+        self.assertEqual([picture.name for picture in pictures], WIRE_BUS_TESTS)
 
     def test_pictures_name_each_short_read_case_once_in_the_order_of_the_file(self) -> None:
         self.assertEqual([case.name for case in figures.SHORT_READS], SHORT_READ_CASES)
+
+
+def all_pictures() -> List[figures.Picture]:
+    """Return the pictures of the three figures, in the order of the page."""
+    return [*figures.write_register_pictures(), *figures.read_register_pictures(),
+            *(figures.short_read_picture(case) for case in figures.SHORT_READS)]
+
+
+def picture_svg(picture: figures.Picture) -> str:
+    """Return the SVG of a picture, as its figure's include holds it."""
+    return figures.picture_html(picture, 'test-prefix')
+
+
+class TestDrawing(unittest.TestCase):
+    """Each picture names its test, draws its own time line and marks each of its checks."""
+
+    def test_each_picture_is_named_after_its_test_or_case(self) -> None:
+        for picture in all_pictures():
+            title = f'The time line of the {picture.kind.value} {picture.name}'
+            self.assertIn(f'<title id="test-prefix-{picture.name}-title">{title}</title>',
+                          picture_svg(picture))
+
+    def test_short_read_pictures_are_named_as_cases(self) -> None:
+        for case in figures.SHORT_READS:
+            self.assertIs(figures.short_read_picture(case).kind, figures.PictureKind.CASE)
+
+    def test_each_time_line_points_to_its_own_arrowhead(self) -> None:
+        for picture in all_pictures():
+            svg = picture_svg(picture)
+            head = f'test-prefix-{picture.name}-head'
+            self.assertIn(f'<marker id="{head}"', svg)
+            self.assertEqual(set(re.findall(r'marker-end="url\(#([\w-]+)\)"', svg)), {head})
+
+    def test_box_of_the_compared_calls_ends_left_of_the_results(self) -> None:
+        boxes = [box for picture in all_pictures()
+                 for box in re.findall(r'<rect class="calls-box" x="([\d.]+)" y="[\d.]+" '
+                                       r'width="([\d.]+)"', picture_svg(picture))]
+        self.assertTrue(boxes)
+        for x, width in boxes:
+            self.assertLess(float(x) + float(width), figures.RESULT_X)
+
+    def test_each_check_has_its_number_on_the_time_line_and_in_the_list(self) -> None:
+        for picture in all_pictures():
+            svg = picture_svg(picture)
+            for check in picture.checks:
+                numbers = re.findall(rf'class="badge-number"[^>]*>{check.badge}</text>', svg)
+                self.assertEqual(len(numbers), 2, f'{picture.name}, check {check.badge}')
+
+    def test_ids_are_unique_on_the_page(self) -> None:
+        includes = [(ROOT / 'includes' / name).read_text(encoding='utf-8')
+                    for name in INCLUDE_NAMES]
+        ids = re.findall(r' id="([^"]+)"', ''.join(includes))
+        self.assertEqual(len(ids), len(set(ids)))
 
 
 class TestCallTexts(unittest.TestCase):

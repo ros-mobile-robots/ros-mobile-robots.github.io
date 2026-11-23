@@ -35,8 +35,8 @@ from board_drawings import draw_raspberry_pi
 from board_drawings import draw_teensy
 from board_drawings import Drawing
 from board_drawings import ENCODER_BOARD_OFFSET
-from board_drawings import escape
 from board_drawings import style_element
+from board_drawings import svg_element
 
 SCRIPT = 'scripts/figures/low_level_figures.py'
 
@@ -114,14 +114,8 @@ class Figure(Drawing):
 
     def svg(self, title: str) -> str:
         """Return the layout as an SVG element whose accessible name is title."""
-        head = (f'<marker id="{self.name}-head" viewBox="0 0 10 10" refX="9" refY="5" '
-                'markerWidth="7" markerHeight="7" orient="auto">'
-                '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
-        return (f'<svg class="{self.css_class} {self.name}" '
-                f'viewBox="0 0 {self.width:g} {self.height:g}" role="img" '
-                f'aria-labelledby="{self.name}-title"><title id="{self.name}-title">'
-                f'{escape(title)}</title><defs>{head}</defs>\n'
-                + '\n'.join(self.elements) + '\n</svg>')
+        return svg_element(self.name, f'{self.css_class} {self.name}', (self.width, self.height),
+                           title, self.elements)
 
 
 def layout_rules(css_class: str) -> Tuple[Tuple[str, str], ...]:

@@ -2,9 +2,9 @@
 <style>
 .md-typeset figure.wbt-figure{margin:1em auto;width:100%;max-width:none}
 .wbt-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:1.2em 1em}
-.md-typeset figure.wbt-panel{margin:0;width:16.6rem;max-width:100%}
-.md-typeset figure.wbt-panel figcaption{margin:.3em 0 0;max-width:none}
-.md-typeset figure.wbt-panel figcaption code{overflow-wrap:anywhere}
+.md-typeset figure.wbt-picture{margin:0;width:16.6rem;max-width:100%}
+.md-typeset figure.wbt-picture figcaption{margin:.3em 0 0;max-width:none}
+.md-typeset figure.wbt-picture figcaption code{overflow-wrap:anywhere}
 .wbt{width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
 [data-md-color-scheme=slate] .wbt{--wbt-check:#82b1ff;--wbt-check-fill:rgba(130,177,255,.09);--wbt-set:#ffb74d}
 .wbt text{fill:var(--md-default-fg-color);font-size:12px}
@@ -29,8 +29,8 @@
 </style>
 <figure class="wbt-figure">
 <div class="wbt-grid">
-<figure class="wbt-panel">
-<svg class="wbt" viewBox="0 0 340 318" role="img" aria-labelledby="wbt-short-ReportedShortAllBytesThere-title"><title id="wbt-short-ReportedShortAllBytesThere-title">The time line of the case ReportedShortAllBytesThere</title><defs><marker id="wbt-short-ReportedShortAllBytesThere-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 342" role="img" aria-labelledby="wbt-short-ReportedShortAllBytesThere-title"><title id="wbt-short-ReportedShortAllBytesThere-title">The time line of the case ReportedShortAllBytesThere</title><defs><marker id="wbt-short-ReportedShortAllBytesThere-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,55 V232" marker-end="url(#wbt-short-ReportedShortAllBytesThere-head)"/>
 <text x="8" y="16"><tspan class="mono set">wire_.reported_count = 4</tspan></text>
@@ -93,26 +93,31 @@
 <text x="30" y="195"><tspan class="note">requestFrom() reports </tspan><tspan class="set">4</tspan></text>
 <circle class="not-recorded" cx="17" cy="213.5" r="3.2"/>
 <text class="mono" x="30" y="217" text-anchor="start">read() × 18</text>
-<text class="note" x="220" y="217" text-anchor="start">until available() is 0</text>
+<text class="note" x="220" y="217" text-anchor="start">dropped</text>
 <circle class="badge" cx="183" cy="62" r="8"/>
 <text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
 <circle class="badge" cx="16" cy="243" r="8"/>
 <text class="badge-number" x="16" y="246.8" text-anchor="middle">1</text>
 <text x="30" y="247">returns <tspan class="mono">false</tspan></text>
-<circle class="badge" cx="16" cy="270" r="8"/>
-<text class="badge-number" x="16" y="273.8" text-anchor="middle">1</text>
-<text x="30" y="274"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
-<circle class="badge" cx="16" cy="289" r="8"/>
-<text class="badge-number" x="16" y="292.8" text-anchor="middle">2</text>
-<text x="30" y="293"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
-<circle class="badge" cx="16" cy="308" r="8"/>
-<text class="badge-number" x="16" y="311.8" text-anchor="middle">3</text>
-<text x="30" y="312"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+<circle class="badge" cx="16" cy="267" r="8"/>
+<text class="badge-number" x="16" y="270.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="271" text-anchor="start">wire_.available()</text>
+<text x="188" y="271"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="271" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="294" r="8"/>
+<text class="badge-number" x="16" y="297.8" text-anchor="middle">1</text>
+<text x="30" y="298"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="313" r="8"/>
+<text class="badge-number" x="16" y="316.8" text-anchor="middle">2</text>
+<text x="30" y="317"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="332" r="8"/>
+<text class="badge-number" x="16" y="335.8" text-anchor="middle">3</text>
+<text x="30" y="336"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
 </svg>
 <figcaption><code>Reported<wbr>Short<wbr>All<wbr>Bytes<wbr>There</code>: <code>requestFrom()</code> reports 4, and all 18 bytes arrive.</figcaption>
 </figure>
-<figure class="wbt-panel">
-<svg class="wbt" viewBox="0 0 340 318" role="img" aria-labelledby="wbt-short-BothShort-title"><title id="wbt-short-BothShort-title">The time line of the case BothShort</title><defs><marker id="wbt-short-BothShort-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 342" role="img" aria-labelledby="wbt-short-BothShort-title"><title id="wbt-short-BothShort-title">The time line of the case BothShort</title><defs><marker id="wbt-short-BothShort-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,55 V232" marker-end="url(#wbt-short-BothShort-head)"/>
 <text x="8" y="16"><tspan class="mono set">wire_.reported_count = 4</tspan></text>
@@ -161,26 +166,31 @@
 <text x="30" y="195"><tspan class="note">requestFrom() reports </tspan><tspan class="set">4</tspan></text>
 <circle class="not-recorded" cx="17" cy="213.5" r="3.2"/>
 <text class="mono" x="30" y="217" text-anchor="start">read() × 4</text>
-<text class="note" x="220" y="217" text-anchor="start">until available() is 0</text>
+<text class="note" x="220" y="217" text-anchor="start">dropped</text>
 <circle class="badge" cx="183" cy="62" r="8"/>
 <text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
 <circle class="badge" cx="16" cy="243" r="8"/>
 <text class="badge-number" x="16" y="246.8" text-anchor="middle">1</text>
 <text x="30" y="247">returns <tspan class="mono">false</tspan></text>
-<circle class="badge" cx="16" cy="270" r="8"/>
-<text class="badge-number" x="16" y="273.8" text-anchor="middle">1</text>
-<text x="30" y="274"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
-<circle class="badge" cx="16" cy="289" r="8"/>
-<text class="badge-number" x="16" y="292.8" text-anchor="middle">2</text>
-<text x="30" y="293"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
-<circle class="badge" cx="16" cy="308" r="8"/>
-<text class="badge-number" x="16" y="311.8" text-anchor="middle">3</text>
-<text x="30" y="312"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+<circle class="badge" cx="16" cy="267" r="8"/>
+<text class="badge-number" x="16" y="270.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="271" text-anchor="start">wire_.available()</text>
+<text x="188" y="271"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="271" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="294" r="8"/>
+<text class="badge-number" x="16" y="297.8" text-anchor="middle">1</text>
+<text x="30" y="298"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="313" r="8"/>
+<text class="badge-number" x="16" y="316.8" text-anchor="middle">2</text>
+<text x="30" y="317"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="332" r="8"/>
+<text class="badge-number" x="16" y="335.8" text-anchor="middle">3</text>
+<text x="30" y="336"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
 </svg>
 <figcaption><code>Both<wbr>Short</code>: <code>requestFrom()</code> reports 4, and 4 bytes arrive.</figcaption>
 </figure>
-<figure class="wbt-panel">
-<svg class="wbt" viewBox="0 0 340 338" role="img" aria-labelledby="wbt-short-ReportedInFullOneByteMissing-title"><title id="wbt-short-ReportedInFullOneByteMissing-title">The time line of the case ReportedInFullOneByteMissing</title><defs><marker id="wbt-short-ReportedInFullOneByteMissing-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 362" role="img" aria-labelledby="wbt-short-ReportedInFullOneByteMissing-title"><title id="wbt-short-ReportedInFullOneByteMissing-title">The time line of the case ReportedInFullOneByteMissing</title><defs><marker id="wbt-short-ReportedInFullOneByteMissing-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,55 V252" marker-end="url(#wbt-short-ReportedInFullOneByteMissing-head)"/>
 <text x="8" y="16"><tspan class="mono set">wire_.reported_count = 18</tspan></text>
@@ -246,26 +256,31 @@
 <text class="note" x="220" y="217" text-anchor="start">one byte short</text>
 <circle class="not-recorded" cx="17" cy="233.5" r="3.2"/>
 <text class="mono" x="30" y="237" text-anchor="start">read() × 17</text>
-<text class="note" x="220" y="237" text-anchor="start">until available() is 0</text>
+<text class="note" x="220" y="237" text-anchor="start">dropped</text>
 <circle class="badge" cx="183" cy="62" r="8"/>
 <text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
 <circle class="badge" cx="16" cy="263" r="8"/>
 <text class="badge-number" x="16" y="266.8" text-anchor="middle">1</text>
 <text x="30" y="267">returns <tspan class="mono">false</tspan></text>
-<circle class="badge" cx="16" cy="290" r="8"/>
-<text class="badge-number" x="16" y="293.8" text-anchor="middle">1</text>
-<text x="30" y="294"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
-<circle class="badge" cx="16" cy="309" r="8"/>
-<text class="badge-number" x="16" y="312.8" text-anchor="middle">2</text>
-<text x="30" y="313"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
-<circle class="badge" cx="16" cy="328" r="8"/>
-<text class="badge-number" x="16" y="331.8" text-anchor="middle">3</text>
-<text x="30" y="332"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+<circle class="badge" cx="16" cy="287" r="8"/>
+<text class="badge-number" x="16" y="290.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="291" text-anchor="start">wire_.available()</text>
+<text x="188" y="291"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="291" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="314" r="8"/>
+<text class="badge-number" x="16" y="317.8" text-anchor="middle">1</text>
+<text x="30" y="318"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="333" r="8"/>
+<text class="badge-number" x="16" y="336.8" text-anchor="middle">2</text>
+<text x="30" y="337"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="352" r="8"/>
+<text class="badge-number" x="16" y="355.8" text-anchor="middle">3</text>
+<text x="30" y="356"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
 </svg>
 <figcaption><code>Reported<wbr>In<wbr>Full<wbr>One<wbr>Byte<wbr>Missing</code>: <code>requestFrom()</code> reports 18, and 17 bytes arrive.</figcaption>
 </figure>
-<figure class="wbt-panel">
-<svg class="wbt" viewBox="0 0 340 318" role="img" aria-labelledby="wbt-short-ReportedOneShortAllBytesThere-title"><title id="wbt-short-ReportedOneShortAllBytesThere-title">The time line of the case ReportedOneShortAllBytesThere</title><defs><marker id="wbt-short-ReportedOneShortAllBytesThere-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 342" role="img" aria-labelledby="wbt-short-ReportedOneShortAllBytesThere-title"><title id="wbt-short-ReportedOneShortAllBytesThere-title">The time line of the case ReportedOneShortAllBytesThere</title><defs><marker id="wbt-short-ReportedOneShortAllBytesThere-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,55 V232" marker-end="url(#wbt-short-ReportedOneShortAllBytesThere-head)"/>
 <text x="8" y="16"><tspan class="mono set">wire_.reported_count = 17</tspan></text>
@@ -328,24 +343,29 @@
 <text x="30" y="195"><tspan class="note">requestFrom() reports </tspan><tspan class="set">17</tspan></text>
 <circle class="not-recorded" cx="17" cy="213.5" r="3.2"/>
 <text class="mono" x="30" y="217" text-anchor="start">read() × 18</text>
-<text class="note" x="220" y="217" text-anchor="start">until available() is 0</text>
+<text class="note" x="220" y="217" text-anchor="start">dropped</text>
 <circle class="badge" cx="183" cy="62" r="8"/>
 <text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
 <circle class="badge" cx="16" cy="243" r="8"/>
 <text class="badge-number" x="16" y="246.8" text-anchor="middle">1</text>
 <text x="30" y="247">returns <tspan class="mono">false</tspan></text>
-<circle class="badge" cx="16" cy="270" r="8"/>
-<text class="badge-number" x="16" y="273.8" text-anchor="middle">1</text>
-<text x="30" y="274"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
-<circle class="badge" cx="16" cy="289" r="8"/>
-<text class="badge-number" x="16" y="292.8" text-anchor="middle">2</text>
-<text x="30" y="293"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
-<circle class="badge" cx="16" cy="308" r="8"/>
-<text class="badge-number" x="16" y="311.8" text-anchor="middle">3</text>
-<text x="30" y="312"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+<circle class="badge" cx="16" cy="267" r="8"/>
+<text class="badge-number" x="16" y="270.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="271" text-anchor="start">wire_.available()</text>
+<text x="188" y="271"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="271" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="294" r="8"/>
+<text class="badge-number" x="16" y="297.8" text-anchor="middle">1</text>
+<text x="30" y="298"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="313" r="8"/>
+<text class="badge-number" x="16" y="316.8" text-anchor="middle">2</text>
+<text x="30" y="317"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="332" r="8"/>
+<text class="badge-number" x="16" y="335.8" text-anchor="middle">3</text>
+<text x="30" y="336"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
 </svg>
 <figcaption><code>Reported<wbr>One<wbr>Short<wbr>All<wbr>Bytes<wbr>There</code>: <code>requestFrom()</code> reports 17, and all 18 bytes arrive.</figcaption>
 </figure>
 </div>
-<figcaption>The four cases of <code>ReadRegistersFailsAndDrainsTheBytes</code>. Each case requests a sample's 18 bytes. The row of boxes is the Wire library's receive buffer after <code>requestFrom()</code>: a box with a value is a byte that arrived, a dashed box one that didn't. The orange bracket spans the count that <code>requestFrom()</code> reports.</figcaption>
+<figcaption>The four cases of <code>ReadRegistersFailsAndDrainsTheBytes</code>. The dots, values and numbers read as in the pictures of <code>writeRegister()</code> and <code>readRegisters()</code>: time runs down, a filled dot is a call that <code>calls</code> lists, an open dot one that it doesn't list, a bold orange value is set by the test, and a number in a blue disc is a check. Each case requests a sample's 18 bytes. The row of boxes is the Wire library's receive buffer after <code>requestFrom()</code>: a box with a value is a byte that arrived, a dashed box one that didn't. The orange bracket under it spans the count that <code>requestFrom()</code> reports. The <code>read()</code> calls drop the bytes, and the line after the result is the test's own call of <code>available()</code>.</figcaption>
 </figure>

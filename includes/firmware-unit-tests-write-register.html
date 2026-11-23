@@ -2,9 +2,9 @@
 <style>
 .md-typeset figure.wbt-figure{margin:1em auto;width:100%;max-width:none}
 .wbt-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:1.2em 1em}
-.md-typeset figure.wbt-panel{margin:0;width:16.6rem;max-width:100%}
-.md-typeset figure.wbt-panel figcaption{margin:.3em 0 0;max-width:none}
-.md-typeset figure.wbt-panel figcaption code{overflow-wrap:anywhere}
+.md-typeset figure.wbt-picture{margin:0;width:16.6rem;max-width:100%}
+.md-typeset figure.wbt-picture figcaption{margin:.3em 0 0;max-width:none}
+.md-typeset figure.wbt-picture figcaption code{overflow-wrap:anywhere}
 .wbt{width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
 [data-md-color-scheme=slate] .wbt{--wbt-check:#82b1ff;--wbt-check-fill:rgba(130,177,255,.09);--wbt-set:#ffb74d}
 .wbt text{fill:var(--md-default-fg-color);font-size:12px}
@@ -29,7 +29,7 @@
 </style>
 <figure class="wbt-figure">
 <div class="wbt-grid">
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 186" role="img" aria-labelledby="wbt-write-WriteRegisterSendsRegisterAndValue-title"><title id="wbt-write-WriteRegisterSendsRegisterAndValue-title">The time line of the test WriteRegisterSendsRegisterAndValue</title><defs><marker id="wbt-write-WriteRegisterSendsRegisterAndValue-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,23 V119" marker-end="url(#wbt-write-WriteRegisterSendsRegisterAndValue-head)"/>
@@ -61,7 +61,7 @@
 </svg>
 <figcaption><code>Write<wbr>Register<wbr>Sends<wbr>Register<wbr>And<wbr>Value</code>: The device acknowledges: four calls, and the result true.</figcaption>
 </figure>
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 177" role="img" aria-labelledby="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-title"><title id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-title">The time line of the test WriteRegisterFailsWhenTheAddressIsNotAcknowledged</title><defs><marker id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <path class="time-line" d="M17,39 V129" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-head)"/>
 <text x="8" y="16"><tspan class="mono set">wire_.end_result = 2</tspan></text>
@@ -89,7 +89,7 @@
 </svg>
 <figcaption><code>Write<wbr>Register<wbr>Fails<wbr>When<wbr>The<wbr>Address<wbr>Is<wbr>Not<wbr>Acknowledged</code>: <code>endTransmission()</code> returns 2, so the result is false. The test checks only the result.</figcaption>
 </figure>
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 370" role="img" aria-labelledby="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-title"><title id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-title">The time line of the test WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite</title><defs><marker id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <path class="time-line" d="M17,41 V131" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head)"/>
 <path class="time-line" d="M17,213 V303" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head)"/>
@@ -140,7 +140,7 @@
 </svg>
 <figcaption><code>Write<wbr>Register<wbr>Fails<wbr>When<wbr>The<wbr>Address<wbr>Is<wbr>Not<wbr>Acknowledged<wbr>After<wbr>A<wbr>Successful<wbr>Write</code>: Two writes on the same <code>bus_</code>: the first one succeeds, and the second one fails.</figcaption>
 </figure>
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 186" role="img" aria-labelledby="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-title"><title id="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-title">The time line of the test WriteRegisterPassesOnTheAddressRegisterAndValue</title><defs><marker id="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,23 V119" marker-end="url(#wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-head)"/>
@@ -173,5 +173,5 @@
 <figcaption><code>Write<wbr>Register<wbr>Passes<wbr>On<wbr>The<wbr>Address<wbr>Register<wbr>And<wbr>Value</code>: The second set of values, 0x29, 0x3F and 0x20, arrives unchanged in the calls.</figcaption>
 </figure>
 </div>
-<figcaption>The four tests of <code>writeRegister()</code>, one time line per test. Time runs down. The test calls <code>bus_</code> with the values of the top line. <code>WireBusT</code>'s calls of <code>FakeWire</code> follow, each with a dot on the time line, and the result comes back at the bottom. A filled dot is a call that <code>FakeWire</code> records in <code>calls</code>. An orange value is one that the test sets on <code>wire_</code> before the call. A blue number marks what a check compares, and the list under the time line names the check.</figcaption>
+<figcaption>The four tests of <code>writeRegister()</code>, one time line per test. Time runs down. The test calls <code>bus_</code> with the values of the top line. <code>WireBusT</code>'s calls of <code>FakeWire</code> follow, each with a filled dot on the time line: a call that <code>FakeWire</code> records in <code>calls</code>. The result comes back at the bottom. A bold orange value is one that the test sets on <code>wire_</code> before the call. A number in a blue disc is a check, and the list under the time line names it. The disc on the corner of a box marks the calls that <code>EXPECT_EQ</code> compares.</figcaption>
 </figure>

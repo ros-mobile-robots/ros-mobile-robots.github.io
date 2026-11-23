@@ -2,9 +2,9 @@
 <style>
 .md-typeset figure.wbt-figure{margin:1em auto;width:100%;max-width:none}
 .wbt-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:1.2em 1em}
-.md-typeset figure.wbt-panel{margin:0;width:16.6rem;max-width:100%}
-.md-typeset figure.wbt-panel figcaption{margin:.3em 0 0;max-width:none}
-.md-typeset figure.wbt-panel figcaption code{overflow-wrap:anywhere}
+.md-typeset figure.wbt-picture{margin:0;width:16.6rem;max-width:100%}
+.md-typeset figure.wbt-picture figcaption{margin:.3em 0 0;max-width:none}
+.md-typeset figure.wbt-picture figcaption code{overflow-wrap:anywhere}
 .wbt{width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
 [data-md-color-scheme=slate] .wbt{--wbt-check:#82b1ff;--wbt-check-fill:rgba(130,177,255,.09);--wbt-set:#ffb74d}
 .wbt text{fill:var(--md-default-fg-color);font-size:12px}
@@ -29,7 +29,7 @@
 </style>
 <figure class="wbt-figure">
 <div class="wbt-grid">
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 226" role="img" aria-labelledby="wbt-read-ReadRegistersUsesARepeatedStart-title"><title id="wbt-read-ReadRegistersUsesARepeatedStart-title">The time line of the test ReadRegistersUsesARepeatedStart</title><defs><marker id="wbt-read-ReadRegistersUsesARepeatedStart-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,23 V159" marker-end="url(#wbt-read-ReadRegistersUsesARepeatedStart-head)"/>
@@ -69,7 +69,7 @@
 </svg>
 <figcaption><code>Read<wbr>Registers<wbr>Uses<wbr>A<wbr>Repeated<wbr>Start</code>: The register write ends with a repeated start, and the read request follows.</figcaption>
 </figure>
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 226" role="img" aria-labelledby="wbt-read-ReadRegistersPassesOnTheAddressAndRegister-title"><title id="wbt-read-ReadRegistersPassesOnTheAddressAndRegister-title">The time line of the test ReadRegistersPassesOnTheAddressAndRegister</title><defs><marker id="wbt-read-ReadRegistersPassesOnTheAddressAndRegister-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"/>
 <path class="time-line" d="M17,23 V159" marker-end="url(#wbt-read-ReadRegistersPassesOnTheAddressAndRegister-head)"/>
@@ -109,7 +109,7 @@
 </svg>
 <figcaption><code>Read<wbr>Registers<wbr>Passes<wbr>On<wbr>The<wbr>Address<wbr>And<wbr>Register</code>: The address 0x29 and the register 0x00 arrive unchanged in the calls.</figcaption>
 </figure>
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 308" role="img" aria-labelledby="wbt-read-ReadRegistersReturnsAllBytesOfASample-title"><title id="wbt-read-ReadRegistersReturnsAllBytesOfASample-title">The time line of the test ReadRegistersReturnsAllBytesOfASample</title><defs><marker id="wbt-read-ReadRegistersReturnsAllBytesOfASample-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <path class="time-line" d="M17,23 V196" marker-end="url(#wbt-read-ReadRegistersReturnsAllBytesOfASample-head)"/>
 <text class="mono" x="8" y="18" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 18)</text>
@@ -222,7 +222,7 @@
 </svg>
 <figcaption><code>Read<wbr>Registers<wbr>Returns<wbr>All<wbr>Bytes<wbr>Of<wbr>A<wbr>Sample</code>: All 18 bytes arrive, and <code>data</code> holds them in their order. The test checks the result and the bytes, not the calls.</figcaption>
 </figure>
-<figure class="wbt-panel">
+<figure class="wbt-picture">
 <svg class="wbt" viewBox="0 0 340 202" role="img" aria-labelledby="wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-title"><title id="wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-title">The time line of the test ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails</title><defs><marker id="wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="calls-box" x="8" y="46" width="175" height="60" rx="4"/>
 <path class="time-line" d="M17,39 V135" marker-end="url(#wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-head)"/>
@@ -257,5 +257,5 @@
 <figcaption><code>Read<wbr>Registers<wbr>Fails<wbr>Without<wbr>A<wbr>Read<wbr>Request<wbr>When<wbr>The<wbr>Register<wbr>Write<wbr>Fails</code>: No device acknowledges the register write, so no read request follows.</figcaption>
 </figure>
 </div>
-<figcaption>The four tests of <code>readRegisters()</code> with the fixture <code>WireBusTest</code>. An open dot is a call that <code>calls</code> doesn't list: <code>available()</code> or <code>read()</code>. A struck-through call with a dashed dot is one that the test expects not to happen. A row of boxes holds bytes in hex, such as 10 for 0x10.</figcaption>
+<figcaption>The four tests of <code>readRegisters()</code> with the fixture <code>WireBusTest</code>. The dots, values and numbers read as in the pictures of <code>writeRegister()</code>: time runs down, a filled dot is a call that <code>calls</code> lists, a bold orange value is set by the test, and a number in a blue disc is a check. An open dot is a call that <code>calls</code> doesn't list: <code>available()</code> or <code>read()</code>. A struck-through call on a dashed dot is one that the test expects not to happen. A row of boxes holds bytes in hex, such as 10 for 0x10.</figcaption>
 </figure>

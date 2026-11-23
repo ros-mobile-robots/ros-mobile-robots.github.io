@@ -34,7 +34,9 @@ from typing import Union
 
 from board_drawings import Drawing
 from board_drawings import escape
+from board_drawings import NUMBER_DISC_RADIUS
 from board_drawings import style_element
+from board_drawings import svg_element
 
 # test_wire_bus.cpp's values, lines 22–51 and 223. The first set is the BNO055's address, its
 # mode register with the value for the IMU mode, and its first data register
@@ -80,7 +82,6 @@ CHECK_HEIGHT = 19
 # A byte of a row of bytes
 CELL_WIDTH = 16
 CELL_HEIGHT = 16
-BADGE_RADIUS = 8
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -88,9 +89,9 @@ RULES = (
     ('.md-typeset figure.wbt-figure', 'margin:1em auto;width:100%;max-width:none'),
     ('.wbt-grid', 'display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;'
                   'gap:1.2em 1em'),
-    ('.md-typeset figure.wbt-panel', 'margin:0;width:16.6rem;max-width:100%'),
-    ('.md-typeset figure.wbt-panel figcaption', 'margin:.3em 0 0;max-width:none'),
-    ('.md-typeset figure.wbt-panel figcaption code', 'overflow-wrap:anywhere'),
+    ('.md-typeset figure.wbt-picture', 'margin:0;width:16.6rem;max-width:100%'),
+    ('.md-typeset figure.wbt-picture figcaption', 'margin:.3em 0 0;max-width:none'),
+    ('.md-typeset figure.wbt-picture figcaption code', 'overflow-wrap:anywhere'),
     ('.wbt', 'width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);'
              '--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif'),
     ('[data-md-color-scheme=slate] .wbt',
@@ -185,6 +186,19 @@ class ByteRow(NamedTuple):
 Line = Union[WireCall, ByteRow]
 
 
+class CheckedCall(NamedTuple):
+    """A call that the test makes itself after its call of bus_, with its check's number."""
+
+    call: str
+    result: str
+    note: str
+    badge: int
+
+
+# What the test checks after its call of bus_: a row of bytes or a call of its own
+After = Union[ByteRow, CheckedCall]
+
+
 class Setting(NamedTuple):
     """A member of wire_ that the test sets before its call, and what the value means."""
 
@@ -196,7 +210,7 @@ class Phase(NamedTuple):
     """One call of bus_ by the test: the settings before it, its lines and its result.
 
     calls_badge is the number of the check that compares the recorded calls, or 0 when no check
-    compares them. after is a row of bytes that the test checks after the call, or None.
+    compares them. after is what the test checks after the call, or None.
     """
 
     label: str
@@ -206,7 +220,7 @@ class Phase(NamedTuple):
     result: str
     result_badge: int
     calls_badge: int = 0
-    after: Optional[ByteRow] = None
+    after: Optional[After] = None
 
 
 class Check(NamedTuple):
@@ -217,17 +231,25 @@ class Check(NamedTuple):
     text: str
 
 
-class Panel(NamedTuple):
+class PictureKind(Enum):
+    """What a picture's name names."""
+
+    TEST = 'test'
+    # A case of a parameterized test
+    CASE = 'case'
+
+
+class Picture(NamedTuple):
     """The picture of one test: its name, a sentence for its caption, its phases and checks.
 
-    caption is HTML. kind says what the name names: a test, or a case of a parameterized test.
+    caption is HTML.
     """
 
     name: str
     caption: str
     phases: Tuple[Phase, ...]
     checks: Tuple[Check, ...]
-    kind: str = 'test'
+    kind: PictureKind = PictureKind.TEST
 
 
 def code(text: str) -> str:
@@ -285,7 +307,7 @@ def successful_read(address: int, register: int, length: int) -> Tuple[Line, ...
             WireCall(f'read() × {length}', 'into data', Mark.NOT_RECORDED))
 
 
-def write_register_panels() -> Tuple[Panel, ...]:
+def write_register_pictures() -> Tuple[Picture, ...]:
     """Return the pictures of the four tests of writeRegister()."""
     write_call_text = f'bus_.writeRegister({hex_byte(DEVICE_ADDRESS)}, ' \
                       f'{hex_byte(WRITTEN_REGISTER)}, {hex_byte(WRITTEN_VALUE)})'
@@ -298,33 +320,33 @@ def write_register_panels() -> Tuple[Panel, ...]:
     failed_write = register_write(DEVICE_ADDRESS, WRITTEN_REGISTER, WRITTEN_VALUE,
                                   ADDRESS_NOT_ACKNOWLEDGED)
     return (
-        Panel('WriteRegisterSendsRegisterAndValue',
-              'The device acknowledges: four calls, and the result true.',
-              (Phase('', (), write_call_text, acknowledged_write, 'true', 1, calls_badge=2),),
-              (returns_true, calls_in_the_box)),
-        Panel('WriteRegisterFailsWhenTheAddressIsNotAcknowledged',
-              f'{code("endTransmission()")} returns {ADDRESS_NOT_ACKNOWLEDGED}, so the result '
-              'is false. The test checks only the result.',
-              (Phase('', (not_acknowledged,), write_call_text, failed_write, 'false', 1),),
-              (returns_false,)),
-        Panel('WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite',
-              f'Two writes on the same {code("bus_")}: the first one succeeds, and the second '
-              'one fails.',
-              (Phase('1. A write that the device acknowledges', (), write_call_text,
-                     acknowledged_write, 'true', 1),
-               Phase('2. The next write, not acknowledged', (not_acknowledged,),
-                     write_call_text, failed_write, 'false', 2)),
-              (Check(1, 'ASSERT_TRUE', 'the first call returns true'),
-               Check(2, 'EXPECT_FALSE', 'the second call returns false'))),
-        Panel('WriteRegisterPassesOnTheAddressRegisterAndValue',
-              f'The second set of values, {hex_byte(ALTERNATE_DEVICE_ADDRESS)}, '
-              f'{hex_byte(RESET_REGISTER)} and {hex_byte(RESET_VALUE)}, arrives unchanged in the '
-              'calls.',
-              (Phase('', (), f'bus_.writeRegister({hex_byte(ALTERNATE_DEVICE_ADDRESS)}, '
-                             f'{hex_byte(RESET_REGISTER)}, {hex_byte(RESET_VALUE)})',
-                     register_write(ALTERNATE_DEVICE_ADDRESS, RESET_REGISTER, RESET_VALUE),
-                     'true', 1, calls_badge=2),),
-              (returns_true, calls_in_the_box)),
+        Picture('WriteRegisterSendsRegisterAndValue',
+                'The device acknowledges: four calls, and the result true.',
+                (Phase('', (), write_call_text, acknowledged_write, 'true', 1, calls_badge=2),),
+                (returns_true, calls_in_the_box)),
+        Picture('WriteRegisterFailsWhenTheAddressIsNotAcknowledged',
+                f'{code("endTransmission()")} returns {ADDRESS_NOT_ACKNOWLEDGED}, so the result '
+                'is false. The test checks only the result.',
+                (Phase('', (not_acknowledged,), write_call_text, failed_write, 'false', 1),),
+                (returns_false,)),
+        Picture('WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite',
+                f'Two writes on the same {code("bus_")}: the first one succeeds, and the second '
+                'one fails.',
+                (Phase('1. A write that the device acknowledges', (), write_call_text,
+                       acknowledged_write, 'true', 1),
+                 Phase('2. The next write, not acknowledged', (not_acknowledged,),
+                       write_call_text, failed_write, 'false', 2)),
+                (Check(1, 'ASSERT_TRUE', 'the first call returns true'),
+                 Check(2, 'EXPECT_FALSE', 'the second call returns false'))),
+        Picture('WriteRegisterPassesOnTheAddressRegisterAndValue',
+                f'The second set of values, {hex_byte(ALTERNATE_DEVICE_ADDRESS)}, '
+                f'{hex_byte(RESET_REGISTER)} and {hex_byte(RESET_VALUE)}, arrives unchanged in '
+                'the calls.',
+                (Phase('', (), f'bus_.writeRegister({hex_byte(ALTERNATE_DEVICE_ADDRESS)}, '
+                               f'{hex_byte(RESET_REGISTER)}, {hex_byte(RESET_VALUE)})',
+                       register_write(ALTERNATE_DEVICE_ADDRESS, RESET_REGISTER, RESET_VALUE),
+                       'true', 1, calls_badge=2),),
+                (returns_true, calls_in_the_box)),
     )
 
 
@@ -334,7 +356,7 @@ def read_call(address: int, register: int, length: int) -> str:
             f'{length})')
 
 
-def read_register_panels() -> Tuple[Panel, ...]:
+def read_register_pictures() -> Tuple[Picture, ...]:
     """Return the pictures of the four tests of readRegisters() with the fixture WireBusTest."""
     returns_true = Check(1, 'EXPECT_TRUE', 'the call returns true')
     calls_in_the_box = Check(2, 'EXPECT_EQ', 'wire_.calls holds the boxed calls')
@@ -352,37 +374,37 @@ def read_register_panels() -> Tuple[Panel, ...]:
                  str(SAMPLE_LENGTH_BYTES)),
         WireCall(f'read() × {SAMPLE_LENGTH_BYTES}', 'into data', Mark.NOT_RECORDED))
     return (
-        Panel('ReadRegistersUsesARepeatedStart',
-              'The register write ends with a repeated start, and the read request follows.',
-              (Phase('', (), read_call(DEVICE_ADDRESS, READ_REGISTER, READ_LENGTH_BYTES),
-                     successful_read(DEVICE_ADDRESS, READ_REGISTER, READ_LENGTH_BYTES),
-                     'true', 1, calls_badge=2),),
-              (returns_true, calls_in_the_box)),
-        Panel('ReadRegistersPassesOnTheAddressAndRegister',
-              f'The address {hex_byte(ALTERNATE_DEVICE_ADDRESS)} and the register '
-              f'{hex_byte(CHIP_ID_REGISTER)} arrive unchanged in the calls.',
-              (Phase('', (),
-                     read_call(ALTERNATE_DEVICE_ADDRESS, CHIP_ID_REGISTER, READ_LENGTH_BYTES),
-                     successful_read(ALTERNATE_DEVICE_ADDRESS, CHIP_ID_REGISTER,
-                                     READ_LENGTH_BYTES),
-                     'true', 1, calls_badge=2),),
-              (returns_true, calls_in_the_box)),
-        Panel('ReadRegistersReturnsAllBytesOfASample',
-              f'All {SAMPLE_LENGTH_BYTES} bytes arrive, and {code("data")} holds them in their '
-              'order. The test checks the result and the bytes, not the calls.',
-              (Phase('', (), read_call(DEVICE_ADDRESS, READ_REGISTER, SAMPLE_LENGTH_BYTES),
-                     sample_lines, 'true', 1,
-                     after=ByteRow('data after the call', sample, badge=2)),),
-              (returns_true,
-               Check(2, 'EXPECT_EQ', 'data holds the delivered bytes'))),
-        Panel('ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails',
-              'No device acknowledges the register write, so no read request follows.',
-              (Phase('', (Setting(f'wire_.end_result = {ADDRESS_NOT_ACKNOWLEDGED}',
-                                  'no device acknowledges'),),
-                     read_call(DEVICE_ADDRESS, READ_REGISTER, READ_LENGTH_BYTES),
-                     failed_read_lines, 'false', 1, calls_badge=2),),
-              (Check(1, 'EXPECT_FALSE', 'the call returns false'),
-               Check(2, 'EXPECT_EQ', 'wire_.calls holds the boxed calls'))),
+        Picture('ReadRegistersUsesARepeatedStart',
+                'The register write ends with a repeated start, and the read request follows.',
+                (Phase('', (), read_call(DEVICE_ADDRESS, READ_REGISTER, READ_LENGTH_BYTES),
+                       successful_read(DEVICE_ADDRESS, READ_REGISTER, READ_LENGTH_BYTES),
+                       'true', 1, calls_badge=2),),
+                (returns_true, calls_in_the_box)),
+        Picture('ReadRegistersPassesOnTheAddressAndRegister',
+                f'The address {hex_byte(ALTERNATE_DEVICE_ADDRESS)} and the register '
+                f'{hex_byte(CHIP_ID_REGISTER)} arrive unchanged in the calls.',
+                (Phase('', (),
+                       read_call(ALTERNATE_DEVICE_ADDRESS, CHIP_ID_REGISTER, READ_LENGTH_BYTES),
+                       successful_read(ALTERNATE_DEVICE_ADDRESS, CHIP_ID_REGISTER,
+                                       READ_LENGTH_BYTES),
+                       'true', 1, calls_badge=2),),
+                (returns_true, calls_in_the_box)),
+        Picture('ReadRegistersReturnsAllBytesOfASample',
+                f'All {SAMPLE_LENGTH_BYTES} bytes arrive, and {code("data")} holds them in their '
+                'order. The test checks the result and the bytes, not the calls.',
+                (Phase('', (), read_call(DEVICE_ADDRESS, READ_REGISTER, SAMPLE_LENGTH_BYTES),
+                       sample_lines, 'true', 1,
+                       after=ByteRow('data after the call', sample, badge=2)),),
+                (returns_true,
+                 Check(2, 'EXPECT_EQ', 'data holds the delivered bytes'))),
+        Picture('ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails',
+                'No device acknowledges the register write, so no read request follows.',
+                (Phase('', (Setting(f'wire_.end_result = {ADDRESS_NOT_ACKNOWLEDGED}',
+                                    'no device acknowledges'),),
+                       read_call(DEVICE_ADDRESS, READ_REGISTER, READ_LENGTH_BYTES),
+                       failed_read_lines, 'false', 1, calls_badge=2),),
+                (Check(1, 'EXPECT_FALSE', 'the call returns false'),
+                 Check(2, 'EXPECT_EQ', 'wire_.calls holds the boxed calls'))),
     )
 
 
@@ -439,8 +461,7 @@ def short_read_lines(case: ShortRead) -> Tuple[Line, ...]:
         lines.append(WireCall('available()',
                               shortfall_note(SAMPLE_LENGTH_BYTES - case.delivered_count),
                               Mark.NOT_RECORDED, str(case.delivered_count)))
-    lines.append(WireCall(f'read() × {case.delivered_count}', 'until available() is 0',
-                          Mark.NOT_RECORDED))
+    lines.append(WireCall(f'read() × {case.delivered_count}', 'dropped', Mark.NOT_RECORDED))
     return tuple(lines)
 
 
@@ -453,23 +474,24 @@ def short_read_caption(case: ShortRead) -> str:
     return f'{code("requestFrom()")} reports {case.reported_count}, and {arrived}.'
 
 
-def short_read_panel(case: ShortRead) -> Panel:
+def short_read_picture(case: ShortRead) -> Picture:
     """Return the picture of one case of the parameterized test."""
     settings = (Setting(f'wire_.reported_count = {case.reported_count}',
                         'what requestFrom() reports'),
                 Setting(f'wire_.delivered_count = {case.delivered_count}',
                         'the bytes that arrive'))
-    return Panel(case.name, short_read_caption(case),
-                 (Phase('', settings,
-                        read_call(DEVICE_ADDRESS, READ_REGISTER, SAMPLE_LENGTH_BYTES),
-                        short_read_lines(case), 'false', 1, calls_badge=2),),
-                 (Check(1, 'EXPECT_FALSE', 'the call returns false'),
-                  Check(2, 'EXPECT_EQ', 'wire_.calls holds the boxed calls'),
-                  Check(3, 'EXPECT_EQ', 'wire_.available() is 0')),
-                 'case')
+    return Picture(case.name, short_read_caption(case),
+                   (Phase('', settings,
+                          read_call(DEVICE_ADDRESS, READ_REGISTER, SAMPLE_LENGTH_BYTES),
+                          short_read_lines(case), 'false', 1, calls_badge=2,
+                          after=CheckedCall('wire_.available()', '0', 'no byte left', 3)),),
+                   (Check(1, 'EXPECT_FALSE', 'the call returns false'),
+                    Check(2, 'EXPECT_EQ', 'wire_.calls holds the boxed calls'),
+                    Check(3, 'EXPECT_EQ', 'wire_.available() is 0')),
+                   PictureKind.CASE)
 
 
-class Figure(Drawing):
+class PictureDrawing(Drawing):
     """Collect the SVG elements of one picture, and the y of its next line.
 
     The elements of background, such as the box around the compared calls and the time line,
@@ -490,90 +512,83 @@ class Figure(Drawing):
 
     def badge(self, x: float, y: float, number: int) -> None:
         """Add a check's number in a filled disc around (x, y)."""
-        self.circle(x, y, BADGE_RADIUS, 'badge')
-        self.text(x, y + 3.8, str(number), 'badge-number', 'middle')
+        self.number_disc(x, y, number, 'badge', 'badge-number')
 
     def svg(self, title: str) -> str:
         """Return the picture as an SVG element, as high as its lines."""
-        height = round(self.y + 6)
-        head = (f'<marker id="{self.name}-head" viewBox="0 0 10 10" refX="9" refY="5" '
-                'markerWidth="7" markerHeight="7" orient="auto">'
-                '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
-        return (f'<svg class="wbt" viewBox="0 0 {WIDTH} {height}" role="img" '
-                f'aria-labelledby="{self.name}-title"><title id="{self.name}-title">'
-                f'{escape(title)}</title><defs>{head}</defs>\n'
-                + '\n'.join(self.background + self.elements) + '\n</svg>')
+        return svg_element(self.name, 'wbt', (WIDTH, round(self.y + 6)), title,
+                           self.background + self.elements)
 
 
-def draw_settings(figure: Figure, settings: Sequence[Setting]) -> None:
+def draw_settings(drawing: PictureDrawing, settings: Sequence[Setting]) -> None:
     """Add the members of wire_ that the test sets before its call, one per line."""
     for setting in settings:
-        figure.y += 16
-        figure.rich_text(LEFT_X, figure.y, ((setting.code, 'mono set'),))
-        figure.text(RIGHT_X, figure.y, setting.note, 'note', 'end')
+        drawing.y += 16
+        drawing.rich_text(LEFT_X, drawing.y, ((setting.code, 'mono set'),))
+        drawing.text(RIGHT_X, drawing.y, setting.note, 'note', 'end')
 
 
-def draw_wire_call(figure: Figure, wire_call: WireCall) -> None:
+def draw_wire_call(drawing: PictureDrawing, wire_call: WireCall) -> None:
     """Add a line of WireBusT's calls: the dot on the time line, the call, its result, a note."""
-    figure.y += ROW_HEIGHT
-    dot_y = figure.y - 3.5
+    drawing.y += ROW_HEIGHT
+    dot_y = drawing.y - 3.5
     if wire_call.mark is Mark.RECORDED:
-        figure.circle(TIME_X, dot_y, 3.5, 'recorded')
+        drawing.circle(TIME_X, dot_y, 3.5, 'recorded')
     else:
-        figure.circle(TIME_X, dot_y, 3.2, wire_call.mark.value)
+        drawing.circle(TIME_X, dot_y, 3.2, wire_call.mark.value)
     call_class = {Mark.RECORDED: 'mono', Mark.NOT_RECORDED: 'mono',
                   Mark.NOT_CALLED: 'mono not-called'}[wire_call.mark]
-    figure.text(CALL_X, figure.y, wire_call.call, call_class)
+    drawing.text(CALL_X, drawing.y, wire_call.call, call_class)
     if wire_call.result:
         result_class = 'mono set' if wire_call.result_set_by_test else 'mono'
-        figure.rich_text(RESULT_X, figure.y, (('→ ', 'mono'), (wire_call.result, result_class)))
-    figure.text(NOTE_X, figure.y, wire_call.note, 'note')
+        drawing.rich_text(RESULT_X, drawing.y, (('→ ', 'mono'), (wire_call.result, result_class)))
+    drawing.text(NOTE_X, drawing.y, wire_call.note, 'note')
 
 
-def draw_byte_row(figure: Figure, row: ByteRow, x: float) -> None:
+def draw_byte_row(drawing: PictureDrawing, row: ByteRow, x: float) -> None:
     """Add a row of bytes with its label above it, and the reported count's bracket below it.
 
     A byte that arrived is a box with its value in hex, without 0x. A byte that didn't arrive is
     a dashed box. The bracket spans as many boxes as requestFrom() reports.
     """
-    figure.y += 20
+    drawing.y += 20
     if row.badge:
-        figure.badge(LEFT_X + BADGE_RADIUS, figure.y + 13, row.badge)
-    figure.text(x, figure.y, row.label, 'note')
-    top = figure.y + 5
+        drawing.badge(LEFT_X + NUMBER_DISC_RADIUS, drawing.y + 13, row.badge)
+    drawing.text(x, drawing.y, row.label, 'note')
+    top = drawing.y + 5
     for index, value in enumerate(row.values):
         cell_x = x + index * CELL_WIDTH
         if value is None:
-            figure.rect(cell_x + 1, top + 1, CELL_WIDTH - 2, CELL_HEIGHT - 2, 'empty-cell', 2)
+            drawing.rect(cell_x + 1, top + 1, CELL_WIDTH - 2, CELL_HEIGHT - 2, 'empty-cell', 2)
         else:
-            figure.rect(cell_x, top, CELL_WIDTH, CELL_HEIGHT, 'cell', 2)
-            figure.text(cell_x + CELL_WIDTH / 2, top + 11.5, f'{value:02X}', 'byte', 'middle')
-    figure.y = top + CELL_HEIGHT
+            drawing.rect(cell_x, top, CELL_WIDTH, CELL_HEIGHT, 'cell', 2)
+            drawing.text(cell_x + CELL_WIDTH / 2, top + 11.5, f'{value:02X}', 'byte', 'middle')
+    drawing.y = top + CELL_HEIGHT
     if row.reported:
-        bracket_y = figure.y + 5
+        bracket_y = drawing.y + 5
         end_x = x + row.reported * CELL_WIDTH - 1
-        figure.line(f'M{x + 1:g},{bracket_y - 4:g} V{bracket_y:g} H{end_x:g} V{bracket_y - 4:g}',
-                    'reported')
-        figure.y = bracket_y + 13
-        figure.rich_text(x, figure.y, (('requestFrom() reports ', 'note'),
-                                       (str(row.reported), 'set')))
+        bracket = f'M{x + 1:g},{bracket_y - 4:g} V{bracket_y:g} H{end_x:g} V{bracket_y - 4:g}'
+        drawing.line(bracket, 'reported')
+        drawing.y = bracket_y + 13
+        drawing.rich_text(x, drawing.y, (('requestFrom() reports ', 'note'),
+                                         (str(row.reported), 'set')))
 
 
-def draw_lines(figure: Figure, lines: Sequence[Line]) -> List[float]:
+def draw_lines(drawing: PictureDrawing, lines: Sequence[Line]) -> List[float]:
     """Add the lines inside the call of bus_ and return the baselines of the recorded calls."""
     recorded: List[float] = []
     for line in lines:
         if isinstance(line, ByteRow):
-            draw_byte_row(figure, line, CALL_X)
-            figure.y += 2
+            draw_byte_row(drawing, line, CALL_X)
+            drawing.y += 2
         else:
-            draw_wire_call(figure, line)
+            draw_wire_call(drawing, line)
             if line.mark is Mark.RECORDED:
-                recorded.append(figure.y)
+                recorded.append(drawing.y)
     return recorded
 
 
-def draw_calls_box(figure: Figure, baselines: Sequence[float], badge: int) -> None:
+def draw_calls_box(drawing: PictureDrawing, baselines: Sequence[float], badge: int) -> None:
     """Add the box around the recorded calls that a check compares, with the check's number.
 
     The box holds the calls' text and leaves their results outside. The number sits on the box's
@@ -582,93 +597,114 @@ def draw_calls_box(figure: Figure, baselines: Sequence[float], badge: int) -> No
     top = baselines[0] - ROW_HEIGHT + 6
     bottom = baselines[-1] + 6
     width = CALLS_BOX_RIGHT - LEFT_X
-    figure.background.append(f'<rect class="calls-box" x="{LEFT_X:g}" y="{top:g}" '
-                             f'width="{width:g}" height="{bottom - top:g}" rx="4"/>')
-    figure.badge(CALLS_BOX_RIGHT, top, badge)
+    drawing.background.append(f'<rect class="calls-box" x="{LEFT_X:g}" y="{top:g}" '
+                              f'width="{width:g}" height="{bottom - top:g}" rx="4"/>')
+    drawing.badge(CALLS_BOX_RIGHT, top, badge)
 
 
-def draw_phase(figure: Figure, phase: Phase) -> None:
+def draw_checked_call(drawing: PictureDrawing, checked_call: CheckedCall) -> None:
+    """Add a call that the test makes after its call of bus_, with its check's number."""
+    drawing.y += ROW_HEIGHT + 4
+    drawing.badge(LEFT_X + NUMBER_DISC_RADIUS, drawing.y - 4, checked_call.badge)
+    drawing.text(CALL_X, drawing.y, checked_call.call, 'mono')
+    drawing.rich_text(RESULT_X, drawing.y, (('→ ', 'mono'), (checked_call.result, 'mono')))
+    drawing.text(NOTE_X, drawing.y, checked_call.note, 'note')
+
+
+def draw_phase(drawing: PictureDrawing, phase: Phase) -> None:
     """Add one call of bus_: its label, the settings, the call, the time line and the result."""
     if phase.label:
         # A later phase keeps its distance from the result of the one before
-        figure.y += 18 if figure.y == 0 else 28
-        figure.text(LEFT_X, figure.y, phase.label, 'phase')
-    draw_settings(figure, phase.settings)
-    figure.y += 18
-    figure.text(LEFT_X, figure.y, phase.call, 'mono')
-    time_line_top = figure.y + 5
+        drawing.y += 18 if drawing.y == 0 else 28
+        drawing.text(LEFT_X, drawing.y, phase.label, 'phase')
+    draw_settings(drawing, phase.settings)
+    drawing.y += 18
+    drawing.text(LEFT_X, drawing.y, phase.call, 'mono')
+    time_line_top = drawing.y + 5
     if phase.calls_badge:
-        figure.y += CALLS_BOX_GAP
-    recorded = draw_lines(figure, phase.lines)
+        drawing.y += CALLS_BOX_GAP
+    recorded = draw_lines(drawing, phase.lines)
     if phase.calls_badge:
-        draw_calls_box(figure, recorded, phase.calls_badge)
-    figure.y += 30
-    result_y = figure.y
-    figure.background.append(
+        draw_calls_box(drawing, recorded, phase.calls_badge)
+    drawing.y += 30
+    result_y = drawing.y
+    drawing.background.append(
         f'<path class="time-line" d="M{TIME_X},{time_line_top:g} V{result_y - 15:g}" '
-        f'marker-end="url(#{figure.name}-head)"/>')
-    figure.badge(LEFT_X + BADGE_RADIUS, result_y - 4, phase.result_badge)
-    figure.rich_text(CALL_X, result_y, (('returns ', ''), (phase.result, 'mono')))
-    if phase.after:
-        figure.y += 4
-        draw_byte_row(figure, phase.after, CALL_X)
+        f'marker-end="url(#{drawing.name}-head)"/>')
+    drawing.badge(LEFT_X + NUMBER_DISC_RADIUS, result_y - 4, phase.result_badge)
+    drawing.rich_text(CALL_X, result_y, (('returns ', ''), (phase.result, 'mono')))
+    if isinstance(phase.after, ByteRow):
+        drawing.y += 4
+        draw_byte_row(drawing, phase.after, CALL_X)
+    elif isinstance(phase.after, CheckedCall):
+        draw_checked_call(drawing, phase.after)
 
 
-def draw_checks(figure: Figure, checks: Sequence[Check]) -> None:
+def draw_checks(drawing: PictureDrawing, checks: Sequence[Check]) -> None:
     """Add the list of the test's checks, each with its number."""
-    figure.y += 8
+    drawing.y += 8
     for check in checks:
-        figure.y += CHECK_HEIGHT
-        figure.badge(LEFT_X + BADGE_RADIUS, figure.y - 4, check.badge)
-        figure.rich_text(CALL_X, figure.y, ((check.macro, 'mono'), (': ' + check.text, '')))
+        drawing.y += CHECK_HEIGHT
+        drawing.badge(LEFT_X + NUMBER_DISC_RADIUS, drawing.y - 4, check.badge)
+        drawing.rich_text(CALL_X, drawing.y, ((check.macro, 'mono'), (': ' + check.text, '')))
 
 
-def panel_figure(panel: Panel, prefix: str) -> str:
+def picture_html(picture: Picture, prefix: str) -> str:
     """Return the HTML of one picture: its SVG and its caption."""
-    figure = Figure(f'{prefix}-{panel.name}')
-    for phase in panel.phases:
-        draw_phase(figure, phase)
-    draw_checks(figure, panel.checks)
-    title = f'The time line of the {panel.kind} {panel.name}'
-    return (f'<figure class="wbt-panel">\n{figure.svg(title)}\n'
-            f'<figcaption>{breakable_name(panel.name)}: {panel.caption}</figcaption>\n</figure>')
+    drawing = PictureDrawing(f'{prefix}-{picture.name}')
+    for phase in picture.phases:
+        draw_phase(drawing, phase)
+    draw_checks(drawing, picture.checks)
+    title = f'The time line of the {picture.kind.value} {picture.name}'
+    return (f'<figure class="wbt-picture">\n{drawing.svg(title)}\n'
+            f'<figcaption>{breakable_name(picture.name)}: {picture.caption}</figcaption>\n'
+            '</figure>')
 
 
-def group_include(panels: Sequence[Panel], prefix: str, caption: str) -> str:
+def figure_include(pictures: Sequence[Picture], prefix: str, caption: str) -> str:
     """Return an include: the style, and one figure with the pictures of a group of tests."""
-    pictures = '\n'.join(panel_figure(panel, prefix) for panel in panels)
+    pictures_html = '\n'.join(picture_html(picture, prefix) for picture in pictures)
     return ('<!-- Written by scripts/figures/firmware_unit_tests_figures.py -->\n'
             f'{style_element(RULES)}\n<figure class="wbt-figure">\n<div class="wbt-grid">\n'
-            f'{pictures}\n</div>\n<figcaption>{caption}</figcaption>\n</figure>\n')
+            f'{pictures_html}\n</div>\n<figcaption>{caption}</figcaption>\n</figure>\n')
 
 
 def write_register_caption() -> str:
     """Return the caption of the pictures of writeRegister(), which explains how to read them."""
     return (f'The four tests of {code("writeRegister()")}, one time line per test. Time runs '
             f'down. The test calls {code("bus_")} with the values of the top line. '
-            f"{code('WireBusT')}'s calls of {code('FakeWire')} follow, each with a dot on the "
-            'time line, and the result comes back at the bottom. A filled dot is a call that '
-            f'{code("FakeWire")} records in {code("calls")}. An orange value is one that the '
-            f'test sets on {code("wire_")} before the call. A blue number marks what a check '
-            'compares, and the list under the time line names the check.')
+            f"{code('WireBusT')}'s calls of {code('FakeWire')} follow, each with a filled dot on "
+            f'the time line: a call that {code("FakeWire")} records in {code("calls")}. The '
+            'result comes back at the bottom. A bold orange value is one that the test sets on '
+            f'{code("wire_")} before the call. A number in a blue disc is a check, and the list '
+            'under the time line names it. The disc on the corner of a box marks the calls that '
+            f'{code("EXPECT_EQ")} compares.')
 
 
 def read_registers_caption() -> str:
     """Return the caption of the pictures of readRegisters() with the fixture WireBusTest."""
     return (f'The four tests of {code("readRegisters()")} with the fixture '
-            f'{code("WireBusTest")}. An open dot is a call that {code("calls")} doesn\'t list: '
-            f'{code("available()")} or {code("read()")}. A struck-through call with a dashed '
-            'dot is one that the test expects not to happen. A row of boxes holds bytes in hex, '
-            f'such as {FIRST_DELIVERED_BYTE:02X} for {hex_byte(FIRST_DELIVERED_BYTE)}.')
+            f'{code("WireBusTest")}. The dots, values and numbers read as in the pictures of '
+            f'{code("writeRegister()")}: time runs down, a filled dot is a call that '
+            f'{code("calls")} lists, a bold orange value is set by the test, and a number in a '
+            f"blue disc is a check. An open dot is a call that {code('calls')} doesn't list: "
+            f'{code("available()")} or {code("read()")}. A struck-through call on a dashed dot '
+            'is one that the test expects not to happen. A row of boxes holds bytes in hex, such '
+            f'as {FIRST_DELIVERED_BYTE:02X} for {hex_byte(FIRST_DELIVERED_BYTE)}.')
 
 
 def short_reads_caption() -> str:
     """Return the caption of the pictures of the short reads."""
-    return (f'The four cases of {code("ReadRegistersFailsAndDrainsTheBytes")}. Each case '
-            f"requests a sample's {SAMPLE_LENGTH_BYTES} bytes. The row of boxes is the Wire "
-            f"library's receive buffer after {code('requestFrom()')}: a box with a value is a "
-            "byte that arrived, a dashed box one that didn't. The orange bracket spans the "
-            f'count that {code("requestFrom()")} reports.')
+    return (f'The four cases of {code("ReadRegistersFailsAndDrainsTheBytes")}. The dots, values '
+            f'and numbers read as in the pictures of {code("writeRegister()")} and '
+            f'{code("readRegisters()")}: time runs down, a filled dot is a call that '
+            f"{code('calls')} lists, an open dot one that it doesn't list, a bold orange value "
+            'is set by the test, and a number in a blue disc is a check. Each case requests '
+            f"a sample's {SAMPLE_LENGTH_BYTES} bytes. The row of boxes is the Wire library's "
+            f'receive buffer after {code("requestFrom()")}: a box with a value is a byte that '
+            "arrived, a dashed box one that didn't. The orange bracket under it spans the count "
+            f'that {code("requestFrom()")} reports. The {code("read()")} calls drop the bytes, '
+            f"and the line after the result is the test's own call of {code('available()')}.")
 
 
 def main() -> None:
@@ -676,12 +712,12 @@ def main() -> None:
     check_short_reads(SHORT_READS)
     includes = (
         ('includes/firmware-unit-tests-write-register.html',
-         group_include(write_register_panels(), 'wbt-write', write_register_caption())),
+         figure_include(write_register_pictures(), 'wbt-write', write_register_caption())),
         ('includes/firmware-unit-tests-read-registers.html',
-         group_include(read_register_panels(), 'wbt-read', read_registers_caption())),
+         figure_include(read_register_pictures(), 'wbt-read', read_registers_caption())),
         ('includes/firmware-unit-tests-short-reads.html',
-         group_include(tuple(short_read_panel(case) for case in SHORT_READS), 'wbt-short',
-                       short_reads_caption())),
+         figure_include(tuple(short_read_picture(case) for case in SHORT_READS), 'wbt-short',
+                        short_reads_caption())),
     )
     for path, content in includes:
         with open(path, 'w', encoding='utf-8') as include:
