@@ -12,7 +12,7 @@ Find your change in this list. Each line says what to run or check, and links th
 - **A page that explains a feature:** the page links the feature's tests page, or is that page ([A feature's tests](#a-features-tests)). A feature without automated tests says so on its page, and says how it was checked.
 - **A Python script, hook, macro or test:** the unit tests pass, new logic has a test, and flake8 and mypy report nothing in the code that you added or changed: a new file, a line at module level, and the whole of a function, a method or a test that you touched ([Check the Python style](#check-the-python-style)). After a change to a figure script, regenerate the script's includes and commit them with the script.
 - **The theme's JavaScript:** the rules for functions and names hold ([Code in this repository](#code-in-this-repository)). CI has no tests for JavaScript yet. A computation that can run when the site is built belongs in Python, where a unit test reaches it. For behavior in the browser, such as where a tooltip appears, say in the pull request which interaction you tried and what you saw. No tool checks the style of JavaScript here, so also look at a page that uses the script, with `venv/bin/mkdocs serve`.
-- **The commits and the pull request:** one topic, signed commits, and no attribution lines for AI tools ([Commits and pull requests](#commits-and-pull-requests)).
+- **The commits and the pull request:** one topic and signed commits ([Commits and pull requests](#commits-and-pull-requests)).
 
 ## What this is
 
@@ -206,4 +206,4 @@ let animationRequest = requestAnimationFrame(drawNextFrame);
 - **Title and description:** pull requests are squash-merged. The title is the commit subject, `Page: what changed`, 65 characters or fewer before GitHub's PR-number suffix. The whole description becomes the commit message: what and why, then how it was checked, at which commit, and the limits. The results of the checks belong there. Lists of files, link counts and the history of the review stay out. Use the pull request template.
 - **Issues:** end the description with `Closes #N` when the pull request resolves issue N. For an issue that stays open, name the issue without a closing keyword, as in `Part of #N`.
 - **Signed commits:** sign every commit with GPG, `git commit -S`. `git log --show-signature -1` shows the signature of the last commit. A coding agent that can't sign stops and reports that, and doesn't commit unsigned.
-- **AI tools:** no attribution lines for AI tools in commits or pull requests (`Co-Authored-By:` for a tool, "Generated with …"). No disclosure of AI use is needed.
+- **AI tools:** no disclosure of AI use is needed.

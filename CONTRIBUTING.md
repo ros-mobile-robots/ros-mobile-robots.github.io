@@ -67,7 +67,7 @@ You're welcome to use AI tools. Whatever produced the text, you're its author an
 - Check every fact, value, command and link against its source. Pull requests with invented ones are closed.
 - Keep the PR description and your review replies short and specific.
 
-You don't need to say whether you used AI. Please don't add attribution lines for AI tools to commits or pull requests, such as `Co-Authored-By:` for a tool or "Generated with …".
+You don't need to say whether you used AI.
 
 ## License
 
