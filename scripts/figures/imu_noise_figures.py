@@ -39,15 +39,15 @@ import statistics
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
-from typing import Tuple
 
 from localization_figures import arrow_head
 from localization_figures import DRAWING_RULES
 from localization_figures import Figure
+from localization_figures import figure_element
 from localization_figures import LARGE_RULES
 from localization_figures import RULES
+from localization_figures import style_element
 from localization_figures import SYMBOL_RULES
-from localization_figures import write_parts
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -76,9 +76,12 @@ NOISE_RULES = (
 )
 FIGURE_RULES = RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES + NOISE_RULES
 FIGURE_CLASSES = 'lv-large lv-drawing lv-symbols lv-noise'
+INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_noise_figures.py -->'
 
 # The BNO055's output step of the angular velocity: 900 LSB per rad/s
-GYROSCOPE_STEP = 1 / 900  # rad/s
+GYROSCOPE_LSB_PER_RAD_S = 900
+GYROSCOPE_STEP = 1 / GYROSCOPE_LSB_PER_RAD_S  # rad/s
+GYROSCOPE_STEP_TEXT = f'1/{GYROSCOPE_LSB_PER_RAD_S} rad/s'
 SAMPLE_RATE = 50  # Hz, the firmware's
 
 # The synthetic recording of the trace figure: 180 s at rest. Its bias is about 30 times Remo's,
@@ -104,14 +107,65 @@ LONG_INTERVAL = 30  # ms
 # test_imu_statistics_takes_a_field_only_from_the_samples_that_measured_it: the yaw rates, None
 # for the sample without the angular velocity
 MEASURED_YAW_RATES = (0.2, None, 0.4)  # rad/s
+
+
+class Point(NamedTuple):
+    """A point or a vector in a frame with x, y and z."""
+
+    x: float
+    y: float
+    z: float
+
+
+class DrawingPoint(NamedTuple):
+    """A position in a drawing, in SVG coordinates."""
+
+    x: float
+    y: float
+
+
+class AxisLabel(NamedTuple):
+    """The end of a drawn axis, its name, and where the name stands next to the end."""
+
+    end: Point
+    name: str
+    offset: DrawingPoint
+
+
 # test_imu_statistics_gives_gravity_as_the_length_of_the_mean_acceleration: the mean of
 # (1, 3, 5) and (3, 3, 7)
-TILTED_MEAN_ACCELERATION = (2.0, 3.0, 6.0)  # m/s^2
+TILTED_MEAN_ACCELERATION = Point(2.0, 3.0, 6.0)  # m/s^2
+
+
+def listed(values: Sequence[str]) -> str:
+    """Return values as a list in words, such as "1, 2, 3 and 4"."""
+    return ', '.join(values[:-1]) + ' and ' + values[-1] if len(values) > 1 else values[0]
+
+
+NUMBER_WORDS = ('zero', 'one', 'two', 'three', 'four', 'five')
+ORDINAL_WORDS = ('first', 'second', 'third', 'fourth', 'fifth')
+
+
+def steps_in_words(steps: int) -> str:
+    """Return a number of output steps in words, such as "two output steps", or "zero"."""
+    if steps == 0:
+        return NUMBER_WORDS[0]
+    return f'{NUMBER_WORDS[steps]} output step' + ('' if steps == 1 else 's')
+
+
+def minus_signed(value: float) -> str:
+    """Return a value with its sign, with a minus sign instead of a hyphen."""
+    return f'{value:+g}'.replace('-', '−')
 
 
 def write_figure(path: str, figure: Figure, caption: str) -> None:
-    """Write an include with one drawing and its caption, in this script's style."""
-    write_parts(path, [figure.svg()], caption, FIGURE_RULES, FIGURE_CLASSES)
+    """Write an include with one drawing and its caption, in this script's style.
+
+    The include starts with a comment that names this script.
+    """
+    with open(path, 'w', encoding='utf-8') as include:
+        include.write(f'{INCLUDE_COMMENT}\n{style_element(FIGURE_RULES)}\n'
+                      f'{figure_element([figure.svg()], caption, FIGURE_CLASSES)}\n')
 
 
 class Trace(NamedTuple):
@@ -208,7 +262,7 @@ def write_trace() -> None:
     write_figure(
         'includes/imu-noise-trace.html', trace_figure(trace),
         '<strong>A synthetic example, not a recording of a robot.</strong> A gyroscope at rest '
-        'that reads in steps of 1/900 rad/s, like the BNO055. '
+        f'that reads in steps of {GYROSCOPE_STEP_TEXT}, like the BNO055. '
         f'The dots are the {shown_count} readings of the first second. The lines come from all '
         f'{len(trace.readings):,} readings of {TRACE_DURATION} s: '
         f'the mean {signed(trace.mean)} rad/s is the bias, '
@@ -227,9 +281,11 @@ def deviation_arrow(figure: Figure, mean_x: float, x: float, y: float, label: st
 
 def three_readings_figure() -> Figure:
     """Return the drawing of three readings one step apart, their mean and deviations."""
-    figure = Figure('imu-noise-three-readings', 'Three yaw-rate readings on an axis: zero, one '
-                    'output step and two output steps. Their mean is one step. The outer '
-                    'readings deviate from the mean by one step each', 126, DRAWING_WIDTH)
+    readings = listed([steps_in_words(steps) for steps in YAW_RATES_ONE_STEP_APART])
+    mean_steps = round(statistics.fmean(YAW_RATES_ONE_STEP_APART))
+    figure = Figure('imu-noise-three-readings', f'Three yaw-rate readings on an axis: {readings}. '
+                    f'Their mean is {NUMBER_WORDS[mean_steps]} step. The outer readings deviate '
+                    'from the mean by one step each', 126, DRAWING_WIDTH)
     axis_y, first_x, pixels_per_step = 78, 62, 88
     positions = [first_x + steps * pixels_per_step for steps in YAW_RATES_ONE_STEP_APART]
     mean_x = sum(positions) / len(positions)
@@ -251,17 +307,19 @@ def write_three_readings() -> None:
     """Write the figure of the worked example."""
     write_figure(
         'includes/imu-noise-three-readings.html', three_readings_figure(),
-        'Three readings one output step Δ = 1/900 rad/s apart. Their mean is Δ. The arrows are '
-        'the deviations from the mean: −Δ, 0 and +Δ.')
+        f'Three readings one output step Δ = {GYROSCOPE_STEP_TEXT} apart. Their mean is Δ. The '
+        'arrows are the deviations from the mean: −Δ, 0 and +Δ.')
 
 
 def variance_test_figure() -> Figure:
     """Return the drawing of the four values of the sample variance's test."""
     values = VARIANCE_TEST_VALUES
     mean = statistics.fmean(values)
-    figure = Figure('imu-noise-test-variance', 'The four values 1, 2, 3 and 4 on an axis. Their '
-                    'mean is 2.5. Their deviations from the mean are −1.5, −0.5, +0.5 and +1.5',
-                    164, DRAWING_WIDTH)
+    deviations = listed([minus_signed(value - mean) for value in values])
+    value_list = listed([f'{value:g}' for value in values])
+    figure = Figure('imu-noise-test-variance', f'The {NUMBER_WORDS[len(values)]} values '
+                    f'{value_list} on an axis. Their mean is {mean:g}. Their deviations from the '
+                    f'mean are {deviations}', 164, DRAWING_WIDTH)
     axis_y, first_x, pixels_per_unit = 96, 48, 68
 
     def at(value: float) -> float:
@@ -301,11 +359,21 @@ def interval_x(milliseconds: float, pixels_per_ms: float) -> float:
 
 def intervals_figure() -> Figure:
     """Return the drawing of five header stamps on a time axis, with the intervals between."""
-    figure = Figure('imu-noise-test-intervals', 'Five header stamps on a time axis, at 0, 20, '
-                    '40, 75 and 95 ms. Three intervals are 20 ms long. The interval from 40 to '
-                    '75 ms is 35 ms long, more than 30 ms', 104, DRAWING_WIDTH)
-    axis_y, pixels_per_ms = 60, 2.5
     stamps = STAMPS_WITH_ONE_LONG_INTERVAL
+    pairs = list(zip(stamps, stamps[1:]))
+    regular = {later - earlier for earlier, later in pairs if later - earlier <= LONG_INTERVAL}
+    long_pairs = [(earlier, later) for earlier, later in pairs if later - earlier > LONG_INTERVAL]
+    if len(regular) != 1 or len(long_pairs) != 1:
+        raise ValueError('the figure explains equal regular intervals and one long interval')
+    regular_count = len(pairs) - 1
+    (long_start, long_end), = long_pairs
+    figure = Figure('imu-noise-test-intervals', f'{NUMBER_WORDS[len(stamps)].capitalize()} header '
+                    f'stamps on a time axis, at {listed([str(stamp) for stamp in stamps])} ms. '
+                    f'{NUMBER_WORDS[regular_count].capitalize()} intervals are '
+                    f'{regular.pop()} ms long. The interval from {long_start} to {long_end} ms is '
+                    f'{long_end - long_start} ms long, more than {LONG_INTERVAL} ms', 104,
+                    DRAWING_WIDTH)
+    axis_y, pixels_per_ms = 60, 2.5
     figure.path(f'M12,{axis_y} H{interval_x(stamps[-1], pixels_per_ms) + 14:.1f}', 'axis')
     for earlier, later in zip(stamps, stamps[1:]):
         start, end = (interval_x(stamp, pixels_per_ms) for stamp in (earlier, later))
@@ -336,15 +404,30 @@ def write_intervals() -> None:
         f'longer than <code>LONG_INTERVAL</code>, {LONG_INTERVAL} ms.')
 
 
+def stamps_back_name(stamps: Sequence[int]) -> str:
+    """Return the accessible name of the stamps figure: each stamp that doesn't advance."""
+    sentences = [f'{NUMBER_WORDS[len(stamps)].capitalize()} messages in the order of the '
+                 'recording, each at its header stamp']
+    for index in range(1, len(stamps)):
+        this, before = ORDINAL_WORDS[index], ORDINAL_WORDS[index - 1]
+        if stamps[index] == stamps[index - 1]:
+            sentences.append(f'The {this} message repeats the stamp of the {before}, '
+                             f'{stamps[index]} ms')
+        elif stamps[index] < stamps[index - 1]:
+            sentences.append(f'The {this} is stamped {stamps[index]} ms, earlier than the '
+                             f'{before}')
+        elif index == len(stamps) - 1:
+            sentences.append(f'The {this} is stamped {stamps[index]} ms')
+    return '. '.join(sentences)
+
+
 def stamps_back_figure() -> Figure:
     """Return the drawing of five messages in recording order against their header stamps."""
     stamps = STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK
     row_height, first_row_y, pixels_per_ms = 26, 34, 2.6
     axis_y = first_row_y + len(stamps) * row_height
-    figure = Figure('imu-noise-test-stamps-back', 'Five messages in the order of the recording, '
-                    'each at its header stamp. The third message repeats the stamp of the '
-                    'second, 20 ms. The fourth is stamped 10 ms, earlier than the third. The '
-                    'fifth is stamped 80 ms', axis_y + 40, DRAWING_WIDTH)
+    figure = Figure('imu-noise-test-stamps-back', stamps_back_name(stamps), axis_y + 40,
+                    DRAWING_WIDTH)
     figure.text(4, 13, 'message, in the order of the recording', 'note')
     points = [(interval_x(stamp, pixels_per_ms), first_row_y + index * row_height)
               for index, stamp in enumerate(stamps)]
@@ -387,10 +470,20 @@ def write_stamps_back() -> None:
 def measured_figure() -> Figure:
     """Return the drawing of three messages, of which one has no angular velocity."""
     row_height, top, covariance_x = 52, 22, 86
-    figure = Figure('imu-noise-test-measured', 'Three messages. The first and the third have a '
-                    'covariance that starts with 0 and yaw rates of 0.2 and 0.4 rad/s: two '
-                    'readings. The second has a covariance that starts with −1: no reading',
-                    top + len(MEASURED_YAW_RATES) * row_height, DRAWING_WIDTH)
+    with_reading = [(index, yaw_rate) for index, yaw_rate in enumerate(MEASURED_YAW_RATES)
+                    if yaw_rate is not None]
+    without_reading = [index for index, yaw_rate in enumerate(MEASURED_YAW_RATES)
+                       if yaw_rate is None]
+    if len(without_reading) != 1:
+        raise ValueError('the figure explains one message without the angular velocity')
+    messages = listed([f'the {ORDINAL_WORDS[index]}' for index, _ in with_reading])
+    yaw_rates = listed([f'{yaw_rate:g}' for _, yaw_rate in with_reading])
+    figure = Figure('imu-noise-test-measured',
+                    f'{NUMBER_WORDS[len(MEASURED_YAW_RATES)].capitalize()} messages. '
+                    f'{messages.capitalize()} have a covariance that starts with 0 and yaw rates '
+                    f'of {yaw_rates} rad/s: {NUMBER_WORDS[len(with_reading)]} readings. The '
+                    f'{ORDINAL_WORDS[without_reading[0]]} has a covariance that starts with −1: '
+                    'no reading', top + len(MEASURED_YAW_RATES) * row_height, DRAWING_WIDTH)
     figure.text(covariance_x, 14, 'angular_velocity_covariance[0]', 'mono quiet')
     for index, yaw_rate in enumerate(MEASURED_YAW_RATES):
         y = top + index * row_height
@@ -419,44 +512,46 @@ def write_measured() -> None:
         f'readings with the mean {sum(readings) / len(MEASURED_YAW_RATES):g} rad/s.')
 
 
-def isometric(point: Tuple[float, float, float], origin: Tuple[float, float],
-              pixels_per_unit: float) -> Tuple[float, float]:
+def isometric(point: Point, origin: DrawingPoint, pixels_per_unit: float) -> DrawingPoint:
     """Return where a point with x, y and z lies in a drawing with z up and x and y receding."""
-    x, y, z = point
-    return (origin[0] + (y - x) * math.cos(math.radians(30)) * pixels_per_unit,
-            origin[1] + (x + y) * math.sin(math.radians(30)) * pixels_per_unit
-            - z * pixels_per_unit)
+    return DrawingPoint(
+        origin.x + (point.y - point.x) * math.cos(math.radians(30)) * pixels_per_unit,
+        origin.y + (point.x + point.y) * math.sin(math.radians(30)) * pixels_per_unit
+        - point.z * pixels_per_unit)
 
 
 def gravity_figure() -> Figure:
     """Return the drawing of the mean acceleration of a tilted IMU as a vector in a box."""
     mean_x, mean_y, mean_z = TILTED_MEAN_ACCELERATION
     length = math.hypot(mean_x, mean_y, mean_z)
-    origin, pixels_per_unit = (86.0, 150.0), 19.0
+    origin, pixels_per_unit = DrawingPoint(86.0, 150.0), 19.0
     figure = Figure('imu-noise-test-gravity', 'The mean acceleration of a tilted IMU as an '
-                    'arrow from the origin to the point x = 2, y = 3, z = 6 m/s². The arrow is '
-                    '7 m/s² long', 206, DRAWING_WIDTH)
+                    f'arrow from the origin to the point x = {mean_x:g}, y = {mean_y:g}, '
+                    f'z = {mean_z:g} m/s². The arrow is {length:g} m/s² long', 206,
+                    DRAWING_WIDTH)
 
     def at(x: float, y: float, z: float) -> str:
         """Return a point's position as SVG coordinates."""
-        drawing_x, drawing_y = isometric((x, y, z), origin, pixels_per_unit)
-        return f'{drawing_x:.1f},{drawing_y:.1f}'
+        drawing = isometric(Point(x, y, z), origin, pixels_per_unit)
+        return f'{drawing.x:.1f},{drawing.y:.1f}'
 
     figure.path(f'M{at(mean_x, 0, 0)} L{at(mean_x, mean_y, 0)} L{at(0, mean_y, 0)} '
                 f'M{at(mean_x, mean_y, 0)} L{at(mean_x, mean_y, mean_z)} '
                 f'M{at(0, 0, mean_z)} L{at(mean_x, 0, mean_z)} L{at(mean_x, mean_y, mean_z)} '
                 f'L{at(0, mean_y, mean_z)} z M{at(mean_x, 0, 0)} L{at(mean_x, 0, mean_z)} '
                 f'M{at(0, mean_y, 0)} L{at(0, mean_y, mean_z)}', 'box-edge')
-    for end, label, offset in (((mean_x + 1.4, 0, 0), 'x', (-10, 6)),
-                               ((0, mean_y + 1.2, 0), 'y', (9, 6)),
-                               ((0, 0, mean_z + 1.0), 'z', (-4, -6))):
-        end_x, end_y = isometric(end, origin, pixels_per_unit)
-        figure.path(f'M{origin[0]},{origin[1]} L{end_x:.1f},{end_y:.1f}', 'axis')
-        figure.text(end_x + offset[0], end_y + offset[1], label, 'variable', 'middle')
+    axis_labels = (AxisLabel(Point(mean_x + 1.4, 0, 0), 'x', DrawingPoint(-10, 6)),
+                   AxisLabel(Point(0, mean_y + 1.2, 0), 'y', DrawingPoint(9, 6)),
+                   AxisLabel(Point(0, 0, mean_z + 1.0), 'z', DrawingPoint(-4, -6)))
+    for axis_label in axis_labels:
+        end = isometric(axis_label.end, origin, pixels_per_unit)
+        figure.path(f'M{origin.x},{origin.y} L{end.x:.1f},{end.y:.1f}', 'axis')
+        figure.text(end.x + axis_label.offset.x, end.y + axis_label.offset.y, axis_label.name,
+                    'variable', 'middle')
     tip_x, tip_y = isometric(TILTED_MEAN_ACCELERATION, origin, pixels_per_unit)
-    figure.arrow(origin[0], origin[1], tip_x, tip_y, 'gravity')
+    figure.arrow(origin.x, origin.y, tip_x, tip_y, 'gravity')
     # To the right of the box, whose right edge is at y = mean_y
-    label_x = isometric((0, mean_y, 0), origin, pixels_per_unit)[0] + 14
+    label_x = isometric(Point(0, mean_y, 0), origin, pixels_per_unit).x + 14
     figure.text(label_x, tip_y + 2, 'mean acceleration', 'strong')
     figure.text(label_x, tip_y + 18, f'({mean_x:g}, {mean_y:g}, {mean_z:g}) m/s²')
     figure.text(label_x, tip_y + 40, f'length {length:g} m/s²', 'strong')

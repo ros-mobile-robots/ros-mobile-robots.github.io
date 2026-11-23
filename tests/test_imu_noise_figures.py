@@ -94,5 +94,38 @@ class TestSyntheticTrace(unittest.TestCase):
         self.assertEqual(figures.synthetic_trace(), figures.synthetic_trace())
 
 
+class TestIncludeComment(unittest.TestCase):
+    """Each include starts with the comment that names the script."""
+
+    def test_each_include_starts_with_the_comment_that_names_the_script(self) -> None:
+        for include_name in INCLUDE_NAMES:
+            first_line = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
+            self.assertTrue(first_line.startswith(
+                '<!-- Written by scripts/figures/imu_noise_figures.py -->\n'), include_name)
+
+
+class TestTexts(unittest.TestCase):
+    """The figures' texts are built from the script's values."""
+
+    def test_listed_joins_the_last_value_with_and(self) -> None:
+        self.assertEqual(load_script().listed(['1', '2', '3', '4']), '1, 2, 3 and 4')
+
+    def test_listed_gives_a_single_value_alone(self) -> None:
+        self.assertEqual(load_script().listed(['1']), '1')
+
+    def test_steps_in_words_names_zero_one_step_and_more_steps(self) -> None:
+        figures = load_script()
+        self.assertEqual([figures.steps_in_words(steps) for steps in (0, 1, 2)],
+                         ['zero', 'one output step', 'two output steps'])
+
+    def test_stamps_back_name_names_the_repeat_the_step_back_and_the_last_stamp(self) -> None:
+        figures = load_script()
+        self.assertEqual(
+            figures.stamps_back_name(figures.STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK),
+            'Five messages in the order of the recording, each at its header stamp. The third '
+            'message repeats the stamp of the second, 20 ms. The fourth is stamped 10 ms, '
+            'earlier than the third. The fifth is stamped 80 ms')
+
+
 if __name__ == '__main__':
     unittest.main()

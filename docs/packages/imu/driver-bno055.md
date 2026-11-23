@@ -89,7 +89,7 @@ Remo was checked on 2026-10-31 with firmware `1a3b547` built for the Teensy 3.2,
 
 | Check | Result |
 |:--|:--|
-| Rate and stamps | 50.0 Hz. 180 s at rest: 8,986 messages, gaps between 14 and 27 ms. Stamps in current ROS time, also after [rosserial](#how-the-firmware-reads-it) reconnected |
+| Rate and stamps | 50.0 Hz. 180 s at rest: 8,986 messages, intervals between the header stamps of 14 to 27 ms. Stamps in current ROS time, also after [rosserial](#how-the-firmware-reads-it) reconnected |
 | Axes and signs | At rest in this recording, z reads about +9.7 m/s². Turning left, [`angular_velocity.z`](#what-the-firmware-publishes) is positive. How the board is turned about z came from a later tilt test, below |
 | Noise and bias at rest | Gyroscope: bias below 0.0001 rad/s, standard deviation 0.0005 to 0.0008 rad/s, below the output step of 1/900 rad/s. The same with the Teensy 4.0 ([Results on Remo](#results-on-remo)) |
 | Faults | Unplugged while the wheels turned at 9 rad/s: a warning after ten failed reads (0.2 s), and the wheels kept their speed. Plugged back in: found again within 10 s. With SDA and SCL swapped, it stayed "not found", without blocking the firmware |
@@ -105,7 +105,7 @@ An IMU at rest should read an angular velocity of zero and an acceleration of gr
 
 ### Run the tool on a recording
 
-**You need:** a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) with the topic [`/diffbot/imu/data_raw`](#what-the-firmware-publishes), recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both.
+**You need:** a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) with the topic [`/diffbot/imu/data_raw`](#what-the-firmware-publishes), recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both. The commands of the tab "Robot container" and the copy with `sftp` weren't run on a robot yet. The tool itself ran on recordings on a PC.
 
 In the folder that holds the recording, run the tool with the recording's file name:
 
@@ -191,6 +191,8 @@ Then run the tool where the recording is, with the name that the recorder printe
       diffbot_bringup imu_noise_at_rest.py \
       imu_still_2026-11-18-13-18-16.bag
     ```
+
+    The image holds the diffbot repository as it was when the image was built. In an image that is older than the tool, `rosrun` doesn't find `imu_noise_at_rest.py`. Then update the code and build the image again: `git pull`, then `docker compose up -d --build` ([All commands](../../processing_units/robot-container/usage.md#all-commands)).
 
 === "Native ROS"
 
@@ -307,7 +309,7 @@ $\bar{a}_x$, $\bar{a}_y$ and $\bar{a}_z$ are the means of the three acceleration
 
 The tool refuses a recording that it can't interpret. It then prints one line that names the file and the reason, and ends with status 1 instead of a report: when the file isn't a readable [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag), when the topic's messages aren't ROS's `sensor_msgs/Imu`, when the topic has fewer than two messages, when a message has no [`frame_id`](#what-the-firmware-publishes) or the messages have different ones, and when a reading is NaN, infinite or beyond 1,000,000 rad/s or m/s², the tool's limit for a plausible reading. For a recording that was cut off before the recorder finished, the line says that the file has no index and that `rosbag reindex` can repair it.
 
-[`--topic`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L754-L755) selects another `sensor_msgs/Imu` topic than [`/diffbot/imu/data_raw`](#what-the-firmware-publishes). The 30 ms of the line `Header intervals` belong to the firmware's 50 Hz and don't adapt to a topic with another rate.
+[`--topic`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L770-L771) selects another `sensor_msgs/Imu` topic than [`/diffbot/imu/data_raw`](#what-the-firmware-publishes). The 30 ms of the line `Header intervals` belong to the firmware's 50 Hz and don't adapt to a topic with another rate.
 
 ### The mean and the variance of three readings
 
