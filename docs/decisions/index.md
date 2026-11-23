@@ -42,7 +42,8 @@ The template below adapts the [minimal template of MADR 4.0.0](https://github.co
 ## Context and Problem Statement
 
 {Two or three sentences that describe the problem, then the question that the record
-answers. Link the issue, and the code pull request or commit that makes the choice.}
+answers. Link the issue or pull request where the choice was discussed. If a code pull
+request or commit implements the choice, link it too.}
 
 ## Considered Options
 
