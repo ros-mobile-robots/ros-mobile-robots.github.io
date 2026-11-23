@@ -4321,6 +4321,8 @@
       
         
       
+        
+      
     
     
     
@@ -4457,6 +4459,114 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../decisions/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_5" id="__nav_6_5_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/0001-record-architecture-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: Record architecture decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4717,6 +4827,7 @@
 <li><strong>Merge:</strong> PRs are squash-merged. The PR title and description become the commit message, so they should read like one. The branch is deleted after the merge.</li>
 </ol>
 <p>A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site (see <a href="#writing-docs">Writing docs</a>).</p>
+<p>A change that makes a lasting choice, such as an interface or the boundary between two parts, also gets a record on <a href="../decisions/">Decisions</a>, in its docs pull request or in a docs pull request of its own.</p>
 <h2 id="best-practices">Best practices</h2>
 <p>The code follows the <a href="http://wiki.ros.org/Tutorials/Best%20Practices">ROS best practices</a> and the <a href="http://wiki.ros.org/Quality">ROS Quality</a> guidelines where possible, including the <a href="https://www.ros.org/reps/rep-0000.html">ROS Enhancement Proposals (REPs)</a>. Pages on this site link to the REPs that apply.</p>
 <p>Each repository has a <code>CONTRIBUTING.md</code> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/CONTRIBUTING.md">diffbot</a>, <a href="https://github.com/ros-mobile-robots/remo_description/blob/main/CONTRIBUTING.md">remo_description</a>, <a href="https://github.com/ros-mobile-robots/robot_component_models/blob/main/CONTRIBUTING.md">robot_component_models</a>, <a href="https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/CONTRIBUTING.md">this site</a>). Start there: it says how to set up, test and open a pull request. The repository's <code>AGENTS.md</code>, the file that coding agents read (<a href="https://agents.md/">agents.md</a>), adds more detailed rules, and they hold for people too. For the rules of what you change, open its guide:</p>
