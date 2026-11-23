@@ -5100,7 +5100,7 @@
 
 
 <h1 id="testing-and-ci">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></h1>
-<p>Pull requests and pushes to the default branch run automated checks with <a href="https://docs.github.com/actions">GitHub Actions</a>. Which checks a pull request gets depends on the repository, and on this site on the branch that the pull request targets (<a href="#this-documentation-site">This documentation site</a>). A PR is only merged when its checks pass.</p>
+<p>Pull requests and pushes to the default branch run automated checks with <a href="https://docs.github.com/actions">GitHub Actions</a>. Which checks a pull request gets depends on the repository. On this site, the checks also depend on the branch that the pull request targets, as <a href="#this-documentation-site">This documentation site</a> below explains. A PR is only merged when its checks pass.</p>
 <h2 id="diffbot">diffbot</h2>
 <table>
 <thead>
@@ -5119,7 +5119,7 @@
 <tr>
 <td style="text-align: left;">Firmware</td>
 <td style="text-align: left;"><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.github/workflows/firmware.yml"><code>.github/workflows/firmware.yml</code></a></td>
-<td style="text-align: left;">Builds the Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> with <a href="https://platformio.org/">PlatformIO</a>, in the firmware's container (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.docker/firmware"><code>.docker/firmware</code></a>), once for each board in its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>: <code>teensy40</code> (Teensy 4.0) and <code>teensy31</code> (Teensy 3.1/3.2). A second job runs the firmware's unit tests on the PC (<code>native</code>), in the same container</td>
+<td style="text-align: left;">Builds the Teensy firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> with <a href="https://platformio.org/">PlatformIO</a>, in the firmware's container (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/.docker/firmware"><code>.docker/firmware</code></a>), once for each board in its <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>: <code>teensy40</code> (Teensy 4.0) and <code>teensy31</code> (Teensy 3.1/3.2). A second job runs the firmware's unit tests on the PC (<code>native</code>), in the same container. Each job also runs the include check, <a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/tools/check_includes.sh"><code>tools/check_includes.sh</code></a>, on two fixed files, and the second job runs the tests of its flag helper</td>
 </tr>
 <tr>
 <td style="text-align: left;">Dev container</td>
@@ -5567,6 +5567,10 @@
       .md-typeset pre > code { padding-right: 3em; }
       /* Highlighted lines still reach the right edge, through that padding */
       .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
+      /* Wide diagrams keep a readable size on a phone and scroll sideways, instead of shrinking
+         to the screen's width, for example the firmware's parts on Low-Level Base Controller */
+      .md-typeset .wide-diagram { overflow-x: auto; }
+      @media screen and (max-width: 44.9375em) { .md-typeset .wide-diagram svg { min-width: 30rem; } }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
