@@ -58,6 +58,7 @@ The rules hold for the files you add, for the lines you add or change at module 
 - **Checks:** say how you checked it, at which commit: the unit tests, the strict build, the spelling check, the preview, and for figures or code excerpts what you compared them with. Name what you didn't check.
 - **Issues:** end the description with `Closes #N` when your pull request resolves issue N. If the issue stays open, name it without a closing keyword, for example `Part of #N`.
 - **Signed commits:** sign your commits with GPG: `git commit -S`.
+- **Decisions:** a change that makes or replaces a lasting choice of the project, such as an interface or the boundary between two parts, gets a record in [`docs/decisions/`](docs/decisions/index.md). That page says when and how.
 
 ## AI-assisted contributions
 

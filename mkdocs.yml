@@ -322,6 +322,9 @@ nav:
     - Testing and CI: development/ci.md
     - Geometry Test: development/geometry-test.md
     - Simulation Test: development/simulation-test.md
+    - Decisions:
+      - decisions/index.md
+      - "ADR-0001: Record architecture decisions": decisions/0001-record-architecture-decisions.md
   - Insiders: insiders/index.md
 
 # Fail the strict build on links that MkDocs can check: missing pages, missing #anchors,

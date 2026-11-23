@@ -6,6 +6,11 @@
 # Keep definitions to one plain-text sentence: no Markdown, they also end up in the tooltip.
 # link is a page path relative to docs/, or a full URL.
 
+- term: ADR
+  expansion: architecture decision record
+  definition: A short page that records one lasting choice of the project, with the problem, the options, the choice and its reason, and what follows from it.
+  link: decisions/index.md
+
 - term: BOM
   expansion: bill of materials
   definition: The list of all parts needed to build a robot, with quantities and where to buy them.
