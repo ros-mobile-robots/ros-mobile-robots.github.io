@@ -117,7 +117,7 @@ With PlatformIO installed on your PC instead, in the virtual environment that [F
 
 ### What a failed test looks like
 
-To see what a failure looks like, change the tested code on purpose. [`readRegisters()`](#one-behavior-with-several-inputs-a-parameterized-test) in [`wire_bus.h`]({{ firmware_tests_src_url }}/diffbot_firmware/lib/imu/wire_bus.h#L40) compares two counts with the requested [`length`]({{ firmware_tests_src_url }}/diffbot_firmware/lib/imu/wire_bus.h#L31): the count that `requestFrom()` reports, and the bytes that arrived, `wire_.available()`. This edit replaces both comparisons with one comparison of the two counts with each other:
+To see what a failure looks like, change the tested code on purpose. [`readRegisters()`](#one-behavior-with-several-inputs-a-parameterized-test) in [`wire_bus.h`]({{ firmware_tests_src_url }}/diffbot_firmware/lib/imu/wire_bus.h#L40) compares two counts with the requested [`length`]({{ firmware_tests_src_url }}/diffbot_firmware/lib/imu/wire_bus.h#L31): the count that `requestFrom()` reports, and the bytes that arrived, `wire_.available()`.
 
 ??? example "`readRegisters()`, lines 31–49 of `wire_bus.h`"
 
@@ -126,6 +126,8 @@ To see what a failure looks like, change the tested code on purpose. [`readRegis
     ```cpp title="wire_bus.h: readRegisters()" linenums="31"
     --8<-- "{{ firmware_tests_src_raw }}/diffbot_firmware/lib/imu/wire_bus.h:31:49"
     ```
+
+This edit replaces both comparisons with one comparison of the two counts with each other:
 
 ```diff
 -if (wire_.requestFrom(address, (uint8_t)length) != length || wire_.available() != (int)length)
