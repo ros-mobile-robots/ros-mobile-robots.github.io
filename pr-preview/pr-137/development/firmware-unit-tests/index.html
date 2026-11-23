@@ -5839,7 +5839,449 @@
 <li><strong>A scenario in phases:</strong> the third test checks two calls on the same <code>bus_</code>, in numbered phases. A write that the device acknowledges comes first, and the next write, which no device acknowledges, has to fail. Its first check is an <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L149-L150"><code>ASSERT_</code></a> check, because a failed first write would leave nothing to check in phase 2.</li>
 <li><strong>A second set of values:</strong> the fourth test writes <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L33"><code>RESET_VALUE</code></a> to <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L32"><code>RESET_REGISTER</code></a> at <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L27-L31"><code>ALTERNATE_DEVICE_ADDRESS</code></a>, 0x29, the BNO055's address when its <abbr title="Architecture decision record. A short page that records one lasting choice of the project, with the problem, the options, the choice and its reason, and what follows from it.">ADR</abbr> pin is high. Each of these values differs from those of the first three tests, so the test shows that <code>WireBusT</code> passes on the values that it gets.</li>
 </ul>
-<p>The tests of <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/lib/imu/wire_bus.h#L31-L49"><code>readRegisters()</code></a> compare <code>wire_.calls</code> the same way. In a read, the register write ends with a repeated start, <code>endTransmission(false)</code>, and only then comes the read request, <code>requestFrom()</code>. After a register write that no device acknowledges, no read request may follow. A read of <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L34"><code>CHIP_ID_REGISTER</code></a> from <code>ALTERNATE_DEVICE_ADDRESS</code> checks that <code>WireBusT</code> passes on that register, and that address in both the register write and the read request.</p>
+<p>The pictures show each of the four tests as a time line: the values that the test sets on <code>wire_</code>, its call of <code>bus_</code>, the calls that <code>WireBusT</code> makes on <code>FakeWire</code>, the result, and the checks. In the second test, and in the second write of the third test, <code>endTransmission()</code> returns 2, and that write fails:</p>
+<!-- Written by scripts/figures/firmware_unit_tests_figures.py -->
+<style>
+.md-typeset figure.wbt-figure{margin:1em auto;width:100%;max-width:none}
+.wbt-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:1.2em 1em}
+.md-typeset figure.wbt-picture{margin:0;width:16.6rem;max-width:100%}
+.md-typeset figure.wbt-picture figcaption{margin:.3em 0 0;max-width:none}
+.md-typeset figure.wbt-picture figcaption code{overflow-wrap:anywhere}
+.wbt{width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .wbt{--wbt-check:#82b1ff;--wbt-check-fill:rgba(130,177,255,.09);--wbt-set:#ffb74d}
+.wbt text{fill:var(--md-default-fg-color);font-size:12px}
+.wbt .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:10.5px}
+.wbt .byte{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.wbt .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.wbt .phase{font-weight:700}
+.wbt .set{fill:var(--wbt-set);font-weight:700}
+.wbt .light{fill:var(--md-default-fg-color--light)}
+.wbt .not-called{fill:var(--md-default-fg-color--light);text-decoration:line-through}
+.wbt .time-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.wbt .arrow-head{fill:var(--md-default-fg-color--light)}
+.wbt .recorded{fill:var(--md-default-fg-color)}
+.wbt .not-recorded{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2}
+.wbt .missing{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:2 2}
+.wbt .calls-box{fill:var(--wbt-check-fill);stroke:var(--wbt-check);stroke-width:1.4}
+.wbt .cell{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.wbt .empty-cell{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 2}
+.wbt .reported{fill:none;stroke:var(--wbt-set);stroke-width:1.6}
+.wbt .badge{fill:var(--wbt-check)}
+.wbt .badge-number{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+</style>
+<figure class="wbt-figure">
+<div class="wbt-grid">
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 186" role="img" aria-labelledby="wbt-write-WriteRegisterSendsRegisterAndValue-title"><title id="wbt-write-WriteRegisterSendsRegisterAndValue-title">The time line of the test WriteRegisterSendsRegisterAndValue</title><defs><marker id="wbt-write-WriteRegisterSendsRegisterAndValue-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,23 V119" marker-end="url(#wbt-write-WriteRegisterSendsRegisterAndValue-head)"></path>
+<text class="mono" x="8" y="18" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="40.5" r="3.5"></circle>
+<text class="mono" x="30" y="44" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="44" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="60.5" r="3.5"></circle>
+<text class="mono" x="30" y="64" text-anchor="start">write(0x3D)</text>
+<text class="note" x="220" y="64" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="80.5" r="3.5"></circle>
+<text class="mono" x="30" y="84" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="84" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="100.5" r="3.5"></circle>
+<text class="mono" x="30" y="104" text-anchor="start">endTransmission(true)</text>
+<text x="188" y="104"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="104" text-anchor="start">stop: frees the bus</text>
+<circle class="badge" cx="183" cy="30" r="8"></circle>
+<text class="badge-number" x="183" y="33.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="130" r="8"></circle>
+<text class="badge-number" x="16" y="133.8" text-anchor="middle">1</text>
+<text x="30" y="134">returns <tspan class="mono">true</tspan></text>
+<circle class="badge" cx="16" cy="157" r="8"></circle>
+<text class="badge-number" x="16" y="160.8" text-anchor="middle">1</text>
+<text x="30" y="161"><tspan class="mono">EXPECT_TRUE</tspan>: the call returns true</text>
+<circle class="badge" cx="16" cy="176" r="8"></circle>
+<text class="badge-number" x="16" y="179.8" text-anchor="middle">2</text>
+<text x="30" y="180"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Sends<wbr>Register<wbr>And<wbr>Value</code>: The device acknowledges: four calls, and the result true.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 177" role="img" aria-labelledby="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-title"><title id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-title">The time line of the test WriteRegisterFailsWhenTheAddressIsNotAcknowledged</title><defs><marker id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<path class="time-line" d="M17,39 V129" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-head)"></path>
+<text x="8" y="16"><tspan class="mono set">wire_.end_result = 2</tspan></text>
+<text class="note" x="334" y="16" text-anchor="end">no device acknowledges</text>
+<text class="mono" x="8" y="34" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="50.5" r="3.5"></circle>
+<text class="mono" x="30" y="54" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="54" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="70.5" r="3.5"></circle>
+<text class="mono" x="30" y="74" text-anchor="start">write(0x3D)</text>
+<text class="note" x="220" y="74" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="90.5" r="3.5"></circle>
+<text class="mono" x="30" y="94" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="94" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="110.5" r="3.5"></circle>
+<text class="mono" x="30" y="114" text-anchor="start">endTransmission(true)</text>
+<text x="188" y="114"><tspan class="mono">→ </tspan><tspan class="mono set">2</tspan></text>
+<text class="note" x="220" y="114" text-anchor="start">not acknowledged</text>
+<circle class="badge" cx="16" cy="140" r="8"></circle>
+<text class="badge-number" x="16" y="143.8" text-anchor="middle">1</text>
+<text x="30" y="144">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="167" r="8"></circle>
+<text class="badge-number" x="16" y="170.8" text-anchor="middle">1</text>
+<text x="30" y="171"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Fails<wbr>When<wbr>The<wbr>Address<wbr>Is<wbr>Not<wbr>Acknowledged</code>: <code>endTransmission()</code> returns 2, so the result is false. The test checks only the result.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 370" role="img" aria-labelledby="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-title"><title id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-title">The time line of the test WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite</title><defs><marker id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<path class="time-line" d="M17,41 V131" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head)"></path>
+<path class="time-line" d="M17,213 V303" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head)"></path>
+<text class="phase" x="8" y="18" text-anchor="start">1. A write that the device acknowledges</text>
+<text class="mono" x="8" y="36" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="52.5" r="3.5"></circle>
+<text class="mono" x="30" y="56" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="56" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="72.5" r="3.5"></circle>
+<text class="mono" x="30" y="76" text-anchor="start">write(0x3D)</text>
+<text class="note" x="220" y="76" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="92.5" r="3.5"></circle>
+<text class="mono" x="30" y="96" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="96" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="112.5" r="3.5"></circle>
+<text class="mono" x="30" y="116" text-anchor="start">endTransmission(true)</text>
+<text x="188" y="116"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="116" text-anchor="start">stop: frees the bus</text>
+<circle class="badge" cx="16" cy="142" r="8"></circle>
+<text class="badge-number" x="16" y="145.8" text-anchor="middle">1</text>
+<text x="30" y="146">returns <tspan class="mono">true</tspan></text>
+<text class="phase" x="8" y="174" text-anchor="start">2. The next write, not acknowledged</text>
+<text x="8" y="190"><tspan class="mono set">wire_.end_result = 2</tspan></text>
+<text class="note" x="334" y="190" text-anchor="end">no device acknowledges</text>
+<text class="mono" x="8" y="208" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="224.5" r="3.5"></circle>
+<text class="mono" x="30" y="228" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="228" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="244.5" r="3.5"></circle>
+<text class="mono" x="30" y="248" text-anchor="start">write(0x3D)</text>
+<text class="note" x="220" y="248" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="264.5" r="3.5"></circle>
+<text class="mono" x="30" y="268" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="268" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="284.5" r="3.5"></circle>
+<text class="mono" x="30" y="288" text-anchor="start">endTransmission(true)</text>
+<text x="188" y="288"><tspan class="mono">→ </tspan><tspan class="mono set">2</tspan></text>
+<text class="note" x="220" y="288" text-anchor="start">not acknowledged</text>
+<circle class="badge" cx="16" cy="314" r="8"></circle>
+<text class="badge-number" x="16" y="317.8" text-anchor="middle">2</text>
+<text x="30" y="318">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="341" r="8"></circle>
+<text class="badge-number" x="16" y="344.8" text-anchor="middle">1</text>
+<text x="30" y="345"><tspan class="mono">ASSERT_TRUE</tspan>: the first call returns true</text>
+<circle class="badge" cx="16" cy="360" r="8"></circle>
+<text class="badge-number" x="16" y="363.8" text-anchor="middle">2</text>
+<text x="30" y="364"><tspan class="mono">EXPECT_FALSE</tspan>: the second call returns false</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Fails<wbr>When<wbr>The<wbr>Address<wbr>Is<wbr>Not<wbr>Acknowledged<wbr>After<wbr>A<wbr>Successful<wbr>Write</code>: Two writes on the same <code>bus_</code>: the first one succeeds, and the second one fails.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 186" role="img" aria-labelledby="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-title"><title id="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-title">The time line of the test WriteRegisterPassesOnTheAddressRegisterAndValue</title><defs><marker id="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,23 V119" marker-end="url(#wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-head)"></path>
+<text class="mono" x="8" y="18" text-anchor="start">bus_.writeRegister(0x29, 0x3F, 0x20)</text>
+<circle class="recorded" cx="17" cy="40.5" r="3.5"></circle>
+<text class="mono" x="30" y="44" text-anchor="start">beginTransmission(0x29)</text>
+<text class="note" x="220" y="44" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="60.5" r="3.5"></circle>
+<text class="mono" x="30" y="64" text-anchor="start">write(0x3F)</text>
+<text class="note" x="220" y="64" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="80.5" r="3.5"></circle>
+<text class="mono" x="30" y="84" text-anchor="start">write(0x20)</text>
+<text class="note" x="220" y="84" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="100.5" r="3.5"></circle>
+<text class="mono" x="30" y="104" text-anchor="start">endTransmission(true)</text>
+<text x="188" y="104"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="104" text-anchor="start">stop: frees the bus</text>
+<circle class="badge" cx="183" cy="30" r="8"></circle>
+<text class="badge-number" x="183" y="33.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="130" r="8"></circle>
+<text class="badge-number" x="16" y="133.8" text-anchor="middle">1</text>
+<text x="30" y="134">returns <tspan class="mono">true</tspan></text>
+<circle class="badge" cx="16" cy="157" r="8"></circle>
+<text class="badge-number" x="16" y="160.8" text-anchor="middle">1</text>
+<text x="30" y="161"><tspan class="mono">EXPECT_TRUE</tspan>: the call returns true</text>
+<circle class="badge" cx="16" cy="176" r="8"></circle>
+<text class="badge-number" x="16" y="179.8" text-anchor="middle">2</text>
+<text x="30" y="180"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Passes<wbr>On<wbr>The<wbr>Address<wbr>Register<wbr>And<wbr>Value</code>: The second set of values, 0x29, 0x3F and 0x20, arrives unchanged in the calls.</figcaption>
+</figure>
+</div>
+<figcaption>The four tests of <code>writeRegister()</code>, one time line per test. Time runs down. The test calls <code>bus_</code> with the values of the top line. <code>WireBusT</code>'s calls of <code>FakeWire</code> follow, each with a filled dot on the time line: a call that <code>FakeWire</code> records in <code>calls</code>. The result comes back at the bottom. A bold orange value is one that the test sets on <code>wire_</code> before the call. A number in a blue disc is a check, and the list under the time line names it. The disc on the corner of a box marks the calls that <code>EXPECT_EQ</code> compares.</figcaption>
+</figure>
+
+<p>Three of the four tests of <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/lib/imu/wire_bus.h#L31-L49"><code>readRegisters()</code></a> compare <code>wire_.calls</code> the same way. The test of a sample's bytes compares the bytes in <code>data</code> instead. In a read, the register write ends with a repeated start, <code>endTransmission(false)</code>, and only then comes the read request, <code>requestFrom()</code>. After a register write that no device acknowledges, no read request may follow. A read of <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L34"><code>CHIP_ID_REGISTER</code></a> from <code>ALTERNATE_DEVICE_ADDRESS</code> checks that <code>WireBusT</code> passes on that register, and that address in both the register write and the read request.</p>
+<p>The pictures show the four tests of <code>readRegisters()</code> as time lines. After <code>requestFrom()</code>, <code>readRegisters()</code> asks <code>available()</code> how many bytes arrived and reads them with <code>read()</code>, and <code>calls</code> lists neither. In the last test, the calls end after the register write:</p>
+<!-- Written by scripts/figures/firmware_unit_tests_figures.py -->
+<style>
+.md-typeset figure.wbt-figure{margin:1em auto;width:100%;max-width:none}
+.wbt-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:1.2em 1em}
+.md-typeset figure.wbt-picture{margin:0;width:16.6rem;max-width:100%}
+.md-typeset figure.wbt-picture figcaption{margin:.3em 0 0;max-width:none}
+.md-typeset figure.wbt-picture figcaption code{overflow-wrap:anywhere}
+.wbt{width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .wbt{--wbt-check:#82b1ff;--wbt-check-fill:rgba(130,177,255,.09);--wbt-set:#ffb74d}
+.wbt text{fill:var(--md-default-fg-color);font-size:12px}
+.wbt .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:10.5px}
+.wbt .byte{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.wbt .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.wbt .phase{font-weight:700}
+.wbt .set{fill:var(--wbt-set);font-weight:700}
+.wbt .light{fill:var(--md-default-fg-color--light)}
+.wbt .not-called{fill:var(--md-default-fg-color--light);text-decoration:line-through}
+.wbt .time-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.wbt .arrow-head{fill:var(--md-default-fg-color--light)}
+.wbt .recorded{fill:var(--md-default-fg-color)}
+.wbt .not-recorded{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2}
+.wbt .missing{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:2 2}
+.wbt .calls-box{fill:var(--wbt-check-fill);stroke:var(--wbt-check);stroke-width:1.4}
+.wbt .cell{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.wbt .empty-cell{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 2}
+.wbt .reported{fill:none;stroke:var(--wbt-set);stroke-width:1.6}
+.wbt .badge{fill:var(--wbt-check)}
+.wbt .badge-number{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+</style>
+<figure class="wbt-figure">
+<div class="wbt-grid">
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 226" role="img" aria-labelledby="wbt-read-ReadRegistersUsesARepeatedStart-title"><title id="wbt-read-ReadRegistersUsesARepeatedStart-title">The time line of the test ReadRegistersUsesARepeatedStart</title><defs><marker id="wbt-read-ReadRegistersUsesARepeatedStart-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,23 V159" marker-end="url(#wbt-read-ReadRegistersUsesARepeatedStart-head)"></path>
+<text class="mono" x="8" y="18" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 3)</text>
+<circle class="recorded" cx="17" cy="40.5" r="3.5"></circle>
+<text class="mono" x="30" y="44" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="44" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="60.5" r="3.5"></circle>
+<text class="mono" x="30" y="64" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="64" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="80.5" r="3.5"></circle>
+<text class="mono" x="30" y="84" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="84"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="84" text-anchor="start">repeated start</text>
+<circle class="recorded" cx="17" cy="100.5" r="3.5"></circle>
+<text class="mono" x="30" y="104" text-anchor="start">requestFrom(0x28, 3)</text>
+<text x="188" y="104"><tspan class="mono">→ </tspan><tspan class="mono">3</tspan></text>
+<text class="note" x="220" y="104" text-anchor="start">read request</text>
+<circle class="not-recorded" cx="17" cy="120.5" r="3.2"></circle>
+<text class="mono" x="30" y="124" text-anchor="start">available()</text>
+<text x="188" y="124"><tspan class="mono">→ </tspan><tspan class="mono">3</tspan></text>
+<text class="note" x="220" y="124" text-anchor="start">3 bytes arrived</text>
+<circle class="not-recorded" cx="17" cy="140.5" r="3.2"></circle>
+<text class="mono" x="30" y="144" text-anchor="start">read() × 3</text>
+<text class="note" x="220" y="144" text-anchor="start">into data</text>
+<circle class="badge" cx="183" cy="30" r="8"></circle>
+<text class="badge-number" x="183" y="33.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="170" r="8"></circle>
+<text class="badge-number" x="16" y="173.8" text-anchor="middle">1</text>
+<text x="30" y="174">returns <tspan class="mono">true</tspan></text>
+<circle class="badge" cx="16" cy="197" r="8"></circle>
+<text class="badge-number" x="16" y="200.8" text-anchor="middle">1</text>
+<text x="30" y="201"><tspan class="mono">EXPECT_TRUE</tspan>: the call returns true</text>
+<circle class="badge" cx="16" cy="216" r="8"></circle>
+<text class="badge-number" x="16" y="219.8" text-anchor="middle">2</text>
+<text x="30" y="220"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+</svg>
+<figcaption><code>Read<wbr>Registers<wbr>Uses<wbr>A<wbr>Repeated<wbr>Start</code>: The register write ends with a repeated start, and the read request follows.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 226" role="img" aria-labelledby="wbt-read-ReadRegistersPassesOnTheAddressAndRegister-title"><title id="wbt-read-ReadRegistersPassesOnTheAddressAndRegister-title">The time line of the test ReadRegistersPassesOnTheAddressAndRegister</title><defs><marker id="wbt-read-ReadRegistersPassesOnTheAddressAndRegister-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="30" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,23 V159" marker-end="url(#wbt-read-ReadRegistersPassesOnTheAddressAndRegister-head)"></path>
+<text class="mono" x="8" y="18" text-anchor="start">bus_.readRegisters(0x29, 0x00, data.data(), 3)</text>
+<circle class="recorded" cx="17" cy="40.5" r="3.5"></circle>
+<text class="mono" x="30" y="44" text-anchor="start">beginTransmission(0x29)</text>
+<text class="note" x="220" y="44" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="60.5" r="3.5"></circle>
+<text class="mono" x="30" y="64" text-anchor="start">write(0x00)</text>
+<text class="note" x="220" y="64" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="80.5" r="3.5"></circle>
+<text class="mono" x="30" y="84" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="84"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="84" text-anchor="start">repeated start</text>
+<circle class="recorded" cx="17" cy="100.5" r="3.5"></circle>
+<text class="mono" x="30" y="104" text-anchor="start">requestFrom(0x29, 3)</text>
+<text x="188" y="104"><tspan class="mono">→ </tspan><tspan class="mono">3</tspan></text>
+<text class="note" x="220" y="104" text-anchor="start">read request</text>
+<circle class="not-recorded" cx="17" cy="120.5" r="3.2"></circle>
+<text class="mono" x="30" y="124" text-anchor="start">available()</text>
+<text x="188" y="124"><tspan class="mono">→ </tspan><tspan class="mono">3</tspan></text>
+<text class="note" x="220" y="124" text-anchor="start">3 bytes arrived</text>
+<circle class="not-recorded" cx="17" cy="140.5" r="3.2"></circle>
+<text class="mono" x="30" y="144" text-anchor="start">read() × 3</text>
+<text class="note" x="220" y="144" text-anchor="start">into data</text>
+<circle class="badge" cx="183" cy="30" r="8"></circle>
+<text class="badge-number" x="183" y="33.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="170" r="8"></circle>
+<text class="badge-number" x="16" y="173.8" text-anchor="middle">1</text>
+<text x="30" y="174">returns <tspan class="mono">true</tspan></text>
+<circle class="badge" cx="16" cy="197" r="8"></circle>
+<text class="badge-number" x="16" y="200.8" text-anchor="middle">1</text>
+<text x="30" y="201"><tspan class="mono">EXPECT_TRUE</tspan>: the call returns true</text>
+<circle class="badge" cx="16" cy="216" r="8"></circle>
+<text class="badge-number" x="16" y="219.8" text-anchor="middle">2</text>
+<text x="30" y="220"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+</svg>
+<figcaption><code>Read<wbr>Registers<wbr>Passes<wbr>On<wbr>The<wbr>Address<wbr>And<wbr>Register</code>: The address 0x29 and the register 0x00 arrive unchanged in the calls.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 308" role="img" aria-labelledby="wbt-read-ReadRegistersReturnsAllBytesOfASample-title"><title id="wbt-read-ReadRegistersReturnsAllBytesOfASample-title">The time line of the test ReadRegistersReturnsAllBytesOfASample</title><defs><marker id="wbt-read-ReadRegistersReturnsAllBytesOfASample-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<path class="time-line" d="M17,23 V196" marker-end="url(#wbt-read-ReadRegistersReturnsAllBytesOfASample-head)"></path>
+<text class="mono" x="8" y="18" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 18)</text>
+<circle class="recorded" cx="17" cy="34.5" r="3.5"></circle>
+<text class="mono" x="30" y="38" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="38" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="54.5" r="3.5"></circle>
+<text class="mono" x="30" y="58" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="58" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="74.5" r="3.5"></circle>
+<text class="mono" x="30" y="78" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="78"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="78" text-anchor="start">repeated start</text>
+<circle class="recorded" cx="17" cy="94.5" r="3.5"></circle>
+<text class="mono" x="30" y="98" text-anchor="start">requestFrom(0x28, 18)</text>
+<text x="188" y="98"><tspan class="mono">→ </tspan><tspan class="mono">18</tspan></text>
+<text class="note" x="220" y="98" text-anchor="start">read request</text>
+<text class="note" x="30" y="118" text-anchor="start">In the Wire library: 18 bytes</text>
+<rect class="cell" x="30" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="38" y="134.5" text-anchor="middle">10</text>
+<rect class="cell" x="46" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="54" y="134.5" text-anchor="middle">11</text>
+<rect class="cell" x="62" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="70" y="134.5" text-anchor="middle">12</text>
+<rect class="cell" x="78" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="86" y="134.5" text-anchor="middle">13</text>
+<rect class="cell" x="94" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="102" y="134.5" text-anchor="middle">14</text>
+<rect class="cell" x="110" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="118" y="134.5" text-anchor="middle">15</text>
+<rect class="cell" x="126" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="134" y="134.5" text-anchor="middle">16</text>
+<rect class="cell" x="142" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="150" y="134.5" text-anchor="middle">17</text>
+<rect class="cell" x="158" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="166" y="134.5" text-anchor="middle">18</text>
+<rect class="cell" x="174" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="182" y="134.5" text-anchor="middle">19</text>
+<rect class="cell" x="190" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="198" y="134.5" text-anchor="middle">1A</text>
+<rect class="cell" x="206" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="214" y="134.5" text-anchor="middle">1B</text>
+<rect class="cell" x="222" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="230" y="134.5" text-anchor="middle">1C</text>
+<rect class="cell" x="238" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="246" y="134.5" text-anchor="middle">1D</text>
+<rect class="cell" x="254" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="262" y="134.5" text-anchor="middle">1E</text>
+<rect class="cell" x="270" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="278" y="134.5" text-anchor="middle">1F</text>
+<rect class="cell" x="286" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="294" y="134.5" text-anchor="middle">20</text>
+<rect class="cell" x="302" y="123" width="16" height="16" rx="2"></rect>
+<text class="byte" x="310" y="134.5" text-anchor="middle">21</text>
+<circle class="not-recorded" cx="17" cy="157.5" r="3.2"></circle>
+<text class="mono" x="30" y="161" text-anchor="start">available()</text>
+<text x="188" y="161"><tspan class="mono">→ </tspan><tspan class="mono">18</tspan></text>
+<text class="note" x="220" y="161" text-anchor="start">18 bytes arrived</text>
+<circle class="not-recorded" cx="17" cy="177.5" r="3.2"></circle>
+<text class="mono" x="30" y="181" text-anchor="start">read() × 18</text>
+<text class="note" x="220" y="181" text-anchor="start">into data</text>
+<circle class="badge" cx="16" cy="207" r="8"></circle>
+<text class="badge-number" x="16" y="210.8" text-anchor="middle">1</text>
+<text x="30" y="211">returns <tspan class="mono">true</tspan></text>
+<circle class="badge" cx="16" cy="248" r="8"></circle>
+<text class="badge-number" x="16" y="251.8" text-anchor="middle">2</text>
+<text class="note" x="30" y="235" text-anchor="start">data after the call</text>
+<rect class="cell" x="30" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="38" y="251.5" text-anchor="middle">10</text>
+<rect class="cell" x="46" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="54" y="251.5" text-anchor="middle">11</text>
+<rect class="cell" x="62" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="70" y="251.5" text-anchor="middle">12</text>
+<rect class="cell" x="78" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="86" y="251.5" text-anchor="middle">13</text>
+<rect class="cell" x="94" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="102" y="251.5" text-anchor="middle">14</text>
+<rect class="cell" x="110" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="118" y="251.5" text-anchor="middle">15</text>
+<rect class="cell" x="126" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="134" y="251.5" text-anchor="middle">16</text>
+<rect class="cell" x="142" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="150" y="251.5" text-anchor="middle">17</text>
+<rect class="cell" x="158" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="166" y="251.5" text-anchor="middle">18</text>
+<rect class="cell" x="174" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="182" y="251.5" text-anchor="middle">19</text>
+<rect class="cell" x="190" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="198" y="251.5" text-anchor="middle">1A</text>
+<rect class="cell" x="206" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="214" y="251.5" text-anchor="middle">1B</text>
+<rect class="cell" x="222" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="230" y="251.5" text-anchor="middle">1C</text>
+<rect class="cell" x="238" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="246" y="251.5" text-anchor="middle">1D</text>
+<rect class="cell" x="254" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="262" y="251.5" text-anchor="middle">1E</text>
+<rect class="cell" x="270" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="278" y="251.5" text-anchor="middle">1F</text>
+<rect class="cell" x="286" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="294" y="251.5" text-anchor="middle">20</text>
+<rect class="cell" x="302" y="240" width="16" height="16" rx="2"></rect>
+<text class="byte" x="310" y="251.5" text-anchor="middle">21</text>
+<circle class="badge" cx="16" cy="279" r="8"></circle>
+<text class="badge-number" x="16" y="282.8" text-anchor="middle">1</text>
+<text x="30" y="283"><tspan class="mono">EXPECT_TRUE</tspan>: the call returns true</text>
+<circle class="badge" cx="16" cy="298" r="8"></circle>
+<text class="badge-number" x="16" y="301.8" text-anchor="middle">2</text>
+<text x="30" y="302"><tspan class="mono">EXPECT_EQ</tspan>: data holds the delivered bytes</text>
+</svg>
+<figcaption><code>Read<wbr>Registers<wbr>Returns<wbr>All<wbr>Bytes<wbr>Of<wbr>A<wbr>Sample</code>: All 18 bytes arrive, and <code>data</code> holds them in their order. The test checks the result and the bytes, not the calls.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 202" role="img" aria-labelledby="wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-title"><title id="wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-title">The time line of the test ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails</title><defs><marker id="wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="46" width="175" height="60" rx="4"></rect>
+<path class="time-line" d="M17,39 V135" marker-end="url(#wbt-read-ReadRegistersFailsWithoutAReadRequestWhenTheRegisterWriteFails-head)"></path>
+<text x="8" y="16"><tspan class="mono set">wire_.end_result = 2</tspan></text>
+<text class="note" x="334" y="16" text-anchor="end">no device acknowledges</text>
+<text class="mono" x="8" y="34" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 3)</text>
+<circle class="recorded" cx="17" cy="56.5" r="3.5"></circle>
+<text class="mono" x="30" y="60" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="60" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="76.5" r="3.5"></circle>
+<text class="mono" x="30" y="80" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="80" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="96.5" r="3.5"></circle>
+<text class="mono" x="30" y="100" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="100"><tspan class="mono">→ </tspan><tspan class="mono set">2</tspan></text>
+<text class="note" x="220" y="100" text-anchor="start">not acknowledged</text>
+<circle class="missing" cx="17" cy="116.5" r="3.2"></circle>
+<text class="mono not-called" x="30" y="120" text-anchor="start">requestFrom(0x28, 3)</text>
+<text class="note" x="220" y="120" text-anchor="start">not called</text>
+<circle class="badge" cx="183" cy="46" r="8"></circle>
+<text class="badge-number" x="183" y="49.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="146" r="8"></circle>
+<text class="badge-number" x="16" y="149.8" text-anchor="middle">1</text>
+<text x="30" y="150">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="173" r="8"></circle>
+<text class="badge-number" x="16" y="176.8" text-anchor="middle">1</text>
+<text x="30" y="177"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="192" r="8"></circle>
+<text class="badge-number" x="16" y="195.8" text-anchor="middle">2</text>
+<text x="30" y="196"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+</svg>
+<figcaption><code>Read<wbr>Registers<wbr>Fails<wbr>Without<wbr>A<wbr>Read<wbr>Request<wbr>When<wbr>The<wbr>Register<wbr>Write<wbr>Fails</code>: No device acknowledges the register write, so no read request follows.</figcaption>
+</figure>
+</div>
+<figcaption>The four tests of <code>readRegisters()</code> with the fixture <code>WireBusTest</code>. The dots, values and numbers read as in the pictures of <code>writeRegister()</code>: time runs down, a filled dot is a call that <code>calls</code> lists, a bold orange value is set by the test, and a number in a blue disc is a check. An open dot is a call that <code>calls</code> doesn't list: <code>available()</code> or <code>read()</code>. A struck-through call on a dashed dot is one that the test expects not to happen. A row of boxes holds bytes in hex, such as 10 for 0x10.</figcaption>
+</figure>
+
 <details class="example">
 <summary>The four tests of <code>readRegisters()</code>, lines 167–219</summary>
 <p>The tests are <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L167-L219">lines 167–219 of <code>test_wire_bus.cpp</code></a>. The third, <code>ReadRegistersReturnsAllBytesOfASample</code>, is the successful read of the next section's table:</p>
@@ -6133,6 +6575,379 @@
 <li><strong>The last argument:</strong> turns a case into the end of the test's name, such as <code>BothShort</code> (<a href="https://github.com/google/googletest/blob/v1.17.0/docs/advanced.md#specifying-names-for-value-parameterized-test-parameters">names for the cases in GoogleTest's advanced guide</a>).</li>
 <li><strong><a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L233-L238"><code>operator&lt;&lt;</code></a>:</strong> writes a case as text. GoogleTest prints that text after <code>where GetParam() =</code> when the case fails (<a href="https://google.github.io/googletest/advanced.html#teaching-googletest-how-to-print-your-values">how GoogleTest prints values</a>).</li>
 </ul>
+<p>The pictures show the four cases as time lines. Each case starts with the two counts that it sets on <code>wire_</code> and ends with the three checks. <code>readRegisters()</code> calls <code>available()</code> in its comparison only when <code>requestFrom()</code> reports the full 18 bytes: <code>||</code> stops at the first comparison that is true. The loop after it reads the bytes that arrived until <code>available()</code> returns 0:</p>
+<!-- Written by scripts/figures/firmware_unit_tests_figures.py -->
+<style>
+.md-typeset figure.wbt-figure{margin:1em auto;width:100%;max-width:none}
+.wbt-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:1.2em 1em}
+.md-typeset figure.wbt-picture{margin:0;width:16.6rem;max-width:100%}
+.md-typeset figure.wbt-picture figcaption{margin:.3em 0 0;max-width:none}
+.md-typeset figure.wbt-picture figcaption code{overflow-wrap:anywhere}
+.wbt{width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .wbt{--wbt-check:#82b1ff;--wbt-check-fill:rgba(130,177,255,.09);--wbt-set:#ffb74d}
+.wbt text{fill:var(--md-default-fg-color);font-size:12px}
+.wbt .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:10.5px}
+.wbt .byte{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.wbt .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.wbt .phase{font-weight:700}
+.wbt .set{fill:var(--wbt-set);font-weight:700}
+.wbt .light{fill:var(--md-default-fg-color--light)}
+.wbt .not-called{fill:var(--md-default-fg-color--light);text-decoration:line-through}
+.wbt .time-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.wbt .arrow-head{fill:var(--md-default-fg-color--light)}
+.wbt .recorded{fill:var(--md-default-fg-color)}
+.wbt .not-recorded{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2}
+.wbt .missing{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:2 2}
+.wbt .calls-box{fill:var(--wbt-check-fill);stroke:var(--wbt-check);stroke-width:1.4}
+.wbt .cell{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.wbt .empty-cell{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 2}
+.wbt .reported{fill:none;stroke:var(--wbt-set);stroke-width:1.6}
+.wbt .badge{fill:var(--wbt-check)}
+.wbt .badge-number{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+</style>
+<figure class="wbt-figure">
+<div class="wbt-grid">
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 342" role="img" aria-labelledby="wbt-short-ReportedShortAllBytesThere-title"><title id="wbt-short-ReportedShortAllBytesThere-title">The time line of the case ReportedShortAllBytesThere</title><defs><marker id="wbt-short-ReportedShortAllBytesThere-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,55 V232" marker-end="url(#wbt-short-ReportedShortAllBytesThere-head)"></path>
+<text x="8" y="16"><tspan class="mono set">wire_.reported_count = 4</tspan></text>
+<text class="note" x="334" y="16" text-anchor="end">what requestFrom() reports</text>
+<text x="8" y="32"><tspan class="mono set">wire_.delivered_count = 18</tspan></text>
+<text class="note" x="334" y="32" text-anchor="end">the bytes that arrive</text>
+<text class="mono" x="8" y="50" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 18)</text>
+<circle class="recorded" cx="17" cy="72.5" r="3.5"></circle>
+<text class="mono" x="30" y="76" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="76" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="92.5" r="3.5"></circle>
+<text class="mono" x="30" y="96" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="96" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="112.5" r="3.5"></circle>
+<text class="mono" x="30" y="116" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="116"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="116" text-anchor="start">repeated start</text>
+<circle class="recorded" cx="17" cy="132.5" r="3.5"></circle>
+<text class="mono" x="30" y="136" text-anchor="start">requestFrom(0x28, 18)</text>
+<text x="188" y="136"><tspan class="mono">→ </tspan><tspan class="mono set">4</tspan></text>
+<text class="note" x="220" y="136" text-anchor="start">read request</text>
+<text class="note" x="30" y="156" text-anchor="start">In the Wire library: 18 of 18 bytes</text>
+<rect class="cell" x="30" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="38" y="172.5" text-anchor="middle">10</text>
+<rect class="cell" x="46" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="54" y="172.5" text-anchor="middle">11</text>
+<rect class="cell" x="62" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="70" y="172.5" text-anchor="middle">12</text>
+<rect class="cell" x="78" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="86" y="172.5" text-anchor="middle">13</text>
+<rect class="cell" x="94" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="102" y="172.5" text-anchor="middle">14</text>
+<rect class="cell" x="110" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="118" y="172.5" text-anchor="middle">15</text>
+<rect class="cell" x="126" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="134" y="172.5" text-anchor="middle">16</text>
+<rect class="cell" x="142" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="150" y="172.5" text-anchor="middle">17</text>
+<rect class="cell" x="158" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="166" y="172.5" text-anchor="middle">18</text>
+<rect class="cell" x="174" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="182" y="172.5" text-anchor="middle">19</text>
+<rect class="cell" x="190" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="198" y="172.5" text-anchor="middle">1A</text>
+<rect class="cell" x="206" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="214" y="172.5" text-anchor="middle">1B</text>
+<rect class="cell" x="222" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="230" y="172.5" text-anchor="middle">1C</text>
+<rect class="cell" x="238" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="246" y="172.5" text-anchor="middle">1D</text>
+<rect class="cell" x="254" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="262" y="172.5" text-anchor="middle">1E</text>
+<rect class="cell" x="270" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="278" y="172.5" text-anchor="middle">1F</text>
+<rect class="cell" x="286" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="294" y="172.5" text-anchor="middle">20</text>
+<rect class="cell" x="302" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="310" y="172.5" text-anchor="middle">21</text>
+<path class="reported" d="M31,178 V182 H93 V178"></path>
+<text x="30" y="195"><tspan class="note">requestFrom() reports </tspan><tspan class="set">4</tspan></text>
+<circle class="not-recorded" cx="17" cy="213.5" r="3.2"></circle>
+<text class="mono" x="30" y="217" text-anchor="start">read() × 18</text>
+<text class="note" x="220" y="217" text-anchor="start">dropped</text>
+<circle class="badge" cx="183" cy="62" r="8"></circle>
+<text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="243" r="8"></circle>
+<text class="badge-number" x="16" y="246.8" text-anchor="middle">1</text>
+<text x="30" y="247">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="267" r="8"></circle>
+<text class="badge-number" x="16" y="270.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="271" text-anchor="start">wire_.available()</text>
+<text x="188" y="271"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="271" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="294" r="8"></circle>
+<text class="badge-number" x="16" y="297.8" text-anchor="middle">1</text>
+<text x="30" y="298"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="313" r="8"></circle>
+<text class="badge-number" x="16" y="316.8" text-anchor="middle">2</text>
+<text x="30" y="317"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="332" r="8"></circle>
+<text class="badge-number" x="16" y="335.8" text-anchor="middle">3</text>
+<text x="30" y="336"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+</svg>
+<figcaption><code>Reported<wbr>Short<wbr>All<wbr>Bytes<wbr>There</code>: <code>requestFrom()</code> reports 4, and all 18 bytes arrive.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 342" role="img" aria-labelledby="wbt-short-BothShort-title"><title id="wbt-short-BothShort-title">The time line of the case BothShort</title><defs><marker id="wbt-short-BothShort-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,55 V232" marker-end="url(#wbt-short-BothShort-head)"></path>
+<text x="8" y="16"><tspan class="mono set">wire_.reported_count = 4</tspan></text>
+<text class="note" x="334" y="16" text-anchor="end">what requestFrom() reports</text>
+<text x="8" y="32"><tspan class="mono set">wire_.delivered_count = 4</tspan></text>
+<text class="note" x="334" y="32" text-anchor="end">the bytes that arrive</text>
+<text class="mono" x="8" y="50" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 18)</text>
+<circle class="recorded" cx="17" cy="72.5" r="3.5"></circle>
+<text class="mono" x="30" y="76" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="76" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="92.5" r="3.5"></circle>
+<text class="mono" x="30" y="96" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="96" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="112.5" r="3.5"></circle>
+<text class="mono" x="30" y="116" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="116"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="116" text-anchor="start">repeated start</text>
+<circle class="recorded" cx="17" cy="132.5" r="3.5"></circle>
+<text class="mono" x="30" y="136" text-anchor="start">requestFrom(0x28, 18)</text>
+<text x="188" y="136"><tspan class="mono">→ </tspan><tspan class="mono set">4</tspan></text>
+<text class="note" x="220" y="136" text-anchor="start">read request</text>
+<text class="note" x="30" y="156" text-anchor="start">In the Wire library: 4 of 18 bytes</text>
+<rect class="cell" x="30" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="38" y="172.5" text-anchor="middle">10</text>
+<rect class="cell" x="46" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="54" y="172.5" text-anchor="middle">11</text>
+<rect class="cell" x="62" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="70" y="172.5" text-anchor="middle">12</text>
+<rect class="cell" x="78" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="86" y="172.5" text-anchor="middle">13</text>
+<rect class="empty-cell" x="95" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="111" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="127" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="143" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="159" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="175" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="191" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="207" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="223" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="239" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="255" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="271" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="287" y="162" width="14" height="14" rx="2"></rect>
+<rect class="empty-cell" x="303" y="162" width="14" height="14" rx="2"></rect>
+<path class="reported" d="M31,178 V182 H93 V178"></path>
+<text x="30" y="195"><tspan class="note">requestFrom() reports </tspan><tspan class="set">4</tspan></text>
+<circle class="not-recorded" cx="17" cy="213.5" r="3.2"></circle>
+<text class="mono" x="30" y="217" text-anchor="start">read() × 4</text>
+<text class="note" x="220" y="217" text-anchor="start">dropped</text>
+<circle class="badge" cx="183" cy="62" r="8"></circle>
+<text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="243" r="8"></circle>
+<text class="badge-number" x="16" y="246.8" text-anchor="middle">1</text>
+<text x="30" y="247">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="267" r="8"></circle>
+<text class="badge-number" x="16" y="270.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="271" text-anchor="start">wire_.available()</text>
+<text x="188" y="271"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="271" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="294" r="8"></circle>
+<text class="badge-number" x="16" y="297.8" text-anchor="middle">1</text>
+<text x="30" y="298"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="313" r="8"></circle>
+<text class="badge-number" x="16" y="316.8" text-anchor="middle">2</text>
+<text x="30" y="317"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="332" r="8"></circle>
+<text class="badge-number" x="16" y="335.8" text-anchor="middle">3</text>
+<text x="30" y="336"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+</svg>
+<figcaption><code>Both<wbr>Short</code>: <code>requestFrom()</code> reports 4, and 4 bytes arrive.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 362" role="img" aria-labelledby="wbt-short-ReportedInFullOneByteMissing-title"><title id="wbt-short-ReportedInFullOneByteMissing-title">The time line of the case ReportedInFullOneByteMissing</title><defs><marker id="wbt-short-ReportedInFullOneByteMissing-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,55 V252" marker-end="url(#wbt-short-ReportedInFullOneByteMissing-head)"></path>
+<text x="8" y="16"><tspan class="mono set">wire_.reported_count = 18</tspan></text>
+<text class="note" x="334" y="16" text-anchor="end">what requestFrom() reports</text>
+<text x="8" y="32"><tspan class="mono set">wire_.delivered_count = 17</tspan></text>
+<text class="note" x="334" y="32" text-anchor="end">the bytes that arrive</text>
+<text class="mono" x="8" y="50" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 18)</text>
+<circle class="recorded" cx="17" cy="72.5" r="3.5"></circle>
+<text class="mono" x="30" y="76" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="76" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="92.5" r="3.5"></circle>
+<text class="mono" x="30" y="96" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="96" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="112.5" r="3.5"></circle>
+<text class="mono" x="30" y="116" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="116"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="116" text-anchor="start">repeated start</text>
+<circle class="recorded" cx="17" cy="132.5" r="3.5"></circle>
+<text class="mono" x="30" y="136" text-anchor="start">requestFrom(0x28, 18)</text>
+<text x="188" y="136"><tspan class="mono">→ </tspan><tspan class="mono set">18</tspan></text>
+<text class="note" x="220" y="136" text-anchor="start">read request</text>
+<text class="note" x="30" y="156" text-anchor="start">In the Wire library: 17 of 18 bytes</text>
+<rect class="cell" x="30" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="38" y="172.5" text-anchor="middle">10</text>
+<rect class="cell" x="46" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="54" y="172.5" text-anchor="middle">11</text>
+<rect class="cell" x="62" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="70" y="172.5" text-anchor="middle">12</text>
+<rect class="cell" x="78" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="86" y="172.5" text-anchor="middle">13</text>
+<rect class="cell" x="94" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="102" y="172.5" text-anchor="middle">14</text>
+<rect class="cell" x="110" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="118" y="172.5" text-anchor="middle">15</text>
+<rect class="cell" x="126" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="134" y="172.5" text-anchor="middle">16</text>
+<rect class="cell" x="142" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="150" y="172.5" text-anchor="middle">17</text>
+<rect class="cell" x="158" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="166" y="172.5" text-anchor="middle">18</text>
+<rect class="cell" x="174" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="182" y="172.5" text-anchor="middle">19</text>
+<rect class="cell" x="190" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="198" y="172.5" text-anchor="middle">1A</text>
+<rect class="cell" x="206" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="214" y="172.5" text-anchor="middle">1B</text>
+<rect class="cell" x="222" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="230" y="172.5" text-anchor="middle">1C</text>
+<rect class="cell" x="238" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="246" y="172.5" text-anchor="middle">1D</text>
+<rect class="cell" x="254" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="262" y="172.5" text-anchor="middle">1E</text>
+<rect class="cell" x="270" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="278" y="172.5" text-anchor="middle">1F</text>
+<rect class="cell" x="286" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="294" y="172.5" text-anchor="middle">20</text>
+<rect class="empty-cell" x="303" y="162" width="14" height="14" rx="2"></rect>
+<path class="reported" d="M31,178 V182 H317 V178"></path>
+<text x="30" y="195"><tspan class="note">requestFrom() reports </tspan><tspan class="set">18</tspan></text>
+<circle class="not-recorded" cx="17" cy="213.5" r="3.2"></circle>
+<text class="mono" x="30" y="217" text-anchor="start">available()</text>
+<text x="188" y="217"><tspan class="mono">→ </tspan><tspan class="mono">17</tspan></text>
+<text class="note" x="220" y="217" text-anchor="start">one byte short</text>
+<circle class="not-recorded" cx="17" cy="233.5" r="3.2"></circle>
+<text class="mono" x="30" y="237" text-anchor="start">read() × 17</text>
+<text class="note" x="220" y="237" text-anchor="start">dropped</text>
+<circle class="badge" cx="183" cy="62" r="8"></circle>
+<text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="263" r="8"></circle>
+<text class="badge-number" x="16" y="266.8" text-anchor="middle">1</text>
+<text x="30" y="267">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="287" r="8"></circle>
+<text class="badge-number" x="16" y="290.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="291" text-anchor="start">wire_.available()</text>
+<text x="188" y="291"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="291" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="314" r="8"></circle>
+<text class="badge-number" x="16" y="317.8" text-anchor="middle">1</text>
+<text x="30" y="318"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="333" r="8"></circle>
+<text class="badge-number" x="16" y="336.8" text-anchor="middle">2</text>
+<text x="30" y="337"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="352" r="8"></circle>
+<text class="badge-number" x="16" y="355.8" text-anchor="middle">3</text>
+<text x="30" y="356"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+</svg>
+<figcaption><code>Reported<wbr>In<wbr>Full<wbr>One<wbr>Byte<wbr>Missing</code>: <code>requestFrom()</code> reports 18, and 17 bytes arrive.</figcaption>
+</figure>
+<figure class="wbt-picture">
+<svg class="wbt" viewBox="0 0 340 342" role="img" aria-labelledby="wbt-short-ReportedOneShortAllBytesThere-title"><title id="wbt-short-ReportedOneShortAllBytesThere-title">The time line of the case ReportedOneShortAllBytesThere</title><defs><marker id="wbt-short-ReportedOneShortAllBytesThere-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="calls-box" x="8" y="62" width="175" height="80" rx="4"></rect>
+<path class="time-line" d="M17,55 V232" marker-end="url(#wbt-short-ReportedOneShortAllBytesThere-head)"></path>
+<text x="8" y="16"><tspan class="mono set">wire_.reported_count = 17</tspan></text>
+<text class="note" x="334" y="16" text-anchor="end">what requestFrom() reports</text>
+<text x="8" y="32"><tspan class="mono set">wire_.delivered_count = 18</tspan></text>
+<text class="note" x="334" y="32" text-anchor="end">the bytes that arrive</text>
+<text class="mono" x="8" y="50" text-anchor="start">bus_.readRegisters(0x28, 0x08, data.data(), 18)</text>
+<circle class="recorded" cx="17" cy="72.5" r="3.5"></circle>
+<text class="mono" x="30" y="76" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="220" y="76" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="92.5" r="3.5"></circle>
+<text class="mono" x="30" y="96" text-anchor="start">write(0x08)</text>
+<text class="note" x="220" y="96" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="112.5" r="3.5"></circle>
+<text class="mono" x="30" y="116" text-anchor="start">endTransmission(false)</text>
+<text x="188" y="116"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="116" text-anchor="start">repeated start</text>
+<circle class="recorded" cx="17" cy="132.5" r="3.5"></circle>
+<text class="mono" x="30" y="136" text-anchor="start">requestFrom(0x28, 18)</text>
+<text x="188" y="136"><tspan class="mono">→ </tspan><tspan class="mono set">17</tspan></text>
+<text class="note" x="220" y="136" text-anchor="start">read request</text>
+<text class="note" x="30" y="156" text-anchor="start">In the Wire library: 18 of 18 bytes</text>
+<rect class="cell" x="30" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="38" y="172.5" text-anchor="middle">10</text>
+<rect class="cell" x="46" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="54" y="172.5" text-anchor="middle">11</text>
+<rect class="cell" x="62" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="70" y="172.5" text-anchor="middle">12</text>
+<rect class="cell" x="78" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="86" y="172.5" text-anchor="middle">13</text>
+<rect class="cell" x="94" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="102" y="172.5" text-anchor="middle">14</text>
+<rect class="cell" x="110" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="118" y="172.5" text-anchor="middle">15</text>
+<rect class="cell" x="126" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="134" y="172.5" text-anchor="middle">16</text>
+<rect class="cell" x="142" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="150" y="172.5" text-anchor="middle">17</text>
+<rect class="cell" x="158" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="166" y="172.5" text-anchor="middle">18</text>
+<rect class="cell" x="174" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="182" y="172.5" text-anchor="middle">19</text>
+<rect class="cell" x="190" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="198" y="172.5" text-anchor="middle">1A</text>
+<rect class="cell" x="206" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="214" y="172.5" text-anchor="middle">1B</text>
+<rect class="cell" x="222" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="230" y="172.5" text-anchor="middle">1C</text>
+<rect class="cell" x="238" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="246" y="172.5" text-anchor="middle">1D</text>
+<rect class="cell" x="254" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="262" y="172.5" text-anchor="middle">1E</text>
+<rect class="cell" x="270" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="278" y="172.5" text-anchor="middle">1F</text>
+<rect class="cell" x="286" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="294" y="172.5" text-anchor="middle">20</text>
+<rect class="cell" x="302" y="161" width="16" height="16" rx="2"></rect>
+<text class="byte" x="310" y="172.5" text-anchor="middle">21</text>
+<path class="reported" d="M31,178 V182 H301 V178"></path>
+<text x="30" y="195"><tspan class="note">requestFrom() reports </tspan><tspan class="set">17</tspan></text>
+<circle class="not-recorded" cx="17" cy="213.5" r="3.2"></circle>
+<text class="mono" x="30" y="217" text-anchor="start">read() × 18</text>
+<text class="note" x="220" y="217" text-anchor="start">dropped</text>
+<circle class="badge" cx="183" cy="62" r="8"></circle>
+<text class="badge-number" x="183" y="65.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="243" r="8"></circle>
+<text class="badge-number" x="16" y="246.8" text-anchor="middle">1</text>
+<text x="30" y="247">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="267" r="8"></circle>
+<text class="badge-number" x="16" y="270.8" text-anchor="middle">3</text>
+<text class="mono" x="30" y="271" text-anchor="start">wire_.available()</text>
+<text x="188" y="271"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="220" y="271" text-anchor="start">no byte left</text>
+<circle class="badge" cx="16" cy="294" r="8"></circle>
+<text class="badge-number" x="16" y="297.8" text-anchor="middle">1</text>
+<text x="30" y="298"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+<circle class="badge" cx="16" cy="313" r="8"></circle>
+<text class="badge-number" x="16" y="316.8" text-anchor="middle">2</text>
+<text x="30" y="317"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+<circle class="badge" cx="16" cy="332" r="8"></circle>
+<text class="badge-number" x="16" y="335.8" text-anchor="middle">3</text>
+<text x="30" y="336"><tspan class="mono">EXPECT_EQ</tspan>: wire_.available() is 0</text>
+</svg>
+<figcaption><code>Reported<wbr>One<wbr>Short<wbr>All<wbr>Bytes<wbr>There</code>: <code>requestFrom()</code> reports 17, and all 18 bytes arrive.</figcaption>
+</figure>
+</div>
+<figcaption>The four cases of <code>ReadRegistersFailsAndDrainsTheBytes</code>. The dots, values and numbers read as in the pictures of <code>writeRegister()</code> and <code>readRegisters()</code>: time runs down, a filled dot is a call that <code>calls</code> lists, an open dot one that it doesn't list, a bold orange value is set by the test, and a number in a blue disc is a check. Each case requests a sample's 18 bytes. The row of boxes is the Wire library's receive buffer after <code>requestFrom()</code>: a box with a value is a byte that arrived, a dashed box one that didn't. The orange bracket under it spans the count that <code>requestFrom()</code> reports. The <code>read()</code> calls drop the bytes, and the line after the result is the test's own call of <code>available()</code>.</figcaption>
+</figure>
+
 <p>Written as a loop inside one <a href="#which-framework-for-a-new-test">Unity</a> test, the cases would end at the first one that fails. Unity's message would name the line of the check, and not the case.</p>
 <h3 id="see-each-test-fail-once">See each test fail once</h3>
 <p>Break the behavior that one of your checks promises, on purpose, run the suite, read the failure, and undo the change. Then you know that the check can fail. For example, <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L262"><code>EXPECT_EQ(wire_.available(), 0)</code></a> promises that a short read leaves no byte behind. Without the loop that drains the bytes in <a href="https://github.com/ros-mobile-robots/diffbot/blob/07b2936fd8a7db791458f29b42e74f9e3d096961/diffbot_firmware/lib/imu/wire_bus.h#L42-L43"><code>readRegisters()</code></a>, all four short-read cases fail at that check. A change that breaks a different behavior can pass a test that is focused on one behavior. Another test of the suite has to catch that change.</p>
