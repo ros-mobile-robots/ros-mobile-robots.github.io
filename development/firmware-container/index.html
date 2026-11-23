@@ -4489,6 +4489,8 @@
       
         
       
+        
+      
     
     
     
@@ -4558,6 +4560,34 @@
     
   
     Testing and CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../firmware-unit-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Unit Tests
   
 
     
@@ -4655,7 +4685,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6">
         
           
           <div class="md-nav__link md-nav__container">
@@ -4677,14 +4707,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5018,7 +5048,7 @@
 </div>
 </div>
 </div>
-<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/.docker/firmware/run.sh"><code>.docker/firmware/run.sh</code></a> is our script. It runs a command in the firmware container, here PlatformIO's command <code>pio</code>, and <a href="#the-script">the script</a> below shows how. <code>pio run</code> builds the firmware. <code>-e</code> selects an environment in <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>, and each environment builds for one board: <code>teensy40</code> for the Teensy 4.0, <code>teensy31</code> for the Teensy 3.1 and 3.2. Without <code>-e</code>, <code>pio run</code> builds <code>teensy40</code>. <a href="../../processing_units/teensy-mcu/#which-microcontroller">Which Microcontroller?</a> lists the Teensy of each robot.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/.docker/firmware/run.sh"><code>.docker/firmware/run.sh</code></a> is our script. It runs a command in the firmware container, here PlatformIO's command <code>pio</code>, and <a href="#the-script">the script</a> below shows how. <code>pio run</code> builds the firmware. <code>-e</code> selects an environment in <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/platformio.ini"><code>platformio.ini</code></a>, and each of the two board environments builds for one board: <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/platformio.ini#L27-L34"><code>teensy40</code></a> for the Teensy 4.0, <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/platformio.ini#L14-L25"><code>teensy31</code></a> for the Teensy 3.1 and 3.2. Without <code>-e</code>, <code>pio run</code> builds <code>teensy40</code>. <a href="../../processing_units/teensy-mcu/#which-microcontroller">Which Microcontroller?</a> lists the Teensy of each robot.</p>
 <p>For your robot, one build is enough. If you change the firmware, build the other board too, because <a href="#in-ci"><abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a> checks that the firmware builds for both.</p>
 <p>The first build downloads the base image, PlatformIO and the Teensy toolchain, which needs the internet and took about a minute on our test PC. Later builds take seconds. The end of a Teensy 4.0 build looks like this:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
@@ -5057,10 +5087,10 @@
 <span class="go">teensy40       SUCCESS   00:00:01.501</span>
 <span class="go">========================= 1 succeeded in 00:00:01.501 =========================</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>PlatformIO writes each build into its standard build folder, <code>diffbot_firmware/.pio/build/&lt;environment&gt;/</code>. So the firmware is <code>diffbot_firmware/.pio/build/teensy40/firmware.hex</code> for Remo and <code>diffbot_firmware/.pio/build/teensy31/firmware.hex</code> for DiffBot. Git ignores <code>.pio</code>. The file belongs to your user, not to root, so you can copy or delete it without <code>sudo</code>.</p>
+<p>PlatformIO writes each build into its standard build folder, <code>diffbot_firmware/.pio/build/&lt;environment&gt;/</code>. So the firmware is <code>diffbot_firmware/.pio/build/teensy40/firmware.hex</code> for Remo and <code>diffbot_firmware/.pio/build/teensy31/firmware.hex</code> for DiffBot. Git ignores <a href="https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5/diffbot_firmware/.gitignore#L1"><code>.pio</code></a>. The file belongs to your user, not to root, so you can copy or delete it without <code>sudo</code>.</p>
 <p><strong>Flash it</strong> with PJRC's <a href="https://www.pjrc.com/teensy/loader.html">Teensy Loader</a>, an app that you install on your PC. It isn't part of the container. It loads <code>firmware.hex</code> onto the Teensy over USB. On Linux, it needs PJRC's <a href="https://www.pjrc.com/teensy/loader_linux.html">udev rules</a>, a file that you copy to <code>/etc/udev/rules.d/</code>, so that it may write to the Teensy. Flashing from the container is planned in <a href="https://github.com/ros-mobile-robots/diffbot/issues/149">diffbot#149</a>. For that, the container needs access to the Teensy's USB port.</p>
-<p><strong>Run the unit tests</strong> in the same container with <code>.docker/firmware/run.sh pio test -e native</code>. They run on your PC, without a Teensy. <a href="../ci/#firmware-unit-tests">Firmware unit tests</a> on the Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> page says what they cover.</p>
-<p><strong>Other commands</strong> run the same way, for example <code>.docker/firmware/run.sh bash</code> for a shell in the container. Shell syntax such as <code>&amp;&amp;</code> needs a shell in the container, for example <code>.docker/firmware/run.sh bash -c 'pwd &amp;&amp; id'</code>. Otherwise the shell on your PC reads it. Commands start in <code>diffbot_firmware</code>. Paths in them are paths in the container, where your clone is <code>/workspace</code>, so a folder on your PC outside your clone doesn't exist there.</p>
+<p><strong>Run the unit tests</strong> in the same container with <code>.docker/firmware/run.sh pio test -e native -e native_googletest</code>. They run on your PC, without a Teensy. The section <a href="../ci/#firmware-unit-tests">Firmware unit tests</a> of Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> says what they cover. The page <a href="../firmware-unit-tests/">Firmware Unit Tests</a> explains the two environments of that command, how to run one test and how to write a new suite.</p>
+<p><strong>Other commands</strong> run the same way, for example <code>.docker/firmware/run.sh bash</code> for a shell in the container. Shell syntax such as <code>&amp;&amp;</code> needs a shell in the container, for example <code>.docker/firmware/run.sh bash -c 'pwd &amp;&amp; id'</code>. Otherwise the shell on your PC reads it. Commands start in <a href="#the-container"><code>diffbot_firmware</code></a>. Paths in them are paths in the container, where your clone is <code>/workspace</code>, so a folder on your PC outside your clone doesn't exist there.</p>
 <p><strong>Another user and group ID:</strong> the script uses yours (<code>id -u</code> and <code>id -g</code>) unless you set <code>LOCAL_UID</code> and <code>LOCAL_GID</code>, for example <code>LOCAL_UID=1234 LOCAL_GID=1234 .docker/firmware/run.sh pio run -e teensy40</code>. That ID needs write access to your clone. In the container, <code>id</code> then shows:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">uid=1234(pio) gid=1234(pio) groups=1234(pio)</span>
 </code></pre></div></td></tr></tbody></table></div>
