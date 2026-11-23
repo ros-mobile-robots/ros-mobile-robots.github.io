@@ -6,9 +6,9 @@ DG01D-E gear motor with its wheel, the motor's encoder seen from the motor's end
 BNO055 breakout. The parts keep the colors of the real ones in both color schemes. board_rules()
 returns their CSS.
 
-The module also holds what a figure script needs to write SVG: escape(), style_element() and
-Drawing, which collects the elements of one layout and draws its rectangles, circles, lines,
-text and boxes with text.
+The module also holds what a figure script needs to write SVG: escape(), style_element(),
+svg_element() with its arrowhead marker, and Drawing, which collects the elements of one layout
+and draws its rectangles, circles, lines, text, boxes with text and numbers in discs.
 """
 
 import math
@@ -19,6 +19,8 @@ from typing import Tuple
 # The x of the middle of the encoder board, from the left edge of the gear motor's gearbox. The
 # encoder sits at the end of the motor's can, where a figure can attach its signal line
 ENCODER_BOARD_OFFSET = 76
+# The radius of the disc around a step's or a check's number, in px
+NUMBER_DISC_RADIUS = 8
 
 
 def escape(text: str) -> str:
@@ -30,6 +32,27 @@ def style_element(rules: Sequence[Tuple[str, str]]) -> str:
     """Return a style element with one CSS rule per (selector, declarations) pair."""
     lines = [f'{selector}{{{declarations}}}' for selector, declarations in rules]
     return '<style>\n' + '\n'.join(lines) + '\n</style>'
+
+
+def arrowhead_marker(marker_id: str) -> str:
+    """Return an SVG marker that ends a line with an arrowhead of the CSS class arrow-head."""
+    return (f'<marker id="{marker_id}" viewBox="0 0 10 10" refX="9" refY="5" '
+            'markerWidth="7" markerHeight="7" orient="auto">'
+            '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
+
+
+def svg_element(name: str, css_classes: str, size: Tuple[float, float], title: str,
+                elements: Sequence[str]) -> str:
+    """Return an SVG element of size (width, height) with the elements, named title.
+
+    name starts the element's IDs: name-title for its accessible name, and name-head for the
+    arrowhead marker that its arrows point to.
+    """
+    width, height = size
+    return (f'<svg class="{css_classes}" viewBox="0 0 {width:g} {height:g}" role="img" '
+            f'aria-labelledby="{name}-title"><title id="{name}-title">{escape(title)}</title>'
+            f'<defs>{arrowhead_marker(f"{name}-head")}</defs>\n'
+            + '\n'.join(elements) + '\n</svg>')
 
 
 class Drawing:
@@ -58,6 +81,12 @@ class Drawing:
         class_attribute = f' class="{css_class}"' if css_class else ''
         self.elements.append(f'<text{class_attribute} x="{x:g}" y="{y:g}" '
                              f'text-anchor="{anchor}">{escape(text)}</text>')
+
+    def number_disc(self, x: float, y: float, number: int, disc_class: str,
+                    number_class: str) -> None:
+        """Add a number centered in a filled disc around (x, y), such as a step's or a check's."""
+        self.circle(x, y, NUMBER_DISC_RADIUS, disc_class)
+        self.text(x, y + 3.8, str(number), number_class, 'middle')
 
     def box(self, x: float, y: float, width: float, height: float, css_class: str,
             lines: Sequence[Tuple[str, str]] = ()) -> None:
