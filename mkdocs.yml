@@ -84,10 +84,15 @@ extra:
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885
   geometry_src_url: https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885
+  # The diffbot commit that the firmware excerpts and links of the feedback loop on PID Controllers
+  # show, and that scripts/figures/pid_figures.py takes its values from. Update all three when that
+  # code changes, and check the excerpts' line ranges and highlighted lines against the new commit
+  pid_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d
+  pid_src_url: https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d
   # The diffbot commit that the firmware excerpts on Low-Level Base Controller show. Update both when
   # that code changes, and check the excerpts' line ranges and highlighted lines against the new commit
-  low_level_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3541965496d50ce629e00054e8d3acd12e4beed5
-  low_level_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5
+  low_level_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5
+  low_level_src_url: https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5
   # The diffbot commit that the excerpts on the Localization pages show: the merge commit of
   # diffbot #154. Update both when that code changes, and check the excerpts' line ranges
   ekf_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/ead34027a9507c65d7415f93817177340d60d549
