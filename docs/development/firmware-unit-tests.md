@@ -361,7 +361,15 @@ GoogleTest creates a new `WireBusTest` object for each test ([Test Fixtures](htt
 - **A scenario in phases:** the third test checks two calls on the same `bus_`, in numbered phases. A write that the device acknowledges comes first, and the next write, which no device acknowledges, has to fail. Its first check is an [`ASSERT_`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L149-L150) check, because a failed first write would leave nothing to check in phase 2.
 - **A second set of values:** the fourth test writes [`RESET_VALUE`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L33) to [`RESET_REGISTER`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L32) at [`ALTERNATE_DEVICE_ADDRESS`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L27-L31), 0x29, the BNO055's address when its ADR pin is high. Each of these values differs from those of the first three tests, so the test shows that `WireBusT` passes on the values that it gets.
 
+The pictures show each of the four tests as a time line: the values that the test sets on `wire_`, its call of `bus_`, the calls that `WireBusT` makes on `FakeWire`, the result, and the checks. In the second and the third test, `endTransmission()` returns 2, and the write fails:
+
+--8<-- "includes/firmware-unit-tests-write-register.html"
+
 The tests of [`readRegisters()`]({{ firmware_tests_src_url }}/diffbot_firmware/lib/imu/wire_bus.h#L31-L49) compare `wire_.calls` the same way. In a read, the register write ends with a repeated start, `endTransmission(false)`, and only then comes the read request, `requestFrom()`. After a register write that no device acknowledges, no read request may follow. A read of [`CHIP_ID_REGISTER`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L34) from `ALTERNATE_DEVICE_ADDRESS` checks that `WireBusT` passes on that register, and that address in both the register write and the read request.
+
+The pictures show the four tests of `readRegisters()` as time lines. After `requestFrom()`, `readRegisters()` asks `available()` how many bytes arrived and reads them with `read()`, and `calls` lists neither. In the last test, the calls end after the register write:
+
+--8<-- "includes/firmware-unit-tests-read-registers.html"
 
 ??? example "The four tests of `readRegisters()`, lines 167–219"
 
@@ -412,6 +420,10 @@ The four cases are examples of short reads, not every possible one. Two have a s
 - **`::testing::Values(…)`:** holds the four cases. Their counts come from `SAMPLE_LENGTH_BYTES` and [`COUNT_AFTER_FAILED_BUS_ACQUISITION`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L221-L223).
 - **The last argument:** turns a case into the end of the test's name, such as `BothShort` ([names for the cases in GoogleTest's advanced guide](https://github.com/google/googletest/blob/v1.17.0/docs/advanced.md#specifying-names-for-value-parameterized-test-parameters)).
 - **[`operator<<`]({{ firmware_tests_src_url }}/diffbot_firmware/test/googletest/test_wire_bus/test_wire_bus.cpp#L233-L238):** writes a case as text. GoogleTest prints that text after `where GetParam() =` when the case fails ([how GoogleTest prints values](https://google.github.io/googletest/advanced.html#teaching-googletest-how-to-print-your-values)).
+
+The pictures show the four cases as time lines. Each case starts with the two counts that it sets on `wire_` and ends with the three checks. `readRegisters()` calls `available()` in its comparison only when `requestFrom()` reports the full 18 bytes: `||` stops at the first comparison that is true. The loop after it reads the bytes that arrived until `available()` returns 0:
+
+--8<-- "includes/firmware-unit-tests-short-reads.html"
 
 Written as a loop inside one [Unity](#which-framework-for-a-new-test) test, the cases would end at the first one that fails. Unity's message would name the line of the check, and not the case.
 

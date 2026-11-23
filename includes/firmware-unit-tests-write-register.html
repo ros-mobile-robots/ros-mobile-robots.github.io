@@ -1,0 +1,177 @@
+<!-- Written by scripts/figures/firmware_unit_tests_figures.py -->
+<style>
+.md-typeset figure.wbt-figure{margin:1em auto;width:100%;max-width:none}
+.wbt-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:1.2em 1em}
+.md-typeset figure.wbt-panel{margin:0;width:16.6rem;max-width:100%}
+.md-typeset figure.wbt-panel figcaption{margin:.3em 0 0;max-width:none}
+.md-typeset figure.wbt-panel figcaption code{overflow-wrap:anywhere}
+.wbt{width:100%;height:auto;--wbt-check:#1e63c4;--wbt-check-fill:rgba(30,99,196,.07);--wbt-set:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
+[data-md-color-scheme=slate] .wbt{--wbt-check:#82b1ff;--wbt-check-fill:rgba(130,177,255,.09);--wbt-set:#ffb74d}
+.wbt text{fill:var(--md-default-fg-color);font-size:12px}
+.wbt .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:10.5px}
+.wbt .byte{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.wbt .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.wbt .phase{font-weight:700}
+.wbt .set{fill:var(--wbt-set);font-weight:700}
+.wbt .light{fill:var(--md-default-fg-color--light)}
+.wbt .not-called{fill:var(--md-default-fg-color--light);text-decoration:line-through}
+.wbt .time-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.wbt .arrow-head{fill:var(--md-default-fg-color--light)}
+.wbt .recorded{fill:var(--md-default-fg-color)}
+.wbt .not-recorded{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2}
+.wbt .missing{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.2;stroke-dasharray:2 2}
+.wbt .calls-box{fill:var(--wbt-check-fill);stroke:var(--wbt-check);stroke-width:1.4}
+.wbt .cell{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.wbt .empty-cell{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:2 2}
+.wbt .reported{fill:none;stroke:var(--wbt-set);stroke-width:1.6}
+.wbt .badge{fill:var(--wbt-check)}
+.wbt .badge-number{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+</style>
+<figure class="wbt-figure">
+<div class="wbt-grid">
+<figure class="wbt-panel">
+<svg class="wbt" viewBox="0 0 340 180" role="img" aria-labelledby="wbt-write-WriteRegisterSendsRegisterAndValue-title"><title id="wbt-write-WriteRegisterSendsRegisterAndValue-title">The time line of the test WriteRegisterSendsRegisterAndValue</title><defs><marker id="wbt-write-WriteRegisterSendsRegisterAndValue-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="calls-box" x="8" y="24" width="328" height="80" rx="4"/>
+<path class="time-line" d="M17,23 V113" marker-end="url(#wbt-write-WriteRegisterSendsRegisterAndValue-head)"/>
+<text class="mono" x="8" y="18" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="34.5" r="3.5"/>
+<text class="mono" x="32" y="38" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="216" y="38" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="54.5" r="3.5"/>
+<text class="mono" x="32" y="58" text-anchor="start">write(0x3D)</text>
+<text class="note" x="216" y="58" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="74.5" r="3.5"/>
+<text class="mono" x="32" y="78" text-anchor="start">write(0x08)</text>
+<text class="note" x="216" y="78" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="94.5" r="3.5"/>
+<text class="mono" x="32" y="98" text-anchor="start">endTransmission(true)</text>
+<text x="184" y="98"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="216" y="98" text-anchor="start">stop: frees the bus</text>
+<circle class="badge" cx="322" cy="24" r="8"/>
+<text class="badge-number" x="322" y="27.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="124" r="8"/>
+<text class="badge-number" x="16" y="127.8" text-anchor="middle">1</text>
+<text x="32" y="128">returns <tspan class="mono">true</tspan></text>
+<circle class="badge" cx="16" cy="151" r="8"/>
+<text class="badge-number" x="16" y="154.8" text-anchor="middle">1</text>
+<text x="32" y="155"><tspan class="mono">EXPECT_TRUE</tspan>: the call returns true</text>
+<circle class="badge" cx="16" cy="170" r="8"/>
+<text class="badge-number" x="16" y="173.8" text-anchor="middle">2</text>
+<text x="32" y="174"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Sends<wbr>Register<wbr>And<wbr>Value</code>: The device acknowledges: four calls, and the result true.</figcaption>
+</figure>
+<figure class="wbt-panel">
+<svg class="wbt" viewBox="0 0 340 177" role="img" aria-labelledby="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-title"><title id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-title">The time line of the test WriteRegisterFailsWhenTheAddressIsNotAcknowledged</title><defs><marker id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="time-line" d="M17,39 V129" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledged-head)"/>
+<text x="8" y="16"><tspan class="mono set">wire_.end_result = 2</tspan></text>
+<text class="note" x="334" y="16" text-anchor="end">no device acknowledges</text>
+<text class="mono" x="8" y="34" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="50.5" r="3.5"/>
+<text class="mono" x="32" y="54" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="216" y="54" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="70.5" r="3.5"/>
+<text class="mono" x="32" y="74" text-anchor="start">write(0x3D)</text>
+<text class="note" x="216" y="74" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="90.5" r="3.5"/>
+<text class="mono" x="32" y="94" text-anchor="start">write(0x08)</text>
+<text class="note" x="216" y="94" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="110.5" r="3.5"/>
+<text class="mono" x="32" y="114" text-anchor="start">endTransmission(true)</text>
+<text x="184" y="114"><tspan class="mono">→ </tspan><tspan class="mono set">2</tspan></text>
+<text class="note" x="216" y="114" text-anchor="start">not acknowledged</text>
+<circle class="badge" cx="16" cy="140" r="8"/>
+<text class="badge-number" x="16" y="143.8" text-anchor="middle">1</text>
+<text x="32" y="144">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="167" r="8"/>
+<text class="badge-number" x="16" y="170.8" text-anchor="middle">1</text>
+<text x="32" y="171"><tspan class="mono">EXPECT_FALSE</tspan>: the call returns false</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Fails<wbr>When<wbr>The<wbr>Address<wbr>Is<wbr>Not<wbr>Acknowledged</code>: <code>endTransmission()</code> returns 2, so the result is false. The test checks only the result.</figcaption>
+</figure>
+<figure class="wbt-panel">
+<svg class="wbt" viewBox="0 0 340 370" role="img" aria-labelledby="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-title"><title id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-title">The time line of the test WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite</title><defs><marker id="wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="time-line" d="M17,41 V131" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head)"/>
+<path class="time-line" d="M17,213 V303" marker-end="url(#wbt-write-WriteRegisterFailsWhenTheAddressIsNotAcknowledgedAfterASuccessfulWrite-head)"/>
+<text class="phase" x="8" y="18" text-anchor="start">1. A write that the device acknowledges</text>
+<text class="mono" x="8" y="36" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="52.5" r="3.5"/>
+<text class="mono" x="32" y="56" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="216" y="56" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="72.5" r="3.5"/>
+<text class="mono" x="32" y="76" text-anchor="start">write(0x3D)</text>
+<text class="note" x="216" y="76" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="92.5" r="3.5"/>
+<text class="mono" x="32" y="96" text-anchor="start">write(0x08)</text>
+<text class="note" x="216" y="96" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="112.5" r="3.5"/>
+<text class="mono" x="32" y="116" text-anchor="start">endTransmission(true)</text>
+<text x="184" y="116"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="216" y="116" text-anchor="start">stop: frees the bus</text>
+<circle class="badge" cx="16" cy="142" r="8"/>
+<text class="badge-number" x="16" y="145.8" text-anchor="middle">1</text>
+<text x="32" y="146">returns <tspan class="mono">true</tspan></text>
+<text class="phase" x="8" y="174" text-anchor="start">2. The next write, not acknowledged</text>
+<text x="8" y="190"><tspan class="mono set">wire_.end_result = 2</tspan></text>
+<text class="note" x="334" y="190" text-anchor="end">no device acknowledges</text>
+<text class="mono" x="8" y="208" text-anchor="start">bus_.writeRegister(0x28, 0x3D, 0x08)</text>
+<circle class="recorded" cx="17" cy="224.5" r="3.5"/>
+<text class="mono" x="32" y="228" text-anchor="start">beginTransmission(0x28)</text>
+<text class="note" x="216" y="228" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="244.5" r="3.5"/>
+<text class="mono" x="32" y="248" text-anchor="start">write(0x3D)</text>
+<text class="note" x="216" y="248" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="264.5" r="3.5"/>
+<text class="mono" x="32" y="268" text-anchor="start">write(0x08)</text>
+<text class="note" x="216" y="268" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="284.5" r="3.5"/>
+<text class="mono" x="32" y="288" text-anchor="start">endTransmission(true)</text>
+<text x="184" y="288"><tspan class="mono">→ </tspan><tspan class="mono set">2</tspan></text>
+<text class="note" x="216" y="288" text-anchor="start">not acknowledged</text>
+<circle class="badge" cx="16" cy="314" r="8"/>
+<text class="badge-number" x="16" y="317.8" text-anchor="middle">2</text>
+<text x="32" y="318">returns <tspan class="mono">false</tspan></text>
+<circle class="badge" cx="16" cy="341" r="8"/>
+<text class="badge-number" x="16" y="344.8" text-anchor="middle">1</text>
+<text x="32" y="345"><tspan class="mono">ASSERT_TRUE</tspan>: the first call returns true</text>
+<circle class="badge" cx="16" cy="360" r="8"/>
+<text class="badge-number" x="16" y="363.8" text-anchor="middle">2</text>
+<text x="32" y="364"><tspan class="mono">EXPECT_FALSE</tspan>: the second call returns false</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Fails<wbr>When<wbr>The<wbr>Address<wbr>Is<wbr>Not<wbr>Acknowledged<wbr>After<wbr>A<wbr>Successful<wbr>Write</code>: Two writes on the same <code>bus_</code>: the first one succeeds, and the second one fails.</figcaption>
+</figure>
+<figure class="wbt-panel">
+<svg class="wbt" viewBox="0 0 340 180" role="img" aria-labelledby="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-title"><title id="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-title">The time line of the test WriteRegisterPassesOnTheAddressRegisterAndValue</title><defs><marker id="wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="calls-box" x="8" y="24" width="328" height="80" rx="4"/>
+<path class="time-line" d="M17,23 V113" marker-end="url(#wbt-write-WriteRegisterPassesOnTheAddressRegisterAndValue-head)"/>
+<text class="mono" x="8" y="18" text-anchor="start">bus_.writeRegister(0x29, 0x3F, 0x20)</text>
+<circle class="recorded" cx="17" cy="34.5" r="3.5"/>
+<text class="mono" x="32" y="38" text-anchor="start">beginTransmission(0x29)</text>
+<text class="note" x="216" y="38" text-anchor="start">starts a transfer</text>
+<circle class="recorded" cx="17" cy="54.5" r="3.5"/>
+<text class="mono" x="32" y="58" text-anchor="start">write(0x3F)</text>
+<text class="note" x="216" y="58" text-anchor="start">the register</text>
+<circle class="recorded" cx="17" cy="74.5" r="3.5"/>
+<text class="mono" x="32" y="78" text-anchor="start">write(0x20)</text>
+<text class="note" x="216" y="78" text-anchor="start">the value</text>
+<circle class="recorded" cx="17" cy="94.5" r="3.5"/>
+<text class="mono" x="32" y="98" text-anchor="start">endTransmission(true)</text>
+<text x="184" y="98"><tspan class="mono">→ </tspan><tspan class="mono">0</tspan></text>
+<text class="note" x="216" y="98" text-anchor="start">stop: frees the bus</text>
+<circle class="badge" cx="322" cy="24" r="8"/>
+<text class="badge-number" x="322" y="27.8" text-anchor="middle">2</text>
+<circle class="badge" cx="16" cy="124" r="8"/>
+<text class="badge-number" x="16" y="127.8" text-anchor="middle">1</text>
+<text x="32" y="128">returns <tspan class="mono">true</tspan></text>
+<circle class="badge" cx="16" cy="151" r="8"/>
+<text class="badge-number" x="16" y="154.8" text-anchor="middle">1</text>
+<text x="32" y="155"><tspan class="mono">EXPECT_TRUE</tspan>: the call returns true</text>
+<circle class="badge" cx="16" cy="170" r="8"/>
+<text class="badge-number" x="16" y="173.8" text-anchor="middle">2</text>
+<text x="32" y="174"><tspan class="mono">EXPECT_EQ</tspan>: wire_.calls holds the boxed calls</text>
+</svg>
+<figcaption><code>Write<wbr>Register<wbr>Passes<wbr>On<wbr>The<wbr>Address<wbr>Register<wbr>And<wbr>Value</code>: The second set of values, 0x29, 0x3F and 0x20, arrives unchanged in the calls.</figcaption>
+</figure>
+</div>
+<figcaption>The four tests of <code>writeRegister()</code>, one time line per test. Time runs down. The test calls <code>bus_</code> with the values of the top line. <code>WireBusT</code>'s calls of <code>FakeWire</code> follow, each with a dot on the time line, and the result comes back at the bottom. A filled dot is a call that <code>FakeWire</code> records in <code>calls</code>. An orange value is one that the test sets on <code>wire_</code> before the call. A blue number marks what a check compares, and the list under the time line names the check.</figcaption>
+</figure>
