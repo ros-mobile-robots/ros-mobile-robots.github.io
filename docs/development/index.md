@@ -34,6 +34,8 @@ Issues labelled [`good first issue`](https://github.com/ros-mobile-robots/diffbo
 
 A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site (see [Writing docs](#writing-docs)).
 
+A change that makes a lasting choice, such as an interface or the boundary between two parts, also gets a record on [Decisions](../decisions/index.md), in its docs pull request or in a docs pull request of its own.
+
 ## Best practices
 
 The code follows the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) and the [ROS Quality](http://wiki.ros.org/Quality) guidelines where possible, including the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Pages on this site link to the REPs that apply.
