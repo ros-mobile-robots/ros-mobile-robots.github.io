@@ -1,6 +1,6 @@
 # Testing and CI
 
-Pull requests and pushes to the default branch run automated checks with [GitHub Actions](https://docs.github.com/actions). Which checks a pull request gets depends on the repository, and on this site on the branch that the pull request targets ([This documentation site](#this-documentation-site)). A PR is only merged when its checks pass.
+Pull requests and pushes to the default branch run automated checks with [GitHub Actions](https://docs.github.com/actions). Which checks a pull request gets depends on the repository. On this site, the checks also depend on the branch that the pull request targets, as [This documentation site](#this-documentation-site) below explains. A PR is only merged when its checks pass.
 
 ## diffbot
 
