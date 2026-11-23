@@ -78,8 +78,8 @@ extra:
   # The diffbot commit that the excerpts on Firmware Unit Tests show: the head of the diffbot pull
   # request that adds the GoogleTest environment. Move both to that pull request's merge commit
   # before this page's pull request merges, and check the excerpts' line ranges
-  firmware_tests_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/da4e5ec40ebef80c880a527dcef1128cada2bde5
-  firmware_tests_src_url: https://github.com/ros-mobile-robots/diffbot/blob/da4e5ec40ebef80c880a527dcef1128cada2bde5
+  firmware_tests_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/ac6c6f2f6861f94007d67e8bf98f73b81210a7fc
+  firmware_tests_src_url: https://github.com/ros-mobile-robots/diffbot/blob/ac6c6f2f6861f94007d67e8bf98f73b81210a7fc
   # The diffbot commit that the code excerpts on Geometry Test show. Update both when that code
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885
