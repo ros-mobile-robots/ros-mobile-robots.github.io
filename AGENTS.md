@@ -102,7 +102,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 
 ### Structure
 
-- **The introduction:** a page opens with an introduction in full sentences, before any list, table or code. The introduction says what the page is about and why the reader needs the page. A sub page, such as a tests page, introduces its feature in a sentence or two of its own and links the main page for more. A title-like fragment, such as "What the files do, and how they are set up.", introduces nothing. A decision record is the exception: the three lines of its [template](https://ros-mobile-robots.com/decisions/#how-to-write-a-record) come first.
+- **The introduction:** a page opens with an introduction in full sentences, before any list, table or code. The introduction says what the page is about and why the reader needs the page. A sub page, such as a tests page, introduces its feature in a few sentences of its own and links the main page for more. A title-like fragment, such as "What the files do, and how they are set up.", introduces nothing. A decision record is the exception: the three lines of its [template](https://ros-mobile-robots.com/decisions/#how-to-write-a-record) come first.
 - **What comes first:** a page that explains code opens with what the reader needs before the code: what the feature does, the path its data or commands take, and its limits. The code walkthrough follows.
 - **Order:** sections follow the order of execution, and a heading says what its section is: "The checks before a call publishes", not "When the plugin publishes".
 - **One home per explanation:** explain each thing in one place. Other sections and pages link that place instead of explaining it again.
@@ -116,7 +116,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 
 | Don't | Do |
 |:--|:--|
-| ``What the tests of the tool `imu_noise_at_rest.py` check, and how they do it.`` | ``The tool `imu_noise_at_rest.py` reads a recording of the standing robot and prints the noise of each axis of the robot's IMU. [Bias and noise at rest](driver-bno055.md#bias-and-noise-at-rest) explains how to use the tool. A wrong number in the report looks like a right one, so tests check the tool's numbers. This page walks through those tests.`` |
+| ``What the tests of the tool `imu_noise_at_rest.py` check, and how they do it.`` | ``The tool `imu_noise_at_rest.py` reads a recording of the IMU's messages, made while the robot stands still, and prints the noise of each axis of the robot's IMU. [Bias and noise at rest](driver-bno055.md#bias-and-noise-at-rest) explains how to use the tool. A wrong number in the report looks like a right one, so tests check the tool's numbers. This page walks through those tests.`` |
 
 ### A feature's tests
 
