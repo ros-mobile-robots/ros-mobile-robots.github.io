@@ -1,6 +1,6 @@
 # Troubleshooting
 
-What you might see while setting up or starting the [robot container](index.md), how to check the cause, and how to fix it. Find the step that failed, then the heading with the message that you see:
+This page collects the problems that can come up while you set up or start the [robot container](index.md). Each entry says what you see, how to check the cause and how to fix the problem. Find the step that failed, then the heading with the message that you see:
 
 1. [The download fails](#the-download-fails): `docker compose up` or `pull` can't get the robot's Docker image.
 2. [The containers don't start](#the-containers-dont-start): the image is there, but Compose or the bringup stops.

@@ -1,6 +1,6 @@
 # Image and Tests
 
-How the [robot container's](index.md) Docker image is built, what takes its space, and how CI tests and publishes it. You don't need this page to use the robot container. It's for changing the image, or for understanding it.
+The [robot container](index.md) runs ROS Noetic and the robot's packages on the Raspberry Pi from one Docker image, which CI builds and the Raspberry Pi downloads. This page explains how the image is built, what takes its space, and how CI tests and publishes the image. You don't need the page to use the robot container. The page is for changing the image, or for understanding the image.
 
 The page follows the image's way: [how it's built](#how-the-image-is-built), [what takes the space](#what-takes-the-space), [how it's tested](#how-its-tested) and [how it's published](#how-its-published).
 
