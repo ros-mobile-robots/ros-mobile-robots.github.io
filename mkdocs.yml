@@ -101,8 +101,8 @@ extra:
   # The diffbot commit that the excerpts of the IMU noise tool and its tests show (diffbot #178),
   # on the BNO055 page and on Tests: IMU Bias and Noise at Rest. Move both to #178's merge commit
   # before this page's pull request merges, and check the excerpts' line ranges
-  imu_noise_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/d459abe3a9230ecb6671fbea069b497b94fc53d3
-  imu_noise_src_url: https://github.com/ros-mobile-robots/diffbot/blob/d459abe3a9230ecb6671fbea069b497b94fc53d3
+  imu_noise_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/afe2e158ec7bd2f31a62d85ae5177711b06563e1
+  imu_noise_src_url: https://github.com/ros-mobile-robots/diffbot/blob/afe2e158ec7bd2f31a62d85ae5177711b06563e1
   # The diffbot commit that the excerpts on the test pages EKF on a Stepped Clock and IMU Sample
   # Validator (robot_localization/tests/stepped-clock.md and validator.md) and the Localization
   # page's links into imu_validator.py show: the merge commit of diffbot #220. Update both when
