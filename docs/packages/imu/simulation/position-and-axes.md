@@ -2,7 +2,7 @@
 
 Where the simulated IMU sits on each robot, and which way its axes point. This page belongs to [IMU: Simulation](index.md), which shows the IMU's message.
 
-Three names of the robot's URDF model describe the mounting. [`imu_link`](#the-two-frames-and-their-fixed-joint) is the IMU's frame, [`chassis_link`](#the-two-frames-and-their-fixed-joint) is the frame at the center of the robot's base plate, and [`imu_joint`](#the-two-frames-and-their-fixed-joint) is the fixed joint that puts `imu_link` on `chassis_link`. This page first shows [the mounting on each robot](#the-mounting-on-each-robot), then explains [the two frames and their fixed joint](#the-two-frames-and-their-fixed-joint) and [the lines of the robot's URDF model that make them](#the-link-and-the-joint-in-the-robots-urdf-model).
+Three names of the robot's URDF model describe the mounting. [`imu_link`](#the-two-frames-and-their-fixed-joint) is the IMU's frame, `chassis_link` is the frame at the center of the robot's base plate, and `imu_joint` is the fixed joint that puts `imu_link` on `chassis_link`. This page first shows [the mounting on each robot](#the-mounting-on-each-robot), then explains [the two frames and their fixed joint](#the-two-frames-and-their-fixed-joint) and [the lines of the robot's URDF model that make them](#the-link-and-the-joint-in-the-robots-urdf-model).
 
 ## The mounting on each robot
 
@@ -12,7 +12,7 @@ Choose your robot. The figure's tabs and the tabs of the text below switch toget
 
 === "Remo"
 
-    - **Position:** [`imu_link`](#the-two-frames-and-their-fixed-joint) lies 4.01 cm behind [`chassis_link`](#the-two-frames-and-their-fixed-joint), 2.34 cm to its left and 1.3 cm above it. That is 7.6 cm behind the wheel axle and 8 cm above the floor.
+    - **Position:** [`imu_link`](#the-two-frames-and-their-fixed-joint) lies 4.01 cm behind `chassis_link`, 2.34 cm to its left and 1.3 cm above it. That is 7.6 cm behind the wheel axle and 8 cm above the floor.
     - **Rotation:** −90° about z. The board lies flat on the breadboard.
     - **Axes:** `imu_link`'s x axis points to the robot's right, its y axis forward and its z axis up.
     - **For example:** when Remo speeds up forward with 0.5 m/s², the +0.5 m/s² appear in $f_y$, the message's [`linear_acceleration.y`](index.md#the-linear-acceleration). A left turn reads as a positive yaw rate $\omega_z$.
@@ -70,7 +70,7 @@ Choose your robot. The figure's tabs and the tabs of the text below switch toget
     - **Position:** `imu_link` lies 1 cm straight above `chassis_link`.
     - **Rotation:** none.
     - **Axes:** `imu_link`'s axes point the same way as the robot's: x forward, y to the left and z up.
-    - **For example:** when DiffBot speeds up forward with 0.5 m/s², the +0.5 m/s² appear in $f_x$, the message's [`linear_acceleration.x`](index.md#the-linear-acceleration). A left turn reads as a positive yaw rate $\omega_z$.
+    - **For example:** when DiffBot speeds up forward with 0.5 m/s², the +0.5 m/s² appear in $f_x$, the message's `linear_acceleration.x`. A left turn reads as a positive yaw rate $\omega_z$.
     - **Measured on the robot:** no. These values are placeholders. DiffBot uses the same BNO055 board as Remo, moved from one robot to the other, and its mounting on DiffBot isn't measured yet.
 
     The excerpt shows the two arguments of DiffBot's xacro file with their comment, from [`diffbot.urdf.xacro`, lines 4–10]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10):
@@ -97,11 +97,11 @@ Choose your robot. The figure's tabs and the tabs of the text below switch toget
 - **[`chassis_link`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207)** is the frame at the center of the robot's base plate. Its x axis points forward, its y axis to the left and its z axis up, as [REP 103](https://www.ros.org/reps/rep-0103.html#axis-orientation), ROS's convention for coordinate frames, asks for a robot's body. Each robot's URDF model declares `chassis_link` in its base macro: DiffBot's in [`common_macros.urdf.xacro`, lines 197–207]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207), and Remo's in [`remo_base_macro.urdf.xacro`, lines 20–30](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/remo_base_macro.urdf.xacro#L20-L30).
 - **[`imu_joint`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L236-L240)** is not a frame. It is the fixed joint that puts `imu_link` on `chassis_link`. In tf, the joint appears as the transform from `chassis_link` to `imu_link`. The joint's origin says where the IMU sensor sits and how the IMU sensor is turned:
     - [`xyz`](https://github.com/ros/urdfdom/blob/1.0.4/urdf_parser/src/pose.cpp#L90-L115) is the position in m, along `chassis_link`'s x, y and z axes.
-    - [`rpy`](https://github.com/ros/urdfdom/blob/1.0.4/urdf_parser/src/pose.cpp#L90-L115) is the rotation in rad: roll about x, pitch about y and yaw about z.
+    - `rpy` is the rotation in rad: roll about x, pitch about y and yaw about z.
 
 ??? example "Where the two base macros declare `chassis_link`"
 
-    The excerpt shows the lines of DiffBot's base macro that declare [`base_link`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207), `chassis_link` and the joint between them, from [`common_macros.urdf.xacro`, lines 197–207]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207):
+    The excerpt shows the lines of DiffBot's base macro that declare `base_link`, `chassis_link` and the joint between them, from [`common_macros.urdf.xacro`, lines 197–207]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L197-L207):
 
     ```xml title="common_macros.urdf.xacro (DiffBot): chassis_link" linenums="197"
     --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/include/common_macros.urdf.xacro:197:207"
@@ -144,11 +144,11 @@ Both robots' URDF models declare [`imu_link`]({{ imu_sim_src_url }}/diffbot_desc
 How xacro puts the macro and the call together:
 
 1. [`<xacro:imu_sensor …>`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80-L82) is the call. The name after [`xacro:`](https://github.com/ros/xacro/blob/1.14.20/src/xacro/__init__.py#L786-L795) is the macro's name.
-2. [`parent_link="chassis_link"`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80) fills the parameter [`parent_link`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L204). In the macro, [`${parent_link}`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L237) stands for the parameter's value. So the joint's parent becomes [`chassis_link`](#the-two-frames-and-their-fixed-joint).
-3. [`sensor_prop="${sensor_prop}"`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80) fills the parameter [`sensor_prop`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L204) with the robot's sensor settings. The joint doesn't use them. [The link](#the-link) does.
-4. [`*origin`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L204) is a parameter of another kind. The star says that this blank doesn't take a value in quotes. It takes a whole XML element: the element that stands between the call's opening and closing tags. Here that is the [`<origin … />`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L81) line. The xacro documentation calls such a parameter a block parameter.
+2. [`parent_link="chassis_link"`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L80) fills the parameter `parent_link`. In the macro, [`${parent_link}`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L237) stands for the parameter's value. So the joint's parent becomes [`chassis_link`](#the-two-frames-and-their-fixed-joint).
+3. `sensor_prop="${sensor_prop}"` fills the parameter `sensor_prop` with the robot's sensor settings. The joint doesn't use them. [The link](#the-link) does.
+4. `*origin` is a parameter of another kind. The star says that this blank doesn't take a value in quotes. It takes a whole XML element: the element that stands between the call's opening and closing tags. Here that is the [`<origin … />`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L81) line. The xacro documentation calls such a parameter a block parameter.
 5. [`<xacro:insert_block name="origin"/>`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L239) marks the place in the macro where xacro puts that element.
-6. [`$(arg imu_xyz)`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L81) and [`$(arg imu_rpy)`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L81) are arguments of the robot's xacro file. Each has a default value, and you can set another one when you run xacro. [The mounting on each robot](#the-mounting-on-each-robot) shows their values.
+6. `$(arg imu_xyz)` and `$(arg imu_rpy)` are arguments of the robot's xacro file. Each has a default value, and you can set another one when you run xacro. [The mounting on each robot](#the-mounting-on-each-robot) shows their values.
 
 The result is this joint in DiffBot's URDF model. The lines are xacro's output for `diffbot.urdf.xacro` at the pinned commit, with the arguments' defaults. They aren't a file in a repository:
 
