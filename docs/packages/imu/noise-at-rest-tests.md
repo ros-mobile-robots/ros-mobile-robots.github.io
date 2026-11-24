@@ -1,8 +1,20 @@
 # Tests: IMU Bias and Noise at Rest
 
-What the tests of the tool [`imu_noise_at_rest.py`](driver-bno055.md#bias-and-noise-at-rest) check, and how they do it. [Bias and noise at rest](driver-bno055.md#bias-and-noise-at-rest) on the BNO055 page explains the tool itself: how to record the standing robot, how to run the tool and what its report means.
+The tool [`imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) reads a recording of the standing robot and prints a report with the gyroscope's remaining bias and the noise of each axis. [Bias and noise at rest](driver-bno055.md#bias-and-noise-at-rest) on the BNO055 page explains how to record the robot, how to run the tool and what its report means.
 
-[`test_imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/test/test_imu_noise_at_rest.py) holds 82 tests for [`imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py). The first 59 call one function of the tool with a few values whose result can be calculated by hand. The last 23 run the tool as a command, on small bags that they write into a temporary folder. No test needs a robot or a ROS master. The tests prove the tool's arithmetic, its checks of the input and the text of its report. [What the tests don't show](#what-the-tests-dont-show) lists what a pass doesn't prove.
+The noise in the report is a baseline for the variances in the IMU's messages, which tell the EKF how much to trust each reading, as [From the report to the EKF](driver-bno055.md#from-the-report-to-the-ekf) shows. A report with a wrong number looks just like a report with the right number, so a reader of the report can't see a mistake of the tool. The tests have to find such a mistake. They check that the report's numbers are right, and that the tool prints one line with the reason, and no report, for a recording that the tool can't evaluate. This page walks through the tests.
+
+The tool works in three steps:
+
+1. **Read and check:** the tool opens the recording, a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) file (a bag for short), and checks that the IMU's topic holds [`sensor_msgs/Imu`](robot_localization.md#the-messages-and-their-fields) messages as ROS defines them. From each message, the tool keeps the header stamp, the frame, the angular velocity and the acceleration. The tool leaves out a reading that the message marks as not measured. Then the tool checks the number of messages, their frame and their readings. When a check fails, the tool prints one line with the reason and ends with status 1.
+2. **Calculate:** for each axis of the angular velocity and of the acceleration, the tool calculates the mean, the variance and the standard deviation of the readings, and counts their distinct values. The tool also calculates the length of the mean acceleration, which is gravity as the IMU measures it, and the duration, the rate and the intervals of the header stamps.
+3. **Print:** the tool writes these numbers into its report, with a table for the angular velocity and a table for the acceleration.
+
+In the code, [`main()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L775-L782) calls one function for each step: [`read_samples()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L562-L574), [`imu_statistics()`](#the-statistics-of-a-recording) and [`format_report()`](#the-reports-text).
+
+[`test_imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/test/test_imu_noise_at_rest.py) holds 82 tests for `imu_noise_at_rest.py`. The first 59 check the steps one function at a time, with a few values whose result can be calculated by hand. The last 23 run the whole tool as a command, on small bags that they write into a temporary folder, and compare what the tool prints. No test needs a robot or a ROS master. [The test classes](#the-test-classes) lists the tests by the function that they call, in the order of the three steps. The sections after that list follow the same order.
+
+A pass shows that the tool's arithmetic, its checks of the input and the text of its report are right for the tests' made-up messages. [What the tests don't show](#what-the-tests-dont-show) lists what a pass doesn't prove, such as the bias and the noise of a real IMU.
 
 ## Run the tests
 
@@ -30,7 +42,7 @@ catkin finds the tests through the package's [`CMakeLists.txt`]({{ imu_noise_src
 
 ## The test classes
 
-The file holds the tests in fourteen test classes. The list has them in the order in which the tool uses the functions they test, from one message to the whole report:
+The file holds the tests in fourteen test classes. The list has them in the order of the tool's three steps, from one message to the whole report:
 
 - **[`TestMeasuredVector` and `TestToSample`](#which-readings-count), 2 + 2 tests:** they call [`measured_vector()`](#which-readings-count) and [`to_sample()`](#which-readings-count). They check which fields of a message count as measured, and that the header stamp keeps every nanosecond.
 - **[`TestTopicChecks` and `TestSampleChecks`](#the-checks-of-the-input), 8 + 10 tests:** they call [`check_topic()`](#the-checks-of-the-input), the six checks of the samples and [`check_samples()`](#the-checks-of-the-input). They check which messages the tool refuses, and the reason that it gives.
