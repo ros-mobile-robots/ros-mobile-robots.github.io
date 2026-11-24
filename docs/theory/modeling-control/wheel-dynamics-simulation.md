@@ -215,7 +215,7 @@ For example, this is the collision of Remo's front left wheel in the output of `
 </collision>
 ```
 
-To see your own model's output, expand its [xacro](../../diffbot_gazebo.md#troubleshooting) file to a URDF and convert it, as in [Troubleshooting](../../diffbot_gazebo.md#troubleshooting) on the Gazebo Package page.
+To see your own model's output, expand its [xacro](../../packages/imu/simulation/position-and-axes.md#the-link-and-the-joint-in-the-robots-urdf-model) file to a URDF and convert it, as in [Troubleshooting](../../diffbot_gazebo.md#troubleshooting) on the Gazebo Package page.
 
 ## Turning a wheel-speed command into torque
 

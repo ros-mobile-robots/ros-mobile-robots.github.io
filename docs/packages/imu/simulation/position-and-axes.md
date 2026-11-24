@@ -36,7 +36,7 @@ Choose your robot. The figure's tabs and the tabs of the text below switch toget
     --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:211:216"
     ```
 
-    [`imu_xyz`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26) and [`imu_rpy`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L27) are [xacro](../../../diffbot_gazebo.md#troubleshooting) arguments, declared at the top of the file with their defaults. The excerpt shows the two arguments, from [`remo.urdf.xacro`, lines 26–27](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27):
+    [`imu_xyz`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26) and [`imu_rpy`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L27) are [xacro](#the-link-and-the-joint-in-the-robots-urdf-model) arguments, declared at the top of the file with their defaults. The excerpt shows the two arguments, from [`remo.urdf.xacro`, lines 26–27](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L26-L27):
 
     ```xml title="remo.urdf.xacro: the IMU's mounting" linenums="26"
     --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/remo.urdf.xacro:26:27"
@@ -172,7 +172,7 @@ The macro's link gives the IMU a shape, a collision box and a mass. The excerpt 
 
 [`imu`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml#L16) in these lines holds the IMU's settings. They reach the link in three steps:
 
-1. DiffBot's [xacro](../../../diffbot_gazebo.md#troubleshooting) file reads the file [`sensors.yaml`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml) into the property [`sensor_prop`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33), in [lines 32–33 of `diffbot.urdf.xacro`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33).
+1. DiffBot's [xacro](#the-link-and-the-joint-in-the-robots-urdf-model) file reads the file [`sensors.yaml`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml) into the property [`sensor_prop`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33), in [lines 32–33 of `diffbot.urdf.xacro`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33).
 2. The call passes `sensor_prop` to the macro, as step 3 of the list above says.
 3. The highlighted line takes the entry `imu` out of `sensor_prop`.
 

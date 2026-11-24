@@ -112,7 +112,7 @@ $$
 - **Each number** is how fast the sensor turns about that axis, in rad/s. $\omega_x$ is the message's `angular_velocity.x`, $\omega_y$ its `angular_velocity.y` and $\omega_z$ its `angular_velocity.z`.
 - **The sign** follows the right-hand rule, as [REP 103](https://www.ros.org/reps/rep-0103.html#chirality), ROS's convention for coordinate frames, asks. Point your right thumb along the axis. Your fingers then curl in the positive direction.
 - **The yaw rate** is $\omega_z$. `imu_link`'s z axis points up on both robots. So when the robot turns left, counterclockwise seen from above, $\omega_z$ is positive. The yaw rate is the one value of the message that the EKF fuses.
-- **On a level floor**, the robot turns only about the upward axis. $\omega_x$ and $\omega_y$ then stay near 0.
+- **On a level floor**, the robot turns only about the upward axis. $\omega_x$ and $\omega_y$ then stay near 0 rad/s.
 
 The figure shows Remo. `imu_link`'s x axis points to Remo's right and its y axis forward, because the board is mounted turned by −90° about z. [Position and Axes](position-and-axes.md) shows the mounting on both robots.
 
@@ -146,7 +146,7 @@ The list has four cases. The figure shows the first three:
 - **At rest**, $\mathbf a$ is zero. With `imu_link`'s z axis up, gravity is $\mathbf g = (0, 0, -9.8)$ m/s², so the sensor reads $\mathbf f = (0, 0, +9.8)$ m/s². The floor holds the robot up, and the sensor reads that as 9.8 m/s² upward, although the robot doesn't move. At a steady speed in a straight line on a level floor, $\mathbf a$ is zero too, and the reading is the same.
 - **Speeding up forward** with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is `imu_link`'s y axis, so the three numbers of this example are (0, +0.5, +9.8) m/s². The reading leans forward by only 3° from straight up, so the figure shows its tip in a circle, ten times larger. The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the [`max_acceleration`]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L48) in [lines 47–48 of its configuration]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L47-L48).
 - **In a turn**, the sensor moves on a circle, and its acceleration points to the circle's center. So the sensor accelerates although the turn rate stays the same. Its size is the turn rate squared times the distance to the center. Remo's IMU sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives $0.5^2 \cdot 0.08 = 0.02$ m/s², which is tiny next to the 9.8 m/s².
-- **In free fall**, nothing holds the sensor up. $\mathbf a$ equals $\mathbf g$, and the sensor reads 0 on all three axes.
+- **In free fall**, nothing holds the sensor up. $\mathbf a$ equals $\mathbf g$, and the sensor reads 0 m/s² on all three axes.
 
 **A level, noise-free example:** the figure's numbers hold for a level floor, a robot that moves exactly as named, and readings without noise. A message of the simulation differs in two ways. Each value has the plugin's noise, and the simulated robot doesn't rest exactly level. The means of 200 readings each, from one run of Remo's simulation, show both:
 
@@ -228,7 +228,7 @@ None of the three covariance arrays is all zeros, so none says that a covariance
 The simulated IMU and the firmware keep the same contract for the message, so that the same validator and the same EKF configuration work with both:
 
 - **The same:** the topic [`/diffbot/imu/data_raw`](#what-the-simulated-imu-publishes), the message type `sensor_msgs/Imu`, the rate of 50 Hz, the frame [`imu_link`](position-and-axes.md#the-two-frames-and-their-fixed-joint), and the orientation marked unavailable.
-- **Not the same:** the values' noise and the covariances. The simulation's noise is a setting of the plugin, and the firmware's variances are settings of the firmware. The EKF weighs the yaw rate with its variance, [`angular_velocity_covariance[8]`](#how-the-message-stores-a-covariance). This variance is $2.5 \cdot 10^{-5}$ (rad/s)² in the simulation and $4 \cdot 10^{-4}$ (rad/s)² in the firmware's default configuration, 16 times as much. The linear acceleration's variances are $2.5 \cdot 10^{-5}$ (m/s²)² and $10^{-2}$ (m/s²)².
+- **Not the same:** the values' noise and the covariances. The simulation's noise is a setting of the plugin, and the firmware's variances are settings of the firmware. The EKF weighs the yaw rate with its variance, [`angular_velocity_covariance[8]`](#how-the-message-stores-a-covariance). This variance is $2.5 \cdot 10^{-5}$ (rad/s)² in the simulation and $4 \cdot 10^{-4}$ (rad/s)² in the firmware's default configuration, in [lines 71–72 of `diffbot_base_config.h`]({{ imu_sim_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71-L72), 16 times as much. The linear acceleration's variances are $2.5 \cdot 10^{-5}$ (m/s²)² and $10^{-2}$ (m/s²)².
 
 So the EKF gets its input in the same form in the simulation as on the robot, but not with the same weight. A filter that behaves well in the simulation is not yet tuned for the real sensor.
 

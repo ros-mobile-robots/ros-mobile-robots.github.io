@@ -47,7 +47,7 @@ graph TB
 
 ## The IMU sensor in the robot's URDF model
 
-Each robot's URDF model declares the simulated IMU sensor in a [xacro](../../../diffbot_gazebo.md#troubleshooting) macro named [`imu_sensor`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L204). [Position and Axes](position-and-axes.md#the-link-and-the-joint-in-the-robots-urdf-model) explains what a macro and its call are. The diagram shows the macro's call, what the macro adds to the robot's URDF model, and who reads each part. Read the diagram from top to bottom. The call supplies two things, the parent link and the origin, and both meet in the joint. The two boxes with a bold first line hold what the macro adds. The labels on the arrows are the names that xacro and the URDF use for these connections:
+Each robot's URDF model declares the simulated IMU sensor in a [xacro](position-and-axes.md#the-link-and-the-joint-in-the-robots-urdf-model) macro named [`imu_sensor`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L204). [Position and Axes](position-and-axes.md#the-link-and-the-joint-in-the-robots-urdf-model) explains what a macro and its call are. The diagram shows the macro's call, what the macro adds to the robot's URDF model, and who reads each part. Read the diagram from top to bottom. The call supplies two things, the parent link and the origin, and both meet in the joint. The two boxes with a bold first line hold what the macro adds. The labels on the arrows are the names that xacro and the URDF use for these connections:
 
 ```mermaid
 graph TB
@@ -76,7 +76,7 @@ graph TB
 
 DiffBot's macro is in [`common_sensors.xacro`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L204-L258) of [`diffbot_description`](../../../robot-description.md), Remo's in [remo_description's file of the same name](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L211-L268).
 
-??? example "The complete macro `imu_sensor` of DiffBot's model"
+??? example "The complete macro `imu_sensor` of DiffBot's URDF model"
 
     The excerpt shows the whole macro with the comment above it, from [`common_sensors.xacro`, lines 191–258]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L191-L258). The link is in lines 208–234, the joint in lines 236–240 and the Gazebo block in lines 242–257:
 
@@ -282,7 +282,7 @@ $I_3$ is the 3 × 3 identity matrix. The specific force's covariance $\Sigma_f$ 
 
 **Why the other elements are 0:** an element off the diagonal is the covariance of two axes' errors. The plugin draws a separate random number for each axis, so the noise on one axis says nothing about the noise on another. The two numbers are independent, and the covariance of two independent numbers is 0, as Wikipedia's article on [covariance](https://en.wikipedia.org/wiki/Covariance#Uncorrelatedness_and_independence) shows. On a real sensor, the errors of two axes can be correlated: they tend to rise and fall together. Correlated errors can give elements off the diagonal that aren't 0.
 
-The first three lines of the excerpt write the orientation's covariance. The adapter replaces this covariance in [Part 3](#part-3-the-adapter).
+Lines 170–172 of the excerpt write the orientation's covariance. The adapter replaces this covariance in [Part 3](#part-3-the-adapter).
 
 ### The header and publishing
 
@@ -303,7 +303,7 @@ The last lines of [`UpdateChild()`]({{ imu_sim_src_url }}/diffbot_gazebo_plugins
 
 ## Part 3: the adapter
 
-The adapter is there so that the nodes that read the IMU get its message in the same form in the simulation as on the real robot: a [`sensor_msgs/Imu`](index.md#what-the-simulated-imu-publishes) message on `/diffbot/imu/data_raw`, with the orientation marked unavailable. On the real robot, the Teensy's firmware publishes this topic without an orientation, as [what the firmware publishes](../driver-bno055.md#what-the-firmware-publishes) shows. The plugin's message on [`/diffbot/imu/gazebo`](#the-header-and-publishing) has an orientation $\mathbf q$. So [`imu_raw_adapter.py`]({{ imu_sim_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) takes each of the plugin's messages, marks the orientation unavailable as the firmware does, and publishes the result on `/diffbot/imu/data_raw`. Of the plugin's values, the adapter changes nothing else. The stamp, the frame, the angular velocity, the specific force and the two vectors' covariances stay as the plugin set them. So the noise and the variances are the simulation's, not the firmware's: the yaw rate's variance is $2.5 \cdot 10^{-5}$ (rad/s)² in the simulation and $4 \cdot 10^{-4}$ (rad/s)² in the firmware's default configuration, 16 times as much, in [lines 71–72 of `diffbot_base_config.h`]({{ imu_sim_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71-L72).
+The adapter is there so that the nodes that read the IMU get its message in the same form in the simulation as on the real robot: a [`sensor_msgs/Imu`](index.md#what-the-simulated-imu-publishes) message on `/diffbot/imu/data_raw`, with the orientation marked unavailable. On the real robot, the Teensy's firmware publishes this topic without an orientation, as [what the firmware publishes](../driver-bno055.md#what-the-firmware-publishes) shows. The plugin's message on [`/diffbot/imu/gazebo`](#the-header-and-publishing) has an orientation $\mathbf q$. So [`imu_raw_adapter.py`]({{ imu_sim_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) takes each of the plugin's messages, marks the orientation unavailable as the firmware does, and publishes the result on `/diffbot/imu/data_raw`. Of the plugin's values, the adapter changes nothing else. The stamp, the frame, the angular velocity, the specific force and the two vectors' covariances stay as the plugin set them. So the noise and the variances are the simulation's, not the firmware's, as [the simulation and the real robot](index.md#the-simulation-and-the-real-robot) compares.
 
 [`diffbot_view.launch`]({{ imu_sim_src_url }}/diffbot_gazebo/launch/diffbot_view.launch#L37-L39) starts the adapter in the [`diffbot`]({{ imu_sim_src_url }}/diffbot_gazebo/launch/diffbot_view.launch#L39) namespace. So the adapter's relative topic names become `/diffbot/imu/gazebo` and `/diffbot/imu/data_raw`. The excerpt shows the line that starts the adapter, with its comment, from [`diffbot_view.launch`, lines 37–39]({{ imu_sim_src_url }}/diffbot_gazebo/launch/diffbot_view.launch#L37-L39):
 
