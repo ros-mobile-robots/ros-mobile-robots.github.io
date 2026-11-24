@@ -17,16 +17,18 @@ includes, which follow the site's light and dark colors:
 - includes/imu-noise-test-intervals.html: five header stamps with one interval of 35 ms.
 - includes/imu-noise-test-stamps-back.html: five messages in the order of the recording, of
   which one repeats the stamp before and one has an earlier stamp.
+  The two stamp figures' wide layouts are their narrow ones with a longer time axis.
 - includes/imu-noise-test-measured.html: three messages of which the middle one marks its
   angular velocity as not measured.
 - includes/imu-noise-test-gravity.html: the mean acceleration (2, 3, 6) m/s² of a tilted IMU and
   its length 7 m/s².
 - includes/imu-noise-test-flow.html: the tool's three steps from a bag file to the report, the
   test classes that call each step's functions, the exit with one line and status 1, and the
-  command tests, which span all three steps.
+  command tests, which span all three steps. Its wide layout puts the three steps side by side.
 
 Every drawing is 300 units wide and carries short labels only, so that its text is readable on a
-phone. The trace figure also has a wide layout of 540 units, which the CSS of LAYOUT_RULES in
+phone. The trace figure, the flow figure and the two stamp figures also have a wide layout
+of 540 units, which the CSS of LAYOUT_RULES in
 localization_figures.py shows where the text column has room for it. Explanations are HTML text
 below a drawing. Figure, the CSS rules and the helpers come from localization_figures.py.
 
@@ -56,6 +58,7 @@ from localization_figures import LAYOUT_RULES
 from localization_figures import LAYOUT_SPACE
 from localization_figures import NARROW_LAYOUT
 from localization_figures import RULES
+from localization_figures import Span
 from localization_figures import style_element
 from localization_figures import SYMBOL_RULES
 from localization_figures import WIDE_LAYOUT
@@ -163,6 +166,20 @@ class TraceLayout(NamedTuple):
     plot_right: float  # the plot's right edge. Its left edge is TRACE_PLOT_LEFT
     tick_tenths: int  # tenths of a second between two ticks of the time axis
     legend_columns: int
+
+
+class PlotLayout(NamedTuple):
+    """One of the two layouts of a stamp figure: the wide one has its x positions stretched."""
+
+    name_end: str  # added to the drawing's name, which is unique on the page
+    css_class: str  # NARROW_LAYOUT or WIDE_LAYOUT, by which the CSS shows one layout
+    stretch: float  # of the x positions: a longer time axis, with marks and text as they are
+
+
+PLOT_LAYOUTS = (
+    PlotLayout(name_end='', css_class=NARROW_LAYOUT, stretch=1),
+    PlotLayout(name_end='-wide', css_class=WIDE_LAYOUT, stretch=WIDE_WIDTH / DRAWING_WIDTH),
+)
 
 
 TRACE_LAYOUTS = (
@@ -504,8 +521,8 @@ def interval_x(milliseconds: float, pixels_per_ms: float) -> float:
     return 26 + milliseconds * pixels_per_ms
 
 
-def intervals_figure() -> Figure:
-    """Return the drawing of five header stamps on a time axis, with the intervals between."""
+def intervals_figure(layout: PlotLayout) -> Figure:
+    """Return a layout of the five header stamps on a time axis, with the intervals between."""
     stamps = STAMPS_WITH_ONE_LONG_INTERVAL
     pairs = list(zip(stamps, stamps[1:]))
     regular = {later - earlier for earlier, later in pairs if later - earlier <= LONG_INTERVAL}
@@ -514,12 +531,13 @@ def intervals_figure() -> Figure:
         raise ValueError('the figure explains equal regular intervals and one long interval')
     regular_count = len(pairs) - 1
     (long_start, long_end), = long_pairs
-    figure = Figure('imu-noise-test-intervals', f'{NUMBER_WORDS[len(stamps)].capitalize()} header '
+    figure = Figure(f'imu-noise-test-intervals{layout.name_end}',
+                    f'{NUMBER_WORDS[len(stamps)].capitalize()} header '
                     f'stamps on a time axis, at {listed([str(stamp) for stamp in stamps])} ms. '
                     f'{NUMBER_WORDS[regular_count].capitalize()} intervals are '
                     f'{regular.pop()} ms long. The interval from {long_start} to {long_end} ms is '
                     f'{long_end - long_start} ms long, more than {LONG_INTERVAL} ms', 104,
-                    DRAWING_WIDTH)
+                    round(DRAWING_WIDTH * layout.stretch), layout.css_class, layout.stretch)
     axis_y, pixels_per_ms = 60, 2.5
     figure.path(f'M12,{axis_y} H{interval_x(stamps[-1], pixels_per_ms) + 14:.1f}', 'axis')
     for earlier, later in zip(stamps, stamps[1:]):
@@ -543,8 +561,9 @@ def write_intervals() -> None:
     stamps = STAMPS_WITH_ONE_LONG_INTERVAL
     duration = stamps[-1] - stamps[0]
     interval_count = len(stamps) - 1
-    write_figure(
-        'includes/imu-noise-test-intervals.html', intervals_figure(),
+    write_layout_figure(
+        'includes/imu-noise-test-intervals.html',
+        [intervals_figure(layout) for layout in PLOT_LAYOUTS],
         f'<code>STAMPS_WITH_ONE_LONG_INTERVAL</code>: {len(stamps)} header stamps, '
         f'{interval_count} intervals in {duration} ms. The rate is {interval_count} / '
         f'{duration / 1000:g} s = {interval_count / (duration / 1000):.1f} Hz. One interval is '
@@ -568,13 +587,14 @@ def stamps_back_name(stamps: Sequence[int]) -> str:
     return '. '.join(sentences)
 
 
-def stamps_back_figure() -> Figure:
-    """Return the drawing of five messages in recording order against their header stamps."""
+def stamps_back_figure(layout: PlotLayout) -> Figure:
+    """Return a layout of five messages in recording order against their header stamps."""
     stamps = STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK
     row_height, first_row_y, pixels_per_ms = 26, 34, 2.6
     axis_y = first_row_y + len(stamps) * row_height
-    figure = Figure('imu-noise-test-stamps-back', stamps_back_name(stamps), axis_y + 40,
-                    DRAWING_WIDTH)
+    figure = Figure(f'imu-noise-test-stamps-back{layout.name_end}', stamps_back_name(stamps),
+                    axis_y + 40, round(DRAWING_WIDTH * layout.stretch), layout.css_class,
+                    layout.stretch)
     figure.text(4, 13, 'message, in the order of the recording', 'note')
     points = [(interval_x(stamp, pixels_per_ms), first_row_y + index * row_height)
               for index, stamp in enumerate(stamps)]
@@ -585,8 +605,9 @@ def stamps_back_figure() -> Figure:
                     'step-line' if advances else 'step-bad')
         if not advances:
             label = 'repeated' if later == earlier else f'{earlier - later} ms earlier'
-            figure.text(max(start_x, end_x) + 14, (start_y + end_y) / 2 + 4, label,
-                        'strong')
+            # The label keeps its distance from the line in the stretched layout too
+            figure.text(max(start_x, end_x) + figure.fixed(14), (start_y + end_y) / 2 + 4,
+                        label, 'strong')
     for number, (x, y) in enumerate(points, start=1):
         figure.circle(x, y, 8, 'pass-mark')
         figure.text(x, y + 4, str(number), 'letter', 'middle')
@@ -606,8 +627,9 @@ def write_stamps_back() -> None:
     stamps = STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK
     interval_count = len(stamps) - 1
     duration = stamps[-1] - stamps[0]
-    write_figure(
-        'includes/imu-noise-test-stamps-back.html', stamps_back_figure(),
+    write_layout_figure(
+        'includes/imu-noise-test-stamps-back.html',
+        [stamps_back_figure(layout) for layout in PLOT_LAYOUTS],
         '<code>STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK</code>: the last stamp is '
         f'{duration} ms after the first, and {interval_count} intervals in {duration} ms '
         f'would be {interval_count / (duration / 1000):.0f} Hz. The dashed red lines are the '
@@ -728,6 +750,14 @@ CLASS_NAME_WIDTH = 0.6 * CLASS_NAME_FONT_SIZE
 CLASS_ROW_HEIGHT = 14
 CARD_HEADER_HEIGHT = 26
 CARD_BOTTOM_PADDING = 4  # below the last row of class names, for letters such as p
+CARD_LABEL_LEFT = 28  # from a step card's left edge to its label, right of its number
+# The texts that both layouts of the flow figure show
+FLOW_INPUT = ['a bag file']
+FLOW_ARROW_LABELS = ('samples', 'statistics')  # what the first two steps hand on
+FLOW_EXIT_REASON = 'a check fails'
+FLOW_EXIT = ['✕ one line on stderr', 'status 1']
+FLOW_REPORT = ['✓ the report on stdout', 'status 0']
+FLOW_COMMAND_LABEL = 'runs all three steps as a command'
 
 
 def class_columns(steps: Sequence[ToolStep]) -> Sequence[float]:
@@ -758,7 +788,7 @@ def step_card(figure: Figure, top: float, number: int, step: ToolStep,
                 corner_radius=5)
     figure.circle(FLOW_CARD_LEFT + 14, top + 15, 8, 'item')
     figure.text(FLOW_CARD_LEFT + 14, top + 19, str(number), 'letter', 'middle')
-    figure.text(FLOW_CARD_LEFT + 28, top + 19, step.label, 'strong')
+    figure.text(FLOW_CARD_LEFT + CARD_LABEL_LEFT, top + 19, step.label, 'strong')
     figure.text(FLOW_CARD_RIGHT - 8, top + 19, step.function, 'mono', 'end')
     for index, test_class in enumerate(step.test_classes):
         figure.text(columns[index % len(columns)],
@@ -798,43 +828,148 @@ def flow_caption(steps: Sequence[ToolStep]) -> str:
 
 
 def flow_figure() -> Figure:
-    """Return the drawing of the tool's three steps with their test classes and both ends."""
-    figure = Figure('imu-noise-test-flow', flow_name(TOOL_STEPS), 0, DRAWING_WIDTH)
+    """Return the narrow layout of the flow figure: the steps from top to bottom."""
+    figure = Figure('imu-noise-test-flow', flow_name(TOOL_STEPS), 0, DRAWING_WIDTH, NARROW_LAYOUT)
     columns = class_columns(TOOL_STEPS)
-    bag_bottom = end_card(figure, FLOW_PATH_X, FLOW_TOP, 124, ['a bag file'], 'item')
+    bag_bottom = end_card(figure, FLOW_PATH_X, FLOW_TOP, 124, FLOW_INPUT, 'item')
     top = bag_bottom + 18
     figure.arrow(FLOW_PATH_X, bag_bottom, FLOW_PATH_X, top, 'flow')
-    arrow_labels = ('samples', 'statistics')
     for number, step in enumerate(TOOL_STEPS, start=1):
         bottom = step_card(figure, top, number, step, columns)
         if number == 1:
             exit_top = bottom + 16
             figure.arrow(FLOW_EXIT_X, bottom, FLOW_EXIT_X, exit_top, 'refused')
-            figure.text(FLOW_EXIT_X - 6, bottom + 13, 'a check fails', 'note', 'end')
-            exit_bottom = end_card(figure, FLOW_EXIT_X, exit_top, 146,
-                                   ['✕ one line on stderr', 'status 1'], 'card-drop')
+            figure.text(FLOW_EXIT_X - 6, bottom + 13, FLOW_EXIT_REASON, 'note', 'end')
+            exit_bottom = end_card(figure, FLOW_EXIT_X, exit_top, 146, FLOW_EXIT, 'card-drop')
             top = exit_bottom + 8
         else:
             top = bottom + 20
         figure.arrow(FLOW_PATH_X, bottom, FLOW_PATH_X, top, 'flow')
-        if number <= len(arrow_labels):
-            figure.text(FLOW_PATH_X - 6, top - 6, arrow_labels[number - 1], 'note', 'end')
-    report_bottom = end_card(figure, FLOW_PATH_X, top, 170,
-                             ['✓ the report on stdout', 'status 0'], 'card-pass')
+        if number <= len(FLOW_ARROW_LABELS):
+            figure.text(FLOW_PATH_X - 6, top - 6, FLOW_ARROW_LABELS[number - 1], 'note', 'end')
+    report_bottom = end_card(figure, FLOW_PATH_X, top, 170, FLOW_REPORT, 'card-pass')
     label_y = report_bottom + 18
     # A bracket with two equal end strokes, from the bag file down to its label
     figure.path(f'M{FLOW_BRACKET_X + FLOW_BRACKET_END},{FLOW_TOP} H{FLOW_BRACKET_X} '
                 f'V{label_y - 4} H{FLOW_BRACKET_X + FLOW_BRACKET_END}', 'command-span')
     figure.text(FLOW_BRACKET_X + 6, label_y, COMMAND_TEST_CLASS, 'class-name')
     figure.text(FLOW_BRACKET_X + 6 + len(COMMAND_TEST_CLASS) * CLASS_NAME_WIDTH + 6, label_y,
-                'runs all three steps as a command', 'note')
+                FLOW_COMMAND_LABEL, 'note')
     figure.height = int(label_y) + 8
     return figure
 
 
+# The flow figure's wide layout: the bag file above the first step, the three steps side by side,
+# the one line of a refused input below the first step and the report below the last one
+WIDE_FLOW_MARGIN = 4
+WIDE_FLOW_MIN_GAP = 32  # between two step cards, for the arrow
+WIDE_CARD_PADDING = 14  # left of a card's text, and at least as much right of it
+WIDE_CARD_HEADER_HEIGHT = 42  # the number and label, then the function below them
+WIDE_CARD_NUMBER_Y = 15  # from a card's top to the middle of its number
+# A generous width of a character of the labels, bold text of 12 px. In Roboto, the widest of
+# the three labels has 6.2 units per character
+BOLD_CHARACTER_WIDTH = 7.4
+FUNCTION_CHARACTER_WIDTH = 0.6 * 11.5  # the code font of the drawings' mono style
+
+
+class WideCard(NamedTuple):
+    """Where a step's card stands in the flow figure's wide layout."""
+
+    left: float
+    width: float
+
+    def middle(self) -> float:
+        """Return the card's horizontal middle."""
+        return self.left + self.width / 2
+
+
+def wide_cards(steps: Sequence[ToolStep]) -> Sequence[WideCard]:
+    """Return the step cards of the wide layout, each as wide as its text, spread over the width.
+
+    Raise a ValueError when the cards leave less than WIDE_FLOW_MIN_GAP between two of them.
+    """
+    widths = [2 * WIDE_CARD_PADDING + max(
+        CARD_LABEL_LEFT + len(step.label) * BOLD_CHARACTER_WIDTH - WIDE_CARD_PADDING,
+        len(step.function) * FUNCTION_CHARACTER_WIDTH,
+        max(len(test_class.name) for test_class in step.test_classes) * CLASS_NAME_WIDTH)
+        for step in steps]
+    gap = (WIDE_WIDTH - 2 * WIDE_FLOW_MARGIN - sum(widths)) / (len(steps) - 1)
+    if gap < WIDE_FLOW_MIN_GAP:
+        raise ValueError('the step cards leave too little room for the arrows between them')
+    cards = []
+    left: float = WIDE_FLOW_MARGIN
+    for width in widths:
+        cards.append(WideCard(left, width))
+        left += width + gap
+    return cards
+
+
+def within_margins(center: float, width: float) -> float:
+    """Return a card's horizontal middle, moved so that the card stays inside the margins."""
+    half_width = width / 2
+    return min(max(center, WIDE_FLOW_MARGIN + half_width),
+               WIDE_WIDTH - WIDE_FLOW_MARGIN - half_width)
+
+
+def wide_step_card(figure: Figure, top: float, height: float, number: int, step: ToolStep,
+                   card: WideCard) -> None:
+    """Add a step's card in the wide layout: number and label, function, one class per row."""
+    figure.rect(card.left, top, card.width, height, 'item', corner_radius=5)
+    figure.circle(card.left + 14, top + WIDE_CARD_NUMBER_Y, 8, 'item')
+    figure.text(card.left + 14, top + 19, str(number), 'letter', 'middle')
+    figure.text(card.left + CARD_LABEL_LEFT, top + 19, step.label, 'strong')
+    figure.text(card.left + WIDE_CARD_PADDING, top + 35, step.function, 'mono')
+    for index, test_class in enumerate(step.test_classes):
+        figure.text(card.left + WIDE_CARD_PADDING,
+                    top + WIDE_CARD_HEADER_HEIGHT + 11 + index * CLASS_ROW_HEIGHT,
+                    test_class.name, 'class-name')
+
+
+def flow_figure_wide() -> Figure:
+    """Return the wide layout of the flow figure: the steps from left to right."""
+    figure = Figure('imu-noise-test-flow-wide', flow_name(TOOL_STEPS), 0, WIDE_WIDTH, WIDE_LAYOUT)
+    cards = wide_cards(TOOL_STEPS)
+    first, last = cards[0], cards[-1]
+    bag_bottom = end_card(figure, first.middle(), FLOW_TOP, 124, FLOW_INPUT, 'item')
+    top = bag_bottom + 18
+    figure.arrow(first.middle(), bag_bottom, first.middle(), top, 'flow')
+    rows = max(len(step.test_classes) for step in TOOL_STEPS)
+    height = WIDE_CARD_HEADER_HEIGHT + rows * CLASS_ROW_HEIGHT + CARD_BOTTOM_PADDING
+    for number, (step, card) in enumerate(zip(TOOL_STEPS, cards), start=1):
+        wide_step_card(figure, top, height, number, step, card)
+        if number < len(cards):
+            following = cards[number]
+            # At the height of the steps' numbers, so that the arrow's label, which is wider
+            # than the gap, stands right above the arrow and above the cards
+            arrow_y = top + WIDE_CARD_NUMBER_Y
+            figure.arrow(card.left + card.width, arrow_y, following.left, arrow_y, 'flow')
+            figure.text((card.left + card.width + following.left) / 2, top - 6,
+                        FLOW_ARROW_LABELS[number - 1], 'note', 'middle')
+    bottom = top + height
+    exit_top = bottom + 22
+    figure.arrow(first.middle(), bottom, first.middle(), exit_top, 'refused')
+    figure.text(first.middle() + 6, bottom + 14, FLOW_EXIT_REASON, 'note')
+    exit_bottom = end_card(figure, within_margins(first.middle(), 150), exit_top, 150,
+                           FLOW_EXIT, 'card-drop')
+    figure.arrow(last.middle(), bottom, last.middle(), exit_top, 'flow')
+    end_card(figure, within_margins(last.middle(), 170), exit_top, 170, FLOW_REPORT,
+             'card-pass')
+    # A bracket under the whole path, with two equal end strokes, and its label below
+    bracket_y = exit_bottom + 14
+    figure.path(f'M{WIDE_FLOW_MARGIN},{bracket_y - FLOW_BRACKET_END} V{bracket_y} '
+                f'H{WIDE_WIDTH - WIDE_FLOW_MARGIN} V{bracket_y - FLOW_BRACKET_END}',
+                'command-span')
+    figure.rich_text(WIDE_WIDTH / 2, bracket_y + 16,
+                     (Span(COMMAND_TEST_CLASS, 'class-name'),
+                      Span(f' {FLOW_COMMAND_LABEL}', 'note')), 'middle')
+    figure.height = int(bracket_y) + 24
+    return figure
+
+
 def write_flow() -> None:
-    """Write the flow figure, with the number of tests at each step in its caption."""
-    write_figure('includes/imu-noise-test-flow.html', flow_figure(), flow_caption(TOOL_STEPS))
+    """Write the flow figure in its two layouts, with the number of tests at each step."""
+    write_layout_figure('includes/imu-noise-test-flow.html', [flow_figure(), flow_figure_wide()],
+                        flow_caption(TOOL_STEPS))
 
 
 if __name__ == '__main__':

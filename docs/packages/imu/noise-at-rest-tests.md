@@ -42,7 +42,7 @@ The tool works in three steps, and [`main()`]({{ imu_noise_src_url }}/diffbot_br
 
 ## The test classes
 
-The file holds the tests in fourteen test classes. The figure puts them onto the tool's path. Each step's card names the classes whose tests call that step's functions. The bracket on the left spans the whole path, from the bag file to the report: the 23 command tests run all three steps. Trace a bag file from the top. When every check passes, the path leads through the three cards to the report on the standard output (stdout) and status 0. When a check in the first step fails, the dashed arrow leads to one line on the standard error (stderr) and status 1.
+The file holds the tests in fourteen test classes. The figure puts them onto the tool's path. Each step's card names the classes whose tests call that step's functions. The bracket spans the whole path, from the bag file to the report: the 23 command tests run all three steps. Trace a bag file from its card. When every check passes, the path leads through the three cards to the report on the standard output (stdout) and status 0. When a check in the first step fails, the dashed arrow leads to one line on the standard error (stderr) and status 1.
 
 --8<-- "includes/imu-noise-test-flow.html"
 

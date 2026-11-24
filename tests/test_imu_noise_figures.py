@@ -29,6 +29,9 @@ TESTS_PAGE = ROOT / 'docs' / 'packages' / 'imu' / 'noise-at-rest-tests.md'
 CLASS_LIST_ENTRY = re.compile(
     r'- \*\*(?:\[(?P<names>[^\]]+)\]\([^)]*\)|(?P<plain>`Test[^*]*?)), '
     r'(?P<counts>[\d +]+) tests:\*\*')
+# The includes whose figure has a narrow and a wide layout
+TWO_LAYOUT_INCLUDES = ['imu-noise-test-flow.html', 'imu-noise-test-intervals.html',
+                       'imu-noise-test-stamps-back.html', 'imu-noise-trace.html']
 INCLUDE_NAMES = ['imu-noise-test-flow.html', 'imu-noise-test-gravity.html',
                  'imu-noise-test-intervals.html', 'imu-noise-test-measured.html',
                  'imu-noise-test-stamps-back.html', 'imu-noise-test-variance.html',
@@ -195,15 +198,91 @@ class TestTraceLayouts(unittest.TestCase):
         narrow, wide = (figures.trace_figure(trace, layout) for layout in figures.TRACE_LAYOUTS)
         self.assertEqual(narrow.height - wide.height, 2 * figures.TRACE_LEGEND_ROW_HEIGHT)
 
-    def test_trace_include_holds_both_layouts_in_the_block_that_chooses_one(self) -> None:
-        text = (ROOT / 'includes' / 'imu-noise-trace.html').read_text(encoding='utf-8')
-        self.assertIn('<div class="lv-space">', text)
-        self.assertIn('class="lv-fig lv-layout-narrow"', text)
-        self.assertIn('class="lv-fig lv-layout-wide"', text)
+    def test_each_two_layout_include_holds_both_in_the_block_that_chooses_one(self) -> None:
+        for include_name in TWO_LAYOUT_INCLUDES:
+            text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
+            self.assertIn('<div class="lv-space">', text, include_name)
+            self.assertIn('class="lv-fig lv-layout-narrow"', text, include_name)
+            self.assertIn('class="lv-fig lv-layout-wide"', text, include_name)
+
+
+class TestPlotLayouts(unittest.TestCase):
+    """A stamp figure's wide layout is its narrow one with a longer time axis."""
+
+    def test_wide_stamp_figures_put_each_mark_stretch_times_as_far_right(self) -> None:
+        figures = load_script()
+        narrow, wide = figures.PLOT_LAYOUTS
+        for drawing in (figures.intervals_figure, figures.stamps_back_figure):
+            narrow_x = [float(x) for x in re.findall(r'<circle[^>]* cx="([\d.]+)"',
+                                                     drawing(narrow).svg())]
+            wide_x = [float(x) for x in re.findall(r'<circle[^>]* cx="([\d.]+)"',
+                                                   drawing(wide).svg())]
+            self.assertEqual(len(wide_x), len(narrow_x))
+            for narrow_value, wide_value in zip(narrow_x, wide_x):
+                self.assertAlmostEqual(wide_value, narrow_value * wide.stretch, delta=0.1)
+
+    def test_wide_stamp_figures_are_as_wide_as_the_wide_layout(self) -> None:
+        figures = load_script()
+        wide = figures.PLOT_LAYOUTS[1]
+        for drawing in (figures.intervals_figure, figures.stamps_back_figure):
+            self.assertEqual(drawing(wide).width, figures.WIDE_WIDTH, drawing.__name__)
+
+    def test_a_stamp_that_does_not_advance_keeps_its_labels_distance_in_both_layouts(
+            self) -> None:
+        figures = load_script()
+        distances = []
+        for layout in figures.PLOT_LAYOUTS:
+            svg = figures.stamps_back_figure(layout).svg()
+            second_stamp_x = float(re.findall(r'<circle[^>]* cx="([\d.]+)"', svg)[1])
+            label_x = float(re.findall(r'<text[^>]* x="([\d.]+)"[^>]*>repeated</text>', svg)[0])
+            distances.append(label_x - second_stamp_x)
+        self.assertGreater(distances[0], 0)
+        self.assertAlmostEqual(distances[0], distances[1], delta=0.1)
 
 
 class TestFlowFigure(unittest.TestCase):
     """The flow figure's texts and columns are built from the steps and their test classes."""
+
+    def test_wide_cards_fit_the_width_with_equal_gaps(self) -> None:
+        figures = load_script()
+        cards = figures.wide_cards(figures.TOOL_STEPS)
+        gaps = [following.left - card.left - card.width
+                for card, following in zip(cards, cards[1:])]
+        self.assertAlmostEqual(gaps[0], gaps[1])
+        self.assertGreaterEqual(gaps[0], figures.WIDE_FLOW_MIN_GAP)
+        self.assertAlmostEqual(cards[-1].left + cards[-1].width,
+                               figures.WIDE_WIDTH - figures.WIDE_FLOW_MARGIN)
+
+    def test_both_flow_layouts_show_the_same_words(self) -> None:
+        figures = load_script()
+        narrow, wide = (re.sub(r'<title.*?</title>|<[^>]+>', ' ', drawing.svg()).split()
+                        for drawing in (figures.flow_figure(), figures.flow_figure_wide()))
+        self.assertEqual(sorted(narrow), sorted(wide))
+
+    def test_within_margins_moves_a_card_that_would_leave_the_wide_drawing(self) -> None:
+        figures = load_script()
+        left, right = figures.WIDE_FLOW_MARGIN, figures.WIDE_WIDTH - figures.WIDE_FLOW_MARGIN
+        self.assertEqual(figures.within_margins(10, 150), left + 75)
+        self.assertEqual(figures.within_margins(right, 170), right - 85)
+        self.assertEqual(figures.within_margins(270, 100), 270)
+
+    def test_wide_flow_layout_keeps_every_card_inside_its_margins(self) -> None:
+        figures = load_script()
+        left, right = figures.WIDE_FLOW_MARGIN, figures.WIDE_WIDTH - figures.WIDE_FLOW_MARGIN
+        cards = re.findall(r'<rect [^>]*x="(-?[\d.]+)"[^>]* width="([\d.]+)"',
+                           figures.flow_figure_wide().svg())
+        self.assertEqual(len(cards), len(figures.TOOL_STEPS) + 3)
+        for x, width in cards:
+            self.assertGreaterEqual(float(x), left)
+            # The drawing's numbers have one decimal
+            self.assertLessEqual(float(x) + float(width), right + 0.1)
+
+    def test_wide_cards_fail_when_the_names_leave_no_room_for_the_arrows(self) -> None:
+        figures = load_script()
+        long_name = figures.ClassOfTests('Test' + 'LongName' * 4, 1)
+        steps = [figures.ToolStep('Read', 'read()', (long_name,))] * 3
+        with self.assertRaises(ValueError):
+            figures.wide_cards(steps)
 
     def test_flow_caption_adds_up_the_tests_of_each_step(self) -> None:
         figures = load_script()
