@@ -1,8 +1,6 @@
 # Remo Description
 
-ROS URDF description package of REMO robot (Research Education Mobile/Modular robot) a highly modifiable and extendable
-autonomous mobile robot based on [Nvidia's Jetbot](https://github.com/NVIDIA-AI-IOT/jetbot).
-This ROS package is in the [`remo_description` repository]({{ remo_repo_url }}). It describes Remo for RViz and Gazebo; the STL files to 3D print it are described [below](#stl-files).
+`remo_description` is the ROS package with the URDF description of Remo (Research Education Mobile/Modular robot), a modifiable and extendable autonomous mobile robot based on [Nvidia's Jetbot](https://github.com/NVIDIA-AI-IOT/jetbot). The package is in the [`remo_description` repository]({{ remo_repo_url }}). The package describes Remo for RViz and Gazebo. [STL files](#stl-files) describes the files to 3D print Remo.
 
 ![Remo spinning in RViz]({{ asset_dir }}/remo/remo-rviz-spin.gif)
 

@@ -7,7 +7,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first; this file adds what an agent need
 Find your change in this list. Each line says what to run or check, and links the section with the details.
 
 - **Every change:** the unit tests, the strict build and the spelling check pass on your PC ([Commands](#commands)). Then look at which checks GitHub ran on your pull request: a stacked pull request and a pull request from a fork get fewer ([Checks on a pull request](#checks-on-a-pull-request)).
-- **A page:** every number, parameter, file name, command and link you write is checked against its source: the pinned code, the official documentation, or a measurement you can point to. Say in the pull request what you checked. Every code excerpt has a full sentence before it, and every line range that the text names or walks through has its excerpt. In the sections you changed, `grep -n ';'` finds no sentence that two short ones would say better ([Writing rules](#writing-rules)).
+- **A page:** every number, parameter, file name, command and link you write is checked against its source: the pinned code, the official documentation, or a measurement you can point to. Say in the pull request what you checked. The page opens with an introduction in full sentences ([Structure](#structure)). Every code excerpt has a full sentence before it, and every line range that the text names or walks through has its excerpt. In the sections you changed, `grep -n ';'` finds no sentence that two short ones would say better ([Writing rules](#writing-rules)).
 - **A page with figures or wide tables:** look at the page in light and dark, at 390 and 1440 px wide. Every label is readable and not cut off, and every box that scrolls sideways is scrolled to its end ([Structure](#structure)). A coding agent that can't open a browser says so in the pull request, so that a person looks at the page.
 - **A page that explains a feature:** the page links the feature's tests page, or is that page ([A feature's tests](#a-features-tests)). A feature without automated tests says so on its page, and says how it was checked.
 - **A Python script, hook, macro or test:** the unit tests pass, new logic has a test, and flake8 and mypy report nothing in the code that you added or changed: a new file, a line at module level, and the whole of a function, a method or a test that you touched ([Check the Python style](#check-the-python-style)). After a change to a figure script, regenerate the script's includes and commit them with the script.
@@ -102,6 +102,7 @@ A page is for a reader who is new to its topic. They should be able to follow it
 
 ### Structure
 
+- **The introduction:** a page opens with an introduction in full sentences, before any list, table or code. The introduction says what the page is about and why the reader needs the page. A sub page, such as a tests page, introduces its feature in a sentence or two of its own and links the main page for more. A title-like fragment, such as "What the files do, and how they are set up.", introduces nothing. A decision record is the exception: the three lines of its [template](https://ros-mobile-robots.com/decisions/#how-to-write-a-record) come first.
 - **What comes first:** a page that explains code opens with what the reader needs before the code: what the feature does, the path its data or commands take, and its limits. The code walkthrough follows.
 - **Order:** sections follow the order of execution, and a heading says what its section is: "The checks before a call publishes", not "When the plugin publishes".
 - **One home per explanation:** explain each thing in one place. Other sections and pages link that place instead of explaining it again.
@@ -112,6 +113,10 @@ A page is for a reader who is new to its topic. They should be able to follow it
     - **Words next to it:** a figure has a short accessible name, and the text or a table next to it says the relations that the figure shows.
 - **Lists:** a bold label at the start of a bullet ends with a colon, not a period. Steps are a numbered list.
 - **Semicolons:** few. Write two short sentences or a list. Run `grep -n ';'` on the pages you changed before you push, and split the sentences in the sections you changed.
+
+| Don't | Do |
+|:--|:--|
+| ``What the tests of the tool `imu_noise_at_rest.py` check, and how they do it.`` | ``The tool `imu_noise_at_rest.py` reads a recording of the standing robot and prints the noise of each axis of the robot's IMU. [Bias and noise at rest](driver-bno055.md#bias-and-noise-at-rest) explains how to use the tool. A wrong number in the report looks like a right one, so tests check the tool's numbers. This page walks through those tests.`` |
 
 ### A feature's tests
 
