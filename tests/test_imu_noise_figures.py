@@ -1,6 +1,6 @@
 """Tests for scripts/figures/imu_noise_figures.py.
 
-The script writes the figures about the IMU's bias and noise at rest as seven includes.
+The script writes the figures about the IMU's bias and noise at rest as eight includes.
 
 Run from the repository root: python -m unittest discover -s tests
 """
@@ -8,20 +8,30 @@ Run from the repository root: python -m unittest discover -s tests
 import importlib.util
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
 from types import ModuleType
+from typing import Any
 from typing import Dict
+from typing import List
+from typing import Sequence
+from typing import Tuple
 import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
 FIGURES = ROOT / 'scripts' / 'figures'
 SCRIPT = FIGURES / 'imu_noise_figures.py'
-INCLUDE_NAMES = ['imu-noise-test-gravity.html', 'imu-noise-test-intervals.html',
-                 'imu-noise-test-measured.html', 'imu-noise-test-stamps-back.html',
-                 'imu-noise-test-variance.html', 'imu-noise-three-readings.html',
-                 'imu-noise-trace.html']
+TESTS_PAGE = ROOT / 'docs' / 'packages' / 'imu' / 'noise-at-rest-tests.md'
+# An entry of the page's list "The test classes": the names of its classes in a link, then
+# their numbers of tests, such as "2 + 2 tests:"
+CLASS_LIST_ENTRY = re.compile(
+    r'- \*\*\[(?P<names>[^\]]+)\]\([^)]*\), (?P<counts>[\d +]+) tests:\*\*')
+INCLUDE_NAMES = ['imu-noise-test-flow.html', 'imu-noise-test-gravity.html',
+                 'imu-noise-test-intervals.html', 'imu-noise-test-measured.html',
+                 'imu-noise-test-stamps-back.html', 'imu-noise-test-variance.html',
+                 'imu-noise-three-readings.html', 'imu-noise-trace.html']
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
 # Python's own switch to UTF-8 for that locale
 ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
@@ -57,6 +67,25 @@ def load_script() -> ModuleType:
     finally:
         sys.path.remove(str(FIGURES))
     return module
+
+
+def two_steps(figures: ModuleType) -> Sequence[Any]:
+    """Return two made-up steps: one with three test classes and nine tests, one with one."""
+    return (figures.ToolStep('Read', 'read()', (figures.ClassOfTests('TestOpen', 2),
+                                                figures.ClassOfTests('TestParse', 3),
+                                                figures.ClassOfTests('TestCheck', 4))),
+            figures.ToolStep('Print', 'show()', (figures.ClassOfTests('TestShow', 5),)))
+
+
+def page_test_counts() -> List[Tuple[str, int]]:
+    """Return each test class and its number of tests, in the order of the tests page's list."""
+    counts: List[Tuple[str, int]] = []
+    for line in TESTS_PAGE.read_text(encoding='utf-8').splitlines():
+        entry = CLASS_LIST_ENTRY.match(line)
+        if entry:
+            names = re.findall(r'`(Test\w+)`', entry['names'])
+            counts.extend(zip(names, (int(count) for count in entry['counts'].split('+'))))
+    return counts
 
 
 class TestIncludes(unittest.TestCase):
@@ -125,6 +154,51 @@ class TestTexts(unittest.TestCase):
             'Five messages in the order of the recording, each at its header stamp. The third '
             'message repeats the stamp of the second, 20 ms. The fourth is stamped 10 ms, '
             'earlier than the third. The fifth is stamped 80 ms')
+
+
+class TestFlowFigure(unittest.TestCase):
+    """The flow figure's texts and columns are built from the steps and their test classes."""
+
+    def test_flow_caption_adds_up_the_tests_of_each_step(self) -> None:
+        figures = load_script()
+        self.assertTrue(figures.flow_caption(two_steps(figures)).startswith(
+            "The test classes in a step's card call that step's functions: 9 tests at Read and "
+            '5 tests at Print. '))
+
+    def test_flow_name_names_each_step_with_its_function(self) -> None:
+        figures = load_script()
+        self.assertEqual(
+            figures.flow_name(two_steps(figures)),
+            "The tool's two steps from a bag file to the report, each with its test classes: "
+            'Read with read() and Print with show(). A failed check leaves the first step to '
+            'one line on stderr and status 1. TestToolOnBags runs all the steps as a command')
+
+    def test_class_columns_puts_the_second_column_right_of_the_first_columns_longest_name(
+            self) -> None:
+        figures = load_script()
+        first, second = figures.class_columns(two_steps(figures))
+        self.assertGreater(second, first + len('TestCheck') * figures.CLASS_NAME_WIDTH)
+
+    def test_class_columns_fails_for_a_name_that_leaves_its_card(self) -> None:
+        figures = load_script()
+        too_long = figures.ClassOfTests('Test' + 'LongName' * 6, 1)
+        steps = (figures.ToolStep('Read', 'read()', (figures.ClassOfTests('TestOpen', 2),
+                                                     too_long)),)
+        with self.assertRaises(ValueError):
+            figures.class_columns(steps)
+
+    def test_tool_steps_have_the_test_classes_and_counts_of_the_tests_page(self) -> None:
+        figures = load_script()
+        script_counts = [(test_class.name, test_class.test_count)
+                         for step in figures.TOOL_STEPS for test_class in step.test_classes]
+        script_counts.append((figures.COMMAND_TEST_CLASS, figures.COMMAND_TESTS_WITH_A_REPORT
+                              + figures.COMMAND_TESTS_WITH_ONE_LINE))
+        self.assertEqual(script_counts, page_test_counts())
+
+    def test_tool_steps_have_the_labels_of_the_tests_pages_list_of_steps(self) -> None:
+        page = TESTS_PAGE.read_text(encoding='utf-8')
+        for number, step in enumerate(load_script().TOOL_STEPS, start=1):
+            self.assertIn(f'\n{number}. **{step.label}:** ', page)
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@ The tool works in three steps:
 
 In the code, [`main()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L775-L782) calls one function for each step: [`read_samples()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L562-L574), [`imu_statistics()`](#the-statistics-of-a-recording) and [`format_report()`](#the-reports-text).
 
-[`test_imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/test/test_imu_noise_at_rest.py) holds 82 tests for `imu_noise_at_rest.py`. The first 59 check the steps one function at a time, with a few values whose result can be calculated by hand. The last 23 run the whole tool as a command, on small bags that they write into a temporary folder, and compare what the tool prints. No test needs a robot or a ROS master. [The test classes](#the-test-classes) lists the tests by the function that they call, in the order of the three steps. The sections after that list follow the same order.
+[`test_imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/test/test_imu_noise_at_rest.py) holds 82 tests for `imu_noise_at_rest.py`. The first 59 check the steps one function at a time, with a few values whose result can be calculated by hand. The last 23 run the whole tool as a command, most of them on a small bag that the test writes into a temporary folder, and compare what the tool prints. No test needs a robot or a ROS master. [The test classes](#the-test-classes) shows in a figure where on the tool's path each test class checks, and lists the classes with the functions that they call. The sections after that list follow the order of the three steps.
 
 A pass shows that the tool's arithmetic, its checks of the input and the text of its report are right for the tests' made-up messages. [What the tests don't show](#what-the-tests-dont-show) lists what a pass doesn't prove, such as the bias and the noise of a real IMU.
 
@@ -42,7 +42,11 @@ catkin finds the tests through the package's [`CMakeLists.txt`]({{ imu_noise_src
 
 ## The test classes
 
-The file holds the tests in fourteen test classes. The list has them in the order of the tool's three steps, from one message to the whole report:
+The file holds the tests in fourteen test classes. The figure puts them onto the tool's path. Each step's card names the classes whose tests call that step's functions. The bracket on the left spans the whole path, from the bag file to the report: the 23 command tests run all three steps. Trace a bag file from the top. When every check passes, the path leads through the three cards to the report on the standard output (stdout) and status 0. When a check in the first step fails, the dashed arrow leads to one line on the standard error (stderr) and status 1.
+
+--8<-- "includes/imu-noise-test-flow.html"
+
+The list has the classes in the same order, with the functions that they call. Its first two entries belong to the step Read and check, the next four to Calculate, and the seventh to Print. The last entry is the class of the command tests:
 
 - **[`TestMeasuredVector` and `TestToSample`](#which-readings-count), 2 + 2 tests:** they call [`measured_vector()`](#which-readings-count) and [`to_sample()`](#which-readings-count). They check which fields of a message count as measured, and that the header stamp keeps every nanosecond.
 - **[`TestTopicChecks` and `TestSampleChecks`](#the-checks-of-the-input), 8 + 10 tests:** they call [`check_topic()`](#the-checks-of-the-input), the six checks of the samples and [`check_samples()`](#the-checks-of-the-input). They check which messages the tool refuses, and the reason that it gives.

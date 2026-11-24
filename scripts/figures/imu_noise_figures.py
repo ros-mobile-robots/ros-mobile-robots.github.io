@@ -20,6 +20,9 @@ includes, which follow the site's light and dark colors:
   angular velocity as not measured.
 - includes/imu-noise-test-gravity.html: the mean acceleration (2, 3, 6) m/s² of a tilted IMU and
   its length 7 m/s².
+- includes/imu-noise-test-flow.html: the tool's three steps from a bag file to the report, the
+  test classes that call each step's functions, the exit with one line and status 1, and the
+  command tests, which span all three steps.
 
 Every drawing is 300 units wide and carries short labels only, so that its text is readable on a
 phone. Explanations are HTML text below a drawing. Figure, the CSS rules and the helpers come
@@ -27,6 +30,7 @@ from localization_figures.py.
 
 The tests' values are copied here, each with the name of its constant in
 diffbot_bringup/test/test_imu_noise_at_rest.py, because this repository can't import the tests.
+So are the names of its test classes and their numbers of tests.
 
 Run from the repository root after changing a figure:
 
@@ -54,6 +58,7 @@ FG_LIGHT = 'var(--md-default-fg-color--light)'
 BG = 'var(--md-default-bg-color)'
 
 DRAWING_WIDTH = 300
+CLASS_NAME_FONT_SIZE = 9.5  # px, of the test class names in the flow figure
 NOISE_RULES = (
     ('.lv-noise .lv-fig .level', f'fill:none;stroke:{FG_LIGHT};stroke-width:.7;'
                                  'stroke-dasharray:1.5 3'),
@@ -73,6 +78,14 @@ NOISE_RULES = (
                                     'stroke-dasharray:3 3'),
     ('.lv-noise .lv-fig .gravity-line', 'fill:none;stroke:var(--lv-imu);stroke-width:2.4'),
     ('.lv-noise .lv-fig .gravity-head', 'fill:var(--lv-imu);stroke:none'),
+    ('.lv-noise .lv-fig .class-name', 'font-family:var(--md-code-font-family,"Roboto Mono"),'
+                                      f'monospace;font-size:{CLASS_NAME_FONT_SIZE}px'),
+    ('.lv-noise .lv-fig .flow-line', f'fill:none;stroke:{FG};stroke-width:1.4'),
+    ('.lv-noise .lv-fig .flow-head', f'fill:{FG};stroke:none'),
+    ('.lv-noise .lv-fig .refused-line', 'fill:none;stroke:var(--lv-bad);stroke-width:1.6;'
+                                        'stroke-dasharray:4 2.5'),
+    ('.lv-noise .lv-fig .refused-head', 'fill:var(--lv-bad);stroke:none'),
+    ('.lv-noise .lv-fig .command-span', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.3'),
 )
 FIGURE_RULES = RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES + NOISE_RULES
 FIGURE_CLASSES = 'lv-large lv-drawing lv-symbols lv-noise'
@@ -135,6 +148,42 @@ class AxisLabel(NamedTuple):
 # test_imu_statistics_gives_gravity_as_the_length_of_the_mean_acceleration: the mean of
 # (1, 3, 5) and (3, 3, 7)
 TILTED_MEAN_ACCELERATION = Point(2.0, 3.0, 6.0)  # m/s^2
+
+
+class ClassOfTests(NamedTuple):
+    """A test class of test_imu_noise_at_rest.py and its number of tests."""
+
+    name: str
+    test_count: int
+
+
+class ToolStep(NamedTuple):
+    """One of the tool's three steps, the function for it, and the test classes for it."""
+
+    label: str  # the step's label in the list of the steps on the tests page
+    function: str  # the function that main() calls for the step
+    test_classes: Sequence[ClassOfTests]  # the classes that call the step's functions
+
+
+# The steps in the order in which main() calls their functions. Each step's test classes are in
+# the order of the list "The test classes" on the tests page
+TOOL_STEPS = (
+    ToolStep('Read and check', 'read_samples()', (
+        ClassOfTests('TestMeasuredVector', 2), ClassOfTests('TestToSample', 2),
+        ClassOfTests('TestTopicChecks', 8), ClassOfTests('TestSampleChecks', 10))),
+    ToolStep('Calculate', 'imu_statistics()', (
+        ClassOfTests('TestAxisStatistics', 8), ClassOfTests('TestVectorStatistics', 1),
+        ClassOfTests('TestFieldStatistics', 2), ClassOfTests('TestStampStatistics', 10),
+        ClassOfTests('TestImuStatistics', 5))),
+    ToolStep('Print', 'format_report()', (
+        ClassOfTests('TestFormatDuration', 3), ClassOfTests('TestFormatLongestInterval', 2),
+        ClassOfTests('TestFormatTable', 1), ClassOfTests('TestFormatReport', 5))),
+)
+# The class whose tests run the script as a command, most of them on a bag that the test writes:
+# the tests that compare a report, and the tests of an input that the tool refuses
+COMMAND_TEST_CLASS = 'TestToolOnBags'
+COMMAND_TESTS_WITH_A_REPORT = 7
+COMMAND_TESTS_WITH_ONE_LINE = 16
 
 
 def listed(values: Sequence[str]) -> str:
@@ -567,6 +616,129 @@ def write_gravity() -> None:
         "doesn't depend on the tilt.")
 
 
+# The flow figure: the cards of the steps right of the command tests' bracket, and the two
+# columns of test class names in each card
+FLOW_TOP = 4  # of the bag file's card and of the bracket
+FLOW_CARD_LEFT = 14
+FLOW_CARD_RIGHT = DRAWING_WIDTH - 4
+FLOW_PATH_X = 104  # the arrows from the bag file to the report
+FLOW_EXIT_X = 223  # the arrow from the first step to the one line of a refused input
+FLOW_BRACKET_X = 6
+FLOW_BRACKET_END = 4  # the length of the bracket's two end strokes
+# A character of the code font, Roboto Mono, is 0.6 times its font size wide
+CLASS_NAME_WIDTH = 0.6 * CLASS_NAME_FONT_SIZE
+CLASS_ROW_HEIGHT = 14
+CARD_HEADER_HEIGHT = 26
+CARD_BOTTOM_PADDING = 4  # below the last row of class names, for letters such as p
+
+
+def class_columns(steps: Sequence[ToolStep]) -> Sequence[float]:
+    """Return the x positions of the two columns of test class names in the steps' cards.
+
+    Raise a ValueError when a name in the second column would leave its card.
+    """
+    first = FLOW_CARD_LEFT + 14
+    first_width = max(len(test_class.name) for step in steps
+                      for test_class in step.test_classes[::2]) * CLASS_NAME_WIDTH
+    second = first + first_width + 10
+    second_width = max(len(test_class.name) for step in steps
+                       for test_class in step.test_classes[1::2]) * CLASS_NAME_WIDTH
+    if second + second_width > FLOW_CARD_RIGHT - 6:
+        raise ValueError('the second column of test class names is wider than the cards')
+    return (first, second)
+
+
+def step_card(figure: Figure, top: float, number: int, step: ToolStep,
+              columns: Sequence[float]) -> float:
+    """Add a step's card: its number, label and function, then its test classes in columns.
+
+    Return the y of the card's bottom edge.
+    """
+    rows = math.ceil(len(step.test_classes) / len(columns))
+    bottom = top + CARD_HEADER_HEIGHT + rows * CLASS_ROW_HEIGHT + CARD_BOTTOM_PADDING
+    figure.rect(FLOW_CARD_LEFT, top, FLOW_CARD_RIGHT - FLOW_CARD_LEFT, bottom - top, 'item',
+                corner_radius=5)
+    figure.circle(FLOW_CARD_LEFT + 14, top + 15, 8, 'item')
+    figure.text(FLOW_CARD_LEFT + 14, top + 19, str(number), 'letter', 'middle')
+    figure.text(FLOW_CARD_LEFT + 28, top + 19, step.label, 'strong')
+    figure.text(FLOW_CARD_RIGHT - 8, top + 19, step.function, 'mono', 'end')
+    for index, test_class in enumerate(step.test_classes):
+        figure.text(columns[index % len(columns)],
+                    top + CARD_HEADER_HEIGHT + 11 + index // len(columns) * CLASS_ROW_HEIGHT,
+                    test_class.name, 'class-name')
+    return bottom
+
+
+def end_card(figure: Figure, center_x: float, top: float, width: float, lines: Sequence[str],
+             css_class: str) -> float:
+    """Add a card with centered lines, the first one bold. Return the y of its bottom edge."""
+    bottom = top + 12 + len(lines) * 14
+    figure.rect(center_x - width / 2, top, width, bottom - top, css_class, corner_radius=5)
+    for index, line in enumerate(lines):
+        figure.text(center_x, top + 20 + index * 14, line, 'strong' if index == 0 else 'note',
+                    'middle')
+    return bottom
+
+
+def flow_name(steps: Sequence[ToolStep]) -> str:
+    """Return the accessible name of the flow figure: the steps, the exit, the command tests."""
+    step_names = listed([f'{step.label} with {step.function}' for step in steps])
+    return (f"The tool's {NUMBER_WORDS[len(steps)]} steps from a bag file to the report, each "
+            f'with its test classes: {step_names}. A failed check leaves the first step to one '
+            f'line on stderr and status 1. {COMMAND_TEST_CLASS} runs all the steps as a command')
+
+
+def flow_caption(steps: Sequence[ToolStep]) -> str:
+    """Return the flow figure's caption, with the number of tests at each step."""
+    at_steps = listed([f'{sum(test_class.test_count for test_class in step.test_classes)} tests '
+                       f'at {step.label}' for step in steps])
+    return (f"The test classes in a step's card call that step's functions: {at_steps}. "
+            f'<code>{COMMAND_TEST_CLASS}</code> runs the script as a command, most of its tests '
+            f'on a small bag that the test writes. {COMMAND_TESTS_WITH_A_REPORT} of its tests '
+            f'compare the report and status 0, and {COMMAND_TESTS_WITH_ONE_LINE} compare the one '
+            'line and status 1.')
+
+
+def flow_figure() -> Figure:
+    """Return the drawing of the tool's three steps with their test classes and both ends."""
+    figure = Figure('imu-noise-test-flow', flow_name(TOOL_STEPS), 0, DRAWING_WIDTH)
+    columns = class_columns(TOOL_STEPS)
+    bag_bottom = end_card(figure, FLOW_PATH_X, FLOW_TOP, 124, ['a bag file'], 'item')
+    top = bag_bottom + 18
+    figure.arrow(FLOW_PATH_X, bag_bottom, FLOW_PATH_X, top, 'flow')
+    arrow_labels = ('samples', 'statistics')
+    for number, step in enumerate(TOOL_STEPS, start=1):
+        bottom = step_card(figure, top, number, step, columns)
+        if number == 1:
+            exit_top = bottom + 16
+            figure.arrow(FLOW_EXIT_X, bottom, FLOW_EXIT_X, exit_top, 'refused')
+            figure.text(FLOW_EXIT_X - 6, bottom + 13, 'a check fails', 'note', 'end')
+            exit_bottom = end_card(figure, FLOW_EXIT_X, exit_top, 146,
+                                   ['✕ one line on stderr', 'status 1'], 'card-drop')
+            top = exit_bottom + 8
+        else:
+            top = bottom + 20
+        figure.arrow(FLOW_PATH_X, bottom, FLOW_PATH_X, top, 'flow')
+        if number <= len(arrow_labels):
+            figure.text(FLOW_PATH_X - 6, top - 6, arrow_labels[number - 1], 'note', 'end')
+    report_bottom = end_card(figure, FLOW_PATH_X, top, 170,
+                             ['✓ the report on stdout', 'status 0'], 'card-pass')
+    label_y = report_bottom + 18
+    # A bracket with two equal end strokes, from the bag file down to its label
+    figure.path(f'M{FLOW_BRACKET_X + FLOW_BRACKET_END},{FLOW_TOP} H{FLOW_BRACKET_X} '
+                f'V{label_y - 4} H{FLOW_BRACKET_X + FLOW_BRACKET_END}', 'command-span')
+    figure.text(FLOW_BRACKET_X + 6, label_y, COMMAND_TEST_CLASS, 'class-name')
+    figure.text(FLOW_BRACKET_X + 6 + len(COMMAND_TEST_CLASS) * CLASS_NAME_WIDTH + 6, label_y,
+                'runs all three steps as a command', 'note')
+    figure.height = int(label_y) + 8
+    return figure
+
+
+def write_flow() -> None:
+    """Write the flow figure, with the number of tests at each step in its caption."""
+    write_figure('includes/imu-noise-test-flow.html', flow_figure(), flow_caption(TOOL_STEPS))
+
+
 if __name__ == '__main__':
     write_trace()
     write_three_readings()
@@ -575,3 +747,4 @@ if __name__ == '__main__':
     write_stamps_back()
     write_measured()
     write_gravity()
+    write_flow()
