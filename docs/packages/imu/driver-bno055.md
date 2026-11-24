@@ -103,6 +103,18 @@ A [tilt test](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomme
 
 An IMU at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't: its readings have an offset, the **bias**, and they scatter around their average, the **noise**. The tool [`imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) in the diffbot repository reads a recording of the IMU's messages, made while the robot stood still, and prints the gyroscope's remaining bias and the noise of each axis.
 
+### Bias and noise in a picture
+
+The figure shows what the two words mean. It plots the yaw rate $\omega_z$ that a gyroscope at rest reads, against time. A robot at rest doesn't turn, so every reading should lie on the zero line.
+
+--8<-- "includes/imu-noise-trace.html"
+
+- **The bias** is how far the mean of the readings lies from zero. The mean is the solid orange line.
+- **The noise** is how far the readings scatter around their mean. The band reaches one standard deviation $s$ above and below the mean.
+- **The steps:** the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055's step is 1/900 rad/s, about 0.0011 rad/s.
+
+The example's bias is about 30 times Remo's, so that the figure can show it. With Remo's +0.00005 rad/s, the line of the mean would lie on the zero line.
+
 ### Run the tool on a recording
 
 **You need:** a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) with the topic [`/diffbot/imu/data_raw`](#what-the-firmware-publishes), recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both.
@@ -131,7 +143,7 @@ The `\` at the end of a line continues the command on the next line, so the thre
 The rest of this section explains the result:
 
 1. [Make a recording](#make-a-recording): 180 s on the robot, without overwriting the recording before.
-2. [Bias and noise in a picture](#bias-and-noise-in-a-picture) and [Read the report](#read-the-report): what each number means.
+2. [Read the report](#read-the-report): what each number means.
 3. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings): the calculation by hand.
 4. [From the report to the EKF](#from-the-report-to-the-ekf): where one measured number belongs.
 5. [Results on Remo](#results-on-remo) and [How the tool is tested](#how-the-tool-is-tested).
@@ -234,18 +246,6 @@ Then run the tool where the recording is, with the name that the recorder printe
     ```
 
     Git lists the copy as an untracked file of your clone. Delete the copy after the check, or leave it out of your commits.
-
-### Bias and noise in a picture
-
-The figure shows what the two words mean. It plots the yaw rate $\omega_z$ that a gyroscope at rest reads, against time. A robot at rest doesn't turn, so every reading should lie on the zero line.
-
---8<-- "includes/imu-noise-trace.html"
-
-- **The bias** is how far the mean of the readings lies from zero. The mean is the solid orange line.
-- **The noise** is how far the readings scatter around their mean. The band reaches one standard deviation $s$ above and below the mean.
-- **The steps:** the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055's step is 1/900 rad/s, about 0.0011 rad/s.
-
-The example's bias is about 30 times Remo's, so that the figure can show it. With Remo's +0.00005 rad/s, the line of the mean would lie on the zero line.
 
 ### Read the report
 
