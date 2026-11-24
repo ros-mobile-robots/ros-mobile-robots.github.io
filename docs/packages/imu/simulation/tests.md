@@ -42,7 +42,7 @@ SUMMARY
  * FAILURES: 0
 ```
 
-The three highlighted lines are the IMU's tests. A newer checkout of the diffbot repository has more test nodes in this test file, such as [`odom_tf_diffbot`](../robot_localization/tests/odom-tf.md#where-the-test-runs), so its output has more lines and a higher count, as [read the results](../../../development/simulation-test.md#read-the-results) on Simulation Test explains. What to expect from each of the IMU's tests:
+The three highlighted lines are the IMU's tests. At `8c83f53`, the test file also runs the test node [`odom_tf_diffbot`](../robot_localization/tests/odom-tf.md#where-the-test-runs), so the output has one more line and counts 7 tests, as [read the results](../../../development/simulation-test.md#read-the-results) on Simulation Test explains. What to expect from each of the IMU's tests:
 
 - **The left turn** passes when more than 90 messages arrive in 2 s and their mean yaw rate lies within 0.15 rad/s of 0.5 rad/s. A failure of the mean prints the measured mean. With a yaw rate that stays at 0 rad/s, for example, the message is `0.0 != 0.5 within 0.15 delta (0.5 difference) : turning left at 0.5 rad/s, the IMU measured 0.000 rad/s about z`.
 - **The test at rest** passes without output. A failure names the check that failed and the value that it found.
@@ -76,7 +76,7 @@ Before each of the two test methods, [`setUp()`](#waiting-until-the-robot-can-dr
 
 ## The test at rest
 
-[`test_imu_publishes_the_firmware_message_at_rest`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L100-L122) checks that the message on [`/diffbot/imu/data_raw`](index.md#what-the-simulated-imu-publishes) is what its readers need. The EKF runs at 50 Hz, the firmware's rate. The IMU sample validator forwards only samples with the frame [`imu_link`](position-and-axes.md#the-two-frames-and-their-fixed-joint), rising stamps, finite values and a positive variance. And the firmware's message has no orientation. The robot stands still during this test, because then the reading on the upward axis, $f_z$, is known: gravity alone.
+[`test_imu_publishes_the_firmware_message_at_rest`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py#L100-L127) checks that the message on [`/diffbot/imu/data_raw`](index.md#what-the-simulated-imu-publishes) is what its readers need. The EKF runs at 50 Hz, the firmware's rate. The IMU sample validator forwards only samples with the frame [`imu_link`](position-and-axes.md#the-two-frames-and-their-fixed-joint), rising stamps, finite values and a positive variance. And the firmware's message has no orientation. The robot stands still during this test, because then the reading on the upward axis, $f_z$, is known: gravity alone.
 
 The figure shows what happens during the test, from left to right over simulation time: the command that the test sends, the robot, the reading that the test checks, and the IMU's messages that the test keeps.
 

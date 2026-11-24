@@ -43,7 +43,7 @@ Remo turns left on the spot at 0.5 rad/s. Which number of the IMU's message show
 
 ## The parts, and where to read on
 
-Three parts make the message, one after the other: Gazebo's IMU sensor, the robots' IMU plugin and an adapter. Two branches read the message. The tests run in CI. The IMU sample validator and the EKF run only when the EKF is enabled, with [`ekf:=true`](../robot_localization.md#what-the-launch-files-do-with-ekf). The validator and this switch are in a later commit of the diffbot repository than the simulated IMU, as the box "Reading the code" says.
+Three parts make the message, one after the other: Gazebo's IMU sensor, the robots' IMU plugin and an adapter. Two branches read the message. The tests run in CI. The IMU sample validator and the EKF run only when the EKF is enabled, with [`ekf:=true`](../robot_localization.md#what-the-launch-files-do-with-ekf). These pages show the validator and this switch at another commit of the diffbot repository than the simulated IMU, as the box "Reading the code" says.
 
 ```mermaid
 graph TB
@@ -69,7 +69,7 @@ Four more pages go into the details. Each answers one question:
     - The diffbot repository's source is at two commits. The simulated IMU, its plugin, its adapter and its tests are at [`8c83f53`](https://github.com/ros-mobile-robots/diffbot/tree/8c83f53a6dd8685417e1d2a660d1d7395bf23757), the merge of the stricter IMU tests. The IMU sample validator and `ekf:=true` are at [`ead3402`](https://github.com/ros-mobile-robots/diffbot/tree/ead34027a9507c65d7415f93817177340d60d549), the merge commit of the EKF, which these pages use for both. The [Localization](../robot_localization.md) pages show the validator's code at the commits that their sections name.
     - Remo's URDF model is at [remo_description](../../remo_description.md) 2.5.0, and ROS's and Gazebo's sources are at one commit or one release each.
     - The link above each excerpt opens that revision and those lines on GitHub.
-    - The numbers that a page calls "from a run" come from one run of Remo's simulation at these revisions, in the dev container. Another run gives other noise, and can give other times.
+    - The numbers that a page calls "from a run" come from one run of Remo's simulation at `cd41ead`, in the dev container. The plugin, the adapter and the robots' URDF model files are the same at `8c83f53`. Another run gives other noise, and can give other times.
 
 ## What the simulated IMU publishes
 
