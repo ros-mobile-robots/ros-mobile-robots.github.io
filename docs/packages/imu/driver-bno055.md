@@ -105,7 +105,7 @@ An IMU at rest should read an angular velocity of zero and an acceleration of gr
 
 ### Run the tool on a recording
 
-**You need:** a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) with the topic [`/diffbot/imu/data_raw`](#what-the-firmware-publishes), recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both. The commands of the tab "Robot container" and the copy with `sftp` weren't run on a robot yet. The tool itself ran on recordings on a PC.
+**You need:** a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) with the topic [`/diffbot/imu/data_raw`](#what-the-firmware-publishes), recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both.
 
 In the folder that holds the recording, run the tool with the recording's file name:
 
@@ -137,6 +137,8 @@ The rest of this section explains the result:
 5. [Results on Remo](#results-on-remo) and [How the tool is tested](#how-the-tool-is-tested).
 
 ### Make a recording
+
+The commands of the tabs "Robot container" below and the copy with `sftp` weren't run on a robot yet. The tool itself ran on recordings on a PC.
 
 Put the robot on a firm surface, with the [bringup running](../../processing_units/robot-container/usage.md#start). Don't touch the robot or its table during the recording. The command records the IMU's topic for 180 s and then stops by itself.
 
@@ -279,7 +281,7 @@ The first four lines are about the messages and their header stamps. The firmwar
 |:--|:--|
 | `3 messages, frame_id "imu_link"` | The number of messages $N$ on the topic, and the frame whose axes x, y and z the readings have. |
 | `Header stamps` | The time from the first header stamp $t_1$ to the last $t_N$, and the rate: the number of intervals in that time, $(N - 1) / (t_N - t_1)$. Three messages have two intervals, so 2 / 0.040 s gives 50 Hz. |
-| `Header intervals` | The shortest and the longest time between two consecutive header stamps, and how many are longer than 30 ms. The firmware takes a sample every 20 ms, and 30 ms is one and a half of these periods. A longer interval is worth a look. Two possible reasons are a sample that the firmware took late and a sample that is missing. The header stamps don't say when a message arrived, so the report can't show a message that was delivered late. |
+| `Header intervals` | The shortest and the longest time between two consecutive header stamps, and how many are longer than 30 ms. The firmware takes a sample every 20 ms, and 30 ms is one and a half of these periods. A longer interval is worth a look. Two possible reasons are a sample that the firmware took late and a sample that is missing. The header stamps don't say when a message arrived, so the report can't show a message that was delivered late. A longest interval just above 30 ms that would read `30.0 ms` is given with ns, such as `30.040000 ms`. |
 | `Stamps that don't advance` | How many stamps repeat the stamp before, and how many are earlier than the stamp before, for example because the clock was set back. Both counts should be 0. If one isn't, the line `Header stamps` says "no rate" instead of a rate in Hz. |
 
 Each table has one row for each axis and these columns:
@@ -403,7 +405,7 @@ Both boards give the same picture, as expected: the Teensy only reads the sensor
 
 ### How the tool is tested
 
-77 tests check the tool, in [`test_imu_noise_at_rest.py`](noise-at-rest-tests.md). They calculate the statistics of readings with known results, such as the three readings above, and they run the tool as a command on small bags that they write themselves. No test needs a robot or a ROS master. [Tests: IMU Bias and Noise at Rest](noise-at-rest-tests.md) walks through them, with the command that runs them.
+82 tests check the tool, in [`test_imu_noise_at_rest.py`](noise-at-rest-tests.md). They calculate the statistics of readings with known results, such as the three readings above, and they run the tool as a command on small bags that they write themselves. No test needs a robot or a ROS master. [Tests: IMU Bias and Noise at Rest](noise-at-rest-tests.md) walks through them, with the command that runs them.
 
 ## Trying the breakout on its own
 

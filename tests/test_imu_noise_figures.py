@@ -99,8 +99,8 @@ class TestIncludeComment(unittest.TestCase):
 
     def test_each_include_starts_with_the_comment_that_names_the_script(self) -> None:
         for include_name in INCLUDE_NAMES:
-            first_line = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
-            self.assertTrue(first_line.startswith(
+            text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
+            self.assertTrue(text.startswith(
                 '<!-- Written by scripts/figures/imu_noise_figures.py -->\n'), include_name)
 
 

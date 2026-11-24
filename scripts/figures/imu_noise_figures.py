@@ -333,7 +333,7 @@ def variance_test_figure() -> Figure:
         deviation = value - mean
         # The two outer values' arrows above the two inner ones'
         arrow_y = axis_y - (48 if abs(deviation) > 1 else 22)
-        deviation_arrow(figure, at(mean), at(value), arrow_y, f'{deviation:+g}'.replace('-', '−'))
+        deviation_arrow(figure, at(mean), at(value), arrow_y, minus_signed(deviation))
         figure.circle(at(value), axis_y, 5.5, 'imu-dot')
         figure.text(at(value), axis_y + 22, f'{value:g}', 'strong', 'middle')
         figure.text(at(value), axis_y + 38, f'{deviation ** 2:g}', 'note', 'middle')
