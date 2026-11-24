@@ -101,7 +101,7 @@ A [tilt test](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomme
 
 ## Bias and noise at rest
 
-An IMU at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't: its readings have an offset, the **bias**, and they scatter around their average, the **noise**. The tool [`imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) in the diffbot repository reads a recording of the standing robot and prints the gyroscope's remaining bias and the noise of each axis.
+An IMU at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't: its readings have an offset, the **bias**, and they scatter around their average, the **noise**. The tool [`imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) in the diffbot repository reads a recording of the IMU's messages, made while the robot stood still, and prints the gyroscope's remaining bias and the noise of each axis.
 
 ### Run the tool on a recording
 
