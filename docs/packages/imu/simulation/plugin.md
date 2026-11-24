@@ -1,6 +1,6 @@
 # IMU Simulation: The Robots' Own Plugin
 
-Why DiffBot and Remo load their own IMU plugin in Gazebo, and what it does differently from the plugin that comes with ROS. This page belongs to [IMU: Simulation](index.md). It's background for the interested reader: you don't need it to use the simulated IMU.
+In Gazebo, DiffBot and Remo load their own IMU plugin, not the plugin that comes with ROS. This page explains why, and what the robots' plugin does differently. The page belongs to [IMU: Simulation](index.md). The page is background for the interested reader: you don't need the page to use the simulated IMU.
 
 ## Why the robots have their own plugin
 

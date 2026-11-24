@@ -1,6 +1,6 @@
 # IMU Simulation: Tests
 
-What CI checks on the simulated IMU, how to run the checks yourself, and what a pass proves. This page belongs to [IMU: Simulation](index.md).
+CI checks the simulated IMU with three tests in Gazebo. This page shows what the tests check, how to run the tests yourself and what a pass proves. Read the page before you change the simulated IMU: its place in a robot's URDF model, or the code that makes its message. This page belongs to [IMU: Simulation](index.md).
 
 Two Python files check the simulated IMU in Gazebo, [`test_imu.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu.py) and [`test_imu_reset.py`]({{ imu_sim_src_url }}/diffbot_gazebo/test/test_imu_reset.py), with three tests. Each test reads the topic [`/diffbot/imu/data_raw`](index.md#what-the-simulated-imu-publishes):
 

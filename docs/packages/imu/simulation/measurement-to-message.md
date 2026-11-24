@@ -1,6 +1,6 @@
 # IMU Simulation: From Measurement to Message
 
-How one sample of the simulated IMU is made, from Gazebo's IMU sensor to the message on [`/diffbot/imu/data_raw`](index.md#what-the-simulated-imu-publishes). This page belongs to [IMU: Simulation](index.md), which shows the finished message.
+This page follows one sample of the simulated IMU from Gazebo's IMU sensor to the message on [`/diffbot/imu/data_raw`](index.md#what-the-simulated-imu-publishes), in the order in which the code runs. Read the page to find where a value of the message is set. This page belongs to [IMU: Simulation](index.md), which shows the finished message.
 
 ## One sample, through the three parts
 

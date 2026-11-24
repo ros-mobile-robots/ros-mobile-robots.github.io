@@ -1,6 +1,6 @@
 # IMU Simulation: Position and Axes
 
-Where the simulated IMU sits on each robot, and which way its axes point. This page belongs to [IMU: Simulation](index.md), which shows the IMU's message.
+This page shows where the simulated IMU sits on each robot and which way the IMU's axes point. Read the page to find which axis of the IMU's message is forward on your robot, or to change the mounting. This page belongs to [IMU: Simulation](index.md), which shows the IMU's message.
 
 Three names of the robot's URDF model describe the mounting. [`imu_link`](#the-two-frames-and-their-fixed-joint) is the IMU's frame, `chassis_link` is the frame at the center of the robot's base plate, and `imu_joint` is the fixed joint that puts `imu_link` on `chassis_link`. This page first shows [the mounting on each robot](#the-mounting-on-each-robot), then explains [the two frames and their fixed joint](#the-two-frames-and-their-fixed-joint) and [the lines of the robot's URDF model that make them](#the-link-and-the-joint-in-the-robots-urdf-model).
 
