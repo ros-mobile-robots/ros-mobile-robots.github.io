@@ -6,9 +6,10 @@ diffbot_bringup/scripts/imu_noise_at_rest.py in the diffbot repository. The scri
 includes, which follow the site's light and dark colors:
 
 - includes/imu-noise-trace.html: yaw-rate readings at rest against time, with zero, the mean and
-  the mean plus and minus one standard deviation. The readings are a synthetic example, made here
-  from a seed: a gyroscope with a bias large enough to see, on the BNO055's output steps. The
-  dots are the first second, the lines come from all 180 s.
+  the mean plus and minus one standard deviation, and a legend of the marks. The readings are a
+  synthetic example, made here from a seed: a gyroscope with a bias large enough to see, on the
+  BNO055's output steps. The dots are the first second, the lines come from all 180 s. The
+  figure has a narrow layout and a wide one for a text column with room for it.
 - includes/imu-noise-three-readings.html: three readings one output step apart, their mean and
   their deviations from it. The worked example of the sample variance.
 - includes/imu-noise-test-variance.html: the four values 1, 2, 3 and 4 of the test of the sample
@@ -25,8 +26,9 @@ includes, which follow the site's light and dark colors:
   command tests, which span all three steps.
 
 Every drawing is 300 units wide and carries short labels only, so that its text is readable on a
-phone. Explanations are HTML text below a drawing. Figure, the CSS rules and the helpers come
-from localization_figures.py.
+phone. The trace figure also has a wide layout of 540 units, which the CSS of LAYOUT_RULES in
+localization_figures.py shows where the text column has room for it. Explanations are HTML text
+below a drawing. Figure, the CSS rules and the helpers come from localization_figures.py.
 
 The tests' values are copied here, each with the name of its constant in
 diffbot_bringup/test/test_imu_noise_at_rest.py, because this repository can't import the tests.
@@ -40,6 +42,7 @@ Run from the repository root after changing a figure:
 import math
 import random
 import statistics
+from typing import Callable
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
@@ -49,9 +52,14 @@ from localization_figures import DRAWING_RULES
 from localization_figures import Figure
 from localization_figures import figure_element
 from localization_figures import LARGE_RULES
+from localization_figures import LAYOUT_RULES
+from localization_figures import LAYOUT_SPACE
+from localization_figures import NARROW_LAYOUT
 from localization_figures import RULES
 from localization_figures import style_element
 from localization_figures import SYMBOL_RULES
+from localization_figures import WIDE_LAYOUT
+from localization_figures import WIDE_WIDTH
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -106,9 +114,10 @@ TRACE_NOISE = 0.0007  # rad/s, the standard deviation before the readings snap t
 TRACE_SHOWN_DURATION = 1  # s, the readings that the figure shows as dots
 TRACE_LEVELS = (-1, 0, 1, 2, 3, 4)  # the output steps that the figure's y axis shows
 TRACE_PLOT_LEFT = 52
-TRACE_PLOT_RIGHT = 182
 TRACE_PLOT_TOP = 24
 TRACE_PIXELS_PER_STEP = 26
+TRACE_LEGEND_ROW_HEIGHT = 18
+TRACE_LEGEND_SWATCH_WIDTH = 24
 
 # test_imu_noise_at_rest.py's values
 YAW_RATES_ONE_STEP_APART = (0, 1, 2)  # in output steps
@@ -143,6 +152,25 @@ class AxisLabel(NamedTuple):
     end: Point
     name: str
     offset: DrawingPoint
+
+
+class TraceLayout(NamedTuple):
+    """One of the trace figure's two layouts: its width, its plot and its legend."""
+
+    name: str  # the drawing's name, unique on the page
+    css_class: str  # NARROW_LAYOUT or WIDE_LAYOUT, by which the CSS shows one layout
+    width: int
+    plot_right: float  # the plot's right edge. Its left edge is TRACE_PLOT_LEFT
+    tick_tenths: int  # tenths of a second between two ticks of the time axis
+    legend_columns: int
+
+
+TRACE_LAYOUTS = (
+    TraceLayout(name='imu-noise-trace', css_class=NARROW_LAYOUT, width=DRAWING_WIDTH,
+                plot_right=182, tick_tenths=5, legend_columns=1),
+    TraceLayout(name='imu-noise-trace-wide', css_class=WIDE_LAYOUT, width=WIDE_WIDTH,
+                plot_right=412, tick_tenths=2, legend_columns=2),
+)
 
 
 # test_imu_statistics_gives_gravity_as_the_length_of_the_mean_acceleration: the mean of
@@ -217,6 +245,19 @@ def write_figure(path: str, figure: Figure, caption: str) -> None:
                       f'{figure_element([figure.svg()], caption, FIGURE_CLASSES)}\n')
 
 
+def write_layout_figure(path: str, layouts: Sequence[Figure], caption: str) -> None:
+    """Write an include with a drawing's narrow and wide layout and its caption.
+
+    The include starts with a comment that names this script. The figure stands in a block of
+    the class LAYOUT_SPACE, whose width decides which layout shows.
+    """
+    figure = figure_element([layout.svg() for layout in layouts], caption,
+                            f'{FIGURE_CLASSES} lv-layouts')
+    with open(path, 'w', encoding='utf-8') as include:
+        include.write(f'{INCLUDE_COMMENT}\n{style_element(FIGURE_RULES + LAYOUT_RULES)}\n'
+                      f'<div class="{LAYOUT_SPACE}">\n{figure}\n</div>\n')
+
+
 class Trace(NamedTuple):
     """A recording of yaw-rate readings at rest and its statistics."""
 
@@ -259,65 +300,122 @@ def trace_y(yaw_rate: float) -> float:
     return TRACE_PLOT_TOP + (top_rate - yaw_rate) / GYROSCOPE_STEP * TRACE_PIXELS_PER_STEP
 
 
-def trace_x(seconds: float) -> float:
-    """Return the x position of a time in the trace figure."""
-    return TRACE_PLOT_LEFT + seconds / TRACE_SHOWN_DURATION * (TRACE_PLOT_RIGHT - TRACE_PLOT_LEFT)
+def trace_x(seconds: float, layout: TraceLayout) -> float:
+    """Return the x position of a time in a layout of the trace figure."""
+    return (TRACE_PLOT_LEFT
+            + seconds / TRACE_SHOWN_DURATION * (layout.plot_right - TRACE_PLOT_LEFT))
 
 
-def trace_figure(trace: Trace) -> Figure:
-    """Return the drawing of the readings of the first second and the recording's statistics."""
+class LegendEntry(NamedTuple):
+    """An entry of the trace figure's legend: the function that draws its mark, and its text."""
+
+    # Gets the figure, the mark's left edge and the baseline of the entry's text
+    draw_mark: Callable[[Figure, float, float], None]
+    label: str
+
+
+def reading_mark(figure: Figure, x: float, y: float) -> None:
+    """Add the legend's mark of a reading: a dot, larger than the plot's dots so that it shows."""
+    figure.circle(x + TRACE_LEGEND_SWATCH_WIDTH / 2, y - 4, 2, 'reading')
+
+
+def mean_mark(figure: Figure, x: float, y: float) -> None:
+    """Add the legend's mark of the mean: its solid line."""
+    figure.path(f'M{x:.1f},{y - 4} H{x + TRACE_LEGEND_SWATCH_WIDTH:.1f}', 'mean-line')
+
+
+def spread_mark(figure: Figure, x: float, y: float) -> None:
+    """Add the legend's mark of the mean plus and minus s: the band between its dashed lines."""
+    end_x = x + TRACE_LEGEND_SWATCH_WIDTH
+    figure.rect(x, y - 9, TRACE_LEGEND_SWATCH_WIDTH, 10, 'spread-band')
+    figure.path(f'M{x:.1f},{y - 9} H{end_x:.1f} M{x:.1f},{y + 1} H{end_x:.1f}', 'spread-line')
+
+
+def level_mark(figure: Figure, x: float, y: float) -> None:
+    """Add the legend's mark of the output steps: a dotted line."""
+    figure.path(f'M{x:.1f},{y - 4} H{x + TRACE_LEGEND_SWATCH_WIDTH:.1f}', 'level')
+
+
+TRACE_LEGEND = (
+    LegendEntry(reading_mark, f'reading, one every {1000 // SAMPLE_RATE} ms'),
+    LegendEntry(mean_mark, 'mean: its offset from zero is the bias'),
+    LegendEntry(spread_mark, 'mean ± s: the noise'),
+    LegendEntry(level_mark, f'output steps, {GYROSCOPE_STEP_TEXT} apart'),
+)
+
+
+def trace_legend(figure: Figure, top: float, layout: TraceLayout) -> float:
+    """Add the legend of the trace figure's marks, in the layout's columns, from top.
+
+    Return the y below the legend's last row.
+    """
+    column_width = (layout.width - 8) / layout.legend_columns
+    for index, entry in enumerate(TRACE_LEGEND):
+        x = 4 + index % layout.legend_columns * column_width
+        y = top + index // layout.legend_columns * TRACE_LEGEND_ROW_HEIGHT
+        entry.draw_mark(figure, x, y)
+        figure.text(x + TRACE_LEGEND_SWATCH_WIDTH + 6, y, entry.label)
+    rows = math.ceil(len(TRACE_LEGEND) / layout.legend_columns)
+    return top + (rows - 1) * TRACE_LEGEND_ROW_HEIGHT + 6
+
+
+def trace_figure(trace: Trace, layout: TraceLayout) -> Figure:
+    """Return a layout of the drawing of the first second's readings and their statistics."""
     bottom = trace_y((TRACE_LEVELS[0] - 0.5) * GYROSCOPE_STEP)
-    figure = Figure('imu-noise-trace', 'Yaw-rate readings of a gyroscope at rest against time. '
+    figure = Figure(layout.name, 'Yaw-rate readings of a gyroscope at rest against time. '
                     'The readings lie on output steps. Their mean lies above zero: the bias. '
                     'A band of one standard deviation around the mean shows their spread',
-                    int(bottom) + 44, DRAWING_WIDTH)
+                    0, layout.width, layout.css_class)
+    plot_right = layout.plot_right
     figure.text(4, 13, 'angular_velocity.z in rad/s', 'mono')
     for level in TRACE_LEVELS:
         y = trace_y(level * GYROSCOPE_STEP)
-        figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{TRACE_PLOT_RIGHT}', 'level')
+        figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{plot_right}', 'level')
         label = '0' if level == 0 else f'{level * GYROSCOPE_STEP:+.4f}'.replace('-', '−')
         figure.text(TRACE_PLOT_LEFT - 5, y + 4, label, 'note', 'end')
     upper, lower = (trace_y(trace.mean + sign * trace.standard_deviation) for sign in (1, -1))
-    figure.rect(TRACE_PLOT_LEFT, upper, TRACE_PLOT_RIGHT - TRACE_PLOT_LEFT, lower - upper,
+    figure.rect(TRACE_PLOT_LEFT, upper, plot_right - TRACE_PLOT_LEFT, lower - upper,
                 'spread-band')
-    figure.path(f'M{TRACE_PLOT_LEFT},{trace_y(0):.1f} H{TRACE_PLOT_RIGHT}', 'zero-line')
+    figure.path(f'M{TRACE_PLOT_LEFT},{trace_y(0):.1f} H{plot_right}', 'zero-line')
     lines = ((trace.mean + trace.standard_deviation, 'spread-line', 'mean + s'),
              (trace.mean, 'mean-line', 'mean'),
              (trace.mean - trace.standard_deviation, 'spread-line', 'mean − s'))
     for yaw_rate, css_class, label in lines:
         y = trace_y(yaw_rate)
-        figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{TRACE_PLOT_RIGHT}', css_class)
-        figure.text(TRACE_PLOT_RIGHT + 5, y + 4, label, 'strong' if label == 'mean' else '')
-        figure.text(DRAWING_WIDTH - 2, y + 4, f'{yaw_rate:+.4f}'.replace('-', '−'),
+        figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{plot_right}', css_class)
+        figure.text(plot_right + 5, y + 4, label, 'strong' if label == 'mean' else '')
+        figure.text(layout.width - 2, y + 4, f'{yaw_rate:+.4f}'.replace('-', '−'),
                     'strong' if label == 'mean' else '', 'end')
-    figure.text(TRACE_PLOT_RIGHT + 5, trace_y(0) + 4, 'zero')
-    figure.text(DRAWING_WIDTH - 2, trace_y(0) + 4, '0', '', 'end')
+    figure.text(plot_right + 5, trace_y(0) + 4, 'zero')
+    figure.text(layout.width - 2, trace_y(0) + 4, '0', '', 'end')
     for index, reading in enumerate(trace.readings[:TRACE_SHOWN_DURATION * SAMPLE_RATE]):
-        figure.circle(trace_x(index / SAMPLE_RATE), trace_y(reading), 1.3, 'reading')
-    figure.path(f'M{TRACE_PLOT_LEFT},{TRACE_PLOT_TOP} V{bottom:.1f} H{TRACE_PLOT_RIGHT}', 'axis')
-    for tenths in range(0, TRACE_SHOWN_DURATION * 10 + 1, 5):
-        x = trace_x(tenths / 10)
+        figure.circle(trace_x(index / SAMPLE_RATE, layout), trace_y(reading), 1.3, 'reading')
+    figure.path(f'M{TRACE_PLOT_LEFT},{TRACE_PLOT_TOP} V{bottom:.1f} H{plot_right}', 'axis')
+    for tenths in range(0, TRACE_SHOWN_DURATION * 10 + 1, layout.tick_tenths):
+        x = trace_x(tenths / 10, layout)
         figure.path(f'M{x:.1f},{bottom:.1f} v4', 'tick')
         figure.text(x, bottom + 17, f'{tenths / 10:g}', 'note', 'middle')
-    figure.text((TRACE_PLOT_LEFT + TRACE_PLOT_RIGHT) / 2, bottom + 36,
+    figure.text((TRACE_PLOT_LEFT + plot_right) / 2, bottom + 36,
                 'seconds after the first header stamp', 'note', 'middle')
+    legend_bottom = trace_legend(figure, bottom + 62, layout)
+    figure.height = int(legend_bottom) + 4
     return figure
 
 
 def write_trace() -> None:
-    """Write the trace figure, with the recording's statistics in its caption."""
+    """Write the trace figure in both layouts, with the recording's statistics in its caption."""
     trace = synthetic_trace()
     shown_count = TRACE_SHOWN_DURATION * SAMPLE_RATE
-    write_figure(
-        'includes/imu-noise-trace.html', trace_figure(trace),
+    caption = (
         '<strong>A synthetic example, not a recording of a robot.</strong> A gyroscope at rest '
         f'that reads in steps of {GYROSCOPE_STEP_TEXT}, like the BNO055. '
         f'The dots are the {shown_count} readings of the first second. The lines come from all '
         f'{len(trace.readings):,} readings of {TRACE_DURATION} s: '
         f'the mean {signed(trace.mean)} rad/s is the bias, '
         f'and the standard deviation <em>s</em> = {trace.standard_deviation:.5f} rad/s is the '
-        f'noise. The readings take {trace.distinct_value_count} distinct values. The dotted '
-        'lines are the output steps.')
+        f'noise. The readings take {trace.distinct_value_count} distinct values.')
+    write_layout_figure('includes/imu-noise-trace.html',
+                        [trace_figure(trace, layout) for layout in TRACE_LAYOUTS], caption)
 
 
 def deviation_arrow(figure: Figure, mean_x: float, x: float, y: float, label: str) -> None:

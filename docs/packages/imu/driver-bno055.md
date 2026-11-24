@@ -16,7 +16,7 @@ An inertial measurement unit (IMU) measures how the robot turns and accelerates:
 
 The robot uses one value from it: the **yaw rate** $\omega_z$, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over [rosserial](../../processing_units/teensy-mcu.md#other-boards-such-as-an-arduino).
 
-To measure how far your robot's IMU is off at rest and how much its readings scatter, go to [Bias and noise at rest](#bias-and-noise-at-rest): one command on a recording of the standing robot.
+To measure how far your robot's IMU is off at rest and how much its readings scatter, go to [Bias and noise at rest](#bias-and-noise-at-rest). Its figure shows what the bias and the noise are, and one command measures both on a recording of the IMU's messages.
 
 !!! info "Checked on Remo"
     The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard. On DiffBot, the IMU's mounting still needs to be measured, and the firmware checked on DiffBot itself. The EKF still needs a test with the real IMU.
@@ -109,11 +109,11 @@ The figure shows what the two words mean. It plots the yaw rate $\omega_z$ that 
 
 --8<-- "includes/imu-noise-trace.html"
 
-- **The bias** is how far the mean of the readings lies from zero. The mean is the solid orange line.
+- **The bias** is how far the mean of the readings lies from zero.
 - **The noise** is how far the readings scatter around their mean. The band reaches one standard deviation $s$ above and below the mean.
 - **The steps:** the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055's step is 1/900 rad/s, about 0.0011 rad/s.
 
-The example's bias is about 30 times Remo's, so that the figure can show it. With Remo's +0.00005 rad/s, the line of the mean would lie on the zero line.
+The example's bias is about 30 times the bias that was measured on Remo, so that the figure can show it. With Remo's +0.00005 rad/s, which [Results on Remo](#results-on-remo) lists, the line of the mean would lie on the zero line.
 
 ### Run the tool on a recording
 

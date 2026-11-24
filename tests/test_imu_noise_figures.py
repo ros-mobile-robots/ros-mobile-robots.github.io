@@ -156,6 +156,51 @@ class TestTexts(unittest.TestCase):
             'earlier than the third. The fifth is stamped 80 ms')
 
 
+class TestTraceLayouts(unittest.TestCase):
+    """The trace figure has a narrow and a wide layout, each with the readings and a legend."""
+
+    def test_each_trace_layout_draws_the_first_seconds_readings_and_the_legends_dot(
+            self) -> None:
+        figures = load_script()
+        trace = figures.synthetic_trace()
+        shown = figures.TRACE_SHOWN_DURATION * figures.SAMPLE_RATE
+        for layout in figures.TRACE_LAYOUTS:
+            svg = figures.trace_figure(trace, layout).svg()
+            self.assertEqual(svg.count('class="reading"'), shown + 1, layout.name)
+            self.assertIn(f'viewBox="0 0 {layout.width} ', svg)
+
+    def test_trace_x_spans_the_plot_of_each_layout(self) -> None:
+        figures = load_script()
+        for layout in figures.TRACE_LAYOUTS:
+            self.assertEqual(figures.trace_x(0, layout), figures.TRACE_PLOT_LEFT, layout.name)
+            self.assertEqual(figures.trace_x(figures.TRACE_SHOWN_DURATION, layout),
+                             layout.plot_right, layout.name)
+
+    def test_each_trace_layout_has_its_ticks_and_every_legend_entry_once(self) -> None:
+        figures = load_script()
+        trace = figures.synthetic_trace()
+        # A tick every 0.5 s in the narrow layout and every 0.2 s in the wide one, over 1 s
+        tick_counts = {'imu-noise-trace': 3, 'imu-noise-trace-wide': 6}
+        for layout in figures.TRACE_LAYOUTS:
+            svg = figures.trace_figure(trace, layout).svg()
+            self.assertEqual(svg.count('class="tick"'), tick_counts[layout.name], layout.name)
+            for entry in figures.TRACE_LEGEND:
+                self.assertEqual(svg.count(f'>{entry.label}</text>'), 1,
+                                 f'{entry.label} in {layout.name}')
+
+    def test_trace_legend_has_two_rows_fewer_in_two_columns_than_in_one(self) -> None:
+        figures = load_script()
+        trace = figures.synthetic_trace()
+        narrow, wide = (figures.trace_figure(trace, layout) for layout in figures.TRACE_LAYOUTS)
+        self.assertEqual(narrow.height - wide.height, 2 * figures.TRACE_LEGEND_ROW_HEIGHT)
+
+    def test_trace_include_holds_both_layouts_in_the_block_that_chooses_one(self) -> None:
+        text = (ROOT / 'includes' / 'imu-noise-trace.html').read_text(encoding='utf-8')
+        self.assertIn('<div class="lv-space">', text)
+        self.assertIn('class="lv-fig lv-layout-narrow"', text)
+        self.assertIn('class="lv-fig lv-layout-wide"', text)
+
+
 class TestFlowFigure(unittest.TestCase):
     """The flow figure's texts and columns are built from the steps and their test classes."""
 
