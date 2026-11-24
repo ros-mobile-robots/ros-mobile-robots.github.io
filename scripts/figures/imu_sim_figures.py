@@ -29,6 +29,12 @@ from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import escape
+from board_drawings import style_element
+
+# The first line of each include: the script that writes it
+INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_figures.py -->'
+
 
 class Lane(NamedTuple):
     """A thread's lane on the drawing: the x positions of its left and right edges."""
@@ -128,17 +134,6 @@ RULES = (
     ('.th-fig .step-disc', f'fill:{FG}'),
     ('.th-fig .step', f'fill:{BG};font-size:11px;font-weight:700'),
 )
-
-
-def escape(text: str) -> str:
-    """Return text with the characters escaped that have a meaning in SVG."""
-    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-
-
-def style_element(rules: Sequence[Tuple[str, str]]) -> str:
-    """Return a style element with one CSS rule per (selector, declarations) pair."""
-    lines = [f'{selector}{{{declarations}}}' for selector, declarations in rules]
-    return '<style>\n' + '\n'.join(lines) + '\n</style>'
 
 
 class Figure:
@@ -342,6 +337,7 @@ def main() -> None:
             'steps below. A ROS spinner thread runs the callback, and the callback waits '
             'there. The physics thread goes on and calls <code>update()</code>.')
     with open('includes/imu-sim-threads.html', 'w', encoding='utf-8') as include:
+        include.write(INCLUDE_COMMENT + '\n')
         include.write(tabs_html([threads_with_the_original_figure(),
                                  threads_with_the_copy_figure()], [original, copy]))
 

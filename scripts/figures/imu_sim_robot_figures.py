@@ -37,6 +37,12 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import escape
+from board_drawings import style_element
+
+# The first line of each include: the script that writes it
+INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_robot_figures.py -->'
+
 # A point on the drawing, in SVG units
 Point = Tuple[float, float]
 # A position in m or a direction without a unit, in chassis_link's axes: x forward, y left, z up
@@ -183,17 +189,6 @@ RULES = (
      '.imu-fig text.acceleration,.imu-fig text.reading', 'stroke:none;font-weight:700'),
     ('.imu-fig text.halo', f'stroke:{BG}'),
 )
-
-
-def escape(text: str) -> str:
-    """Return text with the characters escaped that have a meaning in SVG."""
-    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-
-
-def style_element(rules: Sequence[Tuple[str, str]]) -> str:
-    """Return a style element with one CSS rule per (selector, declarations) pair."""
-    lines = [f'{selector}{{{declarations}}}' for selector, declarations in rules]
-    return '<style>\n' + '\n'.join(lines) + '\n</style>'
 
 
 def dot(first: Vector, second: Vector) -> float:
@@ -1090,6 +1085,7 @@ def write_frames() -> None:
                        400, caption_is_html=True),
         figure_element([frames_on_diffbot_figure()], diffbot, 300, 400, caption_is_html=True)]
     with open('includes/imu-sim-frames.html', 'w', encoding='utf-8') as include:
+        include.write(INCLUDE_COMMENT + '\n')
         include.write(tabs_html('imuframes', ROBOT_TAB_LABELS, figures))
 
 
@@ -1102,6 +1098,7 @@ def write_angular_velocity() -> None:
                f'{degrees(IMU_YAW)} about z, as the [figure of Remo’s frames]'
                '(position-and-axes.md) shows.')
     with open('includes/imu-sim-angular-velocity.html', 'w', encoding='utf-8') as include:
+        include.write(INCLUDE_COMMENT + '\n')
         include.write(figure_html([angular_velocity_figure()], caption, 300, 480))
 
 
@@ -1135,6 +1132,7 @@ def write_specific_force() -> None:
     drawings = [specific_force_at_rest_figure(), specific_force_speeding_up_figure(),
                 specific_force_in_a_turn_figure()]
     with open('includes/imu-sim-specific-force.html', 'w', encoding='utf-8') as include:
+        include.write(INCLUDE_COMMENT + '\n')
         include.write(figure_html(drawings, caption, 200, 290, specific_force_explanations()))
 
 

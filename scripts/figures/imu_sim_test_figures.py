@@ -39,6 +39,12 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import escape
+from board_drawings import style_element
+
+# The first line of each include: the script that writes it
+INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_test_figures.py -->'
+
 
 # test_imu.py
 COMMAND_RATE = 20  # Hz, how often the test sends its command
@@ -109,22 +115,11 @@ RULES = (
 )
 
 
-def escape(text: str) -> str:
-    """Return text with the characters escaped that have a meaning in SVG."""
-    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-
-
 def subscript(symbol: str, index: str) -> str:
     """Return SVG markup for a symbol with a subscript."""
     # The second tspan moves the baseline back up for the text after the subscript. A shift
     # applies to a character, so the tspan holds one that has no width: U+200B
     return f'{symbol}<tspan class="sub" dy="3">{index}</tspan><tspan dy="-3">\u200b</tspan>'
-
-
-def style_element(rules: Sequence[Tuple[str, str]]) -> str:
-    """Return a style element with one CSS rule per (selector, declarations) pair."""
-    lines = [f'{selector}{{{declarations}}}' for selector, declarations in rules]
-    return '<style>\n' + '\n'.join(lines) + '\n</style>'
 
 
 class Scale(NamedTuple):
@@ -730,10 +725,13 @@ def reset_caption() -> str:
 def main() -> None:
     """Write the three includes."""
     with open('includes/imu-sim-test-at-rest.html', 'w', encoding='utf-8') as include:
+        include.write(INCLUDE_COMMENT + '\n')
         include.write(figure_html([at_rest_figure()], at_rest_caption(), 300, 480))
     with open('includes/imu-sim-test-left-turn.html', 'w', encoding='utf-8') as include:
+        include.write(INCLUDE_COMMENT + '\n')
         include.write(figure_html([left_turn_figure()], left_turn_caption(), 300, 480))
     with open('includes/imu-sim-test-reset.html', 'w', encoding='utf-8') as include:
+        include.write(INCLUDE_COMMENT + '\n')
         include.write(figure_html([reset_with_the_copy_figure(), reset_with_the_old_time_figure()],
                                   reset_caption(), 280, 400))
 

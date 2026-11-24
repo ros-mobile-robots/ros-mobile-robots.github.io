@@ -80,6 +80,26 @@ class TestIncludes(unittest.TestCase):
              'imu-sim-test-reset.html'])
 
 
+class TestIncludeComment(unittest.TestCase):
+    """Each include starts with the comment that names the script that writes it."""
+
+    def test_each_include_starts_with_the_comment_that_names_its_script(self) -> None:
+        scripts = {
+            'imu-sim-threads.html': 'imu_sim_figures.py',
+            'imu-sim-frames.html': 'imu_sim_robot_figures.py',
+            'imu-sim-angular-velocity.html': 'imu_sim_robot_figures.py',
+            'imu-sim-specific-force.html': 'imu_sim_robot_figures.py',
+            'imu-sim-test-at-rest.html': 'imu_sim_test_figures.py',
+            'imu-sim-test-left-turn.html': 'imu_sim_test_figures.py',
+            'imu-sim-test-reset.html': 'imu_sim_test_figures.py',
+        }
+        for include_name, script_name in scripts.items():
+            text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
+            self.assertTrue(
+                text.startswith(f'<!-- Written by scripts/figures/{script_name} -->\n'),
+                include_name)
+
+
 class TestFrameAxes(unittest.TestCase):
     """A frame's axis is an arrow along the drawing and a ring along the line of sight."""
 
