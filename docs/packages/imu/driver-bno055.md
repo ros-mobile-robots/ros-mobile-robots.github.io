@@ -117,7 +117,7 @@ The example's bias is about 30 times Remo's, so that the figure can show it. Wit
 
 ### Run the tool on a recording
 
-**You need:** a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) with the topic [`/diffbot/imu/data_raw`](#what-the-firmware-publishes), recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both.
+**You need:** the recording, a [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag) file with the topic [`/diffbot/imu/data_raw`](#what-the-firmware-publishes) that was recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. [Make a recording](#make-a-recording) shows how to get both.
 
 In the folder that holds the recording, run the tool with the recording's file name:
 
