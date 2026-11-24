@@ -24,10 +24,11 @@ ROOT = Path(__file__).resolve().parent.parent
 FIGURES = ROOT / 'scripts' / 'figures'
 SCRIPT = FIGURES / 'imu_noise_figures.py'
 TESTS_PAGE = ROOT / 'docs' / 'packages' / 'imu' / 'noise-at-rest-tests.md'
-# An entry of the page's list "The test classes": the names of its classes in a link, then
-# their numbers of tests, such as "2 + 2 tests:"
+# An entry of the page's list "The test classes": the names of its classes, in a link or as
+# inline code, then their numbers of tests, such as "2 + 2 tests:"
 CLASS_LIST_ENTRY = re.compile(
-    r'- \*\*\[(?P<names>[^\]]+)\]\([^)]*\), (?P<counts>[\d +]+) tests:\*\*')
+    r'- \*\*(?:\[(?P<names>[^\]]+)\]\([^)]*\)|(?P<plain>`Test[^*]*?)), '
+    r'(?P<counts>[\d +]+) tests:\*\*')
 INCLUDE_NAMES = ['imu-noise-test-flow.html', 'imu-noise-test-gravity.html',
                  'imu-noise-test-intervals.html', 'imu-noise-test-measured.html',
                  'imu-noise-test-stamps-back.html', 'imu-noise-test-variance.html',
@@ -83,7 +84,7 @@ def page_test_counts() -> List[Tuple[str, int]]:
     for line in TESTS_PAGE.read_text(encoding='utf-8').splitlines():
         entry = CLASS_LIST_ENTRY.match(line)
         if entry:
-            names = re.findall(r'`(Test\w+)`', entry['names'])
+            names = re.findall(r'`(Test\w+)`', entry['names'] or entry['plain'])
             counts.extend(zip(names, (int(count) for count in entry['counts'].split('+'))))
     return counts
 
