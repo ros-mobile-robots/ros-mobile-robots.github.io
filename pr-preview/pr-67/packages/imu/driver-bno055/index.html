@@ -4462,6 +4462,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4551,6 +4555,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../development/firmware-unit-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Unit Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../development/geometry-test/" class="md-nav__link">
         
   
@@ -4595,6 +4627,111 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../decisions/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../decisions/0001-record-architecture-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: Record architecture decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4848,7 +4985,7 @@
 <td style="text-align: left;"></td>
 </tr>
 <tr>
-<td style="text-align: left;">ADR</td>
+<td style="text-align: left;"><abbr title="Architecture decision record. A short page that records one lasting choice of the project, with the problem, the options, the choice and its reason, and what follows from it.">ADR</abbr></td>
 <td style="text-align: left;">not connected</td>
 <td style="text-align: left;"><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> address 0x28. Connected to 3.3 V: 0x29, then set <code>IMU_BNO055_ADDRESS</code></td>
 </tr>
@@ -4943,12 +5080,12 @@
 <h2 id="how-the-firmware-reads-it">How the firmware reads it</h2>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_firmware/lib/imu/README.md"><code>lib/imu</code></a> has a small driver of its own for the BNO055, instead of <a href="https://github.com/adafruit/Adafruit_BNO055">Adafruit's library</a>, so that every <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> transfer is checked and the start-up's waits don't hold up the firmware's loop:</p>
 <ul>
-<li><strong>The start-up doesn't block the motor control.</strong> A reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's <a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf">datasheet</a>). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does it. Most steps take one or two transfers. The step that writes the settings and reads them back takes 14, about 4 ms, once per start-up. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>'s standard clock of 100 kHz. The waits for the chip to finish resetting and start its fusion have deadlines. If either wait reaches its deadline, the driver fails the start-up on the next loop pass. The firmware tries again after <code>retry_ms</code>. On Remo, the control loop kept its 20 Hz while the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> was unplugged (<a href="#bench-checks">bench checks</a>).</li>
+<li><strong>The start-up doesn't block the motor control:</strong> a reset of the chip takes about 650 ms, and each switch of its operating mode up to 19 ms (Bosch's <a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf">datasheet</a>). The driver goes through the steps as a state machine: configuration mode, reset, settings written and read back, <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode, until the chip reports that its fusion runs. Instead of sleeping through those times, each pass through the firmware's loop checks whether the next step is due and does it. Most steps take one or two transfers. The step that writes the settings and reads them back takes 14, about 4 ms, once per start-up. The transfers themselves are synchronous: the loop waits while one runs, about 0.3 ms for one register and about 3 ms for a whole sample (26 bytes) at <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>'s standard clock of 100 kHz. The waits for the chip to finish resetting and start its fusion have deadlines. If either wait reaches its deadline, the driver fails the start-up on the next loop pass. The firmware tries again after <a href="#what-the-firmware-publishes"><code>retry_ms</code></a>. On Remo, the control loop kept its 20 Hz while the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> was unplugged (<a href="#bench-checks">bench checks</a>).</li>
 <li><strong>A sample is published only if it's good:</strong> the read succeeded and took at most <code>read_budget_us</code> (10 ms: a later result is dropped, but the budget can't cut a transfer short), the chip still is in <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode with the right units and its fusion runs. A stalled or unplugged <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic instead of repeating old values with new stamps. After ten failed reads in a row, the firmware starts the chip again. A missing <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is looked for again every <code>retry_ms</code> (10 s). The robot drives without an <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>, too.</li>
-<li><strong>Stamps are ROS time,</strong> which rosserial takes from the robot's computer: the Teensy's clock is synchronized with it every few seconds. Until the first synchronization after a connection, the firmware publishes nothing, because a stamp would carry the Teensy's uptime instead of ROS time.</li>
-<li><strong>The 50 Hz rate counts on the Teensy's own clock</strong> (<code>millis()</code>), so it doesn't change when ROS time jumps, for example when the Teensy connects to a computer whose clock is earlier.</li>
+<li><strong>Stamps are ROS time:</strong> <a href="../../../processing_units/teensy-mcu/#other-boards-such-as-an-arduino">rosserial</a> takes the time from the robot's computer and synchronizes the Teensy's clock with it every few seconds. Until the first synchronization after a connection, the firmware publishes nothing, because a stamp would carry the Teensy's uptime instead of ROS time.</li>
+<li><strong>The 50 Hz rate counts on the Teensy's own clock:</strong> the firmware times it with <a href="../../diffbot_base/low-level/#timing-with-the-mcus-clock"><code>millis()</code></a>, so the rate doesn't change when ROS time jumps, for example when the Teensy connects to a computer whose clock is earlier.</li>
 </ul>
-<p><strong>Unit tests on the PC:</strong> <code>.docker/firmware/run.sh pio test -e native</code>, from the root folder of the diffbot repository, runs the tests in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware/test"><code>diffbot_firmware/test</code></a> in the firmware container (<a href="../../../development/ci/#running-the-checks-locally">Running the checks locally</a>). They run the driver, the bus code, the time-sync check and the publisher with a fake sensor, <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, serial port and clock, and with rosserial's own message parser. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs them in the firmware workflow (<a href="../../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>). They check the logic, not the hardware.</p>
+<p><strong>Unit tests on the PC:</strong> <code>.docker/firmware/run.sh pio test -e native -e native_googletest</code>, from the root folder of the diffbot repository, runs the tests in <a href="https://github.com/ros-mobile-robots/diffbot/blob/c3d93b237fcbe01f763f8f4503d921436e2ea742/diffbot_firmware/test"><code>diffbot_firmware/test</code></a> in the firmware container (<a href="../../../development/ci/#running-the-checks-locally">Running the checks locally</a>). The bus code's suite is written with <a href="../../../development/firmware-unit-tests/#which-framework-for-a-new-test">GoogleTest</a> and the other three with Unity, each with an environment of its own in that command. They run the driver, the bus code, the time-sync check and the publisher with a fake sensor, <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, serial port and clock, and with rosserial's own message parser. <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> runs them in the firmware workflow (<a href="../../../development/ci/">Testing and <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr></a>). They check the logic, not the hardware.</p>
 <h2 id="bench-checks">Bench checks</h2>
 <p>With the bringup running on the robot and its wheels off the ground:</p>
 <ol>
@@ -5179,6 +5316,10 @@
       .md-typeset pre > code { padding-right: 3em; }
       /* Highlighted lines still reach the right edge, through that padding */
       .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
+      /* Wide diagrams keep a readable size on a phone and scroll sideways, instead of shrinking
+         to the screen's width, for example the firmware's parts on Low-Level Base Controller */
+      .md-typeset .wide-diagram { overflow-x: auto; }
+      @media screen and (max-width: 44.9375em) { .md-typeset .wide-diagram svg { min-width: 30rem; } }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use
