@@ -113,7 +113,7 @@ Choose your robot. The figure's tabs and the tabs of the text below switch toget
     --8<-- "https://raw.githubusercontent.com/ros-mobile-robots/remo_description/2.5.0/urdf/include/remo_base_macro.urdf.xacro:20:30"
     ```
 
-The EKF needs the yaw rate $\omega_z$ along the robot's axes, not along the IMU's. The EKF converts the IMU's values with this joint's transform. [`robot_state_publisher`](https://github.com/ros/robot_state_publisher/blob/1.15.3/src/robot_state_publisher.cpp#L145-L166) publishes the transform: this ROS node reads the robot's URDF model and publishes the position of every link to tf, ROS's system for transforms between frames. In the simulation, [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L28-L30) starts `robot_state_publisher`.
+The EKF needs the yaw rate $\omega_z$ along the robot's axes, not along the IMU's. The EKF converts the IMU's values with this joint's transform. [`robot_state_publisher`](https://github.com/ros/robot_state_publisher/blob/1.15.3/src/robot_state_publisher.cpp#L145-L166) publishes the transform: this ROS node reads the robot's URDF model and publishes the position of every link to tf, ROS's system for transforms between frames. In the simulation, [`diffbot_control.launch`]({{ imu_sim_src_url }}/diffbot_control/launch/diffbot_control.launch#L44-L46) starts `robot_state_publisher`.
 
 ## The link and the joint in the robot's URDF model
 

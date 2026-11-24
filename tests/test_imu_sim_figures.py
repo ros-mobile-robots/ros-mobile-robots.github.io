@@ -165,6 +165,22 @@ class TestTextsFromValues(unittest.TestCase):
         self.assertIn('pass rule: at least 81 arrivals in 2 s', drawing.svg())
         self.assertIn('and needs at least 81.', drawing.description)
 
+    def test_left_turn_figure_names_the_fewest_messages_of_another_rate_tolerance(self) -> None:
+        rate_tolerance = 0.8  # the share of the 50 Hz that the test would need
+        with mock.patch.object(imu_sim_test_figures, 'RATE_TOLERANCE', rate_tolerance):
+            drawing = imu_sim_test_figures.left_turn_figure()
+        # More than 0.8 * 50 Hz * 2 s = 80 messages
+        self.assertIn('pass rule: at least 81 arrivals in 2 s', drawing.svg())
+        self.assertIn('and needs at least 81.', drawing.description)
+
+    def test_at_rest_figure_names_another_yaw_rate_tolerance(self) -> None:
+        yaw_rate_tolerance = 0.1  # rad/s
+        with mock.patch.object(imu_sim_test_figures, 'YAW_RATE_AT_REST_TOLERANCE',
+                               yaw_rate_tolerance):
+            drawing = imu_sim_test_figures.at_rest_figure()
+        self.assertIn('the mean of their yaw rates within 0.1 rad/s of 0 rad/s',
+                      drawing.description)
+
     def test_specific_force_drawings_call_their_numbers_a_level_noise_free_example(self) -> None:
         drawings = [imu_sim_robot_figures.specific_force_at_rest_figure(),
                     imu_sim_robot_figures.specific_force_speeding_up_figure(),

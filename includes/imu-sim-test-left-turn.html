@@ -35,7 +35,7 @@
 </style>
 <figure class="tl-figure" markdown="block" style="--tl-basis:300px;--tl-max:480px">
 <div class="tl-panels">
-<svg class="tl-fig" viewBox="0 0 360 394" role="img" aria-labelledby="tl-left-turn-title tl-left-turn-description"><title id="tl-left-turn-title">The left turn over simulation time</title><desc id="tl-left-turn-description">The test sends a turn command of 0.5 rad/s about the upward axis, 20 times per second, for SPEED_UP, 1 s, and then for MEASURE, 2 s. Then it sends one stop command. The robot turns left on the spot, by about 0.5 rad after SPEED_UP and about 1.5 rad after MEASURE. These headings are ideal: they follow from the command, not from a run. The test keeps the IMU’s messages of MEASURE, about 100, and has no rule for their number. The mean of their yaw rates must lie between 0.35 and 0.65 rad/s.</desc>
+<svg class="tl-fig" viewBox="0 0 360 394" role="img" aria-labelledby="tl-left-turn-title tl-left-turn-description"><title id="tl-left-turn-title">The left turn over simulation time</title><desc id="tl-left-turn-description">The test sends a turn command of 0.5 rad/s about the upward axis, 20 times per second, for SPEED_UP, 1 s, and then for MEASURE, 2 s. Then it sends one stop command. The robot turns left on the spot, by about 0.5 rad after SPEED_UP and about 1.5 rad after MEASURE. These headings are ideal: they follow from the command, not from a run. The test keeps the IMU’s messages of MEASURE, about 100, and needs at least 91. The mean of their yaw rates must lie between 0.35 and 0.65 rad/s.</desc>
 <text class="row-title" x="8" y="14" text-anchor="start">The test sends this command, 20 times per second</text>
 <rect class="command-wash" x="40.0" y="22" width="280.0" height="20" rx="4"/>
 <text x="180.0" y="36" text-anchor="middle">turn left: angular.z = 0.5 rad/s</text>
@@ -73,7 +73,7 @@
 <rect class="imu-wash" x="40.0" y="322" width="308.0" height="8" rx="4"/>
 <rect class="imu-bar" x="133.3" y="322" width="186.7" height="8" rx="4"/>
 <text class="note" x="226.65" y="342" text-anchor="middle">the test keeps these, about 100</text>
-<text class="note" x="226.65" y="356" text-anchor="middle">this test has no rule for their number</text>
+<text class="note" x="226.65" y="356" text-anchor="middle">pass rule: at least 91 arrivals in 2 s</text>
 <path class="axis" d="M40.0,362 H348.0"/>
 <text class="note" x="40.0" y="376" text-anchor="middle">0</text>
 <text class="note" x="133.3" y="376" text-anchor="middle">1</text>

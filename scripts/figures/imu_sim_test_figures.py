@@ -12,10 +12,10 @@ shows what one test of the simulated IMU does over simulation time:
   of the IMU's samples before and after the reset, with the robots' IMU plugin and with a
   plugin that keeps the time from before the reset. The panels are an idealized example: the
   reset comes at exactly RUN_BEFORE_RESET, and the IMU publishes exactly IMU_RATE samples per
-  second. The test itself only needs FRESH_SAMPLE_COUNT samples after the reset with a stamp
-  below RECOVERY. Both axes end a fifth of RUN_BEFORE_RESET after the time at which a plugin that
-  keeps the old time publishes again, so that this sample lies inside the plot for any
-  RUN_BEFORE_RESET.
+  second. The test itself only needs FRESH_SAMPLE_COUNT samples after the reset with advancing
+  stamps below RECOVERY. Both axes end a fifth of RUN_BEFORE_RESET after the time at which a
+  plugin that keeps the old time publishes again, so that this sample lies inside the plot for
+  any RUN_BEFORE_RESET.
 
 The durations, rates and tolerances below are the constants of diffbot_gazebo/test/test_imu.py
 and test_imu_reset.py in the diffbot repository, at the commit that mkdocs.yml pins as
@@ -39,6 +39,7 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
+
 # test_imu.py
 COMMAND_RATE = 20  # Hz, how often the test sends its command
 IMU_RATE = 50.0  # Hz, the test's RATE
@@ -50,6 +51,8 @@ GRAVITY = 9.81  # m/s²
 GRAVITY_TOLERANCE = 0.5  # m/s²
 TURN_RATE = 0.5  # rad/s
 TURN_RATE_TOLERANCE = 0.15  # rad/s
+# How far the mean yaw rate may lie from zero at rest: a tenth of TURN_RATE
+YAW_RATE_AT_REST_TOLERANCE = TURN_RATE / 10  # rad/s
 # test_imu_reset.py
 RUN_BEFORE_RESET = 3.0  # s of simulation time
 RECOVERY = 1.0  # s of simulation time
@@ -378,10 +381,10 @@ def draw_messages(figure: Figure, measure_start: float, count_rule: str) -> None
                 'simulation time since the test’s first command, in s', 'note', 'middle')
 
 
-def fewest_messages_at_rest() -> int:
-    """Return the fewest messages of MEASURE with which the test at rest passes its rate check.
+def fewest_messages_in_measure() -> int:
+    """Return the fewest messages of MEASURE with which a test of test_imu.py passes the rate.
 
-    The test needs a rate above RATE_TOLERANCE times its RATE, so more messages than that rate
+    Both tests need a rate above RATE_TOLERANCE times its RATE, so more messages than that rate
     gives in MEASURE.
     """
     return math.floor(RATE_TOLERANCE * IMU_RATE * MEASURE) + 1
@@ -394,8 +397,9 @@ def at_rest_figure() -> Figure:
         f'The test sends the stop command {COMMAND_RATE} times per second, for SETTLE, '
         f'{SETTLE:g} s, and then for MEASURE, {MEASURE:g} s. The robot stands still. The test '
         f'keeps the IMU’s messages of MEASURE, about {MEASURE * IMU_RATE:g}, and needs at least '
-        f'{fewest_messages_at_rest()}. The mean of their readings on the upward axis must lie '
-        f'between {GRAVITY - GRAVITY_TOLERANCE:.2f} and {GRAVITY + GRAVITY_TOLERANCE:.2f} m/s². '
+        f'{fewest_messages_in_measure()}. The mean of their readings on the upward axis must lie '
+        f'between {GRAVITY - GRAVITY_TOLERANCE:.2f} and {GRAVITY + GRAVITY_TOLERANCE:.2f} m/s², '
+        f'and the mean of their yaw rates within {YAW_RATE_AT_REST_TOLERANCE:g} rad/s of 0 rad/s. '
         f'A black line marks a reference value, gravity in the simulation, {GAZEBO_GRAVITY} '
         'm/s². It is not a reading.')
     draw_command(figure, 'stand still: all velocities 0',
@@ -419,7 +423,7 @@ def at_rest_figure() -> Figure:
     figure.path(f'M{DRIVE_TIME.first_position},{values.position(GAZEBO_GRAVITY)} '
                 f'H{DRIVE_TIME.last_position}', 'reference-line')
     draw_messages(figure, SETTLE,
-                  f'pass rule: at least {fewest_messages_at_rest()} arrivals in {MEASURE:g} s')
+                  f'pass rule: at least {fewest_messages_in_measure()} arrivals in {MEASURE:g} s')
     return figure
 
 
@@ -434,7 +438,8 @@ def left_turn_figure() -> Figure:
         f'about {TURN_RATE * SPEED_UP:g} rad after SPEED_UP and about {TURN_RATE * turn_end:g} '
         f'rad after MEASURE. These headings are ideal: they follow from the command, not from '
         f'a run. The test keeps the IMU’s messages of MEASURE, about {MEASURE * IMU_RATE:g}, '
-        'and has no rule for their number. The mean of their yaw rates must lie between '
+        f'and needs at least {fewest_messages_in_measure()}. The mean of their yaw rates must '
+        'lie between '
         f'{TURN_RATE - TURN_RATE_TOLERANCE:.2f} and {TURN_RATE + TURN_RATE_TOLERANCE:.2f} rad/s.')
     draw_command(figure, f'turn left: angular.z = {TURN_RATE} rad/s',
                  [Phase('SPEED_UP', SPEED_UP), Phase('MEASURE', MEASURE)], stops=True)
@@ -460,7 +465,8 @@ def left_turn_figure() -> Figure:
     start, end = DRIVE_TIME.position(0.0), DRIVE_TIME.position(turn_end)
     figure.path(f'M{start},{values.position(0.0)} V{values.position(TURN_RATE)} H{end} '
                 f'V{values.position(0.0)} H{DRIVE_TIME.last_position}', 'command-line')
-    draw_messages(figure, SPEED_UP, 'this test has no rule for their number')
+    draw_messages(figure, SPEED_UP,
+                  f'pass rule: at least {fewest_messages_in_measure()} arrivals in {MEASURE:g} s')
     return figure
 
 
@@ -621,7 +627,8 @@ def draw_recovery_with_the_copy(figure: Figure) -> None:
     middle = reset_stamp().position(RECOVERY / 2) + 5
     figure.text(right, middle - LINE_HEIGHT / 2,
                 f'sample {FRESH_SAMPLE_COUNT}: {passing_stamp:.2f} s', 'note', 'end')
-    figure.text(right, middle + LINE_HEIGHT / 2, f'counted: below {RECOVERY:g} s', 'note', 'end')
+    figure.text(right, middle + LINE_HEIGHT / 2, f'counted: rising, below {RECOVERY:g} s', 'note',
+                'end')
 
 
 def draw_silence_with_the_old_time(figure: Figure) -> None:
@@ -645,8 +652,9 @@ def reset_with_the_copy_figure() -> Figure:
         f'The stamps of the IMU’s samples rise with Gazebo’s clock to {RUN_BEFORE_RESET:g} s. '
         'Then the test resets the simulation, and the clock starts from 0 again. The first '
         f'sample after the reset is stamped about {IMU_PERIOD:.2f} s. Samples that arrive after '
-        'the test saved its count, just before the reset call, with a stamp below '
-        f'{RECOVERY:g} s count as fresh. The test passes with '
+        'the test saved its count, just before the reset call, count as fresh when each stamp is '
+        f'later than 0 s, later than the last fresh stamp and below {RECOVERY:g} s. The test '
+        'passes with '
         f'{FRESH_SAMPLE_COUNT} of them. A dot marks sample {FRESH_SAMPLE_COUNT}, stamped about '
         f'{FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s.')
     draw_reset_chart(figure, 'With the robots’ IMU plugin')
@@ -710,12 +718,13 @@ def reset_caption() -> str:
             'the stamps of the IMU’s samples while the simulation runs. The horizontal axis '
             'doesn’t start over at the reset. The test counts a sample as fresh when the sample '
             'arrives after the test saved its count of samples, just before the reset call, '
-            f'with a stamp below `RECOVERY`, {RECOVERY:g} s. In this ideal run, these are the '
+            'with a stamp later than 0 s, later than the last fresh stamp and below `RECOVERY`, '
+            f'{RECOVERY:g} s. In this ideal run, these are the '
             'samples in the gray area. The test '
             f'passes with {FRESH_SAMPLE_COUNT} fresh samples, which have to arrive within '
             f'{RECOVERY_TIMEOUT:g} s of wall time. The dot in the first panel is sample '
-            f'{FRESH_SAMPLE_COUNT}, stamped about {FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s. The '
-            'test counts arrivals and doesn’t compare their stamps with each other.')
+            f'{FRESH_SAMPLE_COUNT}, stamped about {FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s. A '
+            'repeated stamp doesn’t count, so a stream that repeats one stamp fails.')
 
 
 def main() -> None:
