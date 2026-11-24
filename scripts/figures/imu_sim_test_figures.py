@@ -622,7 +622,8 @@ def draw_recovery_with_the_copy(figure: Figure) -> None:
     middle = reset_stamp().position(RECOVERY / 2) + 5
     figure.text(right, middle - LINE_HEIGHT / 2,
                 f'sample {FRESH_SAMPLE_COUNT}: {passing_stamp:.2f} s', 'note', 'end')
-    figure.text(right, middle + LINE_HEIGHT / 2, f'counted: rising, below {RECOVERY:g} s', 'note',
+    # "<" keeps the line short enough to end clear of the dot and the samples' line
+    figure.text(right, middle + LINE_HEIGHT / 2, f'counted: rising, < {RECOVERY:g} s', 'note',
                 'end')
 
 
