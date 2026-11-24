@@ -5886,7 +5886,7 @@ SUMMARY
 <path class="imu-line" d="M152.1,189.3 L292.0,60.0"></path>
 <circle class="imu-dot" cx="159.1" cy="182.8" r="4.5"></circle>
 <text class="note" x="288.0" y="169.9" text-anchor="end">sample 10: 0.20 s</text>
-<text class="note" x="288.0" y="183.9" text-anchor="end">counted: rising, below 1 s</text>
+<text class="note" x="288.0" y="183.9" text-anchor="end">counted: rising, &lt; 1 s</text>
 <text class="strong" x="8" y="254" text-anchor="start">10 fresh samples: the test passes</text>
 </svg>
 <svg class="tl-fig" viewBox="0 0 300 262" role="img" aria-labelledby="tl-reset-old-time-title tl-reset-old-time-description"><title id="tl-reset-old-time-title">The reset test with a plugin that keeps the old time</title><desc id="tl-reset-old-time-description">The stamps of the IMU’s samples rise with Gazebo’s clock to 3 s. Then the test resets the simulation, and the clock starts from 0 again. The plugin stays silent until the clock has passed 3 s again. No sample after the reset has a stamp below 1 s, so none counts as fresh, and the test fails.</desc>
