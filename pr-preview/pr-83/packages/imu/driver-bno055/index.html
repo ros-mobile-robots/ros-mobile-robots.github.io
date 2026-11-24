@@ -5284,7 +5284,7 @@
 <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
 <p>The robot uses one value from it: the <strong>yaw rate</strong> <span class="arithmatex">\(\omega_z\)</span>, the angular velocity about the upward axis. The <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, and the Teensy's firmware publishes its measurements over <a href="../../../processing_units/teensy-mcu/#other-boards-such-as-an-arduino">rosserial</a>.</p>
-<p>To measure how far your robot's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is off at rest and how much its readings scatter, go to <a href="#bias-and-noise-at-rest">Bias and noise at rest</a>: one command on a recording of the standing robot.</p>
+<p>To measure how far your robot's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is off at rest and how much its readings scatter, go to <a href="#bias-and-noise-at-rest">Bias and noise at rest</a>. Its figure shows what the bias and the noise are, and one command measures both on a recording of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s messages.</p>
 <div class="admonition info">
 <p class="admonition-title">Checked on Remo</p>
 <p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard. On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
@@ -5577,9 +5577,14 @@
 .lv-noise .lv-fig .refused-line{fill:none;stroke:var(--lv-bad);stroke-width:1.6;stroke-dasharray:4 2.5}
 .lv-noise .lv-fig .refused-head{fill:var(--lv-bad);stroke:none}
 .lv-noise .lv-fig .command-span{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
 </style>
-<figure class="lv-figure lv-large lv-drawing lv-symbols lv-noise">
-<svg class="lv-fig" viewBox="0 0 300 224" role="img" aria-labelledby="imu-noise-trace-title"><title id="imu-noise-trace-title">Yaw-rate readings of a gyroscope at rest against time. The readings lie on output steps. Their mean lies above zero: the bias. A band of one standard deviation around the mean shows their spread</title>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-noise lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 306" role="img" aria-labelledby="imu-noise-trace-title"><title id="imu-noise-trace-title">Yaw-rate readings of a gyroscope at rest against time. The readings lie on output steps. Their mean lies above zero: the bias. A band of one standard deviation around the mean shows their spread</title>
 <text class="mono" x="4.0" y="13.0" text-anchor="start">angular_velocity.z in rad/s</text>
 <path class="level" d="M52,167.0 H182"></path>
 <text class="note" x="47.0" y="171.0" text-anchor="end">−0.0011</text>
@@ -5664,16 +5669,127 @@
 <path class="tick" d="M182.0,180.0 v4"></path>
 <text class="note" x="182.0" y="197.0" text-anchor="middle">1</text>
 <text class="note" x="117.0" y="216.0" text-anchor="middle">seconds after the first header stamp</text>
+<circle class="reading" cx="16.0" cy="238.0" r="2"></circle>
+<text x="34.0" y="242.0" text-anchor="start">reading, one every 20 ms</text>
+<path class="mean-line" d="M4.0,256.0 H28.0"></path>
+<text x="34.0" y="260.0" text-anchor="start">mean: its offset from zero is the bias</text>
+<rect class="spread-band" x="4.0" y="269.0" width="24.0" height="10.0" rx="0"></rect>
+<path class="spread-line" d="M4.0,269.0 H28.0 M4.0,279.0 H28.0"></path>
+<text x="34.0" y="278.0" text-anchor="start">mean ± s: the noise</text>
+<path class="level" d="M4.0,292.0 H28.0"></path>
+<text x="34.0" y="296.0" text-anchor="start">output steps, 1/900 rad/s apart</text>
 </svg>
-<figcaption><strong>A synthetic example, not a recording of a robot.</strong> A gyroscope at rest that reads in steps of 1/900 rad/s, like the BNO055. The dots are the 50 readings of the first second. The lines come from all 9,000 readings of 180 s: the mean +0.00148 rad/s is the bias, and the standard deviation <em>s</em> = 0.00078 rad/s is the noise. The readings take 6 distinct values. The dotted lines are the output steps.</figcaption>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 270" role="img" aria-labelledby="imu-noise-trace-wide-title"><title id="imu-noise-trace-wide-title">Yaw-rate readings of a gyroscope at rest against time. The readings lie on output steps. Their mean lies above zero: the bias. A band of one standard deviation around the mean shows their spread</title>
+<text class="mono" x="4.0" y="13.0" text-anchor="start">angular_velocity.z in rad/s</text>
+<path class="level" d="M52,167.0 H412"></path>
+<text class="note" x="47.0" y="171.0" text-anchor="end">−0.0011</text>
+<path class="level" d="M52,141.0 H412"></path>
+<text class="note" x="47.0" y="145.0" text-anchor="end">0</text>
+<path class="level" d="M52,115.0 H412"></path>
+<text class="note" x="47.0" y="119.0" text-anchor="end">+0.0011</text>
+<path class="level" d="M52,89.0 H412"></path>
+<text class="note" x="47.0" y="93.0" text-anchor="end">+0.0022</text>
+<path class="level" d="M52,63.0 H412"></path>
+<text class="note" x="47.0" y="67.0" text-anchor="end">+0.0033</text>
+<path class="level" d="M52,37.0 H412"></path>
+<text class="note" x="47.0" y="41.0" text-anchor="end">+0.0044</text>
+<rect class="spread-band" x="52.0" y="88.3" width="360.0" height="36.3" rx="0"></rect>
+<path class="zero-line" d="M52,141.0 H412"></path>
+<path class="spread-line" d="M52,88.3 H412"></path>
+<text x="417.0" y="92.3" text-anchor="start">mean + s</text>
+<text x="538.0" y="92.3" text-anchor="end">+0.0023</text>
+<path class="mean-line" d="M52,106.5 H412"></path>
+<text class="strong" x="417.0" y="110.5" text-anchor="start">mean</text>
+<text class="strong" x="538.0" y="110.5" text-anchor="end">+0.0015</text>
+<path class="spread-line" d="M52,124.6 H412"></path>
+<text x="417.0" y="128.6" text-anchor="start">mean − s</text>
+<text x="538.0" y="128.6" text-anchor="end">+0.0007</text>
+<text x="417.0" y="145.0" text-anchor="start">zero</text>
+<text x="538.0" y="145.0" text-anchor="end">0</text>
+<circle class="reading" cx="52.0" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="59.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="66.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="73.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="80.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="88.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="95.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="102.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="109.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="116.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="124.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="131.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="138.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="145.6" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="152.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="160.0" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="167.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="174.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="181.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="188.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="196.0" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="203.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="210.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="217.6" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="224.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="232.0" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="239.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="246.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="253.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="260.8" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="268.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="275.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="282.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="289.6" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="296.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="304.0" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="311.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="318.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="325.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="332.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="340.0" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="347.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="354.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="361.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="368.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="376.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="383.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="390.4" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="397.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="404.8" cy="115.0" r="1.3"></circle>
+<path class="axis" d="M52,24 V180.0 H412"></path>
+<path class="tick" d="M52.0,180.0 v4"></path>
+<text class="note" x="52.0" y="197.0" text-anchor="middle">0</text>
+<path class="tick" d="M124.0,180.0 v4"></path>
+<text class="note" x="124.0" y="197.0" text-anchor="middle">0.2</text>
+<path class="tick" d="M196.0,180.0 v4"></path>
+<text class="note" x="196.0" y="197.0" text-anchor="middle">0.4</text>
+<path class="tick" d="M268.0,180.0 v4"></path>
+<text class="note" x="268.0" y="197.0" text-anchor="middle">0.6</text>
+<path class="tick" d="M340.0,180.0 v4"></path>
+<text class="note" x="340.0" y="197.0" text-anchor="middle">0.8</text>
+<path class="tick" d="M412.0,180.0 v4"></path>
+<text class="note" x="412.0" y="197.0" text-anchor="middle">1</text>
+<text class="note" x="232.0" y="216.0" text-anchor="middle">seconds after the first header stamp</text>
+<circle class="reading" cx="16.0" cy="238.0" r="2"></circle>
+<text x="34.0" y="242.0" text-anchor="start">reading, one every 20 ms</text>
+<path class="mean-line" d="M270.0,238.0 H294.0"></path>
+<text x="300.0" y="242.0" text-anchor="start">mean: its offset from zero is the bias</text>
+<rect class="spread-band" x="4.0" y="251.0" width="24.0" height="10.0" rx="0"></rect>
+<path class="spread-line" d="M4.0,251.0 H28.0 M4.0,261.0 H28.0"></path>
+<text x="34.0" y="260.0" text-anchor="start">mean ± s: the noise</text>
+<path class="level" d="M270.0,256.0 H294.0"></path>
+<text x="300.0" y="260.0" text-anchor="start">output steps, 1/900 rad/s apart</text>
+</svg>
+<figcaption><strong>A synthetic example, not a recording of a robot.</strong> A gyroscope at rest that reads in steps of 1/900 rad/s, like the BNO055. The dots are the 50 readings of the first second. The lines come from all 9,000 readings of 180 s: the mean +0.00148 rad/s is the bias, and the standard deviation <em>s</em> = 0.00078 rad/s is the noise. The readings take 6 distinct values.</figcaption>
 </figure>
+</div>
 
 <ul>
-<li><strong>The bias</strong> is how far the mean of the readings lies from zero. The mean is the solid orange line.</li>
+<li><strong>The bias</strong> is how far the mean of the readings lies from zero.</li>
 <li><strong>The noise</strong> is how far the readings scatter around their mean. The band reaches one standard deviation <span class="arithmatex">\(s\)</span> above and below the mean.</li>
 <li><strong>The steps:</strong> the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055's step is 1/900 rad/s, about 0.0011 rad/s.</li>
 </ul>
-<p>The example's bias is about 30 times Remo's, so that the figure can show it. With Remo's +0.00005 rad/s, the line of the mean would lie on the zero line.</p>
+<p>The example's bias is about 30 times the bias that was measured on Remo, so that the figure can show it. With Remo's +0.00005 rad/s, which <a href="#results-on-remo">Results on Remo</a> lists, the line of the mean would lie on the zero line.</p>
 <h3 id="run-the-tool-on-a-recording">Run the tool on a recording</h3>
 <p><strong>You need:</strong> the recording, a <a href="https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag">rosbag</a> file with the topic <a href="#what-the-firmware-publishes"><code>/diffbot/imu/data_raw</code></a> that was recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. <a href="#make-a-recording">Make a recording</a> shows how to get both.</p>
 <p>In the folder that holds the recording, run the tool with the recording's file name:</p>
