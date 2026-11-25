@@ -13,6 +13,8 @@ const MILLISECONDS_PER_SECOND = 1000;
 const ANNOUNCE_DELAY_MS = 400;
 // Two taps on a slider within this time reset it: touch screens send no double click
 const DOUBLE_TAP_MS = 350;
+// The Enlarge button shows from this window width on, as in interactive.css
+const WIDE_MIN_EM = 60;
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -447,6 +449,28 @@ function mount(root) {
   for (const button of findAll('.ix-reset')) {
     button.addEventListener('click', () => { resetSliders(); redraw(); announce(); });
   }
+
+  // Enlarge: the figure over the whole window, with the drawing and the values next to each
+  // other. The button, Esc or a window that gets too narrow brings it back to the page.
+  const enlarge = find('.ix-enlarge'), settings = find('.ix-settings');
+  const wideEnough = matchMedia(`(min-width: ${WIDE_MIN_EM}em)`);
+  let settingsWereOpen = false;
+  const isEnlarged = () => root.classList.contains('ix-wide');
+  function setEnlarged(enlarged) {
+    if (enlarged === isEnlarged()) return;
+    // Enlarged, the values always show; back on the page, their block is as the reader left it
+    if (enlarged) { settingsWereOpen = settings.open; settings.open = true; } else settings.open = settingsWereOpen;
+    root.classList.toggle('ix-wide', enlarged);
+    document.documentElement.classList.toggle('ix-wide-open', enlarged);
+    enlarge.textContent = enlarged ? 'Back to the page' : 'Enlarge';
+  }
+  enlarge.addEventListener('click', () => setEnlarged(!isEnlarged()));
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !isEnlarged()) return;
+    setEnlarged(false);
+    enlarge.focus({ preventScroll: true });
+  });
+  wideEnough.addEventListener('change', () => { if (!wideEnough.matches) setEnlarged(false); });
 
   // The guided examples, one at a time. An example opens with its question and its own drive,
   // with its one value changed, at the drive's start: the time slider and Play show the drive, and
