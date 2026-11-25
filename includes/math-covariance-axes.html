@@ -1,0 +1,152 @@
+<!-- Written by scripts/figures/math_basics_figures.py -->
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
+.lv-math .lv-fig .noise-band{fill:var(--lv-imu);fill-opacity:.17;stroke:none}
+.lv-math .lv-fig .noise-curve{fill:none;stroke:var(--lv-imu);stroke-width:2}
+.lv-math .lv-fig .band-edge{fill:none;stroke:var(--lv-imu);stroke-width:1}
+.lv-math .lv-fig .share-bracket{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-math .lv-fig .ring-fill{fill:var(--lv-estimate);fill-opacity:.11;stroke:none}
+.lv-math .lv-fig .ring{fill:none;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-math .lv-fig .no-covariance{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3;stroke-dasharray:5 3}
+.lv-math .lv-fig .semi-axis{fill:none;stroke:var(--md-default-fg-color);stroke-width:2.2}
+.lv-math .lv-fig .zero-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-math .lv-fig .pair{fill:var(--md-default-fg-color);fill-opacity:.7;stroke:none}
+.lv-math .lv-fig .sign{font-size:17px;font-weight:700}
+.lv-math .lv-fig .angle-arc{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2}
+</style>
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-math">
+<svg class="lv-fig" viewBox="0 0 300 322" role="img" aria-labelledby="math-covariance-axes-title"><title id="math-covariance-axes-title">The ellipse of one standard deviation of the covariance matrix with the variances 5 cm² and the covariance 3 cm². It is turned by 45° and has the semi-axes 2.83 cm and 1.41 cm. A dashed circle with the radius 2.24 cm shows the ellipse without the covariance</title>
+<defs><mask id="math-covariance-axes-gaps" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="322"><rect x="0" y="0" width="300" height="322" fill="white"/><rect x="110.6" y="102.0" width="14.9" height="16.0" rx="3" fill="black"/><rect x="67.6" y="77.6" width="52.1" height="16.0" rx="3" fill="black"/></mask></defs>
+<path class="ring-fill" d="M244.0,68.0 A118.8,59.4 -45 0 1 76.0,236.0 A118.8,59.4 -45 0 1 244.0,68.0 z"/>
+<path class="no-covariance" d="M253.9,152.0 A93.9,93.9 -0 0 1 66.1,152.0 A93.9,93.9 -0 0 1 253.9,152.0 z" mask="url(#math-covariance-axes-gaps)"/>
+<path class="ring" d="M244.0,68.0 A118.8,59.4 -45 0 1 76.0,236.0 A118.8,59.4 -45 0 1 244.0,68.0 z" mask="url(#math-covariance-axes-gaps)"/>
+<path class="reference" d="M160.0,152.0 H227.2"/>
+<path class="angle-arc" d="M190.0,152.0 A30,30 0 0 0 181.2,130.8"/>
+<text class="strong" x="202.5" y="138.4" text-anchor="middle">45°</text>
+<path class="semi-axis" d="M160.0,152.0 L244.0,68.0"/>
+<path class="semi-axis" d="M160.0,152.0 L202.0,194.0"/>
+<text class="strong" x="199.2" y="107.2" text-anchor="middle" transform="rotate(-45.0 199.2 107.2)">2.83 cm</text>
+<text class="strong" x="171.8" y="182.2" text-anchor="middle" transform="rotate(45.0 171.8 182.2)">1.41 cm</text>
+<circle class="estimate-dot" cx="160.0" cy="152.0" r="4"/>
+<path class="axis" d="M34.0,26.0 V278.0 H286.0"/>
+<path class="tick" d="M34.0,278.0 v4"/>
+<text class="note" x="34.0" y="295.0" text-anchor="middle">−3</text>
+<path class="tick" d="M34.0,278.0 h-4"/>
+<text class="note" x="27.0" y="282.0" text-anchor="end">−3</text>
+<path class="tick" d="M76.0,278.0 v4"/>
+<text class="note" x="76.0" y="295.0" text-anchor="middle">−2</text>
+<path class="tick" d="M34.0,236.0 h-4"/>
+<text class="note" x="27.0" y="240.0" text-anchor="end">−2</text>
+<path class="tick" d="M118.0,278.0 v4"/>
+<text class="note" x="118.0" y="295.0" text-anchor="middle">−1</text>
+<path class="tick" d="M34.0,194.0 h-4"/>
+<text class="note" x="27.0" y="198.0" text-anchor="end">−1</text>
+<path class="tick" d="M160.0,278.0 v4"/>
+<text class="note" x="160.0" y="295.0" text-anchor="middle">0</text>
+<path class="tick" d="M34.0,152.0 h-4"/>
+<text class="note" x="27.0" y="156.0" text-anchor="end">0</text>
+<path class="tick" d="M202.0,278.0 v4"/>
+<text class="note" x="202.0" y="295.0" text-anchor="middle">1</text>
+<path class="tick" d="M34.0,110.0 h-4"/>
+<text class="note" x="27.0" y="114.0" text-anchor="end">1</text>
+<path class="tick" d="M244.0,278.0 v4"/>
+<text class="note" x="244.0" y="295.0" text-anchor="middle">2</text>
+<path class="tick" d="M34.0,68.0 h-4"/>
+<text class="note" x="27.0" y="72.0" text-anchor="end">2</text>
+<path class="tick" d="M286.0,278.0 v4"/>
+<text class="note" x="286.0" y="295.0" text-anchor="middle">3</text>
+<path class="tick" d="M34.0,26.0 h-4"/>
+<text class="note" x="27.0" y="30.0" text-anchor="end">3</text>
+<text x="286.0" y="314.0" text-anchor="end"><tspan class="variable">x</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text x="4.0" y="14.0" text-anchor="start"><tspan class="variable">y</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text class="strong" x="118.0" y="115.3" text-anchor="middle"><tspan>1</tspan><tspan class="variable">σ</tspan></text>
+<text class="strong" x="93.6" y="90.9" text-anchor="middle"><tspan>2.24 cm</tspan></text>
+</svg>
+<figcaption>The ellipse of one standard deviation σ of the example covariance matrix, turned by 45°. Its semi-axes lie along the eigenvectors: √8 cm = 2.83 cm and √2 cm = 1.41 cm. The dashed circle with the radius √5 cm = 2.24 cm is the ellipse that the matrix would have without its covariance.</figcaption>
+</figure>

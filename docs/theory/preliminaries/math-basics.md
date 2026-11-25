@@ -100,6 +100,10 @@ The short form $x \sim \mathcal N(\mu, \sigma^2)$ says that $x$ is normally dist
 
 **The simulated IMU:** for every message, the IMU plugin of the robots' simulation adds a new random number $n$ to each value, from $\mathcal N(0, \sigma^2)$ with $\sigma$ = 0.005 rad/s for the angular velocity. The plugin's function [`GuassianKernel()`]({{ ekf_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L194-L206), spelled so in the code, turns two evenly distributed random numbers into one normally distributed number with the [Box–Muller transform](https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform) and scales the result with $\sigma$. So about 68 % of the noise values lie between −0.005 and +0.005 rad/s, about 95 % between −0.010 and +0.010 rad/s, and only 0.3 % beyond ±0.015 rad/s.
 
+The figure draws the density $p(n)$ of the simulated IMU's noise $n$. Each bracket under the axis spans one, two or three standard deviations on both sides of the mean, and its number is the share of the area under the curve between the bracket's ends:
+
+--8<-- "includes/math-normal-distribution.html"
+
 **Why this distribution:** an error that is the sum of many small, independent parts tends to be normally distributed, whatever the distributions of the parts are ([central limit theorem](https://en.wikipedia.org/wiki/Central_limit_theorem)). The Kalman filter and the EKF assume normally distributed errors. Then a mean and a covariance describe each error completely, and the filter only has to carry these numbers from one step to the next. *Probabilistic Robotics* by Thrun, Burgard and Fox derives these filters in its chapter 3, "Gaussian Filters" ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links).
 
 **A real sensor:** the BNO055 reports whole steps of 1/900 rad/s. At rest, the standard deviation of Remo's gyroscope is smaller than one step ([bench checks](../../packages/imu/driver-bno055.md#bench-checks)), so its readings fall on a few steps around their mean. A histogram of them has a few bars, not a smooth bell. For such a sensor, the normal distribution is a model that the EKF's formulas need, not an exact description of the readings.
@@ -119,6 +123,10 @@ The covariance $\sigma_{xy}$ of the distribution is the same average over all th
 - **Positive:** when $x$ lies above its mean, $y$ tends to lie above its mean too. Most products are positive.
 - **Negative:** when $x$ lies above its mean, $y$ tends to lie below its mean. Most products are negative.
 - **Zero:** the positive and the negative products cancel. The deviation of $x$ says nothing about the sign of the deviation of $y$.
+
+The figure shows example pairs with a positive covariance: the deviations $x - \mu_x$ and $y - \mu_y$ of a position from its mean $\mu$, in cm. Count the dots in the four quadrants. Most pairs lie in the two quadrants in which both deviations have the same sign, so most products are positive. The ellipses over the cloud outline where most pairs lie, as [The covariance ellipsoid](#the-covariance-ellipsoid) explains:
+
+--8<-- "includes/math-covariance-scatter.html"
 
 With $y = x$, the formula becomes the one for $s^2$, so the covariance of a value with itself is its variance.
 
@@ -200,13 +208,17 @@ These points form an **ellipsoid** around the mean. Its semi-axes, the half widt
 
 The number $d = \sqrt{\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e}$ is called the **Mahalanobis distance** of the deviation $\mathbf e$. The Mahalanobis distance counts how many standard deviations $\mathbf e$ lies from the mean, in the direction of $\mathbf e$. The ellipsoid of one standard deviation holds the deviations with $d$ = 1, and the ellipsoid of two standard deviations those with $d$ = 2. robot_localization can reject a measurement whose $d$ is too large, as [What the validator doesn't check](../../packages/imu/robot_localization.md#what-the-validator-doesnt-check) on the Localization page explains.
 
-**A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values:
+**A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values, the matrix of the example pairs in [The covariance of two values](#the-covariance-of-two-values):
 
 $$
 \boldsymbol\Sigma = \begin{pmatrix} 5 & 3 \\ 3 & 5 \end{pmatrix}\ \text{cm}^2
 $$
 
 Without the covariance of 3 cm², the ellipse would be a circle with the radius $\sqrt{5}$ cm = 2.24 cm. With the covariance, the matrix has the eigenvalue 8 cm² along the direction (1, 1), at 45° between the x and the y axis, and the eigenvalue 2 cm² along (1, −1), at a right angle to the first. So the ellipse has the semi-axis $\sqrt{8}$ cm = 2.83 cm along the 45° line and $\sqrt{2}$ cm = 1.41 cm across. The positive covariance turns the ellipse toward the direction in which $x$ and $y$ are both larger or both smaller. Such a covariance appears, for example, when a robot drives at 45° to the x axis and is unsure how far the robot drove. An error in the distance then moves the estimate along the robot's path, in $x$ and $y$ together.
+
+The figure shows this ellipse of one standard deviation. Follow the two thick semi-axes from the mean: they lie along the eigenvectors, and the longer one is turned by 45° from the x axis. The dashed circle is the ellipse without the covariance:
+
+--8<-- "includes/math-covariance-axes.html"
 
 **The share inside:** for normally distributed values, the density is the same everywhere on the ellipsoid, and the ellipsoids of one, two and three standard deviations lie inside each other. The share of the values inside an ellipsoid depends on how many values the vector has. One value has an interval, two values an ellipse and three values an ellipsoid:
 
@@ -217,6 +229,10 @@ Without the covariance of 3 cm², the ellipse would be a circle with the radius 
 | 3 standard deviations | 99.7 % | 98.9 % | 97.1 % |
 
 The shares follow from the [chi-squared distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution) with one, two and three degrees of freedom. So for a vector of three normally distributed values, the ellipsoid of one standard deviation holds only about a fifth of the vectors.
+
+The figure shows the ellipses of one, two and three standard deviations of the example matrix, the deviations with the Mahalanobis distance $d$ = 1, 2 and 3. The label on each ellipse is the share for two values from the table, the share of the positions inside that ellipse:
+
+--8<-- "includes/math-covariance-shares.html"
 
 **In RViz:** RViz's Odometry display draws the covariance of each pose, as [Comparing the two odometries](../../packages/imu/robot_localization.md#comparing-the-two-odometries) on the Localization page sets the display up. RViz 1.14.26 draws the position's covariance as this ellipsoid, with semi-axes of one standard deviation along the eigenvectors, in its function [`computeShapeScaleAndOrientation3D()`](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/covariance_visual.cpp#L100-L137). The display's setting [Scale](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/covariance_property.cpp#L68-L71) multiplies the semi-axes, and its default 1 shows one standard deviation. When the pose's variances of the height $z$, the roll and the pitch are 0 or less, RViz draws the ellipse of $x$ and $y$ instead ([`pose_2d_`](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/covariance_visual.cpp#L338)).
 

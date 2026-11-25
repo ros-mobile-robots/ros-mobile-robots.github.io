@@ -1,0 +1,147 @@
+<!-- Written by scripts/figures/math_basics_figures.py -->
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
+.lv-math .lv-fig .noise-band{fill:var(--lv-imu);fill-opacity:.17;stroke:none}
+.lv-math .lv-fig .noise-curve{fill:none;stroke:var(--lv-imu);stroke-width:2}
+.lv-math .lv-fig .band-edge{fill:none;stroke:var(--lv-imu);stroke-width:1}
+.lv-math .lv-fig .share-bracket{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-math .lv-fig .ring-fill{fill:var(--lv-estimate);fill-opacity:.11;stroke:none}
+.lv-math .lv-fig .ring{fill:none;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-math .lv-fig .no-covariance{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3;stroke-dasharray:5 3}
+.lv-math .lv-fig .semi-axis{fill:none;stroke:var(--md-default-fg-color);stroke-width:2.2}
+.lv-math .lv-fig .zero-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-math .lv-fig .pair{fill:var(--md-default-fg-color);fill-opacity:.7;stroke:none}
+.lv-math .lv-fig .sign{font-size:17px;font-weight:700}
+.lv-math .lv-fig .angle-arc{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2}
+</style>
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-math">
+<svg class="lv-fig" viewBox="0 0 300 262" role="img" aria-labelledby="math-normal-distribution-title"><title id="math-normal-distribution-title">The bell curve of the density of the simulated IMU's noise n, with the mean 0 and the standard deviation σ = 0.005 rad/s. Within one, two and three standard deviations of the mean lie 68.3 %, 95.4 % and 99.7 % of the values</title>
+<path class="noise-band" d="M39.0,150 L39.0,148.8 L42.7,148.3 L46.4,147.8 L50.1,147.1 L53.8,146.2 L57.5,145.1 L61.2,143.7 L64.9,142.0 L68.6,140.0 L72.3,137.7 L76.0,134.8 L79.7,131.6 L83.4,127.8 L87.1,123.6 L90.8,118.9 L94.5,113.6 L98.2,108.0 L101.9,101.9 L105.6,95.5 L109.3,88.8 L113.0,82.1 L116.7,75.3 L120.4,68.7 L124.1,62.3 L127.8,56.4 L131.5,51.2 L135.2,46.6 L138.9,42.9 L142.6,40.2 L146.3,38.6 L150.0,38.0 L153.7,38.6 L157.4,40.2 L161.1,42.9 L164.8,46.6 L168.5,51.2 L172.2,56.4 L175.9,62.3 L179.6,68.7 L183.3,75.3 L187.0,82.1 L190.7,88.8 L194.4,95.5 L198.1,101.9 L201.8,108.0 L205.5,113.6 L209.2,118.9 L212.9,123.6 L216.6,127.8 L220.3,131.6 L224.0,134.8 L227.7,137.7 L231.4,140.0 L235.1,142.0 L238.8,143.7 L242.5,145.1 L246.2,146.2 L249.9,147.1 L253.6,147.8 L257.3,148.3 L261.0,148.8 L261.0,150 z"/>
+<path class="noise-band" d="M76.0,150 L76.0,134.8 L79.7,131.6 L83.4,127.8 L87.1,123.6 L90.8,118.9 L94.5,113.6 L98.2,108.0 L101.9,101.9 L105.6,95.5 L109.3,88.8 L113.0,82.1 L116.7,75.3 L120.4,68.7 L124.1,62.3 L127.8,56.4 L131.5,51.2 L135.2,46.6 L138.9,42.9 L142.6,40.2 L146.3,38.6 L150.0,38.0 L153.7,38.6 L157.4,40.2 L161.1,42.9 L164.8,46.6 L168.5,51.2 L172.2,56.4 L175.9,62.3 L179.6,68.7 L183.3,75.3 L187.0,82.1 L190.7,88.8 L194.4,95.5 L198.1,101.9 L201.8,108.0 L205.5,113.6 L209.2,118.9 L212.9,123.6 L216.6,127.8 L220.3,131.6 L224.0,134.8 L224.0,150 z"/>
+<path class="noise-band" d="M113.0,150 L113.0,82.1 L116.7,75.3 L120.4,68.7 L124.1,62.3 L127.8,56.4 L131.5,51.2 L135.2,46.6 L138.9,42.9 L142.6,40.2 L146.3,38.6 L150.0,38.0 L153.7,38.6 L157.4,40.2 L161.1,42.9 L164.8,46.6 L168.5,51.2 L172.2,56.4 L175.9,62.3 L179.6,68.7 L183.3,75.3 L187.0,82.1 L187.0,150 z"/>
+<path class="band-edge" d="M113.0,150 V82.1"/>
+<path class="band-edge" d="M187.0,150 V82.1"/>
+<path class="band-edge" d="M76.0,150 V134.8"/>
+<path class="band-edge" d="M224.0,150 V134.8"/>
+<path class="band-edge" d="M39.0,150 V148.8"/>
+<path class="band-edge" d="M261.0,150 V148.8"/>
+<path class="noise-curve" d="M16.8,150 L16.8,149.8 L20.5,149.8 L24.2,149.7 L27.9,149.5 L31.6,149.3 L35.3,149.1 L39.0,148.8 L42.7,148.3 L46.4,147.8 L50.1,147.1 L53.8,146.2 L57.5,145.1 L61.2,143.7 L64.9,142.0 L68.6,140.0 L72.3,137.7 L76.0,134.8 L79.7,131.6 L83.4,127.8 L87.1,123.6 L90.8,118.9 L94.5,113.6 L98.2,108.0 L101.9,101.9 L105.6,95.5 L109.3,88.8 L113.0,82.1 L116.7,75.3 L120.4,68.7 L124.1,62.3 L127.8,56.4 L131.5,51.2 L135.2,46.6 L138.9,42.9 L142.6,40.2 L146.3,38.6 L150.0,38.0 L153.7,38.6 L157.4,40.2 L161.1,42.9 L164.8,46.6 L168.5,51.2 L172.2,56.4 L175.9,62.3 L179.6,68.7 L183.3,75.3 L187.0,82.1 L190.7,88.8 L194.4,95.5 L198.1,101.9 L201.8,108.0 L205.5,113.6 L209.2,118.9 L212.9,123.6 L216.6,127.8 L220.3,131.6 L224.0,134.8 L227.7,137.7 L231.4,140.0 L235.1,142.0 L238.8,143.7 L242.5,145.1 L246.2,146.2 L249.9,147.1 L253.6,147.8 L257.3,148.3 L261.0,148.8 L264.7,149.1 L268.4,149.3 L272.1,149.5 L275.8,149.7 L279.5,149.8 L283.2,149.8 z"/>
+<text x="207.9" y="101.0" text-anchor="start"><tspan class="variable">p</tspan><tspan>(</tspan><tspan class="variable">n</tspan><tspan>)</tspan></text>
+<path class="axis" d="M12,150 H288"/>
+<path class="tick" d="M39.0,150 v4"/>
+<text x="39.0" y="168.0" text-anchor="middle"><tspan>−3</tspan><tspan class="variable">σ</tspan></text>
+<text class="note" x="39.0" y="183.0" text-anchor="middle">−15</text>
+<path class="tick" d="M76.0,150 v4"/>
+<text x="76.0" y="168.0" text-anchor="middle"><tspan>−2</tspan><tspan class="variable">σ</tspan></text>
+<text class="note" x="76.0" y="183.0" text-anchor="middle">−10</text>
+<path class="tick" d="M113.0,150 v4"/>
+<text x="113.0" y="168.0" text-anchor="middle"><tspan>−</tspan><tspan class="variable">σ</tspan></text>
+<text class="note" x="113.0" y="183.0" text-anchor="middle">−5</text>
+<path class="tick" d="M150.0,150 v4"/>
+<text x="150.0" y="168.0" text-anchor="middle"><tspan>0</tspan></text>
+<text class="note" x="150.0" y="183.0" text-anchor="middle">0</text>
+<path class="tick" d="M187.0,150 v4"/>
+<text x="187.0" y="168.0" text-anchor="middle"><tspan></tspan><tspan class="variable">σ</tspan></text>
+<text class="note" x="187.0" y="183.0" text-anchor="middle">5</text>
+<path class="tick" d="M224.0,150 v4"/>
+<text x="224.0" y="168.0" text-anchor="middle"><tspan>2</tspan><tspan class="variable">σ</tspan></text>
+<text class="note" x="224.0" y="183.0" text-anchor="middle">10</text>
+<path class="tick" d="M261.0,150 v4"/>
+<text x="261.0" y="168.0" text-anchor="middle"><tspan>3</tspan><tspan class="variable">σ</tspan></text>
+<text class="note" x="261.0" y="183.0" text-anchor="middle">15</text>
+<text class="note" x="150.0" y="199.0" text-anchor="middle"><tspan class="variable">n</tspan><tspan> in 10⁻³ rad/s</tspan></text>
+<path class="share-bracket" d="M113.0,211 V216 H125 M175,216 H187.0 V211"/>
+<text class="strong" x="150.0" y="220.0" text-anchor="middle">68.3 %</text>
+<path class="share-bracket" d="M76.0,229 V234 H125 M175,234 H224.0 V229"/>
+<text class="strong" x="150.0" y="238.0" text-anchor="middle">95.4 %</text>
+<path class="share-bracket" d="M39.0,247 V252 H125 M175,252 H261.0 V247"/>
+<text class="strong" x="150.0" y="256.0" text-anchor="middle">99.7 %</text>
+</svg>
+<figcaption>The density <em>p</em>(<em>n</em>) of the noise <em>n</em> that the simulated IMU adds to each value of the angular velocity, with σ = 0.005 rad/s. The shaded areas hold the values within one, two and three standard deviations of the mean 0: 68.3 % between −0.005 and +0.005 rad/s, 95.4 % within ±0.010 rad/s and 99.7 % within ±0.015 rad/s.</figcaption>
+</figure>
