@@ -31,6 +31,7 @@ PAGE = '/development/simulation-test/'
 FIGURE = 'figure[data-ix="motion-lab"]'
 # The figure starts within this time, also on a slow CI runner
 START_TIMEOUT_MS = 15000
+MILLISECONDS_PER_SECOND = 1000
 # A page whose script failed to load has settled after this time
 SETTLE_TIME_MS = 500
 # The tables show three decimals: a shown value lies within half of its last digit of the value,
@@ -181,7 +182,10 @@ class TestMotionLabPage(unittest.TestCase):
                          f'Example 1 of {len(figures.EXAMPLES)}')
 
     def test_live_drawing_at_the_static_width_matches_the_scripts_static_drawing(self) -> None:
-        page = self.open_live_figure().page
+        # The static drawing shows the first example's changed drive at its end. With reduced
+        # motion, "Show what happens" shows the same at once
+        page = self.open_live_figure(reduced_motion='reduce').page
+        page.click(f'{FIGURE} [data-example="{figures.EXAMPLES[0].key}"]')
         width = figures.DRAWING.static_width_px
         # The live drawing is as wide as the plot's inside, without its border
         page.eval_on_selector(
@@ -208,22 +212,47 @@ class TestMotionLabPage(unittest.TestCase):
         self,
     ) -> None:
         page = self.open_live_figure().page
-        for example in figures.EXAMPLES[1:]:
-            page.click(f'{FIGURE} .ix-next')
+        for index, example in enumerate(figures.EXAMPLES):
+            if index:
+                page.click(f'{FIGURE} .ix-next')
             self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'), example.key)
             self.assertEqual(failing_checks(page), [], example.key)
 
     def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
-        page = self.open_live_figure().page
+        # With reduced motion, the changed drive and its answer show at once
+        page = self.open_live_figure(reduced_motion='reduce').page
         for index, example in enumerate(figures.EXAMPLES):
             if index:
                 page.click(f'{FIGURE} .ix-next')
-                page.click(f'{FIGURE} [data-example="{example.key}"]')
+            page.click(f'{FIGURE} [data-example="{example.key}"]')
             answer = page.text_content(f'{FIGURE} [data-example-item="{example.key}"] .ix-answer')
             self.assertIn(answer or '', page.inner_text(f'{FIGURE} .ix-shown-answer'), example.key)
             expected = expected_results(page, example)
             self.assert_motion_table_shows(page, expected, example)
             self.assert_check_table_shows(page, expected, example)
+
+    def test_show_what_happens_plays_the_changed_drive_then_shows_the_answer(self) -> None:
+        page = self.open_live_figure().page
+        example = figures.EXAMPLES[0]
+        scrub = f'{FIGURE} .ix-scrub'
+        page.click(f'{FIGURE} [data-example="{example.key}"]')
+        # Right after the click, the drive plays from its start and the answer waits
+        self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Pause')
+        self.assertLess(int(page.input_value(scrub)), figures.TIME_SLIDER_STEPS)
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+        drive_ms = figures.COMMANDS[example.command].duration * MILLISECONDS_PER_SECOND
+        page.wait_for_selector(f'{FIGURE} .ix-shown-answer', state='visible',
+                               timeout=drive_ms + START_TIMEOUT_MS)
+        self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
+        self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Play')
+
+    def test_a_shown_answer_stays_when_the_drive_is_scrubbed_back(self) -> None:
+        page = self.open_live_figure(reduced_motion='reduce').page
+        scrub = f'{FIGURE} .ix-scrub'
+        page.click(f'{FIGURE} [data-example="{figures.EXAMPLES[0].key}"]')
+        page.fill(scrub, '0')
+        page.dispatch_event(scrub, 'input')
+        self.assertTrue(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 
     def test_stepper_question_and_command_sit_above_the_drawing(self) -> None:
         page = self.open_live_figure().page
@@ -237,11 +266,12 @@ class TestMotionLabPage(unittest.TestCase):
             self.assertLessEqual(bottom, drawing, part)
 
     def test_drawing_stays_in_place_from_one_example_to_the_next(self) -> None:
-        page = self.open_live_figure(**PHONE).page
+        page = self.open_live_figure(reduced_motion='reduce', **PHONE).page
         first = top_of(page, f'{FIGURE} .ix-plot')
-        for example in figures.EXAMPLES[1:]:
-            page.click(f'{FIGURE} .ix-next')
-            self.assertEqual(top_of(page, f'{FIGURE} .ix-plot'), first, example.key)
+        for index, example in enumerate(figures.EXAMPLES):
+            if index:
+                page.click(f'{FIGURE} .ix-next')
+                self.assertEqual(top_of(page, f'{FIGURE} .ix-plot'), first, example.key)
             page.click(f'{FIGURE} [data-example="{example.key}"]')
             self.assertEqual(top_of(page, f'{FIGURE} .ix-plot'), first, example.key)
 

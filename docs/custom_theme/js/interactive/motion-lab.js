@@ -162,7 +162,8 @@ function mount(root) {
   const plot = find('.ix-plot'), scrub = find('.ix-scrub');
   const sliders = Object.fromEntries(findAll('input[data-setting]').map((input) => [input.dataset.setting, input]));
   const state = { robot: data.default.robot, command: data.default.command, time: 1, step: 0 };
-  const revealed = new Set([data.default.example]);  // The examples whose answer is shown
+  const revealed = new Set();  // The examples whose changed value is set: "Show what happens"
+  const answered = new Set();  // The examples whose answer shows: their changed drive has ended
   let animationRequest = null, lastTickTime = 0, announceTimer = null, drive = null, liveDrawing = null;
 
   // --- The model's inputs, from the controls -------------------------------------------------
@@ -333,9 +334,16 @@ function mount(root) {
     state.time = time;
     scrub.value = Math.round(time * Number(scrub.max));
   }
-  find('.ix-play').addEventListener('click', () => {
-    if (animationRequest) { stopPlaying(); return; }
-    if (reducedMotion()) { setTime(1); draw(); return; }
+  // The current example's answer shows under the drawing once its changed drive has reached its
+  // end, and then stays. Screen readers hear it when it appears.
+  function showAnswerAtTheEnd() {
+    const key = data.examples[state.step].key, answer = find('.ix-shown-answer');
+    const appears = revealed.has(key) && state.time >= 1 && !answered.has(key);
+    if (appears) answered.add(key);
+    answer.hidden = !answered.has(key);
+    return appears;
+  }
+  function startPlaying() {
     if (state.time >= 1) setTime(0);
     lastTickTime = performance.now();
     find('.ix-play').textContent = 'Pause';
@@ -345,11 +353,20 @@ function mount(root) {
       setTime(Math.min(1, state.time + (timestamp - lastTickTime) / duration));
       lastTickTime = timestamp;
       draw();
-      if (state.time < 1) animationRequest = requestAnimationFrame(tick); else stopPlaying();
+      if (state.time < 1) { animationRequest = requestAnimationFrame(tick); return; }
+      stopPlaying();
+      if (showAnswerAtTheEnd()) find('.ix-announce').textContent = find('.ix-shown-answer').textContent;
     };
     animationRequest = requestAnimationFrame(tick);
+  }
+  find('.ix-play').addEventListener('click', () => {
+    if (animationRequest) { stopPlaying(); return; }
+    if (reducedMotion()) { setTime(1); draw(); showAnswerAtTheEnd(); return; }
+    startPlaying();
   });
-  scrub.addEventListener('input', () => { stopPlaying(); state.time = Number(scrub.value) / Number(scrub.max); draw(); });
+  scrub.addEventListener('input', () => {
+    stopPlaying(); state.time = Number(scrub.value) / Number(scrub.max); draw(); showAnswerAtTheEnd();
+  });
   // A hidden tab or a closed block draws nothing: stop instead of jumping ahead later
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPlaying(); });
 
@@ -367,11 +384,13 @@ function mount(root) {
   find('.ix-reset').addEventListener('click', () => { stopPlaying(); resetSliders(); setTime(1); update(); announce(); });
 
   // The guided examples, one at a time. An example shows its drive with the example robot's own
-  // values first, where the three views agree. "Show what happens" changes the example's one
-  // value and shows its answer under the drawing, where it stays for this example.
+  // values first, at its end, where the three views agree. "Show what happens" changes the
+  // example's one value and plays the changed drive from its start. When the drive has ended, the
+  // answer shows under the drawing, where it stays for this example. With reduced motion, the
+  // drive and the answer show at once.
   // The examples' questions share one place above the drawing, as high as the longest of them,
   // so the drawing stays where it is from one example to the next.
-  function showStep(index) {
+  function showStep(index, time = 1) {
     state.step = index;
     const example = data.examples[index], open = revealed.has(example.key);
     const shownAnswer = find('.ix-shown-answer');
@@ -383,7 +402,6 @@ function mount(root) {
       item.querySelector('.ix-answer').hidden = true;
       if (current) shownAnswer.innerHTML = `<b>What happens:</b> ${item.querySelector('.ix-answer').innerHTML}`;
     }
-    shownAnswer.hidden = !open;
     find('.ix-step-count').textContent = `Example ${index + 1} of ${data.examples.length}`;
     find('.ix-previous').disabled = index === 0;
     find('.ix-next').disabled = index === data.examples.length - 1;
@@ -392,16 +410,24 @@ function mount(root) {
     resetSliders();
     if (open) for (const [name, value] of Object.entries(example.settings)) sliders[name].value = value;
     selectCommand(example.command);
-    setTime(1);
+    setTime(time);
     update();
+    showAnswerAtTheEnd();
   }
   for (const button of findAll('[data-example]')) {
     button.addEventListener('click', () => {
       revealed.add(button.dataset.example);
-      showStep(state.step);
-      announce();
-      // The button is gone now: the keyboard's place moves to the answer under the drawing
-      find('.ix-shown-answer').focus({ preventScroll: true });
+      // The button is gone now: the keyboard's place moves to the answer under the drawing, or
+      // to Pause while the changed drive plays
+      if (reducedMotion()) {
+        showStep(state.step);
+        announce();
+        find('.ix-shown-answer').focus({ preventScroll: true });
+        return;
+      }
+      showStep(state.step, 0);
+      startPlaying();
+      find('.ix-play').focus({ preventScroll: true });
     });
   }
   find('.ix-previous').addEventListener('click', () => { showStep(state.step - 1); announce(); });
@@ -409,8 +435,8 @@ function mount(root) {
 
   new ResizeObserver(() => { if (drive) draw(); }).observe(plot);
 
-  // First drawing: the first example with its answer, as in the static version. Only when it
-  // has succeeded does the figure switch from the static version to the controls.
+  // First drawing: the first example's question, with the robot's own values. Only when it has
+  // succeeded does the figure switch from the static version to the controls.
   for (const element of findAll('[data-live]')) element.hidden = false;
   showStep(0);
   root.classList.add('ix-is-live');

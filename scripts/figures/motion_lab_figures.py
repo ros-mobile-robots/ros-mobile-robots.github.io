@@ -1096,7 +1096,7 @@ def figure_data() -> Dict[str, object]:
         'checks': checks_data(),
         'viewNames': {entry.view: entry.text for entry in LEGEND if entry.view != 'axle'},
         'drawing': {camel_case(name): value for name, value in DRAWING._asdict().items()},
-        'default': {'robot': EXAMPLE_ROBOT, 'command': first.command.value, 'example': first.key},
+        'default': {'robot': EXAMPLE_ROBOT, 'command': first.command.value},
         'examples': [
             {
                 'key': example.key,
