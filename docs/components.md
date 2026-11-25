@@ -218,8 +218,7 @@ DiffBot's Raspberry Pi 4 B runs on a 5 V/2.1 A USB-C power bank.
     <figcaption>Power bank with 10.000 mAh from Intenso.</figcaption>
 </figure>
 
-DiffBot's motors run from four NiMH AA cells in the holder under the chassis.
-Remo's motors run from six NiMH AA cells.
+The motors of both robots run from eight NiMH AA cells.
 [Power Supply](power-supply.md) explains both supplies and how to charge the NiMH cells.
 
 ### I2C Hub
