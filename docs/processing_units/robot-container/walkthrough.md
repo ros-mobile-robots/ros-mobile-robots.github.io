@@ -20,7 +20,7 @@ graph TB
   R[The registry:<br/>ghcr.io/ros-mobile-robots/<br/>diffbot-robot]
   subgraph PI [Raspberry Pi]
     U[4. 99-diffbot-robot.rules:<br/>udev names the devices<br/>/dev/teensy, /dev/rplidar]
-    C[5. compose.yaml and .env:<br/>docker compose up -d --no-build<br/>downloads the image if missing,<br/>starts the containers]
+    C[5. compose.yaml and .env:<br/>docker compose up -d<br/>downloads the image if missing,<br/>starts the containers]
     E[6. entrypoint.sh:<br/>Docker runs the script<br/>at each container's start]
   end
   D --> S
@@ -124,13 +124,13 @@ rosdep reads `package.xml` files and installs the Ubuntu and ROS packages that t
 - **`rosdep install`** (line 70): installs the dependencies. `--ignore-src` skips the packages that are in the folders themselves, because catkin builds those.
 - **`rm -rf`** (line 71): deletes apt's package lists and the copied files.
 
-rosdep gets the folder of each package, and not only the bringup's, because rosdep reads only the `package.xml` files that rosdep is given. In its `package.xml`, a package declares each other package that the package needs at run time with an `<exec_depend>` line, for example:
+rosdep gets the folder of each package, and not only the bringup's, because rosdep reads only the `package.xml` files that rosdep is given. In its `package.xml`, a package declares each other package that the package needs at run time with an [`<exec_depend>`](https://www.ros.org/reps/rep-0140.html#exec-depend-multiple) line, for example:
 
 ```xml title="diffbot_bringup/package.xml"
 <exec_depend>diffbot_base</exec_depend>
 ```
 
-With this line, rosdep would recognize `diffbot_base` as a package of the workspace. But rosdep wouldn't read the `package.xml` of `diffbot_base`, and so wouldn't install what `diffbot_base` needs, such as rosserial. That's the result of our test with rosdep 0.25.1 in the ROS image.
+With this line, rosdep would recognize [`diffbot_base`](../../packages/diffbot_base/index.md) as a package of the workspace. But rosdep wouldn't read the `package.xml` of `diffbot_base`, and so wouldn't install what `diffbot_base` needs, such as [rosserial](../teensy-mcu.md#other-boards-such-as-an-arduino). That's the result of our test with rosdep 0.25.1 in the ROS image.
 
 ### Build the workspace
 
@@ -143,7 +143,7 @@ Only now the repository's code comes into the image. A change of the code reruns
 - **`COPY --chown=$USERNAME . src/diffbot`** (line 76): copies the repository into the workspace's `src` folder, owned by the user `ros`.
 - **`. /opt/ros/noetic/setup.sh`** (line 77): loads ROS into the shell of this step.
 - **`catkin config --extend`** (line 78): tells catkin that the workspace builds on top of the ROS installation.
-- **`catkin build … $PACKAGES`** (line 79): builds the packages of the list, and the workspace packages that these packages declare as dependencies. catkin does follow the `<exec_depend>` lines. But `diffbot_bringup` declares only `teleop_twist_keyboard` today, not the packages that its launch files start, so the list names each package. Adding the missing lines is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131).
+- **`catkin build … $PACKAGES`** (line 79): builds the packages of the list, and the workspace packages that these packages declare as dependencies. catkin does follow the `<exec_depend>` lines. But [`diffbot_bringup`]({{ robot_container_src_url }}/diffbot_bringup/package.xml#L52) declares only [`teleop_twist_keyboard`](usage.md#with-the-keyboard) today, not the packages that its launch files start, so the list names each package. Adding the missing lines is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131).
 
 The built packages stay in the workspace's `devel` folder. The containers load them from there ([The entrypoint script](#the-entrypoint-script)).
 
@@ -169,7 +169,7 @@ The figure shows the two ways in which the script gets started. On the left, Doc
 
 ```mermaid
 graph TB
-  UP[docker compose up<br/>-d --no-build]
+  UP[docker compose up -d]
   DS[Docker starts<br/>the container]
   E1[entrypoint.sh, with the<br/>service's command<br/>as its arguments]
   RL[roslaunch: the container's<br/>main process]
@@ -249,10 +249,10 @@ The file describes two services, `bringup` and `lidar`. A service is a container
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.yaml:21:48"
 ```
 
-- **`image`** (line 25): the Docker image from the setting `ROBOT_IMAGE`, or the published one. Compose writes `${NAME:-default}` for a setting with a default.
+- **`image`** (line 25): the Docker image from the setting [`ROBOT_IMAGE`](setup.md#all-settings), or the published one. Compose writes `${NAME:-default}` for a setting with a default.
 - **`network_mode: host`** (line 27): the containers use the Raspberry Pi's network directly, so their ROS nodes are reachable at the Raspberry Pi's IP address, like native ones. ROS 1 needs this: besides the ROS master's port 11311, every node opens a random port of its own, and the other nodes connect to that port directly ([ROS Network Setup](../ros-network-setup.md)).
 - **`group_add`** (lines 30–31): adds the group with the number from `DIALOUT_GID` to the container's user, so that the user `ros` may open the serial devices ([Why `DIALOUT_GID` is a number](setup.md#why-dialout_gid-is-a-number)).
-- **`environment`** (lines 32–35): the environment variables inside the containers. `ROS_MASTER_URI`, `ROS_IP` and `ROS_HOSTNAME` are listed without a value: Compose takes their values from `.env`, or from the shell, when Compose creates the containers. A variable that's set in neither isn't set in the containers either ([`environment` in Compose's reference](https://docs.docker.com/reference/compose-file/services/#environment)).
+- **`environment`** (lines 32–35): the environment variables inside the containers. `ROS_MASTER_URI`, `ROS_IP` and `ROS_HOSTNAME` are listed without a value: Compose takes their values from [`.env`](setup.md#when-compose-reads-env), or from the shell, when Compose creates the containers. A variable that's set in neither isn't set in the containers either ([`environment` in Compose's reference](https://docs.docker.com/reference/compose-file/services/#environment)).
 - **`volumes`** (lines 38–43): mounts the Raspberry Pi's folder for logs at `/home/ros/.ros` inside the containers, where ROS writes its log files ([ROS's log files](usage.md#ross-log-files)). `create_host_path: false` keeps Docker from creating a missing folder: Docker would create the folder for root, and the user `ros` couldn't write into such a folder.
 - **`logging`** (lines 47–48): Docker's [local log format](https://docs.docker.com/engine/logging/drivers/local/). By default, this format keeps at most five files of 20 MB per container and deletes the oldest, so the containers' output can't fill the SD card. Docker's default format, json-file, keeps everything unless rotation is configured.
 
@@ -265,14 +265,15 @@ Each service then adds what is its own: the device, the command and, for the lid
 ```
 
 - **`bringup`** (lines 53–60): the container with the hardware interface, the controllers and rosserial.
-    - **`build`** (lines 55–57): tells Compose how to build the image, from the [Dockerfile](#the-dockerfile), for [your own build](versions.md#your-own-build). The `context` is the repository's root folder, two levels above `.docker/robot`. Only files of the context can be copied into the image.
     - **`devices`** (lines 58–59): passes the Teensy into the container as `/dev/ttyACM0`, the name that the bringup's launch file expects.
-    - **`command`** (line 60): starts `bringup.launch` with the robot from `ROBOT_MODEL`. Docker passes this command to the entrypoint script ([Who starts the script](#who-starts-the-script)).
+    - **`command`** (line 60): starts [`bringup.launch`](../../packages/imu/robot_localization.md#on-the-real-robot) with the robot from [`ROBOT_MODEL`](setup.md#all-settings). Docker passes this command to the entrypoint script ([Who starts the script](#who-starts-the-script)).
 - **`lidar`** (lines 64–70): the container with the lidar driver.
     - **`profiles`** (line 66): the service runs only with the profile `lidar`, which `COMPOSE_PROFILES=lidar` selects.
     - **`depends_on`** (line 67): Compose starts the lidar's container after the bringup's container. Compose doesn't wait for a ROS master in the bringup's container to be ready ([Without any PC](usage.md#without-any-pc)).
     - **`devices`** (lines 68–69): passes the lidar into the container as `/dev/ttyUSB0`.
-    - **`command`** (line 70): starts `lidar.launch`, the lidar driver alone.
+    - **`command`** (line 70): starts [`lidar.launch`]({{ robot_container_src_url }}/diffbot_bringup/launch/lidar.launch), the lidar driver alone.
+
+Neither service has a [`build`](versions.md#on-the-raspberry-pi) section. So `compose.yaml` only runs an image, and a failed download is an error. The build of your own image is in a second file ([Your own build](versions.md#your-own-build)).
 
 ### From a setting to its line
 
@@ -389,7 +390,7 @@ The job's last two steps hand the tested image to the job `publish`, which runs 
 --8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:98:118"
 ```
 
-- **`if`** (lines 100–103 and 106–109): both steps run only in the `ros-mobile-robots/diffbot` repository, on `noetic-devel`, after a push or a start by hand. For a pull request, the image is deleted with the runner.
+- **`if`** (lines 100–103 and 106–109): both steps run only in the `ros-mobile-robots/diffbot` repository, not in a fork, on `noetic-devel`, after a push or a start by hand. For a pull request, the image is deleted with the runner.
 - **`Save the tested image`** (line 104): `docker save` writes the image as an archive, and `gzip -1` compresses the archive.
 - **`Upload the tested image`** (lines 105–118): stores the archive with the workflow's run, under the name `robot-image-arm64` or `robot-image-amd64`, for one day (`retention-days`).
 
@@ -404,7 +405,8 @@ The job `publish` brings both tested images into the registry.
 - **`needs: build`** (line 124): the job starts after both runs of `build` succeeded.
 - **`if`** (lines 125–128): the same condition as for saving the images. So nothing is published for a pull request.
 - **`permissions`** (lines 130–132): `packages: write` lets this job, and only this job, write to the registry.
-- **`concurrency`** (lines 134–136): one publication runs at a time. A later one waits and isn't cancelled.
+- **`concurrency`** (lines 134–136): one publication runs at a time, and later ones wait for their turn.
+- **`uses`** (lines 139, 142 and 146): each action is named by the full commit of one of its releases, with the release in the comment. A commit can't be moved to other code later, as a tag such as `v4` can. That matters here, because these actions run in the job that may write packages.
 - **`actions/checkout` with `fetch-depth: 0`** (lines 139–141): fetches the whole history. The script needs the history to tell whether one commit comes after another.
 - **`actions/download-artifact`** (lines 142–145): fetches both archives of the job `build`.
 - **`docker/login-action`** (lines 146–150): logs in to the registry `ghcr.io` with the job's own token.
@@ -435,15 +437,44 @@ The first lines after the comment set the names that the rest of the script uses
 - **`copy_options`** (lines 23–26): the options for `skopeo copy`, the tool that copies an image from an archive into the registry. `--format oci` makes skopeo write the image in the OCI format. The comment in lines 21–22 gives the reason: only then can the combined version carry annotations. Lines 24–26 add an option for a local test registry.
 - **`auth_file`** (lines 27–30): the file with the login for the registry, which the workflow's step `docker/login-action` wrote. The script passes the file to skopeo if the file exists.
 
-Before the script writes anything, the script asks the registry about the two names.
+Before the script writes the version or `noetic`, the script asks the registry about both names. For each name, the function `state` gives one of three answers:
+
+| Answer of `state` for one name | What the registry said about that name |
+|:--|:--|
+| `present` | It returned the name's manifest, the description of an image. The name exists |
+| `missing` | *manifest unknown*, the registry's own error code for a name that it doesn't have. The name is free |
+| `unreadable` | The registry itself refuses: it denies the request for the name, it doesn't know the repository at all, or its token service answers 403 |
+| No answer | Anything else, after three tries: a failed login, a login file that can't be read, another error of the token service, no connection. The script stops and prints the error |
+
+Only *manifest unknown* counts as "the name is free", because other failures read alike. A login helper that isn't installed and a token service that answers 404 both print *not found*, and neither says anything about the name. If the script took them for a free name, the script could write a version that exists already. The same holds for `unreadable`: a login file that the job can't read prints *permission denied*, which is no answer of the registry.
+
+These lines are the function `state` and its comment.
+
+```bash title="publish_image.sh" linenums="36"
+--8<-- "{{ robot_container_src_raw }}/.docker/robot/publish_image.sh:36:84"
+```
+
+The function recognizes each answer by the text that skopeo prints for the answer, with the name's tag and repository in the text.
+
+- **`manifest_request`** (line 56): the start of these texts.
+- **`refusals`** (lines 57–62): the registry's refusals, which give `unreadable`.
+- **The loop** (lines 63–75): reads the name's manifest up to three times, 15 s apart. A read that succeeds gives `present`, and *manifest unknown* gives `missing`.
+
+Then the script asks about the two names and decides from the two answers together.
 
 ```bash title="publish_image.sh" linenums="109"
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/publish_image.sh:109:128"
 ```
 
-- **`state`** (lines 109–110): the function returns `present`, `missing`, or `unreadable` if the registry refuses to say. The script goes on to write only when both names are `present` or `missing`.
-- **The first publication** (lines 115–124): before the package exists, the registry may refuse to say whether a name exists. Only a run with `FIRST_PUBLICATION=true`, and with both names `unreadable`, creates the package: the script checks the amd64 archive, copies the archive's image under the name `first-publication`, which nothing else uses, and asks about both names again. An image under that name can stay in the registry when the run fails later.
-- **`fail`** (lines 125–127): if a name is still `unreadable`, the script stops. The version and `noetic` are not written then.
+- **`version_state` and `noetic_state`** (lines 109–110): the answers of `state` for the version and for `noetic`.
+
+The script follows three rules:
+
+1. **Both names are `present` or `missing`:** the script publishes. The script writes a name that is missing. A version that is present is checked and reused, never written again. A `noetic` that is present moves only to a later commit.
+2. **One of the two names is `unreadable`:** the script stops and writes nothing (`fail`, lines 125–127).
+3. **Both names are `unreadable`, in a run for the first publication:** the script copies one image under a name of its own and asks about both names again (lines 116–124). The version and `noetic` are still written only by rule 1.
+
+The first publication is the one exception to "stops". The package doesn't exist yet then, and the registry may deny the read or say that the registry doesn't know the repository. A run for this case is one that a maintainer starts by hand, in the repository's Actions tab, with the box **First publication** ticked (`FIRST_PUBLICATION=true`). If both names are `unreadable` in such a run, the script creates the package: the script checks the amd64 archive, copies the archive's image under the name `first-publication`, which nothing else uses, and asks about both names again. If the two answers still aren't `present` or `missing`, the script stops. So an image can be in the registry under `first-publication` although the run failed later, for example at the check of the arm64 archive. The version and `noetic` are not written in that case.
 
 Then the script publishes the version, unless the version exists already.
 

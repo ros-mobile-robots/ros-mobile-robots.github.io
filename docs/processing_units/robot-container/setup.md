@@ -15,7 +15,12 @@ On your PC, write Ubuntu Server onto the robot's microSD card with [Raspberry Pi
     - **User:** a user name and password for the Raspberry Pi, for example `robot`.
     - **Wi-Fi:** your network's name and password.
     - **Remote access:** *Enable SSH* with password authentication.
-5. **Write**, then put the card into the Raspberry Pi and switch it on.
+5. **Write:** check the summary and click *Write*. Imager then goes through these screens:
+    1. **Erase:** Imager names the storage device that it is about to erase. Check that this is the device you selected in the storage step, your microSD card, and not another drive of your PC. Then click *I understand, erase and write*. If Imager asks for your PC's administrator password, enter it.
+    2. **Writing and Verifying:** Imager writes the image to the card, then reads the card back and compares it with the image (*Verifying*). Wait until both have finished.
+    3. **Done:** the page *Write complete!* says below the customisations whether you can remove the card. If it says that Imager is ejecting the storage device, leave the card in the reader and wait. If it says that the storage device was ejected and can be removed safely, remove the card. If the page shows an *Eject* button instead, click it, and wait until the page says that you can remove the card safely. If ejecting fails, close any program that still uses the card and click *Eject* again.
+
+    Then put the card into the Raspberry Pi and switch it on.
 
 === "Device"
 
@@ -49,11 +54,31 @@ On your PC, write Ubuntu Server onto the robot's microSD card with [Raspberry Pi
 
     ![Raspberry Pi Imager's customisation step for SSH, with SSH enabled and password authentication selected](images/imager-ssh.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
 
-=== "Write"
+=== "Summary"
 
     ![Raspberry Pi Imager's summary before writing: Raspberry Pi 4, Ubuntu Server 24.04.5 LTS (64-bit), and the customisations hostname, localisation, user account, Wi-Fi and SSH](images/imager-summary.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
 
-The screenshots show Raspberry Pi Imager 2.0.12 with example settings, before writing. Use your own SD card, time zone, network and credentials. [Ubuntu's guide](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi) shows the same steps.
+=== "Erase"
+
+    ![Raspberry Pi Imager's warning after clicking Write: you are about to erase all data on the selected SD card, with the buttons Cancel and I understand, erase and write](images/imager-erase.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+    The red line names the device that Imager erases, here *Generic SD Card Reader*. Go on only if it is the microSD card you selected in the storage step.
+
+=== "Writing"
+
+    ![Raspberry Pi Imager writing the image to the card, at 51 percent](images/imager-writing.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+=== "Verifying"
+
+    ![Raspberry Pi Imager checking the written data, at 50 percent, with the button Skip verification](images/imager-verifying.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+=== "Done"
+
+    ![Raspberry Pi Imager's page Write complete: the choices, the customisations applied, and that the card was ejected and can be removed](images/imager-done.png){ style="border: 1px solid var(--md-default-fg-color--lightest)" }
+
+    The line below the customisations says when you can remove the card. Here Imager has ejected the card by itself. While this line says that Imager is ejecting the card, leave the card in the reader. If the page shows an *Eject* button instead, click it first, and wait until this line says that you can remove the card safely.
+
+The screenshots show Raspberry Pi Imager 2.0.12 with example settings. Use your own SD card, time zone, network and credentials. [Ubuntu's guide](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi) shows the same steps.
 
 ## 2. First login and updates
 
@@ -73,7 +98,7 @@ sudo apt update && sudo apt full-upgrade
 sudo reboot
 ```
 
-- **`cloud-init status --wait`:** [cloud-init](https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status) is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi ([step 3](#3-fixed-ip-addresses)), so it may still be installing packages when you log in. The command returns when cloud-init is done.
+- **`cloud-init status --wait`:** [cloud-init](https://cloudinit.readthedocs.io/en/latest/reference/cli.html#status) is the tool that applies Imager's settings on the first boot: the hostname, the user, Wi-Fi and SSH. It also installs Avahi ([step 3](#3-fixed-ip-addresses)), so it may still be installing packages when you log in. The command returns when cloud-init is done. If the Raspberry Pi had no network at its first boot, cloud-init couldn't install Avahi, and the command ends with `status: error`. Install Avahi yourself then, once the network works: `sudo apt install avahi-daemon`.
 - **`sudo apt update && sudo apt full-upgrade`:** the system on the SD card is as old as the Ubuntu image that Imager wrote. `apt update` fetches the lists of available packages, and `apt full-upgrade` installs all updates published since, the Linux kernel included. Ubuntu installs security updates by itself, once a day ([automatic updates](https://ubuntu.com/server/docs/how-to/software/automatic-updates/)). All other updates, such as bug fixes, come only with this command, so run it from time to time.
 - **`sudo reboot`:** restarts the Raspberry Pi, so that it runs the new kernel. After the restart, log in again.
 
@@ -90,8 +115,8 @@ dpkg-query -W linux-image-raspi
 
 ROS on the robot and on your PC find each other by IP address. Two settings hold the addresses, on both machines:
 
-- **`ROS_MASTER_URI`:** where the ROS master runs. That's usually your PC, where you start `roscore`. Both machines get the same value: `http://`, the PC's address and `11311`, the master's port.
-- **`ROS_IP`:** the machine's own address. The Raspberry Pi gets its own, and the PC its own. ROS tells the other machine to reach this machine's nodes at this address.
+- **[`ROS_MASTER_URI`]({{ robot_container_src_url }}/.docker/robot/env.example#L13-L16):** where the ROS master runs. That's usually your PC, where you start [`roscore`](usage.md#the-ros-master). Both machines get the same value: `http://`, the PC's address and `11311`, the master's port.
+- **[`ROS_IP`]({{ robot_container_src_url }}/.docker/robot/env.example#L17):** the machine's own address. The Raspberry Pi gets its own, and the PC its own. ROS tells the other machine to reach this machine's nodes at this address.
 
 With this page's example addresses, `192.168.1.10` for the PC and `192.168.1.20` for the Raspberry Pi, the Raspberry Pi gets in its [settings](#9-settings):
 
@@ -198,7 +223,7 @@ docker run --rm hello-world
     - **Docker Engine** (`docker-ce`, or `docker.io` from Ubuntu): the background service `dockerd`, which builds images and runs containers. **containerd** is the part underneath that starts the containers.
     - **The Docker CLI** (`docker-ce-cli`, part of `docker.io` in Ubuntu): the `docker` command.
     - **Buildx** (`docker-buildx-plugin` or `docker-buildx`): the builder that `docker build` and Compose use.
-    - **Compose** (`docker-compose-plugin` or `docker-compose-v2`): the `docker compose` command. It reads a `compose.yaml` file that describes the containers, their devices and their settings, so one command starts them all.
+    - **Compose** (`docker-compose-plugin` or `docker-compose-v2`): the `docker compose` command. It reads a [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings) file that describes the containers, their devices and their settings, so one command starts them all.
 
     That's all the robot needs: it downloads one Docker image and runs it with Compose. Buildx is only used if you build the image on the Raspberry Pi yourself ([Your own build](versions.md#your-own-build)). Members of the `docker` group can control Docker without `sudo`, which amounts to root access on the Raspberry Pi ([Docker's security notes](https://docs.docker.com/engine/security/#docker-daemon-attack-surface)).
 
@@ -211,7 +236,7 @@ cd ~
 git clone https://github.com/ros-mobile-robots/diffbot.git
 ```
 
-Git is already installed on Ubuntu Server. Cloning needs no GitHub account and no Git settings: your name, email and editor only matter when you commit changes ([Git and GitHub](../../getting-started/git-and-github.md)). The robot's Docker files are in [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot). The Raspberry Pi needs the repository for them: `compose.yaml`, the settings template and the udev rules. The robot's packages come compiled in the image, so the clone's package code is only used if you build the image yourself. The dot at the start of the folder name hides it from a plain `ls`, like `.github`. In this repository, it marks folders for tools, apart from the ROS packages. It's not Docker's own settings folder `~/.docker`.
+Git is already installed on Ubuntu Server. Cloning needs no GitHub account and no Git settings: your name, email and editor only matter when you commit changes ([Git and GitHub](../../getting-started/git-and-github.md)). The robot's Docker files are in [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot). The Raspberry Pi needs the repository for them: [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings), the settings template and the udev rules. The robot's packages come compiled in the image, so the clone's package code is only used if you build the image yourself. The dot at the start of the folder name hides it from a plain `ls`, like `.github`. In this repository, it marks folders for tools, apart from the ROS packages. It's not Docker's own settings folder `~/.docker`.
 
 After the next steps, the robot's files are in these places on the Raspberry Pi:
 
@@ -225,7 +250,7 @@ After the next steps, the robot's files are in these places on the Raspberry Pi:
 └── robot-data/           ROS logs (step 8)
 ```
 
-`.env` is a copy of `env.example` with your [settings](#9-settings). Inside the containers, the user is `ros`, with a home folder of its own. The robot's ROS packages are built into the image, so every container started from it has them, in the workspace `catkin_ws`:
+[`.env`](setup.md#when-compose-reads-env) is a copy of [`env.example`]({{ robot_container_src_url }}/.docker/robot/env.example) with your [settings](#9-settings). Inside the containers, the user is `ros`, with a home folder of its own. The robot's ROS packages are built into the image, so every container started from it has them, in the workspace [`catkin_ws`]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L68):
 
 ```text
 /home/ros/                the home folder of the user ros, in the container
@@ -237,7 +262,7 @@ After the next steps, the robot's files are in these places on the Raspberry Pi:
     └── log/              ROS's log files
 ```
 
-[Build the workspace](walkthrough.md#build-the-workspace) in the Code Walkthrough explains how the workspace gets into the image. `.ros` isn't part of the image: Compose mounts the Raspberry Pi's folder `~/robot-data` there, so the logs stay on the Raspberry Pi when the containers are removed.
+[Build the workspace](walkthrough.md#build-the-workspace) in the Code Walkthrough explains how the workspace gets into the image. [`.ros`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L41-L46) isn't part of the image: Compose mounts the Raspberry Pi's folder `~/robot-data` there, so the logs stay on the Raspberry Pi when the containers are removed.
 
 ## 7. Stable device names
 
@@ -270,7 +295,7 @@ The containers write ROS's log files into this folder. Inside the container, the
 
 ## 9. Settings
 
-The settings are in the file `.env` in the folder `~/diffbot/.docker/robot`, next to `compose.yaml`. Create it from the template [`env.example`]({{ robot_container_src_url }}/.docker/robot/env.example), which explains each setting, and edit it, on the Raspberry Pi:
+The settings are in the file [`.env`](setup.md#when-compose-reads-env) in the folder `~/diffbot/.docker/robot`, next to [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings). Create it from the template [`env.example`]({{ robot_container_src_url }}/.docker/robot/env.example), which explains each setting, and edit it, on the Raspberry Pi:
 
 ```console
 cd ~/diffbot/.docker/robot
@@ -288,19 +313,38 @@ ROS_IP=192.168.1.20 # (4)!
 ```
 
 1. The robot this Raspberry Pi is in: `remo` or `diffbot`. It selects the robot's URDF model, the description of its links and joints, and the controller's wheel radius and separation. With the other robot's model, the controller computes the wheel speeds and the odometry with the wrong wheel geometry, and the robot's frames are the other robot's.
-2. Starts the lidar driver too. Leave this line out on a robot without a lidar. To switch the lidar off later, run `docker compose down` while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.
-3. The PC that runs `roscore`: `http://` and the PC's IP address, and `11311`, the ROS master's port ([`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI)).
+2. Starts the lidar driver too. Leave this line out on a robot without a lidar, and when the ROS master runs on the Raspberry Pi instead of your PC ([Without any PC](usage.md#without-any-pc)). To switch the lidar off later, run `docker compose down` while the line is still there, then remove it: without it, Compose doesn't stop the lidar container anymore.
+3. The PC that runs [`roscore`](usage.md#the-ros-master): `http://` and the PC's IP address, and `11311`, the ROS master's port ([`ROS_MASTER_URI`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_MASTER_URI)).
 4. The Raspberry Pi's own IP address. ROS tells the other nodes to reach the robot's nodes at this address ([`ROS_IP`](https://wiki.ros.org/ROS/EnvironmentVariables#ROS_IP.2FROS_HOSTNAME)).
 
-On your PC, set `ROS_MASTER_URI` to the same value, and `ROS_IP` to the PC's own address, as in [step 3](#3-fixed-ip-addresses). Without `ROS_MASTER_URI`, the bringup starts its own ROS master on the robot, which is enough to check the robot alone ([On the robot alone](usage.md#on-the-robot-alone)).
+On your PC, set `ROS_MASTER_URI` to the same value, and `ROS_IP` to the PC's own address, as in [step 3](#3-fixed-ip-addresses). Without `ROS_MASTER_URI`, the bringup starts its own ROS master on the robot, which is enough to check the robot alone. Leave the lidar line out then ([Without any PC](usage.md#without-any-pc)).
+
+To check the settings, let Compose list the services that it would start. On the Raspberry Pi, in `~/diffbot/.docker/robot`:
+
+```console
+docker compose config --services
+```
+
+With the settings above, the command prints the two services:
+
+```text
+bringup
+lidar
+```
+
+Without the lidar line, it prints [`bringup`](setup.md#how-composeyaml-uses-the-settings) alone. An error instead of the names points to the line of `.env` or `compose.yaml` that Compose can't read.
+
+The Raspberry Pi is set up now. Continue with [Start](usage.md#start).
+
+The rest of this page is reference: when Compose reads `.env`, every setting, and how `compose.yaml` uses them.
 
 ### When Compose reads `.env`
 
-Neither the Raspberry Pi's shell nor the containers read `.env`. Docker Compose does:
+Neither the Raspberry Pi's shell nor the containers read [`.env`]({{ robot_container_src_url }}/.docker/robot/env.example#L1-L7). Docker Compose does:
 
-1. **Each time you run `docker compose`** in `~/diffbot/.docker/robot`, with `up`, `ps`, `logs`, `down` or any other command. Compose reads `.env` from that folder and fills its values into `compose.yaml`, wherever it says `${NAME}` ([variable interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/)). `docker compose config` shows `compose.yaml` with the values filled in.
-2. **When `docker compose up` creates the containers.** `ROS_MASTER_URI`, `ROS_IP` and `ROS_HOSTNAME` become environment variables inside them. roslaunch and the nodes read them when they start, to find the ROS master and to tell the other nodes where they can be reached. The other settings stay with Compose: they choose the image, the devices, the group, the logs folder, the robot model and, with `COMPOSE_PROFILES`, which containers run.
-3. **A running container keeps the values it was created with.** After changing `.env`, run `docker compose up -d --no-build` again: Compose recreates the containers whose settings changed.
+1. **Each time you run `docker compose`:** in `~/diffbot/.docker/robot`, with `up`, `ps`, `logs`, `down` or any other command, Compose reads `.env` from that folder and fills its values into [`compose.yaml`](setup.md#how-composeyaml-uses-the-settings), wherever the file says `${NAME}` ([variable interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/)). `docker compose config` shows `compose.yaml` with the values filled in.
+2. **When `docker compose up` creates the containers:** [`ROS_MASTER_URI`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L36), [`ROS_IP`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L37) and [`ROS_HOSTNAME`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L38) become environment variables inside them. [roslaunch](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/roslaunch) and the nodes read them when they start, to find the ROS master and to tell the other nodes where they can be reached. The other settings stay with Compose: they choose the image, the devices, the group, the logs folder, the robot model and, with [`COMPOSE_PROFILES`](setup.md#all-settings), which containers run.
+3. **A running container keeps the values it was created with:** after changing `.env`, run `docker compose up -d` again. Compose then recreates the containers whose settings changed.
 
 A variable with the same name in the Raspberry Pi's shell wins over `.env` ([precedence](https://docs.docker.com/compose/how-tos/environment-variables/envvars-precedence/)), for example an `export ROS_MASTER_URI=…` in `~/.bashrc`, left from a native ROS installation. `docker compose config --environment` lists the values that Compose uses.
 
@@ -308,27 +352,27 @@ A variable with the same name in the Raspberry Pi's shell wins over `.env` ([pre
 
 | Setting | Default | What it's for |
 |:--|:--|:--|
-| `ROBOT_MODEL` | `remo` | `remo` or `diffbot`, the robot the container runs on |
-| `COMPOSE_PROFILES` | not set | `lidar` starts the lidar container too |
+| [`ROBOT_MODEL`]({{ robot_container_src_url }}/.docker/robot/env.example#L9-L11) | `remo` | `remo` or `diffbot`, the robot the container runs on |
+| [`COMPOSE_PROFILES`]({{ robot_container_src_url }}/.docker/robot/env.example#L19-L25) | not set | [`lidar`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L66) starts the lidar container too. Only together with [`ROS_MASTER_URI`]({{ robot_container_src_url }}/.docker/robot/env.example#L13-L16), the ROS master on the PC |
 | `ROS_MASTER_URI` | not set | The ROS master on the PC. Without it, the bringup starts a master on the robot |
-| `ROS_IP` | not set | The robot's own IP address. `ROS_HOSTNAME` with a name works too, if the PC can look up that name |
-| `TEENSY_DEVICE`, `LIDAR_DEVICE` | `/dev/teensy`, `/dev/rplidar` | The serial devices on the Raspberry Pi, from [step 7](#7-stable-device-names) |
-| `DIALOUT_GID` | `20` | The number of the group that owns the serial devices on the Raspberry Pi |
-| `ROBOT_DATA` | `~/robot-data` | The folder for logs, from [step 8](#8-the-folder-for-logs) |
-| `ROBOT_IMAGE` | `ghcr.io/ros-mobile-robots/diffbot-robot:noetic` | The Docker image to run: the newest published one, a fixed version, or your own build ([Versions](versions.md#versions), [Your own build](versions.md#your-own-build)) |
+| [`ROS_IP`]({{ robot_container_src_url }}/.docker/robot/env.example#L17) | not set | The robot's own IP address. [`ROS_HOSTNAME`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L38) with a name works too, if the PC can look up that name |
+| [`TEENSY_DEVICE`]({{ robot_container_src_url }}/.docker/robot/env.example#L27-L28), [`LIDAR_DEVICE`]({{ robot_container_src_url }}/.docker/robot/env.example#L29) | `/dev/teensy`, `/dev/rplidar` | The serial devices on the Raspberry Pi, from [step 7](#7-stable-device-names) |
+| [`DIALOUT_GID`]({{ robot_container_src_url }}/.docker/robot/env.example#L31-L33) | `20` | The number of the group that owns the serial devices on the Raspberry Pi |
+| [`ROBOT_DATA`]({{ robot_container_src_url }}/.docker/robot/env.example#L35-L37) | `~/robot-data` | The folder for logs, from [step 8](#8-the-folder-for-logs) |
+| [`ROBOT_IMAGE`]({{ robot_container_src_url }}/.docker/robot/env.example#L39-L45) | `ghcr.io/ros-mobile-robots/diffbot-robot:noetic` | The name of the Docker image to run. The default is the newest published version. [Versions](versions.md#versions) explains the name's parts and how to set one fixed version, and [Your own build](versions.md#your-own-build) how to run an image that you built |
 
 ### Why `DIALOUT_GID` is a number
 
-Inside the container, the user `ros` may open the Teensy's device only as a member of the group that owns it, `dialout` on Ubuntu. Docker can add a group to the container's user by name or by number. It looks a name up in the container's own list of groups. There, the same name could have another number than on the Raspberry Pi. So `compose.yaml` adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:
+Inside the container, the user `ros` may open the Teensy's device only as a member of the group that owns it, `dialout` on Ubuntu. Docker can add a group to the container's user by name or by number. It looks a name up in the container's own list of groups. There, the same name could have another number than on the Raspberry Pi. So [`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L33-L34) adds the Raspberry Pi's group by its number. On Ubuntu that's 20, the default. To check, on the Raspberry Pi:
 
 ```console
 stat -Lc %g /dev/teensy
 ```
 
-[`stat`](https://manpages.ubuntu.com/manpages/noble/man1/stat.1.html) shows a file's details, and `%g` its group's number. `-L` follows the link `/dev/teensy` to the real device. Without it, `stat` shows the group of the link itself. Write the number into `.env`: Compose doesn't run commands in it.
+[`stat`](https://manpages.ubuntu.com/manpages/noble/man1/stat.1.html) shows a file's details, and `%g` its group's number. `-L` follows the link `/dev/teensy` to the real device. Without it, `stat` shows the group of the link itself. Write the number into [`.env`](setup.md#when-compose-reads-env): Compose doesn't run commands in it.
 
 ### How `compose.yaml` uses the settings
 
-[`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml) describes two services, `bringup` and `lidar`. A service is a container that Compose starts. The file fills the settings into the services' descriptions: the Docker image, the devices, the group, the folder for logs, the robot and the ROS network.
+[`compose.yaml`]({{ robot_container_src_url }}/.docker/robot/compose.yaml) describes two services, [`bringup`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L56-L60) and [`lidar`]({{ robot_container_src_url }}/.docker/robot/compose.yaml#L64-L70). A service is a container that Compose starts. The file fills the settings into the services' descriptions: the Docker image, the devices, the group, the folder for logs, the robot and the ROS network.
 
 [`compose.yaml`](walkthrough.md#composeyaml) in the Code Walkthrough goes through the file line by line, with a figure of which device and folder goes into which container, and a table from each setting to the line that uses the setting.

@@ -1,3 +1,7 @@
 venv
 .cache/
 __pycache__/
+# mypy's cache, which the style check in AGENTS.md writes
+.mypy_cache/
+# The output of mkdocs build. The workflows build it themselves and publish it to gh-pages
+/site/

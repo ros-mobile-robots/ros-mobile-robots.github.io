@@ -1,0 +1,100 @@
+# Tests of the Localization
+
+Five test files check the EKF and the IMU sample validator of the [Localization chapter](../../robot_localization.md) without the robot. Each file tests at a different level: the validator's rules alone, the validator and the filter on a clock that the test steps, the whole robot in Gazebo, the launch files, and the publisher of the transform `odom → base_footprint`. Each test has a page that walks through its code, with a figure of what the test feeds and what it checks.
+
+## Which question each test answers
+
+Each question below leads to the page of the test that answers it. The pages go from a single decision of the validator, through the validator and the EKF together, to the simulated robot:
+
+1. **[Which IMU samples may reach the EKF?](validator.md)**
+    - **Answer:** a sample passes only at a ROS time other than 0, and only with the right frame, finite values, valid variances, a stamp close to the ROS time, and a stamp later than the last valid sample's.
+    - **Where the test runs:** in Python alone. The unit tests call the validator's class directly, without a ROS master.
+2. **[What does the EKF estimate when the IMU samples are valid, invalid or stop?](stepped-clock.md)**
+    - **Answer:** the estimate's yaw rate $\omega_z$ follows the valid IMU samples, ignores the samples that the validator drops, and goes to the wheels' yaw rate when no valid sample arrives, also at the robot's rates. The estimate's forward speed $v_x$ follows the wheels', also when their speed changes.
+    - **Where the test runs:** the validator and the EKF run as ROS nodes, on a clock that the test steps, without Gazebo.
+3. **[Does the EKF recover a wrong turn in Gazebo?](gazebo.md)**
+    - **Answer:** yes. With a wheel separation that is 25 % too large in the drive controller, the wheel odometry's turn falls behind the true turn, and the EKF's turn stays within 0.05 rad of the true turn. In the same simulation, the EKF is the only node that publishes the transform `odom → base_footprint`.
+    - **Where the test runs:** in Gazebo without a window, with the EKF, with DiffBot and with Remo.
+4. **[Does `ekf:=true` start the EKF and hand the transform over to the EKF?](switch.md)**
+    - **Answer:** the launch files that start the robot or the simulation start the EKF and the validator only with `ekf:=true`, and then turn the drive controller's transform off. The launch files that start a planner make the planner read the EKF's odometry by default with `ekf:=true`.
+    - **Where the test runs:** roslaunch's loader reads the launch files. No node starts.
+5. **[Which node publishes the transform `odom → base_footprint` without the EKF?](odom-tf.md)**
+    - **Answer:** the only publisher is `/gazebo`, the node that runs the drive controller in the simulation. With the EKF, the test of question 3 checks that the EKF is the only publisher, and the page of this question shows both cases.
+    - **Where the test runs:** in Gazebo without a window, without the EKF, with DiffBot and with Remo.
+
+## How the tests run
+
+The five test files are Python tests, written with Python's [`unittest`](https://docs.python.org/3/library/unittest.html) module: each file defines its tests as methods of a [`unittest.TestCase`](https://docs.python.org/3/library/unittest.html#unittest.TestCase) class. catkin runs the five files with the workspace's other tests. The packages register them in their `CMakeLists.txt` with two functions:
+
+- **[`catkin_add_nosetests()`](https://github.com/ros/catkin/blob/0.8.12/cmake/test/nosetests.cmake#L29):** for the two files without ROS nodes. The test runner [nose](https://nose.readthedocs.io/en/latest/) finds the [`TestCase`](https://docs.python.org/3/library/unittest.html#unittest.TestCase) classes in the file and runs their tests.
+- **[`add_rostest()`](https://github.com/ros/ros_comm/blob/1.17.0/tools/rostest/cmake/rostest-extras.cmake.em#L7):** for the three files that start nodes. rostest starts the nodes of the test's `.test` launch file, then the test file.
+
+catkin's guides [Configuring Python nose tests](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/python_nose_configuration.rst) and [Configuring rostest](https://github.com/ros/catkin/blob/noetic-devel/doc/howto/format2/rostest_configuration.rst) explain the two functions. CI runs the same tests on every pull request, as [Testing and CI](../../../../development/ci.md#ekf-tests) explains.
+
+## Run the tests
+
+Run the commands in the [dev container](../../../../development/dev-container.md), in a shell in which its built Noetic workspace `~/catkin_ws` is sourced, as the container's setup leaves it. These commands run every test of the workspace, as CI does, from the workspace's folder:
+
+```console
+cd ~/catkin_ws
+catkin build --catkin-make-args run_tests
+catkin_test_results build
+```
+
+The second line builds the workspace and runs every registered test, the five files included. The third line sums up the result files and fails if any test failed. [Run it](../../../../development/simulation-test.md#run-it) on Simulation Test explains the two commands.
+
+To run one test file, use its command from the list. Each item names what a passing run prints. The test's page shows the whole output and what the test doesn't show.
+
+- **[`test_imu_validator.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_imu_validator.py), [IMU Sample Validator](validator.md#run-the-tests):** Python's [`unittest`](https://docs.python.org/3/library/unittest.html) runs the file from its folder.
+
+    ```console
+    roscd diffbot_control/test
+    python3 -m unittest -v test_imu_validator
+    ```
+
+    A pass ends with the line `OK`, after `Ran 30 tests`.
+
+- **[`test_ekf_synthetic.py`]({{ ekf_test_src_url }}/diffbot_control/test/test_ekf_synthetic.py), [EKF on a Stepped Clock](stepped-clock.md#runs):** rostest runs one scenario for each `.test` file.
+
+    ```console
+    rostest diffbot_control ekf_synthetic.test
+    rostest diffbot_control ekf_synthetic_robot_rates.test
+    ```
+
+    For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output.
+
+- **[`test_ekf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_ekf.py), [EKF in Gazebo](gazebo.md#run-it):** rostest starts the simulation of one robot with the EKF.
+
+    ```console
+    rostest diffbot_gazebo sim_ekf_diffbot.test
+    rostest diffbot_gazebo sim_ekf_remo.test
+    ```
+
+    For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output.
+
+- **[`test_ekf_switch.py`]({{ ekf_switch_src_url }}/diffbot_gazebo/test/test_ekf_switch.py), [The ekf Switch](switch.md#run-it):** Python's `unittest` runs the file from its folder.
+
+    ```console
+    roscd diffbot_gazebo/test
+    python3 -m unittest -v test_ekf_switch
+    ```
+
+    A pass ends with the line `OK`, after `Ran 5 tests`.
+
+- **[`test_odom_tf.py`]({{ ekf_src_url }}/diffbot_gazebo/test/test_odom_tf.py), [The Transform's Publisher](odom-tf.md#run-it):** rostest starts the simulation of one robot without the EKF and runs all five test nodes of the file, this test among them.
+
+    ```console
+    rostest diffbot_gazebo sim_drive_diffbot.test
+    rostest diffbot_gazebo sim_drive_remo.test
+    ```
+
+    For each command, look for `* RESULT: SUCCESS` under `SUMMARY` at the end of the output. This result covers all five test nodes of the file.
+
+## What the tests don't show
+
+The tests run without the robot. They don't show four things:
+
+- **The real gyroscope while the robot drives:** its noise, its bias and its mounting. The tests use the simulated IMU's samples, or samples that the stepped-clock test publishes itself.
+- **How long the samples take to arrive on the robot:** the issue [IMU validator: measure the samples' age on the robot, then set max_age and max_future (diffbot#219)](https://github.com/ros-mobile-robots/diffbot/issues/219) measures it.
+- **The rates on the robot:** the stepped-clock test runs the filter at the simulation's rates, both inputs at 50 Hz, and at the robot's nominal rates. On the robot, the IMU is configured to publish at 50 Hz, and the wheel odometry arrives at a nominal 10 Hz, because the control loop of the node `diffbot_base` runs the drive controller 10 times per second. The box under [`frequency`](../../robot_localization.md#the-other-settings) on the Localization page explains this. The rates on the robot are not measured yet: the issue [Base: measure the control loop's rate on the robot, then decide (diffbot#218)](https://github.com/ros-mobile-robots/diffbot/issues/218) measures them and decides whether the control loop runs faster.
+- **Whether the filter improves the odometry on the floor:** the [floor odometry test (diffbot#138)](https://github.com/ros-mobile-robots/diffbot/issues/138) will measure this on Remo.

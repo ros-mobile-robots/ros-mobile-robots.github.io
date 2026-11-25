@@ -11,6 +11,7 @@ This section explains how DiffBot and Remo are developed: where the code lives, 
 | [diffbot](https://github.com/ros-mobile-robots/diffbot) | ROS packages, Teensy firmware, dev container, CI | `noetic-devel` |
 | [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) | This documentation site | `main` |
 | [remo_description](https://github.com/ros-mobile-robots/remo_description) | Remo's URDF description. The STL meshes come with the [Remo files on Gumroad](https://fjp.gumroad.com/l/GnMpU) | `main` |
+| [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models) | Display models of off-the-shelf parts, such as wheels, lidars and boards, with the generators that make them in [CadQuery](https://cadquery.readthedocs.io/en/latest/), a Python library for CAD models | `main` |
 
 ## Roadmap
 
@@ -33,20 +34,38 @@ Issues labelled [`good first issue`](https://github.com/ros-mobile-robots/diffbo
 
 A feature isn't finished until it's documented: code changes in diffbot come with a matching page or update on this site (see [Writing docs](#writing-docs)).
 
+A change that makes a lasting choice, such as an interface or the boundary between two parts, also gets a record on [Decisions](../decisions/index.md), in its docs pull request or in a docs pull request of its own.
+
 ## Best practices
 
 The code follows the [ROS best practices](http://wiki.ros.org/Tutorials/Best%20Practices) and the [ROS Quality](http://wiki.ros.org/Quality) guidelines where possible, including the [ROS Enhancement Proposals (REPs)](https://www.ros.org/reps/rep-0000.html). Pages on this site link to the REPs that apply.
+
+Each repository has a `CONTRIBUTING.md` ([diffbot](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/CONTRIBUTING.md), [remo_description](https://github.com/ros-mobile-robots/remo_description/blob/main/CONTRIBUTING.md), [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models/blob/main/CONTRIBUTING.md), [this site]({{ docs_repo_url }}/CONTRIBUTING.md)). Start there: it says how to set up, test and open a pull request. The repository's `AGENTS.md`, the file that coding agents read ([agents.md](https://agents.md/)), adds more detailed rules, and they hold for people too. For the rules of what you change, open its guide:
+
+- **The robots' ROS packages, firmware or tests:** [diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md). Its first section says what to run before you push. Its code rules say, for example, that a function does one thing, a name says what a thing is, values that belong together travel as one type, and a test's name says what the test checks.
+- **Remo's robot model:** [remo_description's AGENTS.md](https://github.com/ros-mobile-robots/remo_description/blob/main/AGENTS.md), for the [xacro](http://wiki.ros.org/xacro) files and the configuration files of the parts.
+- **A model of an off-the-shelf part:** [robot_component_models' AGENTS.md](https://github.com/ros-mobile-robots/robot_component_models/blob/main/AGENTS.md), for the generators that make the meshes and the sources of each model.
+- **A page of this site:** [this site's AGENTS.md]({{ docs_repo_url }}/AGENTS.md), which [Writing docs](#writing-docs) sums up.
+
+Where these rules and the guides below differ, the repository's rules win.
 
 Good starting points:
 
 - [ROS developer's guide](http://wiki.ros.org/DevelopersGuide): common practices for components shared with the community, with the [naming conventions](http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources) and the [C++](http://wiki.ros.org/CppStyleGuide) and [Python](http://wiki.ros.org/PyStyleGuide) style guides.
 - [ROS best practices](https://github.com/ethz-asl/ros_best_practices/wiki) of the Autonomous Systems Lab at ETH Zurich.
 
-How the code is built, tested and debugged is described in [Testing and CI](ci.md).
+How the code is built, tested and debugged is described in [Testing and CI](ci.md). [Firmware Unit Tests](firmware-unit-tests.md) shows how to run one test of the Teensy firmware on your PC and how to write a new one.
 
 ## Writing docs
 
 This site is built with [MkDocs](https://www.mkdocs.org/) and the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme. Its source is the [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) repository: one Markdown file per page in [`docs/`](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/tree/main/docs), and the navigation in [`mkdocs.yml`]({{ docs_repo_url }}/mkdocs.yml). Pull requests from branches in this repository get a preview on the real site, see [Testing and CI](ci.md#this-documentation-site).
+
+A page is written for a reader who is new to its topic. The [writing rules of this site's AGENTS.md]({{ docs_repo_url }}/AGENTS.md#writing-rules) have the full list, with examples. The main ones:
+
+- **Terms and quantities:** a term is defined where it first appears. A term that many pages share goes into [`includes/glossary.yml`]({{ docs_repo_url }}/includes/glossary.yml), which the [Glossary](../glossary.md) lists. Most of these terms also show their definition when you point at them on a page. A value carries its unit, and a quantity carries its symbol where a formula or a figure uses it.
+- **Code:** a full sentence introduces every code excerpt. The sentence above the excerpt of [`drive()`](simulation-test.md#drive) on the Simulation Test page is an example.
+- **Figures:** a figure shows each flow.
+- **Tests:** a feature's pages walk through its tests, one test after the other, with a picture per test. The [code walkthrough of the simulation test](simulation-test.md#code-walkthrough) shows the form.
 
 The packages have no generated API documentation yet. For ROS packages that's usually done with [Doxygen](http://wiki.ros.org/Doxygen).
 

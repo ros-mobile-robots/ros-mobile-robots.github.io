@@ -65,8 +65,8 @@ extra:
   diffbot_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7190c9a902d2205133967d32db5ce3548f24f0a8
   # The diffbot commit that the code excerpts and file links on the Robot Container pages show. Update both
   # when that code changes, and check the excerpts' line ranges against the new commit
-  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3
-  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/f6d84497d2fa01b6614e2dc8c79deb8f1fc956d3
+  robot_container_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/5f06789a1b3535e1ddeb57d3c303c94727415de9
+  robot_container_src_url: https://github.com/ros-mobile-robots/diffbot/blob/5f06789a1b3535e1ddeb57d3c303c94727415de9
   # The diffbot commit that the workflow excerpts on Testing and CI show. Update both when that
   # workflow changes, and check the excerpts' line ranges and highlighted lines against it
   ci_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/22e3f0e15052910c90f7f18decc0833a84271ab6
@@ -75,14 +75,42 @@ extra:
   # #150's merge commit before this page's pull request merges, and check the excerpts' line ranges
   firmware_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3541965496d50ce629e00054e8d3acd12e4beed5
   firmware_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5
+  # The diffbot commit that the excerpts on Firmware Unit Tests show, and that
+  # scripts/figures/firmware_unit_tests_figures.py takes its values from: the merge of the diffbot
+  # pull request that adds the GoogleTest environment. Update both when that code changes, and
+  # check the excerpts' line ranges and the script's values against the new commit
+  firmware_tests_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/c3d93b237fcbe01f763f8f4503d921436e2ea742
+  firmware_tests_src_url: https://github.com/ros-mobile-robots/diffbot/blob/c3d93b237fcbe01f763f8f4503d921436e2ea742
   # The diffbot commit that the code excerpts on Geometry Test show. Update both when that code
   # changes, and check the excerpts' line ranges and highlighted lines against the new commit
   geometry_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/332c95fd10d83aadd52ea32656a917a2efd4b885
   geometry_src_url: https://github.com/ros-mobile-robots/diffbot/blob/332c95fd10d83aadd52ea32656a917a2efd4b885
+  # The diffbot commit that the firmware excerpts and links of the feedback loop on PID Controllers
+  # show, and that scripts/figures/pid_figures.py takes its values from. Update all three when that
+  # code changes, and check the excerpts' line ranges and highlighted lines against the new commit
+  pid_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d
+  pid_src_url: https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d
   # The diffbot commit that the firmware excerpts on Low-Level Base Controller show. Update both when
   # that code changes, and check the excerpts' line ranges and highlighted lines against the new commit
-  low_level_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/3541965496d50ce629e00054e8d3acd12e4beed5
-  low_level_src_url: https://github.com/ros-mobile-robots/diffbot/blob/3541965496d50ce629e00054e8d3acd12e4beed5
+  low_level_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5
+  low_level_src_url: https://github.com/ros-mobile-robots/diffbot/blob/baea84f8619f2e06cc2df2121fd90aaf8ec2d5a5
+  # The diffbot commit that the excerpts on the Localization pages show: the merge commit of
+  # diffbot #154. Update both when that code changes, and check the excerpts' line ranges
+  ekf_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/ead34027a9507c65d7415f93817177340d60d549
+  ekf_src_url: https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549
+  # The diffbot commit that the excerpts on the test pages EKF on a Stepped Clock and IMU Sample
+  # Validator (robot_localization/tests/stepped-clock.md and validator.md) and the Localization
+  # page's links into imu_validator.py show: the merge commit of diffbot #220. Update both when
+  # that code changes, and check the excerpts' line ranges and the links' lines on the three
+  # pages against the new commit
+  ekf_test_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/7d428c282c073ad4b99a76cab834276daadb5a6f
+  ekf_test_src_url: https://github.com/ros-mobile-robots/diffbot/blob/7d428c282c073ad4b99a76cab834276daadb5a6f
+  # The diffbot commit that the excerpts and the links on the test page The ekf Switch
+  # (robot_localization/tests/switch.md) show: the merge commit of diffbot #215, whose
+  # test_ekf_switch.py also loads diffbot_control's diffbot.launch. Update both when the test
+  # changes, and check the excerpts' line ranges against the new commit
+  ekf_switch_src_raw: https://raw.githubusercontent.com/ros-mobile-robots/diffbot/27d72a42785ca00d59ff197ada39ca91666c3490
+  ekf_switch_src_url: https://github.com/ros-mobile-robots/diffbot/blob/27d72a42785ca00d59ff197ada39ca91666c3490
   remo_repo_url: https://github.com/ros-mobile-robots/remo_description/blob/main
   docs_repo_url: https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main
   disqus: ros-mobile-robots
@@ -246,7 +274,15 @@ nav:
     - SLAM: diffbot_slam.md
     - Move Base Flex: diffbot_mbf.md
     - Perception: diffbot_perception.md
-    - Localization (robot_localization): packages/imu/robot_localization.md
+    - Localization (robot_localization):
+      - Overview: packages/imu/robot_localization.md
+      - Tests:
+        - packages/imu/robot_localization/tests/index.md
+        - IMU Sample Validator: packages/imu/robot_localization/tests/validator.md
+        - EKF on a Stepped Clock: packages/imu/robot_localization/tests/stepped-clock.md
+        - EKF in Gazebo: packages/imu/robot_localization/tests/gazebo.md
+        - The ekf Switch: packages/imu/robot_localization/tests/switch.md
+        - The Transform's Publisher: packages/imu/robot_localization/tests/odom-tf.md
   - Robotics Theory:
     - theory/index.md
     # Hidden until written: Linear Algebra, Programming, Pinhole Camera Model, Recursive State Estimation
@@ -292,8 +328,12 @@ nav:
   - Contributing:
     - development/index.md
     - Testing and CI: development/ci.md
+    - Firmware Unit Tests: development/firmware-unit-tests.md
     - Geometry Test: development/geometry-test.md
     - Simulation Test: development/simulation-test.md
+    - Decisions:
+      - decisions/index.md
+      - "ADR-0001: Record architecture decisions": decisions/0001-record-architecture-decisions.md
   - Insiders: insiders/index.md
 
 # Fail the strict build on links that MkDocs can check: missing pages, missing #anchors,
