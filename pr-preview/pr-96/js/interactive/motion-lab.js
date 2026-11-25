@@ -335,12 +335,14 @@ function mount(root) {
     scrub.value = Math.round(time * Number(scrub.max));
   }
   // The current example's answer shows under the drawing once its changed drive has reached its
-  // end, and then stays. Screen readers hear it when it appears.
+  // end, and then stays. Screen readers hear it when it appears. Until then, the summary and the
+  // tables, which show the drive's end, wait in their place too.
   function showAnswerAtTheEnd() {
     const key = data.examples[state.step].key, answer = find('.ix-shown-answer');
     const appears = revealed.has(key) && state.time >= 1 && !answered.has(key);
     if (appears) answered.add(key);
     answer.hidden = !answered.has(key);
+    root.classList.toggle('ix-waiting', revealed.has(key) && !answered.has(key));
     return appears;
   }
   function startPlaying() {
