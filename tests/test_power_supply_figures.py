@@ -7,6 +7,7 @@ Run from the repository root: python -m unittest discover -s tests
 
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -74,14 +75,59 @@ class TestStyles(unittest.TestCase):
             self.assertIn(f'.pf-fig .head-{source.value}', self.selectors, source)
 
     def test_every_sources_supply_line_ends_in_a_marker_that_the_figure_defines(self) -> None:
-        figure_name, figure_height = 'pf-test', 100
+        figure_name = 'pf-test'
         downward_path = 'M0,0 V10'
         for source in power_supply_figures.Source:
-            figure = power_supply_figures.Figure(figure_name, figure_height, 'title')
+            figure = power_supply_figures.Figure(figure_name, 1, 'title', 'pf-narrow')
             figure.supply(downward_path, source)
             marker = f'{figure_name}-{source.value}-head'
             self.assertIn(f'marker-end="url(#{marker})"', figure.svg(), source)
             self.assertIn(f'<marker id="{marker}"', figure.svg(), source)
+
+    def test_every_class_that_a_figure_draws_has_a_style_rule(self) -> None:
+        # The layouts' classes appear in the declarations of the container query's rule
+        rules = ' '.join(f'{selector} {declarations}'
+                         for selector, declarations in power_supply_figures.RULES)
+        for robot in (power_supply_figures.DIFFBOT, power_supply_figures.REMO):
+            for figure in power_supply_figures.layouts(robot):
+                for classes in re.findall(r'class="([^"]+)"', figure.svg()):
+                    for css_class in classes.split():
+                        self.assertIn(f'.{css_class}', rules, (robot.name, css_class))
+
+
+class TestLayouts(unittest.TestCase):
+    """Each figure has both layouts, and its cables leave the Raspberry Pi where they can."""
+
+    def test_each_include_holds_a_narrow_and_a_wide_layout(self) -> None:
+        for name in INCLUDE_NAMES:
+            include = (ROOT / 'includes' / name).read_text(encoding='utf-8')
+            self.assertEqual(include.count('class="pf-fig pf-narrow"'), 1, name)
+            self.assertEqual(include.count('class="pf-fig pf-wide"'), 1, name)
+
+    def test_the_cables_to_the_lidar_and_the_camera_leave_the_raspberry_pi(self) -> None:
+        pi = power_supply_figures.RASPBERRY_PI_BOX
+        for box in (power_supply_figures.LIDAR_BOX, power_supply_figures.CAMERA_BOX):
+            middle = box.y + box.height / 2
+            for cable_y in (middle - power_supply_figures.PAIR_GAP / 2,
+                            middle + power_supply_figures.PAIR_GAP / 2):
+                self.assertTrue(pi.y < cable_y < pi.bottom, box)
+
+    def test_diffbots_i2c_and_ground_wires_never_cross(self) -> None:
+        figures = power_supply_figures
+        i2c_leave, i2c_lane, i2c_arrive = figures.DIFFBOT_I2C
+        ground_leave, ground_lane, ground_arrive = figures.DIFFBOT_GROUND
+        camera_data_y = (figures.CAMERA_BOX.y + figures.CAMERA_BOX.height / 2
+                         + figures.PAIR_GAP / 2)
+        # Both leave the Raspberry Pi below the camera's cable, the I2C wire first
+        self.assertTrue(camera_data_y < i2c_leave < ground_leave < figures.RASPBERRY_PI_BOX.bottom)
+        # The I2C wire runs down farther right and turns higher, so the ground wire stays inside it
+        self.assertGreater(i2c_lane, ground_lane)
+        self.assertLess(i2c_arrive, ground_arrive)
+        # Both lanes lie in the gap between the left column and the LiDAR and the camera
+        self.assertTrue(figures.RASPBERRY_PI_BOX.right < ground_lane < i2c_lane
+                        < figures.CAMERA_BOX.x)
+        driver = figures.DRIVER_BOX
+        self.assertTrue(driver.y < i2c_arrive < ground_arrive < driver.bottom)
 
 
 if __name__ == '__main__':

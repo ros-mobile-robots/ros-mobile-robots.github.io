@@ -80,9 +80,9 @@ DiffBot's eight NiMH AA cells are connected to the power terminal of the [Grove 
 
 --8<-- "includes/power-supply-flow-diffbot.html"
 
-The figure shows the two supplies and the parts that are known to be on them.
-It leaves out the microcontroller (MCU), a Teensy that runs the [low-level base controller](packages/diffbot_base/low-level.md), the encoders, the LiDAR and the camera, because their supply on DiffBot isn't checked yet.
-The same holds for the I2C connection that brings the motor commands to the motor driver.
+- **From the power bank:** The Raspberry Pi gets 5 V at its USB-C port. It supplies the LiDAR through the LiDAR's USB adapter, and the microcontroller (MCU), a Teensy, over the USB cable that also carries the data. The Teensy's 3.3 V supplies the encoders and the IMU.
+- **Camera:** The Raspberry Pi Camera's ribbon cable plugs into the Raspberry Pi's camera connector, which carries the camera's 3.3 V supply and its data (the connector J3 in the [Raspberry Pi 4's schematics](https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-reduced-schematics.pdf), J1 in the [Camera Module 2's schematic](https://datasheets.raspberrypi.com/camera/camera-module-2-schematics.pdf)).
+- **Motor driver:** The Grove I2C Motor Driver gets the motor commands from the Raspberry Pi over I2C. It makes the 5 V for its own logic from the battery, as the bullet on its logic supply below explains. The ground wire between the Raspberry Pi and the motor driver joins the grounds of the two supplies, and the I2C signals need it as their reference. The Raspberry Pi's I2C pins work with 3.3 V and the motor driver's bus with 5 V: the [Grove I2C Motor Driver page](grove_motor_driver.md#connection) connects them through a level shifter.
 
 The battery and the motor driver fit together like this:
 
@@ -102,7 +102,7 @@ The holder's cable goes to the 2-pin power terminal of the [Adafruit DC Motor + 
 - **From the motor battery:** The motor battery supplies the motors only. The motor driver switches the battery voltage to them.
 - **Motor driver:** The motor driver is the only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over I2C. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection ([schematic](https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB)), so both supplies share one ground. The driver needs this shared ground: the TB6612 measures its inputs IN1, IN2 and PWM against its ground ([TB6612FNG datasheet](https://cdn.sparkfun.com/assets/0/1/b/b/3/TB6612FNG.pdf), input voltage), and these signals come from the logic side. The battery is connected only to the motor driver, so this is the one connection between the grounds of the two supplies.
 - **Without the Teensy:** The motors stop. The motor driver's logic loses its 3.3 V together with the Teensy. In the bench check, pulling the Teensy's USB cable while driving stopped the wheels at once.
-- **Camera:** The figure draws only its data connection to the Raspberry Pi, as a dashed line. Its supply isn't checked on Remo yet, so the figure doesn't draw one.
+- **Camera:** As on DiffBot, the camera's cable on the Raspberry Pi's camera connector carries its 3.3 V supply and its data.
 
 The battery and the motor driver fit together like this:
 
