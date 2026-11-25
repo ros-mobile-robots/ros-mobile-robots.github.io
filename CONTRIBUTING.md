@@ -1,21 +1,27 @@
 # Contributing to ros-mobile-robots.com
 
-This repository is the source of [ros-mobile-robots.com](https://ros-mobile-robots.com), the documentation of the DiffBot and Remo robots: building them, their ROS packages, and the robotics theory behind them. It's built with [MkDocs](https://www.mkdocs.org/) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/). The robots' code is in [diffbot](https://github.com/ros-mobile-robots/diffbot) and [remo_description](https://github.com/ros-mobile-robots/remo_description).
+This repository is the source of [ros-mobile-robots.com](https://ros-mobile-robots.com), the documentation of the DiffBot and Remo robots: building them, their ROS packages, and the robotics theory behind them. It's built with [MkDocs](https://www.mkdocs.org/) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/). The robots' code is in [diffbot](https://github.com/ros-mobile-robots/diffbot), [remo_description](https://github.com/ros-mobile-robots/remo_description) and [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models).
 
-Ask questions and get help with your build in diffbot's [Discussions](https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a), which cover both robots and this documentation. Corrections, clearer explanations and missing steps are welcome, as [issues](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/issues) or pull requests here; a bug in the robots' code goes to [diffbot](https://github.com/ros-mobile-robots/diffbot/issues) or [remo_description](https://github.com/ros-mobile-robots/remo_description/issues). For a new page or a larger change, open an issue first.
+Ask questions and get help with your build in diffbot's [Discussions](https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a), which cover both robots and this documentation. Corrections, clearer explanations and missing steps are welcome, as [issues](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/issues) or pull requests here. A bug in the robots' code goes to [diffbot](https://github.com/ros-mobile-robots/diffbot/issues), [remo_description](https://github.com/ros-mobile-robots/remo_description/issues) or [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models/issues). For a new page or a larger change, open an issue first.
 
 ## Build and preview
 
-With Python 3.12, as in CI:
+On your PC, in the repository's root, with Python 3.12, as in CI:
 
 ```bash
-python3 -m venv venv && venv/bin/pip install -r requirements.txt codespell
-venv/bin/mkdocs serve            # live preview at http://127.0.0.1:8000
-venv/bin/mkdocs build --strict   # what CI runs: every warning, such as a broken link, fails the build
-venv/bin/codespell               # spelling, with the settings in .codespellrc
+python3.12 -m venv venv && venv/bin/pip install -r requirements.txt codespell
+venv/bin/python -m unittest discover -s tests -v   # the unit tests of the scripts and macros
+venv/bin/mkdocs build --strict                     # every warning, such as a broken link, fails the build
+venv/bin/codespell                                 # spelling, with the settings in .codespellrc
 ```
 
-CI checks the strict build and the spelling of every pull request. Pull requests from a branch in this repository also get a preview at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`; from a fork, GitHub doesn't allow publishing one, so check your change with `mkdocs serve`.
+While you write, a live preview shows the site at `http://127.0.0.1:8000`. The command runs until you stop it:
+
+```bash
+venv/bin/mkdocs serve
+```
+
+CI runs the unit tests, the strict build and the spelling check for every pull request into `main`. Pull requests from a branch in this repository also get a preview at `https://ros-mobile-robots.com/pr-preview/pr-<number>/`. A pull request from a fork gets no preview, so check your change with `mkdocs serve`. A pull request into another branch than `main` gets no unit tests and no spelling check from CI: run the three commands yourself and put their results into the description. Until you have had a change merged into this repository, a pull request from your fork waits for a maintainer to approve its checks. [AGENTS.md](AGENTS.md#checks-on-a-pull-request) has the table of which check runs when.
 
 ## How the site is put together
 
@@ -28,16 +34,32 @@ CI checks the strict build and the spelling of every pull request. Pull requests
 
 ## Writing
 
-- Explain why, not only what: the reader should understand the robot well enough to change it.
-- Short, plain sentences; one idea per paragraph. Use SI units with a space (`0.5 kg`, `3 s`).
-- Link the primary source next to a claim: the code at a pinned commit, the official documentation, or the measurement.
-- Describe the current state. How it got there belongs in the pull requests, not on the page.
+Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules) has these rules with examples.
+
+- **Why:** explain why, not only what. The reader should understand the robot well enough to change it. Short, plain sentences, one idea per paragraph, few semicolons.
+- **Terms and links:** define a term where the page first uses it, and give every link a text that says what it leads to, never "here" or a bare number. Between two headings, link a code name's destination once, at its first name. A citation next to a claim keeps its link.
+- **Quantities:** give every value its unit, in SI units with a space (`0.5 kg`, `3 s`). Give a quantity its symbol too on a page that has a formula or a figure with that symbol, such as "the yaw rate $\omega_z$ (rad/s)".
+- **Code:** introduce every code excerpt with a full sentence, show the excerpt for every line range that the text names or walks through, and use the code's own names in the text. A configuration list whose meaning lies in the position of its values gets a table with one row per position.
+- **Figures and order:** draw a figure where the page explains a flow, a structure or a sequence over time, and let the sections follow the order of execution. [AGENTS.md](AGENTS.md#structure) says which kind of figure fits which question.
+- **Tests:** a feature's pages include a tests page that explains each test in order (what it sets up, what goes in, what happens, what is checked and with which tolerance), with the code excerpts and a picture per test. A feature without automated tests says on its page how it was checked by hand.
+- **Sources:** link the primary source next to a claim: the code at a pinned commit, the official documentation, or the measurement.
+- **The current state:** describe how things are. How they got there belongs in the pull requests, not on the page.
+
+## Scripts and tests
+
+The figure scripts, the hooks and macros, the tests and the theme's JavaScript follow the same rules as the robots' code: one thing per function, names that say what a thing is, one type for values that belong together, type hints on every Python function, and test names that say what the test checks. [AGENTS.md](AGENTS.md#code-in-this-repository) has the list. New logic in Python comes with a unit test that CI runs. The theme's JavaScript has no tests yet, so say in the pull request which interaction you tried in the browser and what you saw.
+
+The rules hold for the files you add, for the lines you add or change at module level, and for the whole of each function, method and test you add or change, and for the whole class when you change its name, its bases or its shared attributes. The rest of an older script keeps its form until it changes. CI runs the unit tests, the strict build and the spelling check. It doesn't run flake8 or mypy, so check the style of your Python yourself, with the commands in [AGENTS.md](AGENTS.md#check-the-python-style).
 
 ## Pull requests
 
-- **One topic per pull request**, on a branch named `docs/…`, `fix/…`, `feat/…` or `chore/…`.
-- **Pull requests are squash-merged.** The PR title becomes the commit's subject: `Page: what changed`, 65 characters or fewer; GitHub adds the PR number. The whole description becomes the commit message, so start it with what changes and why.
-- Say how you checked it: the strict build, the preview, and for figures or code excerpts what you compared them with. Link the issue with `Closes #N`.
+- **One topic:** one topic per pull request.
+- **Branch:** `docs/…`, `fix/…`, `feat/…`, `chore/…`, `refactor/…` or `test/…`, with a short topic in kebab-case, such as `docs/dev-container`.
+- **Title and description:** pull requests are squash-merged. The PR title becomes the commit's subject: `Page: what changed`, 65 characters or fewer. GitHub adds the PR number. The whole description becomes the commit message, so start it with what changes and why.
+- **Checks:** say how you checked it, at which commit: the unit tests, the strict build, the spelling check, the preview, and for figures or code excerpts what you compared them with. Name what you didn't check.
+- **Issues:** end the description with `Closes #N` when your pull request resolves issue N. If the issue stays open, name it without a closing keyword, for example `Part of #N`.
+- **Signed commits:** sign your commits with GPG: `git commit -S`.
+- **Decisions:** a change that makes or replaces a lasting choice of the project, such as an interface or the boundary between two parts, gets a record in [`docs/decisions/`](docs/decisions/index.md). That page says when and how.
 
 ## AI-assisted contributions
 
@@ -47,7 +69,7 @@ You're welcome to use AI tools. Whatever produced the text, you're its author an
 - Check every fact, value, command and link against its source. Pull requests with invented ones are closed.
 - Keep the PR description and your review replies short and specific.
 
-You don't need to say whether you used AI. Please don't add attribution lines for AI tools to commits or pull requests, such as `Co-Authored-By:` for a tool or "Generated with …".
+You don't need to say whether you used AI.
 
 ## License
 
