@@ -6,7 +6,8 @@
 
 ## How it was checked
 
-<!-- mkdocs build --strict, the preview, and what you compared facts, figures or code excerpts with. -->
+<!-- The commit you checked, the unit tests, mkdocs build --strict, codespell and the preview, what you compared facts, figures or code excerpts with, and the limits: what you didn't check. -->
+<!-- For a page about a feature: every excerpt has a sentence before it, values have their unit, quantities have their symbol where a formula or a figure uses it, and the feature's tests are walked through, with a picture per test. A feature without automated tests: how it was checked by hand, and the result. -->
 
 <!-- Remove the next line if there's no issue. -->
 Closes #

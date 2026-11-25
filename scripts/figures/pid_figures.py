@@ -30,6 +30,18 @@ from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import board_rules
+from board_drawings import draw_encoder_disc
+from board_drawings import draw_gear_motor_with_wheel
+from board_drawings import draw_motor_driver_board
+from board_drawings import draw_raspberry_pi
+from board_drawings import draw_teensy
+from board_drawings import Drawing
+from board_drawings import ENCODER_BOARD_OFFSET
+from board_drawings import escape
+from board_drawings import style_element
+from board_drawings import svg_element
+
 WIDTH = 360
 HEIGHT = 538
 # The forward path runs down at FORWARD_X, the feedback path back up at FEEDBACK_X. They meet in
@@ -109,9 +121,6 @@ class LoggedStep(NamedTuple):
 LOGGED_STEP = LoggedStep(target_speed=6.06, measured_speed=5.56, error=0.50, error_sum=322.20,
                          error_change=0.00, motor_command=96)
 
-# A text line in a box: the text and its CSS class
-Line = Tuple[str, str]
-
 # The accessible name of both layouts
 TITLE = ("One wheel's speed control loop in the microcontroller firmware, with the motor driver, "
          'the motor, the wheel and the encoder, and a time line of one control step')
@@ -146,82 +155,28 @@ RULES = (
     ('.pid-loop .time-line', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.3'),
     ('.pid-loop .time-step', f'fill:none;stroke:{FG};stroke-width:2.5'),
     # The drawings of the wide layout, in the colors of the real parts in both color schemes
-    ('.pid-loop .sbc-board', 'fill:#3f9a4e;stroke:#1f5a2a;stroke-width:0.8'),
-    ('.pid-loop .mcu-board', 'fill:#2f7d3c;stroke:#1a4d25;stroke-width:0.8'),
-    ('.pid-loop .driver-board', 'fill:#26408b;stroke:#152657;stroke-width:0.8'),
-    ('.pid-loop .pin-header', 'fill:#222'),
-    ('.pid-loop .metal', 'fill:#c8ccd2;stroke:#7d838c;stroke-width:0.6'),
-    ('.pid-loop .chip', 'fill:#2b2b2b'),
-    ('.pid-loop .pad', 'fill:#e3c15a'),
-    ('.pid-loop .terminal', 'fill:#3aa856;stroke:#1d6a33;stroke-width:0.6'),
-    ('.pid-loop .gearbox', 'fill:#8fc9ec;stroke:#3b7ea8;stroke-width:1'),
-    ('.pid-loop .motor-can', 'fill:#b8bec6;stroke:#6b737d;stroke-width:1'),
-    ('.pid-loop .encoder-board', 'fill:#3c8d4a;stroke:#245a2e;stroke-width:1'),
-    ('.pid-loop .ring-hole', 'fill:var(--md-code-bg-color)'),
-    ('.pid-loop .tyre', 'fill:#3a3a3a;stroke:#1d1d1d;stroke-width:1'),
-    ('[data-md-color-scheme=slate] .pid-loop .tyre', 'fill:#5a5f6a;stroke:#9aa0aa'),
-    ('.pid-loop .tyre-groove', 'fill:none;stroke:#6a6a6a;stroke-width:1'),
-    ('.pid-loop .shaft', 'fill:#d9d9d9;stroke:#777;stroke-width:1'),
-    ('.pid-loop .magnet-north', 'fill:#d9534f'),
-    ('.pid-loop .magnet-south', 'fill:#4a78c2'),
-    ('.pid-loop .hall-sensor', 'fill:#222;stroke:#888;stroke-width:0.6'),
-    ('[data-md-color-scheme=slate] .pid-loop .hall-sensor',
-     'fill:#111;stroke:#e0e0e0;stroke-width:0.8'),
-    ('.pid-loop .connector', 'fill:#f4f4f4;stroke:#999;stroke-width:0.8'),
+    *board_rules('.pid-loop'),
 )
 # A piece of a formula: its text and whether it is a subscript
 FormulaPart = Tuple[str, bool]
 
 
-def escape(text: str) -> str:
-    """Return text with the characters escaped that have a meaning in SVG."""
-    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-
-
-def style_element(rules: Sequence[Tuple[str, str]]) -> str:
-    """Return a style element with one CSS rule per (selector, declarations) pair."""
-    lines = [f'{selector}{{{declarations}}}' for selector, declarations in rules]
-    return '<style>\n' + '\n'.join(lines) + '\n</style>'
-
-
-class Figure:
+class Figure(Drawing):
     """Collect the SVG elements of one layout of the figure.
 
     name is the layout's CSS class, pid-loop-tall or pid-loop-wide, and the prefix of its IDs.
     """
 
     def __init__(self, name: str, width: int, height: int) -> None:
+        super().__init__()
         self.name = name
         self.width = width
         self.height = height
-        self.elements: List[str] = []
-
-    def box(self, x: float, y: float, width: float, height: float, css_class: str,
-            lines: Sequence[Line] = ()) -> None:
-        """Add a rectangle with its text lines centered in it, 14 px apart."""
-        self.rect(x, y, width, height, css_class, 5)
-        for index, (text, text_class) in enumerate(lines):
-            baseline = y + height / 2 + (index - (len(lines) - 1) / 2) * 14 + 4
-            self.text(x + width / 2, baseline, text, text_class, 'middle')
-
-    def rect(self, x: float, y: float, width: float, height: float, css_class: str,
-             corner_radius: float = 0) -> None:
-        """Add a rectangle, with rounded corners if corner_radius is given."""
-        self.elements.append(f'<rect class="{css_class}" x="{x:g}" y="{y:g}" width="{width:g}" '
-                             f'height="{height:g}" rx="{corner_radius:g}"/>')
-
-    def circle(self, x: float, y: float, radius: float, css_class: str) -> None:
-        """Add a circle around (x, y)."""
-        self.elements.append(f'<circle class="{css_class}" cx="{x:g}" cy="{y:g}" r="{radius:g}"/>')
 
     def arrow(self, path: str, css_class: str = 'arrow') -> None:
         """Add a line along an SVG path, with an arrowhead at its end."""
         self.elements.append(
             f'<path class="{css_class}" d="{path}" marker-end="url(#{self.name}-head)"/>')
-
-    def line(self, path: str, css_class: str) -> None:
-        """Add a line or a shape along an SVG path, without an arrowhead."""
-        self.elements.append(f'<path class="{css_class}" d="{path}"/>')
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'start', symbol: str = '') -> None:
@@ -242,18 +197,13 @@ class Figure:
         self.elements.append(f'<text class="formula" x="{x:g}" y="{y:g}" '
                              f'text-anchor="{anchor}">{"".join(pieces)}</text>')
 
-    def number(self, x: float, y: float, number: int) -> None:
-        """Add a signal's number in a filled disc around (x, y)."""
-        self.circle(x, y, 8, 'number-disc')
-        self.text(x, y + 3.8, str(number), 'number', 'middle')
-
     def signal(self, x: float, y: float, number: int, names: Sequence[str], value: str = '',
                symbol: str = '') -> None:
         """Add a signal's label: its number, its name on one or more lines, and its value.
 
         The symbol, if one is given, follows the name's last line. The value is the line after.
         """
-        self.number(x + 8, y - 4, number)
+        self.number_disc(x + 8, y - 4, number, 'number-disc', 'number')
         for index, name in enumerate(names):
             last = index == len(names) - 1
             self.text(x + 20, y + 14 * index, name, symbol=symbol if last else '')
@@ -262,13 +212,8 @@ class Figure:
 
     def svg(self) -> str:
         """Return the layout as an SVG element."""
-        head = (f'<marker id="{self.name}-head" viewBox="0 0 10 10" refX="9" refY="5" '
-                'markerWidth="7" markerHeight="7" orient="auto">'
-                '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
-        return (f'<svg class="pid-loop {self.name}" viewBox="0 0 {self.width} {self.height}" '
-                f'role="img" aria-labelledby="{self.name}-title"><title id="{self.name}-title">'
-                f'{escape(TITLE)}</title><defs>{head}</defs>\n'
-                + '\n'.join(self.elements) + '\n</svg>')
+        return svg_element(self.name, f'pid-loop {self.name}', (self.width, self.height), TITLE,
+                           self.elements)
 
 
 def measured_speed(ticks: int) -> float:
@@ -447,33 +392,6 @@ def tall_feedback_loop(step: LoggedStep) -> Figure:
     return figure
 
 
-def draw_raspberry_pi(figure: Figure, x: float, y: float) -> None:
-    """Add a Raspberry Pi 4 B from above, schematic: the board, its pin header, USB, Ethernet."""
-    figure.rect(x, y, 48, 32, 'sbc-board', 2.5)
-    figure.rect(x + 4, y + 1.5, 34, 4, 'pin-header')
-    for index, height in enumerate((6, 6, 7)):
-        figure.rect(x + 40, y + 8 + index * 8, 10, height, 'metal')
-    figure.rect(x + 14, y + 12, 11, 11, 'chip')
-
-
-def draw_teensy(figure: Figure, x: float, y: float) -> None:
-    """Add a Teensy 4.0 from above, schematic: the board, its USB connector, processor and pads."""
-    figure.rect(x + 4, y, 34, 14, 'mcu-board', 1.5)
-    figure.rect(x, y + 3.5, 6, 7, 'metal', 1)
-    figure.rect(x + 18, y + 3, 8, 8, 'chip')
-    for index in range(10):
-        figure.circle(x + 8 + index * 3, y + 1.6, 0.8, 'pad')
-        figure.circle(x + 8 + index * 3, y + 12.4, 0.8, 'pad')
-
-
-def draw_motor_driver_board(figure: Figure, x: float, y: float) -> None:
-    """Add the Adafruit DC Motor FeatherWing from above, schematic: board, terminals, driver."""
-    figure.rect(x, y, 44, 22, 'driver-board', 2)
-    for index in range(3):
-        figure.rect(x + 3 + index * 13, y + 2, 11, 7, 'terminal')
-    figure.rect(x + 16, y + 12, 10, 7, 'chip')
-
-
 def draw_motor_with_wheel(figure: Figure, box: Box) -> None:
     """Add the motor box: the DG01D-E from above, schematic, with the wheel on its shaft.
 
@@ -484,22 +402,12 @@ def draw_motor_with_wheel(figure: Figure, box: Box) -> None:
     figure.text(box.x + 8, box.y + 22, 'Motor and', 'name')
     figure.text(box.x + 8, box.y + 36, 'wheel', 'name')
     figure.text(box.x + 8, box.y + 52, 'DG01D-E', 'note')
-    x, y = box.x + 88, box.y + 12  # the gearbox's top left corner
-    figure.rect(x, y, 44, 22, 'gearbox', 2)
-    figure.rect(x + 44, y + 2, 8, 18, 'gearbox')
-    figure.rect(x + 52, y + 1, 20, 20, 'motor-can', 3)
-    figure.rect(x + 72, y, 8, 22, 'encoder-board', 1)
-    shaft_x = x + 12
-    figure.rect(shaft_x - 2.7, y + 22, 5.4, 6, 'shaft')
-    figure.rect(shaft_x - 32.5, y + 28, 65, 26, 'tyre', 5)
-    for index in range(1, 8):
-        groove_x = shaft_x - 32.5 + index * 65 / 8
-        figure.line(f'M{groove_x:.1f},{y + 30} V{y + 52}', 'tyre-groove')
+    draw_gear_motor_with_wheel(figure, box.x + 88, box.y + 12)
 
 
 def encoder_board_x(motor: Box) -> float:
     """Return the x of the encoder board at the end of the motor's can, in the motor box."""
-    return motor.x + 88 + 76
+    return motor.x + 88 + ENCODER_BOARD_OFFSET
 
 
 def draw_encoder(figure: Figure, box: Box) -> None:
@@ -513,27 +421,7 @@ def draw_encoder(figure: Figure, box: Box) -> None:
     figure.text(box.x + 8, box.y + 34, f'{ENCODER_RESOLUTION} ticks per', 'note')
     figure.text(box.x + 8, box.y + 47, 'wheel turn', 'note')
     center_x, center_y = box.x + box.width - 34, box.y + box.height / 2 - 3
-    figure.circle(center_x, center_y, 19, 'encoder-board')
-    figure.circle(center_x, center_y, 13, 'ring-hole')
-    figure.rect(center_x - 9, center_y + 17, 18, 8, 'connector', 1)
-    radius = 11
-    for pole in range(6):
-        start = math.radians(pole * 60 - 90)
-        end = math.radians(pole * 60 - 30)
-        figure.line(f'M{center_x:g},{center_y:g} '
-                    f'L{center_x + radius * math.cos(start):.2f},'
-                    f'{center_y + radius * math.sin(start):.2f} '
-                    f'A{radius},{radius} 0 0 1 {center_x + radius * math.cos(end):.2f},'
-                    f'{center_y + radius * math.sin(end):.2f} Z',
-                    'magnet-north' if pole % 2 == 0 else 'magnet-south')
-    figure.circle(center_x, center_y, 2, 'shaft')
-    for angle in (-135, -45):
-        sensor_x = center_x + 16 * math.cos(math.radians(angle))
-        sensor_y = center_y + 16 * math.sin(math.radians(angle))
-        rotation = f'rotate({angle + 90} {sensor_x:.1f} {sensor_y:.1f})'
-        figure.elements.append(
-            f'<rect class="hall-sensor" x="{sensor_x - 3:.1f}" y="{sensor_y - 2.5:.1f}" '
-            f'width="6" height="5" transform="{rotation}"/>')
+    draw_encoder_disc(figure, center_x, center_y)
 
 
 def draw_wide_target(figure: Figure, step: LoggedStep) -> None:
