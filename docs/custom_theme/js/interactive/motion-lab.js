@@ -166,8 +166,10 @@ function mount(root) {
   const plot = find('.ix-plot'), scrub = find('.ix-scrub');
   const sliders = Object.fromEntries(findAll('input[data-setting]').map((input) => [input.dataset.setting, input]));
   const state = { robot: data.default.robot, command: data.default.command, time: 0, step: 0 };
-  // The examples whose own drive has reached its end: their answer shows while their drive does
+  // The questions, one per example and drive ("radius:forward"), whose drive has reached its end
+  // with the example's own values: their answer shows while those values are set
   const answered = new Set();
+  const questionKey = (command = state.command) => `${data.examples[state.step].key}:${command}`;
   // A drive has reached its end since the example opened: the results show
   let reachedEnd = false;
   let animationRequest = null, lastTickTime = 0, announceTimer = null, drive = null, liveDrawing = null;
@@ -357,18 +359,34 @@ function mount(root) {
     state.time = time;
     scrub.value = Math.round(time * Number(scrub.max));
   }
-  /** The controls hold the current example's own drive: its robot, its command and its values. */
+  /** The example's own values: the example robot's, with the example's one value changed. */
+  const exampleValues = () => ({ ...defaults(), ...data.examples[state.step].settings });
+  /** The controls hold the current example's own values, on either drive. */
   function isExampleDrive() {
-    const example = data.examples[state.step], own = { ...defaults(), ...example.settings };
-    return state.robot === data.default.robot && state.command === example.command
+    const own = exampleValues();
+    return state.robot === data.default.robot
       && Object.entries(sliders).every(([name, input]) => Number(input.value) === Number(own[name]));
+  }
+  // Next to "Show what happens": the values that differ from the example's, in one line
+  function renderChanges() {
+    const own = exampleValues(), robots = data.robots;
+    const lowerFirst = (text) => text.charAt(0).toLowerCase() + text.slice(1);
+    const changes = Object.entries(sliders).filter(([name, input]) => Number(input.value) !== Number(own[name]))
+      .map(([name, input]) => {
+        const label = lowerFirst(input.closest('.ix-control').querySelector('label').textContent);
+        return `${label} ${input.value} ${input.dataset.unit} instead of ${own[name]} ${input.dataset.unit}`;
+      });
+    if (state.robot !== data.default.robot) changes.unshift(`${robots[state.robot].name} instead of ${robots[data.default.robot].name}`);
+    const line = find('.ix-current .ix-changes');
+    line.textContent = changes.length ? `Your values: ${changes.join(', ')}.` : '';
+    line.title = line.textContent;
   }
   // The summary and the tables show the drive's end: they wait until a drive has reached its end
   // since the example opened, then follow every change. The example's answer shows under the
   // drawing while the controls hold the example's own drive and that drive has reached its end.
   // Returns what has just appeared: 'answer', 'results' or null.
   function showResults() {
-    const key = data.examples[state.step].key, answer = find('.ix-shown-answer');
+    const key = questionKey(), answer = find('.ix-shown-answer');
     const resultsAppear = !reachedEnd && state.time >= 1;
     if (resultsAppear) reachedEnd = true;
     const own = isExampleDrive();
@@ -381,6 +399,7 @@ function mount(root) {
     // stays. With other values it shows again: it brings back the example's own drive.
     find('.ix-current').classList.toggle('ix-revealed', own && answered.has(key));
     root.classList.toggle('ix-waiting', !reachedEnd);
+    renderChanges();
     if (answerAppears) return 'answer';
     return resultsAppear ? 'results' : null;
   }
@@ -442,8 +461,18 @@ function mount(root) {
   find('.ix-robot-select').addEventListener('change', (event) => {
     selectRobot(event.target.value); resetSliders(); redraw(); announce();
   });
+  // The other drive is the example's other question: it starts at its drive's start, or at its
+  // end once answered. The values stay as they are.
   for (const button of findAll('[data-command]')) {
-    button.addEventListener('click', () => { selectCommand(button.dataset.command); redraw(); announce(); });
+    button.addEventListener('click', () => {
+      stopPlaying();
+      selectCommand(button.dataset.command);
+      showQuestion();
+      reachedEnd = false;
+      setTime(answered.has(questionKey()) ? 1 : 0);
+      redraw();
+      announceQuestion();
+    });
   }
   // Reset: next to the examples and in the block of values
   for (const button of findAll('.ix-reset')) {
@@ -478,16 +507,23 @@ function mount(root) {
   // example's own drive from its start. An answered example opens at its drive's end.
   // The examples' questions share one place above the drawing, as high as the longest of them,
   // so the drawing stays where it is from one example to the next.
-  function showStep(index, time = answered.has(data.examples[index].key) ? 1 : 0) {
+  // The current example's question and answer for the current drive
+  function showQuestion() {
+    const item = find('.ix-current');
+    for (const question of item.querySelectorAll('.ix-question')) {
+      question.classList.toggle('ix-drive', question.dataset.drive === state.command);
+    }
+    const answer = item.querySelector(`.ix-answer[data-drive="${state.command}"]`);
+    find('.ix-shown-answer').innerHTML = `<b>What happens:</b> ${answer.innerHTML}`;
+  }
+  function showStep(index, command = data.examples[index].command, time) {
     state.step = index;
     const example = data.examples[index];
-    const shownAnswer = find('.ix-shown-answer');
     for (const item of findAll('[data-example-item]')) {
-      const current = item.dataset.exampleItem === example.key;
-      item.classList.toggle('ix-current', current);
-      item.classList.toggle('ix-revealed', answered.has(item.dataset.exampleItem));
-      item.querySelector('.ix-answer').hidden = true;
-      if (current) shownAnswer.innerHTML = `<b>What happens:</b> ${item.querySelector('.ix-answer').innerHTML}`;
+      item.classList.toggle('ix-current', item.dataset.exampleItem === example.key);
+      item.classList.remove('ix-revealed');
+      for (const answer of item.querySelectorAll('.ix-answer')) answer.hidden = true;
+      item.querySelector('.ix-changes').textContent = '';
     }
     find('.ix-step-count').textContent = `Example ${index + 1} of ${data.examples.length}`;
     find('.ix-previous').disabled = index === 0;
@@ -496,15 +532,16 @@ function mount(root) {
     selectRobot(data.default.robot);
     resetSliders();
     for (const [name, value] of Object.entries(example.settings)) sliders[name].value = value;
-    selectCommand(example.command);
+    selectCommand(command);
+    showQuestion();
     reachedEnd = false;
-    setTime(time);
+    setTime(time ?? (answered.has(questionKey()) ? 1 : 0));
     update();
     showResults();
   }
   for (const button of findAll('[data-example]')) {
     button.addEventListener('click', () => {
-      showStep(state.step, 0);
+      showStep(state.step, state.command, 0);
       play();
       // The button is gone now: the keyboard's place moves to the answer under the drawing, or
       // to Pause while the drive plays
@@ -514,7 +551,7 @@ function mount(root) {
   // Screen readers hear the new example's question
   function announceQuestion() {
     clearTimeout(announceTimer);
-    const question = find('.ix-current .ix-question').textContent;
+    const question = find('.ix-current .ix-question.ix-drive').textContent;
     find('.ix-announce').textContent = `${find('.ix-step-count').textContent}. ${question}`;
   }
   find('.ix-previous').addEventListener('click', () => { showStep(state.step - 1); announceQuestion(); });
@@ -533,7 +570,7 @@ function mount(root) {
 function showStatic(root) {
   root.classList.remove('ix-is-live');
   for (const element of root.querySelectorAll('[data-live]')) element.hidden = true;
-  for (const answer of root.querySelectorAll('.ix-answer')) answer.hidden = false;
+  for (const answer of root.querySelectorAll('.ix-answer:not([data-live])')) answer.hidden = false;
   for (const item of root.querySelectorAll('[data-example-item]')) item.classList.remove('ix-current', 'ix-revealed');
   for (const drawing of root.querySelectorAll('.ix-live-plot')) drawing.remove();
 }

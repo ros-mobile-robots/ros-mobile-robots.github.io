@@ -109,12 +109,14 @@ def shown_number(text: str) -> float:
     return float(text.split()[0].replace('−', '-'))
 
 
-def expected_results(page: Page, example: figures.Example) -> Dict[str, Any]:
-    """Return the results that the script wrote into an example's item for these tests."""
+def expected_results(
+    page: Page, example: figures.Example, kind: figures.CommandKind
+) -> Dict[str, Any]:
+    """Return the results that the script wrote into an example's item for a drive."""
     text = page.get_attribute(f'{FIGURE} [data-example-item="{example.key}"]', 'data-expected')
     if text is None:
         raise ValueError(f'the example {example.key} has no expected results')
-    results: Dict[str, Any] = json.loads(text)
+    results: Dict[str, Any] = json.loads(text)[kind.value]
     return results
 
 
@@ -367,17 +369,50 @@ class TestMotionLabPage(unittest.TestCase):
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-enlarge'))
 
     def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
-        # With reduced motion, the changed drive and its answer show at once
+        # With reduced motion, the changed drive and its answer show at once. Each example has
+        # an answer for both drives
         page = self.open_live_figure(reduced_motion='reduce').page
         for index, example in enumerate(figures.EXAMPLES):
             if index:
                 page.click(f'{FIGURE} .ix-next')
-            page.click(f'{FIGURE} [data-example="{example.key}"]')
-            answer = page.text_content(f'{FIGURE} [data-example-item="{example.key}"] .ix-answer')
-            self.assertIn(answer or '', page.inner_text(f'{FIGURE} .ix-shown-answer'), example.key)
-            expected = expected_results(page, example)
-            self.assert_motion_table_shows(page, expected, example)
-            self.assert_check_table_shows(page, expected, example)
+            for kind in (example.command, figures.other_command(example.command)):
+                page.click(f'{FIGURE} [data-command="{kind.value}"]')
+                page.click(f'{FIGURE} [data-example="{example.key}"]')
+                answer = page.text_content(f'{FIGURE} [data-example-item="{example.key}"]'
+                                           f' .ix-answer[data-drive="{kind.value}"]')
+                self.assertIn(answer or '', page.inner_text(f'{FIGURE} .ix-shown-answer'),
+                              f'{example.key}, {kind.value}')
+                expected = expected_results(page, example, kind)
+                self.assert_motion_table_shows(page, expected, example)
+                self.assert_check_table_shows(page, expected, example)
+
+    def test_the_other_drive_asks_its_own_question_from_its_start(self) -> None:
+        example = figures.EXAMPLES[0]
+        other = figures.other_command(example.command)
+        item = f'{FIGURE} [data-example-item="{example.key}"]'
+        page = self.open_live_figure(reduced_motion='reduce').page
+        page.click(f'{FIGURE} .ix-play')
+        page.click(f'{FIGURE} [data-command="{other.value}"]')
+        shown = page.eval_on_selector_all(
+            f'{item} .ix-question',
+            'questions => questions.filter((question) => getComputedStyle(question).visibility'
+            ' === "visible").map((question) => question.dataset.drive)')
+        self.assertEqual(shown, [other.value])
+        self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), '0')
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-summary'))
+
+    def test_values_other_than_the_examples_are_named_next_to_show_what_happens(self) -> None:
+        example = figures.EXAMPLES[0]
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure().page
+        changes = f'{FIGURE} .ix-current .ix-changes'
+        self.assertEqual(page.inner_text(changes), '')
+        page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
+        page.fill(f'#{slider.element_id}', str(slider.lowest))
+        page.dispatch_event(f'#{slider.element_id}', 'input')
+        own = getattr(example.settings, slider.setting)
+        self.assertIn(f'{slider.lowest} {slider.unit} instead of {own} {slider.unit}',
+                      page.inner_text(changes))
 
     def test_show_what_happens_plays_the_changed_drive_then_shows_the_answer(self) -> None:
         page = self.open_live_figure().page
@@ -434,6 +469,11 @@ class TestMotionLabPage(unittest.TestCase):
                 self.assertEqual(top_of(page, f'{FIGURE} .ix-plot'), first, example.key)
             page.click(f'{FIGURE} [data-example="{example.key}"]')
             self.assertEqual(top_of(page, f'{FIGURE} .ix-plot'), first, example.key)
+            # The other drive's question shares the place
+            other = figures.other_command(example.command)
+            page.click(f'{FIGURE} [data-command="{other.value}"]')
+            self.assertEqual(top_of(page, f'{FIGURE} .ix-plot'), first, f'{example.key}, other')
+            page.click(f'{FIGURE} [data-command="{example.command.value}"]')
 
     def test_a_value_on_a_tolerance_boundary_passes(self) -> None:
         turned = figures.CHECKS[figures.CommandKind.TURN].each_view[0]

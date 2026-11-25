@@ -31,6 +31,12 @@ def drive_of(example_key: str) -> Tuple[figures.Example, figures.Drive]:
     return example, figures.example_drive(example)
 
 
+def other_drive_of(example_key: str) -> Tuple[figures.Example, figures.Drive]:
+    """Return the guided example with this key and its drive on the test's other command."""
+    example = next(example for example in figures.EXAMPLES if example.key == example_key)
+    return example, figures.example_drive(example, figures.other_command(example.command))
+
+
 def drive_with(command: figures.CommandKind, **settings: int) -> figures.Drive:
     """Return Remo's drive of a command with some settings changed."""
     return figures.simulate(REMO, figures.COMMANDS[command], figures.Settings(**settings))
@@ -101,10 +107,51 @@ class TestGuidedExamples(unittest.TestCase):
 
     def test_every_example_text_has_all_its_values_filled_in(self) -> None:
         for example in figures.EXAMPLES:
-            values = figures.example_values(example)
-            for text in (example.question, example.answer):
-                filled = text.format(**values)
-                self.assertNotRegex(filled, r'[{}]', example.key)
+            for kind in figures.CommandKind:
+                values = figures.example_values(example, kind)
+                for text in figures.example_prompt(example, kind):
+                    filled = text.format(**values)
+                    self.assertNotRegex(filled, r'[{}]', f'{example.key}, {kind.value}')
+
+
+class TestOtherDrives(unittest.TestCase):
+    """On the other drive, each example's results equal values worked out by hand too."""
+
+    def test_a_radius_too_big_turns_the_robot_less_and_fails_the_comparison(self) -> None:
+        example, drive = other_drive_of('radius')
+        factor = example.settings.radius_percent / 100
+        # Both wheels get 1 / factor of their turns: the robot turns 1 / factor of the angle
+        self.assertAlmostEqual(drive.odometry.turned, TURN.angle, places=PLACES)
+        self.assertAlmostEqual(drive.model.turned, TURN.angle / factor, places=PLACES)
+        self.assertEqual(figures.failing_checks(figures.CommandKind.TURN, drive),
+                         ['odometry and true pose, turned'])
+
+    def test_a_separation_too_small_changes_nothing_on_a_straight_drive(self) -> None:
+        _, drive = other_drive_of('separation')
+        self.assertAlmostEqual(drive.odometry.forward, FORWARD.distance, places=PLACES)
+        self.assertAlmostEqual(drive.model.forward, FORWARD.distance, places=PLACES)
+        self.assertEqual(figures.failing_checks(figures.CommandKind.FORWARD, drive), [])
+
+    def test_a_frame_behind_the_axle_drives_as_far_as_the_axle(self) -> None:
+        _, drive = other_drive_of('offset')
+        self.assertAlmostEqual(drive.model.forward, FORWARD.distance, places=PLACES)
+        self.assertAlmostEqual(drive.model.left, 0.0, places=PLACES)
+        self.assertEqual(figures.failing_checks(figures.CommandKind.FORWARD, drive), [])
+
+    def test_contact_at_the_outer_edges_changes_nothing_on_a_straight_drive(self) -> None:
+        _, drive = other_drive_of('contact')
+        self.assertAlmostEqual(drive.model.forward, FORWARD.distance, places=PLACES)
+        self.assertEqual(figures.failing_checks(figures.CommandKind.FORWARD, drive), [])
+
+    def test_wheels_at_part_of_their_speed_turn_exactly_to_the_tolerance_boundary(self) -> None:
+        example, drive = other_drive_of('tracking')
+        share = example.settings.tracking_percent / 100
+        turned = figures.CHECKS[figures.CommandKind.TURN].each_view[0]
+        self.assertAlmostEqual(drive.odometry.turned, TURN.angle * share, places=PLACES)
+        self.assertAlmostEqual(drive.model.turned, TURN.angle * share, places=PLACES)
+        self.assertAlmostEqual(drive.model.turned, turned.expected - turned.tolerance,
+                               places=PLACES)
+        self.assertEqual(figures.failing_checks(figures.CommandKind.TURN, drive), [])
 
 
 class TestChecks(unittest.TestCase):

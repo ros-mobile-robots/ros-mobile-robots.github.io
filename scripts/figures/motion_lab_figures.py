@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -488,10 +489,21 @@ def failing_checks(kind: CommandKind, drive: Drive) -> List[str]:
 
 # --- The guided examples ---------------------------------------------------------------------
 
-class Example(NamedTuple):
-    """A guided example: a drive, its settings, its question and its answer.
+class Prompt(NamedTuple):
+    """An example's question and answer for one of the test's drives.
 
-    question and answer are HTML. Their {placeholders} are the names of example_values().
+    Both are HTML. Their {placeholders} are the names of example_values().
+    """
+
+    question: str
+    answer: str
+
+
+class Example(NamedTuple):
+    """A guided example: its settings, and a question and an answer for each of the test's drives.
+
+    command is the drive the example opens with, where its value matters most. question and answer
+    are for that drive, other for the other one.
     """
 
     key: str
@@ -499,6 +511,7 @@ class Example(NamedTuple):
     settings: Settings
     question: str
     answer: str
+    other: Prompt
 
 
 # Each example changes one setting of the example robot
@@ -517,6 +530,18 @@ EXAMPLES = (
             ' controller commands fewer wheel turns, and multiplies them by the same too-big'
             ' radius. Only the check that compares the odometry with the true pose fails.'
         ),
+        other=Prompt(
+            question=(
+                '<b>The configured wheel radius is {radius_error} % too big.</b> The robot is told'
+                ' to {command}. Does the turn notice the wrong radius too?'
+            ),
+            answer=(
+                'Yes. The odometry reports {odometry_turned} rad, and the robot turns'
+                ' {model_turned} rad. The two differ by {gap_turned} rad, more than the'
+                ' {agreement_tolerance} rad that the check allows. The check that compares the'
+                ' odometry with the true pose fails here too.'
+            ),
+        ),
     ),
     Example(
         key='separation',
@@ -531,6 +556,17 @@ EXAMPLES = (
             ' rad. The two differ by {gap_turned} rad, and the check allows {agreement_tolerance}'
             ' rad. The test only catches a separation that is off by more than about'
             ' {agreement_share} %.'
+        ),
+        other=Prompt(
+            question=(
+                '<b>The configured wheel separation is {separation_error} % too small.</b> The'
+                ' robot is told to {command}. Does a check fail?'
+            ),
+            answer=(
+                'No, and nothing changes. On a straight drive both wheels turn at the same speed,'
+                " so the separation doesn't enter. The odometry and the robot both show"
+                ' {model_forward} m. Only the turn can catch a wrong separation.'
+            ),
         ),
     ),
     Example(
@@ -548,6 +584,18 @@ EXAMPLES = (
             " DiffBot and Remo, <code>base_footprint</code> is at the axle's midpoint and stays in"
             ' place.'
         ),
+        other=Prompt(
+            question=(
+                '<b>What if <code>base_footprint</code> were {offset_cm} cm behind the axle?</b>'
+                ' The robot is told to {command}. Does <code>base_footprint</code> drive another'
+                ' distance?'
+            ),
+            answer=(
+                'No. On a straight drive every point of the robot moves the same way, so'
+                ' <code>base_footprint</code> drives {model_forward} m, as the axle does. Only the'
+                ' turn shows where <code>base_footprint</code> lies.'
+            ),
+        ),
     ),
     Example(
         key='contact',
@@ -564,6 +612,17 @@ EXAMPLES = (
             " the wheels' collision shapes are spheres, which touch the ground in the middle of"
             ' the wheel.'
         ),
+        other=Prompt(
+            question=(
+                '<b>What if the wheels pushed on the ground at their outer edges?</b> The robot is'
+                ' told to {command}. How far does the robot drive?'
+            ),
+            answer=(
+                '{model_forward} m, as with wheels that push in their middle. Where the wheels'
+                ' push only changes how far apart they push, and that matters only when they turn'
+                ' at different speeds.'
+            ),
+        ),
     ),
     Example(
         key='tracking',
@@ -577,6 +636,17 @@ EXAMPLES = (
             'Yes. Both show {model_forward} m, because the odometry counts the wheel turns that'
             ' really happened. The two checks against the expected {expected_forward} m fail, and'
             ' the check that compares the odometry with the true pose passes.'
+        ),
+        other=Prompt(
+            question=(
+                '<b>The wheels reach only {tracking} % of their commanded speed.</b> The robot is'
+                ' told to {command}. Does a check fail?'
+            ),
+            answer=(
+                'No, but only just. The odometry and the robot both show a turn of {model_turned}'
+                ' rad, the smallest that the check of {expected_turned} ± {turned_tolerance} rad'
+                " still allows. A value on a tolerance's boundary passes."
+            ),
         ),
     ),
 )
@@ -592,9 +662,20 @@ def changed_settings(settings: Settings) -> Dict[str, int]:
     }
 
 
-def example_drive(example: Example) -> Drive:
-    """Return the drive of a guided example."""
-    return simulate(ROBOTS[EXAMPLE_ROBOT], COMMANDS[example.command], example.settings)
+def other_command(kind: CommandKind) -> CommandKind:
+    """Return the test's other drive."""
+    return CommandKind.TURN if kind is CommandKind.FORWARD else CommandKind.FORWARD
+
+
+def example_prompt(example: Example, kind: CommandKind) -> Prompt:
+    """Return a guided example's question and answer for one of the test's drives."""
+    return Prompt(example.question, example.answer) if kind is example.command else example.other
+
+
+def example_drive(example: Example, kind: Optional[CommandKind] = None) -> Drive:
+    """Return a guided example's drive: the one it opens with, or the drive of kind."""
+    command = COMMANDS[kind or example.command]
+    return simulate(ROBOTS[EXAMPLE_ROBOT], command, example.settings)
 
 
 def check_values(kind: CommandKind) -> Dict[str, str]:
@@ -616,17 +697,18 @@ def check_values(kind: CommandKind) -> Dict[str, str]:
     return values
 
 
-def example_values(example: Example) -> Dict[str, str]:
-    """Return the texts that fill an example's question and answer."""
+def example_values(example: Example, kind: Optional[CommandKind] = None) -> Dict[str, str]:
+    """Return the texts that fill an example's question and answer, for the drive of kind."""
+    kind = kind or example.command
     robot = ROBOTS[EXAMPLE_ROBOT]
-    drive = example_drive(example)
+    drive = example_drive(example, kind)
     settings = example.settings
     inputs = model_inputs(robot, settings)
     # How much less the robot turns than its odometry reports
     less = 1 - drive.model.turned / drive.odometry.turned if drive.odometry.turned else 0.0
     return {
-        **check_values(example.command),
-        'command': command_text(example.command),
+        **check_values(kind),
+        'command': command_text(kind),
         'radius_error': f'{settings.radius_percent - 100}',
         'separation_error': f'{100 - settings.separation_percent}',
         'offset_cm': number(settings.offset_mm / 10),
@@ -1001,6 +1083,11 @@ class Slider(NamedTuple):
         """Return the slider's HTML id."""
         return 'motion-lab-' + self.setting.replace('_', '-')
 
+    @property
+    def unit(self) -> str:
+        """Return the unit of the slider's value: a percentage or millimetres."""
+        return '%' if self.setting.endswith('_percent') else 'mm'
+
 
 CONFIGURATION_SLIDERS = (
     Slider(
@@ -1123,26 +1210,45 @@ def legend_html() -> str:
     return f'<ul class="ix-legend">{entries}</ul>'
 
 
-def example_item_html(example: Example) -> str:
-    """Return an example's list item: its question, its button and its answer.
+def example_expected(example: Example, kind: CommandKind) -> Dict[str, object]:
+    """Return an example's expected results on the drive of kind, for the browser tests.
 
-    The item carries the drive's expected results for the browser tests: the odometry's and the
-    true pose's motion, the failing checks and the number of checks.
+    The odometry's and the true pose's motion, the failing checks and the number of checks.
     """
-    drive = example_drive(example)
-    expected = {
+    drive = example_drive(example, kind)
+    return {
         'odometry': list(drive.odometry),
         'model': list(drive.model),
-        'failing': failing_checks(example.command, drive),
-        'checks': len(check_rows(example.command)),
+        'failing': failing_checks(kind, drive),
+        'checks': len(check_rows(kind)),
     }
-    texts = example_values(example)
+
+
+def example_item_html(example: Example) -> str:
+    """Return an example's list item: its questions, its button and its answers, one per drive.
+
+    The question and the answer of the drive that the example opens with show without
+    JavaScript, the other drive's only in the live figure. Next to the button, the live figure
+    names the values that differ from the example's. The item carries each drive's expected
+    results for the browser tests.
+    """
+    kinds = (example.command, other_command(example.command))
+    expected = {kind.value: example_expected(example, kind) for kind in kinds}
+    questions, answers = [], []
+    for kind in kinds:
+        texts = example_values(example, kind)
+        prompt = example_prompt(example, kind)
+        live = '' if kind is example.command else ' data-live hidden'
+        questions.append(f'<span class="ix-question" data-drive="{kind.value}"{live}>'
+                         f'{prompt.question.format(**texts)}</span>')
+        answers.append(f'<span class="ix-answer" data-drive="{kind.value}"{live}>'
+                       f'{prompt.answer.format(**texts)}</span>')
     return (
         f'<li data-example-item="{example.key}"'
         f' data-expected="{html.escape(json.dumps(expected))}"><span'
-        f' class="ix-question">{example.question.format(**texts)}</span> <button type="button"'
-        f' class="ix-show" data-example="{example.key}" data-live hidden>Show what'
-        f' happens</button><span class="ix-answer">{example.answer.format(**texts)}</span></li>'
+        f' class="ix-prompts">{"".join(questions)}</span> <span class="ix-actions" data-live'
+        f' hidden><button type="button" class="ix-show" data-example="{example.key}">Show what'
+        f' happens</button><span class="ix-changes"></span></span>{"".join(answers)}</li>'
     )
 
 
@@ -1229,7 +1335,8 @@ def slider_html(slider: Slider) -> str:
     return (
         f'<div class="ix-control"><label for="{slider.element_id}">{slider.label}</label><output'
         f' for="{slider.element_id}"></output><input type="range" id="{slider.element_id}"'
-        f' data-setting="{slider.setting}" min="{slider.lowest}" max="{slider.highest}"'
+        f' data-setting="{slider.setting}" data-unit="{slider.unit}" min="{slider.lowest}"'
+        f' max="{slider.highest}"'
         f' step="{slider.step}" value="{default}" aria-describedby="{slider.element_id}-help">'
         f'<small id="{slider.element_id}-help">{help_text}</small></div>'
     )
