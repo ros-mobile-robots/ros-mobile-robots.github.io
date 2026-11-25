@@ -507,23 +507,14 @@ The filter doesn't read the sample's `orientation` and `linear_acceleration`, be
 
 #### The variances
 
-A covariance matrix $\boldsymbol\Sigma$ holds the uncertainties of several values at once. Its element in row $i$ and column $j$ is the covariance of the $i$-th and the $j$-th value. On the diagonal, where $i = j$, the element is the variance $\sigma^2$ of one value. Off the diagonal, the element says how the errors of two different values go together. For the IMU's angular velocity $\boldsymbol\omega$, the matrix is:
+Each input's message carries the uncertainties of its values as a covariance matrix. The variance $\sigma^2$ of each value lies on the matrix's diagonal, and an element off the diagonal says how the errors of two different values go together. The message stores the matrix as an array, row by row, as the comments in its definition say ([The messages and their fields](#the-messages-and-their-fields)). With $n$ rows and $n$ columns, counted from 0, the element in row $i$ and column $j$ has the index $k = n\,i + j$ in the array. [The covariance matrix and its ellipsoid](../../theory/preliminaries/math-basics.md#the-covariance-matrix-and-its-ellipsoid) on the Math Basics page explains the matrix, and [How ROS messages store a covariance](../../theory/preliminaries/math-basics.md#how-ros-messages-store-a-covariance) explains the order of its elements in the array.
 
-$$
-\boldsymbol\Sigma_{\boldsymbol\omega} = \begin{pmatrix}
-\sigma^2_{\omega_x} & \sigma_{\omega_x \omega_y} & \sigma_{\omega_x \omega_z} \\
-\sigma_{\omega_y \omega_x} & \sigma^2_{\omega_y} & \sigma_{\omega_y \omega_z} \\
-\sigma_{\omega_z \omega_x} & \sigma_{\omega_z \omega_y} & \sigma^2_{\omega_z}
-\end{pmatrix}
-$$
+The two inputs carry these matrices:
 
-A message has no type for a matrix, so it stores the matrix as an array, row by row, as the comments in [`TwistWithCovariance.msg`](#the-messages-and-their-fields) and [`Imu.msg`](#the-messages-and-their-fields) say: first the elements of row 0, then those of row 1, and so on. With $n$ rows and $n$ columns, counted from 0, the element in row $i$ and column $j$ has the index $k$ in the array:
+- **The wheel odometry:** `twist.covariance` of a `nav_msgs/Odometry` message holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n$ = 6. Its variances lie at the indices 0, 7, 14, 21, 28 and 35.
+- **The IMU:** `angular_velocity_covariance` of a `sensor_msgs/Imu` message holds the 3 × 3 matrix $\boldsymbol\Sigma_{\boldsymbol\omega}$ of the angular velocity $\boldsymbol\omega = (\omega_x, \omega_y, \omega_z)$, with $n$ = 3. Its variances lie at the indices 0, 4 and 8.
 
-$$
-k = n\,i + j
-$$
-
-[`twist.covariance`](#the-messages-and-their-fields), the field of a [`nav_msgs/Odometry`](#the-messages-and-their-fields) message, holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n = 6$. Its variances lie at the indices 0, 7, 14, 21, 28 and 35. [`angular_velocity_covariance`](#the-messages-and-their-fields) of a [`sensor_msgs/Imu`](#the-messages-and-their-fields) message holds the 3 × 3 matrix above, with $n = 3$ and the variances at 0, 4 and 8. The figure shows both matrices with the index of each element:
+The figure shows both matrices with the index of each element:
 
 --8<-- "includes/localization-covariances.html"
 
