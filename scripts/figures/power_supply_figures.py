@@ -123,6 +123,7 @@ HEAD_TIP = 5
 
 USB_VOLTAGE = '5 V'
 LOGIC_VOLTAGE = '3.3 V'
+DIFFBOT_BATTERY_VOLTAGE = '4.8 V'
 REMO_BATTERY_VOLTAGE = '7.2 V'
 
 LEGEND_BANK = LegendEntry(LineKind.BANK_SUPPLY,
@@ -336,11 +337,10 @@ def diffbot_power_flow_figure() -> Figure:
     The figure has no legend. Its caption names the two colors.
     """
     figure = Figure('pf-diffbot', 246, "DiffBot's power flow: the power bank supplies the "
-                    'Raspberry Pi, and the four AA batteries supply the motors')
+                    'Raspberry Pi, and the four NiMH cells supply the motors')
     draw_power_bank_and_pi(figure)
-    draw_battery_and_motors(figure, [TextLine('Four AA batteries', 'name'),
-                                     TextLine('alkaline', 'note')],
-                            '6.0 V nominal', [
+    draw_battery_and_motors(figure, [TextLine('Four NiMH AA cells', 'name')],
+                            f'{DIFFBOT_BATTERY_VOLTAGE} nominal', [
         TextLine('Motor driver', 'name'), TextLine('Grove I2C Motor Driver', 'note'),
         TextLine('makes 5 V for its logic', 'note')], driver_y=96)
     return figure
@@ -360,7 +360,7 @@ def main() -> None:
     """Write both includes."""
     write_include('includes/power-supply-flow-diffbot.html', diffbot_power_flow_figure(),
                   "DiffBot's two supplies. The blue line is the Raspberry Pi's supply from the "
-                  'power bank. The orange lines are the motor supply from the four batteries.',
+                  'power bank. The orange lines are the motor supply from the four NiMH cells.',
                   style_element(RULES) + '\n')
     write_include('includes/power-supply-flow-remo.html', remo_power_flow_figure(),
                   "Remo's two supplies. Follow each color from its source at the top. The motor "
