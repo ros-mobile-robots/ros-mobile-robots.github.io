@@ -236,15 +236,27 @@ class TestMotionLabPage(unittest.TestCase):
         example = figures.EXAMPLES[0]
         scrub = f'{FIGURE} .ix-scrub'
         page.click(f'{FIGURE} [data-example="{example.key}"]')
-        # Right after the click, the drive plays from its start and the answer waits
+        # Right after the click, the drive plays from its start, and the answer and the results
+        # of the drive's end wait
         self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Pause')
         self.assertLess(int(page.input_value(scrub)), figures.TIME_SLIDER_STEPS)
-        self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+        for waiting in ('.ix-shown-answer', '.ix-summary', '.ix-checks'):
+            self.assertFalse(page.is_visible(f'{FIGURE} {waiting}'), waiting)
         drive_ms = figures.COMMANDS[example.command].duration * MILLISECONDS_PER_SECOND
         page.wait_for_selector(f'{FIGURE} .ix-shown-answer', state='visible',
                                timeout=drive_ms + START_TIMEOUT_MS)
         self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
         self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Play')
+        for shown in ('.ix-summary', '.ix-checks'):
+            self.assertTrue(page.is_visible(f'{FIGURE} {shown}'), shown)
+
+    def test_play_button_keeps_its_height_when_it_says_pause(self) -> None:
+        page = self.open_live_figure().page
+        height = 'button => button.getBoundingClientRect().height'
+        playing = page.eval_on_selector(f'{FIGURE} .ix-play', height)
+        page.click(f'{FIGURE} .ix-play')
+        self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Pause')
+        self.assertEqual(page.eval_on_selector(f'{FIGURE} .ix-play', height), playing)
 
     def test_a_shown_answer_stays_when_the_drive_is_scrubbed_back(self) -> None:
         page = self.open_live_figure(reduced_motion='reduce').page
