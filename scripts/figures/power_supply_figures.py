@@ -123,13 +123,15 @@ HEAD_TIP = 5
 
 USB_VOLTAGE = '5 V'
 LOGIC_VOLTAGE = '3.3 V'
-DIFFBOT_BATTERY_VOLTAGE = '4.8 V'
-REMO_BATTERY_VOLTAGE = '7.2 V'
+# Both robots run their motors on the same battery: eight NiMH AA cells of 1.2 V nominal
+CELL_COUNT = 'eight'
+BATTERY_VOLTAGE = '9.6 V'
+BATTERY_NAME = f'{CELL_COUNT.capitalize()} NiMH AA cells'
 
 LEGEND_BANK = LegendEntry(LineKind.BANK_SUPPLY,
                           f'supply from the power bank ({USB_VOLTAGE}, {LOGIC_VOLTAGE})')
 LEGEND_BATTERY = LegendEntry(LineKind.BATTERY_SUPPLY,
-                             f'supply from the motor battery ({REMO_BATTERY_VOLTAGE})')
+                             f'supply from the motor battery ({BATTERY_VOLTAGE})')
 LEGEND_DATA = LegendEntry(LineKind.DATA, 'data connection')
 LEGEND_GROUND = LegendEntry(LineKind.GROUND, 'ground wire (GND)')
 
@@ -315,12 +317,12 @@ def draw_mcu_sensors(figure: Figure) -> None:
 def remo_power_flow_figure() -> Figure:
     """Return Remo's figure: every part with its checked supply, and the camera's data line."""
     figure = Figure('pf-remo', 400, "Remo's power flow: the power bank supplies the Raspberry Pi, "
-                    'the LiDAR, the Teensy and its sensors, and the six NiMH cells supply the '
-                    'motors')
+                    f'the LiDAR, the Teensy and its sensors, and the {CELL_COUNT} NiMH cells '
+                    'supply the motors')
     draw_power_bank_and_pi(figure)
     draw_lidar_and_camera(figure)
-    draw_battery_and_motors(figure, [TextLine('Six NiMH AA cells', 'name')],
-                            f'{REMO_BATTERY_VOLTAGE} nominal', [
+    draw_battery_and_motors(figure, [TextLine(BATTERY_NAME, 'name')],
+                            f'{BATTERY_VOLTAGE} nominal', [
         TextLine('Motor driver', 'name'), TextLine('Adafruit FeatherWing', 'note'),
         TextLine('joins battery − and GND', 'note')], driver_y=MCU_BOX.y)
     draw_mcu(figure)
@@ -337,10 +339,10 @@ def diffbot_power_flow_figure() -> Figure:
     The figure has no legend. Its caption names the two colors.
     """
     figure = Figure('pf-diffbot', 246, "DiffBot's power flow: the power bank supplies the "
-                    'Raspberry Pi, and the four NiMH cells supply the motors')
+                    f'Raspberry Pi, and the {CELL_COUNT} NiMH cells supply the motors')
     draw_power_bank_and_pi(figure)
-    draw_battery_and_motors(figure, [TextLine('Four NiMH AA cells', 'name')],
-                            f'{DIFFBOT_BATTERY_VOLTAGE} nominal', [
+    draw_battery_and_motors(figure, [TextLine(BATTERY_NAME, 'name')],
+                            f'{BATTERY_VOLTAGE} nominal', [
         TextLine('Motor driver', 'name'), TextLine('Grove I2C Motor Driver', 'note'),
         TextLine('regulator for its logic', 'note')], driver_y=96)
     return figure
@@ -360,13 +362,15 @@ def main() -> None:
     """Write both includes."""
     write_include('includes/power-supply-flow-diffbot.html', diffbot_power_flow_figure(),
                   "DiffBot's two supplies. The blue line is the Raspberry Pi's supply from the "
-                  'power bank. The orange lines are the motor supply from the four NiMH cells.',
+                  f'power bank. The orange lines are the motor supply from the {CELL_COUNT} NiMH '
+                  'cells.',
                   style_element(RULES) + '\n')
     write_include('includes/power-supply-flow-remo.html', remo_power_flow_figure(),
                   "Remo's two supplies. Follow each color from its source at the top. The motor "
                   f'driver is the only part on both supplies. Its logic gets {LOGIC_VOLTAGE} from '
-                  'the power bank through the Raspberry Pi and the Teensy. The six cells feed its '
-                  'motor supply, and the driver switches that power to the motors.')
+                  'the power bank through the Raspberry Pi and the Teensy. '
+                  f'The {CELL_COUNT} cells feed its motor supply, and the driver switches that '
+                  'power to the motors.')
 
 
 if __name__ == '__main__':
