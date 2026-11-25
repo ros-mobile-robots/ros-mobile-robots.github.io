@@ -54,6 +54,10 @@ SHAPES = """svg => [...svg.querySelectorAll(
   }[shape.tagName]();
   return [view, shape.tagName, ...numbers.map(Number)];
 })"""
+# The texts of the tables' cells that are wider than their cell
+CUT_CELLS = """figure => [...document.querySelectorAll(
+    `${figure} .ix-table td, ${figure} .ix-table th`)]
+    .filter((cell) => cell.scrollWidth > cell.clientWidth + 1).map((cell) => cell.innerText)"""
 PHONE = {'width': 390, 'height': 844, 'is_mobile': True, 'has_touch': True}
 SMALL_PHONE = {**PHONE, 'width': 320, 'height': 700}
 
@@ -291,6 +295,15 @@ class TestMotionLabPage(unittest.TestCase):
                     page.dispatch_event(f'#{slider.element_id}', 'input')
                     self.assertEqual([top_of(page, place) for place in places], before,
                                      f'{slider.setting} {value}')
+
+    def test_table_cells_show_their_whole_text(self) -> None:
+        # The tables have fixed columns: no cell's text may run into the next one
+        for size in ({'width': 1024, 'height': 800}, {'width': 768, 'height': 900},
+                     {'width': 660, 'height': 900}, PHONE):
+            with self.subTest(width=size['width']):
+                page = self.open_live_figure(reduced_motion='reduce', **size).page
+                page.click(f'{FIGURE} [data-example="{figures.EXAMPLES[0].key}"]')
+                self.assertEqual(page.evaluate(CUT_CELLS, FIGURE), [])
 
     def test_reset_next_to_the_examples_sets_the_robots_own_values(self) -> None:
         slider = figures.CONFIGURATION_SLIDERS[0]
