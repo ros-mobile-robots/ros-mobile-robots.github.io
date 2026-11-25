@@ -208,15 +208,46 @@ class TestMotionLabPage(unittest.TestCase):
                 self.assertAlmostEqual(live_value, static_value, delta=DRAWN_ROUNDING,
                                        msg=live_shape[:2])
 
-    def test_an_example_before_its_answer_shows_the_robots_values_where_all_checks_pass(
+    def test_every_example_opens_at_the_start_of_its_drive_with_its_results_waiting(
         self,
     ) -> None:
         page = self.open_live_figure().page
         for index, example in enumerate(figures.EXAMPLES):
             if index:
                 page.click(f'{FIGURE} .ix-next')
-            self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'), example.key)
+            self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), '0', example.key)
+            for waiting in ('.ix-shown-answer', '.ix-summary', '.ix-checks'):
+                self.assertFalse(page.is_visible(f'{FIGURE} {waiting}'),
+                                 f'{example.key}, {waiting}')
+
+    def test_play_before_the_answer_drives_with_the_robots_values_where_all_checks_pass(
+        self,
+    ) -> None:
+        # With reduced motion, Play shows the drive's end at once
+        page = self.open_live_figure(reduced_motion='reduce').page
+        for index, example in enumerate(figures.EXAMPLES):
+            if index:
+                page.click(f'{FIGURE} .ix-next')
+            page.click(f'{FIGURE} .ix-play')
+            self.assertTrue(page.is_visible(f'{FIGURE} .ix-checks'), example.key)
             self.assertEqual(failing_checks(page), [], example.key)
+            self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'), example.key)
+
+    def test_the_other_command_starts_its_drive_at_its_start(self) -> None:
+        page = self.open_live_figure(reduced_motion='reduce').page
+        page.click(f'{FIGURE} .ix-play')
+        page.click(f'{FIGURE} [data-command="turn"]')
+        self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), '0')
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-summary'))
+
+    def test_a_changed_value_shows_the_drive_at_its_end_with_its_results(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure().page
+        page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
+        page.fill(f'#{slider.element_id}', str(slider.highest))
+        page.dispatch_event(f'#{slider.element_id}', 'input')
+        self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), str(figures.TIME_SLIDER_STEPS))
+        self.assertTrue(page.is_visible(f'{FIGURE} .ix-summary'))
 
     def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
         # With reduced motion, the changed drive and its answer show at once

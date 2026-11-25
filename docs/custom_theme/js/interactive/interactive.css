@@ -90,8 +90,8 @@
 
 /* Results */
 .md-typeset .ix .ix-summary { margin: 1em 0 .4em; padding: .5em .7em; background: var(--ix-surface); border-radius: .2rem; }
-/* While an example's changed drive plays, its results wait in their place until the drive ends */
-.ix.ix-waiting .ix-summary, .ix.ix-waiting .ix-table { visibility: hidden; }
+/* A drive's results wait for its end */
+.md-typeset .ix.ix-waiting .ix-summary, .md-typeset .ix.ix-waiting .ix-table { display: none; }
 .md-typeset .ix .ix-table { display: table; width: 100%; margin: .8em 0 0; border-collapse: collapse; font-size: .7rem; font-variant-numeric: tabular-nums; }
 .md-typeset .ix .ix-table caption { caption-side: top; padding: 0 0 .3em; text-align: left; font-weight: 700; }
 .md-typeset .ix .ix-table th, .md-typeset .ix .ix-table td { padding: .35em .5em; text-align: left; vertical-align: top; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
