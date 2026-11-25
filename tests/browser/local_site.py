@@ -10,24 +10,41 @@ import functools
 import http.server
 import os
 from pathlib import Path
+import sys
 import threading
-from typing import Iterator, List, Tuple
+from typing import Any
+from typing import Iterator
+from typing import List
+from typing import NamedTuple
+from typing import Tuple
 from urllib.parse import urlparse
 
-from playwright.sync_api import Browser, BrowserContext, Page, sync_playwright
+from playwright.sync_api import Browser
+from playwright.sync_api import BrowserContext
+from playwright.sync_api import ConsoleMessage
+from playwright.sync_api import Error
+from playwright.sync_api import Page
+from playwright.sync_api import Route
+from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent.parent
+# The tests take a figure's values from the script that writes its include: they import the
+# scripts of scripts/figures, which this line puts on the import path
+sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
 # The built site: mkdocs build --strict writes it to site/. SITE_DIR names another folder
 SITE_DIR = Path(os.environ.get('SITE_DIR', ROOT / 'site'))
 # The hosts that the site's own template asks for on every page: the ad and consent script, and
 # the repository's star count in the header. A figure must not add a host to them
 SITE_HOSTS = {'pagead2.googlesyndication.com', 'api.github.com'}
+# A request that open_page() stopped also logs a console error with this text, which isn't the
+# page's fault
+STOPPED_REQUEST = 'net::ERR_'
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
     """Serve files without writing a log line per request."""
 
-    def log_message(self, format: str, *args: object) -> None:
+    def log_message(self, message_format: str, *args: object) -> None:
         """Write nothing."""
 
 
@@ -48,13 +65,10 @@ def served_site() -> Iterator[str]:
 
 
 @contextlib.contextmanager
-def chromium(webgl: bool = False) -> Iterator[Browser]:
+def chromium() -> Iterator[Browser]:
     """Start headless Chromium. CHROMIUM names another browser binary than Playwright's own."""
-    arguments = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] if webgl else []
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(
-            executable_path=os.environ.get('CHROMIUM') or None, args=arguments
-        )
+        browser = playwright.chromium.launch(executable_path=os.environ.get('CHROMIUM') or None)
         try:
             yield browser
         finally:
@@ -62,12 +76,28 @@ def chromium(webgl: bool = False) -> Iterator[Browser]:
 
 
 class PageLog:
-    """What a page did while a test used it: its errors and the hosts it asked for."""
+    """What a page did while a test used it: its errors and the other hosts it asked for."""
 
     def __init__(self) -> None:
         self.errors: List[str] = []
         self.other_hosts: List[str] = []
-        self.requests: List[str] = []
+
+    def add_page_error(self, error: Error) -> None:
+        """Note an error that the page's scripts threw."""
+        self.errors.append(str(error))
+
+    def add_console_message(self, message: ConsoleMessage) -> None:
+        """Note an error that the page wrote to the console, but not a stopped request's."""
+        if message.type in ('error', 'assert') and STOPPED_REQUEST not in message.text:
+            self.errors.append(message.text)
+
+
+class OpenedPage(NamedTuple):
+    """A page of the served site in a context of its own, with the log of what it did."""
+
+    context: BrowserContext
+    page: Page
+    log: PageLog
 
 
 def open_page(
@@ -78,9 +108,9 @@ def open_page(
     height: int = 900,
     javascript: bool = True,
     blocked: Tuple[str, ...] = (),
-    **context_options: object,
-) -> Tuple[BrowserContext, Page, PageLog]:
-    """Open a page of the served site and return its context, the page and its log.
+    **context_options: Any,
+) -> OpenedPage:
+    """Open a page of the served site in a new browser context.
 
     `blocked` names parts of local addresses that fail to load, to test what a figure does
     then. Further options go to the browser context, such as color_scheme or is_mobile.
@@ -92,28 +122,19 @@ def open_page(
     )
     log = PageLog()
 
-    def route(route_) -> None:
-        url = route_.request.url
+    def handle_request(route: Route) -> None:
+        url = route.request.url
         if not url.startswith(base):
             log.other_hosts.append(urlparse(url).netloc)
-            route_.abort()
+            route.abort()
         elif any(part in url for part in blocked):
-            route_.abort()
+            route.abort()
         else:
-            log.requests.append(url[len(base):])
-            route_.continue_()
+            route.continue_()
 
-    context.route('**/*', route)
+    context.route('**/*', handle_request)
     page = context.new_page()
-    page.on('pageerror', lambda error: log.errors.append(str(error)))
-    # A request that this helper stopped also logs a console error, which isn't the page's fault
-    page.on(
-        'console',
-        lambda message: (
-            log.errors.append(message.text)
-            if message.type in ('error', 'assert') and 'net::ERR_' not in message.text
-            else None
-        ),
-    )
+    page.on('pageerror', log.add_page_error)
+    page.on('console', log.add_console_message)
     page.goto(base + path, wait_until='load')
-    return context, page, log
+    return OpenedPage(context, page, log)
