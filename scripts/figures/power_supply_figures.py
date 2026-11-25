@@ -344,7 +344,7 @@ def diffbot_power_flow_figure() -> Figure:
     draw_battery_and_motors(figure, [TextLine(BATTERY_NAME, 'name')],
                             f'{BATTERY_VOLTAGE} nominal', [
         TextLine('Motor driver', 'name'), TextLine('Grove I2C Motor Driver', 'note'),
-        TextLine('regulator for its logic', 'note')], driver_y=96)
+        TextLine('makes 5 V for its logic', 'note')], driver_y=96)
     return figure
 
 
