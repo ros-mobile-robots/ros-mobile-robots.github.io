@@ -126,8 +126,8 @@ class TestMotionLabPage(unittest.TestCase):
         page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
         page.click(f'{FIGURE} .ix-reset')
         page.click(f'{FIGURE} [data-command="turn"]')
-        page.fill('#motion-lab-tracking', '80')
-        page.dispatch_event('#motion-lab-tracking', 'input')
+        page.fill('#motion-lab-tracking-percent', '80')
+        page.dispatch_event('#motion-lab-tracking-percent', 'input')
         turned = table_rows(page, f'{FIGURE} .ix-check-rows tr')[0]
         self.assertEqual(turned[2], '1.200 rad')
         self.assertIn('passes', turned[3])
