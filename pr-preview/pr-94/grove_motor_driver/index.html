@@ -5039,8 +5039,9 @@ With Adafruit's converter as the example, each row is one wire. The pins of the 
 </tbody>
 </table>
 <p>The level shifter connects <code>A1</code> with <code>B1</code> and <code>A2</code> with <code>B2</code> itself. Don't connect these pins with a wire.</p>
-<p>Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and 5 V from the motor driver.
-The motor driver makes these 5 V from its batteries, with its own regulator.
+<p>Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and the logic supply of the motor driver, which Seeed gives as 5 V.
+The motor driver makes this supply from its batteries, with its own 5 V regulator.
+DiffBot's four NiMH cells are below the input range that Seeed specifies for the board, and the regulator can't hold 5 V with them. <a href="../power-supply/#diffbot-four-nimh-cells-and-the-grove-i2c-motor-driver">DiffBot: four NiMH cells and the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver</a> on the Power Supply page explains why.
 Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector, and Seeed asks for the jumper when 5 V should be supplied to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview">Seeed's hardware overview</a>).
 Connect this VCC pin only to the level shifter's <code>HV</code>, never to the Raspberry Pi, which has its own supply.
 The GND pin of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector is connected to the board's ground, with or without the jumper.</p>
@@ -5048,11 +5049,11 @@ The GND pin of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a
 Without its batteries, the motor driver would get current from the Raspberry Pi's 3.3 V side through the level shifter and the SDA and SCL wires.
 These wires end at the board's microcontroller, an ATmega8 (<a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf">Seeed's schematic</a>), and each of its pins has a protection diode to its supply line (<a href="https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf">ATmega8 datasheet</a>, I/O Ports).
 The level shifter keeps the two sides apart only when the Raspberry Pi's side is off (<a href="https://cdn-shop.adafruit.com/datasheets/an97055.pdf">Philips application note AN97055</a>, section 2.3.4).
-So change the batteries in this order:</p>
+So recharge the cells in this order:</p>
 <ol>
 <li>Stop the motors and shut down the Raspberry Pi.</li>
 <li>Unplug the Raspberry Pi's power bank. After a shutdown, the Raspberry Pi keeps power on its header while the power bank is plugged in (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#POWER_OFF_ON_HALT">Raspberry Pi's bootloader documentation, <code>POWER_OFF_ON_HALT</code></a>).</li>
-<li>Replace all four batteries.</li>
+<li>Take out the four cells, recharge them as <a href="../power-supply/#charging-the-nimh-cells">Charging the NiMH cells</a> on the Power Supply page describes, and put them back.</li>
 <li>Plug the power bank in again, which starts the Raspberry Pi.</li>
 </ol>
 <p>Make sure to set the address with the dip switches on the motor driver to <code>0x0f</code> because this is the default address used
