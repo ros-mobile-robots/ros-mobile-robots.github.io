@@ -2736,6 +2736,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#the-feedback-loop-of-one-wheel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The feedback loop of one wheel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#driving-straight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driving straight
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#gain-trim-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4421,6 +4443,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -4510,6 +4536,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../development/firmware-unit-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Unit Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../development/geometry-test/" class="md-nav__link">
         
   
@@ -4554,6 +4608,111 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../decisions/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../decisions/0001-record-architecture-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: Record architecture decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4618,6 +4777,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#the-feedback-loop-of-one-wheel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The feedback loop of one wheel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#driving-straight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driving straight
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#gain-trim-model" class="md-nav__link">
@@ -4781,7 +4962,586 @@ motors into account.</p>
 <p class="admonition-title">Note</p>
 <p>See <a href="https://github.com/ros-controls/ros_controllers/blob/698f85b2c3467dfcc3ca5743d68deba03f3fcff2/diff_drive_controller/src/diff_drive_controller.cpp#L460">the code of <code>diff_drive_controller</code></a> where the <code>joint_command_velocity</code> is calculated. </p>
 </div>
-<p>For this reason a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:</p>
+<h2 id="the-feedback-loop-of-one-wheel">The feedback loop of one wheel</h2>
+<p>A feedback loop measures the value that it controls and corrects the difference to the value that is wanted.
+Here, the controlled value is a wheel's angular velocity <span class="arithmatex">\(\dot{\phi}\)</span>, in rad/s.
+Each wheel has its own loop. Both loops run in the firmware on the Teensy, 20 times per second (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L30"><code>UPDATE_RATE_CONTROL</code></a> in <code>diffbot_base_config.h</code>).
+In each of these control steps, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L86-L95"><code>WheelControl::step()</code></a> calls two functions of <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L42-L55"><code>BaseController</code></a>:</p>
+<ol>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L447-L467"><code>read()</code></a> measures both wheel speeds with the encoders.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L470-L489"><code>write()</code></a> computes a new motor command for each wheel with its <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> and sends the command to the motor driver. After one second without a wheel command from the Raspberry Pi (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L39"><code>COMMAND_TIMEOUT_MS</code></a>), the firmware stops the motors and skips <code>write()</code> until the next command arrives.</li>
+</ol>
+<p>The figure shows the loop of Remo's left wheel. The right wheel's loop is the same, with its own <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>, motor and encoder.</p>
+<style>
+.md-typeset figure.pid-loop-figure{margin:1em auto;width:100%;max-width:480px}
+.pid-loop{width:100%;height:auto;--pid-value:#1e63c4;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.pid-loop-wide{display:none}
+@media screen and (min-width:60em){.md-typeset figure.pid-loop-figure{max-width:none}.pid-loop-wide{display:block}.pid-loop-tall{display:none}}
+[data-md-color-scheme=slate] .pid-loop{--pid-value:#82b1ff}
+.pid-loop text{fill:var(--md-default-fg-color);font-size:12px}
+.pid-loop .firmware{fill:var(--md-default-fg-color--lightest);stroke:var(--md-default-fg-color--lighter);stroke-width:1}
+.pid-loop .code{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.pid-loop .hardware{fill:var(--md-code-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.pid-loop .arrow{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.pid-loop .arrow-head{fill:var(--md-default-fg-color--light)}
+.pid-loop .number-disc{fill:var(--md-default-fg-color)}
+.pid-loop .number{fill:var(--md-default-bg-color);font-size:11px;font-weight:700}
+.pid-loop .name{font-size:13px}
+.pid-loop .note{font-size:11px;fill:var(--md-default-fg-color--light)}
+.pid-loop .symbol{font-style:italic}
+.pid-loop .formula{font-size:11.5px;font-style:italic}
+.pid-loop .container-name{font-weight:700}
+.pid-loop .sign{font-size:15px;font-weight:700}
+.pid-loop .value{fill:var(--pid-value);font-weight:700}
+.pid-loop .time-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.pid-loop .time-step{fill:none;stroke:var(--md-default-fg-color);stroke-width:2.5}
+.pid-loop .sbc-board{fill:#3f9a4e;stroke:#1f5a2a;stroke-width:0.8}
+.pid-loop .mcu-board{fill:#2f7d3c;stroke:#1a4d25;stroke-width:0.8}
+.pid-loop .driver-board{fill:#26408b;stroke:#152657;stroke-width:0.8}
+.pid-loop .pin-header{fill:#222}
+.pid-loop .metal{fill:#c8ccd2;stroke:#7d838c;stroke-width:0.6}
+.pid-loop .chip{fill:#2b2b2b}
+.pid-loop .pad{fill:#e3c15a}
+.pid-loop .terminal{fill:#3aa856;stroke:#1d6a33;stroke-width:0.6}
+.pid-loop .gearbox{fill:#8fc9ec;stroke:#3b7ea8;stroke-width:1}
+.pid-loop .motor-can{fill:#b8bec6;stroke:#6b737d;stroke-width:1}
+.pid-loop .encoder-board{fill:#3c8d4a;stroke:#245a2e;stroke-width:1}
+.pid-loop .ring-hole{fill:var(--md-code-bg-color)}
+.pid-loop .tyre{fill:#3a3a3a;stroke:#1d1d1d;stroke-width:1}
+[data-md-color-scheme=slate] .pid-loop .tyre{fill:#5a5f6a;stroke:#9aa0aa}
+.pid-loop .tyre-groove{fill:none;stroke:#6a6a6a;stroke-width:1}
+.pid-loop .shaft{fill:#d9d9d9;stroke:#777;stroke-width:1}
+.pid-loop .magnet-north{fill:#d9534f}
+.pid-loop .magnet-south{fill:#4a78c2}
+.pid-loop .hall-sensor{fill:#222;stroke:#888;stroke-width:0.6}
+[data-md-color-scheme=slate] .pid-loop .hall-sensor{fill:#111;stroke:#e0e0e0;stroke-width:0.8}
+.pid-loop .connector{fill:#f4f4f4;stroke:#999;stroke-width:0.8}
+.pid-loop .imu-board{fill:#2450a6;stroke:#142e66;stroke-width:0.8}
+</style>
+<figure class="pid-loop-figure">
+<svg class="pid-loop pid-loop-wide" viewBox="0 0 680 486" role="img" aria-labelledby="pid-loop-wide-title"><title id="pid-loop-wide-title">One wheel's speed control loop in the microcontroller firmware, with the motor driver, the motor, the wheel and the encoder, and a time line of one control step</title><defs><marker id="pid-loop-wide-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="hardware" x="4" y="88" width="74" height="80" rx="5"></rect>
+<rect class="sbc-board" x="17" y="94" width="48" height="32" rx="2.5"></rect>
+<rect class="pin-header" x="21" y="95.5" width="34" height="4" rx="0"></rect>
+<rect class="metal" x="57" y="102" width="10" height="6" rx="0"></rect>
+<rect class="metal" x="57" y="110" width="10" height="6" rx="0"></rect>
+<rect class="metal" x="57" y="118" width="10" height="7" rx="0"></rect>
+<rect class="chip" x="31" y="106" width="11" height="11" rx="0"></rect>
+<text class="name" x="41" y="138" text-anchor="middle">SBC</text>
+<text class="note" x="41" y="151" text-anchor="middle">Raspberry</text>
+<text class="note" x="41" y="163" text-anchor="middle">Pi 4 B</text>
+<path class="arrow" d="M78,128 H186" marker-end="url(#pid-loop-wide-head)"></path>
+<circle class="number-disc" cx="90" cy="70" r="8"></circle>
+<text class="number" x="90" y="73.8" text-anchor="middle">1</text>
+<text x="102" y="74" text-anchor="start">target wheel</text>
+<text x="102" y="88" text-anchor="start">speed</text>
+<text class="value" x="102" y="102" text-anchor="start">6.06 rad/s</text>
+<rect class="firmware" x="176" y="40" width="284" height="346" rx="5"></rect>
+<rect class="mcu-board" x="231" y="47" width="34" height="14" rx="1.5"></rect>
+<rect class="metal" x="227" y="50.5" width="6" height="7" rx="1"></rect>
+<rect class="chip" x="245" y="50" width="8" height="8" rx="0"></rect>
+<circle class="pad" cx="235" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="235" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="238" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="238" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="241" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="241" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="244" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="244" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="247" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="247" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="250" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="250" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="253" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="253" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="256" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="256" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="259" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="259" cy="59.4" r="0.8"></circle>
+<circle class="pad" cx="262" cy="48.6" r="0.8"></circle>
+<circle class="pad" cx="262" cy="59.4" r="0.8"></circle>
+<text class="container-name" x="452" y="58" text-anchor="end">Microcontroller (MCU) firmware</text>
+<text class="note" x="452" y="72" text-anchor="end">about every 50 ms, here a Teensy 4.0</text>
+<circle class="code" cx="200" cy="128" r="13"></circle>
+<text class="sign" x="188" y="116" text-anchor="end">+</text>
+<text class="sign" x="190" y="158" text-anchor="end">−</text>
+<path class="arrow" d="M213,128 H296" marker-end="url(#pid-loop-wide-head)"></path>
+<circle class="number-disc" cx="226" cy="150" r="8"></circle>
+<text class="number" x="226" y="153.8" text-anchor="middle">2</text>
+<text x="238" y="154" text-anchor="start">error <tspan class="symbol">e</tspan></text>
+<text class="value" x="238" y="168" text-anchor="start">0.50 rad/s</text>
+<rect class="code" x="296" y="84" width="150" height="88" rx="5"></rect>
+<text class="name" x="371" y="102" text-anchor="middle">PID controller</text>
+<text class="formula" x="371" y="121" text-anchor="middle">u<tspan baseline-shift="sub" font-size="8.5">raw</tspan> = K<tspan baseline-shift="sub" font-size="8.5">P</tspan>·e + K<tspan baseline-shift="sub" font-size="8.5">I</tspan>·Σe</text>
+<text class="formula" x="371" y="140" text-anchor="middle">+ K<tspan baseline-shift="sub" font-size="8.5">D</tspan>·(e − e<tspan baseline-shift="sub" font-size="8.5">previous</tspan>)</text>
+<text class="note" x="371" y="161" text-anchor="middle">limit to ±255, truncate → u</text>
+<rect class="code" x="230" y="324" width="130" height="44" rx="5"></rect>
+<text class="name" x="295" y="343" text-anchor="middle">speed from ticks</text>
+<text class="note" x="295" y="357" text-anchor="middle">angle ÷ time</text>
+<path class="arrow" d="M230,346 H200 V141" marker-end="url(#pid-loop-wide-head)"></path>
+<circle class="number-disc" cx="216" cy="248" r="8"></circle>
+<text class="number" x="216" y="251.8" text-anchor="middle">7</text>
+<text x="228" y="252" text-anchor="start">measured</text>
+<text x="228" y="266" text-anchor="start">wheel speed</text>
+<text class="value" x="228" y="280" text-anchor="start">5.56 rad/s</text>
+<path class="arrow" d="M446,128 H500" marker-end="url(#pid-loop-wide-head)"></path>
+<circle class="number-disc" cx="472" cy="70" r="8"></circle>
+<text class="number" x="472" y="73.8" text-anchor="middle">3</text>
+<text x="484" y="74" text-anchor="start">motor</text>
+<text x="484" y="88" text-anchor="start">command <tspan class="symbol">u</tspan></text>
+<text class="value" x="484" y="102" text-anchor="start">96</text>
+<rect class="hardware" x="500" y="106" width="176" height="44" rx="5"></rect>
+<text class="name" x="508" y="125" text-anchor="start">Motor driver</text>
+<text class="note" x="508" y="139" text-anchor="start">Adafruit FeatherWing</text>
+<rect class="driver-board" x="626" y="116" width="44" height="22" rx="2"></rect>
+<rect class="terminal" x="629" y="118" width="11" height="7" rx="0"></rect>
+<rect class="terminal" x="642" y="118" width="11" height="7" rx="0"></rect>
+<rect class="terminal" x="655" y="118" width="11" height="7" rx="0"></rect>
+<rect class="chip" x="642" y="128" width="10" height="7" rx="0"></rect>
+<path class="arrow" d="M588.0,150 V204" marker-end="url(#pid-loop-wide-head)"></path>
+<circle class="number-disc" cx="602" cy="160" r="8"></circle>
+<text class="number" x="602" y="163.8" text-anchor="middle">4</text>
+<text x="614" y="164" text-anchor="start">PWM duty</text>
+<text x="614" y="178" text-anchor="start">cycle</text>
+<text class="value" x="614" y="192" text-anchor="start">37.5 %</text>
+<rect class="hardware" x="500" y="204" width="176" height="84" rx="5"></rect>
+<text class="name" x="508" y="226" text-anchor="start">Motor and</text>
+<text class="name" x="508" y="240" text-anchor="start">wheel</text>
+<text class="note" x="508" y="256" text-anchor="start">DG01D-E</text>
+<rect class="gearbox" x="588" y="216" width="44" height="22" rx="2"></rect>
+<rect class="gearbox" x="632" y="218" width="8" height="18" rx="0"></rect>
+<rect class="motor-can" x="640" y="217" width="20" height="20" rx="3"></rect>
+<rect class="encoder-board" x="660" y="216" width="8" height="22" rx="1"></rect>
+<rect class="shaft" x="597.3" y="238" width="5.4" height="6" rx="0"></rect>
+<rect class="tyre" x="567.5" y="244" width="65" height="26" rx="5"></rect>
+<path class="tyre-groove" d="M575.6,246 V268"></path>
+<path class="tyre-groove" d="M583.8,246 V268"></path>
+<path class="tyre-groove" d="M591.9,246 V268"></path>
+<path class="tyre-groove" d="M600.0,246 V268"></path>
+<path class="tyre-groove" d="M608.1,246 V268"></path>
+<path class="tyre-groove" d="M616.2,246 V268"></path>
+<path class="tyre-groove" d="M624.4,246 V268"></path>
+<path class="arrow" d="M664,238 V318" marker-end="url(#pid-loop-wide-head)"></path>
+<circle class="number-disc" cx="580" cy="298" r="8"></circle>
+<text class="number" x="580" y="301.8" text-anchor="middle">5</text>
+<text x="592" y="302" text-anchor="start">motor shaft</text>
+<text x="592" y="316" text-anchor="start">rotation</text>
+<rect class="hardware" x="500" y="318" width="176" height="56" rx="5"></rect>
+<text class="name" x="508" y="337" text-anchor="start">Encoder</text>
+<text class="note" x="508" y="352" text-anchor="start">542 ticks per</text>
+<text class="note" x="508" y="365" text-anchor="start">wheel turn</text>
+<circle class="encoder-board" cx="642" cy="343" r="19"></circle>
+<circle class="ring-hole" cx="642" cy="343" r="13"></circle>
+<rect class="connector" x="633" y="360" width="18" height="8" rx="1"></rect>
+<path class="magnet-north" d="M642,343 L642.00,332.00 A11,11 0 0 1 651.53,337.50 Z"></path>
+<path class="magnet-south" d="M642,343 L651.53,337.50 A11,11 0 0 1 651.53,348.50 Z"></path>
+<path class="magnet-north" d="M642,343 L651.53,348.50 A11,11 0 0 1 642.00,354.00 Z"></path>
+<path class="magnet-south" d="M642,343 L642.00,354.00 A11,11 0 0 1 632.47,348.50 Z"></path>
+<path class="magnet-north" d="M642,343 L632.47,348.50 A11,11 0 0 1 632.47,337.50 Z"></path>
+<path class="magnet-south" d="M642,343 L632.47,337.50 A11,11 0 0 1 642.00,332.00 Z"></path>
+<circle class="shaft" cx="642" cy="343" r="2"></circle>
+<rect class="hall-sensor" x="627.7" y="329.2" width="6" height="5" transform="rotate(-45 630.7 331.7)"></rect>
+<rect class="hall-sensor" x="650.3" y="329.2" width="6" height="5" transform="rotate(45 653.3 331.7)"></rect>
+<path class="arrow" d="M500,346 H360" marker-end="url(#pid-loop-wide-head)"></path>
+<text class="note" x="480" y="340" text-anchor="middle">pulses</text>
+<circle class="number-disc" cx="374" cy="294" r="8"></circle>
+<text class="number" x="374" y="297.8" text-anchor="middle">6</text>
+<text x="386" y="298" text-anchor="start">ticks since</text>
+<text x="386" y="312" text-anchor="start">last step</text>
+<text class="value" x="386" y="326" text-anchor="start">24</text>
+<path class="time-line" d="M20,444 H660" marker-end="url(#pid-loop-wide-head)"></path>
+<path class="time-line" d="M20,439 V449"></path>
+<path class="time-line" d="M340,439 V449"></path>
+<path class="time-step" d="M340,435 V453"></path>
+<text class="container-name" x="340" y="430" text-anchor="middle">control step</text>
+<text class="note" x="168" y="438" text-anchor="middle">previous interval</text>
+<text class="note" x="512" y="438" text-anchor="middle">next interval</text>
+<circle class="number-disc" cx="32" cy="464" r="8"></circle>
+<text class="number" x="32" y="467.8" text-anchor="middle">7</text>
+<text x="44" y="468" text-anchor="start">measured over this time</text>
+<circle class="number-disc" cx="356" cy="464" r="8"></circle>
+<text class="number" x="356" y="467.8" text-anchor="middle">3</text>
+<text x="368" y="468" text-anchor="start">acts during this time</text>
+</svg>
+<svg class="pid-loop pid-loop-tall" viewBox="0 0 360 538" role="img" aria-labelledby="pid-loop-tall-title"><title id="pid-loop-tall-title">One wheel's speed control loop in the microcontroller firmware, with the motor driver, the motor, the wheel and the encoder, and a time line of one control step</title><defs><marker id="pid-loop-tall-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+<rect class="hardware" x="15" y="6" width="150" height="32" rx="5"></rect>
+<text class="name" x="90" y="26" text-anchor="middle">SBC: Raspberry Pi 4 B</text>
+<path class="arrow" d="M90,38 V126" marker-end="url(#pid-loop-tall-head)"></path>
+<circle class="number-disc" cx="104" cy="52" r="8"></circle>
+<text class="number" x="104" y="55.8" text-anchor="middle">1</text>
+<text x="116" y="56" text-anchor="start">target wheel speed</text>
+<text class="value" x="116" y="70" text-anchor="start">6.06 rad/s</text>
+<rect class="firmware" x="4" y="78" width="352" height="186" rx="5"></rect>
+<text class="container-name" x="348" y="94" text-anchor="end">Microcontroller firmware, about every 50 ms</text>
+<circle class="code" cx="90" cy="140" r="13"></circle>
+<text class="sign" x="77" y="128" text-anchor="end">+</text>
+<text class="sign" x="107" y="156" text-anchor="start">−</text>
+<path class="arrow" d="M270,198 V140 H104" marker-end="url(#pid-loop-tall-head)"></path>
+<circle class="number-disc" cx="118" cy="112" r="8"></circle>
+<text class="number" x="118" y="115.8" text-anchor="middle">7</text>
+<text x="130" y="116" text-anchor="start">measured wheel speed</text>
+<text class="value" x="130" y="130" text-anchor="start">5.56 rad/s</text>
+<path class="arrow" d="M90,153 V197" marker-end="url(#pid-loop-tall-head)"></path>
+<circle class="number-disc" cx="104" cy="168" r="8"></circle>
+<text class="number" x="104" y="171.8" text-anchor="middle">2</text>
+<text x="116" y="172" text-anchor="start">error <tspan class="symbol">e</tspan></text>
+<text class="value" x="116" y="186" text-anchor="start">0.50 rad/s</text>
+<rect class="code" x="15" y="198" width="150" height="56" rx="5"></rect>
+<text class="name" x="90" y="216" text-anchor="middle">PID controller</text>
+<text class="note" x="90" y="230" text-anchor="middle">K_P 0.6, K_I 0.3, K_D 0.5</text>
+<text class="note" x="90" y="244" text-anchor="middle">output limited to ±255</text>
+<rect class="code" x="205" y="198" width="130" height="56" rx="5"></rect>
+<text class="name" x="270" y="223" text-anchor="middle">speed from ticks</text>
+<text class="note" x="270" y="237" text-anchor="middle">angle ÷ time</text>
+<path class="arrow" d="M90,254 V321" marker-end="url(#pid-loop-tall-head)"></path>
+<circle class="number-disc" cx="104" cy="282" r="8"></circle>
+<text class="number" x="104" y="285.8" text-anchor="middle">3</text>
+<text x="116" y="286" text-anchor="start">motor command <tspan class="symbol">u</tspan></text>
+<text class="value" x="116" y="300" text-anchor="start">96</text>
+<rect class="hardware" x="15" y="322" width="150" height="42" rx="5"></rect>
+<text class="name" x="90" y="340" text-anchor="middle">Motor driver</text>
+<text class="note" x="90" y="354" text-anchor="middle">Adafruit FeatherWing</text>
+<path class="arrow" d="M90,364 V419" marker-end="url(#pid-loop-tall-head)"></path>
+<circle class="number-disc" cx="104" cy="384" r="8"></circle>
+<text class="number" x="104" y="387.8" text-anchor="middle">4</text>
+<text x="116" y="388" text-anchor="start">PWM duty cycle</text>
+<text class="value" x="116" y="402" text-anchor="start">37.5 %</text>
+<rect class="hardware" x="15" y="420" width="150" height="42" rx="5"></rect>
+<text class="name" x="90" y="438" text-anchor="middle">Motor and wheel</text>
+<text class="note" x="90" y="452" text-anchor="middle">DG01D-E gear motor</text>
+<path class="arrow" d="M165,441 H270 V365" marker-end="url(#pid-loop-tall-head)"></path>
+<circle class="number-disc" cx="177" cy="430" r="8"></circle>
+<text class="number" x="177" y="433.8" text-anchor="middle">5</text>
+<text x="189" y="434" text-anchor="start">rotation</text>
+<rect class="hardware" x="205" y="322" width="130" height="42" rx="5"></rect>
+<text class="name" x="270" y="340" text-anchor="middle">Encoder</text>
+<text class="note" x="270" y="354" text-anchor="middle">542 ticks per wheel turn</text>
+<path class="arrow" d="M270,321 V255" marker-end="url(#pid-loop-tall-head)"></path>
+<circle class="number-disc" cx="282" cy="276" r="8"></circle>
+<text class="number" x="282" y="279.8" text-anchor="middle">6</text>
+<text x="294" y="280" text-anchor="start">ticks since</text>
+<text x="294" y="294" text-anchor="start">last step</text>
+<text class="value" x="294" y="308" text-anchor="start">24</text>
+<path class="time-line" d="M20,498 H340" marker-end="url(#pid-loop-tall-head)"></path>
+<path class="time-line" d="M20,493 V503"></path>
+<path class="time-line" d="M180,493 V503"></path>
+<path class="time-step" d="M180,489 V507"></path>
+<text class="container-name" x="180" y="484" text-anchor="middle">control step</text>
+<text class="note" x="88" y="492" text-anchor="middle">previous interval</text>
+<text class="note" x="272" y="492" text-anchor="middle">next interval</text>
+<circle class="number-disc" cx="32" cy="518" r="8"></circle>
+<text class="number" x="32" y="521.8" text-anchor="middle">7</text>
+<text x="44" y="522" text-anchor="start">measured over this time</text>
+<circle class="number-disc" cx="196" cy="518" r="8"></circle>
+<text class="number" x="196" y="521.8" text-anchor="middle">3</text>
+<text x="208" y="522" text-anchor="start">acts during this time</text>
+</svg>
+<figcaption>One wheel's speed control loop. Start at the target wheel speed (1) from the single-board computer (SBC) and follow the numbers around the loop, back to the comparison in the circle. The boxes inside the microcontroller firmware are code. The motor driver, the motor with the wheel and the encoder are hardware. The blue values are one control step of Remo's left wheel. The firmware doesn't log the ticks (6). They are calculated from the measured speed (7). The time line shows that a control step measures the speed over the previous interval and sets the motor command for the next one. The example takes each interval as the nominal 50 ms. The encoder senses the motor shaft before the gearbox, and the firmware uses 542 ticks per wheel turn.</figcaption>
+</figure>
+
+<p>Each signal has a unit. The signals that the formulas below use also have a symbol:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"></th>
+<th>Signal</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Target wheel speed <span class="arithmatex">\(\dot{\phi}_\text{target}\)</span></td>
+<td>rad/s</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Error <span class="arithmatex">\(e\)</span></td>
+<td>rad/s</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Motor command <span class="arithmatex">\(u\)</span></td>
+<td>a whole number from −255 to 255</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> duty cycle</td>
+<td>%</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>Rotation of the motor and the wheel</td>
+<td>rad</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>Ticks since the previous control step</td>
+<td>ticks</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>Measured wheel speed <span class="arithmatex">\(\dot{\phi}_\text{measured}\)</span></td>
+<td>rad/s</td>
+</tr>
+</tbody>
+</table>
+<p>The blue values in the figure are one control step of Remo's left wheel.
+In that run, Remo was commanded to drive at 0.2 m/s with its wheels off the ground (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6661807745">bench record</a>).
+The firmware logged the target, the measured speed, the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>'s three terms and the motor command of this step.
+The <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> duty cycle (4) and the ticks (6) are calculated from the logged values.</p>
+<p>A control step measures first and commands second.
+The firmware's main loop calls <code>step()</code> on every pass, and <code>step()</code> returns early until the next control step is due, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L86-L95">lines 86–95</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">wheel_control.h: step()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now_ms</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">stopWhenCommandExpires</span><span class="p">(</span><span class="n">now_ms</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now_ms</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_control_ms_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">control_period_ms_</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="hll"><span class="w">    </span><span class="n">controller_</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
+</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">timeout_</span><span class="p">.</span><span class="n">timedOut</span><span class="p">())</span>
+<span class="hll"><span class="w">        </span><span class="n">controller_</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
+</span><span class="w">    </span><span class="n">last_control_ms_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now_ms</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L100-L109"><code>stopWhenCommandExpires()</code></a> stops the motors once the last wheel command is <code>COMMAND_TIMEOUT_MS</code> old.
+<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/src/main.cpp#L56"><code>control_period_ms_</code></a> is 50 ms. The control step runs on the first pass of the main loop at which the Teensy's millisecond counter has advanced by at least 50 since the last control step. The encoder measures the actual time between two reads.
+<code>controller_.read()</code> measures the wheel's speed over the interval since the previous step.
+<code>controller_.write()</code> then sets the motor command, which normally acts until the next step's <code>write()</code>.
+So the measured 5.56 rad/s (7) is the result of the previous motor command, and the 96 (3) is the new one.
+The example takes each interval as the nominal 50 ms.
+Follow the values around the loop:</p>
+<ol>
+<li>
+<p><strong>Target wheel speed:</strong> On the Raspberry Pi, <a href="../../imu/robot_localization/#how-it-fits-together"><code>diff_drive_controller</code></a> converts the commanded robot velocity into a target angular velocity for each wheel. With Remo's wheel radius of 0.033 m, 0.2 m/s is <span class="arithmatex">\(\dot{\phi}_\text{target}\)</span> = 0.2 m/s / 0.033 m = 6.06 rad/s. The hardware interface publishes both targets on the topic <a href="../../../development/simulation-test/#on-the-real-robot"><code>wheel_cmd_velocities</code></a>. The firmware stores the left one in <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L244-L248"><code>wheel_cmd_velocity_left_</code></a>.</p>
+</li>
+<li>
+<p><strong>Error:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.cpp#L16-L43"><code>PID::compute()</code></a> starts with the comparison. Its variable <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.cpp#L21"><code>error</code></a> is the error <span class="arithmatex">\(e\)</span>, the target minus the measured speed:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+e &amp;= \dot{\phi}_\text{target} - \dot{\phi}_\text{measured} \\
+  &amp;= 6.06\,\tfrac{\text{rad}}{\text{s}} - 5.56\,\tfrac{\text{rad}}{\text{s}} = 0.50\,\tfrac{\text{rad}}{\text{s}}
+\end{aligned}
+\]</div>
+<p>The error is positive, so the wheel is too slow.</p>
+</li>
+<li>
+<p><strong>Motor command:</strong> <code>PID::compute()</code> turns the error into the motor command <span class="arithmatex">\(u\)</span> in two parts. First, it adds three terms. Their sum is the <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr>'s raw output <span class="arithmatex">\(u_\text{raw}\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+u_\text{raw} = {} &amp; K_P \cdot e + K_I \cdot \sum e \\
+                 &amp; + K_D \cdot (e - e_\text{previous})
+\end{aligned}
+\]</div>
+<p><span class="arithmatex">\(\sum e\)</span> is the sum of the errors of the control steps so far, and <span class="arithmatex">\(e - e_\text{previous}\)</span> is the change of the error since the previous step. The gains are <span class="arithmatex">\(K_P = 0.6\)</span>, <span class="arithmatex">\(K_I = 0.3\)</span> and <span class="arithmatex">\(K_D = 0.5\)</span> (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L23"><code>K_P</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L24"><code>K_I</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L25"><code>K_D</code></a> in <code>diffbot_base_config.h</code>). In the example, the sum is 322.20 rad/s, and the error is the same as in the previous step:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+u_\text{raw} = {} &amp; 0.6 \cdot 0.50 + 0.3 \cdot 322.20 \\
+                 &amp; + 0.5 \cdot 0.00 = 96.96
+\end{aligned}
+\]</div>
+<p>Second, the raw output becomes a whole number within the motor driver's range. <code>PID::compute()</code> returns −255 for a raw output below −255, and 255 for a raw output above 255 (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L80"><code>PWM_MIN</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L79"><code>PWM_MAX</code></a>). <code>write()</code> stores the returned value in the integer <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L484"><code>motor_cmd_left_</code></a>, which drops the fractional part. The result is the motor command <span class="arithmatex">\(u\)</span>, a whole number from −255 to 255. The sign is the direction, and 255 is the largest amount that the motor driver takes. Here, 96.96 lies within the range, so only the fraction is dropped, and <span class="arithmatex">\(u\)</span> = 96. A raw output of 300 would give <span class="arithmatex">\(u\)</span> = 255.</p>
+<details class="example">
+<summary>The firmware's code of the error, the raw output and the motor command</summary>
+<p><code>PID::compute()</code> computes the error, the three terms and their sum, and limits the sum to the range from <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L21"><code>min_val_</code></a> to <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L22"><code>max_val_</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.cpp#L16-L43">lines 16–43</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">pid.cpp: compute()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">double</span><span class="w"> </span><span class="nf">diffbot::PID::compute</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">setpoint</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">measured_value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">pid</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setpoint</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">measured_value</span><span class="p">;</span>
+<span class="w">    </span><span class="n">proportional_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<span class="w">    </span><span class="n">integral_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<span class="w">    </span><span class="n">derivative_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_error_</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">setpoint</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">integral_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">kp_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">proportional_</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">ki_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">integral_</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">kd_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">derivative_</span><span class="p">);</span>
+<span class="w">    </span><span class="n">prev_error_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Limit the output to the motor driver's range</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pid</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min_val_</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">min_val_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pid</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max_val_</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">max_val_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pid</span><span class="p">;</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L26"><code>proportional_</code></a> is <span class="arithmatex">\(e\)</span>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L27"><code>integral_</code></a> is <span class="arithmatex">\(\sum e\)</span>, and <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L28"><code>derivative_</code></a> is <span class="arithmatex">\(e - e_\text{previous}\)</span>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L23"><code>kp_</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L24"><code>ki_</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/pid/pid.h#L25"><code>kd_</code></a> are the gains. When the target and the error are both zero, the function clears the sum.</p>
+<p><code>write()</code> calls <code>compute()</code> for each wheel with the target and the measured speed, and stores the result in the integers <code>motor_cmd_left_</code> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L485"><code>motor_cmd_right_</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L481-L488">lines 481–488</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">base_controller.h: write()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// Compute each motor output from target minus measured angular velocity.</span>
+<span class="c1">// PID::compute() limits the output to PWM_MIN through PWM_MAX. The integral can still grow</span>
+<span class="c1">// while the output is limited, so eStop() resets the stored PID state</span>
+<span class="n">motor_cmd_left_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">motor_pid_left_</span><span class="p">.</span><span class="n">compute</span><span class="p">(</span><span class="n">wheel_cmd_velocity_left_</span><span class="p">,</span><span class="w"> </span><span class="n">joint_state_left_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="p">);</span>
+<span class="n">motor_cmd_right_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">motor_pid_right_</span><span class="p">.</span><span class="n">compute</span><span class="p">(</span><span class="n">wheel_cmd_velocity_right_</span><span class="p">,</span><span class="w"> </span><span class="n">joint_state_right_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="p">);</span>
+
+<span class="n">p_motor_controller_left_</span><span class="o">-&gt;</span><span class="n">setSpeed</span><span class="p">(</span><span class="n">motor_cmd_left_</span><span class="p">);</span>
+<span class="n">p_motor_controller_right_</span><span class="o">-&gt;</span><span class="n">setSpeed</span><span class="p">(</span><span class="n">motor_cmd_right_</span><span class="p">);</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The PIDs get <code>PWM_MIN</code> and <code>PWM_MAX</code> as their limits, −255 and 255 (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/config/diffbot_base_config.h#L27"><code>PWM_BITS</code></a> is 8 in <code>diffbot_base_config.h</code>).</p>
+</details>
+</li>
+<li>
+<p><strong><abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> duty cycle:</strong> <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36"><code>AdafruitMotorController::setSpeed()</code></a> sends the direction and the amount 96 to the motor driver, the Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor + Stepper FeatherWing. The driver switches the motor's supply voltage on and off many times per second, which is called pulse-width modulation (<abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr>). The duty cycle is the share of each <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> period during which the voltage is on. For the amount 96, the voltage is on for 96 × 16 of the 4096 steps of each <abbr title="Pulse-width modulation. Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.">PWM</abbr> period, a duty cycle of 37.5 % (<a href="https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256"><code>Adafruit_DCMotor::setSpeed()</code></a>). The higher the duty cycle, the faster the motor turns.</p>
+</li>
+<li>
+<p><strong>Rotation:</strong> The motor turns the wheel through its gearbox.</p>
+</li>
+<li>
+<p><strong>Ticks since the previous control step:</strong> The encoder in the motor has two Hall sensors. The Teensy counts the edges of their two signals as ticks, 542 for one turn of the wheel (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_base/config/base.yaml#L5"><code>encoder_resolution</code></a> in <code>base.yaml</code>). The count runs on from one step to the next. <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39"><code>Encoder::jointState()</code></a> reads it and subtracts the count of the previous step. The difference, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L27"><code>delta_ticks</code></a>, is the ticks since the previous step. The debug output doesn't show <code>delta_ticks</code>. With the nominal 50 ms between two steps, the measured speed corresponds to 24 ticks, so the figure shows this calculated count. The count is an estimate: 25 ticks in an interval of 52.1 ms give the same rounded 5.56 rad/s.</p>
+</li>
+<li>
+<p><strong>Measured wheel speed:</strong> <code>Encoder::jointState()</code> converts <code>delta_ticks</code> to an angle and divides the angle by <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L24"><code>dts</code></a>, the time since the previous step, which it measures with the Teensy's clock. With 24 ticks in 50 ms: 24 · 2π / 542 = 0.278 rad, and 0.278 rad / 0.05 s = 5.56 rad/s. <code>read()</code> stores this value as <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L449-L457"><code>joint_state_left_.angular_velocity_</code></a> and publishes it to the Raspberry Pi on the topic <a href="../../../development/simulation-test/#on-the-real-robot"><code>measured_joint_states</code></a>. <code>write()</code> then compares it with the target (2).</p>
+<details class="example">
+<summary>The firmware's code of the ticks and the measured speed</summary>
+<p><code>Encoder::jointState()</code> computes <code>delta_ticks</code> and the angular velocity, <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L14-L39">lines 14–39</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">encoder_diffbot.cpp: jointState()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">diffbot</span><span class="o">::</span><span class="n">JointState</span><span class="w"> </span><span class="nf">diffbot::Encoder::jointState</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="hll"><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
+</span><span class="w">    </span><span class="c1">// This function calculates the motor's rotational (angular) velocity based on encoder ticks and delta time.</span>
+<span class="w">    </span><span class="c1">// The Teensy's local microsecond counter, which ROS time synchronization doesn't change (see</span>
+<span class="w">    </span><span class="c1">// BaseController::LastUpdateTime). It returns to zero after about 71.6 minutes. Unsigned</span>
+<span class="w">    </span><span class="c1">// subtraction still gives the elapsed time if two calls are less than one cycle apart.</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">current_us</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Convert the delta time to seconds</span>
+<span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_us</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_update_us_</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">;</span>
+</span>
+<span class="w">    </span><span class="c1">//calculate wheel's speed (RPM)</span>
+<span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prev_encoder_ticks_</span><span class="p">;</span>
+</span><span class="hll"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticksToAngle</span><span class="p">(</span><span class="n">delta_ticks</span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_position_</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta_angle</span><span class="p">;</span>
+
+
+<span class="hll"><span class="w">    </span><span class="n">joint_state_</span><span class="p">.</span><span class="n">angular_velocity_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delta_angle</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dts</span><span class="p">;</span>
+</span>
+<span class="w">    </span><span class="n">prev_update_us_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_us</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prev_encoder_ticks_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encoder_ticks</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">joint_state_</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><a href="https://www.pjrc.com/teensy/td_libs_Encoder.html"><code>encoder.read()</code></a> returns the running count. <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.h#L126"><code>prev_encoder_ticks_</code></a> and <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.h#L124"><code>prev_update_us_</code></a> keep the count and the time of the previous call, so <code>delta_ticks</code> and <code>dts</code> cover the time since then. <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/encoder/encoder_diffbot.cpp#L52-L57"><code>ticksToAngle()</code></a> multiplies the ticks by 2π / 542.</p>
+</details>
+</li>
+</ol>
+<details class="example">
+<summary>The firmware's debug output of this control step</summary>
+<p>If the parameter <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L401"><code>/diffbot/debug/base_controller</code></a> is true when the firmware starts, the firmware logs the values of its latest control step, nominally five times per second:</p>
+<ul>
+<li><code>wheel_cmd_velocity_left_</code> is the target wheel speed (1), and <a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L524"><code>measured_ang_vel_left</code></a> is the measured wheel speed (7).</li>
+<li><code>motor_cmd_left_</code> is the motor command (3).</li>
+<li>The three values after <code>(p, i, d)</code> are the error (2), the sum of the errors and the change of the error.</li>
+<li><a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/base_controller/base_controller.h#L460"><code>ticks_left_</code></a> is the encoder's running count since its last reset. It isn't <code>delta_ticks</code>, the ticks since the previous step (6).</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">Read:</span>
+<span class="go">ticks_left_: 1389</span>
+<span class="go">ticks_right_: 1442</span>
+<span class="go">measured_ang_vel_left: 5.56</span>
+<span class="go">measured_ang_vel_right: 5.56</span>
+<span class="go">wheel_cmd_velocity_left_: 6.06</span>
+<span class="go">wheel_cmd_velocity_right_: 6.06</span>
+<span class="go">Write:</span>
+<span class="go">motor_cmd_left_: 96</span>
+<span class="go">motor_cmd_right_: 93</span>
+<span class="go">pid_left_errors (p, i, d): 0.50 322.20 0.00</span>
+<span class="go">pid_right_error (p, i, d): 0.50 309.91 0.23</span>
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<p>The example shows three properties of this <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> that matter for tuning:</p>
+<ul>
+<li><strong>The sum of the errors holds the motor command:</strong> It contributes 96.66 of the 96.96. When a wheel has turned at its target speed for several control steps, the error and its change are zero, and so are the first and the third term. Only the sum then keeps the motor command at the value that the motor needs for this speed. When the target is zero and the wheel stands still, the firmware clears the sum.</li>
+<li><strong>The limit doesn't stop the sum:</strong> While the wheel stays slower than its target, each control step adds a positive error to the sum, also while the raw output is above 255 and the motor command stays at 255. This is called integral windup. The stored sum can keep the drive high as the wheel reaches its target. If the wheel overshoots, the error turns negative and starts reducing the sum. After a command timeout, the firmware resets both PIDs and clears their sums.</li>
+<li><strong>The gains belong to the control rate:</strong> The firmware adds the error to the sum once per control step, and it takes the change of the error from one step to the next. It doesn't multiply or divide by the elapsed time between two steps. With another <code>UPDATE_RATE_CONTROL</code>, the same <span class="arithmatex">\(K_I\)</span> and <span class="arithmatex">\(K_D\)</span> have another effect.</li>
+</ul>
+<h2 id="driving-straight">Driving straight</h2>
+<p><code>diff_drive_controller</code> doesn't use the measured wheel speeds to correct its wheel-speed commands.
+For this reason a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controller can help to avoid situations such as the following where the robot moves not straight although it's commanded to do so:</p>
 <iframe width="560" height="315" data-consent-src="https://www.youtube-nocookie.com/embed/chUPeWXtim4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 <div class="admonition note">
@@ -4894,16 +5654,24 @@ interface</a>.</p>
 various nuisances of the physical robot, including differences in motors,
 wheels, and the asymmetry of the robot. It's simple and easily interpretable,
 too.</p>
-<p>The two PIDs work to ensure that the wheels spin at the desired speed, but not
-that the robot drives the desired way though. There are other factors such as
-slightly different wheel raddi <span class="arithmatex">\(R\)</span> which lead to different rotational velocities
-<span class="arithmatex">\(\dot{\phi}_{l/r}\)</span> (translational velocity <span class="arithmatex">\(v_{l/r} = \dot{\phi}_{l/r} \cdot R\)</span>) and therefore different traveled distances for each wheel (left and right) <span class="arithmatex">\(d_{l/r}\)</span>:</p>
+<p>The two PIDs make each wheel turn at its target angular velocity <span class="arithmatex">\(\dot{\phi}_{l/r}\)</span>, the rate at which the wheel turns about its axle.
+They don't make sure that the robot drives the commanded path.
+One reason is that the two wheel radii <span class="arithmatex">\(R_{l/r}\)</span> differ slightly.
+Take a wheel with the radius <span class="arithmatex">\(R_{l/r}\)</span> that rolls forward without slipping and turns with a constant <span class="arithmatex">\(\dot{\phi}_{l/r}\)</span> for the time <span class="arithmatex">\(\Delta t\)</span>.
+It moves over the ground with the speed <span class="arithmatex">\(v_{l/r} = R_{l/r} \cdot \dot{\phi}_{l/r}\)</span> and travels the distance <span class="arithmatex">\(d_{l/r}\)</span>:</p>
 <div class="arithmatex">\[
-\begin{aligned}
-d_{l/r} &amp;= v_{l/r} \cdot \Delta t \\
-d_{l/r} &amp;= \frac{\dot{\phi}_{l/r}}{R} \cdot \Delta t
-\end{aligned}
+d_{l/r} = v_{l/r} \cdot \Delta t = R_{l/r} \cdot \dot{\phi}_{l/r} \cdot \Delta t
 \]</div>
+<p>For example, Remo's nominal wheel radius is 0.033 m (<a href="https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_control/config/remo/geometry.yaml"><code>geometry.yaml</code></a>).
+A wheel with this radius that turns with 2 rad/s for 3 s travels</p>
+<div class="arithmatex">\[
+d = 0.033\,\text{m} \cdot 2\,\tfrac{\text{rad}}{\text{s}} \cdot 3\,\text{s} = 0.198\,\text{m}
+\]</div>
+<p>An angle in radians is the ratio of two lengths, so the result is in metres.
+Remo's two wheels measure 65.5 mm and 66.5 mm in diameter, as the comment in the same file says.
+With radii of 0.03275 m and 0.03325 m, the same 2 rad/s for 3 s give 0.1965 m and 0.1995 m.
+One wheel travels 3 mm further, although both wheels turn equally fast.
+So the robot turns toward the wheel with the smaller radius, which travels the shorter distance.</p>
 <p>These mechanical variations "can't be seen" by the encoders alone. For example
 assume you want the robot to go straight, you would set the two desired
 rotational wheel velocities <span class="arithmatex">\(\dot{\phi}_{l/r}\)</span>'s to be equal - but still the
@@ -4921,7 +5689,7 @@ distances of the two wheels.</p>
 <div class="arithmatex">\[
 d_{l/r} = R_{l/r} \cdot \Delta \phi_{l/r}
 \]</div>
-<p>where <span class="arithmatex">\(\Delta \phi_{l/r}\)</span> are the rotations of each wheel (more accurately, of each motor), and <span class="arithmatex">\(R_{l/r}\)</span> is the radius of each wheel. If the radii are exactly the same, then <span class="arithmatex">\(R_l = R_r = R\)</span> and the approach using only two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers would work because controlling <span class="arithmatex">\(\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}\)</span> is equivalent to controlling <span class="arithmatex">\(\Delta \phi_{l/r,k}\)</span>, as the time interval we can assume known.</p>
+<p>where <span class="arithmatex">\(\Delta \phi_{l/r}\)</span> is the angle that each wheel turns about its axle in <span class="arithmatex">\(\Delta t\)</span>, and <span class="arithmatex">\(R_{l/r}\)</span> is the radius of each wheel. The equation assumes again that the wheels roll without slipping. The angle is the wheel's, not the motor's. The motor's shaft turns faster than the wheel, by the ratio of the gearbox between them, so the motor's angle times the wheel radius would give too long a distance. If the radii are exactly the same, then <span class="arithmatex">\(R_l = R_r = R\)</span> and the approach using only two <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> controllers would work because controlling <span class="arithmatex">\(\dot{\phi_{l/r}} \approx \frac{\Delta \phi_{l/r,k}}{\Delta t_k}\)</span> is equivalent to controlling <span class="arithmatex">\(\Delta \phi_{l/r,k}\)</span>, as the time interval we can assume known.</p>
 <p>In practice, <span class="arithmatex">\(R_l = R_r = R\)</span> does not hold because of manufacturing tolerances, deformable material of the wheels generating different surfaces of contact with the ground depending on their assembly and robot mass distribution, etc.</p>
 <p>The trim parameter <span class="arithmatex">\(t\)</span> we define as something that adjusts the relationship between the commands sent to the motors (imagine voltage <span class="arithmatex">\(V\)</span>) and the angular speed of each wheel (<span class="arithmatex">\(\dot{\phi}\)</span>):</p>
 <div class="arithmatex">\[
@@ -5174,6 +5942,10 @@ A properly chosen D gain will allow to reach the desired velocity quickly with r
       .md-typeset pre > code { padding-right: 3em; }
       /* Highlighted lines still reach the right edge, through that padding */
       .md-typeset pre > code .hll { margin-right: -3em; padding-right: 3em; }
+      /* Wide diagrams keep a readable size on a phone and scroll sideways, instead of shrinking
+         to the screen's width, for example the firmware's parts on Low-Level Base Controller */
+      .md-typeset .wide-diagram { overflow-x: auto; }
+      @media screen and (max-width: 44.9375em) { .md-typeset .wide-diagram svg { min-width: 30rem; } }
     </style>
     <script>
         // Videos and 3D viewers from YouTube, Vimeo and Autodesk load only after a click: their iframes use

@@ -295,17 +295,22 @@ function mount(root) {
 
   // The guided examples, one at a time. An example shows its drive with the example robot's own
   // values first, where the three views agree. "Show what happens" changes the example's one
-  // value and opens its answer, which stays open.
+  // value and shows its answer under the drawing, where it stays for this example.
+  // The examples' questions share one place above the drawing, as high as the longest of them,
+  // so the drawing stays where it is from one example to the next.
   function showStep(index) {
     state.step = index;
     const example = data.examples[index], open = revealed.has(example.id);
+    const shownAnswer = find('.ix-shown-answer');
     for (const item of findAll('[data-example-item]')) {
       const current = item.dataset.exampleItem === example.id;
-      item.hidden = !current;
-      if (!current) continue;
-      item.querySelector('.ix-answer').hidden = !open;
-      item.querySelector('.ix-show').hidden = open;
+      item.classList.toggle('ix-current', current);
+      item.querySelector('.ix-answer').hidden = true;
+      // A shown answer's button keeps its place, invisible, so the questions' height stays
+      item.classList.toggle('ix-revealed', revealed.has(item.dataset.exampleItem));
+      if (current) shownAnswer.innerHTML = `<b>What happens:</b> ${item.querySelector('.ix-answer').innerHTML}`;
     }
+    shownAnswer.hidden = !open;
     find('.ix-step-count').textContent = `Example ${index + 1} of ${data.examples.length}`;
     find('.ix-previous').disabled = index === 0;
     find('.ix-next').disabled = index === data.examples.length - 1;
@@ -322,10 +327,8 @@ function mount(root) {
       revealed.add(button.dataset.example);
       showStep(state.step);
       announce();
-      // The button is gone now: the keyboard's place moves to the answer that replaced it
-      const answer = find(`[data-example-item="${button.dataset.example}"] .ix-answer`);
-      answer.setAttribute('tabindex', '-1');
-      answer.focus({ preventScroll: true });
+      // The button is gone now: the keyboard's place moves to the answer under the drawing
+      find('.ix-shown-answer').focus({ preventScroll: true });
     });
   }
   find('.ix-previous').addEventListener('click', () => { showStep(state.step - 1); announce(); });
@@ -344,7 +347,8 @@ function mount(root) {
 function showStatic(root) {
   root.classList.remove('ix-is-live');
   for (const element of root.querySelectorAll('[data-live]')) element.hidden = true;
-  for (const part of root.querySelectorAll('[data-example-item], .ix-answer')) part.hidden = false;
+  for (const answer of root.querySelectorAll('.ix-answer')) answer.hidden = false;
+  for (const item of root.querySelectorAll('[data-example-item]')) item.classList.remove('ix-current', 'ix-revealed');
   for (const drawing of root.querySelectorAll('.ix-live-plot')) drawing.remove();
 }
 
