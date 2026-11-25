@@ -162,9 +162,9 @@ function mount(root) {
   const plot = find('.ix-plot'), scrub = find('.ix-scrub');
   const sliders = Object.fromEntries(findAll('input[data-setting]').map((input) => [input.dataset.setting, input]));
   const state = { robot: data.default.robot, command: data.default.command, time: 0, step: 0 };
-  const revealed = new Set();  // The examples whose changed value is set: "Show what happens"
-  const answered = new Set();  // The examples whose answer shows: their changed drive has ended
-  // The shown drive has reached its end since it started, so its results show
+  // The examples whose own drive has reached its end: their answer shows while their drive does
+  const answered = new Set();
+  // A drive has reached its end since the example opened: the results show
   let reachedEnd = false;
   let animationRequest = null, lastTickTime = 0, announceTimer = null, drive = null, liveDrawing = null;
 
@@ -307,13 +307,18 @@ function mount(root) {
     draw();
   }
 
-  // Screen readers hear the result once a change is complete, not while a slider moves
+  // Screen readers hear the result once a change is complete, not while a slider moves, and only
+  // while the results show
   function announce() {
     clearTimeout(announceTimer);
-    announceTimer = setTimeout(() => { find('.ix-announce').textContent = find('.ix-summary').textContent; }, ANNOUNCE_DELAY_MS);
+    announceTimer = setTimeout(() => {
+      if (reachedEnd) find('.ix-announce').textContent = find('.ix-summary').textContent;
+    }, ANNOUNCE_DELAY_MS);
   }
 
   // --- Controls ------------------------------------------------------------------------------
+  // The figure shows one drive: the robot, the command and the values that the controls hold, at
+  // the time of the play bar. Only Play, the time slider and an example's opening move the time.
   const defaults = () => Object.fromEntries(Object.entries(sliders).map(([name, input]) => [name, input.defaultValue]));
   function resetSliders() {
     for (const [name, value] of Object.entries(defaults())) sliders[name].value = value;
@@ -336,33 +341,35 @@ function mount(root) {
     state.time = time;
     scrub.value = Math.round(time * Number(scrub.max));
   }
-  // A drive starts at its start. The summary and the tables show the drive's end: they wait until
-  // the drive has reached its end, and then stay when it is scrubbed back. The current example's
-  // answer shows under the drawing once its changed drive has reached its end, and then stays.
+  /** The controls hold the current example's own drive: its robot, its command and its values. */
+  function isExampleDrive() {
+    const example = data.examples[state.step], own = { ...defaults(), ...example.settings };
+    return state.robot === data.default.robot && state.command === example.command
+      && Object.entries(sliders).every(([name, input]) => Number(input.value) === Number(own[name]));
+  }
+  // The summary and the tables show the drive's end: they wait until a drive has reached its end
+  // since the example opened, then follow every change. The example's answer shows under the
+  // drawing while the controls hold the example's own drive and that drive has reached its end.
   // Returns what has just appeared: 'answer', 'results' or null.
   function showResults() {
     const key = data.examples[state.step].key, answer = find('.ix-shown-answer');
     const resultsAppear = !reachedEnd && state.time >= 1;
     if (resultsAppear) reachedEnd = true;
-    const answerAppears = revealed.has(key) && reachedEnd && !answered.has(key);
+    const own = isExampleDrive();
+    const answerAppears = own && reachedEnd && !answered.has(key);
     if (answerAppears) answered.add(key);
-    answer.hidden = !answered.has(key);
+    answer.hidden = !(own && answered.has(key));
+    // While the answer shows, the button keeps its place, invisible, so the questions' height
+    // stays. With other values it shows again: it brings back the example's own drive.
+    find('.ix-current').classList.toggle('ix-revealed', !answer.hidden);
     root.classList.toggle('ix-waiting', !reachedEnd);
     if (answerAppears) return 'answer';
     return resultsAppear ? 'results' : null;
   }
-  // Start the shown drive again from its start: its results wait for its end
-  function restartDrive() {
-    stopPlaying();
-    reachedEnd = false;
-    setTime(0);
-  }
-  // A changed value shows the drive's end at once, with its results
-  function showDriveEnd() {
-    stopPlaying();
-    setTime(1);
-    update();
-    showResults();
+  // Screen readers hear what has just appeared at the drive's end
+  function announceAppeared(appeared) {
+    if (appeared === 'answer') find('.ix-announce').textContent = find('.ix-shown-answer').textContent;
+    if (appeared === 'results') announce();
   }
   function startPlaying() {
     if (state.time >= 1) setTime(0);
@@ -376,85 +383,80 @@ function mount(root) {
       draw();
       if (state.time < 1) { animationRequest = requestAnimationFrame(tick); return; }
       stopPlaying();
-      const appeared = showResults();
-      if (appeared === 'answer') find('.ix-announce').textContent = find('.ix-shown-answer').textContent;
-      if (appeared === 'results') announce();
+      announceAppeared(showResults());
     };
     animationRequest = requestAnimationFrame(tick);
   }
+  // With reduced motion, Play shows the drive's end at once
+  function play() {
+    if (reducedMotion()) { stopPlaying(); setTime(1); draw(); announceAppeared(showResults()); return; }
+    startPlaying();
+  }
   find('.ix-play').addEventListener('click', () => {
     if (animationRequest) { stopPlaying(); return; }
-    if (reducedMotion()) { setTime(1); draw(); showResults(); return; }
-    startPlaying();
+    play();
   });
   scrub.addEventListener('input', () => {
-    stopPlaying(); state.time = Number(scrub.value) / Number(scrub.max); draw(); showResults();
+    stopPlaying(); state.time = Number(scrub.value) / Number(scrub.max); draw(); announceAppeared(showResults());
   });
   // A hidden tab or a closed block draws nothing: stop instead of jumping ahead later
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPlaying(); });
 
+  // A changed value, robot or command redraws the drive at the same time
+  function redraw() {
+    update();
+    showResults();
+  }
   for (const [name, input] of Object.entries(sliders)) {
-    input.addEventListener('input', showDriveEnd);
+    input.addEventListener('input', redraw);
     input.addEventListener('change', announce);
-    input.addEventListener('dblclick', () => { input.value = defaults()[name]; showDriveEnd(); announce(); });
+    input.addEventListener('dblclick', () => { input.value = defaults()[name]; redraw(); announce(); });
   }
   find('.ix-robot-select').addEventListener('change', (event) => {
-    selectRobot(event.target.value); resetSliders(); showDriveEnd(); announce();
+    selectRobot(event.target.value); resetSliders(); redraw(); announce();
   });
-  // The other command is another drive: it starts at its start
   for (const button of findAll('[data-command]')) {
-    button.addEventListener('click', () => {
-      selectCommand(button.dataset.command); restartDrive(); update(); showResults();
-    });
+    button.addEventListener('click', () => { selectCommand(button.dataset.command); redraw(); announce(); });
   }
-  find('.ix-reset').addEventListener('click', () => { resetSliders(); showDriveEnd(); announce(); });
+  find('.ix-reset').addEventListener('click', () => { resetSliders(); redraw(); announce(); });
 
-  // The guided examples, one at a time. An example opens at the start of its drive, with the
-  // example robot's own values. Play drives with these values, where the three views agree.
-  // "Show what happens" changes the example's one value and plays the changed drive from its
-  // start. When the drive has ended, the answer shows under the drawing, where it stays for this
-  // example. An example whose answer has shown opens at its drive's end. With reduced motion, the
-  // drive and the answer show at once.
+  // The guided examples, one at a time. An example opens with its question and its own drive,
+  // with its one value changed, at the drive's start: the time slider and Play show the drive, and
+  // its results and answer show once the drive has reached its end. "Show what happens" plays the
+  // example's own drive from its start. An answered example opens at its drive's end.
   // The examples' questions share one place above the drawing, as high as the longest of them,
   // so the drawing stays where it is from one example to the next.
   function showStep(index, time = answered.has(data.examples[index].key) ? 1 : 0) {
     state.step = index;
-    const example = data.examples[index], open = revealed.has(example.key);
+    const example = data.examples[index];
     const shownAnswer = find('.ix-shown-answer');
     for (const item of findAll('[data-example-item]')) {
       const current = item.dataset.exampleItem === example.key;
       item.classList.toggle('ix-current', current);
-      // A shown answer's button keeps its place, invisible, so the questions' height stays
-      item.classList.toggle('ix-revealed', revealed.has(item.dataset.exampleItem));
+      item.classList.toggle('ix-revealed', answered.has(item.dataset.exampleItem));
       item.querySelector('.ix-answer').hidden = true;
       if (current) shownAnswer.innerHTML = `<b>What happens:</b> ${item.querySelector('.ix-answer').innerHTML}`;
     }
     find('.ix-step-count').textContent = `Example ${index + 1} of ${data.examples.length}`;
     find('.ix-previous').disabled = index === 0;
     find('.ix-next').disabled = index === data.examples.length - 1;
-    restartDrive();
+    stopPlaying();
     selectRobot(data.default.robot);
     resetSliders();
-    if (open) for (const [name, value] of Object.entries(example.settings)) sliders[name].value = value;
+    for (const [name, value] of Object.entries(example.settings)) sliders[name].value = value;
     selectCommand(example.command);
+    reachedEnd = false;
     setTime(time);
     update();
     showResults();
   }
   for (const button of findAll('[data-example]')) {
     button.addEventListener('click', () => {
-      revealed.add(button.dataset.example);
-      // The button is gone now: the keyboard's place moves to the answer under the drawing, or
-      // to Pause while the changed drive plays
-      if (reducedMotion()) {
-        showStep(state.step, 1);
-        announce();
-        find('.ix-shown-answer').focus({ preventScroll: true });
-        return;
-      }
       showStep(state.step, 0);
-      startPlaying();
-      find('.ix-play').focus({ preventScroll: true });
+      play();
+      // The button is gone now: the keyboard's place moves to the answer under the drawing, or
+      // to Pause while the drive plays
+      find(reducedMotion() ? '.ix-shown-answer' : '.ix-play').focus({ preventScroll: true });
     });
   }
   // Screen readers hear the new example's question
@@ -468,9 +470,8 @@ function mount(root) {
 
   new ResizeObserver(() => { if (drive) draw(); }).observe(plot);
 
-  // First drawing: the first example's question, with the robot's own values at the drive's
-  // start. Only when it has succeeded does the figure switch from the static version to the
-  // controls.
+  // First drawing: the first example's question and its own drive at the start. Only when it has
+  // succeeded does the figure switch from the static version to the controls.
   for (const element of findAll('[data-live]')) element.hidden = false;
   showStep(0);
   root.classList.add('ix-is-live');
