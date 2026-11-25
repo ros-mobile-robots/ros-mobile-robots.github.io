@@ -795,6 +795,10 @@ TIP_MAGNIFICATION = 10
 # The turn's drawing shows only the direction of a. At FORCE_SCALE, its arrow would be 0.1 units
 # long
 TURN_ACCELERATION_LENGTH = 26.0
+# On the page, a drawing is at most FORCE_PANEL_WIDTH px wide, and it shares a row with another
+# drawing only at that full width. So its text is as large on a wide screen as on a phone, where
+# each drawing has a row of its own
+FORCE_PANEL_WIDTH = 290
 
 
 def draw_vector(figure: Figure, start: Point, offset: Point, css_class: str) -> Point:
@@ -1133,7 +1137,8 @@ def write_specific_force() -> None:
                 specific_force_in_a_turn_figure()]
     with open('includes/imu-sim-specific-force.html', 'w', encoding='utf-8') as include:
         include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html(drawings, caption, 200, 290, specific_force_explanations()))
+        include.write(figure_html(drawings, caption, FORCE_PANEL_WIDTH, FORCE_PANEL_WIDTH,
+                                  specific_force_explanations()))
 
 
 def main() -> None:
