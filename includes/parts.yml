@@ -89,9 +89,14 @@ parts:
       - label: Anker 10K Amazon.de
         ref: amazon_anker_powerbank_pc10k_ger
   battery-holder-aa:
-    name: Battery holder for six AA cells
+    name: Battery holder for eight AA cells
+    offers:
+      - label: Amazon.com
+        ref: amazon_battery_holder_8x_aa_us
+      - label: Amazon.de
+        ref: amazon_battery_holder_8x_aa_ger
   nimh-aa-2000mah:
-    name: NiMH AA cell, 1.2 V, 2000 mAh (Amazon Basics), six per robot from one 8-pack
+    name: NiMH AA cell, 1.2 V, 2000 mAh (Amazon Basics), eight per robot from one 8-pack
     offers:
       - label: Amazon.com (8-pack)
         ref: amazon_nimh_aa_2000mah_8x_us
@@ -181,10 +186,11 @@ configurations:
         note: 'The Powerbank from Goobay (and Anker) is close to the maximum possible size LxWxH: 135.5 x 71 x 18 mm'
       - part: battery-holder-aa
         quantity: 1
+        legacy_price: "$5.59"
         note: For the motors, see [Power Supply](/power-supply.md)
       - part: nimh-aa-2000mah
-        quantity: 6
-        note: Six cells go into the robot and two are spare, see [Power Supply](/power-supply.md)
+        quantity: 8
+        note: All eight cells go into the robot, see [Power Supply](/power-supply.md)
       - part: nitecore-ums4
         quantity: 1
         note: Charges four NiMH cells at a time, see [Charging the NiMH cells](/power-supply.md#charging-the-nimh-cells)
