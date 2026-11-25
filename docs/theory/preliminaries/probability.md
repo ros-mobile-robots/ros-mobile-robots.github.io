@@ -7,6 +7,8 @@
 
 ### Normal Distribution and Gaussian Function
 
+[The normal distribution](math-basics.md#the-normal-distribution) on the Math Basics page explains the normal distribution with its two numbers, the mean and the variance, and with the noise of the robots' simulated IMU as the example.
+
 
 ### Multivariate Distribution
 

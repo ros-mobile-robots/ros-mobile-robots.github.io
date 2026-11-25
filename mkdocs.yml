@@ -285,6 +285,7 @@ nav:
     - theory/index.md
     # Hidden until written: Linear Algebra, Programming, Pinhole Camera Model, Recursive State Estimation
     - Preliminaries:
+      - Math Basics: theory/preliminaries/math-basics.md
       - Probability: theory/preliminaries/probability.md
     - Modeling and Control:
       - Introduction to Control Systems: theory/modeling-control/control-systems-introduction.md
