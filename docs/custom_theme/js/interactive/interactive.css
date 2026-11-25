@@ -86,7 +86,8 @@
 /* The example's answer while other values are set: its place stays */
 .ix .ix-shown-answer.ix-off { visibility: hidden; }
 .ix .ix-show { display: block; margin-top: .4em; }
-.ix .ix-stepper { display: flex; align-items: center; gap: .8em; margin: .5em 0 0; }
+.ix .ix-stepper { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .8em; margin: .5em 0 0; }
+.ix .ix-stepper .ix-reset { margin-left: auto; }
 .ix .ix-stepper button:disabled { opacity: .4; cursor: default; }
 .ix .ix-step-count { font-weight: 700; font-variant-numeric: tabular-nums; }
 

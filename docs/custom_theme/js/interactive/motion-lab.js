@@ -432,7 +432,10 @@ function mount(root) {
   for (const button of findAll('[data-command]')) {
     button.addEventListener('click', () => { selectCommand(button.dataset.command); redraw(); announce(); });
   }
-  find('.ix-reset').addEventListener('click', () => { resetSliders(); redraw(); announce(); });
+  // Reset: next to the examples and in the block of values
+  for (const button of findAll('.ix-reset')) {
+    button.addEventListener('click', () => { resetSliders(); redraw(); announce(); });
+  }
 
   // The guided examples, one at a time. An example opens with its question and its own drive,
   // with its one value changed, at the drive's start: the time slider and Play show the drive, and

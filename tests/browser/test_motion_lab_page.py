@@ -292,6 +292,15 @@ class TestMotionLabPage(unittest.TestCase):
                     self.assertEqual([top_of(page, place) for place in places], before,
                                      f'{slider.setting} {value}')
 
+    def test_reset_next_to_the_examples_sets_the_robots_own_values(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        default = str(getattr(figures.DEFAULT_SETTINGS, slider.setting))
+        page = self.open_live_figure().page
+        # The first example opens with its configured wheel radius changed
+        self.assertNotEqual(page.input_value(f'#{slider.element_id}'), default)
+        page.click(f'{FIGURE} .ix-stepper .ix-reset')
+        self.assertEqual(page.input_value(f'#{slider.element_id}'), default)
+
     def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
         # With reduced motion, the changed drive and its answer show at once
         page = self.open_live_figure(reduced_motion='reduce').page

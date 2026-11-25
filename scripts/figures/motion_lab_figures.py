@@ -1155,7 +1155,9 @@ def steps_html() -> str:
         f' of {robot}. Guess the answer first.</p>',
         '<div class="ix-stepper" data-live hidden><button type="button"'
         ' class="ix-previous">Previous</button><span class="ix-step-count"'
-        ' aria-live="polite"></span><button type="button" class="ix-next">Next</button></div>',
+        ' aria-live="polite"></span><button type="button" class="ix-next">Next</button><button'
+        ' type="button" class="ix-reset" title="Back to the robot\'s own values">Reset'
+        ' values</button></div>',
         f'<ol class="ix-examples">{"".join(example_item_html(e) for e in EXAMPLES)}</ol>',
         '</div>',
     ])
