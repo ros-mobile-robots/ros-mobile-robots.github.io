@@ -11,6 +11,8 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const MILLISECONDS_PER_SECOND = 1000;
 // Screen readers hear the result once a change is complete: this long after the last change
 const ANNOUNCE_DELAY_MS = 400;
+// Two taps on a slider within this time reset it: touch screens send no double click
+const DOUBLE_TAP_MS = 350;
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -421,10 +423,19 @@ function mount(root) {
     update();
     showResults();
   }
+  // A double click, or on a touch screen a double tap, sets one slider back to the robot's value
+  let lastTap = { input: null, time: 0 };
   for (const [name, input] of Object.entries(sliders)) {
+    const resetOne = () => { input.value = defaults()[name]; redraw(); announce(); };
     input.addEventListener('input', redraw);
     input.addEventListener('change', announce);
-    input.addEventListener('dblclick', () => { input.value = defaults()[name]; redraw(); announce(); });
+    input.addEventListener('dblclick', resetOne);
+    input.addEventListener('pointerup', (event) => {
+      if (event.pointerType === 'mouse') return;
+      const second = lastTap.input === input && event.timeStamp - lastTap.time < DOUBLE_TAP_MS;
+      lastTap = second ? { input: null, time: 0 } : { input, time: event.timeStamp };
+      if (second) resetOne();
+    });
   }
   find('.ix-robot-select').addEventListener('change', (event) => {
     selectRobot(event.target.value); resetSliders(); redraw(); announce();

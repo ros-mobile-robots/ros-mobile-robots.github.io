@@ -1243,7 +1243,7 @@ def settings_html() -> str:
         '<p class="ix-group">What if</p>',
         *(slider_html(slider) for slider in WHAT_IF_SLIDERS),
         '<div><button type="button" class="ix-reset">Reset to the robot\'s values</button>'
-        ' <small>Double-click a slider to reset only that one.</small></div>',
+        ' <small>Double-click or double-tap a slider to reset only that one.</small></div>',
         '</div>',
         '</details>',
     ])

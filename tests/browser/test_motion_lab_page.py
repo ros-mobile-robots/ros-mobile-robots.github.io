@@ -301,6 +301,21 @@ class TestMotionLabPage(unittest.TestCase):
         page.click(f'{FIGURE} .ix-stepper .ix-reset')
         self.assertEqual(page.input_value(f'#{slider.element_id}'), default)
 
+    def test_a_double_tap_sets_one_slider_back_to_the_robots_value(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure(**PHONE).page
+        page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
+        page.locator(f'#{slider.element_id}').scroll_into_view_if_needed()
+        box = page.locator(f'#{slider.element_id}').bounding_box()
+        if box is None:
+            raise AssertionError('the slider has no box')
+        # Tap at a fifth of the slider: the first tap moves the value there, the second resets it
+        x, y = box['x'] + box['width'] / 5, box['y'] + box['height'] / 2
+        page.touchscreen.tap(x, y)
+        page.touchscreen.tap(x, y)
+        self.assertEqual(page.input_value(f'#{slider.element_id}'),
+                         str(getattr(figures.DEFAULT_SETTINGS, slider.setting)))
+
     def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
         # With reduced motion, the changed drive and its answer show at once
         page = self.open_live_figure(reduced_motion='reduce').page
