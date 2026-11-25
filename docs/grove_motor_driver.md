@@ -43,6 +43,9 @@ Two things matter for this connection: the voltage of the two signals and a comm
 - **Signal voltage:** The motor driver's I2C bus works with 5 V ([Seeed's specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications)). The Raspberry Pi's GPIO pins work with 3.3 V and aren't 5 V tolerant ([Raspberry Pi's documentation of the 40-pin GPIO header](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)). So the data line SDA and the clock line SCL go through a bidirectional I2C level shifter, for example [Adafruit's BSS138 level converter](https://www.adafruit.com/product/757). The level shifter connects the 3.3 V signals on its low side with the 5 V signals on its high side.
 - **Common ground:** Each board measures the voltages on SDA and SCL against its own ground. On DiffBot, the two boards have separate supplies: a power bank for the Raspberry Pi and four AA batteries for the motor driver ([Power Supply](power-supply.md)). So the grounds of the Raspberry Pi, the level shifter and the motor driver have to be connected.
 
+!!! warning "Not tested on a DiffBot yet"
+    The wiring below follows the specifications of the two boards. It isn't tested on a DiffBot yet.
+
 Switch off both supplies before you connect the wires: shut down the Raspberry Pi and unplug its power bank, and take the batteries out of the motor driver's holder.
 With Adafruit's converter as the example, each row is one wire. The pins of the Raspberry Pi are those of its 40-pin header ([I2C pinout](https://pinout.xyz/pinout/i2c)), and the level shifter's pins are named as printed on its board:
 
@@ -75,8 +78,6 @@ So change the batteries in this order:
 2. Unplug the Raspberry Pi's power bank. After a shutdown, the Raspberry Pi keeps power on its header while the power bank is plugged in ([Raspberry Pi's bootloader documentation, `POWER_OFF_ON_HALT`](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#POWER_OFF_ON_HALT)).
 3. Replace all four batteries.
 4. Plug the power bank in again, which starts the Raspberry Pi.
-
-This wiring follows the specifications of the two boards. It isn't tested on a DiffBot yet.
 
 Make sure to set the address with the dip switches on the motor driver to `0x0f` because this is the default address used
 in the library files.
