@@ -139,7 +139,7 @@ Smoke test passed
 
 For a pull request, the run ends after the smoke tests. The result is the workflow's check, passed or failed, and the image is deleted with the runner. Nothing is published, because a pull request's code isn't reviewed yet.
 
-After a change is merged into `noetic-devel`, each run of the job `build` also saves the image that it tested, as an archive. A third job, `publish`, then copies both archives to the registry and combines them under one name. The job doesn't build the image again. So the published image is the very image that passed the smoke test, not a second build that could differ from it. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version `noetic-<commit>` is published once and never replaced, and `noetic` only moves to a later commit ([Versions](versions.md#versions)).
+After a change is merged into `noetic-devel`, each run of the job `build` also saves the image that it tested, as an archive. A third job, `publish`, then copies the image of each archive to the registry and combines the two images under one name. The job doesn't build the image again. So the published image is the very image that passed the smoke test, not a second build that could differ from it. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version `noetic-<commit>` is published once and never replaced, and `noetic` only moves to a later commit ([Versions](versions.md#versions)).
 
 The Code Walkthrough goes through the code of the publication:
 

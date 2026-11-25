@@ -4,7 +4,7 @@ This page walks through the code of the [robot container](index.md), file by fil
 
 The sections follow a reading order. The Dockerfile comes first, because the Dockerfile defines what the robot's Docker image contains. Then come the entrypoint script, `compose.yaml` and the udev rules, and last the workflow that builds, tests and publishes the image. The files act in another order, which the figure below shows.
 
-All files are in the diffbot repository, in the folder [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot), except the workflow. The excerpts on this page show these files at one commit of the repository.
+All files are in the diffbot repository. Most of them are in the folder [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot). The workflow is in `.github/workflows`, and `remo_robot.repos` and `.dockerignore` are in the repository's root folder. The excerpts on this page show these files at one commit of the repository.
 
 ## From a change to the running robot
 
@@ -33,18 +33,26 @@ graph TB
   linkStyle 3 stroke-width:0px
 ```
 
-The start downloads the image only if the Raspberry Pi has none yet. An update to a newer image takes one more command ([The newest version](versions.md#the-newest-version)).
+The start downloads the image only if the Raspberry Pi has none yet. An update to a newer image takes one more command ([Update to the newest version](versions.md#update-to-the-newest-version)).
 
 The same steps as a table, with the section that explains each file:
 
 | File | When and where the file acts | What the file does |
 |:--|:--|:--|
 | [`Dockerfile`](#the-dockerfile) | For every change of the image or its packages, on GitHub's runners. For your own build, on the Raspberry Pi | Builds the Docker image: ROS Noetic, the robot's packages, the user `ros` |
-| `smoke_test.sh` | After each build, in a container of the new image | Tests the image without hardware ([How it's tested](image.md#how-its-tested)) |
+| [`smoke_test.sh`](image.md#how-its-tested) | After each build, in a container of the new image | Tests the image without hardware |
 | [`publish_image.sh`](#the-script-that-publishes) | On `noetic-devel`, after a merge or a start by hand, if both tests passed, on GitHub's runner | Publishes the arm64 and the amd64 image under one name |
 | [`99-diffbot-robot.rules`](#the-udev-rules) | When a device is plugged in, on the Raspberry Pi, outside the containers | Gives the Teensy and the lidar fixed names |
 | [`compose.yaml`](#composeyaml) | At each `docker compose` command, on the Raspberry Pi | Describes the two containers: image, devices, mounted folder, settings |
 | [`entrypoint.sh`](#the-entrypoint-script) | When a container starts, inside the container | Loads ROS and the workspace, then runs the container's command |
+
+Three more files take part. Each one is explained where the code uses the file:
+
+| File | When and where the file acts | Where the file is explained |
+|:--|:--|:--|
+| `remo_robot.repos` | During each build of the image, when vcstool fetches the other repositories | [Fetch the other repositories](#fetch-the-other-repositories) |
+| `test_publish_image.sh` | Before each build, on GitHub's runners | [The script's tests](image.md#the-scripts-tests) on Image and Tests |
+| `compose.build.yaml` | For your own build, on the Raspberry Pi | [On the Raspberry Pi](versions.md#on-the-raspberry-pi) on Versions and Your Own Build |
 
 ## The Dockerfile
 
@@ -99,7 +107,7 @@ One build argument names the packages to build. Three later steps use this argum
 ```
 
 - **`ARG PACKAGES`** (line 60): the packages that the bringup and the lidar need, for both robots. The steps below pass the list to rosdep and to catkin. Gazebo, navigation and SLAM aren't in the list: they run on the PC.
-- **`ENV DIFFBOT_PACKAGES`** (line 61): the same list as an environment variable in the finished image. `ARG` values are gone after the build, and the smoke test, [`smoke_test.sh`]({{ robot_container_src_url }}/.docker/robot/smoke_test.sh), reads this variable to check that each package is found.
+- **`ENV DIFFBOT_PACKAGES`** (line 61): the same list as an environment variable in the finished image. `ARG` values are gone after the build, and the smoke test, [`smoke_test.sh`]({{ robot_container_src_url }}/.docker/robot/smoke_test.sh#L13), reads this variable to check that each package is found.
 
 ### Fetch the other repositories
 
@@ -110,7 +118,7 @@ Two packages of the list aren't in the diffbot repository: Remo's model `remo_de
 ```
 
 - **`USER` and `WORKDIR`** (lines 67–68): the following steps run as the user `ros`, in the workspace folder `/home/ros/catkin_ws`.
-- **`COPY … remo_robot.repos`** (line 69): copies only the list of repositories, [`remo_robot.repos`]({{ robot_container_src_url }}/remo_robot.repos), into the image. The list names the lidar driver by one commit and Remo's model by a release tag ([The same inputs for both builds](image.md#the-same-inputs-for-both-builds)). So a change of the code doesn't rebuild this layer. The layer is rebuilt when the list changes, or when a step before this one changes.
+- **`COPY … remo_robot.repos`** (line 69): copies only the list of repositories, [`remo_robot.repos`]({{ robot_container_src_url }}/remo_robot.repos), into the image. So a change of the code doesn't rebuild this layer. The layer is rebuilt when the list changes, or when a step before this one changes. The list names the lidar driver by one commit and Remo's model by a release tag ([The same inputs for both builds](image.md#the-same-inputs-for-both-builds)).
 - **`vcs import`** (line 70): clones each repository of the list. The paths in the list start with `src/`, so the repositories land in `src`.
 
 ### Install the dependencies
@@ -159,7 +167,7 @@ The last lines set what a container of the image does when the container starts.
 
 - **`ENV PYTHONUNBUFFERED` and `ROSCONSOLE_STDOUT_LINE_BUFFERED`** (lines 93–94): make Python and ROS write each line of output at once. Without a terminal, Python and ROS would collect the output first, and `docker compose logs` would show the output late.
 - **`ENTRYPOINT`** (lines 97–98): the program that Docker starts in every container of the image. Here the program is the script `/entrypoint.sh`.
-- **`CMD`** (line 100): the default command. Docker passes this command to the entrypoint script as the script's arguments. `compose.yaml` replaces the default with a command of its own for each container.
+- **`CMD`** (line 100): the default command. Docker passes this command to the entrypoint script as the script's arguments. [`compose.yaml`](#the-two-services) replaces the default with a command of its own for each container.
 
 ## The entrypoint script
 
@@ -187,8 +195,8 @@ graph TB
   E2 -->|exec| RT
 ```
 
-- **When a container starts:** Docker runs the script and passes the container's command as the script's arguments. The command is the service's `command` line in `compose.yaml`, for example `roslaunch diffbot_bringup bringup.launch model:=remo`.
-- **When a command names the script:** `docker compose exec` adds one more process to a running container. Docker doesn't run the `ENTRYPOINT` for such a process. So the command line names the script itself, in front of the ROS command ([On the robot alone](usage.md#on-the-robot-alone)).
+- **When a container starts:** Docker runs the script and passes the container's command as the script's arguments. The command is the service's `command` line in [`compose.yaml`](#the-two-services), for example `roslaunch diffbot_bringup bringup.launch model:=remo`.
+- **When a command names the script:** `docker compose exec` adds one more process to a running container. Docker doesn't run the [`ENTRYPOINT`](#what-a-container-runs) for such a process. So the command line names the script itself, in front of the ROS command ([On the robot alone](usage.md#on-the-robot-alone)).
 
 ### The script, line by line
 
@@ -199,7 +207,7 @@ The whole script has 17 lines. The script changes the environment, loads ROS in 
 ```
 
 - **`set -e`** (line 4): the script stops at the first command that fails, for example when a file to load is missing.
-- **`[ -n "$ROS_IP" ] || unset ROS_IP`** (lines 8–9): the two lines check `ROS_IP` and `ROS_HOSTNAME` separately. Each line unsets its variable if the value is empty. That happens with a line such as `ROS_IP=` in `.env`. The comment above the two lines gives the reason: ROS reads these variables also when they are empty, and ROS's C++ nodes reject an empty one.
+- **`[ -n "$ROS_IP" ] || unset ROS_IP`** (lines 8–9): the two lines check `ROS_IP` and `ROS_HOSTNAME` separately. Each line unsets its variable if the value is empty. That happens with a line such as `ROS_IP=` in [`.env`](setup.md#when-compose-reads-env). The comment above the two lines gives the reason: ROS reads these variables also when they are empty, and ROS's C++ nodes reject an empty one.
 - **`source /opt/ros/noetic/setup.bash`** (line 11): loads the ROS installation. Afterwards the shell finds ROS's programs, such as `roslaunch` and `rostopic`, and `ROS_MASTER_URI` has its default, `http://localhost:11311`, if nothing has set the variable.
 - **`source "$HOME/catkin_ws/devel/setup.bash"`** (line 12): adds the workspace on top, so that ROS finds the robot's packages that the Dockerfile built ([Build the workspace](#build-the-workspace)).
 - **`exec "$@"`** (line 17): `"$@"` stands for all arguments of the script, which are the command to run. `exec` runs that command in place of the script, in the same process. So the script leaves no shell behind: roslaunch becomes the container's main process. When Docker stops the container, roslaunch gets the stop signal itself and can shut its nodes down.
@@ -320,7 +328,7 @@ What follows from the rules:
 
 ### The jobs
 
-The figure shows the workflow's jobs. The job `build` runs twice at the same time, once for each processor architecture. The job `publish` runs after both, and only on `noetic-devel`.
+The figure shows the workflow's jobs. The job [`build`](#the-job-build) runs twice at the same time, once for each processor architecture. The job [`publish`](#the-job-publish) runs after both, and only on `noetic-devel`.
 
 ```mermaid
 graph TB
@@ -359,8 +367,8 @@ Two short blocks set the rights and the shell for all jobs. A comment between th
 --8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:47:59"
 ```
 
-- **`permissions`** (lines 48–49): the jobs may only read the repository. The job `publish` asks for one more right of its own.
-- **The comment in lines 51–54:** each action is named by the full commit of one of its releases ([The job `publish`](#the-job-publish) explains why).
+- **`permissions`** (lines 48–49): the jobs may only read the repository. The job [`publish`](#the-job-publish) asks for one more right of its own.
+- **The comment in lines 51–54:** each action is named by the full commit of one of its releases. The list of the job `publish` explains why, at `uses`.
 - **`defaults`** (lines 56–59): each `run` step uses bash. The comment in line 58 gives the reason: with bash, GitHub also fails a step when a command in the middle of a pipe fails.
 
 ### The job `build`
@@ -382,9 +390,9 @@ The job's steps come next: three checks, the build and two tests. The three chec
 ```
 
 - **`actions/checkout`** (line 74): fetches the repository's files onto the runner.
-- **`Check the settings template`** (lines 76–77): `docker compose … config --quiet` reads `compose.yaml` with the settings of `env.example`. The step fails if the template doesn't give a valid configuration.
+- **`Check the settings template`** (lines 76–77): `docker compose … config --quiet` reads [`compose.yaml`](#composeyaml) with the settings of [`env.example`](setup.md#9-settings). The step fails if the template doesn't give a valid configuration.
 - **`Check the name of a local build`** (lines 83–95): sets `ROBOT_IMAGE` to the published image's name. The function `built_images` asks Compose for the configuration as JSON, with every service switched on (`--profile '*'`), and lists the names that a build could give an image: the `image` of each service with a `build` section, and the `tags` of that section. The four `test` lines require that `compose.yaml` alone builds nothing, and that `compose.build.yaml`, alone or combined with `compose.yaml` in either order, builds only `diffbot-robot:local`. So a build of your own can't get the published image's name ([On the Raspberry Pi](versions.md#on-the-raspberry-pi)).
-- **`Test the publish script`** (lines 98–99): runs `test_publish_image.sh`, which tests the script `publish_image.sh` without a registry ([The script's tests](image.md#the-scripts-tests)).
+- **`Test the publish script`** (lines 98–99): runs `test_publish_image.sh`, which tests the script [`publish_image.sh`](#the-script-that-publishes) without a registry ([The script's tests](image.md#the-scripts-tests)).
 
 Then the job builds the image and tests the image twice.
 
@@ -393,10 +401,10 @@ Then the job builds the image and tests the image twice.
 ```
 
 - **`Build the robot image`** (lines 101–104): `docker build` with the [Dockerfile](#the-dockerfile). `--label` writes the commit, `github.sha`, into the image as the label `org.opencontainers.image.revision`.
-- **`Smoke test, without hardware`** (lines 105–109): starts a container of the new image and runs `smoke_test.sh` in the container. `-v` mounts the script into the container, read-only.
+- **`Smoke test, without hardware`** (lines 105–109): starts a container of the new image and runs [`smoke_test.sh`](image.md#how-its-tested) in the container. `-v` mounts the script into the container, read-only.
 - **`Smoke test through Docker Compose`** (lines 114–124): runs the same script through `compose.yaml`, so with the mounted folder and the group of the real setup. `TEENSY_DEVICE: /dev/null` stands in for the Teensy. `ROBOT_IMAGE` and `--pull never` make Compose use the image that was just built. The last line, `ls "$ROBOT_DATA/log"`, lists the log folder inside the mounted folder. The step fails if that folder is missing or can't be listed.
 
-The job's last two steps hand the tested image to the job `publish`, which runs on another runner.
+The job's last two steps hand the tested image to the job [`publish`](#the-job-publish), which runs on another runner.
 
 ```yaml title="robot_container.yml" linenums="125"
 --8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:125:145"
@@ -414,15 +422,15 @@ The job `publish` brings both tested images into the registry.
 --8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:147:184"
 ```
 
-- **`needs: build`** (line 151): the job starts after both runs of `build` succeeded.
+- **`needs: build`** (line 151): the job starts after both runs of [`build`](#the-job-build) succeeded.
 - **`if`** (lines 152–155): the same condition as for saving the images. So nothing is published for a pull request.
 - **`permissions`** (lines 157–159): `packages: write` lets this job, and only this job, write to the registry.
 - **`concurrency`** (lines 162–164): one publication runs at a time, and later ones wait for their turn.
-- **`uses`** (lines 167, 170 and 174): each action is named by the full commit of one of its releases, with the release in the comment. A commit can't be moved to other code later, as a tag such as `v4` can. That matters here, because these actions run in the job that may write packages.
+- **`uses`** (lines 167, 170 and 174): each action is named by the full commit of one of its releases, with the release in the comment. A commit can't be moved to other code later, as a tag such as `v7` can. That matters here, because these actions run in the job that may write packages.
 - **`actions/checkout` with `fetch-depth: 0`** (lines 167–169): fetches the whole history. The script needs the history to tell whether one commit comes after another.
 - **`actions/download-artifact`** (lines 170–173): fetches both archives of the job `build`.
 - **`docker/login-action`** (lines 174–178): logs in to the registry `ghcr.io` with the job's own token.
-- **`Publish the tested images`** (lines 179–184): runs `publish_image.sh` with the image's name, the commit and the folder of the archives. `FIRST_PUBLICATION` carries the input of the start by hand.
+- **`Publish the tested images`** (lines 179–184): runs [`publish_image.sh`](#the-script-that-publishes) with the image's name, the commit and the folder of the archives. `FIRST_PUBLICATION` carries the input of the start by hand.
 
 ### The script that publishes
 
@@ -443,10 +451,10 @@ The first lines after the comment set the names that the rest of the script uses
 ```
 
 - **`set -euo pipefail`** (line 14): the script stops at the first command that fails, also inside a pipe, and at a variable that isn't set.
-- **`image`, `commit`, `archives`** (line 16): the script's three arguments, as the workflow passes them: the image's name in the registry, the commit, and the folder with the two archives.
+- **`image`, `commit`, `archives`** (line 16): the script's three arguments, as the job [`publish`](#the-job-publish) passes them: the image's name in the registry, the commit, and the folder with the two archives.
 - **`version`** (line 17): the version's full name, the image's name followed by `:noetic-` and the commit.
 - **`revision` and `description`** (lines 18–19): the name of the label that holds the commit, and the image's description. The script writes both into the published version as annotations.
-- **`copy_options` and `read_options`** (lines 24–29): the options for [skopeo](https://github.com/containers/skopeo), the tool that copies an image from an archive into the registry and asks the registry whether a name exists. `copy_options` are for `skopeo copy`, `read_options` for the reads. `--format oci` makes skopeo write the image in the OCI format. The comment in lines 21–23 gives the reason: only then can the combined version carry annotations. Lines 26–29 add an option for a local test registry to each list.
+- **`copy_options` and `read_options`** (lines 24–29): the options for [skopeo](https://github.com/containers/skopeo), the tool that copies an image from an archive into the registry and asks the registry whether a name exists. `copy_options` are for `skopeo copy`, `read_options` for the reads. `--format oci` makes skopeo write the image in the OCI format. The comment in lines 21–23 gives the reason: only then can the combined version carry annotations. If `INSECURE_REGISTRY` is `true`, lines 26–29 add an option to each list that switches off the check of the registry's TLS certificate. That setting is for a local test registry.
 - **`auth_file`** (lines 30–34): the file with the login for the registry, which the workflow's step `docker/login-action` wrote. The script passes the file to skopeo, for the copies and for the reads, if the file exists.
 
 Before the script writes the version or `noetic`, the script asks the registry about both names. For each name, the function `state` gives one of three answers:
@@ -483,7 +491,7 @@ Then the script asks about the two names and decides from the two answers togeth
 The script follows three rules:
 
 1. **Both names are `present` or `missing`:** the script publishes. The script writes a name that is missing. A version that is present is checked and reused, never written again. A `noetic` that is present moves only to a later commit.
-2. **One of the two names is `unreadable`:** the script stops and writes nothing (`fail`, lines 153–155).
+2. **One of the two names is `unreadable`:** the script stops and writes nothing ([`fail`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh#L86-L89), lines 153–155).
 3. **Both names are `unreadable`, in a run for the first publication:** the script copies one image under a name of its own and asks about both names again (lines 144–152). The version and `noetic` are still written only by rule 1.
 
 The first publication is the one exception to "stops". The package doesn't exist yet then, and the registry may deny the read or say that the registry doesn't know the repository. A run for this case is one that a maintainer starts by hand, in the repository's Actions tab, with the box **First publication** ticked (`FIRST_PUBLICATION=true`). If both names are `unreadable` in such a run, the script creates the package: the script checks the amd64 archive, copies the archive's image under the name `first-publication`, which nothing else uses, and asks about both names again. If the two answers still aren't `present` or `missing`, the script stops. So an image can be in the registry under `first-publication` although the run failed later, for example at the check of the arm64 archive. The version and `noetic` are not written in that case.
@@ -495,10 +503,10 @@ Then the script publishes the version, unless the version exists already.
 ```
 
 - **`version_state`** (lines 158–159): a version that exists is reused, unchanged.
-- **`check_archive`** (lines 162–163): each archive has to hold the image for its architecture, built from this commit. The script checks both archives before it copies either.
-- **`skopeo copy`** (lines 166–170): copies each archive's image to the registry, under the name of its architecture, and notes the image's digest. A digest is a checksum of an image's content, `sha256:` followed by 64 characters, and names exactly that content ([One fixed version](versions.md#one-fixed-version)).
+- **[`check_archive`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh#L128-L135)** (lines 162–163): each archive has to hold the image for its architecture, built from this commit. The script checks both archives before it copies either.
+- **`skopeo copy`** (lines 166–170): copies each archive's image to the registry, under the name of its architecture, and notes the image's digest, `sha256:` followed by 64 characters. The next command names each image by this digest ([Run one fixed version](versions.md#run-one-fixed-version) explains digests).
 - **`docker buildx imagetools create`** (lines 171–174): combines the two images under the version's name, with the description and the commit as annotations.
-- **`check_version`** (line 176): reads the version back from the registry. The version has to be for this commit and hold exactly one image for each architecture, each built from this commit.
+- **[`check_version`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh#L104-L125)** (line 176): reads the version back from the registry. The version has to be for this commit and hold exactly one image for each architecture, each built from this commit.
 - **`index`** (line 177): the digest of the version, for the next step.
 
 Last, the script moves `noetic` to the version, but only forward.
