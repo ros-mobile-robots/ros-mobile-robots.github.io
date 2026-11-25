@@ -1,17 +1,24 @@
 // "Three views of one drive": the interactive figure on the Simulation Test page.
-// The markup, its texts and its numbers (robots, commands, checks, examples) come from
-// includes/motion-lab.html, which scripts/figures/motion_lab.py writes. This file adds the
-// behavior. The figure shows its static version until the first drawing here has succeeded.
+// The markup, its texts and its numbers (robots, commands, the checks with their texts, the
+// examples and the drawing's sizes) come from includes/motion-lab.html, which
+// scripts/figures/motion_lab_figures.py writes. This file adds the behavior. The figure shows its
+// static version until the first drawing here has succeeded. The drawing's functions follow the
+// script's functions that draw the static version: scaleFor() is drawing_scale(), drawGrid() is
+// grid_lines(), drawRobotOutline() is robot_outline(), and so on.
 import { threeViews, relativePose, predictChecks } from './diffdrive.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const SAMPLES = 150;  // Poses per drive, for the paths
+const MILLISECONDS_PER_SECOND = 1000;
+// Screen readers hear the result once a change is complete: this long after the last change
+const ANNOUNCE_DELAY_MS = 400;
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-const fixed = (value, digits = 3) => {
+
+/** A value with `digits` decimals and a true minus sign. A value that rounds to 0 shows as 0. */
+function fixed(value, digits = 3) {
   const rounded = Math.abs(value) < 0.5 * 10 ** -digits ? 0 : value;
   return rounded.toFixed(digits).replace('-', '−');
-};
+}
 
 function svgElement(name, attributes = {}, text) {
   const element = document.createElementNS(SVG_NS, name);
@@ -20,223 +27,287 @@ function svgElement(name, attributes = {}, text) {
   return element;
 }
 
+// --- Drawing ---------------------------------------------------------------------------------
+// The drawing is in screen pixels: the figure draws it again when its width changes, so lines and
+// symbols keep their size on a phone. `sizes` are the drawing's sizes from the include's data:
+// lengths on the ground in m, on the screen in px.
+
+/** The point (m) on the ground of a point given in the frame of a robot at a pose. */
+function onRobot(pose, forward, left) {
+  const cos = Math.cos(pose.theta), sin = Math.sin(pose.theta);
+  return { x: pose.x + forward * cos - left * sin, y: pose.y + forward * sin + left * cos };
+}
+
+/**
+ * How far (m) the drawing reaches beyond the paths' poses: the wheels' outer edges of both
+ * outlines, the robot's arrow, the command's line and base_footprint behind the axle, with the
+ * margin.
+ */
+function reachAround(inputs, sizes) {
+  const outerEdge = Math.max(...[inputs.wheels, inputs.configured].map(
+    (wheels) => wheels.separation / 2 + wheels.wheelWidth / 2));
+  const front = Math.max(inputs.wheels.radius, sizes.nose + sizes.headLength, sizes.commandHeading,
+    inputs.frameOffset);
+  return Math.max(outerEdge, front) + sizes.margin;
+}
+
+/**
+ * The scale that fits every pose of the samples into a drawing of this width, with the reach.
+ * The ground's x axis (the robot's forward at the start) points to the right, its y axis up.
+ */
+function scaleFor(width, samples, reach, sizes) {
+  const poses = samples.flatMap((sample) => [sample.command, sample.odometry, sample.axle, sample.frame]);
+  const xs = poses.map((pose) => pose.x), ys = poses.map((pose) => pose.y);
+  const left = Math.min(...xs) - reach, right = Math.max(...xs) + reach;
+  const bottom = Math.min(...ys) - reach, top = Math.max(...ys) + reach;
+  const height = Math.round(width * sizes.aspect);
+  const pixelsPerMetre = Math.min((width - 2 * sizes.paddingPx) / (right - left),
+    (height - 2 * sizes.paddingPx) / (top - bottom));
+  const centerX = (left + right) / 2, centerY = (bottom + top) / 2;
+  const toPixels = ({ x, y }) => [width / 2 + (x - centerX) * pixelsPerMetre, height / 2 - (y - centerY) * pixelsPerMetre];
+  return { width, height, centerX, centerY, pixelsPerMetre, toPixels };
+}
+
+/** The grid's spacing (m): the smallest step whose lines lie far enough apart. */
+function gridStep(scale, sizes) {
+  return sizes.gridSteps.find((step) => step * scale.pixelsPerMetre >= sizes.gridSpacingPx)
+    ?? sizes.gridSteps.at(-1);
+}
+
+/** The grid: lines at the multiples of the step across the whole drawing. */
+function drawGrid(scale, step) {
+  const grid = svgElement('g', { class: 'ix-grid' });
+  const halfWidth = scale.width / 2 / scale.pixelsPerMetre, halfHeight = scale.height / 2 / scale.pixelsPerMetre;
+  for (let index = Math.ceil((scale.centerX - halfWidth) / step); index * step < scale.centerX + halfWidth; index++) {
+    const [x] = scale.toPixels({ x: index * step, y: 0 });
+    grid.append(svgElement('line', { x1: x, y1: 0, x2: x, y2: scale.height }));
+  }
+  for (let index = Math.ceil((scale.centerY - halfHeight) / step); index * step < scale.centerY + halfHeight; index++) {
+    const [, y] = scale.toPixels({ x: 0, y: index * step });
+    grid.append(svgElement('line', { x1: 0, y1: y, x2: scale.width, y2: y }));
+  }
+  return grid;
+}
+
+const pointsAttribute = (points) => points.map((point) => point.map((value) => value.toFixed(1)).join(',')).join(' ');
+
+/** A view's path through its poses, or null before the path has two poses. */
+function drawPath(scale, poses, cssClass) {
+  if (poses.length < 2) return null;
+  return svgElement('polyline', { class: `ix-path ${cssClass}`, points: pointsAttribute(poses.map(scale.toPixels)) });
+}
+
+/** A robot from above at a pose of its axle's midpoint: two wheels, the axle and an arrow to its front. */
+function drawRobotOutline(scale, pose, wheels, cssClass, title, sizes) {
+  const at = (forward, left) => scale.toPixels(onRobot(pose, forward, left));
+  const group = svgElement('g', { class: `ix-robot ${cssClass}` });
+  group.append(svgElement('title', {}, title));
+  for (const side of [1, -1]) {
+    const middle = side * wheels.separation / 2, halfWidth = wheels.wheelWidth / 2;
+    const corners = [at(wheels.radius, middle + halfWidth), at(wheels.radius, middle - halfWidth),
+      at(-wheels.radius, middle - halfWidth), at(-wheels.radius, middle + halfWidth)];
+    group.append(svgElement('polygon', { class: 'ix-wheel', points: pointsAttribute(corners) }));
+  }
+  const [leftX, leftY] = at(0, wheels.separation / 2), [rightX, rightY] = at(0, -wheels.separation / 2);
+  group.append(svgElement('line', { x1: leftX, y1: leftY, x2: rightX, y2: rightY }));
+  const [axleX, axleY] = at(0, 0), [noseX, noseY] = at(sizes.nose, 0);
+  group.append(svgElement('line', { x1: axleX, y1: axleY, x2: noseX, y2: noseY }));
+  const head = [at(sizes.nose + sizes.headLength, 0), at(sizes.nose, sizes.headHalfWidth), at(sizes.nose, -sizes.headHalfWidth)];
+  group.append(svgElement('polygon', { class: 'ix-head', points: pointsAttribute(head) }));
+  return group;
+}
+
+/** The model's markers: a dot at base_footprint, and with an offset the axle's midpoint joined to it. */
+function drawTruePoseMarkers(group, scale, axle, frameOffset, sizes) {
+  const [frameX, frameY] = scale.toPixels(onRobot(axle, -frameOffset, 0));
+  if (frameOffset > 0) {
+    const [axleX, axleY] = scale.toPixels(axle);
+    group.append(svgElement('line', { class: 'ix-link', x1: axleX, y1: axleY, x2: frameX, y2: frameY }));
+    const axleDot = svgElement('circle', { class: 'ix-dot ix-axle', cx: axleX, cy: axleY, r: sizes.axleDotRadiusPx });
+    axleDot.append(svgElement('title', {}, 'The axle’s midpoint'));
+    group.append(axleDot);
+  }
+  const frameDot = svgElement('circle', { class: 'ix-dot', cx: frameX, cy: frameY, r: sizes.dotRadiusPx });
+  frameDot.append(svgElement('title', {}, 'base_footprint, true'));
+  group.append(frameDot);
+}
+
+/** The odometry's marker: a ring at its base_footprint. */
+function drawOdometryMarker(group, scale, pose, sizes) {
+  const [x, y] = scale.toPixels(pose);
+  group.append(svgElement('circle', { class: 'ix-ring', cx: x, cy: y, r: sizes.ringRadiusPx }));
+}
+
+/** The command's end: a cross where the command alone puts the robot, with a line in its heading. */
+function drawCommandMarker(scale, pose, sizes) {
+  const [crossX, crossY] = scale.toPixels(pose);
+  const [headingX, headingY] = scale.toPixels(onRobot(pose, sizes.commandHeading, 0));
+  const half = sizes.crossHalfPx;
+  const group = svgElement('g', { class: 'ix-robot ix-command' });
+  group.append(svgElement('title', {}, 'Command'));
+  group.append(svgElement('line', { x1: crossX, y1: crossY, x2: headingX, y2: headingY }));
+  group.append(svgElement('path', {
+    class: 'ix-cross', d: `M${crossX - half},${crossY - half} l${2 * half},${2 * half} m0,${-2 * half} l${-2 * half},${2 * half}`,
+  }));
+  return group;
+}
+
+// --- The figure ------------------------------------------------------------------------------
+
 function mount(root) {
   const data = JSON.parse(root.querySelector('.ix-data').textContent);
+  const sizes = data.drawing;
   const find = (selector) => root.querySelector(selector);
   const findAll = (selector) => [...root.querySelectorAll(selector)];
-  const plot = find('.ix-plot');
+  const plot = find('.ix-plot'), scrub = find('.ix-scrub');
   const sliders = Object.fromEntries(findAll('input[data-setting]').map((input) => [input.dataset.setting, input]));
   const state = { robot: data.default.robot, command: data.default.command, time: 1, step: 0 };
-  const revealed = new Set([data.default.example]);  // The examples whose answer is open
-  let frame = null, lastTick = 0, announceTimer = null, drive = null, svg = null;
+  const revealed = new Set([data.default.example]);  // The examples whose answer is shown
+  let animationRequest = null, lastTickTime = 0, announceTimer = null, drive = null, liveDrawing = null;
 
   // --- The model's inputs, from the controls -------------------------------------------------
   const setting = (name) => Number(sliders[name].value);
-  function inputs() {
-    const robot = data.robots[state.robot], command = data.commands[state.command];
+  /** The model's inputs in SI units, as model_inputs() in the script computes them. */
+  function readInputs() {
+    const robot = data.robots[state.robot];
     return {
-      robot, command,
-      configuredRadius: robot.radius * setting('radius') / 100,
-      configuredSeparation: robot.separation * setting('separation') / 100,
-      contactSeparation: robot.separation + robot.wheelWidth * setting('contact') / 100,
-      frameOffset: setting('offset') / 1000,
-      tracking: setting('tracking') / 100,
+      robot,
+      command: data.commands[state.command],
+      wheels: { radius: robot.radius, separation: robot.separation, wheelWidth: robot.wheelWidth },
+      configured: {
+        radius: robot.radius * setting('radius_percent') / 100,
+        separation: robot.separation * setting('separation_percent') / 100,
+        wheelWidth: robot.wheelWidth,
+      },
+      contactSeparation: robot.separation + robot.wheelWidth * setting('contact_percent') / 100,
+      frameOffset: setting('offset_mm') / 1000,
+      tracking: setting('tracking_percent') / 100,
     };
   }
 
-  function compute() {
-    const p = inputs();
+  /** The drive of the current controls: its inputs, its poses over time, its motions and checks. */
+  function computeDrive() {
+    const inputs = readInputs(), command = inputs.command;
     const views = threeViews({
-      v: p.command.v, w: p.command.w, radius: p.robot.radius, separation: p.robot.separation,
-      configuredRadius: p.configuredRadius, configuredSeparation: p.configuredSeparation,
-      contactSeparation: p.contactSeparation, frameOffset: p.frameOffset, tracking: p.tracking,
+      v: command.linearVelocity, w: command.angularVelocity,
+      radius: inputs.wheels.radius, separation: inputs.wheels.separation,
+      configuredRadius: inputs.configured.radius, configuredSeparation: inputs.configured.separation,
+      contactSeparation: inputs.contactSeparation, frameOffset: inputs.frameOffset, tracking: inputs.tracking,
     });
     const samples = [];
-    for (let i = 0; i <= SAMPLES; i++) samples.push(views.at(p.command.duration * i / SAMPLES));
-    const start = samples[0], end = samples[SAMPLES];
+    for (let index = 0; index <= sizes.samples; index++) samples.push(views.posesAt(command.duration * index / sizes.samples));
+    const start = samples[0], end = samples[sizes.samples];
     const motion = {
       command: relativePose(start.command, end.command),
       odometry: relativePose(start.odometry, end.odometry),
       model: relativePose(start.frame, end.frame),
     };
-    const checks = predictChecks(state.command, motion.odometry, motion.model, data.checks[state.command]);
-    return { p, samples, motion, checks };
+    const checks = predictChecks(data.checks[state.command], motion.odometry, motion.model);
+    return { kind: state.command, inputs, samples, motion, checks, reach: reachAround(inputs, sizes) };
   }
 
-  // --- Drawing -------------------------------------------------------------------------------
-  // The drawing is in screen pixels: it is drawn again when the figure's width changes, so
-  // lines and symbols keep their size on a phone.
-  function draw() {
-    const width = Math.max(240, Math.round(plot.clientWidth));
-    const height = Math.round(width * data.aspect);
-    const { p, samples } = drive;
-    const robot = p.robot, pad = 14;
-    const reach = Math.max(robot.separation / 2 + robot.wheelWidth, robot.radius + 0.06, p.frameOffset + 0.02) + 0.02;
-    const points = samples.flatMap((s) => [s.command, s.odometry, s.frame, s.axle]);
-    const xs = points.map((q) => q.x), ys = points.map((q) => q.y);
-    const xMin = Math.min(...xs) - reach, xMax = Math.max(...xs) + reach;
-    const yMin = Math.min(...ys) - reach, yMax = Math.max(...ys) + reach;
-    // The robot's x axis (forward) points to the right of the page, its y axis (left) up
-    const scale = Math.min((width - 2 * pad) / (xMax - xMin), (height - 2 * pad) / (yMax - yMin));
-    const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2;
-    const X = (x) => width / 2 + (x - cx) * scale, Y = (y) => height / 2 - (y - cy) * scale;
+  // --- The drawing, at the time that the play bar shows ---------------------------------------
+  function updateTimeLabel(time, duration) {
+    find('.ix-time').textContent = state.time >= 1
+      ? `t = ${duration.toFixed(1)} s, the end` : `t = ${time.toFixed(1)} s of ${duration.toFixed(1)} s`;
+    scrub.setAttribute('aria-valuetext', `${time.toFixed(1)} of ${duration.toFixed(1)} seconds`);
+  }
 
+  function draw() {
+    const { inputs, samples } = drive;
+    const scale = scaleFor(Math.max(sizes.minimumWidthPx, Math.round(plot.clientWidth)), samples, drive.reach, sizes);
+    const step = gridStep(scale, sizes);
+    const shownIndex = Math.round(state.time * sizes.samples);
+    const shownSamples = samples.slice(0, shownIndex + 1), shownSample = samples[shownIndex];
     const next = svgElement('svg', {
-      class: 'ix-live-plot', viewBox: `0 0 ${width} ${height}`, role: 'img',
+      class: 'ix-live-plot', viewBox: `0 0 ${scale.width} ${scale.height}`, role: 'img',
       'aria-label': find('.ix-static title').textContent, 'aria-describedby': find('.ix-summary').id,
     });
-
-    const gridStep = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5].find((step) => step * scale >= 22) || 1;
-    const grid = svgElement('g', { class: 'ix-grid' });
-    for (let x = Math.ceil((cx - width / 2 / scale) / gridStep) * gridStep; x < cx + width / 2 / scale; x += gridStep) {
-      grid.append(svgElement('line', { x1: X(x), y1: 0, x2: X(x), y2: height }));
+    next.append(drawGrid(scale, step));
+    const paths = [['frame', 'ix-model'], ['odometry', 'ix-odometry'], ['command', 'ix-command']];
+    if (inputs.frameOffset > 0) paths.unshift(['axle', 'ix-axle']);
+    for (const [view, cssClass] of paths) {
+      const path = drawPath(scale, shownSamples.map((sample) => sample[view]), cssClass);
+      if (path) next.append(path);
     }
-    for (let y = Math.ceil((cy - height / 2 / scale) / gridStep) * gridStep; y < cy + height / 2 / scale; y += gridStep) {
-      grid.append(svgElement('line', { x1: 0, y1: Y(y), x2: width, y2: Y(y) }));
-    }
-    next.append(grid);
-    find('.ix-gridnote').textContent = `Grid: ${Math.round(gridStep * 100)} cm`;
-
-    const index = Math.round(state.time * SAMPLES);
-    const shown = samples.slice(0, index + 1), now = samples[index];
-    const path = (key, cls) => {
-      if (shown.length < 2) return;
-      const d = shown.map((s) => `${X(s[key].x).toFixed(1)},${Y(s[key].y).toFixed(1)}`).join(' ');
-      next.append(svgElement('polyline', { class: cls, points: d }));
-    };
-    if (p.frameOffset > 0) path('axle', 'ix-path ix-axle');
-    path('frame', 'ix-path ix-model');
-    path('odometry', 'ix-path ix-odometry');
-    path('command', 'ix-path ix-command');
-
-    const outline = (pose, geometry, cls, title) => {
-      const c = Math.cos(pose.theta), s = Math.sin(pose.theta);
-      const at = (fx, fy) => [X(pose.x + fx * c - fy * s), Y(pose.y + fx * s + fy * c)];
-      const list = (pts) => pts.map((q) => q.map((n) => n.toFixed(1)).join(',')).join(' ');
-      const group = svgElement('g', { class: `ix-robot ${cls}` });
-      group.append(svgElement('title', {}, title));
-      for (const side of [1, -1]) {
-        const y = side * geometry.separation / 2, hx = geometry.radius, hy = geometry.wheelWidth / 2;
-        group.append(svgElement('polygon', { class: 'ix-wheel', points: list([at(hx, y + hy), at(hx, y - hy), at(-hx, y - hy), at(-hx, y + hy)]) }));
-      }
-      const [lx, ly] = at(0, geometry.separation / 2), [rx, ry] = at(0, -geometry.separation / 2);
-      group.append(svgElement('line', { x1: lx, y1: ly, x2: rx, y2: ry }));
-      const nose = 0.05, [ox, oy] = at(0, 0), [nx, ny] = at(nose, 0);
-      group.append(svgElement('line', { x1: ox, y1: oy, x2: nx, y2: ny }));
-      group.append(svgElement('polygon', { class: 'ix-head', points: list([at(nose + 0.012, 0), at(nose, 0.008), at(nose, -0.008)]) }));
-      return { group, at };
-    };
-    const own = { separation: robot.separation, radius: robot.radius, wheelWidth: robot.wheelWidth };
-    const configured = { separation: p.configuredSeparation, radius: p.configuredRadius, wheelWidth: robot.wheelWidth };
-
-    next.append(outline(samples[0].axle, own, 'ix-start', 'The robot at the start').group);
-
-    // The true pose of the model: the robot's own geometry at the axle's pose
-    const model = outline(now.axle, own, 'ix-model', 'True pose, in this figure’s model');
-    const [fx, fy] = model.at(-p.frameOffset, 0), [ax, ay] = model.at(0, 0);
-    if (p.frameOffset > 0) {
-      model.group.append(svgElement('line', { class: 'ix-link', x1: ax, y1: ay, x2: fx, y2: fy }));
-      const axleDot = svgElement('circle', { class: 'ix-dot ix-axle', cx: ax, cy: ay, r: 4 });
-      axleDot.append(svgElement('title', {}, 'The axle’s midpoint'));
-      model.group.append(axleDot);
-    }
-    const frameDot = svgElement('circle', { class: 'ix-dot', cx: fx, cy: fy, r: 5 });
-    frameDot.append(svgElement('title', {}, 'base_footprint, true'));
-    model.group.append(frameDot);
-    next.append(model.group);
-
-    // The odometry: the geometry that the controller assumes, at the pose that it computes
-    const odometry = outline(now.odometry, configured, 'ix-odometry', 'Odometry: the controller’s geometry at the pose that it computes');
-    const [qx, qy] = odometry.at(0, 0);
-    odometry.group.append(svgElement('circle', { class: 'ix-ring', cx: qx, cy: qy, r: 5.5 }));
-    next.append(odometry.group);
-
-    // The command: a cross where the command alone puts the robot, with its heading
-    const c = Math.cos(now.command.theta), s = Math.sin(now.command.theta);
-    const [kx, ky] = [X(now.command.x), Y(now.command.y)];
-    const [hx, hy] = [X(now.command.x + 0.085 * c), Y(now.command.y + 0.085 * s)];
-    const command = svgElement('g', { class: 'ix-robot ix-command' });
-    command.append(svgElement('title', {}, 'Command'));
-    command.append(svgElement('line', { x1: kx, y1: ky, x2: hx, y2: hy }));
-    command.append(svgElement('path', { class: 'ix-cross', d: `M${kx - 5},${ky - 5} l10,10 m0,-10 l-10,10` }));
-    next.append(command);
-
-    if (svg) svg.replaceWith(next); else plot.append(next);
-    svg = next;
-    const duration = p.command.duration;
-    const label = state.time >= 1 ? `t = ${duration.toFixed(1)} s, the end` : `t = ${now.t.toFixed(1)} s of ${duration.toFixed(1)} s`;
-    find('.ix-time').textContent = label;
-    find('.ix-scrub').setAttribute('aria-valuetext', `${now.t.toFixed(1)} of ${duration.toFixed(1)} seconds`);
+    next.append(drawRobotOutline(scale, samples[0].axle, inputs.wheels, 'ix-start', 'The robot at the start', sizes));
+    const truePose = drawRobotOutline(scale, shownSample.axle, inputs.wheels, 'ix-model',
+      'True pose, in this figure’s model', sizes);
+    drawTruePoseMarkers(truePose, scale, shownSample.axle, inputs.frameOffset, sizes);
+    next.append(truePose);
+    const odometry = drawRobotOutline(scale, shownSample.odometry, inputs.configured, 'ix-odometry',
+      'Odometry: the controller’s geometry at the pose that it computes', sizes);
+    drawOdometryMarker(odometry, scale, shownSample.odometry, sizes);
+    next.append(odometry);
+    next.append(drawCommandMarker(scale, shownSample.command, sizes));
+    if (liveDrawing) liveDrawing.replaceWith(next); else plot.append(next);
+    liveDrawing = next;
+    find('.ix-gridnote').textContent = `Grid: ${Math.round(step * 100)} cm`;
+    updateTimeLabel(shownSample.t, inputs.command.duration);
   }
 
   // --- The numbers next to the drawing -------------------------------------------------------
-  function tables() {
-    const { motion, checks, p } = drive;
-    const names = { command: 'command', odometry: 'odometry', model: 'true pose (model)' };
-    const glyph = (key) => find(`.ix-legend [data-view="${key}"] svg`).outerHTML;
-    find('.ix-motion-rows').innerHTML = Object.entries(names).map(([key, name]) => {
-      const m = motion[key];
-      return `<tr><th scope="row">${glyph(key)}${name}</th><td>${fixed(m.forward)} m</td><td>${fixed(m.left)} m</td><td>${fixed(m.turned)} rad</td></tr>`;
+  function renderMotionTable({ motion }) {
+    const glyph = (view) => find(`.ix-legend [data-view="${view}"] svg`).outerHTML;
+    find('.ix-motion-rows').innerHTML = Object.entries(data.viewNames).map(([view, name]) => {
+      const { forward, left, turned } = motion[view];
+      return `<tr><th scope="row">${glyph(view)}${name}</th><td>${fixed(forward)} m</td><td>${fixed(left)} m</td><td>${fixed(turned)} rad</td></tr>`;
     }).join('');
+  }
 
-    const label = { forward: 'forward', left: 'left', turned: 'turned', distance: 'distance from the start' };
-    const source = { odometry: 'odometry', model: 'true pose' };
+  function renderCheckTable({ checks }) {
     find('.ix-check-rows').innerHTML = checks.map((check) => {
-      const name = check.id === 'agreement'
-        ? `odometry and true pose, ${state.command === 'turn' ? 'turned' : 'forward'}`
-        : `${label[check.id]}, ${source[check.source]}`;
-      const allowed = check.id === 'agreement'
-        ? `at most ${check.tolerance} ${check.unit} apart`
-        : `${check.expected} ± ${check.tolerance} ${check.unit}`;
-      const result = check.ok ? '<span class="ix-pass">✔ passes</span>' : '<span class="ix-fail">✖ fails</span>';
-      return `<tr><th scope="row">${name}</th><td data-label="Allowed">${allowed}</td><td data-label="This drive">${fixed(check.value)} ${check.unit}</td><td>${result}</td></tr>`;
+      const result = check.passes ? '<span class="ix-pass">✔ passes</span>' : '<span class="ix-fail">✖ fails</span>';
+      return `<tr><th scope="row">${check.name}</th><td data-label="Allowed">${check.allowed}</td><td data-label="This drive">${fixed(check.value)} ${check.unit}</td><td>${result}</td></tr>`;
     }).join('');
+  }
 
-    const passed = checks.filter((check) => check.ok).length;
-    const failed = checks.filter((check) => !check.ok).map((check) => (check.id === 'agreement'
-      ? 'the comparison of the odometry with the true pose'
-      : `${label[check.id]} (${source[check.source]})`));
-    const o = motion.odometry, m = motion.model;
-    let text = `${p.robot.name}, ${p.command.name}. `;
-    if (state.command === 'forward') {
-      text += `The odometry reports ${fixed(o.forward)} m. In the model, the robot drives ${fixed(m.forward)} m. `;
+  function renderSummary({ kind, inputs, motion, checks }) {
+    const { odometry, model } = motion;
+    let text = `${inputs.robot.name}, ${inputs.command.text}. `;
+    if (kind === 'forward') {
+      text += `The odometry reports ${fixed(odometry.forward)} m. In the model, the robot drives ${fixed(model.forward)} m. `;
     } else {
-      text += `The odometry reports a turn of ${fixed(o.turned)} rad. In the model, the robot turns ${fixed(m.turned)} rad`
-        + ` and base_footprint ends ${fixed(Math.hypot(m.forward, m.left))} m from its start. `;
+      text += `The odometry reports a turn of ${fixed(odometry.turned)} rad. In the model, the robot turns ${fixed(model.turned)} rad`
+        + ` and base_footprint ends ${fixed(Math.hypot(model.forward, model.left))} m from its start. `;
     }
-    text += `${passed} of ${checks.length} checks pass.`;
-    if (failed.length) text += ` Failing: ${failed.join(', ')}.`;
+    const failing = checks.filter((check) => !check.passes).map((check) => check.nameInSentence);
+    text += `${checks.length - failing.length} of ${checks.length} checks pass.`;
+    if (failing.length) text += ` Failing: ${failing.join(', ')}.`;
     find('.ix-summary').textContent = text;
   }
 
-  function outputs() {
-    const robot = data.robots[state.robot];
+  function renderSliderValues(inputs) {
     const show = (name, shown, spoken) => {
       sliders[name].closest('.ix-control').querySelector('output').textContent = shown;
       sliders[name].setAttribute('aria-valuetext', spoken);
     };
-    const radius = (robot.radius * setting('radius') / 100 * 1000).toFixed(1);
-    const separation = (robot.separation * setting('separation') / 100 * 1000).toFixed(1);
-    const contact = ((robot.separation + robot.wheelWidth * setting('contact') / 100) * 1000).toFixed(0);
-    show('radius', `${setting('radius')} % · ${radius} mm`, `${setting('radius')} percent, ${radius} millimeters`);
-    show('separation', `${setting('separation')} % · ${separation} mm`, `${setting('separation')} percent, ${separation} millimeters`);
-    show('offset', `${setting('offset')} mm`, `${setting('offset')} millimeters behind the axle`);
-    show('contact', `${setting('contact')} % · ${contact} mm apart`, `${setting('contact')} percent, ${contact} millimeters apart`);
-    show('tracking', `${setting('tracking')} %`, `${setting('tracking')} percent of the commanded speed`);
-    for (const legend of findAll('.ix-legend [data-view="axle"]')) legend.hidden = setting('offset') === 0;
+    const millimetres = (metres, digits) => (metres * 1000).toFixed(digits);
+    const radius = millimetres(inputs.configured.radius, 1), separation = millimetres(inputs.configured.separation, 1);
+    const contact = millimetres(inputs.contactSeparation, 0);
+    show('radius_percent', `${setting('radius_percent')} % · ${radius} mm`, `${setting('radius_percent')} percent, ${radius} millimeters`);
+    show('separation_percent', `${setting('separation_percent')} % · ${separation} mm`,
+      `${setting('separation_percent')} percent, ${separation} millimeters`);
+    show('offset_mm', `${setting('offset_mm')} mm`, `${setting('offset_mm')} millimeters behind the axle`);
+    show('contact_percent', `${setting('contact_percent')} % · ${contact} mm apart`,
+      `${setting('contact_percent')} percent, ${contact} millimeters apart`);
+    show('tracking_percent', `${setting('tracking_percent')} %`, `${setting('tracking_percent')} percent of the commanded speed`);
+    for (const entry of findAll('.ix-legend [data-view="axle"]')) entry.hidden = inputs.frameOffset === 0;
   }
 
   function update() {
-    outputs();
-    drive = compute();
-    tables();
+    drive = computeDrive();
+    renderSliderValues(drive.inputs);
+    renderMotionTable(drive);
+    renderCheckTable(drive);
+    renderSummary(drive);
     draw();
   }
 
   // Screen readers hear the result once a change is complete, not while a slider moves
   function announce() {
     clearTimeout(announceTimer);
-    announceTimer = setTimeout(() => { find('.ix-announce').textContent = find('.ix-summary').textContent; }, 400);
+    announceTimer = setTimeout(() => { find('.ix-announce').textContent = find('.ix-summary').textContent; }, ANNOUNCE_DELAY_MS);
   }
 
   // --- Controls ------------------------------------------------------------------------------
@@ -253,30 +324,32 @@ function mount(root) {
     find('.ix-robot-select').value = robot;
   }
   function stopPlaying() {
-    if (frame) cancelAnimationFrame(frame);
-    frame = null;
+    if (animationRequest) cancelAnimationFrame(animationRequest);
+    animationRequest = null;
     find('.ix-play').textContent = 'Play';
   }
+  // The time is a share of the drive: 0 at the start, 1 at the end
   function setTime(time) {
     state.time = time;
-    find('.ix-scrub').value = Math.round(time * 1000);
+    scrub.value = Math.round(time * Number(scrub.max));
   }
   find('.ix-play').addEventListener('click', () => {
-    if (frame) { stopPlaying(); return; }
+    if (animationRequest) { stopPlaying(); return; }
     if (reducedMotion()) { setTime(1); draw(); return; }
     if (state.time >= 1) setTime(0);
-    lastTick = performance.now();
+    lastTickTime = performance.now();
     find('.ix-play').textContent = 'Pause';
-    const tick = (now) => {
+    const tick = (timestamp) => {
       // Model time: the drive's own seconds, whatever the drawing rate is
-      setTime(Math.min(1, state.time + (now - lastTick) / (data.commands[state.command].duration * 1000)));
-      lastTick = now;
+      const duration = data.commands[state.command].duration * MILLISECONDS_PER_SECOND;
+      setTime(Math.min(1, state.time + (timestamp - lastTickTime) / duration));
+      lastTickTime = timestamp;
       draw();
-      if (state.time < 1) frame = requestAnimationFrame(tick); else stopPlaying();
+      if (state.time < 1) animationRequest = requestAnimationFrame(tick); else stopPlaying();
     };
-    frame = requestAnimationFrame(tick);
+    animationRequest = requestAnimationFrame(tick);
   });
-  find('.ix-scrub').addEventListener('input', (event) => { stopPlaying(); state.time = event.target.value / 1000; draw(); });
+  scrub.addEventListener('input', () => { stopPlaying(); state.time = Number(scrub.value) / Number(scrub.max); draw(); });
   // A hidden tab or a closed block draws nothing: stop instead of jumping ahead later
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPlaying(); });
 
@@ -300,14 +373,14 @@ function mount(root) {
   // so the drawing stays where it is from one example to the next.
   function showStep(index) {
     state.step = index;
-    const example = data.examples[index], open = revealed.has(example.id);
+    const example = data.examples[index], open = revealed.has(example.key);
     const shownAnswer = find('.ix-shown-answer');
     for (const item of findAll('[data-example-item]')) {
-      const current = item.dataset.exampleItem === example.id;
+      const current = item.dataset.exampleItem === example.key;
       item.classList.toggle('ix-current', current);
-      item.querySelector('.ix-answer').hidden = true;
       // A shown answer's button keeps its place, invisible, so the questions' height stays
       item.classList.toggle('ix-revealed', revealed.has(item.dataset.exampleItem));
+      item.querySelector('.ix-answer').hidden = true;
       if (current) shownAnswer.innerHTML = `<b>What happens:</b> ${item.querySelector('.ix-answer').innerHTML}`;
     }
     shownAnswer.hidden = !open;
