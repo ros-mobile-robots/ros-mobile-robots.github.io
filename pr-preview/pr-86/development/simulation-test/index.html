@@ -5354,10 +5354,10 @@
 <span class="go">catkin_test_results build</span>
 </code></pre></div></td></tr></tbody></table></div>
 <p>The first command builds the workspace and runs every registered test, but it doesn't fail when a test fails. The second one sums up the result files and fails if any test failed.</p>
-<p>To run the test for one robot, use its test file, <a href="#1-the-test-file"><code>sim_drive_diffbot.test</code></a> or <a href="#1-the-test-file"><code>sim_drive_remo.test</code></a>:</p>
+<p>To run the test for one robot, use its test file, <a href="#1-the-test-file"><code>sim_drive_diffbot.test</code></a> or <code>sim_drive_remo.test</code>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rostest diffbot_gazebo sim_drive_diffbot.test</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>With <a href="https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest/src/rostest/rostest_main.py#L86-L88"><code>--text</code></a>, <a href="#1-the-test-file">rostest</a> prints the nodes' output in the terminal instead of log files, but it doesn't collect the test results then: it can report success although a check failed. Use <code>--text</code> to watch a run, and the command without it to check the result.</p>
+<p>With <a href="https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest/src/rostest/rostest_main.py#L86-L88"><code>--text</code></a>, rostest prints the nodes' output in the terminal instead of log files, but it doesn't collect the test results then: it can report success although a check failed. Use <code>--text</code> to watch a run, and the command without it to check the result.</p>
 <p>To see the drive instead of its numbers, <abbr title="Continuous integration. Building and testing the code automatically on every push and pull request.">CI</abbr> records a video of DiffBot driving the test's commands when you ask for one (<a href="../ci/#simulation-video">Simulation video</a>).</p>
 <h2 id="read-the-results">Read the results</h2>
 <p>rostest ends with a summary. A passing run of <code>sim_drive_diffbot.test</code>:</p>
