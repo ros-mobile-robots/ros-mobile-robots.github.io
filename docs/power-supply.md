@@ -93,7 +93,7 @@ The holder's cable goes to the power terminal of the [Grove I2C Motor Driver V1.
 --8<-- "includes/power-supply-flow-diffbot.html"
 
 The figure shows the two supplies and the parts that are known to be on them.
-It leaves out the Teensy, the encoders, the LiDAR and the camera, because their supply on DiffBot isn't checked yet.
+It leaves out the microcontroller (MCU), a Teensy that runs the [low-level base controller](packages/diffbot_base/low-level.md), the encoders, the LiDAR and the camera, because their supply on DiffBot isn't checked yet.
 The same holds for the I2C connection that brings the motor commands to the motor driver.
 
 The battery and the motor driver fit together like this:
@@ -115,9 +115,9 @@ The holder's cable goes to the 2-pin power terminal of the [Adafruit DC Motor + 
 
 --8<-- "includes/power-supply-flow-remo.html"
 
-- **From the power bank:** The Raspberry Pi gets 5 V at its USB-C port. The Teensy gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The Raspberry Pi also powers the LiDAR, through the LiDAR's USB adapter on another of its USB ports. The adapter has no supply of its own. The Teensy's 3.3 V pin supplies the encoders, the IMU and the logic of the motor driver ([bench check](https://github.com/ros-mobile-robots/diffbot/issues/169), section 8).
-- **From the motor battery:** The motors only. The motor driver switches the battery voltage to them.
-- **Motor driver:** The only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over I2C. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection ([schematic](https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB)), so both supplies share one ground.
+- **From the power bank:** The Raspberry Pi gets 5 V at its USB-C port. The microcontroller (MCU), a Teensy that runs the [low-level base controller](packages/diffbot_base/low-level.md), gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The Raspberry Pi also powers the LiDAR, through the LiDAR's USB adapter on another of its USB ports. The adapter has no supply of its own. The Teensy's 3.3 V pin supplies the encoders, the IMU and the logic of the motor driver ([bench check](https://github.com/ros-mobile-robots/diffbot/issues/169), section 8).
+- **From the motor battery:** The motor battery supplies the motors only. The motor driver switches the battery voltage to them.
+- **Motor driver:** The motor driver is the only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over I2C. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection ([schematic](https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB)), so both supplies share one ground.
 - **Without the Teensy:** The motors stop. The motor driver's logic loses its 3.3 V together with the Teensy. In the bench check, pulling the Teensy's USB cable while driving stopped the wheels at once.
 - **Camera:** The figure draws only its data connection to the Raspberry Pi, as a dashed line. Its supply isn't checked on Remo yet, so the figure doesn't draw one.
 
