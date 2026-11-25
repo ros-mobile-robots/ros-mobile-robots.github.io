@@ -259,14 +259,14 @@ class TestLabels(unittest.TestCase):
 
     def test_label_along_turns_its_text_with_the_line_and_keeps_it_upright(self) -> None:
         figures = load_script()
-        for end in (figures.DrawingPoint(110, 0), figures.DrawingPoint(-90, 200)):
+        for end in (figures.Point(110, 0), figures.Point(-90, 200)):
             figure = figures.Figure('test', 'Test', 200)
-            figures.label_along(figure, figures.DrawingPoint(10, 100), end, '1 cm', True)
+            figures.label_along(figure, figures.Point(10, 100), end, '1 cm', True)
             self.assertIn('transform="rotate(-45.0 ', figure.elements[0])
 
     def test_label_along_puts_its_baseline_above_or_below_a_line(self) -> None:
         figures = load_script()
-        start, end = figures.DrawingPoint(0, 50), figures.DrawingPoint(100, 50)
+        start, end = figures.Point(0, 50), figures.Point(100, 50)
         baselines = []
         for above in (True, False):
             figure = figures.Figure('test', 'Test', 200)

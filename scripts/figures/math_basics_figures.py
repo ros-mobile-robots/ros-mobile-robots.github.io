@@ -20,8 +20,8 @@ Each include holds one figure of one section, and one function writes it. So a f
 with its section when the page is split, and the script changes only in this list.
 
 Every drawing is 300 units wide, so that its text is readable on a phone. Explanations are HTML
-text in the caption. Figure, the CSS rules and bell() come from localization_figures.py, and
-escape() and style_element() from board_drawings.py.
+text in the caption. Figure, the CSS rules, the colors FG and FG_LIGHT and bell() come from
+localization_figures.py, and escape(), style_element(), Point and Box from board_drawings.py.
 
 Run from the repository root after changing a figure:
 
@@ -35,19 +35,20 @@ from typing import List
 from typing import NamedTuple
 from typing import Sequence
 
+from board_drawings import Box
 from board_drawings import escape
+from board_drawings import Point
 from board_drawings import style_element
 from localization_figures import bell
 from localization_figures import DRAWING_RULES
+from localization_figures import FG
+from localization_figures import FG_LIGHT
 from localization_figures import Figure
 from localization_figures import figure_element
 from localization_figures import LARGE_RULES
 from localization_figures import RULES
 from localization_figures import Span
 from localization_figures import SYMBOL_RULES
-
-FG = 'var(--md-default-fg-color)'
-FG_LIGHT = 'var(--md-default-fg-color--light)'
 
 DRAWING_WIDTH = 300
 # The size of the drawings' text, as in LARGE_RULES, of a variable, as in DRAWING_RULES, and of
@@ -121,22 +122,6 @@ class Deviation(NamedTuple):
     y: float
 
 
-class DrawingPoint(NamedTuple):
-    """A position in a drawing, in SVG coordinates: y points down."""
-
-    x: float
-    y: float
-
-
-class Box(NamedTuple):
-    """A rectangle in a drawing, such as the space a label takes."""
-
-    x: float
-    y: float
-    width: float
-    height: float
-
-
 # The example covariance matrix of a position estimate (x, y) on the page, in cm²
 EXAMPLE_COVARIANCE = Covariance(xx=5.0, xy=3.0, yy=5.0)
 # The example pairs of deviations: their number, and a seed for Python's generator with which
@@ -149,27 +134,27 @@ SCATTER_SEED = 150
 class Plot(NamedTuple):
     """A plot of the deviations of two values in cm, with the same scale on both axes."""
 
-    origin: DrawingPoint  # where both deviations are 0
+    origin: Point  # where both deviations are 0
     pixels_per_cm: float
     low: float  # cm, where both axes start
     high_x: float  # cm, where the x axis ends
     high_y: float  # cm, where the y axis ends
     tick_spacing: float  # cm
 
-    def at(self, x: float, y: float) -> DrawingPoint:
+    def at(self, x: float, y: float) -> Point:
         """Return the drawing's position of the deviations x and y."""
-        return DrawingPoint(self.origin.x + x * self.pixels_per_cm,
-                            self.origin.y - y * self.pixels_per_cm)
+        return Point(self.origin.x + x * self.pixels_per_cm,
+                     self.origin.y - y * self.pixels_per_cm)
 
 
 PLOT_LEFT = 34  # the y axis' labels stand to the left of the plot
 PLOT_TOP = 26  # the y axis' name stands above the plot
 # The plots of the example pairs and of the shares inside the ellipses: the ellipse of three
 # standard deviations fits, and its label above it
-WIDE_PLOT = Plot(origin=DrawingPoint(PLOT_LEFT + 7 * 18.5, PLOT_TOP + 7.5 * 18.5),
+WIDE_PLOT = Plot(origin=Point(PLOT_LEFT + 7 * 18.5, PLOT_TOP + 7.5 * 18.5),
                  pixels_per_cm=18.5, low=-7, high_x=7, high_y=7.5, tick_spacing=2)
 # The plot of the ellipse of one standard deviation and its axes, enlarged
-CLOSE_PLOT = Plot(origin=DrawingPoint(PLOT_LEFT + 3 * 42, PLOT_TOP + 3 * 42),
+CLOSE_PLOT = Plot(origin=Point(PLOT_LEFT + 3 * 42, PLOT_TOP + 3 * 42),
                   pixels_per_cm=42, low=-3, high_x=3, high_y=3, tick_spacing=1)
 # The direction from the mean, counterclockwise from the x axis, in which each ellipse of the
 # shares figure carries its label: there, the next ellipses lie far enough away from the label
@@ -371,8 +356,8 @@ def ellipse_path(plot: Plot, covariance: Covariance, standard_deviations: float)
     angle = math.radians(axes.angle)
     # The drawing's y points down, so the ellipse turns clockwise in its numbers
     offset_x, offset_y = major * math.cos(angle), -major * math.sin(angle)
-    start = DrawingPoint(plot.origin.x + offset_x, plot.origin.y + offset_y)
-    end = DrawingPoint(plot.origin.x - offset_x, plot.origin.y - offset_y)
+    start = Point(plot.origin.x + offset_x, plot.origin.y + offset_y)
+    end = Point(plot.origin.x - offset_x, plot.origin.y - offset_y)
     arc = f'A{major:.1f},{minor:.1f} {-axes.angle:g} 0 1'
     return (f'M{start.x:.1f},{start.y:.1f} {arc} {end.x:.1f},{end.y:.1f} '
             f'{arc} {start.x:.1f},{start.y:.1f} z')
@@ -392,13 +377,13 @@ def point_in_direction(covariance: Covariance, standard_deviations: float,
 class LineLabel(NamedTuple):
     """A label centered on a point, such as a point of a line: its text and the space it takes."""
 
-    center: DrawingPoint
+    center: Point
     spans: Sequence[Span]
     size: float  # px, of its text
     box: Box  # at most, so that a gap in a line of this size is never too small
 
 
-def line_label(center: DrawingPoint, spans: Sequence[Span], size: float = TEXT_SIZE) -> LineLabel:
+def line_label(center: Point, spans: Sequence[Span], size: float = TEXT_SIZE) -> LineLabel:
     """Return a label centered on a point."""
     width = text_width(''.join(span.content for span in spans), size)
     height = max(size, VARIABLE_SIZE) + 2
@@ -484,7 +469,7 @@ def write_covariance_shares() -> None:
         f'share of the positions inside it: {shares}, the shares of the table for two values.')
 
 
-def label_along(figure: Figure, start: DrawingPoint, end: DrawingPoint, text: str,
+def label_along(figure: Figure, start: Point, end: Point, text: str,
                 above: bool) -> None:
     """Add a label along a line from start to end, turned with the line so that it reads upright.
 
@@ -546,8 +531,8 @@ def covariance_axes_figure() -> Figure:
     add_masked_path(figure, ellipse_path(plot, covariance, 1), 'ring', mask)
     reference_end = plot.at(ANGLE_REFERENCE_LENGTH, 0)
     figure.path(f'M{plot.origin.x:.1f},{plot.origin.y:.1f} H{reference_end.x:.1f}', 'reference')
-    arc_end = DrawingPoint(plot.origin.x + ANGLE_ARC_RADIUS * math.cos(math.radians(axes.angle)),
-                           plot.origin.y - ANGLE_ARC_RADIUS * math.sin(math.radians(axes.angle)))
+    arc_end = Point(plot.origin.x + ANGLE_ARC_RADIUS * math.cos(math.radians(axes.angle)),
+                    plot.origin.y - ANGLE_ARC_RADIUS * math.sin(math.radians(axes.angle)))
     figure.path(f'M{plot.origin.x + ANGLE_ARC_RADIUS:.1f},{plot.origin.y:.1f} '
                 f'A{ANGLE_ARC_RADIUS},{ANGLE_ARC_RADIUS} 0 0 0 {arc_end.x:.1f},{arc_end.y:.1f}',
                 'angle-arc')

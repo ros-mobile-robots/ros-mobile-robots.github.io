@@ -7,12 +7,14 @@ BNO055 breakout. The parts keep the colors of the real ones in both color scheme
 returns their CSS.
 
 The module also holds what a figure script needs to write SVG: escape(), style_element(),
-svg_element() with its arrowhead marker, and Drawing, which collects the elements of one layout
-and draws its rectangles, circles, lines, text, boxes with text and numbers in discs.
+svg_element() with its arrowhead marker, Point and Box for a position and a rectangle in a
+drawing, and Drawing, which collects the elements of one layout and draws its rectangles, circles,
+lines, text, boxes with text and numbers in discs.
 """
 
 import math
 from typing import List
+from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
@@ -21,6 +23,22 @@ from typing import Tuple
 ENCODER_BOARD_OFFSET = 76
 # The radius of the disc around a step's or a check's number, in px
 NUMBER_DISC_RADIUS = 8
+
+
+class Point(NamedTuple):
+    """A position in a drawing, in px from its top left corner: y points down."""
+
+    x: float
+    y: float
+
+
+class Box(NamedTuple):
+    """A rectangle in a drawing: its top left corner, its width and its height, in px."""
+
+    x: float
+    y: float
+    width: float
+    height: float
 
 
 def escape(text: str) -> str:
