@@ -417,6 +417,64 @@ class TestScatterLayouts(unittest.TestCase):
                                  f'{layout.name}: {cloud}')
 
 
+class TestDrawnValues(unittest.TestCase):
+    """The drawings show the values that the page's text gives."""
+
+    def test_axes_figure_draws_each_semi_axis_from_the_mean_to_its_eigenvector_end(self) -> None:
+        figures = load_script()
+        plot = figures.CLOSE_PLOT
+        svg = figures.covariance_axes_figure().svg()
+        semi_axes = re.findall(r'class="semi-axis" d="M([\d.]+),([\d.]+) L([\d.]+),([\d.]+)"', svg)
+        expected_ends = [(2, 2), (1, -1)]  # cm: √8 along (1, 1) and √2 along (1, −1)
+        self.assertEqual(len(semi_axes), len(expected_ends))
+        for (start_x, start_y, end_x, end_y), expected in zip(semi_axes, expected_ends):
+            self.assertEqual((float(start_x), float(start_y)), (plot.origin.x, plot.origin.y))
+            end = in_centimeters(figures, plot, float(end_x), float(end_y))
+            self.assertAlmostEqual(end.x, expected[0], delta=ROUNDING / plot.pixels_per_cm)
+            self.assertAlmostEqual(end.y, expected[1], delta=ROUNDING / plot.pixels_per_cm)
+
+    def test_axes_figure_labels_the_semi_axes_the_angle_and_the_circle(self) -> None:
+        svg = load_script().covariance_axes_figure().svg()
+        for label in ('2.83 cm', '1.41 cm', '45°', '2.24 cm'):
+            self.assertEqual(svg.count(f'>{label}</'), 1, label)
+
+    def test_normal_distribution_figure_ends_each_bracket_at_its_standard_deviations(
+            self) -> None:
+        figures = load_script()
+        svg = figures.normal_distribution_figure().svg()
+        brackets = re.findall(
+            r'class="share-bracket" d="M([\d.]+),\S+ V\S+ H\S+ M\S+ H([\d.]+) ', svg)
+        self.assertEqual(len(brackets), len(figures.STANDARD_DEVIATIONS))
+        for multiple, (left, right) in zip(figures.STANDARD_DEVIATIONS, brackets):
+            half = multiple * figures.BELL_PIXELS_PER_SIGMA
+            self.assertAlmostEqual(float(left), figures.BELL_CENTER_X - half, delta=ROUNDING)
+            self.assertAlmostEqual(float(right), figures.BELL_CENTER_X + half, delta=ROUNDING)
+
+    def test_normal_distribution_figure_labels_the_brackets_with_the_shares(self) -> None:
+        svg = load_script().normal_distribution_figure().svg()
+        for share in ('68.3 %', '95.4 %', '99.7 %'):
+            self.assertEqual(svg.count(f'>{share}</text>'), 1, share)
+
+    def test_bell_height_at_one_standard_deviation_is_the_peak_times_e_to_minus_a_half(
+            self) -> None:
+        figures = load_script()
+        self.assertAlmostEqual(figures.bell_height(1), figures.BELL_PEAK * math.exp(-0.5))
+
+    def test_each_scatter_layout_draws_one_dot_for_each_pair_at_its_deviations(self) -> None:
+        figures = load_script()
+        for layout in figures.SCATTER_LAYOUTS:
+            svg = figures.covariance_scatter_figure(layout).svg()
+            dots = re.findall(r'<circle class="pair" cx="([\d.]+)" cy="([\d.]+)"', svg)
+            positions = [plot.at(pair.x, pair.y)
+                         for plot, cloud in zip(figures.scatter_plots(layout),
+                                                figures.SCATTER_CLOUDS)
+                         for pair in cloud.pairs()]
+            self.assertEqual(len(dots), len(positions), layout.name)
+            for (x, y), position in zip(dots, positions):
+                self.assertAlmostEqual(float(x), position.x, delta=ROUNDING)
+                self.assertAlmostEqual(float(y), position.y, delta=ROUNDING)
+
+
 class TestTexts(unittest.TestCase):
     """The figures' texts are built from the script's values."""
 
