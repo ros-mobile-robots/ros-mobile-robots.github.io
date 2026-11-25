@@ -124,7 +124,7 @@ The covariance $\sigma_{xy}$ of the distribution is the same average over all th
 - **Negative:** when $x$ lies above its mean, $y$ tends to lie below its mean. Most products are negative.
 - **Zero:** the positive and the negative products cancel. The deviation of $x$ says nothing about the sign of the deviation of $y$.
 
-The figure shows example pairs with a positive covariance: the deviations $x - \mu_x$ and $y - \mu_y$ of a position from its mean $\mu$, in cm. Count the dots in the four quadrants. Most pairs lie in the two quadrants in which both deviations have the same sign, so most products are positive. The ellipses over the cloud outline where most pairs lie, as [The covariance ellipsoid](#the-covariance-ellipsoid) explains:
+The figure shows example pairs with a positive covariance and with the covariance 0: the deviations $x - \mu_x$ and $y - \mu_y$ of a position from its mean $\mu$, in cm. Count the dots in the four quadrants of each plot. With the positive covariance, most pairs lie in the two quadrants in which both deviations have the same sign, so most products are positive. With the covariance 0, the four quadrants hold about the same number of pairs. The ellipses over each cloud outline where most pairs lie, as [The covariance ellipsoid](#the-covariance-ellipsoid) explains:
 
 --8<-- "includes/math-covariance-scatter.html"
 
@@ -208,7 +208,7 @@ These points form an **ellipsoid** around the mean. Its semi-axes, the half widt
 
 The number $d = \sqrt{\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e}$ is called the **Mahalanobis distance** of the deviation $\mathbf e$. The Mahalanobis distance counts how many standard deviations $\mathbf e$ lies from the mean, in the direction of $\mathbf e$. The ellipsoid of one standard deviation holds the deviations with $d$ = 1, and the ellipsoid of two standard deviations those with $d$ = 2. robot_localization can reject a measurement whose $d$ is too large, as [What the validator doesn't check](../../packages/imu/robot_localization.md#what-the-validator-doesnt-check) on the Localization page explains.
 
-**A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values, the matrix of the example pairs in [The covariance of two values](#the-covariance-of-two-values):
+**A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values, the matrix of the example pairs with the positive covariance in [The covariance of two values](#the-covariance-of-two-values):
 
 $$
 \boldsymbol\Sigma = \begin{pmatrix} 5 & 3 \\ 3 & 5 \end{pmatrix}\ \text{cm}^2

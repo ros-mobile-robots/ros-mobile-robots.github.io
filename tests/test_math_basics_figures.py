@@ -5,6 +5,7 @@ The script writes the figures of the Math Basics page as four includes.
 Run from the repository root: python -m unittest discover -s tests
 """
 
+from collections import Counter
 import importlib.util
 import math
 import os
@@ -37,6 +38,14 @@ ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONU
 # The drawings' numbers have one decimal, so a point that the script computed lies up to 0.05 px
 # away in the drawing
 ROUNDING = 0.05  # px
+# The criteria of the scatter figure's seeds: the sample covariance of a cloud's pairs lies this
+# close to the covariance of their distribution, and with the covariance 0, each quadrant holds
+# a quarter of the pairs, up to this many more or fewer
+COVARIANCE_TOLERANCE = 0.1  # cm²
+QUADRANT_TOLERANCE = 5  # pairs
+# The tolerance of the sample variances and covariance of 20 000 pairs, about 2.5 times the
+# standard error of the sample variance 4 of that test's matrix
+MANY_PAIRS_TOLERANCE = 0.1
 
 
 def run_with_an_ascii_locale() -> Dict[str, bytes]:
@@ -93,6 +102,11 @@ def first_match(pattern: str, text: str) -> 're.Match[str]':
     if match is None:
         raise AssertionError(f'{pattern} is not in {text[:80]}')
     return match
+
+
+def scatter_layout(figures: ModuleType, css_class: str) -> Any:
+    """Return the scatter figure's layout with this CSS class."""
+    return next(layout for layout in figures.SCATTER_LAYOUTS if layout.css_class == css_class)
 
 
 def edge_points(box: Any) -> Iterator[Tuple[float, float]]:
@@ -188,7 +202,7 @@ class TestEllipsePath(unittest.TestCase):
 
     def test_ellipse_path_starts_at_the_end_of_the_major_axis(self) -> None:
         figures = load_script()
-        plot = figures.WIDE_PLOT
+        plot = figures.OVERVIEW_PLOT
         for multiple in figures.STANDARD_DEVIATIONS:
             path = figures.ellipse_path(plot, figures.EXAMPLE_COVARIANCE, multiple)
             x, y = (float(value) for value in first_match(r'^M([\d.]+),([\d.]+)', path).groups())
@@ -199,7 +213,7 @@ class TestEllipsePath(unittest.TestCase):
     def test_ellipse_path_has_the_roots_of_the_eigenvalues_as_radii_turned_by_minus_45(
             self) -> None:
         figures = load_script()
-        plot = figures.WIDE_PLOT
+        plot = figures.OVERVIEW_PLOT
         path = figures.ellipse_path(plot, figures.EXAMPLE_COVARIANCE, 3)
         arcs = re.findall(r'A([\d.]+),([\d.]+) (-?[\d.]+) 0 1', path)
         self.assertEqual(len(arcs), 2)
@@ -217,7 +231,7 @@ class TestLabels(unittest.TestCase):
 
     def test_each_share_label_is_centered_on_its_ellipse(self) -> None:
         figures = load_script()
-        plot = figures.WIDE_PLOT
+        plot = figures.OVERVIEW_PLOT
         labels = figures.share_labels(plot, figures.EXAMPLE_COVARIANCE)
         for multiple, label in zip(figures.STANDARD_DEVIATIONS, labels):
             center = in_centimeters(figures, plot, label.center.x, label.center.y)
@@ -227,7 +241,7 @@ class TestLabels(unittest.TestCase):
     def test_each_share_label_lies_between_the_ellipses_inside_and_outside_its_own(
             self) -> None:
         figures = load_script()
-        plot = figures.WIDE_PLOT
+        plot = figures.OVERVIEW_PLOT
         labels = figures.share_labels(plot, figures.EXAMPLE_COVARIANCE)
         for multiple, label in zip(figures.STANDARD_DEVIATIONS, labels):
             for x, y in edge_points(label.box):
@@ -238,7 +252,7 @@ class TestLabels(unittest.TestCase):
 
     def test_each_share_label_stays_inside_the_plot(self) -> None:
         figures = load_script()
-        plot = figures.WIDE_PLOT
+        plot = figures.OVERVIEW_PLOT
         left, bottom = plot.at(plot.low, plot.low)
         right, top = plot.at(plot.high_x, plot.high_y)
         for label in figures.share_labels(plot, figures.EXAMPLE_COVARIANCE):
@@ -277,49 +291,59 @@ class TestLabels(unittest.TestCase):
 
 
 class TestExamplePairs(unittest.TestCase):
-    """The scatter figure's pairs are an example, made here from a seed."""
+    """The scatter figure's two clouds of pairs are examples, each made here from a seed."""
 
     def test_example_pairs_are_the_same_in_every_run(self) -> None:
-        figures = load_script()
-        first, second = (figures.example_pairs(figures.EXAMPLE_COVARIANCE, figures.SCATTER_SEED,
-                                               figures.SCATTER_COUNT) for _ in range(2))
-        self.assertEqual(first, second)
+        for cloud in load_script().SCATTER_CLOUDS:
+            self.assertEqual(cloud.pairs(), cloud.pairs(), str(cloud))
 
     def test_example_pairs_lie_inside_the_plot(self) -> None:
         figures = load_script()
-        plot = figures.WIDE_PLOT
-        for pair in figures.example_pairs(figures.EXAMPLE_COVARIANCE, figures.SCATTER_SEED,
-                                          figures.SCATTER_COUNT):
-            self.assertTrue(plot.low < pair.x < plot.high_x, str(pair))
-            self.assertTrue(plot.low < pair.y < plot.high_y, str(pair))
+        plot = figures.OVERVIEW_PLOT
+        for cloud in figures.SCATTER_CLOUDS:
+            for pair in cloud.pairs():
+                self.assertTrue(plot.low < pair.x < plot.high_x, f'{cloud}: {pair}')
+                self.assertTrue(plot.low < pair.y < plot.high_y, f'{cloud}: {pair}')
 
     def test_no_example_pair_lies_under_a_quadrants_sign(self) -> None:
         figures = load_script()
-        plot = figures.WIDE_PLOT
-        pairs = figures.example_pairs(figures.EXAMPLE_COVARIANCE, figures.SCATTER_SEED,
-                                      figures.SCATTER_COUNT)
-        for sign in figures.quadrant_signs(plot):
-            box = sign.box
-            for pair in pairs:
-                point = plot.at(pair.x, pair.y)
-                self.assertFalse(box.x - figures.PAIR_RADIUS < point.x
-                                 < box.x + box.width + figures.PAIR_RADIUS
-                                 and box.y - figures.PAIR_RADIUS < point.y
-                                 < box.y + box.height + figures.PAIR_RADIUS, str(pair))
+        plot = figures.OVERVIEW_PLOT
+        for cloud in figures.SCATTER_CLOUDS:
+            pairs = cloud.pairs()
+            for sign in figures.quadrant_signs(plot):
+                box = sign.box
+                for pair in pairs:
+                    point = plot.at(pair.x, pair.y)
+                    self.assertFalse(box.x - figures.PAIR_RADIUS < point.x
+                                     < box.x + box.width + figures.PAIR_RADIUS
+                                     and box.y - figures.PAIR_RADIUS < point.y
+                                     < box.y + box.height + figures.PAIR_RADIUS,
+                                     f'{cloud}: {pair}')
 
     def test_example_pairs_have_a_sample_covariance_near_the_distributions(self) -> None:
         figures = load_script()
-        sample = figures.sample_covariance(figures.example_pairs(
-            figures.EXAMPLE_COVARIANCE, figures.SCATTER_SEED, figures.SCATTER_COUNT))
-        self.assertAlmostEqual(sample.xy, figures.EXAMPLE_COVARIANCE.xy, delta=0.1)
+        for cloud in figures.SCATTER_CLOUDS:
+            sample = figures.sample_covariance(cloud.pairs())
+            self.assertAlmostEqual(sample.xy, cloud.covariance.xy, delta=COVARIANCE_TOLERANCE,
+                                   msg=str(cloud))
+
+    def test_example_pairs_without_covariance_fill_each_quadrant_with_about_a_quarter(
+            self) -> None:
+        figures = load_script()
+        cloud = next(cloud for cloud in figures.SCATTER_CLOUDS if cloud.covariance.xy == 0)
+        quadrants = Counter((pair.x > 0, pair.y > 0) for pair in cloud.pairs())
+        self.assertEqual(len(quadrants), 4)
+        for quadrant, count in quadrants.items():
+            self.assertAlmostEqual(count, figures.SCATTER_COUNT / 4, delta=QUADRANT_TOLERANCE,
+                                   msg=str(quadrant))
 
     def test_example_pairs_of_many_values_have_the_distributions_covariance(self) -> None:
         figures = load_script()
         covariance = figures.Covariance(4, -1.5, 1)
         sample = figures.sample_covariance(figures.example_pairs(covariance, 1, 20000))
         for name in ('xx', 'xy', 'yy'):
-            self.assertAlmostEqual(getattr(sample, name), getattr(covariance, name), delta=0.1,
-                                   msg=name)
+            self.assertAlmostEqual(getattr(sample, name), getattr(covariance, name),
+                                   delta=MANY_PAIRS_TOLERANCE, msg=name)
 
     def test_sample_covariance_of_the_pages_four_readings_is_0_or_4_thirds(self) -> None:
         figures = load_script()
@@ -333,6 +357,64 @@ class TestExamplePairs(unittest.TestCase):
         figures = load_script()
         pairs = [figures.Deviation(x, y) for x, y in ((1, 2), (-1, -2), (1, -2), (0, 2))]
         self.assertEqual(figures.positive_product_count(pairs), 2)
+
+
+class TestScatterLayouts(unittest.TestCase):
+    """The scatter figure has its two plots one below the other, or side by side where wide."""
+
+    def test_narrow_scatter_layout_has_the_second_plot_below_the_first_one(self) -> None:
+        figures = load_script()
+        layout = scatter_layout(figures, figures.NARROW_LAYOUT)
+        first, second = figures.scatter_plots(layout)
+        second_drawing_top = second.at(0, second.high_y).y - figures.PLOT_TOP
+        self.assertEqual(layout.width, figures.DRAWING_WIDTH)
+        self.assertEqual(second.origin.x, first.origin.x)
+        self.assertGreaterEqual(second_drawing_top, first.drawing_bottom())
+
+    def test_wide_scatter_layout_has_the_plots_side_by_side(self) -> None:
+        figures = load_script()
+        layout = scatter_layout(figures, figures.WIDE_LAYOUT)
+        first, second = figures.scatter_plots(layout)
+        second_drawing_left = second.at(second.low, 0).x - figures.PLOT_LEFT
+        self.assertEqual(layout.width, 2 * figures.DRAWING_WIDTH)
+        self.assertEqual(second.origin.y, first.origin.y)
+        self.assertEqual(second_drawing_left, figures.DRAWING_WIDTH)
+
+    def test_each_scatter_layout_is_as_high_as_its_lower_plot(self) -> None:
+        figures = load_script()
+        for layout in figures.SCATTER_LAYOUTS:
+            figure = figures.covariance_scatter_figure(layout)
+            self.assertEqual(figure.height, figures.scatter_plots(layout)[-1].drawing_bottom(),
+                             layout.name)
+
+    def test_each_scatter_label_is_centered_on_its_ellipse(self) -> None:
+        figures = load_script()
+        plot = figures.OVERVIEW_PLOT
+        for cloud in figures.SCATTER_CLOUDS:
+            labels = figures.scatter_labels(plot, cloud.covariance)
+            self.assertEqual(len(labels), len(figures.SCATTER_STANDARD_DEVIATIONS))
+            for multiple, label in zip(figures.SCATTER_STANDARD_DEVIATIONS, labels):
+                center = in_centimeters(figures, plot, label.center.x, label.center.y)
+                self.assertAlmostEqual(
+                    figures.mahalanobis_distance(cloud.covariance, center), multiple)
+
+    def test_scatter_figure_leaves_a_gap_in_each_ellipse_for_its_label(self) -> None:
+        figures = load_script()
+        ellipse_count = len(figures.SCATTER_CLOUDS) * len(figures.SCATTER_STANDARD_DEVIATIONS)
+        for layout in figures.SCATTER_LAYOUTS:
+            svg = figures.covariance_scatter_figure(layout).svg()
+            self.assertEqual(svg.count('fill="black"'), ellipse_count, layout.name)
+            self.assertEqual(svg.count('class="ring" d="M'), ellipse_count, layout.name)
+            self.assertEqual(svg.count(f'mask="url(#{layout.name}-gaps)"'), ellipse_count,
+                             layout.name)
+
+    def test_each_scatter_plot_names_the_covariance_of_its_cloud(self) -> None:
+        figures = load_script()
+        for layout in figures.SCATTER_LAYOUTS:
+            svg = figures.covariance_scatter_figure(layout).svg()
+            for cloud in figures.SCATTER_CLOUDS:
+                self.assertEqual(svg.count(f'> = {cloud.covariance.xy:g} cm²</tspan>'), 1,
+                                 f'{layout.name}: {cloud}')
 
 
 class TestTexts(unittest.TestCase):
@@ -352,6 +434,11 @@ class TestTexts(unittest.TestCase):
 
     def test_minus_signed_writes_a_minus_sign(self) -> None:
         self.assertEqual(load_script().minus_signed(-15), '−15')
+
+    def test_one_decimal_writes_a_minus_sign_but_not_before_zero(self) -> None:
+        figures = load_script()
+        self.assertEqual(figures.one_decimal(-1.26), '−1.3')
+        self.assertEqual(figures.one_decimal(-0.009), '0.0')
 
     def test_normal_distribution_axis_shows_the_noise_in_thousandths(self) -> None:
         svg = load_script().normal_distribution_figure().svg()
