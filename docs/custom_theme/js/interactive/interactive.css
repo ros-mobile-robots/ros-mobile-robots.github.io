@@ -139,6 +139,23 @@
 .md-typeset .ix .ix-model-note { margin: .5em 0 0; font-size: .7rem; color: var(--md-default-fg-color--light); }
 .ix .ix-announce, .ix .ix-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+/* Enlarged: the figure over the whole window, the stage (question, drawing, play bar, answer,
+   summary) on the left and the side (values, tables) on the right, each scrolling on its own.
+   The button shows from 60em on, the width that motion-lab.js's WIDE_MIN_EM names too */
+@media screen and (max-width: 59.9375em) { .ix .ix-enlarge { display: none; } }
+html.ix-wide-open { overflow: hidden; }
+.md-typeset figure.ix.ix-wide { position: fixed; inset: 0; z-index: 10; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 1fr); gap: 0 1.6rem; margin: 0; padding: .8rem 1.2rem; background: var(--md-default-bg-color); }
+.ix.ix-wide .ix-stage, .ix.ix-wide .ix-side { min-height: 0; overflow-y: auto; }
+.ix.ix-wide .ix-side { display: flex; flex-direction: column; }
+.ix.ix-wide .ix-side .ix-settings { order: -1; }
+.md-typeset .ix.ix-wide .ix-steps > p, .ix.ix-wide figcaption, .ix.ix-wide details.ix-settings > summary { display: none; }
+.md-typeset .ix.ix-wide details.ix-settings { margin: 0; }
+.ix.ix-wide .ix-controls { gap: .35em; }
+/* The sliders' help texts stay on the page: enlarged, the tables get their room */
+.ix.ix-wide .ix-control small { display: none; }
+.md-typeset .ix.ix-wide .ix-table { margin-top: .5em; font-size: .64rem; }
+.md-typeset .ix.ix-wide .ix-table th, .md-typeset .ix.ix-wide .ix-table td { padding: .2em .4em; }
+
 /* On paper: the static drawing and every example's answer */
 @media print {
   .md-typeset .ix [data-live], .md-typeset .ix .ix-live-plot { display: none !important; }

@@ -1157,7 +1157,7 @@ def steps_html() -> str:
         ' class="ix-previous">Previous</button><span class="ix-step-count"'
         ' aria-live="polite"></span><button type="button" class="ix-next">Next</button><button'
         ' type="button" class="ix-reset" title="Back to the robot\'s own values">Reset'
-        ' values</button></div>',
+        ' values</button><button type="button" class="ix-enlarge">Enlarge</button></div>',
         f'<ol class="ix-examples">{"".join(example_item_html(e) for e in EXAMPLES)}</ol>',
         '</div>',
     ])
@@ -1195,11 +1195,19 @@ def plot_html(drawing: StaticDrawing) -> str:
 
 
 def results_html() -> str:
-    """Return the places of the answer, the summary and the two tables, filled by the script."""
+    """Return the places of the answer and the summary, filled by the script."""
     return ''.join([
         '<div class="ix-results" data-live hidden>',
         '<p class="ix-shown-answer" tabindex="-1"></p>',
         '<p class="ix-summary" id="motion-lab-summary"></p>',
+        '</div>',
+    ])
+
+
+def tables_html() -> str:
+    """Return the places of the motion table and the check table, filled by the script."""
+    return ''.join([
+        '<div class="ix-tables" data-live hidden>',
         '<table class="ix-table"><caption>Motion at the end of the drive, from the start pose, as'
         ' the test measures it</caption><thead><tr><th scope="col">View</th><th'
         ' scope="col">forward</th><th scope="col">left</th><th scope="col">turned</th></tr>'
@@ -1275,11 +1283,17 @@ def build() -> str:
         '<!-- Written by scripts/figures/motion_lab_figures.py -->',
         '<figure class="ix ix-motion" data-ix="motion-lab">',
         f'<script type="application/json" class="ix-data">{data}</script>',
+        # Enlarged, the figure shows the stage and the side next to each other
+        '<div class="ix-stage">',
         steps_html(),
         toolbar_html(),
         plot_html(static_drawing(EXAMPLES[0])),
         results_html(),
+        '</div>',
+        '<div class="ix-side">',
+        tables_html(),
         settings_html(),
+        '</div>',
         '<div class="ix-announce" aria-live="polite"></div>',
         caption_html(),
         '</figure>',

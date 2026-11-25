@@ -60,6 +60,7 @@ CUT_CELLS = """figure => [...document.querySelectorAll(
     .filter((cell) => cell.scrollWidth > cell.clientWidth + 1).map((cell) => cell.innerText)"""
 PHONE = {'width': 390, 'height': 844, 'is_mobile': True, 'has_touch': True}
 SMALL_PHONE = {**PHONE, 'width': 320, 'height': 700}
+FULL_HD = {'width': 1920, 'height': 1080}
 
 
 class MotionRow(NamedTuple):
@@ -328,6 +329,42 @@ class TestMotionLabPage(unittest.TestCase):
         page.touchscreen.tap(x, y)
         self.assertEqual(page.input_value(f'#{slider.element_id}'),
                          str(getattr(figures.DEFAULT_SETTINGS, slider.setting)))
+
+    def test_enlarged_figure_shows_question_drawing_results_and_values_in_one_window(
+        self,
+    ) -> None:
+        page = self.open_live_figure(reduced_motion='reduce', **FULL_HD).page
+        page.click(f'{FIGURE} [data-example="{figures.EXAMPLES[0].key}"]')
+        page.click(f'{FIGURE} .ix-enlarge')
+        parts = ('.ix-current .ix-question', '.ix-plot', '.ix-playbar', '.ix-shown-answer',
+                 '.ix-summary', f'#{figures.CONFIGURATION_SLIDERS[0].element_id}',
+                 '.ix-check-rows tr:last-child')
+        outside = page.evaluate("""([figure, parts]) => parts.filter((part) => {
+            const box = document.querySelector(`${figure} ${part}`).getBoundingClientRect();
+            return box.top < 0 || box.left < 0
+                || box.bottom > innerHeight || box.right > innerWidth;
+        })""", [FIGURE, list(parts)])
+        self.assertEqual(outside, [])
+
+    def test_enlarged_figure_cuts_no_table_cell(self) -> None:
+        # Enlarged on a 1440 px screen, the tables sit in the narrower right-hand column
+        page = self.open_live_figure(reduced_motion='reduce', width=1440, height=900).page
+        page.click(f'{FIGURE} [data-example="{figures.EXAMPLES[0].key}"]')
+        page.click(f'{FIGURE} .ix-enlarge')
+        self.assertEqual(page.evaluate(CUT_CELLS, FIGURE), [])
+
+    def test_escape_brings_the_enlarged_figure_back_to_the_page(self) -> None:
+        page = self.open_live_figure(**FULL_HD).page
+        page.click(f'{FIGURE} .ix-enlarge')
+        page.keyboard.press('Escape')
+        position = page.eval_on_selector(FIGURE, 'figure => getComputedStyle(figure).position')
+        self.assertNotEqual(position, 'fixed')
+        self.assertTrue(page.eval_on_selector(
+            f'{FIGURE} .ix-enlarge', 'button => document.activeElement === button'))
+
+    def test_enlarge_is_hidden_on_a_phone(self) -> None:
+        page = self.open_live_figure(**PHONE).page
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-enlarge'))
 
     def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
         # With reduced motion, the changed drive and its answer show at once
