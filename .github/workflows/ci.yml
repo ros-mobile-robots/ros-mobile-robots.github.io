@@ -52,9 +52,10 @@ jobs:
         run: python -m unittest discover -s tests/browser -v
 
   deploy:
-    # Only pushes to main publish the site, not pull requests or manual runs
+    # Only pushes to main publish the site, not pull requests or manual runs, and only when the
+    # interactive figures passed their browser tests too
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, browser]
     runs-on: ubuntu-latest
     permissions:
       contents: write
