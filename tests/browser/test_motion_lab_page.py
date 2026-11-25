@@ -272,6 +272,26 @@ class TestMotionLabPage(unittest.TestCase):
         page.click(f'{FIGURE} [data-example="{example.key}"]')
         self.assertTrue(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 
+    def test_changed_values_keep_the_drawing_and_the_controls_in_place(self) -> None:
+        radius = figures.CONFIGURATION_SLIDERS[0]
+        separation = figures.CONFIGURATION_SLIDERS[1]
+        offset = next(s for s in figures.WHAT_IF_SLIDERS if s.setting == 'offset_mm')
+        example = figures.EXAMPLES[0]
+        for size in ({'width': 1280, 'height': 900}, PHONE):
+            with self.subTest(width=size['width']):
+                page = self.open_live_figure(reduced_motion='reduce', **size).page
+                page.click(f'{FIGURE} [data-example="{example.key}"]')
+                page.eval_on_selector(f'{FIGURE} .ix-settings',
+                                      'details => { details.open = true; }')
+                places = (f'{FIGURE} .ix-plot', f'#{separation.element_id}')
+                before = [top_of(page, place) for place in places]
+                for slider, value in ((radius, radius.lowest), (radius, radius.highest),
+                                      (offset, offset.highest)):
+                    page.fill(f'#{slider.element_id}', str(value))
+                    page.dispatch_event(f'#{slider.element_id}', 'input')
+                    self.assertEqual([top_of(page, place) for place in places], before,
+                                     f'{slider.setting} {value}')
+
     def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
         # With reduced motion, the changed drive and its answer show at once
         page = self.open_live_figure(reduced_motion='reduce').page

@@ -276,8 +276,16 @@ function mount(root) {
     }
     const failing = checks.filter((check) => !check.passes).map((check) => check.nameInSentence);
     text += `${checks.length - failing.length} of ${checks.length} checks pass.`;
-    if (failing.length) text += ` Failing: ${failing.join(', ')}.`;
-    find('.ix-summary').textContent = text;
+    // The failing checks' names are for screen readers: the check table shows them, and the box
+    // keeps its size when other checks fail
+    const summary = find('.ix-summary');
+    summary.textContent = text;
+    if (failing.length) {
+      const names = document.createElement('span');
+      names.className = 'ix-sr';
+      names.textContent = ` Failing: ${failing.join(', ')}.`;
+      summary.append(names);
+    }
   }
 
   function renderSliderValues(inputs) {
@@ -295,7 +303,11 @@ function mount(root) {
     show('contact_percent', `${setting('contact_percent')} % · ${contact} mm apart`,
       `${setting('contact_percent')} percent, ${contact} millimeters apart`);
     show('tracking_percent', `${setting('tracking_percent')} %`, `${setting('tracking_percent')} percent of the commanded speed`);
-    for (const entry of findAll('.ix-legend [data-view="axle"]')) entry.hidden = inputs.frameOffset === 0;
+    // The axle's entry keeps its place while unused, so the legend keeps its lines
+    for (const entry of findAll('.ix-legend [data-view="axle"]')) {
+      entry.hidden = false;
+      entry.style.visibility = inputs.frameOffset === 0 ? 'hidden' : '';
+    }
   }
 
   function update() {
@@ -358,10 +370,12 @@ function mount(root) {
     const own = isExampleDrive();
     const answerAppears = own && reachedEnd && !answered.has(key);
     if (answerAppears) answered.add(key);
-    answer.hidden = !(own && answered.has(key));
+    // A shown answer keeps its place while other values are set, so nothing below it moves
+    answer.hidden = !answered.has(key);
+    answer.classList.toggle('ix-off', !own);
     // While the answer shows, the button keeps its place, invisible, so the questions' height
     // stays. With other values it shows again: it brings back the example's own drive.
-    find('.ix-current').classList.toggle('ix-revealed', !answer.hidden);
+    find('.ix-current').classList.toggle('ix-revealed', own && answered.has(key));
     root.classList.toggle('ix-waiting', !reachedEnd);
     if (answerAppears) return 'answer';
     return resultsAppear ? 'results' : null;
