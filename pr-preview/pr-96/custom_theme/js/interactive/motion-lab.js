@@ -11,6 +11,8 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const MILLISECONDS_PER_SECOND = 1000;
 // Screen readers hear the result once a change is complete: this long after the last change
 const ANNOUNCE_DELAY_MS = 400;
+// Two taps on a slider within this time reset it: touch screens send no double click
+const DOUBLE_TAP_MS = 350;
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -276,8 +278,16 @@ function mount(root) {
     }
     const failing = checks.filter((check) => !check.passes).map((check) => check.nameInSentence);
     text += `${checks.length - failing.length} of ${checks.length} checks pass.`;
-    if (failing.length) text += ` Failing: ${failing.join(', ')}.`;
-    find('.ix-summary').textContent = text;
+    // The failing checks' names are for screen readers: the check table shows them, and the box
+    // keeps its size when other checks fail
+    const summary = find('.ix-summary');
+    summary.textContent = text;
+    if (failing.length) {
+      const names = document.createElement('span');
+      names.className = 'ix-sr';
+      names.textContent = ` Failing: ${failing.join(', ')}.`;
+      summary.append(names);
+    }
   }
 
   function renderSliderValues(inputs) {
@@ -295,7 +305,11 @@ function mount(root) {
     show('contact_percent', `${setting('contact_percent')} % · ${contact} mm apart`,
       `${setting('contact_percent')} percent, ${contact} millimeters apart`);
     show('tracking_percent', `${setting('tracking_percent')} %`, `${setting('tracking_percent')} percent of the commanded speed`);
-    for (const entry of findAll('.ix-legend [data-view="axle"]')) entry.hidden = inputs.frameOffset === 0;
+    // The axle's entry keeps its place while unused, so the legend keeps its lines
+    for (const entry of findAll('.ix-legend [data-view="axle"]')) {
+      entry.hidden = false;
+      entry.style.visibility = inputs.frameOffset === 0 ? 'hidden' : '';
+    }
   }
 
   function update() {
@@ -358,10 +372,12 @@ function mount(root) {
     const own = isExampleDrive();
     const answerAppears = own && reachedEnd && !answered.has(key);
     if (answerAppears) answered.add(key);
-    answer.hidden = !(own && answered.has(key));
+    // A shown answer keeps its place while other values are set, so nothing below it moves
+    answer.hidden = !answered.has(key);
+    answer.classList.toggle('ix-off', !own);
     // While the answer shows, the button keeps its place, invisible, so the questions' height
     // stays. With other values it shows again: it brings back the example's own drive.
-    find('.ix-current').classList.toggle('ix-revealed', !answer.hidden);
+    find('.ix-current').classList.toggle('ix-revealed', own && answered.has(key));
     root.classList.toggle('ix-waiting', !reachedEnd);
     if (answerAppears) return 'answer';
     return resultsAppear ? 'results' : null;
@@ -407,10 +423,19 @@ function mount(root) {
     update();
     showResults();
   }
+  // A double click, or on a touch screen a double tap, sets one slider back to the robot's value
+  let lastTap = { input: null, time: 0 };
   for (const [name, input] of Object.entries(sliders)) {
+    const resetOne = () => { input.value = defaults()[name]; redraw(); announce(); };
     input.addEventListener('input', redraw);
     input.addEventListener('change', announce);
-    input.addEventListener('dblclick', () => { input.value = defaults()[name]; redraw(); announce(); });
+    input.addEventListener('dblclick', resetOne);
+    input.addEventListener('pointerup', (event) => {
+      if (event.pointerType === 'mouse') return;
+      const second = lastTap.input === input && event.timeStamp - lastTap.time < DOUBLE_TAP_MS;
+      lastTap = second ? { input: null, time: 0 } : { input, time: event.timeStamp };
+      if (second) resetOne();
+    });
   }
   find('.ix-robot-select').addEventListener('change', (event) => {
     selectRobot(event.target.value); resetSliders(); redraw(); announce();
@@ -418,7 +443,10 @@ function mount(root) {
   for (const button of findAll('[data-command]')) {
     button.addEventListener('click', () => { selectCommand(button.dataset.command); redraw(); announce(); });
   }
-  find('.ix-reset').addEventListener('click', () => { resetSliders(); redraw(); announce(); });
+  // Reset: next to the examples and in the block of values
+  for (const button of findAll('.ix-reset')) {
+    button.addEventListener('click', () => { resetSliders(); redraw(); announce(); });
+  }
 
   // The guided examples, one at a time. An example opens with its question and its own drive,
   // with its one value changed, at the drive's start: the time slider and Play show the drive, and

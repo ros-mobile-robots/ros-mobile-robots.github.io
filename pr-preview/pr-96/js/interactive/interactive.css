@@ -83,16 +83,22 @@
 .ix.ix-is-live .ix-examples > li.ix-revealed .ix-show { visibility: hidden; }
 .ix .ix-answer, .ix .ix-shown-answer { display: block; margin-top: .25em; padding-left: .6em; border-left: 3px solid var(--ix-line); }
 .md-typeset .ix .ix-shown-answer { margin: .8em 0 0; }
+/* The example's answer while other values are set: its place stays */
+.ix .ix-shown-answer.ix-off { visibility: hidden; }
 .ix .ix-show { display: block; margin-top: .4em; }
-.ix .ix-stepper { display: flex; align-items: center; gap: .8em; margin: .5em 0 0; }
+.ix .ix-stepper { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .8em; margin: .5em 0 0; }
+.ix .ix-stepper .ix-reset { margin-left: auto; }
 .ix .ix-stepper button:disabled { opacity: .4; cursor: default; }
 .ix .ix-step-count { font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* Results */
-.md-typeset .ix .ix-summary { margin: 1em 0 .4em; padding: .5em .7em; background: var(--ix-surface); border-radius: .2rem; }
+.md-typeset .ix .ix-summary { margin: 1em 0 .4em; padding: .5em .7em; background: var(--ix-surface); border-radius: .2rem; font-variant-numeric: tabular-nums; }
 /* A drive's results wait for its end */
 .md-typeset .ix.ix-waiting .ix-summary, .md-typeset .ix.ix-waiting .ix-table { display: none; }
 .md-typeset .ix .ix-table { display: table; width: 100%; margin: .8em 0 0; border-collapse: collapse; font-size: .7rem; font-variant-numeric: tabular-nums; }
+/* Fixed columns: a changed value never changes a column's width, so nothing below moves */
+.md-typeset .ix .ix-table { table-layout: fixed; }
+.md-typeset .ix .ix-table thead th:first-child { width: 40%; }
 .md-typeset .ix .ix-table caption { caption-side: top; padding: 0 0 .3em; text-align: left; font-weight: 700; }
 .md-typeset .ix .ix-table th, .md-typeset .ix .ix-table td { padding: .35em .5em; text-align: left; vertical-align: top; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
 .md-typeset .ix .ix-table thead th { font-weight: 700; color: var(--md-default-fg-color--light); }
@@ -122,14 +128,14 @@
 .ix .ix-controls { display: grid; gap: .7em; padding: .2em 0 .6em; font-size: .8rem; }
 .ix .ix-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 .8em; align-items: baseline; }
 .ix .ix-control label { font-weight: 700; }
-.ix .ix-control output { font-size: .7rem; color: var(--md-default-fg-color--light); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ix .ix-control output { min-width: 16ch; font-size: .7rem; color: var(--md-default-fg-color--light); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .ix .ix-control input, .ix .ix-control small { grid-column: 1 / -1; }
 .ix .ix-control small, .ix .ix-controls > small { font-size: .64rem; line-height: 1.4; color: var(--md-default-fg-color--light); }
 .ix .ix-choice { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .6em; }
 .ix .ix-choice > span, .ix .ix-choice > label { font-weight: 700; }
 .md-typeset .ix .ix-group { margin: .4em 0 -.2em; font-size: .64rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--md-default-fg-color--light); }
 .md-typeset .ix .ix-model-note { margin: .5em 0 0; font-size: .7rem; color: var(--md-default-fg-color--light); }
-.ix .ix-announce { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ix .ix-announce, .ix .ix-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* On paper: the static drawing and every example's answer */
 @media print {
