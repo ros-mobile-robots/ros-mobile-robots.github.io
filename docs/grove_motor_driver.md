@@ -64,6 +64,7 @@ The level shifter connects `A1` with `B1` and `A2` with `B2` itself. Don't conne
 
 Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and 5 V from the motor driver.
 The motor driver makes these 5 V from its batteries, with its own regulator.
+DiffBot's four NiMH cells are below the input range that Seeed specifies for the board, as [DiffBot: four NiMH cells and the Grove I2C Motor Driver](power-supply.md#diffbot-four-nimh-cells-and-the-grove-i2c-motor-driver) on the Power Supply page explains.
 Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the I2C connector, and Seeed asks for the jumper when 5 V should be supplied to the I2C bus ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
 Connect this VCC pin only to the level shifter's `HV`, never to the Raspberry Pi, which has its own supply.
 The GND pin of the I2C connector is connected to the board's ground, with or without the jumper.
@@ -72,11 +73,11 @@ Keep the motor driver powered whenever the Raspberry Pi has power.
 Without its batteries, the motor driver would get current from the Raspberry Pi's 3.3 V side through the level shifter and the SDA and SCL wires.
 These wires end at the board's microcontroller, an ATmega8 ([Seeed's schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)), and each of its pins has a protection diode to its supply line ([ATmega8 datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf), I/O Ports).
 The level shifter keeps the two sides apart only when the Raspberry Pi's side is off ([Philips application note AN97055](https://cdn-shop.adafruit.com/datasheets/an97055.pdf), section 2.3.4).
-So change the batteries in this order:
+So recharge the cells in this order:
 
 1. Stop the motors and shut down the Raspberry Pi.
 2. Unplug the Raspberry Pi's power bank. After a shutdown, the Raspberry Pi keeps power on its header while the power bank is plugged in ([Raspberry Pi's bootloader documentation, `POWER_OFF_ON_HALT`](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#POWER_OFF_ON_HALT)).
-3. Replace all four batteries.
+3. Take out the four cells, recharge them as [Charging the NiMH cells](power-supply.md#charging-the-nimh-cells) on the Power Supply page describes, and put them back.
 4. Plug the power bank in again, which starts the Raspberry Pi.
 
 Make sure to set the address with the dip switches on the motor driver to `0x0f` because this is the default address used

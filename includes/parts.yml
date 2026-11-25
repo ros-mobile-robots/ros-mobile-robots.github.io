@@ -187,7 +187,7 @@ configurations:
         note: Six cells go into the robot and two are spare, see [Power Supply](/power-supply.md)
       - part: nitecore-ums4
         quantity: 1
-        note: Charges four NiMH cells at a time, see [Charging Remo's NiMH cells](/power-supply.md#charging-remos-nimh-cells)
+        note: Charges four NiMH cells at a time, see [Charging the NiMH cells](/power-supply.md#charging-the-nimh-cells)
       - part: usb-c-cable
         quantity: 1
         legacy_price: "$6.99"
