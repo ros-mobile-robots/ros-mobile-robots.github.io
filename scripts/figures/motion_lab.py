@@ -596,26 +596,6 @@ def build() -> str:
             '<script type="application/json"'
             f' class="ix-data">{json.dumps(data, separators=(",", ":"))}</script>'
         ),
-        f'<ul class="ix-legend">{legend}</ul>',
-        f'<div class="ix-plot" style="aspect-ratio: 1 / {ASPECT}">{drawing}</div>',
-        (
-            f'<p class="ix-plotnote"><span class="ix-gridnote">{grid_note}</span> '
-            '<span class="ix-time">t = 3.0 s, the end</span></p>'
-        ),
-        (
-            '<div class="ix-playbar" data-live hidden><button type="button"'
-            ' class="ix-play">Play</button><input type="range" class="ix-scrub" min="0" max="1000"'
-            ' value="1000" aria-label="Time in the drive"></div>'
-        ),
-        (
-            '<figcaption>One drive of the simulation test from above. Solid orange: where the'
-            " robot really is, in this figure's model. Dashed blue: where the odometry says the"
-            ' robot is, drawn with the wheel radius and separation that the controller is'
-            ' configured with. Gray cross: where the command alone would put the robot. Faint:'
-            ' the start. Both frames are <code>base_footprint</code>.<span'
-            ' class="ix-static-note"> The picture shows the first example, with'
-            f" {ROBOTS[EXAMPLE_ROBOT].name}'s values.</span></figcaption>"
-        ),
         '<div class="ix-steps">',
         (
             f'<p><b>{NUMBER_WORDS[len(EXAMPLES)]} drives to try.</b> Each one changes a single'
@@ -628,7 +608,28 @@ def build() -> str:
         ),
         f'<ol class="ix-examples">{"".join(examples)}</ol>',
         '</div>',
+        '<div class="ix-toolbar">',
+        (
+            '<div class="ix-choice" role="group" aria-label="Command" data-live hidden>'
+            '<span>Command</span><button type="button" data-command="forward"'
+            ' aria-pressed="true">Drive 0.6 m</button><button type="button" data-command="turn"'
+            ' aria-pressed="false">Turn 1.5 rad</button></div>'
+        ),
+        f'<ul class="ix-legend">{legend}</ul>',
+        '</div>',
+        f'<div class="ix-plot" style="aspect-ratio: 1 / {ASPECT}">{drawing}</div>',
+        (
+            f'<p class="ix-plotnote"><span class="ix-gridnote">{grid_note}</span><span'
+            f' class="ix-static-note">The first example, with {ROBOTS[EXAMPLE_ROBOT].name}\'s'
+            ' values</span><span class="ix-time">t = 3.0 s, the end</span></p>'
+        ),
+        (
+            '<div class="ix-playbar" data-live hidden><button type="button"'
+            ' class="ix-play">Play</button><input type="range" class="ix-scrub" min="0" max="1000"'
+            ' value="1000" aria-label="Time in the drive"></div>'
+        ),
         '<div class="ix-results" data-live hidden>',
+        '<p class="ix-shown-answer" tabindex="-1"></p>',
         '<p class="ix-summary" id="motion-lab-summary"></p>',
         (
             '<table class="ix-table"><caption>Motion at the end of the drive, from the start pose,'
@@ -651,12 +652,6 @@ def build() -> str:
         (
             '<div class="ix-control ix-choice"><label for="motion-lab-robot">Robot</label>'
             f'<select id="motion-lab-robot" class="ix-robot-select">{robots}</select></div>'
-        ),
-        (
-            '<div class="ix-control ix-choice" role="group"'
-            ' aria-label="Command"><span>Command</span><button type="button"'
-            ' data-command="forward" aria-pressed="true">Drive 0.6 m</button><button type="button"'
-            ' data-command="turn" aria-pressed="false">Turn 1.5 rad</button></div>'
         ),
         '<p class="ix-group">The controller\'s configuration</p>',
         slider(
@@ -697,6 +692,14 @@ def build() -> str:
         ),
         '</div>',
         '</details>',
+        '<div class="ix-announce" aria-live="polite"></div>',
+        (
+            '<figcaption><p>One drive of the simulation test from above. Solid orange: where the'
+            " robot really is, in this figure's model. Dashed blue: where the odometry says the"
+            ' robot is, drawn with the wheel radius and separation that the controller is'
+            ' configured with. Gray cross: where the command alone would put the robot. Faint:'
+            ' the start. Both frames are <code>base_footprint</code>.</p>'
+        ),
         (
             '<p class="ix-model-note"><b>What this figure computes.</b> Kinematics only: the'
             ' wheels roll without slipping and reach their speed at once, and the robot moves'
@@ -707,9 +710,8 @@ def build() -> str:
             ' tolerances: <a'
             f' href="{SOURCE_URL}/diffbot_control/config"><code>geometry.yaml</code></a> and <a'
             f' href="{SOURCE_URL}/diffbot_gazebo/test/test_drive.py"><code>test_drive.py</code>'
-            f'</a> at diffbot <code>{SOURCE_COMMIT[:7]}</code>.</p>'
+            f'</a> at diffbot <code>{SOURCE_COMMIT[:7]}</code>.</p></figcaption>'
         ),
-        '<div class="ix-announce" aria-live="polite"></div>',
         '</figure>',
     ]
     return '\n'.join(lines) + '\n'

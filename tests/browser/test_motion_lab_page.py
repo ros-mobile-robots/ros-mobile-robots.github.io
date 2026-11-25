@@ -70,7 +70,7 @@ class TestMotionLabPage(unittest.TestCase):
             if index:
                 page.click(f'{FIGURE} .ix-next')
                 # Before the answer: the robot's own values, with which every check passes
-                self.assertFalse(item.query_selector('.ix-answer').is_visible(), example)
+                self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'), example)
                 self.assertFalse(
                     [
                         row
@@ -80,7 +80,13 @@ class TestMotionLabPage(unittest.TestCase):
                     example,
                 )
                 page.click(f'{FIGURE} [data-example="{example}"]')
-            self.assertTrue(item.query_selector('.ix-answer').is_visible(), example)
+            # The answer shows under the drawing, with the text of the example's own answer
+            self.assertTrue(page.is_visible(f'{FIGURE} .ix-shown-answer'), example)
+            self.assertIn(
+                item.eval_on_selector('.ix-answer', 'answer => answer.textContent'),
+                page.inner_text(f'{FIGURE} .ix-shown-answer'),
+                example,
+            )
             motion = table_rows(page, f'{FIGURE} .ix-motion-rows tr')
             for row, view in ((motion[1], 'odometry'), (motion[2], 'model')):
                 for shown, value in zip(row[1:], expected[view]):
@@ -92,6 +98,28 @@ class TestMotionLabPage(unittest.TestCase):
             self.assertEqual(
                 [row[0] for row in checks if 'fails' in row[3]], expected['failing'], example
             )
+
+    def test_stepper_question_and_command_sit_above_the_drawing(self):
+        page, _ = self.open_live()
+        drawing = page.eval_on_selector(f'{FIGURE} .ix-plot', 'plot => plot.getBoundingClientRect().top')
+        for part in ('.ix-stepper', '.ix-current .ix-question', '[data-command="turn"]'):
+            self.assertTrue(page.is_visible(f'{FIGURE} {part}'), part)
+            bottom = page.eval_on_selector(
+                f'{FIGURE} {part}', 'element => element.getBoundingClientRect().bottom'
+            )
+            self.assertLessEqual(bottom, drawing, part)
+
+    def test_drawing_stays_in_place_from_one_example_to_the_next(self):
+        page, _ = self.open_live(width=390, height=844, is_mobile=True, has_touch=True)
+        top = 'plot => plot.getBoundingClientRect().top + window.scrollY'
+        first = page.eval_on_selector(f'{FIGURE} .ix-plot', top)
+        for example in page.eval_on_selector_all(
+            f'{FIGURE} [data-example-item]', 'items => items.map(item => item.dataset.exampleItem)'
+        )[1:]:
+            page.click(f'{FIGURE} .ix-next')
+            self.assertEqual(page.eval_on_selector(f'{FIGURE} .ix-plot', top), first, example)
+            page.click(f'{FIGURE} [data-example="{example}"]')
+            self.assertEqual(page.eval_on_selector(f'{FIGURE} .ix-plot', top), first, example)
 
     def test_value_on_a_tolerance_boundary_passes(self):
         page, _ = self.open_live()
