@@ -512,7 +512,7 @@ Each input's message carries the uncertainties of its values as a covariance mat
 The two inputs carry these matrices:
 
 - **The wheel odometry:** `twist.covariance` of a `nav_msgs/Odometry` message holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n$ = 6. Its variances lie at the indices 0, 7, 14, 21, 28 and 35.
-- **The IMU:** `angular_velocity_covariance` of a `sensor_msgs/Imu` message holds the 3 × 3 matrix $\boldsymbol\Sigma_{\boldsymbol\omega}$ of the angular velocity $\boldsymbol\omega = (\omega_x, \omega_y, \omega_z)$, with $n$ = 3. Its variances lie at the indices 0, 4 and 8.
+- **The IMU:** `angular_velocity_covariance` of a `sensor_msgs/Imu` message holds the 3 × 3 matrix of the angular velocity $\boldsymbol\omega = (\omega_x, \omega_y, \omega_z)$, with $n$ = 3. Its variances lie at the indices 0, 4 and 8.
 
 The figure shows both matrices with the index of each element:
 

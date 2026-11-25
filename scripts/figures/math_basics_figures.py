@@ -367,11 +367,9 @@ def normal_distribution_figure() -> Figure:
     """Return the drawing of the simulated IMU's noise and the shares within ±1, 2 and 3 σ."""
     shares = normal_shares()
     height = BRACKET_FIRST_Y + (len(STANDARD_DEVIATIONS) - 1) * BRACKET_SPACING + 10
-    figure = Figure('math-normal-distribution', 'The bell curve of the density of the simulated '
-                    "IMU's noise n, with the mean 0 and the standard deviation σ = "
-                    f'{SIMULATED_IMU_NOISE_SIGMA} rad/s. Within one, two and three standard '
-                    f'deviations of the mean lie {listed(shares)} of the values', height,
-                    DRAWING_WIDTH)
+    figure = Figure('math-normal-distribution', "The bell curve of the simulated IMU's noise, "
+                    f'with the shares {listed(shares)} within one, two and three standard '
+                    'deviations', height, DRAWING_WIDTH)
     for multiple in reversed(STANDARD_DEVIATIONS):
         figure.path(bell_band(multiple), 'noise-band')
     for multiple in STANDARD_DEVIATIONS:
@@ -446,7 +444,7 @@ def ellipse_path(plot: Plot, covariance: Covariance, standard_deviations: float)
     offset_x, offset_y = major * math.cos(angle), -major * math.sin(angle)
     start = Point(plot.origin.x + offset_x, plot.origin.y + offset_y)
     end = Point(plot.origin.x - offset_x, plot.origin.y - offset_y)
-    arc = f'A{major:.1f},{minor:.1f} {-axes.angle:g} 0 1'
+    arc = f'A{major:.1f},{minor:.1f} {-axes.angle + 0:g} 0 1'
     return (f'M{start.x:.1f},{start.y:.1f} {arc} {end.x:.1f},{end.y:.1f} '
             f'{arc} {start.x:.1f},{start.y:.1f} z')
 
@@ -532,11 +530,9 @@ def covariance_shares_figure() -> Figure:
     covariance, plot = EXAMPLE_COVARIANCE, OVERVIEW_PLOT
     shares = listed([percent(share_within_for_two_values(multiple))
                      for multiple in STANDARD_DEVIATIONS])
-    figure = Figure('math-covariance-shares', 'Three ellipses around the mean of a position '
-                    'estimate, one inside the other, for the covariance matrix with the '
-                    f'variances {covariance.xx:g} cm² and the covariance {covariance.xy:g} cm². '
-                    'Inside the ellipses of one, two and three standard deviations lie '
-                    f'{shares} of the positions', plot.drawing_bottom(), DRAWING_WIDTH)
+    figure = Figure('math-covariance-shares', 'The ellipses of one, two and three standard '
+                    'deviations around the mean, labeled with the shares inside: '
+                    f'{shares}', plot.drawing_bottom(), DRAWING_WIDTH)
     labels = share_labels(plot, covariance)
     mask = add_gap_mask(figure, [label.box for label in labels])
     for multiple in reversed(STANDARD_DEVIATIONS):
@@ -598,13 +594,10 @@ def covariance_axes_figure() -> Figure:
     axes = principal_axes(covariance)
     without_covariance = Covariance(covariance.xx, 0, covariance.yy)
     major, minor = math.sqrt(axes.major), math.sqrt(axes.minor)
-    figure = Figure('math-covariance-axes', 'The ellipse of one standard deviation of the '
-                    f'covariance matrix with the variances {covariance.xx:g} cm² and the '
-                    f'covariance {covariance.xy:g} cm². It is turned by {axes.angle:g}° and has '
-                    f'the semi-axes {length_text(major)} and {length_text(minor)}. A dashed '
-                    'circle with the radius '
-                    f'{length_text(math.sqrt(covariance.xx))} shows the ellipse without the '
-                    'covariance', plot.drawing_bottom(), DRAWING_WIDTH)
+    figure = Figure('math-covariance-axes', 'The ellipse of one standard deviation, turned by '
+                    f'{axes.angle:g}°, with its semi-axes of {length_text(major)} and '
+                    f'{length_text(minor)} and a dashed circle without the covariance',
+                    plot.drawing_bottom(), DRAWING_WIDTH)
     across = axes.angle - 90
     major_end = plot.at(major * math.cos(math.radians(axes.angle)),
                         major * math.sin(math.radians(axes.angle)))

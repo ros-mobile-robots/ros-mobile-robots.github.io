@@ -79,9 +79,9 @@ The robots' angular velocity comes with these numbers. The first is a setting of
 | The firmware's setting [`angular_velocity_variance`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71) for each axis, a starting value | $\sigma$ = 0.02 rad/s | $\sigma^2$ = 4 · 10⁻⁴ (rad/s)² |
 | The wheel odometry's yaw rate, a setting of the drive controller ([The two lists](../../packages/imu/robot_localization.md#the-two-lists)) | $\sigma \approx$ 0.17 rad/s | $\sigma^2$ = 0.03 (rad/s)² |
 
-The firmware's starting value is about a thousand times the variance that Remo's gyroscope showed at rest. The comment above the setting in [`diffbot_base_config.h`](https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_firmware/lib/config/diffbot_base_config.h#L55-L68) gives two reasons for the larger value:
+The firmware's starting value is about a thousand times the variance that Remo's gyroscope showed at rest. The comment above the setting in [`diffbot_base_config.h`](https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_firmware/lib/config/diffbot_base_config.h#L55-L68) gives a reason for the larger value and a condition for changing the value:
 
-- **The typical offset:** the BNO055's datasheet gives the gyroscope a typical offset of ±1 °/s, about 0.017 rad/s, with the chip's own offset cancellation switched off. The chosen standard deviation of 0.02 rad/s covers that offset too, so that the EKF doesn't take a yaw rate with a bias as exact.
+- **The typical offset:** the BNO055's datasheet gives the gyroscope a typical offset of ±1 °/s, about 0.017 rad/s, with the chip's own offset cancellation switched off ([BNO055 datasheet, table 0-2 on page 15](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=15)). The chosen standard deviation of 0.02 rad/s covers that offset too, so that the EKF doesn't take a yaw rate with a bias as exact.
 - **Vibration:** driving adds vibration, which a recording at rest doesn't contain. Before the value changes, the comment asks for a comparison with a recording while driving, in which the vibration has to be told apart from the robot's real turning.
 
 ## The normal distribution
@@ -337,7 +337,7 @@ The example leaves out the filter's other step. In the robot's filter, the estim
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp:159:197"
     ```
 
-**A variance of 0:** with $R$ = 0, $K$ is 1, and the filter would take the measurement as exact. If the estimate's variance $P$ were 0 as well, $K$ would be 0/0, which can't be computed. robot_localization's function `correct()` prevents both. It first replaces a negative variance of a measurement with its absolute value, and then a variance below 10⁻⁹ with 10⁻⁹. So a covariance of all zeros, which `sensor_msgs/Imu` defines as unknown, reaches the filter as almost certain. The robots' [IMU sample validator](../../packages/imu/robot_localization.md#checks-1-to-3-the-samples-form) drops a sample whose three variances of the angular velocity aren't all positive, before the EKF gets the sample.
+**A variance of 0:** with $R$ = 0, $K$ is 1, and the filter would take the measurement as exact. If the estimate's variance $P$ were 0 as well, $K$ would be 0/0, which can't be computed. robot_localization's function `correct()` prevents both. The function first replaces a negative variance of a measurement with its absolute value, and then a variance below 10⁻⁹ with 10⁻⁹. So a covariance of all zeros, which `sensor_msgs/Imu` defines as unknown, reaches the filter as almost certain. The robots' [IMU sample validator](../../packages/imu/robot_localization.md#checks-1-to-3-the-samples-form) drops a sample whose three variances of the angular velocity aren't all positive, before the EKF gets the sample.
 
 ??? quote "ekf.cpp, lines 119–143: negative and very small variances"
     The excerpt shows the two replacements in `correct()`, for each variance `measurementCovarianceSubset(i, i)` of the measurement:

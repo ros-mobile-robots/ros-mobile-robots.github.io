@@ -225,6 +225,12 @@ class TestEllipsePath(unittest.TestCase):
             # The drawing's y axis points down, so the turn is clockwise in its numbers
             self.assertEqual(float(turn), -45)
 
+    def test_ellipse_path_of_a_matrix_without_covariance_has_the_turn_0_without_a_sign(
+            self) -> None:
+        figures = load_script()
+        path = figures.ellipse_path(figures.OVERVIEW_PLOT, figures.UNCORRELATED_COVARIANCE, 1)
+        self.assertEqual(re.findall(r'A[\d.]+,[\d.]+ (\S+) 0 1', path), ['0', '0'])
+
 
 class TestLabels(unittest.TestCase):
     """A label on an ellipse stands on its ellipse and leaves the neighboring ones free."""
