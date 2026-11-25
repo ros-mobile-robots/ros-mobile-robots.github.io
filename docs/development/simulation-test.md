@@ -146,15 +146,15 @@ The code blocks show the files at the diffbot commit that this page pins, with t
 
 ### 1. The test file
 
-A `.test` file is a launch file for rostest. [`sim_drive_diffbot.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test):
+A `.test` file is a launch file for [rostest](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest). [`sim_drive_diffbot.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test) includes the launch file that starts DiffBot in Gazebo, and has two [`<test>`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L12-L24) elements:
 
 ```xml title="sim_drive_diffbot.test"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/sim_drive_diffbot.test"
 ```
 
-rostest turns each `<test>` element into a test of its own and runs them one after another, in alphabetical order of their names: first `drive_diffbot`, then `publish_diffbot`. For each one, it starts a ROS master, launches everything in the file that isn't a test node, here `sim_drive.launch` ([step 2][s2]), and runs the test node until it ends. Then it reads the node's results and stops everything again ([`runner.py`](https://github.com/ros/ros_comm/blob/noetic-devel/tools/rostest/src/rostest/runner.py)). So each test node gets a freshly started Gazebo, and the two don't affect each other. `time-limit` is how long rostest waits for a node before it counts the test as failed.
+rostest turns each `<test>` element into a test of its own and runs them one after another, in alphabetical order of their names: first [`drive_diffbot`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L24), then [`publish_diffbot`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_diffbot.test#L12). For each one, it starts a ROS master, launches everything in the file that isn't a test node, here [`sim_drive.launch` (step 2)][s2], and runs the test node until it ends. Then it reads the node's results and stops everything again ([`runner.py`](https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/rostest/src/rostest/runner.py)). So each test node gets a freshly started Gazebo, and the two don't affect each other. [`time-limit`](https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/roslaunch/src/roslaunch/launch.py#L696-L703) is how long rostest waits for a node before it counts the test as failed.
 
-`sim_drive_remo.test` differs only in the robot model, the port and the test names.
+[`sim_drive_remo.test`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive_remo.test) differs only in the robot model, the port and the test names.
 
 ### 2. The launch file
 
@@ -171,26 +171,26 @@ rostest turns each `<test>` element into a test of its own and runs them one aft
 
 ### 3. Connecting to the robot
 
-rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py) as a ROS node. Its last line, `rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)`, runs the [unittest](https://docs.python.org/3/library/unittest.html) class `TestDrive` and writes the results to a file that rostest reads. unittest calls `setUpClass()` once, then the test methods. [`test_drive.py`, lines 113–133]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L113-L133):
+rostest starts [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py) as a ROS node. Its last line, [`rostest.rosrun('diffbot_gazebo', 'test_drive', TestDrive)`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L227), runs the [unittest](https://docs.python.org/3/library/unittest.html) class [`TestDrive`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L113) and writes the results to a file that rostest reads. unittest calls [`setUpClass()`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L126-L133) once, then the test methods. [Lines 113–133]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L113-L133) show the class with the values that all tests share, and `setUpClass()`, which connects the node to the robot:
 
 ```python title="test_drive.py: TestDrive.setUpClass()" linenums="113"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:113:133"
 ```
 
-- `rospy.init_node()` registers the node with the ROS master. The constants at the top of the file, such as `CMD_VEL_TOPIC`, hold the full topic names.
-- The publisher sends velocity commands, `Twist` messages, to the controller.
-- The two subscribers call `on_odom()` for each odometry message, and `on_model_states()` for each `model_states` message. Gazebo publishes `model_states` in every simulation step, so `queue_size=1` keeps only the newest message instead of falling behind.
-- `rospy.wait_for_message()` waits for the first message on a topic. If none comes within the timeout, it raises an exception and the tests fail, for example when the controller doesn't start because of a wrong joint name.
+- [`rospy.init_node()`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L127) registers the node with the ROS master. The constants at the top of the file, such as [`CMD_VEL_TOPIC`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L30), hold the full topic names.
+- The publisher sends velocity commands, [`Twist`](#drive) messages, to the controller.
+- The two subscribers call [`on_odom()`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L136-L137) for each odometry message, and [`on_model_states()`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L140-L145) for each [`model_states`](#three-views-of-the-motion) message. Gazebo publishes `model_states` in every simulation step, so [`queue_size=1`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L130) keeps only the newest message instead of falling behind.
+- [`rospy.wait_for_message()`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L132-L133) waits for the first message on a topic. If none comes within the timeout, it raises an exception and the tests fail, for example when the controller doesn't start because of a wrong joint name.
 
-The callbacks, [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L135-L145):
+The two callbacks are in [lines 135–145]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L135-L145). `on_odom()` stores the pose of every odometry message. `on_model_states()` stores the robot's true pose from every `model_states` message that lists the robot:
 
 ```python title="test_drive.py: the subscriber callbacks" linenums="135"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:135:145"
 ```
 
-rospy calls them in background threads whenever a message arrives, so `odom_pose` and `true_pose` always hold the latest pose. `msg.name.index(MODEL_NAME)` finds the robot's position in the list of model names, and its pose is at the same position in `msg.pose`.
+rospy calls them in background threads whenever a message arrives, so [`odom_pose`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L137) and [`true_pose`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L145) always hold the latest pose. `msg.name.index(MODEL_NAME)` finds the robot's position in the list of model names, and its pose is at the same position in [`msg.pose`](https://docs.ros.org/en/noetic/api/gazebo_msgs/html/msg/ModelStates.html).
 
-Both convert the ROS pose to a [`Pose2D`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L47-L52), a [named tuple](https://docs.python.org/3/library/typing.html#typing.NamedTuple) with $x$, $y$ and the heading $\theta$, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). [Lines 69–78]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L69-L78):
+Both convert the ROS pose to a [`Pose2D`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L47-L52), a [named tuple](https://docs.python.org/3/library/typing.html#typing.NamedTuple) with $x$, $y$ and the heading $\theta$, as on [Robot Representations](../theory/modeling-control/robot-representations.md#robot-pose). The function [`to_pose2d()` in lines 69–78]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L69-L78) does the conversion and takes the heading from the orientation's yaw:
 
 ```python title="test_drive.py: to_pose2d()" linenums="69"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:69:78"
@@ -206,17 +206,17 @@ The constants at the top of the file name the commands, [lines 36–44]({{ diffb
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:36:44"
 ```
 
-`test_forward()`, with the comment before the two tests, [lines 179–201]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L179-L201):
+[Lines 179–201]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L179-L201) show the comment before the two tests and [`test_forward()`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L186-L201), which calls [`measure_motion()`](#measure_motion) with the forward command and then checks the two motions that come back:
 
 ```python title="test_drive.py: test_forward()" linenums="179"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:179:201"
 ```
 
-It has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a `RelativePose`, with how far the robot moved forward and to the left, and how much it turned ([`relative_pose()`][s-rel]). `motions` describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
+`test_forward()` has two parts. `measure_motion()` drives the robot at 0.2 m/s for 3 s without turning, and returns how the robot moved, measured twice: `odom_motion` with the odometry, and `true_motion` with the true pose. Each one is a [`RelativePose`](#relative_pose), with how far the robot moved forward and to the left, and how much it turned (`relative_pose()`). [`motions`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L189) describes both, for the checks' failure messages. The rest are the checks ([The checks][s-checks]). The call names its arguments, so it reads without looking up `measure_motion()`.
 
 #### `measure_motion()`
 
-[Lines 164–177]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L164-L177):
+Both tests call the method [`measure_motion()` in lines 164–177]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L164-L177), which drives the robot and returns the motion twice, from the odometry and from the true pose:
 
 ```python title="test_drive.py: measure_motion()" linenums="164"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:164:177"
@@ -226,24 +226,24 @@ It keeps the latest odometry pose and true pose as the start poses, drives ([`dr
 
 #### `drive()`
 
-[Lines 147–157]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L147-L157):
+The method [`drive()` in lines 147–157]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L147-L157) sends the velocity command at [`COMMAND_RATE`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L44) until [`duration`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L147) seconds of simulation time have passed:
 
 ```python title="test_drive.py: drive()" linenums="147"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:147:157"
 ```
 
-- A `Twist` holds a linear and an angular velocity, each as a 3D vector. A differential drive robot can only drive along its x axis, `linear.x` in m/s, and turn about its z axis, `angular.z` in rad/s, positive to the left. The controller ignores the other values.
-- `rospy.Time.now()` and `rospy.Rate` follow Gazebo's clock ([step 2][s2]), so `duration` and `COMMAND_RATE` are in simulation time. Why the command is sent 20 times per second is in the comment above `COMMAND_RATE`.
+- A [`Twist`](https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) holds a linear and an angular velocity, each as a 3D vector. A differential drive robot can only drive along its x axis, `linear.x` in m/s, and turn about its z axis, `angular.z` in rad/s, positive to the left. The controller ignores the other values.
+- [`rospy.Time.now()`](../packages/imu/robot_localization/tests/validator.md#where-the-ros-time-comes-from) and [`rospy.Rate`](https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/clients/rospy/src/rospy/timer.py#L90-L103) follow Gazebo's clock ([step 2][s2]), so `duration` and `COMMAND_RATE` are in simulation time. Why the command is sent 20 times per second is in the comment above `COMMAND_RATE`.
 
 #### `stop()`
 
-[Lines 159–162]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L159-L162):
+The method [`stop()` in lines 159–162]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L159-L162) sends one command with all velocities 0 and then waits for one second:
 
 ```python title="test_drive.py: stop()" linenums="159"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:159:162"
 ```
 
-`Twist()` is a command with all velocities 0. The controller brakes as gently as it speeds up: from 0.2 m/s at 0.6 m/s², the robot needs 0.33 s to stop. One second of simulation time is enough for the robot to stand still, and for the odometry and Gazebo to publish its end pose.
+[`Twist()`](https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html) is a command with all velocities 0. The controller brakes as gently as it speeds up: from 0.2 m/s at 0.6 m/s², the robot needs 0.33 s to stop. One second of simulation time is enough for the robot to stand still, and for the odometry and Gazebo to publish its end pose.
 
 #### `relative_pose()`
 
@@ -298,21 +298,21 @@ A bigger mistake already fails the true pose's `forward` check: with a `wheel_ra
 
 ### 5. `test_turn()`
 
-[Lines 203–223]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L223). The highlighted lines are the ones that differ from `test_forward()`:
+Lines 203–223 show [`test_turn()`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L203-L223). The highlighted lines are the ones that differ from [`test_forward()`](#4-test_forward):
 
 ```python title="test_drive.py: test_turn()" linenums="203" hl_lines="3 8 10 14 15 21"
 --8<-- "{{ diffbot_src_raw }}/diffbot_gazebo/test/test_drive.py:203:223"
 ```
 
-It commands the angular velocity instead of the linear one and expects 0.5 rad/s for 3 s, so 1.5 rad to the left; the controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. [`math.hypot`](https://docs.python.org/3/library/math.html#math.hypot)`(forward, left)` is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever `test_forward()` left the robot; that doesn't matter, because it checks only the motion from there.
+`test_turn()` commands an angular velocity of 0.5 rad/s for 3 s instead of a linear one, and expects a turn of 1.5 rad to the left. The controller's angular acceleration limit of 6 rad/s² hardly matters. On the spot means that the robot's center stays where it was. [`math.hypot(forward, left)`](https://docs.python.org/3/library/math.html#math.hypot) is its distance from the start, the length of the hypotenuse of a right triangle with these two sides. The test starts wherever `test_forward()` left the robot. That doesn't matter, because `test_turn()` checks only the motion from there.
 
 | Check | Expected | Measured | Fails when |
 |:--|:--|:--|:--|
-| `turned` | 1.5 ± 0.3 rad | 1.47 to 1.50 rad | The robot turns 20 % too slow or too fast, turns right, for example with swapped wheel joints, or doesn't turn |
+| [`turned`](#relative_pose) | 1.5 ± 0.3 rad | 1.47 to 1.50 rad | The robot turns 20 % too slow or too fast, turns right, for example with swapped wheel joints, or doesn't turn |
 | Distance from the start | 0 ± 0.15 m | Odometry below 0.01 m, true pose 0.03 to 0.05 m | It drives off instead of turning on the spot |
-| Odometry and true `turned` | Within 0.1 rad | At most 0.03 rad apart | They turn clearly differently: a `wheel_radius` 10 % off gave 0.14 to 0.17 rad, a `wheel_separation` 10 % too big 0.12 to 0.15 rad |
+| Odometry and true `turned` | Within 0.1 rad | At most 0.03 rad apart | They turn clearly differently: a [`wheel_radius`](#three-views-of-the-motion) 10 % off gave 0.14 to 0.17 rad, a `wheel_separation` 10 % too big 0.12 to 0.15 rad ([the measurements in `test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L218-L223)) |
 
-**Why the true pose moves 3 to 5 cm during a turn on the spot.** The test tracks `base_footprint`, which lies behind the axle's midpoint: 1.85 cm on DiffBot and 3.6 cm on Remo. As the robot turns, that point follows a small arc. The controller computes the motion as if `base_footprint` were at the axle's midpoint. It doesn't account for this offset, so its odometry reports almost no translation during the turn.
+**Why the true pose moves 3 to 5 cm during a turn on the spot.** The test tracks [`base_footprint`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py#L213-L216), which lies behind the axle's midpoint: 1.85 cm on DiffBot and 3.6 cm on Remo. As the robot turns, that point follows a small arc. The controller computes the motion as if `base_footprint` were at the axle's midpoint. It doesn't account for this offset, so its odometry reports almost no translation during the turn.
 
 --8<-- "includes/simulation-test-pivot.html"
 
@@ -326,7 +326,7 @@ $$
 
 A separation set too big makes it turn farther, one set too small makes it turn less. That's why comparing the odometry with the true pose can show the mistake.
 
-In the tested cases only the agreement check caught it; a large enough error would fail the commanded-turn check too. A separation 10 % too big failed for both robots, at 0.12 and 0.15 rad. A separation 5 % too small failed for DiffBot, at 0.10 rad, but passed for Remo, at 0.075 rad: its true turn of about 1.424 rad is close to the 1.5 rad × 0.95 = 1.425 rad that the formula predicts, so for Remo the check catches separation errors from about 7 %. DiffBot already turns 0.03 rad less than its odometry, so for DiffBot the check is more sensitive to a separation that is too small. The test catches large configuration errors, but it can't tell whether the separation is right to within a few percent.
+In the tested cases, only the agreement check caught it. A large enough error would fail the commanded-turn check too. A separation 10 % too big failed for both robots, at 0.12 and 0.15 rad. A separation 5 % too small failed for DiffBot, at 0.10 rad, but passed for Remo, at 0.075 rad: its true turn of about 1.424 rad is close to the 1.5 rad × 0.95 = 1.425 rad that the formula predicts, so for Remo the check catches separation errors from about 7 %. DiffBot already turns 0.03 rad less than its odometry, so for DiffBot the check is more sensitive to a separation that is too small. The test catches large configuration errors, but it can't tell whether the separation is right to within a few percent.
 
 ### 6. `publishtest`
 
@@ -365,12 +365,12 @@ The checks that compare the odometry and the true pose allow these differences. 
 
 ## How to add a test
 
-As an example, this adds a test that drives backward. It runs for both robots, because both test files run `test_drive.py`.
+As an example, the steps below add a test that drives backward. It runs for both robots, because both test files run [`test_drive.py`]({{ diffbot_src_url }}/diffbot_gazebo/test/test_drive.py).
 
-1. **Write the test method.** Add it to the `TestDrive` class in [`test_drive.py`]({{ diffbot_repo_url }}/diffbot_gazebo/test/test_drive.py), next to `test_forward()`. The highlighted lines are the ones that differ from `test_forward()`:
+1. **Write the test method.** Add it to the [`TestDrive`](#3-connecting-to-the-robot) class in `test_drive.py`, next to [`test_forward()`](#4-test_forward). The highlighted lines are the ones that differ from `test_forward()`:
 
-    ```python title="test_backward() (example)" hl_lines="3 5"
-    def test_backward(self) -> None:
+    ```python title="test_backward_drive_matches_the_command() (example)" hl_lines="3 5"
+    def test_backward_drive_matches_the_command(self) -> None:
         odom_motion, true_motion = self.measure_motion(
             linear_velocity=-FORWARD_VELOCITY, angular_velocity=0.0, duration=DURATION)
         motions = f'odometry {odom_motion}, true pose {true_motion}'
@@ -382,7 +382,7 @@ As an example, this adds a test that drives backward. It runs for both robots, b
         self.assertAlmostEqual(odom_motion.forward, true_motion.forward, delta=0.03, msg=motions)
     ```
 
-    A negative linear velocity drives backward, so `forward` is negative: −0.6 m are expected. The tolerances are copied from `test_forward()` for a start. The method's name must start with `test`, so that unittest runs it. unittest runs it first, before `test_forward()`, because of the alphabetical order; that's fine, because each test checks only its own motion.
+    A negative linear velocity drives backward, so [`forward`](#relative_pose) is negative: −0.6 m are expected. The tolerances are copied from `test_forward()` for a start. The method's name must start with `test`, so that [unittest](https://docs.python.org/3.8/library/unittest.html#unittest.TestLoader.testMethodPrefix) runs it, and it says what the test checks, as a sentence: the subject, the result, then the condition when one is needed. This name needs none. unittest runs it first, before `test_forward()`, because of the alphabetical order. That's fine, because each test checks only its own motion.
 
 2. **Run it** for both robots, as in [Run it](#run-it):
 
@@ -391,15 +391,15 @@ As an example, this adds a test that drives backward. It runs for both robots, b
     rostest diffbot_gazebo sim_drive_remo.test
     ```
 
-    The summary now lists `test_backward` too, for example `[diffbot_gazebo.rosunit-drive_diffbot/test_backward][passed]`.
+    The summary now lists `test_backward_drive_matches_the_command` too, for example `[diffbot_gazebo.rosunit-drive_diffbot/test_backward_drive_matches_the_command][passed]`.
 
-3. **Look at the measured values** in the result file, as in [Read the results](#read-the-results). The first two lines are now `test_backward()`'s motions. In our run, DiffBot drove −0.57 m by the odometry and −0.58 m by the true pose, and turned 0.1 rad to the right on the way, more than when it drives forward. Remo drove −0.58 and −0.59 m, almost without turning.
+3. **Look at the measured values** in the result file, as in [Read the results](#read-the-results). The first two lines are now `test_backward_drive_matches_the_command()`'s motions. In our run, DiffBot drove −0.57 m by the odometry and −0.58 m by the true pose, and turned 0.1 rad to the right on the way, more than when it drives forward. Remo drove −0.58 and −0.59 m, almost without turning.
 
-4. **Choose the tolerances.** Each tolerance should allow what both robots measure and reject the mistakes the test should catch. To see what a mistake gives, make one on purpose: for example, make `wheel_radius` in [`config/diffbot/geometry.yaml`]({{ diffbot_src_url }}/diffbot_control/config/diffbot/geometry.yaml) 10 % bigger, run the test again, look at the values, and undo the change. Then set each tolerance between the two, and write in a comment what you measured.
+4. **Choose the tolerances.** Each tolerance should allow what both robots measure and reject the mistakes the test should catch. To see what a mistake gives, make one on purpose: for example, make [`wheel_radius`](#three-views-of-the-motion) in [`config/diffbot/geometry.yaml`]({{ diffbot_src_url }}/diffbot_control/config/diffbot/geometry.yaml) 10 % bigger, run the test again, look at the values, and undo the change. Then set each tolerance between the two, and write in a comment what you measured.
 
-5. **Keep the file's style:** [PEP 8](https://peps.python.org/pep-0008/) with ROS 2's line length of 99 characters ([ament_flake8's settings](https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini)), [type hints](https://docs.python.org/3/library/typing.html), and named constants instead of bare numbers in the commands.
+5. **Keep the file's style:** [PEP 8](https://peps.python.org/pep-0008/) with ROS 2's line length of 99 characters ([ament_flake8's settings](https://github.com/ament/ament_lint/blob/rolling/ament_flake8/ament_flake8/configuration/ament_flake8.ini)), [type hints](https://docs.python.org/3/library/typing.html), and named constants instead of bare numbers in the commands. [diffbot's AGENTS.md](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/AGENTS.md) has all the rules.
 
-A test that needs another world or robot needs its own `.test` file. Register it with `add_rostest` in the package's [`CMakeLists.txt`]({{ diffbot_repo_url }}/diffbot_gazebo/CMakeLists.txt), and give it its own `gazebo_port` (the comment in [`sim_drive.launch`][s2] explains why).
+A test that needs another world or robot needs its own [`.test`](#1-the-test-file) file. Register it with [`add_rostest`](ci.md#writing-tests-and-debugging) in the package's [`CMakeLists.txt`]({{ diffbot_src_url }}/diffbot_gazebo/CMakeLists.txt#L219-L220), and give it its own [`gazebo_port`]({{ diffbot_src_url }}/diffbot_gazebo/test/sim_drive.launch#L9-L10) (the comment in [`sim_drive.launch`][s2] explains why).
 
 [s1]: #1-the-test-file
 [s2]: #2-the-launch-file
