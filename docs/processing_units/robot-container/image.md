@@ -1,36 +1,20 @@
 # Image and Tests
 
-The [robot container](index.md) runs ROS Noetic and the robot's packages on the Raspberry Pi from one Docker image, which CI builds and the Raspberry Pi downloads. This page explains how the image is built, what takes its space, and how CI tests and publishes the image. You don't need the page to use the robot container. The page is for changing the image, or for understanding the image.
+The [robot container](index.md) runs ROS Noetic and the robot's packages on the Raspberry Pi from one Docker image, which CI builds and the Raspberry Pi downloads. This page explains how the image is built, what takes its space, and how CI tests and publishes the image. You don't need the page to use the robot container. The page is for changing the image, or for understanding the image. The [Code Walkthrough](walkthrough.md) goes through the files behind the image, block by block.
 
 The page follows the image's way: [how it's built](#how-the-image-is-built), [what takes the space](#what-takes-the-space), [how it's tested](#how-its-tested) and [how it's published](#how-its-published).
 
 ## How the image is built
 
-The robot's Docker image is defined in the diffbot repository's [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot) folder. Its [`Dockerfile`]({{ robot_container_src_url }}/.docker/robot/Dockerfile) starts from the official ROS image [`ros:noetic-ros-base`](https://hub.docker.com/_/ros), which exists for arm64 and amd64. It then adds the robot's packages in three steps, with the same tools as a native workspace:
+The robot's Docker image is defined in the diffbot repository's [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot) folder. Its [`Dockerfile`]({{ robot_container_src_url }}/.docker/robot/Dockerfile) starts from the official ROS image [`ros:noetic-ros-base`](https://hub.docker.com/_/ros), which exists for arm64 and amd64. The Dockerfile then adds the robot's packages in three steps, with the same tools as a native workspace:
 
 1. **[vcstool](../../packages/packages-setup.md#source-dependencies)** fetches the repositories listed in [`remo_robot.repos`]({{ robot_container_src_url }}/remo_robot.repos): Remo's model [`remo_description`](../../packages/remo_description.md) and the lidar driver [`rplidar_ros`](https://github.com/ros-mobile-robots/rplidar_ros/tree/0c474e311f925f81ffba97313745f80a2de02e68).
 2. **[rosdep]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L72-L81)** installs the Ubuntu and ROS packages that the packages' [`package.xml`](https://www.ros.org/reps/rep-0140.html) files declare as dependencies.
 3. **[catkin](../ros-setup.md#build-tool-catkin_tools)** builds the packages, in the workspace [`/home/ros/catkin_ws`]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L68).
 
-A [catkin workspace](https://wiki.ros.org/catkin/workspaces) is a folder whose `src` folder holds the source code of ROS packages, which catkin builds together. The image has one, with the diffbot repository and the two fetched repositories in `src` ([folders in the container](setup.md#6-the-diffbot-repository)). The dev container on your PC has its own.
+[The Dockerfile](walkthrough.md#the-dockerfile) in the Code Walkthrough goes through the file block by block: the two stages, the user `ros`, the list of packages, why rosdep gets each package's folder, and what a container runs.
 
-Which packages are built is a list in the Dockerfile ([lines 58–61]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L58-L61)): the packages that the bringup and the lidar need, for both robots.
-
-```dockerfile title="Dockerfile" linenums="58"
---8<-- "{{ robot_container_src_raw }}/.docker/robot/Dockerfile:58:61"
-```
-
-The list is needed because rosdep reads only the `package.xml` files it's given. In its `package.xml`, a package declares each other package it needs when the robot runs with an [`<exec_depend>`](https://www.ros.org/reps/rep-0140.html#exec-depend-multiple) line, for example:
-
-```xml title="diffbot_bringup/package.xml"
-<exec_depend>diffbot_base</exec_depend>
-```
-
-With this line, rosdep would recognize [`diffbot_base`](../../packages/diffbot_base/index.md) as a package of the workspace. But it wouldn't read `diffbot_base`'s own `package.xml`, so it wouldn't install what `diffbot_base` needs, such as [rosserial](../teensy-mcu.md#other-boards-such-as-an-arduino) (our test with rosdep 0.25.1 in the ROS image). That's why rosdep gets the `package.xml` of each package to build.
-
-catkin does follow these lines: `catkin build diffbot_bringup` would first build the workspace packages that [`diffbot_bringup`]({{ robot_container_src_url }}/diffbot_bringup/package.xml#L52) declares. But today `diffbot_bringup` declares only [`teleop_twist_keyboard`](usage.md#with-the-keyboard), not the packages its launch files start. Adding them is the first step of [diffbot#131](https://github.com/ros-mobile-robots/diffbot/issues/131). Gazebo, navigation and SLAM aren't in the image: they run on the PC.
-
-CI builds the image and publishes it ([How it's published](#how-its-published)). Docker builds it on the Raspberry Pi only for [your own build](versions.md#your-own-build). The container runs as the user `ros` with UID 1000, not as root. The image also sets [`PYTHONUNBUFFERED`]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L93) and [`ROSCONSOLE_STDOUT_LINE_BUFFERED`]({{ robot_container_src_url }}/.docker/robot/Dockerfile#L94), so that Python and ROS write each line of output at once. Without a terminal, they would collect it first, and `docker compose logs` would show it late.
+CI builds the image and publishes the image ([How it's published](#how-its-published)). Docker builds the image on the Raspberry Pi only for [your own build](versions.md#your-own-build).
 
 ### The same inputs for both builds
 
@@ -92,13 +76,7 @@ graph TB
   SAVE --> PUB
 ```
 
-GitHub provides the computers that the workflow runs on, called runners. The job [`build`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L62-L145) runs twice: on an arm64 runner (`ubuntu-24.04-arm`, free for public repositories) and on an amd64 runner. These lines of the workflow name the two runners ([lines 62–72]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L62-L72)):
-
-```yaml title="robot_container.yml" linenums="62"
---8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:62:72"
-```
-
-So each runner builds the image natively, for its own architecture, without emulation, in about two minutes. The build step's times in seven runs, and one build on a Raspberry Pi for comparison:
+GitHub provides the computers that the workflow runs on, called runners. The job [`build`](walkthrough.md#the-job-build) runs twice: on an arm64 runner (`ubuntu-24.04-arm`, free for public repositories) and on an amd64 runner. So each runner builds the image natively, for its own architecture, without emulation, in about two minutes. The build step's times in seven runs, and one build on a Raspberry Pi for comparison:
 
 | Where | Shortest build | Longest build |
 |:--|:--|:--|
@@ -115,6 +93,8 @@ Each run of the job `build` does five things, in this order:
 3. **It tests the publish script** without a registry ([The script's tests](#the-scripts-tests)).
 4. **It builds the image:** with `docker build`, for the runner's own architecture.
 5. **It runs [`smoke_test.sh`](#one-check-step-by-step) in the image, twice:** directly in a container of the image, and through `compose.yaml` with its mounts and groups.
+
+[The workflow](walkthrough.md#the-workflow) in the Code Walkthrough goes through the workflow's file, job by job.
 
 The smoke test checks four things, without hardware:
 
@@ -159,63 +139,17 @@ Smoke test passed
 
 For a pull request, the run ends after the smoke tests. The result is the workflow's check, passed or failed, and the image is deleted with the runner. Nothing is published, because a pull request's code isn't reviewed yet.
 
-After a change is merged into `noetic-devel`, each run of the job [`build`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L62-L145) also saves the image that it tested, as an archive. A third job, [`publish`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L150-L184), then copies both archives to the registry. It doesn't build the image again. So the published image is the very image that passed the smoke test, not a second build that could differ from it. These steps of the job `build` save the image and hand it over ([lines 125–145]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L125-L145)):
+After a change is merged into `noetic-devel`, each run of the job `build` also saves the image that it tested, as an archive. A third job, `publish`, then copies the image of each archive to the registry and combines the two images under one name. The job doesn't build the image again. So the published image is the very image that passed the smoke test, not a second build that could differ from it. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version `noetic-<commit>` is published once and never replaced, and `noetic` only moves to a later commit ([Versions](versions.md#versions)).
 
-```yaml title="robot_container.yml" linenums="125"
---8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:125:145"
-```
+The Code Walkthrough goes through the code of the publication:
 
-The three conditions under [`if`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L152-L155) are the same for both steps and for the job `publish`: the repository is `ros-mobile-robots/diffbot`, not a fork, the branch is `noetic-devel`, and the run was started by a push or by hand. A pull request never meets them.
-
-The job `publish` starts only if both runs of `build` passed ([`needs: build`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L151)). These lines define the job and its steps ([lines 147–184]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L147-L184)):
-
-```yaml title="robot_container.yml" linenums="147"
---8<-- "{{ robot_container_src_raw }}/.github/workflows/robot_container.yml:147:184"
-```
-
-- **[`permissions`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L157-L159)** (lines 157–159): only this job may write packages. The rest of the workflow can only read.
-- **[`concurrency`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L162-L164)** (lines 162–164): one publication runs at a time, and later ones wait for their turn.
-- **[`uses`]({{ robot_container_src_url }}/.github/workflows/robot_container.yml#L167-L174)** (lines 167, 170 and 174): each action is named by the full commit of one of its releases, with the release in the comment. A commit can't be moved to other code later, as a tag such as `v4` can. That matters here, because these actions run in the job that may write packages.
-- **The last step** (lines 179–184): runs the script [`publish_image.sh`](#what-the-script-asks-the-registry-first) with the image's name, the commit and the folder with the two archives. The job runs nothing from the images.
-
-The script copies both images to the registry and combines them under one name. A Raspberry Pi then downloads the arm64 image and a PC the amd64 one. The version `noetic-<commit>` is published once and never replaced, and `noetic` only moves to a later commit ([Versions](versions.md#versions)).
-
-### What the script asks the registry first
-
-Before the script writes the version or `noetic`, it asks the registry about both names. For each name, the function [`state`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh#L53-L84) gives one of three answers, with the tool [skopeo](https://github.com/containers/skopeo):
-
-| Answer of `state` for one name | What the registry said about that name |
-|:--|:--|
-| `present` | It returned the name's manifest, the description of an image. The name exists |
-| `missing` | *manifest unknown*, the registry's own error code for a name that it doesn't have. The name is free |
-| `unreadable` | The registry itself refuses: it denies the request for the name, it doesn't know the repository at all, or its token service answers 403 |
-| No answer | Anything else, after three tries: a failed login, a login file that can't be read, another error of the token service, no connection. The script stops and prints the error |
-
-The script then decides from the two answers together:
-
-1. **Both names are `present` or `missing`:** the script publishes. It writes a name that is missing. A version that is present is checked and reused, never written again. A `noetic` that is present moves only to a later commit.
-2. **One of the two names is `unreadable`:** the script stops and writes nothing.
-3. **Both names are `unreadable`, in a run for the first publication:** the script copies one image under a name of its own and asks about both names again ([The first publication](#the-first-publication)). The version and `noetic` are still written only by rule 1.
-
-Only *manifest unknown* counts as "the name is free", because other failures read alike. A login helper that isn't installed and a token service that answers 404 both print *not found*, and neither says anything about the name. If the script took them for a free name, it could write a version that exists already. The same holds for `unreadable`: a login file that the job can't read prints *permission denied*, which is no answer of the registry.
-
-These lines of [`publish_image.sh`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh) are the function `state` and its comment ([lines 36–84]({{ robot_container_src_url }}/.docker/robot/publish_image.sh#L36-L84)):
-
-```bash title="publish_image.sh" linenums="36"
---8<-- "{{ robot_container_src_raw }}/.docker/robot/publish_image.sh:36:84"
-```
-
-The function recognizes each answer by the text that skopeo prints for it, with the name's tag and repository in the text. The variable [`manifest_request`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh#L56) holds the start of these texts, and the list [`refusals`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh#L57-L62) holds the registry's refusals.
-
-The script also checks that an archive holds the right architecture and commit before it copies that archive's image.
-
-### The first publication
-
-The first publication is the one exception to "stops". The package doesn't exist yet then, and the registry may deny the read or say that it doesn't know the repository. A run for this case is one that a maintainer starts by hand, in the repository's Actions tab, with the box **First publication** ticked. If both names are `unreadable` in such a run, the script creates the package: it copies the checked amd64 image under the name `first-publication`, which nothing else uses, and asks about both names again. If the two answers still aren't `present` or `missing`, the script stops. So an image can be in the registry under `first-publication` although the run failed later, for example at the check of the arm64 archive. The version and `noetic` are not written in that case.
+- **[The job `build`](walkthrough.md#the-job-build):** the steps that save the tested image and hand the image over.
+- **[The job `publish`](walkthrough.md#the-job-publish):** the conditions, the rights and the steps of the job that publishes.
+- **[The script that publishes](walkthrough.md#the-script-that-publishes):** what the script asks the registry first, what the script checks before the script writes, and how the first publication differs.
 
 ### The script's tests
 
-[`test_publish_image.sh`]({{ robot_container_src_url }}/.docker/robot/test_publish_image.sh) runs [`publish_image.sh`]({{ robot_container_src_url }}/.docker/robot/publish_image.sh) without a registry and without images. Stand-ins take the place of [`skopeo`]({{ robot_container_src_url }}/.docker/robot/test_publish_image.sh#L52-L127) and [`docker`]({{ robot_container_src_url }}/.docker/robot/test_publish_image.sh#L130-L161). They answer the script's reads with texts recorded from skopeo, and they note each write that the script attempts instead of doing it. Each test chooses the registry's answer, runs the script, and compares the script's exit code and its writes with the expected ones:
+[`test_publish_image.sh`]({{ robot_container_src_url }}/.docker/robot/test_publish_image.sh) runs [`publish_image.sh`](walkthrough.md#the-script-that-publishes) without a registry and without images. Stand-ins take the place of [`skopeo`]({{ robot_container_src_url }}/.docker/robot/test_publish_image.sh#L52-L127) and [`docker`]({{ robot_container_src_url }}/.docker/robot/test_publish_image.sh#L130-L161). They answer the script's reads with texts recorded from skopeo, and they note each write that the script attempts instead of doing it. Each test chooses the registry's answer, runs the script, and compares the script's exit code and its writes with the expected ones:
 
 | The registry's answer in the test | Expected writes | Expected result |
 |:--|:--|:--|

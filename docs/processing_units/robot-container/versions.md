@@ -163,9 +163,9 @@ For comparison: CI builds the published image natively, on an arm64 computer of 
 --8<-- "{{ robot_container_src_raw }}/.docker/robot/compose.build.yaml:11:17"
 ```
 
-- **[`robot-image`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L12)** (line 12): the service's name. The build has a service of its own, apart from [`bringup`](setup.md#how-composeyaml-uses-the-settings) and [`lidar`](setup.md#how-composeyaml-uses-the-settings) in `compose.yaml`.
+- **[`robot-image`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L12)** (line 12): the service's name. The build has a service of its own, apart from [`bringup` and `lidar`](walkthrough.md#the-two-services) in `compose.yaml`.
 - **[`image`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L13)** (line 13): the build's name, `diffbot-robot:local`. The name is fixed in this file, and [`ROBOT_IMAGE`](setup.md#all-settings) doesn't change it. So your build never gets the name of the published image, and a later start can't take your build for a published version.
-- **[`build`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L14-L17)** (lines 14–17): tells Compose how to build the image, from the [Dockerfile](image.md#how-the-image-is-built) in [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot). Its [`context`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L16) is the whole repository, the folder whose files the Dockerfile can copy into the image.
+- **[`build`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L14-L17)** (lines 14–17): tells Compose how to build the image, from the [Dockerfile](walkthrough.md#the-dockerfile) in [`.docker/robot`]({{ robot_container_src_url }}/.docker/robot). Its [`context`]({{ robot_container_src_url }}/.docker/robot/compose.build.yaml#L16) is the whole repository, the folder whose files the Dockerfile can copy into the image.
 
 Three steps build the image and run it:
 

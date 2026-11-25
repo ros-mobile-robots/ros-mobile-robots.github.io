@@ -123,11 +123,11 @@ Parts of the Teensy firmware run on the PC, with fake hardware and a fake ROS co
 
 #### Robot container smoke test
 
-The [robot image](../processing_units/robot-container/image.md#how-its-tested) is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)).
+The [robot image](../processing_units/robot-container/image.md#how-its-tested) is checked without hardware: its packages and programs, the robot models, the launch files, and Remo's bringup with both controllers running. Whether the robot drives with it needs a test on the robot ([diffbot#109](https://github.com/ros-mobile-robots/diffbot/issues/109)). [The workflow](../processing_units/robot-container/walkthrough.md#the-workflow) in the Code Walkthrough goes through the workflow's file, job by job, and through the script that publishes the image.
 
 ### GitHub Actions versions
 
-The workflows use the latest major versions of the GitHub actions, which run on Node 24. The Robot container workflow names each action by the full commit of a release instead, because one of its jobs may write packages ([How it's published](../processing_units/robot-container/image.md#how-its-published)). GitHub retires old versions: in 2026 the CI workflow failed before building anything because `actions/cache@v2` had been switched off ([GitHub notice](https://github.blog/changelog/2024-12-05-notice-of-upcoming-releases-and-breaking-changes-for-github-actions/)), and Node 20 actions were retired in September 2026 ([GitHub changelog](https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/)). When a check fails during "Set up job", an outdated action is the likely cause.
+The workflows use the latest major versions of the GitHub actions, which run on Node 24. The Robot container workflow names each action by the full commit of a release instead, because one of its jobs may write packages ([The job `publish`](../processing_units/robot-container/walkthrough.md#the-job-publish)). GitHub retires old versions: in 2026 the CI workflow failed before building anything because `actions/cache@v2` had been switched off ([GitHub notice](https://github.blog/changelog/2024-12-05-notice-of-upcoming-releases-and-breaking-changes-for-github-actions/)), and Node 20 actions were retired in September 2026 ([GitHub changelog](https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/)). When a check fails during "Set up job", an outdated action is the likely cause.
 
 ### Writing tests and debugging
 
