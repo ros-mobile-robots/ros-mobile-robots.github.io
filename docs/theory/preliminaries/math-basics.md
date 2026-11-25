@@ -31,7 +31,7 @@ $$
 \bar\omega_z = \frac{1}{N}\sum_{i=1}^{N} \omega_{z,i}
 $$
 
-The robots' IMU, the BNO055, reports the angular velocity in whole steps of $\Delta$ = 1/900 rad/s, about 0.00111 rad/s ([BNO055 datasheet, table 3-22 on page 35](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=35)). Take three readings of a gyroscope at rest, one step apart: $\omega_{z,1}$ = 0, $\omega_{z,2} = \Delta$ and $\omega_{z,3} = 2\Delta$. Their mean is:
+The robots' IMU, the BNO055, reports the angular velocity in whole steps of $\Delta$ = 1/900 rad/s, about 0.00111 rad/s ([BNO055 datasheet, table 3-22 on page 35](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=35)). Take three readings of a gyroscope at rest, one step apart: $\omega_{z,1}$ = 0 rad/s, $\omega_{z,2} = \Delta$ and $\omega_{z,3} = 2\Delta$. Their mean is:
 
 $$
 \bar\omega_z = \frac{0 + \Delta + 2\Delta}{3} = \Delta = 0.00111\ \text{rad/s}
@@ -76,10 +76,13 @@ The robots' angular velocity comes with these numbers. The first is a setting of
 |:--|:--|:--|
 | The noise that the simulated IMU adds to each axis, the plugin's parameter [`gaussianNoise`]({{ ekf_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L251) | $\sigma$ = 0.005 rad/s | $\sigma^2$ = 2.5 · 10⁻⁵ (rad/s)² |
 | Remo's BNO055 at rest, the gyroscope's three axes in a recording of 180 s ([bench checks](../../packages/imu/driver-bno055.md#bench-checks)) | $s$ = 0.0005 to 0.0008 rad/s | $s^2$ = 2 to 6 · 10⁻⁷ (rad/s)² |
-| The firmware's setting [`angular_velocity_variance`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71) for each axis, a starting value | 0.02 rad/s | 4 · 10⁻⁴ (rad/s)² |
-| The wheel odometry's yaw rate, a setting of the drive controller ([The two lists](../../packages/imu/robot_localization.md#the-two-lists)) | 0.17 rad/s | 0.03 (rad/s)² |
+| The firmware's setting [`angular_velocity_variance`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71) for each axis, a starting value | $\sigma$ = 0.02 rad/s | $\sigma^2$ = 4 · 10⁻⁴ (rad/s)² |
+| The wheel odometry's yaw rate, a setting of the drive controller ([The two lists](../../packages/imu/robot_localization.md#the-two-lists)) | $\sigma \approx$ 0.17 rad/s | $\sigma^2$ = 0.03 (rad/s)² |
 
-The firmware's starting value is about a thousand times the variance that Remo's gyroscope showed at rest. Driving adds vibration, which a recording at rest doesn't contain, so the starting value stays until a measurement while driving shows what the EKF should use.
+The firmware's starting value is about a thousand times the variance that Remo's gyroscope showed at rest. The comment above the setting in [`diffbot_base_config.h`](https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_firmware/lib/config/diffbot_base_config.h#L55-L68) gives two reasons for the larger value:
+
+- **The typical offset:** the BNO055's datasheet gives the gyroscope a typical offset of ±1 °/s, about 0.017 rad/s, with the chip's own offset cancellation switched off. The chosen standard deviation of 0.02 rad/s covers that offset too, so that the EKF doesn't take a yaw rate with a bias as exact.
+- **Vibration:** driving adds vibration, which a recording at rest doesn't contain. Before the value changes, the comment asks for a comparison with a recording while driving, in which the vibration has to be told apart from the robot's real turning.
 
 ## The normal distribution
 
@@ -173,7 +176,7 @@ $$
 
 In one formula, the matrix is the expected value of the deviation vector times its own transpose, $\boldsymbol\Sigma_{\boldsymbol\omega} = \mathrm E\big[(\boldsymbol\omega - \boldsymbol\mu)(\boldsymbol\omega - \boldsymbol\mu)^\mathsf T\big]$, with the mean $\boldsymbol\mu$. A column of three deviations times a row of the same three deviations gives all nine products at once.
 
-The robots' IMU messages carry diagonal matrices, with the same variance on every axis and zeros everywhere else. For the simulated IMU's angular velocity, with $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)², the matrix is:
+For the angular velocity and the acceleration, the robots' IMU messages carry diagonal matrices, with the same variance on every axis and zeros everywhere else. For the simulated IMU's angular velocity, with $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)², the matrix is:
 
 $$
 \boldsymbol\Sigma_{\boldsymbol\omega} = \begin{pmatrix} \sigma^2 & 0 & 0 \\ 0 & \sigma^2 & 0 \\ 0 & 0 & \sigma^2 \end{pmatrix} = \sigma^2 I_3
@@ -195,6 +198,8 @@ These points form an **ellipsoid** around the mean. Its semi-axes, the half widt
 - **Different variances:** the ellipsoid is stretched along the axis with the largest standard deviation.
 - **Covariances off the diagonal:** the ellipsoid turns. Its axes point along the matrix's **eigenvectors**, the directions that the matrix only stretches. Its semi-axes are the square roots of the matrix's **eigenvalues**, the stretch factors. The general equation of the ellipsoid is $\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e = 1$, which gives the equation above for a diagonal matrix.
 
+The number $d = \sqrt{\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e}$ is called the **Mahalanobis distance** of the deviation $\mathbf e$. The Mahalanobis distance counts how many standard deviations $\mathbf e$ lies from the mean, in the direction of $\mathbf e$. The ellipsoid of one standard deviation holds the deviations with $d$ = 1, and the ellipsoid of two standard deviations those with $d$ = 2. robot_localization can reject a measurement whose $d$ is too large, as [What the validator doesn't check](../../packages/imu/robot_localization.md#what-the-validator-doesnt-check) on the Localization page explains.
+
 **A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values:
 
 $$
@@ -211,13 +216,13 @@ Without the covariance of 3 cm², the ellipse would be a circle with the radius 
 | 2 standard deviations | 95.4 % | 86.5 % | 73.9 % |
 | 3 standard deviations | 99.7 % | 98.9 % | 97.1 % |
 
-The shares follow from the [chi-squared distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution) with one, two and three degrees of freedom. So the ellipsoid of one standard deviation holds only a fifth of the values of three normally distributed values.
+The shares follow from the [chi-squared distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution) with one, two and three degrees of freedom. So for a vector of three normally distributed values, the ellipsoid of one standard deviation holds only about a fifth of the vectors.
 
 **In RViz:** RViz's Odometry display draws the covariance of each pose, as [Comparing the two odometries](../../packages/imu/robot_localization.md#comparing-the-two-odometries) on the Localization page sets the display up. RViz 1.14.26 draws the position's covariance as this ellipsoid, with semi-axes of one standard deviation along the eigenvectors, in its function [`computeShapeScaleAndOrientation3D()`](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/covariance_visual.cpp#L100-L137). The display's setting [Scale](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/covariance_property.cpp#L68-L71) multiplies the semi-axes, and its default 1 shows one standard deviation. When the pose's variances of the height $z$, the roll and the pitch are 0 or less, RViz draws the ellipse of $x$ and $y$ instead ([`pose_2d_`](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/covariance_visual.cpp#L338)).
 
 ## How ROS messages store a covariance
 
-A ROS message has no type for a matrix. A message stores a covariance matrix as an array of numbers, row by row: first the elements of the first row, then those of the second, and so on. The message definitions call this order **row major**. With $n$ rows and $n$ columns, counted from 0 as in C++ and Python, the element in row $i$ and column $j$ has the index $k$ in the array:
+A ROS message has no type for a matrix. A message stores a covariance matrix as an array of numbers, row by row: first the elements of the first row, then those of the second, and so on. The message definitions call this order **row major**. ROS's convention [REP 103: covariance representation](https://www.ros.org/reps/rep-0103.html#covariance-representation) asks for the same order in every message. With $n$ rows and $n$ columns, counted from 0 as in C++ and Python, the element in row $i$ and column $j$ has the index $k$ in the array:
 
 $$
 k = n\,i + j
@@ -246,10 +251,10 @@ The excerpt shows the definition of [`sensor_msgs/Imu`](https://github.com/ros/c
 --8<-- "https://raw.githubusercontent.com/ros/common_msgs/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg"
 ```
 
-- **Three matrices:** each of the message's three measurements has its own 3 × 3 matrix, in lines 18, 21 and 24: [`orientation_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L18), [`angular_velocity_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21) and [`linear_acceleration_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L24). `angular_velocity_covariance[8]`, for example, is the variance of the yaw rate $\sigma^2_{\omega_z}$, the one element of the message that the robots' EKF uses.
+- **Three matrices:** each of the message's three measurements has its own 3 × 3 matrix, in lines 18, 21 and 24: [`orientation_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L18), [`angular_velocity_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L21) and [`linear_acceleration_covariance`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L24). `angular_velocity_covariance[8]`, for example, is the variance of the yaw rate $\sigma^2_{\omega_z}$, the only element of the three matrices that the robots' EKF uses.
 - **The orientation's matrix is 3 × 3:** a quaternion has four numbers, but the rows and the columns of `orientation_covariance` stand for the rotation's errors about the x, y and z axes, as the comment in line 18 says: "about x, y, z axes". A rotation has three degrees of freedom, as [The length 1 and the rotation that does nothing](#the-length-1-and-the-rotation-that-does-nothing) explains.
 
-The comments in lines 5–13 give three kinds of arrays a meaning. Here they are for the angular velocity:
+The comments in lines 5–13 give three kinds of arrays a meaning. ROS's convention for IMU drivers, [REP 145: topics](https://www.ros.org/reps/rep-0145.html#topics), asks for the two special kinds, all zeros and −1, in the same way. Here they are for the angular velocity:
 
 - **The variances are known:** $[\,\sigma^2_{\omega_x}, 0, 0, 0, \sigma^2_{\omega_y}, 0, 0, 0, \sigma^2_{\omega_z}\,]$. A publisher that knows only the variances, for example from a datasheet, puts them on the diagonal (lines 5–6).
 - **The covariance is unknown:** all nine elements are 0. A node that reads the message has to assume a covariance or get one from somewhere else (lines 7–8). The zeros don't say that the value is exact.
@@ -310,13 +315,13 @@ The fused yaw rate lies close to the IMU's, because the IMU's variance is 75 tim
 The example leaves out the filter's other step. In the robot's filter, the estimate $\hat x$ and its variance $P$ come from the prediction, which moves the estimate forward in time with a model of the robot's motion. The prediction makes $P$ grow, so a measurement counts more after a longer time without one.
 
 ??? quote "ekf.cpp, lines 159–197: the correction step in robot_localization"
-    robot_localization 2.7.7 computes the same three steps with matrices, because one measurement can carry several values. In the function [`correct()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L55), the estimate's covariance $P$ is `estimateErrorCovariance_`, the measurement's covariance $R$ is `measurementCovarianceSubset`, the gain $K$ is `kalmanGainSubset`, and the difference $z - \hat x$ is `innovationSubset`. `stateToMeasurementSubset`, $H$, picks the measured values out of the filter's state. For one value, $H$ is 1, and the formulas in the comments become the three formulas above. The update of the covariance in lines 191–197 is written in the Joseph form, which gives $(1 - K)\,P$ for one value with this gain and keeps the matrix symmetric despite rounding. Line 186 checks the Mahalanobis distance, which [What the validator doesn't check](../../packages/imu/robot_localization.md#what-the-validator-doesnt-check) on the Localization page explains:
+    robot_localization 2.7.7 computes the same three steps with matrices, because one measurement can carry several values. In the function [`correct()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L55), the estimate's covariance $P$ is `estimateErrorCovariance_`, the measurement's covariance $R$ is `measurementCovarianceSubset`, the gain $K$ is `kalmanGainSubset`, and the difference $z - \hat x$ is `innovationSubset`. `stateToMeasurementSubset`, $H$, picks the measured values out of the filter's state. When the state is one value that the sensor measures directly, $H$ is 1, and the formulas in the comments become the three formulas above. The update of the covariance in lines 191–197 is written in the Joseph form, which gives $(1 - K)\,P$ for one value with this gain and keeps the matrix symmetric despite rounding. Line 186 checks the Mahalanobis distance, which [The covariance ellipsoid](#the-covariance-ellipsoid) introduces:
 
     ```cpp linenums="159"
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp:159:197"
     ```
 
-**A variance of 0:** with $R$ = 0, $K$ is 1, and the filter would take every measurement as exact. robot_localization replaces a measurement's variance below 10⁻⁹ with 10⁻⁹, and a negative variance with its absolute value, so that the gain stays computable. So a covariance of all zeros, which `sensor_msgs/Imu` defines as unknown, reaches the filter as almost certain. The robots' [IMU sample validator](../../packages/imu/robot_localization.md#checks-1-to-3-the-samples-form) drops a sample whose three variances of the angular velocity aren't all positive, before the EKF gets the sample.
+**A variance of 0:** with $R$ = 0, $K$ is 1, and the filter would take the measurement as exact. If the estimate's variance $P$ were 0 as well, $K$ would be 0/0, which can't be computed. robot_localization's function `correct()` prevents both. It first replaces a negative variance of a measurement with its absolute value, and then a variance below 10⁻⁹ with 10⁻⁹. So a covariance of all zeros, which `sensor_msgs/Imu` defines as unknown, reaches the filter as almost certain. The robots' [IMU sample validator](../../packages/imu/robot_localization.md#checks-1-to-3-the-samples-form) drops a sample whose three variances of the angular velocity aren't all positive, before the EKF gets the sample.
 
 ??? quote "ekf.cpp, lines 119–143: negative and very small variances"
     The excerpt shows the two replacements in `correct()`, for each variance `measurementCovarianceSubset(i, i)` of the measurement:
@@ -342,7 +347,7 @@ $$
 
 The four numbers are the parts of a quaternion, a number with one real and three imaginary parts, as a complex number has one real and one imaginary part. Wikipedia's [Quaternions and spatial rotation](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation) shows how the products of quaternions rotate vectors. This page uses a quaternion only as the four numbers of a rotation.
 
-Three angles, the roll, the pitch and the yaw, can describe a rotation too, and [Roll, pitch and yaw](#roll-pitch-and-yaw) converts between the two forms. Three angles have special cases. At a pitch of ±90°, the roll and the yaw turn about the same axis, and the angles of a rotation are no longer unique ([gimbal lock](https://en.wikipedia.org/wiki/Gimbal_lock)). A quaternion has no such special case. ROS's convention REP 103 prefers quaternions to the other forms of a rotation, for their compact form and because they have no such special cases ([REP 103: rotation representation](https://www.ros.org/reps/rep-0103.html#rotation-representation)). ROS messages and tf2, ROS's library for coordinate frames, store every rotation as a quaternion.
+Three angles, the roll, the pitch and the yaw, can describe a rotation too, and [Roll, pitch and yaw](#roll-pitch-and-yaw) converts between the two forms. Three angles have special cases. At a pitch of ±90°, the roll and the yaw turn about the same axis, and several sets of angles describe the same rotation ([gimbal lock](https://en.wikipedia.org/wiki/Gimbal_lock)). A quaternion has no such special case. ROS's convention REP 103 prefers quaternions to the other forms of a rotation, for their compact form and because they have no such special cases ([REP 103: rotation representation](https://www.ros.org/reps/rep-0103.html#rotation-representation)). ROS messages and tf2, ROS's library for coordinate frames, store every rotation as a quaternion.
 
 ### The length 1 and the rotation that does nothing
 
@@ -375,7 +380,7 @@ $$
 \mathbf q = \left(0,\ 0,\ \sin\frac{\psi}{2},\ \cos\frac{\psi}{2}\right)
 $$
 
-Back from the quaternion, the yaw is $\psi = 2\,\operatorname{atan2}(q_z, q_w)$. A roll alone has only $q_x$ and $q_w$, and a pitch alone only $q_y$ and $q_w$.
+Back from a yaw-only quaternion, the yaw is $\psi = 2\,\operatorname{atan2}(q_z, q_w)$, up to a full turn of 360°. For any quaternion of the length 1, the yaw is $\psi = \operatorname{atan2}\big(2\,(q_w q_z + q_x q_y),\ 1 - 2\,(q_y^2 + q_z^2)\big)$, between −180° and +180°. A roll alone has only $q_x$ and $q_w$, and a pitch alone only $q_y$ and $q_w$.
 
 **The heading on the floor:** a robot on a flat floor turns only about the z axis. Its heading $\theta$, the angle of [the robot's pose](../modeling-control/robot-representations.md#robot-pose), is the yaw $\psi$ of its orientation. So the orientation in the robots' odometry messages is a yaw-only quaternion. The drive controller turns its heading into a quaternion with [`tf::createQuaternionMsgFromYaw()`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L434-L435) in ros_controllers 0.22.0. The simulation test turns the quaternion back into the heading with `euler_from_quaternion()`, as [Connecting to the robot](../../development/simulation-test.md#3-connecting-to-the-robot) on the Simulation Test page shows.
 
@@ -458,11 +463,11 @@ ROS's message for a quaternion, [`geometry_msgs/Quaternion`](https://github.com/
 --8<-- "https://raw.githubusercontent.com/ros/common_msgs/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/msg/Quaternion.msg"
 ```
 
-The fields `x`, `y`, `z` and `w` are $q_x$, $q_y$, $q_z$ and $q_w$. Some libraries take $q_w$ first: the constructor `Quaternion(w, x, y, z)` of the C++ library Eigen, for example ([Eigen's `Quaternion` class](https://eigen.tuxfamily.org/dox/classEigen_1_1Quaternion.html)). Before you copy four numbers from one library to another, check the order that each one uses.
+The fields `x`, `y`, `z` and `w` are $q_x$, $q_y$, $q_z$ and $q_w$. Some libraries take $q_w$ first: the constructor `Quaternion(w, x, y, z)` of the C++ library Eigen, for example ([Eigen's `Quaternion` class](https://libeigen.gitlab.io/eigen/docs-nightly/classEigen_1_1Quaternion.html)). Before you copy four numbers from one library to another, check the order that each one uses.
 
 The robots' messages carry quaternions in three places:
 
-- **The IMU's orientation:** `orientation` of [`sensor_msgs/Imu`](#the-imus-message) is four zeros with −1 in `orientation_covariance[0]`, so the field holds no data. The BNO055 can compute its own orientation as a quaternion ([BNO055 datasheet, section 3.6.5.5 on page 37](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=37)). The firmware doesn't read that quaternion, because the EKF uses only the yaw rate.
+- **The IMU's orientation:** `orientation` of [`sensor_msgs/Imu`](#the-imus-message) is four zeros with −1 in `orientation_covariance[0]`, so the field holds no data. The BNO055 can compute its own orientation as a quaternion ([BNO055 datasheet, section 3.6.5.5 on page 37](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=37)). The chip's registers hold that quaternion with $q_w$ first. The firmware doesn't read that quaternion, because the EKF uses only the yaw rate.
 - **The odometry's orientation:** `pose.pose.orientation` of `nav_msgs/Odometry` holds the heading $\theta$ as a yaw-only quaternion. The drive controller publishes this message on `/diffbot/mobile_base_controller/odom`, and the EKF on `/diffbot/odometry/filtered`, as [The two outputs](../../packages/imu/robot_localization.md#the-two-outputs) on the Localization page describes.
 - **The transforms:** each transform on `/tf` and `/tf_static` has a rotation, for example the heading in the EKF's transform from `odom` to `base_footprint`, and Remo's −90° in the transform from `chassis_link` to `imu_link`.
 

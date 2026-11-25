@@ -12,6 +12,8 @@
 
 ### Multivariate Distribution
 
+[The covariance matrix and its ellipsoid](math-basics.md#the-covariance-matrix-and-its-ellipsoid) on the Math Basics page explains the covariance matrix of a vector of normally distributed values.
+
 ### Joint Distribution
 
 If we have two different RVs representing two different events $X$ and $Y$, 
