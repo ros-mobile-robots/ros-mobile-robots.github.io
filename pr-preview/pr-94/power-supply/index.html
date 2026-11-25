@@ -5040,11 +5040,9 @@
 
 
 <h1 id="power-supply">Power Supply</h1>
-<p>DiffBot and Remo each have two separate power supplies:</p>
-<ul>
-<li>A USB power bank runs the Raspberry Pi.</li>
-<li>AA cells in a battery holder run the motors, through the motor driver.</li>
-</ul>
+<p>DiffBot and Remo each have two separate power supplies. A USB power bank runs the Raspberry Pi, and AA cells in a battery holder run the motors, through the motor driver.
+This page explains what each supply has to deliver, which cells suit each robot's motor driver, when to replace or recharge the cells, and how to charge Remo's NiMH cells.
+Read the page before you buy cells or a charger, and before you put other cells into a robot's holder: cells with the wrong voltage are outside the motor driver's input range.</p>
 <p>The motors get their own supply because they need more current than a USB connection provides (<a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">Adafruit's FeatherWing guide</a>).</p>
 <table>
 <thead>
@@ -5086,8 +5084,9 @@
 <p>The Raspberry Pi 4 B gets 5 V through its USB-C port.
 Raspberry Pi recommends a supply that delivers 3.0 A.
 The bare board typically draws 600 mA when active, and USB devices such as the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> add to that (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply">Raspberry Pi documentation</a>).
-On both robots, a power bank with a USB-C cable supplies these 5 V. The <a href="../components/">Components</a> page lists the power banks.</p>
-<p>If the supply voltage drops below 4.63 V (±5 %), the Raspberry Pi writes a low-voltage warning to its kernel log, which <code>dmesg</code> shows.
+On both robots, a power bank with a USB-C cable supplies these 5 V. The <a href="../components/">Components</a> page lists the power banks.
+DiffBot's power bank delivers 2.1 A, less than this recommendation. The current that a robot's Raspberry Pi draws with its USB devices isn't measured.</p>
+<p>If the supply voltage drops below 4.63 V (±5 %), the Raspberry Pi writes a low-voltage warning to its kernel log, which <code>dmesg</code> shows on the Raspberry Pi.
 If you see such warnings, use a power bank that delivers more current, or a better cable.</p>
 <h2 id="from-the-battery-to-the-motors">From the battery to the motors</h2>
 <p>The motor driver sits between the battery and the motors.
@@ -5162,11 +5161,23 @@ So the voltage that Remo's motors can get stays nearly the same until its cells 
 <h3 id="when-to-replace-or-recharge">When to replace or recharge</h3>
 <p>Neither robot has a battery-protection cutoff.
 The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
-Remo's firmware, for example, has one automatic stop, the command timeout: it releases the motors when no wheel commands arrive (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L98-L109"><code>wheel_control.h</code></a>).
+Remo's firmware, for example, has one automatic stop, <a href="../packages/diffbot_base/low-level/#the-command-timeout">the command timeout</a>: the firmware releases the motors when no wheel commands arrive.
 So you decide when the cells are replaced or recharged:</p>
 <ul>
-<li><strong>DiffBot:</strong> Replace the batteries when the voltage at the motor driver's power terminal is below 6 V while the motors run. Below 6 V, the board is outside the input range that Seeed specifies (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Specifications</a>). To measure it, set a multimeter to <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> volts, with the black lead in COM and the red lead in V. While the motors run, hold the black probe on the − screw and the red probe on the + screw of the power terminal (<a href="https://www.fluke.com/en-us/learn/blog/digital-multimeters/how-to-measure-dc-voltage-with-a-digital-multimeter">Fluke's guide to measuring <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> voltage</a>). Four fresh alkaline batteries give only about 6 V under load, so a set has little margin from the start. The voltage at DiffBot's power terminal isn't measured yet. Replace all four batteries together: Energizer warns that mixing old and new batteries can make them rupture or leak (<a href="https://data.energizer.com/pdfs/alkaline_appman.pdf">Alkaline Handbook</a>, section Testing / Care / Warnings). Before you change them, shut down the Raspberry Pi and unplug its power bank, as the <a href="../grove_motor_driver/#connection">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver page</a> explains.</li>
-<li><strong>Remo:</strong> Recharge all six cells after each use. Don't drive until the robot gets slow or stops.</li>
+<li>
+<p><strong>DiffBot:</strong> Replace the batteries when the voltage at the motor driver's power terminal is below 6 V while the motors run. Below 6 V, the board is outside the input range that Seeed specifies (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Specifications</a>).</p>
+<p>To measure this voltage (<a href="https://www.fluke.com/en-us/learn/blog/digital-multimeters/how-to-measure-dc-voltage-with-a-digital-multimeter">Fluke's guide to measuring <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> voltage</a>):</p>
+<ol>
+<li>Put DiffBot on a stand, so that its wheels turn freely.</li>
+<li>Set a multimeter to <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> volts, with the black lead in COM and the red lead in V.</li>
+<li>Let the motors run.</li>
+<li>Hold the black probe on the − screw and the red probe on the + screw of the power terminal.</li>
+</ol>
+<p>Four fresh alkaline batteries give only about 6 V under load, so a set has little margin from the start. The voltage at DiffBot's power terminal isn't measured yet. Replace all four batteries together: Energizer warns that mixing old and new batteries can make them rupture or leak (<a href="https://data.energizer.com/pdfs/alkaline_appman.pdf">Alkaline Handbook</a>, section Testing / Care / Warnings). Before you change them, shut down the Raspberry Pi and unplug its power bank, as the <a href="../grove_motor_driver/#connection">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver page</a> explains.</p>
+</li>
+<li>
+<p><strong>Remo:</strong> Recharge all six cells after each use. Don't drive until the robot gets slow or stops.</p>
+</li>
 </ul>
 <p>Two things speak against driving Remo until it stops:</p>
 <ul>
@@ -5176,6 +5187,7 @@ So you decide when the cells are replaced or recharged:</p>
 <h2 id="diffbot-four-aa-batteries-and-the-grove-i2c-motor-driver">DiffBot: four AA batteries and the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver</h2>
 <p>DiffBot's four AA batteries sit in the holder of the robot kit, under the chassis.
 The holder's cable goes to the power terminal of the <a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver V1.3</a>.</p>
+<!-- Generated by scripts/figures/power_supply_figures.py. Change the script and run it. -->
 <style>
 .md-typeset figure.pf-figure{margin:1em auto;width:100%;max-width:480px}
 .pf-fig{width:100%;height:auto;--pf-bank:#1e63c4;--pf-battery:#b45309;font-family:var(--md-text-font-family,Roboto),sans-serif}
@@ -5200,36 +5212,36 @@ The holder's cable goes to the power terminal of the <a href="https://wiki.seeed
 <figure class="pf-figure">
 <svg class="pf-fig" viewBox="0 0 360 246" role="img" aria-labelledby="pf-diffbot-title"><title id="pf-diffbot-title">DiffBot's power flow: the power bank supplies the Raspberry Pi, and the four AA batteries supply the motors</title><defs><marker id="pf-diffbot-bank-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-bank" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="pf-diffbot-battery-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-battery" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
 <rect class="source bank" x="10" y="6" width="140" height="38" rx="5"></rect>
-<text class="name" x="80.0" y="29.0" text-anchor="middle">USB power bank</text>
+<text class="name" x="80" y="29" text-anchor="middle">USB power bank</text>
 <path class="line bank" d="M60,44 V65" marker-end="url(#pf-diffbot-bank-head)"></path>
 <text class="volt-bank" x="69" y="61" text-anchor="start">5 V, USB-C</text>
 <rect class="part" x="10" y="70" width="140" height="60" rx="5"></rect>
-<text class="name" x="80.0" y="104.0" text-anchor="middle">Raspberry Pi 4 B</text>
+<text class="name" x="80" y="104" text-anchor="middle">Raspberry Pi 4 B</text>
 <rect class="source battery" x="206" y="6" width="144" height="38" rx="5"></rect>
-<text class="name" x="278.0" y="22.0" text-anchor="middle">Four AA batteries</text>
-<text class="note" x="278.0" y="36.0" text-anchor="middle">alkaline</text>
+<text class="name" x="278" y="22" text-anchor="middle">Four AA batteries</text>
+<text class="note" x="278" y="36" text-anchor="middle">alkaline</text>
 <path class="line battery" d="M338,44 V91" marker-end="url(#pf-diffbot-battery-head)"></path>
 <text class="volt-battery" x="330" y="76" text-anchor="end">6.0 V nominal</text>
 <rect class="part" x="206" y="96" width="144" height="54" rx="5"></rect>
-<text class="name" x="278.0" y="113.0" text-anchor="middle">Motor driver</text>
-<text class="note" x="278.0" y="127.0" text-anchor="middle">Grove I2C Motor Driver</text>
-<text class="note" x="278.0" y="141.0" text-anchor="middle">makes 5 V for its logic</text>
+<text class="name" x="278" y="113" text-anchor="middle">Motor driver</text>
+<text class="note" x="278" y="127" text-anchor="middle">Grove I2C Motor Driver</text>
+<text class="note" x="278" y="141" text-anchor="middle">makes 5 V for its logic</text>
 <path class="line battery" d="M278.0,150 V195" marker-end="url(#pf-diffbot-battery-head)"></path>
-<text class="volt-battery" x="270.0" y="172" text-anchor="end">switched on and off</text>
-<text class="volt-battery" x="270.0" y="186" text-anchor="end">by the driver (PWM)</text>
+<text class="volt-battery" x="270" y="172" text-anchor="end">switched on and off</text>
+<text class="volt-battery" x="270" y="186" text-anchor="end">by the driver (PWM)</text>
 <rect class="part" x="206" y="200" width="144" height="38" rx="5"></rect>
-<text class="name" x="278.0" y="223.0" text-anchor="middle">Two DG01D-E motors</text>
+<text class="name" x="278" y="223" text-anchor="middle">Two DG01D-E motors</text>
 </svg>
 <figcaption>DiffBot's two supplies. The blue line is the Raspberry Pi's supply from the power bank. The orange lines are the motor supply from the four batteries.</figcaption>
 </figure>
 
 <p>The figure shows the two supplies and the parts that are known to be on them.
-It leaves out the Teensy, the encoders, the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> and the camera, because their supply on DiffBot isn't checked yet.
+It leaves out the microcontroller (<abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>), a Teensy that runs the <a href="../packages/diffbot_base/low-level/">low-level base controller</a>, the encoders, the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> and the camera, because their supply on DiffBot isn't checked yet.
 The same holds for the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connection that brings the motor commands to the motor driver.</p>
 <p>The battery and the motor driver fit together like this:</p>
 <ul>
 <li><strong>Input range:</strong> Seeed specifies 6 V to 15 V at this terminal. The board also makes the 5 V for its own logic from this input. Four alkaline batteries give about 6 V under load, right at the lower end of the range. As they discharge, their voltage falls below 6 V. Then it's time to <a href="#when-to-replace-or-recharge">replace them</a>.</li>
-<li><strong>Voltage drop:</strong> On its way to a motor, the current passes a protection diode (D9, a 1N4007, in Seeed's <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf">schematic</a>) and two transistors of the L298. The diode carries the current of the whole board: both motors and the board's logic. Each bridge of the L298 carries the current of its own motor. At 1 A, the <a href="https://www.vishay.com/docs/88503/1n4001.pdf">1N4007 datasheet</a> gives up to 1.1 V for the diode. The <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf">L298 datasheet</a> gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. The L298's typical curve still shows more than 2 V at 0.8 A, its lowest current. These are the datasheets' values at their test currents. DiffBot's own currents aren't measured.</li>
+<li><strong>Voltage drop:</strong> On its way to a motor, the current passes a protection diode (D9, a 1N4007, in Seeed's <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf">schematic</a>) and two transistors of the L298. The diode carries the current of the whole board: both motors and the board's logic. Each bridge of the L298 carries the current of its own motor. At 1 A, the <a href="https://www.vishay.com/docs/88503/1n4001.pdf">1N4007 datasheet</a> gives up to 1.1 V for the diode. The <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf">L298 datasheet</a> gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. Seeed limits the board to 0.5 A per channel (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Specifications</a>). The L298's typical curve still shows more than 2 V at 0.8 A, its lowest current. These are the datasheets' values at their test currents. DiffBot's own currents aren't measured.</li>
 <li><strong>What the motors get:</strong> At the maximum duty cycle, a motor gets close to the battery voltage under load minus both drops. An example with assumed values, not a measurement: if the drops add up to 3 V, a motor gets 3 V of the battery's 6 V. That's the lower end of its 3 V to 9 V. So the voltage that DiffBot's motors can get depends a lot on the state of its batteries.</li>
 </ul>
 <div class="admonition warning">
@@ -5243,64 +5255,66 @@ The same holds for the <abbr title="Inter-Integrated Circuit. A two-wire bus, wi
 <h2 id="remo-six-nimh-cells-and-the-adafruit-featherwing">Remo: six NiMH cells and the Adafruit FeatherWing</h2>
 <p>Remo's six NiMH AA cells sit in the battery holder under the top plate (<a href="../hardware_setup/assembly/#step-10-battery-pack">assembly step 10</a>).
 The holder's cable goes to the 2-pin power terminal of the <a href="https://www.adafruit.com/product/2927">Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor + Stepper FeatherWing</a>.</p>
+<!-- Generated by scripts/figures/power_supply_figures.py. Change the script and run it. -->
 <figure class="pf-figure">
 <svg class="pf-fig" viewBox="0 0 360 400" role="img" aria-labelledby="pf-remo-title"><title id="pf-remo-title">Remo's power flow: the power bank supplies the Raspberry Pi, the LiDAR, the Teensy and its sensors, and the six NiMH cells supply the motors</title><defs><marker id="pf-remo-bank-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-bank" d="M0,0 L10,5 L0,10 z"></path></marker><marker id="pf-remo-battery-head" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path class="head-battery" d="M0,0 L10,5 L0,10 z"></path></marker></defs>
 <rect class="source bank" x="10" y="6" width="140" height="38" rx="5"></rect>
-<text class="name" x="80.0" y="29.0" text-anchor="middle">USB power bank</text>
+<text class="name" x="80" y="29" text-anchor="middle">USB power bank</text>
 <path class="line bank" d="M60,44 V65" marker-end="url(#pf-remo-bank-head)"></path>
 <text class="volt-bank" x="69" y="61" text-anchor="start">5 V, USB-C</text>
 <rect class="part" x="10" y="70" width="140" height="60" rx="5"></rect>
-<text class="name" x="80.0" y="104.0" text-anchor="middle">Raspberry Pi 4 B</text>
+<text class="name" x="80" y="104" text-anchor="middle">Raspberry Pi 4 B</text>
 <path class="line bank" d="M150,79 H185" marker-end="url(#pf-remo-bank-head)"></path>
 <path class="line data" d="M150,86 H190"></path>
-<text class="volt-bank" x="170.0" y="73" text-anchor="middle">5 V</text>
+<text class="volt-bank" x="170" y="73" text-anchor="middle">5 V</text>
 <rect class="part" x="190" y="62" width="136" height="36" rx="5"></rect>
-<text class="name" x="258.0" y="77.0" text-anchor="middle">RPLidar A2M8</text>
-<text class="note" x="258.0" y="91.0" text-anchor="middle">USB adapter</text>
+<text class="name" x="258" y="77" text-anchor="middle">RPLidar A2 M8</text>
+<text class="note" x="258" y="91" text-anchor="middle">USB adapter</text>
 <path class="line data" d="M150,120 H190"></path>
 <rect class="part" x="190" y="104" width="136" height="36" rx="5"></rect>
-<text class="name" x="258.0" y="119.0" text-anchor="middle">Raspberry Pi Camera</text>
-<text class="note" x="258.0" y="133.0" text-anchor="middle">supply not checked</text>
+<text class="name" x="258" y="119" text-anchor="middle">Raspberry Pi Camera</text>
+<text class="note" x="258" y="133" text-anchor="middle">supply not checked</text>
 <rect class="source battery" x="206" y="6" width="144" height="38" rx="5"></rect>
-<text class="name" x="278.0" y="29.0" text-anchor="middle">Six NiMH AA cells</text>
+<text class="name" x="278" y="29" text-anchor="middle">Six NiMH AA cells</text>
 <path class="line battery" d="M338,44 V181" marker-end="url(#pf-remo-battery-head)"></path>
 <text class="volt-battery" x="330" y="166" text-anchor="end">7.2 V nominal</text>
 <rect class="part" x="206" y="186" width="144" height="54" rx="5"></rect>
-<text class="name" x="278.0" y="203.0" text-anchor="middle">Motor driver</text>
-<text class="note" x="278.0" y="217.0" text-anchor="middle">Adafruit FeatherWing</text>
-<text class="note" x="278.0" y="231.0" text-anchor="middle">joins battery − and GND</text>
+<text class="name" x="278" y="203" text-anchor="middle">Motor driver</text>
+<text class="note" x="278" y="217" text-anchor="middle">Adafruit FeatherWing</text>
+<text class="note" x="278" y="231" text-anchor="middle">joins battery − and GND</text>
 <path class="line battery" d="M278.0,240 V285" marker-end="url(#pf-remo-battery-head)"></path>
-<text class="volt-battery" x="270.0" y="262" text-anchor="end">switched on and off</text>
-<text class="volt-battery" x="270.0" y="276" text-anchor="end">by the driver (PWM)</text>
+<text class="volt-battery" x="270" y="262" text-anchor="end">switched on and off</text>
+<text class="volt-battery" x="270" y="276" text-anchor="end">by the driver (PWM)</text>
 <rect class="part" x="206" y="290" width="144" height="38" rx="5"></rect>
-<text class="name" x="278.0" y="313.0" text-anchor="middle">Two DG01D-E motors</text>
+<text class="name" x="278" y="313" text-anchor="middle">Two DG01D-E motors</text>
 <path class="line bank" d="M60,130 V181" marker-end="url(#pf-remo-bank-head)"></path>
 <path class="line data" d="M67,130 V186"></path>
 <text class="volt-bank" x="76" y="162" text-anchor="start">5 V and data, USB</text>
 <rect class="part" x="10" y="186" width="140" height="54" rx="5"></rect>
-<text class="name" x="80.0" y="217.0" text-anchor="middle">Teensy 4.0</text>
+<text class="name" x="80" y="210" text-anchor="middle">Microcontroller (MCU)</text>
+<text class="note" x="80" y="224" text-anchor="middle">Teensy 4.0</text>
 <path class="line bank" d="M150,199 H201" marker-end="url(#pf-remo-bank-head)"></path>
-<text class="volt-bank" x="178.0" y="194" text-anchor="middle">3.3 V</text>
+<text class="volt-bank" x="178" y="194" text-anchor="middle">3.3 V</text>
 <path class="line data" d="M150,214 H206"></path>
-<text class="note" x="178.0" y="210" text-anchor="middle">I2C</text>
+<text class="note" x="178" y="210" text-anchor="middle">I2C</text>
 <path class="line ground" d="M150,229 H206"></path>
-<text class="note" x="178.0" y="225" text-anchor="middle">GND</text>
+<text class="note" x="178" y="225" text-anchor="middle">GND</text>
 <path class="line bank" d="M28,240 V285" marker-end="url(#pf-remo-bank-head)"></path>
 <path class="line data" d="M35,240 V290"></path>
 <text class="volt-bank" x="41" y="269" text-anchor="start">3.3 V</text>
 <rect class="part" x="10" y="290" width="68" height="38" rx="5"></rect>
-<text class="name" x="44.0" y="306.0" text-anchor="middle">Encoders</text>
-<text class="note" x="44.0" y="320.0" text-anchor="middle">both wheels</text>
+<text class="name" x="44" y="306" text-anchor="middle">Encoders</text>
+<text class="note" x="44" y="320" text-anchor="middle">both wheels</text>
 <path class="line bank" d="M100,240 V285" marker-end="url(#pf-remo-bank-head)"></path>
 <path class="line data" d="M107,240 V290"></path>
 <text class="volt-bank" x="113" y="269" text-anchor="start">3.3 V</text>
 <rect class="part" x="82" y="290" width="68" height="38" rx="5"></rect>
-<text class="name" x="116.0" y="306.0" text-anchor="middle">IMU</text>
-<text class="note" x="116.0" y="320.0" text-anchor="middle">BNO055</text>
+<text class="name" x="116" y="306" text-anchor="middle">IMU</text>
+<text class="note" x="116" y="320" text-anchor="middle">BNO055</text>
 <path class="line bank" d="M10,346.5 H36"></path>
-<text x="44" y="350" text-anchor="start">supply from the power bank</text>
+<text x="44" y="350" text-anchor="start">supply from the power bank (5 V, 3.3 V)</text>
 <path class="line battery" d="M10,361.5 H36"></path>
-<text x="44" y="365" text-anchor="start">supply from the motor battery</text>
+<text x="44" y="365" text-anchor="start">supply from the motor battery (7.2 V)</text>
 <path class="line data" d="M10,376.5 H36"></path>
 <text x="44" y="380" text-anchor="start">data connection</text>
 <path class="line ground" d="M10,391.5 H36"></path>
@@ -5310,16 +5324,16 @@ The holder's cable goes to the 2-pin power terminal of the <a href="https://www.
 </figure>
 
 <ul>
-<li><strong>From the power bank:</strong> The Raspberry Pi gets 5 V at its USB-C port. The Teensy gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The Raspberry Pi also powers the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>, through the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>'s USB adapter on another of its USB ports. The adapter has no supply of its own. The Teensy's 3.3 V pin supplies the encoders, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the logic of the motor driver (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169">bench check</a>, section 8).</li>
-<li><strong>From the motor battery:</strong> The motors only. The motor driver switches the battery voltage to them.</li>
-<li><strong>Motor driver:</strong> The only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection (<a href="https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB">schematic</a>), so both supplies share one ground.</li>
+<li><strong>From the power bank:</strong> The Raspberry Pi gets 5 V at its USB-C port. The microcontroller (<abbr title="Microcontroller unit. A small computer on one chip that runs one program in real time, such as the Teensy that controls the motors.">MCU</abbr>), a Teensy that runs the <a href="../packages/diffbot_base/low-level/">low-level base controller</a>, gets 5 V from a USB port of the Raspberry Pi, over the cable that also carries the data. The Raspberry Pi also powers the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>, through the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr>'s USB adapter on another of its USB ports. The adapter has no supply of its own. The Teensy's 3.3 V pin supplies the encoders, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> and the logic of the motor driver (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169">bench check</a>, section 8).</li>
+<li><strong>From the motor battery:</strong> The motor battery supplies the motors only. The motor driver switches the battery voltage to them.</li>
+<li><strong>Motor driver:</strong> The motor driver is the only part on both supplies. Its logic runs on the Teensy's 3.3 V and gets the motor commands over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>. Its motor side runs on the battery. On the board, the battery's minus pole and the ground wire (GND) to the Teensy are one connection (<a href="https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB">schematic</a>), so both supplies share one ground.</li>
 <li><strong>Without the Teensy:</strong> The motors stop. The motor driver's logic loses its 3.3 V together with the Teensy. In the bench check, pulling the Teensy's USB cable while driving stopped the wheels at once.</li>
 <li><strong>Camera:</strong> The figure draws only its data connection to the Raspberry Pi, as a dashed line. Its supply isn't checked on Remo yet, so the figure doesn't draw one.</li>
 </ul>
 <p>The battery and the motor driver fit together like this:</p>
 <ul>
 <li><strong>Input range:</strong> Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its <a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">guide</a> asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged down to 6.0 V at the end value of the capacity test.</li>
-<li><strong>Voltage drop:</strong> The TB6612 switches with MOSFETs. Its <a href="https://toshiba.semicon-storage.com/info/docget.jsp?did=10660">datasheet</a> gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. These are the datasheet's values at its test currents. Remo's own motor currents aren't measured.</li>
+<li><strong>Voltage drop:</strong> The TB6612 switches with MOSFETs, transistors that lose much less voltage than the L298's. Its <a href="https://toshiba.semicon-storage.com/info/docget.jsp?did=10660">datasheet</a> gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. These are the datasheet's values at its test currents. Remo's own motor currents aren't measured.</li>
 <li><strong>What the motors get:</strong> At the maximum duty cycle, a motor gets close to the pack's voltage under load minus this small drop. That is about 8 V with fully charged cells and about 7 V for most of the discharge. Both stay below the motors' 9 V maximum.</li>
 </ul>
 <p>Six is also the largest number of NiMH cells that Remo can use.
@@ -5370,7 +5384,7 @@ That's also why Energizer warns against chargers that aren't designed for the ba
 <ul>
 <li><strong>Charging mode:</strong> For NiMH cells, it selects the charging mode by itself (<a href="https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf">manual</a>, the note under Default Settings).</li>
 <li><strong>End of the charge:</strong> Nitecore lists −dV/dt as one of the charger's modes (<a href="https://www.nitecore.com/product/ums4">specifications</a>). This method ends a charge when the cell voltage starts to fall. A NiMH cell's voltage peaks when the cell is full and then falls slightly (Energizer's handbook above, page 10).</li>
-<li><strong>Charging current:</strong> With all four slots in use, each slot charges with up to 500 mA from a standard USB power adapter, or up to 1000 mA from a Quick Charge 2.0 adapter (<a href="https://www.nitecore.com/product/ums4">specifications</a>). At 500 mA, an empty 2000 mAh cell takes more than four hours.</li>
+<li><strong>Charging current:</strong> With all four slots in use, each slot charges with up to 500 mA from a standard USB power adapter, or up to 1000 mA from a Quick Charge 2.0 adapter (<a href="https://www.nitecore.com/product/ums4">specifications</a>). At 500 mA, an empty 2000 mAh cell takes more than four hours. With two slots in use, each slot charges with up to 1000 mA, the charger's default for NiMH AA cells (manual, Default Settings).</li>
 <li><strong>USB port:</strong> Nitecore's product page describes a USB-C port. The first units from 2018 have a micro-USB port (<a href="https://zeroair.org/2018/12/04/nitecore-ums2-and-ums4-charger-review/">review on zeroair.org</a>), so check which cable your unit needs.</li>
 </ul>
 <!-- Mechanical parts and tools -->
