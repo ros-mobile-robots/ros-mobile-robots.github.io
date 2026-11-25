@@ -5040,11 +5040,9 @@
 
 
 <h1 id="power-supply">Power Supply</h1>
-<p>DiffBot and Remo each have two separate power supplies:</p>
-<ul>
-<li>A USB power bank runs the Raspberry Pi.</li>
-<li>AA cells in a battery holder run the motors, through the motor driver.</li>
-</ul>
+<p>DiffBot and Remo each have two separate power supplies. A USB power bank runs the Raspberry Pi, and AA cells in a battery holder run the motors, through the motor driver.
+This page explains what each supply has to deliver, which cells suit each robot's motor driver, when to replace or recharge the cells, and how to charge Remo's NiMH cells.
+Read the page before you buy cells or a charger, and before you put other cells into a robot's holder: cells with the wrong voltage are outside the motor driver's input range.</p>
 <p>The motors get their own supply because they need more current than a USB connection provides (<a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">Adafruit's FeatherWing guide</a>).</p>
 <table>
 <thead>
@@ -5086,8 +5084,9 @@
 <p>The Raspberry Pi 4 B gets 5 V through its USB-C port.
 Raspberry Pi recommends a supply that delivers 3.0 A.
 The bare board typically draws 600 mA when active, and USB devices such as the <abbr title="Light detection and ranging. A sensor that measures distances with laser light; a 2D laser scanner turns to measure them all around.">LiDAR</abbr> add to that (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply">Raspberry Pi documentation</a>).
-On both robots, a power bank with a USB-C cable supplies these 5 V. The <a href="../components/">Components</a> page lists the power banks.</p>
-<p>If the supply voltage drops below 4.63 V (±5 %), the Raspberry Pi writes a low-voltage warning to its kernel log, which <code>dmesg</code> shows.
+On both robots, a power bank with a USB-C cable supplies these 5 V. The <a href="../components/">Components</a> page lists the power banks.
+DiffBot's power bank delivers 2.1 A, less than this recommendation. The current that a robot's Raspberry Pi draws with its USB devices isn't measured.</p>
+<p>If the supply voltage drops below 4.63 V (±5 %), the Raspberry Pi writes a low-voltage warning to its kernel log, which <code>dmesg</code> shows on the Raspberry Pi.
 If you see such warnings, use a power bank that delivers more current, or a better cable.</p>
 <h2 id="from-the-battery-to-the-motors">From the battery to the motors</h2>
 <p>The motor driver sits between the battery and the motors.
@@ -5161,11 +5160,23 @@ So the voltage that Remo's motors can get stays nearly the same until its cells 
 <h3 id="when-to-replace-or-recharge">When to replace or recharge</h3>
 <p>Neither robot has a battery-protection cutoff.
 The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
-Remo's firmware, for example, has one automatic stop, the command timeout: it releases the motors when no wheel commands arrive (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f5f282eed7b6a2b146d40c7d5fd641b8a339a77d/diffbot_firmware/lib/wheel_control/wheel_control.h#L98-L109"><code>wheel_control.h</code></a>).
+Remo's firmware, for example, has one automatic stop, <a href="../packages/diffbot_base/low-level/#the-command-timeout">the command timeout</a>: the firmware releases the motors when no wheel commands arrive.
 So you decide when the cells are replaced or recharged:</p>
 <ul>
-<li><strong>DiffBot:</strong> Replace the batteries when the voltage at the motor driver's power terminal is below 6 V while the motors run. Below 6 V, the board is outside the input range that Seeed specifies (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Specifications</a>). To measure it, set a multimeter to <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> volts, with the black lead in COM and the red lead in V. While the motors run, hold the black probe on the − screw and the red probe on the + screw of the power terminal (<a href="https://www.fluke.com/en-us/learn/blog/digital-multimeters/how-to-measure-dc-voltage-with-a-digital-multimeter">Fluke's guide to measuring <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> voltage</a>). Four fresh alkaline batteries give only about 6 V under load, so a set has little margin from the start. The voltage at DiffBot's power terminal isn't measured yet. Replace all four batteries together: Energizer warns that mixing old and new batteries can make them rupture or leak (<a href="https://data.energizer.com/pdfs/alkaline_appman.pdf">Alkaline Handbook</a>, section Testing / Care / Warnings). Before you change them, shut down the Raspberry Pi and unplug its power bank, as the <a href="../grove_motor_driver/#connection">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver page</a> explains.</li>
-<li><strong>Remo:</strong> Recharge all six cells after each use. Don't drive until the robot gets slow or stops.</li>
+<li>
+<p><strong>DiffBot:</strong> Replace the batteries when the voltage at the motor driver's power terminal is below 6 V while the motors run. Below 6 V, the board is outside the input range that Seeed specifies (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Specifications</a>).</p>
+<p>To measure this voltage (<a href="https://www.fluke.com/en-us/learn/blog/digital-multimeters/how-to-measure-dc-voltage-with-a-digital-multimeter">Fluke's guide to measuring <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> voltage</a>):</p>
+<ol>
+<li>Put DiffBot on a stand, so that its wheels turn freely.</li>
+<li>Set a multimeter to <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> volts, with the black lead in COM and the red lead in V.</li>
+<li>Let the motors run.</li>
+<li>Hold the black probe on the − screw and the red probe on the + screw of the power terminal.</li>
+</ol>
+<p>Four fresh alkaline batteries give only about 6 V under load, so a set has little margin from the start. The voltage at DiffBot's power terminal isn't measured yet. Replace all four batteries together: Energizer warns that mixing old and new batteries can make them rupture or leak (<a href="https://data.energizer.com/pdfs/alkaline_appman.pdf">Alkaline Handbook</a>, section Testing / Care / Warnings). Before you change them, shut down the Raspberry Pi and unplug its power bank, as the <a href="../grove_motor_driver/#connection">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver page</a> explains.</p>
+</li>
+<li>
+<p><strong>Remo:</strong> Recharge all six cells after each use. Don't drive until the robot gets slow or stops.</p>
+</li>
 </ul>
 <p>Two things speak against driving Remo until it stops:</p>
 <ul>
@@ -5177,7 +5188,7 @@ So you decide when the cells are replaced or recharged:</p>
 The holder's cable goes to the power terminal of the <a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver V1.3</a>.</p>
 <ul>
 <li><strong>Input range:</strong> Seeed specifies 6 V to 15 V at this terminal. The board also makes the 5 V for its own logic from this input. Four alkaline batteries give about 6 V under load, right at the lower end of the range. As they discharge, their voltage falls below 6 V. Then it's time to <a href="#when-to-replace-or-recharge">replace them</a>.</li>
-<li><strong>Voltage drop:</strong> On its way to a motor, the current passes a protection diode (D9, a 1N4007, in Seeed's <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf">schematic</a>) and two transistors of the L298. The diode carries the current of the whole board: both motors and the board's logic. Each bridge of the L298 carries the current of its own motor. At 1 A, the <a href="https://www.vishay.com/docs/88503/1n4001.pdf">1N4007 datasheet</a> gives up to 1.1 V for the diode. The <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf">L298 datasheet</a> gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. The L298's typical curve still shows more than 2 V at 0.8 A, its lowest current. These are the datasheets' values at their test currents. DiffBot's own currents aren't measured.</li>
+<li><strong>Voltage drop:</strong> On its way to a motor, the current passes a protection diode (D9, a 1N4007, in Seeed's <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf">schematic</a>) and two transistors of the L298. The diode carries the current of the whole board: both motors and the board's logic. Each bridge of the L298 carries the current of its own motor. At 1 A, the <a href="https://www.vishay.com/docs/88503/1n4001.pdf">1N4007 datasheet</a> gives up to 1.1 V for the diode. The <a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf">L298 datasheet</a> gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. Seeed limits the board to 0.5 A per channel (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/">Specifications</a>). The L298's typical curve still shows more than 2 V at 0.8 A, its lowest current. These are the datasheets' values at their test currents. DiffBot's own currents aren't measured.</li>
 <li><strong>What the motors get:</strong> At the maximum duty cycle, a motor gets close to the battery voltage under load minus both drops. An example with assumed values, not a measurement: if the drops add up to 3 V, a motor gets 3 V of the battery's 6 V. That's the lower end of its 3 V to 9 V. So the voltage that DiffBot's motors can get depends a lot on the state of its batteries.</li>
 </ul>
 <div class="admonition warning">
@@ -5193,7 +5204,7 @@ The holder's cable goes to the power terminal of the <a href="https://wiki.seeed
 The holder's cable goes to the 2-pin power terminal of the <a href="https://www.adafruit.com/product/2927">Adafruit <abbr title="Direct current. Current that flows in one direction, as from a battery; a DC motor's speed follows its voltage.">DC</abbr> Motor + Stepper FeatherWing</a>.</p>
 <ul>
 <li><strong>Input range:</strong> Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its <a href="https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts">guide</a> asks for 5 V to 12 V. Six NiMH cells stay inside both ranges, from 8.4 V fully charged down to 6.0 V at the end value of the capacity test.</li>
-<li><strong>Voltage drop:</strong> The TB6612 switches with MOSFETs. Its <a href="https://toshiba.semicon-storage.com/info/docget.jsp?did=10660">datasheet</a> gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. These are the datasheet's values at its test currents. Remo's own motor currents aren't measured.</li>
+<li><strong>Voltage drop:</strong> The TB6612 switches with MOSFETs, transistors that lose much less voltage than the L298's. Its <a href="https://toshiba.semicon-storage.com/info/docget.jsp?did=10660">datasheet</a> gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. These are the datasheet's values at its test currents. Remo's own motor currents aren't measured.</li>
 <li><strong>What the motors get:</strong> At the maximum duty cycle, a motor gets close to the pack's voltage under load minus this small drop. That is about 8 V with fully charged cells and about 7 V for most of the discharge. Both stay below the motors' 9 V maximum.</li>
 </ul>
 <p>Six is also the largest number of NiMH cells that Remo can use.
@@ -5244,7 +5255,7 @@ That's also why Energizer warns against chargers that aren't designed for the ba
 <ul>
 <li><strong>Charging mode:</strong> For NiMH cells, it selects the charging mode by itself (<a href="https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf">manual</a>, the note under Default Settings).</li>
 <li><strong>End of the charge:</strong> Nitecore lists −dV/dt as one of the charger's modes (<a href="https://www.nitecore.com/product/ums4">specifications</a>). This method ends a charge when the cell voltage starts to fall. A NiMH cell's voltage peaks when the cell is full and then falls slightly (Energizer's handbook above, page 10).</li>
-<li><strong>Charging current:</strong> With all four slots in use, each slot charges with up to 500 mA from a standard USB power adapter, or up to 1000 mA from a Quick Charge 2.0 adapter (<a href="https://www.nitecore.com/product/ums4">specifications</a>). At 500 mA, an empty 2000 mAh cell takes more than four hours.</li>
+<li><strong>Charging current:</strong> With all four slots in use, each slot charges with up to 500 mA from a standard USB power adapter, or up to 1000 mA from a Quick Charge 2.0 adapter (<a href="https://www.nitecore.com/product/ums4">specifications</a>). At 500 mA, an empty 2000 mAh cell takes more than four hours. With two slots in use, each slot charges with up to 1000 mA, the charger's default for NiMH AA cells (manual, Default Settings).</li>
 <li><strong>USB port:</strong> Nitecore's product page describes a USB-C port. The first units from 2018 have a micro-USB port (<a href="https://zeroair.org/2018/12/04/nitecore-ums2-and-ums4-charger-review/">review on zeroair.org</a>), so check which cable your unit needs.</li>
 </ul>
 <!-- Mechanical parts and tools -->

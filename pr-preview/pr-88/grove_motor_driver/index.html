@@ -4990,6 +4990,10 @@ Two things matter for this connection: the voltage of the two signals and a comm
 <li><strong>Signal voltage:</strong> The motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus works with 5 V (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications">Seeed's specifications</a>). The Raspberry Pi's <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> pins work with 3.3 V and aren't 5 V tolerant (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html">Raspberry Pi's documentation of the 40-pin <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> header</a>). So the data line SDA and the clock line SCL go through a bidirectional <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> level shifter, for example <a href="https://www.adafruit.com/product/757">Adafruit's BSS138 level converter</a>. The level shifter connects the 3.3 V signals on its low side with the 5 V signals on its high side.</li>
 <li><strong>Common ground:</strong> Each board measures the voltages on SDA and SCL against its own ground. On DiffBot, the two boards have separate supplies: a power bank for the Raspberry Pi and four AA batteries for the motor driver (<a href="../power-supply/">Power Supply</a>). So the grounds of the Raspberry Pi, the level shifter and the motor driver have to be connected.</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Not tested on a DiffBot yet</p>
+<p>The wiring below follows the specifications of the two boards. It isn't tested on a DiffBot yet.</p>
+</div>
 <p>Switch off both supplies before you connect the wires: shut down the Raspberry Pi and unplug its power bank, and take the batteries out of the motor driver's holder.
 With Adafruit's converter as the example, each row is one wire. The pins of the Raspberry Pi are those of its 40-pin header (<a href="https://pinout.xyz/pinout/i2c"><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pinout</a>), and the level shifter's pins are named as printed on its board:</p>
 <table>
@@ -5051,7 +5055,6 @@ So change the batteries in this order:</p>
 <li>Replace all four batteries.</li>
 <li>Plug the power bank in again, which starts the Raspberry Pi.</li>
 </ol>
-<p>This wiring follows the specifications of the two boards. It isn't tested on a DiffBot yet.</p>
 <p>Make sure to set the address with the dip switches on the motor driver to <code>0x0f</code> because this is the default address used
 in the library files.</p>
 <p>To test the physical <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connection use <code>i2cdetect</code> described in <a href="../processing_units/hardware-interfaces/#single-board-computer-i2c-connection">Hardware Interfaces</a>:
