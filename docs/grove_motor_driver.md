@@ -62,9 +62,9 @@ With Adafruit's converter as the example, each row is one wire. The pins of the 
 
 The level shifter connects `A1` with `B1` and `A2` with `B2` itself. Don't connect these pins with a wire.
 
-Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and 5 V from the motor driver.
-The motor driver makes these 5 V from its batteries, with its own regulator.
-DiffBot's four NiMH cells are below the input range that Seeed specifies for the board, as [DiffBot: four NiMH cells and the Grove I2C Motor Driver](power-supply.md#diffbot-four-nimh-cells-and-the-grove-i2c-motor-driver) on the Power Supply page explains.
+Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and the logic supply of the motor driver, which Seeed gives as 5 V.
+The motor driver makes this supply from its batteries, with its own 5 V regulator.
+DiffBot's four NiMH cells are below the input range that Seeed specifies for the board, and the regulator can't hold 5 V with them. [DiffBot: four NiMH cells and the Grove I2C Motor Driver](power-supply.md#diffbot-four-nimh-cells-and-the-grove-i2c-motor-driver) on the Power Supply page explains why.
 Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the I2C connector, and Seeed asks for the jumper when 5 V should be supplied to the I2C bus ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
 Connect this VCC pin only to the level shifter's `HV`, never to the Raspberry Pi, which has its own supply.
 The GND pin of the I2C connector is connected to the board's ground, with or without the jumper.
