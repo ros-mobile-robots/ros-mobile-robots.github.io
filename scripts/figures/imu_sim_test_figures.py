@@ -460,6 +460,8 @@ def fewest_messages_in_measure() -> int:
 # The chart of the test at rest shows at least this range of readings, in m/s²
 UPWARD_READING_LOWEST = 9.0
 UPWARD_READING_HIGHEST = 10.6
+# A round value near gravity that the chart's axis names, in m/s²
+UPWARD_READING_ROUND_TICK = 10.0
 # The room above the accepted band in the left turn's chart, in rad/s
 TURN_RATE_HEADROOM = 0.05
 
@@ -509,7 +511,7 @@ def at_rest_figure() -> Figure:
         f'{fewest_messages_in_measure()}. The mean of their readings on the upward axis must lie '
         f'between {accepted.lowest:.2f} and {accepted.highest:.2f} m/s², '
         f'and the mean of their yaw rates within {YAW_RATE_AT_REST_TOLERANCE:g} rad/s of 0 rad/s. '
-        f'A black line marks a reference value, gravity in the simulation, {GAZEBO_GRAVITY} '
+        f'A solid line marks a reference value, gravity in the simulation, {GAZEBO_GRAVITY} '
         'm/s². It is not a reading.')
     draw_command(figure, time_scale, 'stand still: all velocities 0',
                  [Phase('SETTLE', SETTLE), Phase('MEASURE', MEASURE)], stops=False)
@@ -521,7 +523,8 @@ def at_rest_figure() -> Figure:
         title=('Reading on the upward axis, ' + svg_subscript('f', 'z', restore_baseline=True)
                + ', in m/s²'),
         values=upward_reading_scale(),
-        ticks=[Tick(UPWARD_READING_LOWEST, f'{UPWARD_READING_LOWEST:g}'), Tick(10.0, '10')],
+        ticks=[Tick(UPWARD_READING_LOWEST, f'{UPWARD_READING_LOWEST:g}'),
+               Tick(UPWARD_READING_ROUND_TICK, f'{UPWARD_READING_ROUND_TICK:g}')],
         accepted=accepted,
         band_label=f'the mean over {MEASURE:g} s must lie here',
         band_label_offset=14,

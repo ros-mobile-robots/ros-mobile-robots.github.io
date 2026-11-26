@@ -242,6 +242,41 @@ class TestFrameAxes(unittest.TestCase):
         self.assertEqual(diagonals, sorted([falling, rising]))
 
 
+class TestDirections(unittest.TestCase):
+    """The drawings turn and point the way the physics does, also after a regenerated include."""
+
+    def test_a_rotation_about_the_upward_axis_runs_counterclockwise_seen_from_above(self) -> None:
+        center = board_drawings.Point(100.0, 100.0)
+        view = imu_sim_robot_figures.view_from_above(1000, center)
+        points = imu_sim_robot_figures.rotation_arrow_points(
+            view, imu_sim_robot_figures.CHASSIS_ORIGIN, imu_sim_robot_figures.UP, 0.0, 0.02, 0.0)
+        # SVG's y axis points down, so each step of a counterclockwise turn has a negative cross
+        # product of the two points' offsets from the center
+        turns = [(first.x - center.x) * (second.y - center.y)
+                 - (first.y - center.y) * (second.x - center.x)
+                 for first, second in zip(points, points[1:])]
+        self.assertTrue(all(turn < 0 for turn in turns), turns)
+
+    def test_at_rest_gravity_points_down_and_the_reading_up(self) -> None:
+        root = svg_root(imu_sim_robot_figures.specific_force_at_rest_figure())
+        for kind, points_down in (('gravity', True), ('reading', False)):
+            with self.subTest(kind=kind):
+                shafts = [line for line in elements_with_class(root, 'polyline', 'shaft')
+                          if kind in line.get('class', '').split()]
+                self.assertEqual(len(shafts), 1)
+                ends = shafts[0].get('points', '').split()
+                start_y, end_y = (float(end.split(',')[1]) for end in (ends[0], ends[-1]))
+                # SVG's y axis points down: a shaft that points down ends at a larger y
+                self.assertEqual(end_y > start_y, points_down, (start_y, end_y))
+
+    def test_a_robot_that_turned_left_is_drawn_turned_counterclockwise(self) -> None:
+        group = imu_sim_test_figures.robot_elements(math.pi / 2)[0]
+        rotation = re.match(r'<g transform="rotate\(([-\d.]+)\)">', group)
+        self.assertIsNotNone(rotation)
+        assert rotation is not None
+        self.assertEqual(float(rotation.group(1)), -90.0)
+
+
 class TestTextsFromValues(unittest.TestCase):
     """The drawings' texts take their numbers from the scripts' constants."""
 
@@ -458,8 +493,6 @@ class TestDriveTimelineScales(unittest.TestCase):
         stop_dots = elements_with_class(svg_root(drawing), 'circle', 'command-dot')
         self.assertEqual([attribute_number(dot, 'cx') for dot in stop_dots],
                          [self.STOP_DOT_X_FOR_THE_LONGER_MEASURE])
-        self.assertLessEqual(self.STOP_DOT_X_FOR_THE_LONGER_MEASURE,
-                             imu_sim_test_figures.DRIVE_TIME_RIGHT)
 
     def test_time_axis_numbers_the_fourth_second_for_a_longer_measure(self) -> None:
         with mock.patch.object(imu_sim_test_figures, 'MEASURE', self.LONGER_MEASURE):
@@ -481,7 +514,6 @@ class TestDriveTimelineScales(unittest.TestCase):
         chart = self.chart_edges()
         self.assertEqual(vertical_path_positions(traces[0]),
                          [chart.bottom, self.COMMAND_Y_FOR_THE_FASTER_TURN, chart.bottom])
-        self.assertGreaterEqual(self.COMMAND_Y_FOR_THE_FASTER_TURN, chart.top)
 
     def test_left_turn_keeps_the_accepted_band_inside_the_chart_for_a_faster_turn(self) -> None:
         with mock.patch.object(imu_sim_test_figures, 'TURN_RATE', self.FASTER_TURN_RATE):

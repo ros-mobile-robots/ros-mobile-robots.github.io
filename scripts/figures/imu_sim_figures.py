@@ -178,7 +178,7 @@ class Figure:
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'middle') -> None:
-        """Add one line of text, centered at x.
+        """Add one line of text at x, centered unless anchor says otherwise.
 
         anchor is start, middle or end.
         """
