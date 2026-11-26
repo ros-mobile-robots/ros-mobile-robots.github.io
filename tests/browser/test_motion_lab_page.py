@@ -27,6 +27,7 @@ from local_site import SITE_HOSTS
 # local_site puts scripts/figures on the import path
 import motion_lab_figures as figures
 from playwright.sync_api import Browser
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page
 
 PAGE = '/development/simulation-test/'
@@ -967,6 +968,42 @@ class TestMotionLabPage(SimulationTestPageCase):
         shown = 'parts => parts.filter(part => part.checkVisibility()).length'
         self.assertEqual(page.eval_on_selector_all(f'{FIGURE} .ix-answer:not([data-live])', shown),
                          len(figures.EXAMPLES))
+
+
+class TestPageLog(SimulationTestPageCase):
+    """The page's log tells the test's own stopped requests from failures that are the page's."""
+
+    # A local address that the test below lets fail, as a broken connection would
+    UNRELATED_FILE = '/unrelated-file.txt'
+    CONNECTION_RESET = 'connectionreset'
+
+    def test_a_request_that_the_test_stopped_is_no_error(self) -> None:
+        opened = self.open_simulation_test_page(blocked=('diffdrive.js',))
+        opened.page.wait_for_load_state('networkidle')
+        self.assertTrue(opened.log.blocked, 'the page never asked for the blocked file')
+        self.assertEqual(opened.log.errors, [])
+
+    def test_a_failed_request_that_the_test_did_not_stop_is_an_error(self) -> None:
+        opened = self.open_simulation_test_page()
+        page = opened.page
+        page.wait_for_load_state('networkidle')
+        # The page's own route fails the request: the log's routing never sees it
+        page.route(f'**{self.UNRELATED_FILE}', lambda route: route.abort(self.CONNECTION_RESET))
+        page.evaluate('file => fetch(file).catch(() => null)', self.UNRELATED_FILE)
+        failed = [error for error in opened.log.errors if self.UNRELATED_FILE in error]
+        self.assertTrue(failed, opened.log.errors)
+        self.assertTrue(any('ERR_CONNECTION_RESET' in error for error in failed), failed)
+
+    def test_an_error_that_the_page_writes_to_the_console_is_an_error(self) -> None:
+        opened = self.open_simulation_test_page()
+        opened.page.evaluate('() => console.error("The figure broke")')
+        self.assertIn('The figure broke', opened.log.errors)
+
+    def test_a_page_that_fails_to_open_leaves_no_browser_context_open(self) -> None:
+        contexts_before = len(self.browser.contexts)
+        with self.assertRaises(PlaywrightError):
+            open_page(self.browser, self.base, PAGE, blocked=(PAGE,))
+        self.assertEqual(len(self.browser.contexts), contexts_before)
 
 
 class TestDiffDriveModule(SimulationTestPageCase):

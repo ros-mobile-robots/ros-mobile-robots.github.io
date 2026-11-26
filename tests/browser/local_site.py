@@ -2,7 +2,7 @@
 
 A test page only talks to the local server. Requests to any other host are stopped and
 recorded, so a test run never loads an ad, the consent message or Analytics, and a test can
-check which hosts a page asks for.
+check which hosts a page asks for. Any other request that fails counts as an error of the page.
 """
 
 import contextlib
@@ -16,6 +16,7 @@ from typing import Any
 from typing import Iterator
 from typing import List
 from typing import NamedTuple
+from typing import Set
 from typing import Tuple
 from urllib.parse import urlparse
 
@@ -24,6 +25,7 @@ from playwright.sync_api import BrowserContext
 from playwright.sync_api import ConsoleMessage
 from playwright.sync_api import Error
 from playwright.sync_api import Page
+from playwright.sync_api import Request
 from playwright.sync_api import Route
 from playwright.sync_api import sync_playwright
 
@@ -36,9 +38,9 @@ SITE_DIR = Path(os.environ.get('SITE_DIR', ROOT / 'site'))
 # The hosts that the site's own template asks for on every page: the ad and consent script, and
 # the repository's star count in the header. A figure must not add a host to them
 SITE_HOSTS = {'pagead2.googlesyndication.com', 'api.github.com'}
-# A request that open_page() stopped also logs a console error with this text, which isn't the
-# page's fault
-STOPPED_REQUEST = 'net::ERR_'
+# How Chromium starts its console line about a resource that failed to load. For a request that
+# the test stopped, this line isn't the page's fault
+FAILED_RESOURCE = 'Failed to load resource'
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -76,20 +78,44 @@ def chromium() -> Iterator[Browser]:
 
 
 class PageLog:
-    """What a page did while a test used it: its errors, the other hosts and the blocked files."""
+    """What a page did while a test used it: its errors, the other hosts and the blocked files.
+
+    errors holds the exceptions of the page's scripts, the errors that it wrote to the console,
+    and each request that failed although the test didn't stop it, with its address and reason.
+    """
 
     def __init__(self) -> None:
+        """Initialize the page's request and error logs."""
         self.errors: List[str] = []
         self.other_hosts: List[str] = []
         self.blocked: List[str] = []
+        self.stopped_urls: Set[str] = set()
+
+    def add_stopped_request(self, request: Request) -> None:
+        """Note a request that the test stops on purpose: its failure is no error."""
+        self.stopped_urls.add(request.url)
 
     def add_page_error(self, error: Error) -> None:
         """Note an error that the page's scripts threw."""
         self.errors.append(str(error))
 
+    def add_failed_request(self, request: Request) -> None:
+        """Note a request that failed, unless the test stopped it."""
+        if request.url not in self.stopped_urls:
+            self.errors.append(f'{request.url}: {request.failure}')
+
     def add_console_message(self, message: ConsoleMessage) -> None:
-        """Note an error that the page wrote to the console, but not a stopped request's."""
-        if message.type in ('error', 'assert') and STOPPED_REQUEST not in message.text:
+        """Note an error that the page wrote to the console.
+
+        The browser's own line about a resource that the test stopped isn't the page's fault.
+        """
+        if message.type not in ('error', 'assert'):
+            return
+        about_stopped_request = (
+            message.text.startswith(FAILED_RESOURCE)
+            and message.location.get('url') in self.stopped_urls
+        )
+        if not about_stopped_request:
             self.errors.append(message.text)
 
 
@@ -99,6 +125,30 @@ class OpenedPage(NamedTuple):
     context: BrowserContext
     page: Page
     log: PageLog
+
+
+def route_requests(
+    context: BrowserContext, base: str, blocked: Tuple[str, ...], log: PageLog
+) -> None:
+    """Let a context load the served site only, without the local files that a test blocks."""
+    site = urlparse(base)
+
+    def route_test_request(route: Route) -> None:
+        """Allow same-origin assets and record requests deliberately blocked by the test."""
+        url = urlparse(route.request.url)
+        # The served site only: the same scheme, host and port, not an address that starts alike
+        if (url.scheme, url.hostname, url.port) != (site.scheme, site.hostname, site.port):
+            log.other_hosts.append(url.netloc)
+            log.add_stopped_request(route.request)
+            route.abort()
+        elif any(part in url.path for part in blocked):
+            log.blocked.append(url.path)
+            log.add_stopped_request(route.request)
+            route.abort()
+        else:
+            route.continue_()
+
+    context.route('**/*', route_test_request)
 
 
 def open_page(
@@ -114,31 +164,23 @@ def open_page(
     """Open a page of the served site in a new browser context.
 
     `blocked` names parts of local addresses that fail to load, to test what a figure does
-    then. Further options go to the browser context, such as color_scheme or is_mobile.
+    then. Further options go to the browser context, such as color_scheme or is_mobile. If the
+    page fails to open, the context is closed again before the error goes on.
     """
     context = browser.new_context(
         viewport={'width': width, 'height': height},
         java_script_enabled=javascript,
         **context_options,
     )
-    log = PageLog()
-    site = urlparse(base)
-
-    def handle_request(route: Route) -> None:
-        url = urlparse(route.request.url)
-        # The served site only: the same scheme, host and port, not an address that starts alike
-        if (url.scheme, url.hostname, url.port) != (site.scheme, site.hostname, site.port):
-            log.other_hosts.append(url.netloc)
-            route.abort()
-        elif any(part in url.path for part in blocked):
-            log.blocked.append(url.path)
-            route.abort()
-        else:
-            route.continue_()
-
-    context.route('**/*', handle_request)
-    page = context.new_page()
-    page.on('pageerror', log.add_page_error)
-    page.on('console', log.add_console_message)
-    page.goto(base + path, wait_until='load')
+    try:
+        log = PageLog()
+        route_requests(context, base, blocked, log)
+        page = context.new_page()
+        page.on('pageerror', log.add_page_error)
+        page.on('console', log.add_console_message)
+        page.on('requestfailed', log.add_failed_request)
+        page.goto(base + path, wait_until='load')
+    except BaseException:
+        context.close()
+        raise
     return OpenedPage(context, page, log)
