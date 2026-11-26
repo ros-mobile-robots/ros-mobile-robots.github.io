@@ -280,11 +280,12 @@ class TestThreadDrawings(unittest.TestCase):
     def test_include_has_one_tab_per_drawing_with_the_pages_labels(self) -> None:
         include = (ROOT / 'includes' / 'imu-sim-threads.html').read_text(encoding='utf-8')
         labels = re.findall(r'<label for="__tabbed_th_\d">([^<]*)</label>', include)
-        self.assertEqual(labels, list(imu_sim_figures.TAB_LABELS))
+        tab_labels = [imu_sim_figures.ORIGINAL_TAB_LABEL, imu_sim_figures.COPY_TAB_LABEL]
+        self.assertEqual(labels, tab_labels)
         page = (ROOT / 'docs' / 'packages' / 'imu' / 'simulation' / 'plugin.md').read_text(
             encoding='utf-8')
         page_tabs = re.findall(r'^=== "([^"]*)"$', page, re.MULTILINE)
-        self.assertEqual(page_tabs, list(imu_sim_figures.TAB_LABELS))
+        self.assertEqual(page_tabs, tab_labels)
 
 
 class TestFrameTabs(unittest.TestCase):
@@ -293,11 +294,13 @@ class TestFrameTabs(unittest.TestCase):
     def test_include_and_page_use_the_same_robot_labels(self) -> None:
         include = (ROOT / 'includes' / 'imu-sim-frames.html').read_text(encoding='utf-8')
         labels = re.findall(r'<label for="__tabbed_imuframes_\d">([^<]*)</label>', include)
-        self.assertEqual(labels, list(imu_sim_robot_figures.ROBOT_TAB_LABELS))
+        tab_labels = [imu_sim_robot_figures.REMO_TAB_LABEL,
+                      imu_sim_robot_figures.DIFFBOT_TAB_LABEL]
+        self.assertEqual(labels, tab_labels)
         page = (ROOT / 'docs' / 'packages' / 'imu' / 'simulation'
                 / 'position-and-axes.md').read_text(encoding='utf-8')
         page_tabs = re.findall(r'^=== "([^"]*)"$', page, re.MULTILINE)
-        self.assertEqual(page_tabs, list(imu_sim_robot_figures.ROBOT_TAB_LABELS))
+        self.assertEqual(page_tabs, tab_labels)
 
     def test_diffbot_drawing_puts_imu_link_above_chassis_link_by_the_models_height(self) -> None:
         drawing = imu_sim_robot_figures.frames_on_diffbot_figure()

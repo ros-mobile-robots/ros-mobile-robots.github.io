@@ -5,8 +5,8 @@ It writes three includes, as inline SVG that follows the site's light and dark c
 - includes/imu-sim-frames.html, for docs/packages/imu/simulation/position-and-axes.md:
   chassis_link, imu_joint and imu_link, in one tab per robot. Remo from above and from the
   side, and DiffBot from the side, with the placeholder mounting of DiffBot's URDF model. The
-  tabs are written as HTML, in the markup that pymdownx.tabbed produces with alternate_style,
-  as scripts/figures/simulation_test_figures.py does. Their labels (ROBOT_TAB_LABELS) are those
+  tabs are written as HTML by board_drawings.tab_set(), in the markup that pymdownx.tabbed
+  produces with alternate_style. Their labels (REMO_TAB_LABEL and DIFFBOT_TAB_LABEL) are those
   of the page's Markdown tabs, and the theme's content.tabs.link switches all tabs with one
   label together. So change the labels here and on the page together.
 - includes/imu-sim-angular-velocity.html, for docs/packages/imu/simulation/index.md: the angular
@@ -37,8 +37,14 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
-from board_drawings import escape
+from board_drawings import Drawing
+from board_drawings import figure_element
+from board_drawings import PanelWidths
 from board_drawings import style_element
+from board_drawings import svg_element
+from board_drawings import svg_subscript
+from board_drawings import Tab
+from board_drawings import tab_set
 
 # The first line of each include: the script that writes it
 INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_robot_figures.py -->'
@@ -121,7 +127,8 @@ IMU_AXES: Tuple[Vector, Vector, Vector] = (
     (0.0, 0.0, 1.0))
 AXIS_NAMES = ('x', 'y', 'z')
 # The labels of the frames' tabs, the same as those of the Markdown tabs on the page
-ROBOT_TAB_LABELS = ('Remo', 'DiffBot')
+REMO_TAB_LABEL = 'Remo'
+DIFFBOT_TAB_LABEL = 'DiffBot'
 # An axis whose arrow on the drawing would be shorter than this share of its length points along
 # the viewer's line of sight. The drawing shows it as a ring
 RING_SHARE = 0.2
@@ -264,13 +271,24 @@ def view_from_behind(scale: float, origin: Point, azimuth: float, elevation: flo
 
 
 class Figure:
-    """Collect the SVG elements of one drawing."""
+    """One drawing of a robot: its name, size, accessible texts and the elements of its drawing.
+
+    The figure draws with the shared Drawing, at points that a View projects, rounded to a tenth
+    of an SVG unit. It adds what these drawings have of their own: shapes through projected
+    points, and arrows whose heads are as large as each arrow needs.
+    """
 
     def __init__(self, name: str, width: float, height: float, title: str,
                  description: str) -> None:
+        """Initialize the figure metadata and its drawing."""
         self.name, self.width, self.height = name, width, height
         self.title, self.description = title, description
-        self.elements: List[str] = []
+        self.drawing = Drawing()
+
+    @property
+    def elements(self) -> List[str]:
+        """Return the SVG elements of the drawing, in the order they are drawn."""
+        return self.drawing.elements
 
     def polygon(self, points: Sequence[Point], css_class: str) -> None:
         """Add a closed shape through the points."""
@@ -281,13 +299,12 @@ class Figure:
         """Add a rectangle between two opposite corners."""
         x, y = min(first[0], second[0]), min(first[1], second[1])
         width, height = abs(first[0] - second[0]), abs(first[1] - second[1])
-        self.elements.append(f'<rect class="{css_class}" x="{x:.1f}" y="{y:.1f}" '
-                             f'width="{width:.1f}" height="{height:.1f}" rx="{radius}"/>')
+        self.drawing.rect(round(x, 1), round(y, 1), round(width, 1), round(height, 1), css_class,
+                          radius)
 
     def circle(self, center: Point, radius: float, css_class: str) -> None:
         """Add a circle around center."""
-        self.elements.append(f'<circle class="{css_class}" cx="{center[0]:.1f}" '
-                             f'cy="{center[1]:.1f}" r="{radius:.1f}"/>')
+        self.drawing.circle(round(center[0], 1), round(center[1], 1), round(radius, 1), css_class)
 
     def polyline(self, points: Sequence[Point], css_class: str) -> None:
         """Add an open line through the points."""
@@ -320,26 +337,27 @@ class Figure:
         direction = (points[-1][0] - points[-3][0], points[-1][1] - points[-3][1])
         self.head(points[-1], direction, css_class, size)
 
-    def text(self, position: Point, text: str, css_class: str = '', anchor: str = 'start',
-             markup: bool = False) -> None:
-        """Add one line of text. anchor is start, middle or end. markup keeps SVG tags."""
-        class_attribute = f' class="{css_class}"' if css_class else ''
-        content = text if markup else escape(text)
-        self.elements.append(f'<text{class_attribute} x="{position[0]:.1f}" '
-                             f'y="{position[1]:.1f}" text-anchor="{anchor}">{content}</text>')
+    def text(self, position: Point, text: str, css_class: str = '',
+             anchor: str = 'start') -> None:
+        """Add one line of text at the requested anchor.
+
+        anchor is start, middle or end.
+        """
+        self.drawing.text(round(position[0], 1), round(position[1], 1), text, css_class, anchor)
+
+    def text_markup(self, position: Point, markup: str, css_class: str = '',
+                    anchor: str = 'start') -> None:
+        """Add one line of text from SVG markup, such as a symbol with a subscript.
+
+        anchor is start, middle or end.
+        """
+        self.drawing.text_markup(round(position[0], 1), round(position[1], 1), markup, css_class,
+                                 anchor)
 
     def svg(self) -> str:
-        """Return the drawing as an SVG element."""
-        return (f'<svg class="imu-fig" viewBox="0 0 {self.width} {self.height}" role="img" '
-                f'aria-labelledby="{self.name}-title {self.name}-description">'
-                f'<title id="{self.name}-title">{escape(self.title)}</title>'
-                f'<desc id="{self.name}-description">{escape(self.description)}</desc>\n'
-                + '\n'.join(self.elements) + '\n</svg>')
-
-
-def subscript(symbol: str, index: str) -> str:
-    """Return SVG markup for a symbol with a subscript, for the end of a text line."""
-    return f'{symbol}<tspan class="sub" dy="3">{index}</tspan>'
+        """Return the drawing as an SVG element without markers: its arrows draw their heads."""
+        return svg_element(self.name, 'imu-fig', (self.width, self.height), self.title,
+                           self.elements, description=self.description, markers=())
 
 
 def box_corners(box: Box) -> List[Vector]:
@@ -773,11 +791,11 @@ def angular_velocity_figure() -> Figure:
         figure.curved_arrow(rotation_arrow(view, IMU_POSITION, axis, 0.68 * length,
                                            0.2 * length, first_angles[name]), f'turn {name}', 8)
     figure.circle(start, 3, 'dot')
-    figure.text((70, 28), subscript('ω', 'z'), 'z', 'end', markup=True)
+    figure.text_markup((70, 28), svg_subscript('ω', 'z'), 'z', 'end')
     figure.text((78, 28), f'yaw rate. Left turn at {TURN_RATE} rad/s: {signed(TURN_RATE)} rad/s.')
     figure.text((78, 44), 'The EKF fuses this value.')
-    figure.text((186, 150), subscript('ω', 'y'), 'y halo', markup=True)
-    figure.text((199, 246), subscript('ω', 'x'), 'x halo', markup=True)
+    figure.text_markup((186, 150), svg_subscript('ω', 'y'), 'y halo')
+    figure.text_markup((199, 246), svg_subscript('ω', 'x'), 'x halo')
     figure.text((180, 306), 'Each curved arrow shows the direction that counts', 'note', 'middle')
     figure.text((180, 321), 'as positive for the angular velocity about its axis', 'note',
                 'middle')
@@ -1022,56 +1040,34 @@ def specific_force_in_a_turn_figure() -> Figure:
     return figure
 
 
-def figure_element(drawings: Sequence[Figure], caption: str, basis: int, widest: int,
-                   explanations: Sequence[str] = (), caption_is_html: bool = False) -> str:
-    """Return a figure element with the drawings side by side and one caption.
+class Panel(NamedTuple):
+    """One panel of a figure: a drawing and the text below it, as HTML. None is no text."""
 
-    The drawings wrap below each other on a narrow screen. basis and widest are the width in
-    px from which a drawing wraps and its largest width. explanations has one text per drawing,
-    as HTML, which stands below its drawing. Without it, the drawings have no text of their
-    own. caption is Markdown, or HTML with caption_is_html, for a figure inside raw HTML. The
-    drawings stand in a div without the markdown attribute, so that Markdown leaves the SVG's
-    text as it is and the glossary doesn't wrap a term such as IMU in an abbr element.
+    drawing: Figure
+    explanation_html: Optional[str] = None
+
+
+def panels_html(panels: Sequence[Panel]) -> str:
+    """Return the panels' markup: each drawing in its own div, with its text below it."""
+    divisions = []
+    for panel in panels:
+        explanation = ('' if panel.explanation_html is None
+                       else f'\n<p>{panel.explanation_html}</p>')
+        divisions.append(f'<div class="imu-panel">\n{panel.drawing.svg()}{explanation}\n</div>')
+    return '\n'.join(divisions)
+
+
+def write_include(path: str, html: str) -> None:
+    """Write an include: the comment that names this script, the drawings' style and html."""
+    with open(path, 'w', encoding='utf-8') as include:
+        include.write(f'{INCLUDE_COMMENT}\n{style_element(RULES)}\n{html}\n')
+
+
+def frame_tabs() -> List[Tab]:
+    """Return one tab per robot, each with its label, its drawings and its caption.
+
+    The tab set is raw HTML, so the captions are HTML.
     """
-    panels = []
-    for index, drawing in enumerate(drawings):
-        explanation = f'\n<p>{explanations[index]}</p>' if explanations else ''
-        panels.append(f'<div class="imu-panel">\n{drawing.svg()}{explanation}\n</div>')
-    figure_markdown, caption_markdown = ('', '') if caption_is_html else (
-        ' markdown="block"', ' markdown="span"')
-    return (f'<figure class="imu-figure"{figure_markdown} '
-            f'style="--imu-basis:{basis}px;--imu-max:{widest}px">\n'
-            '<div class="imu-panels">\n' + '\n'.join(panels) + '\n</div>\n'
-            f'<figcaption{caption_markdown}>{caption}</figcaption>\n</figure>\n')
-
-
-def figure_html(drawings: Sequence[Figure], caption: str, basis: int, widest: int,
-                explanations: Sequence[str] = ()) -> str:
-    """Return an include: the drawings' style and a figure element with a Markdown caption."""
-    return (f'{style_element(RULES)}\n'
-            + figure_element(drawings, caption, basis, widest, explanations))
-
-
-def tabs_html(name: str, labels: Sequence[str], figures: Sequence[str]) -> str:
-    """Return an include: the drawings' style and a set of tabs with one figure element each.
-
-    name makes the tabs' ids, and labels are the tabs' labels. The tab set is raw HTML, so the
-    figure elements need HTML captions.
-    """
-    inputs = ''.join(
-        f'<input{" checked" if index == 0 else ""} id="__tabbed_{name}_{index + 1}" '
-        f'name="__tabbed_{name}" type="radio">' for index in range(len(figures)))
-    tab_labels = ''.join(f'<label for="__tabbed_{name}_{index + 1}">{escape(label)}</label>'
-                         for index, label in enumerate(labels))
-    blocks = ''.join(f'<div class="tabbed-block">\n{figure}</div>\n' for figure in figures)
-    return (f'{style_element(RULES)}\n<div class="tabbed-set tabbed-alternate imu-tabs" '
-            f'data-tabs="{name}:{len(figures)}">{inputs}'
-            f'<div class="tabbed-labels">{tab_labels}</div>\n'
-            f'<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
-
-
-def write_frames() -> None:
-    """Write the include with the frames on Remo and on DiffBot, one tab per robot."""
     up = centimeters(DIFFBOT_IMU_POSITION[2])
     remo = ('Remo’s frames, to scale. <code>chassis_link</code> is at the center of the base '
             'plate’s top. <code>imu_joint</code>, the dashed line, is a fixed joint. It puts '
@@ -1084,13 +1080,19 @@ def write_frames() -> None:
                '<code>imu_link</code>’s axes point the same way as <code>chassis_link</code>’s: '
                'x forward (red), z up (blue), and y to the left, away from you (the ring with '
                'a cross). The mounting is a placeholder. It isn’t measured on the robot.')
-    figures = [
-        figure_element([frames_from_above_figure(), frames_from_the_side_figure()], remo, 300,
-                       400, caption_is_html=True),
-        figure_element([frames_on_diffbot_figure()], diffbot, 300, 400, caption_is_html=True)]
-    with open('includes/imu-sim-frames.html', 'w', encoding='utf-8') as include:
-        include.write(INCLUDE_COMMENT + '\n')
-        include.write(tabs_html('imuframes', ROBOT_TAB_LABELS, figures))
+    widths = PanelWidths(basis=300, widest=400)
+    remo_panels = [Panel(frames_from_above_figure()), Panel(frames_from_the_side_figure())]
+    diffbot_panels = [Panel(frames_on_diffbot_figure())]
+    return [
+        Tab(REMO_TAB_LABEL, figure_element('imu', panels_html(remo_panels), remo, widths,
+                                           caption_is_markdown=False)),
+        Tab(DIFFBOT_TAB_LABEL, figure_element('imu', panels_html(diffbot_panels), diffbot,
+                                              widths, caption_is_markdown=False))]
+
+
+def write_frames() -> None:
+    """Write the include with the frames on Remo and on DiffBot, one tab per robot."""
+    write_include('includes/imu-sim-frames.html', tab_set('imuframes', 'imu-tabs', frame_tabs()))
 
 
 def write_angular_velocity() -> None:
@@ -1101,26 +1103,30 @@ def write_angular_velocity() -> None:
                'its x axis to the robot’s right, because the board is mounted turned by '
                f'{degrees(IMU_YAW)} about z, as the [figure of Remo’s frames]'
                '(position-and-axes.md) shows.')
-    with open('includes/imu-sim-angular-velocity.html', 'w', encoding='utf-8') as include:
-        include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html([angular_velocity_figure()], caption, 300, 480))
+    write_include('includes/imu-sim-angular-velocity.html', figure_element(
+        'imu', panels_html([Panel(angular_velocity_figure())]), caption,
+        PanelWidths(basis=300, widest=480)))
 
 
-def specific_force_explanations() -> List[str]:
-    """Return the text below each specific force drawing, as HTML, in the drawings' order."""
+def specific_force_panels() -> List[Panel]:
+    """Return the three specific force drawings, each with the text below it, as HTML."""
     forward = number(FORWARD_ACCELERATION)
     forward_tilt = tilt_from_vertical(specific_force((FORWARD_ACCELERATION, 0.0, 0.0)))
     turn_tilt = tilt_from_vertical(specific_force(turn_acceleration()))
     a, f, g = '<strong>a</strong>', '<strong>f</strong>', '<strong>g</strong>'
     return [
-        f'{a} is zero, so the sensor reads {f} = \u2212{g}: {GAZEBO_GRAVITY} m/s² straight up. '
-        f'{g} and {f} are drawn to one scale.',
-        f'{f} leans forward by only {forward_tilt:.0f}°. So the circle shows the tip of {f} '
-        f'{TIP_MAGNIFICATION} times larger: {f} ends {forward} m/s² in front of the dotted '
-        'line, which points straight up from the sensor.',
-        f'The dotted circle is the sensor’s path. {f} points up, at you, and leans toward the '
-        f'center by {turn_tilt:.1f}°. The arrow of {a} shows only its direction: at the scale '
-        f'of {g}, its {centripetal_acceleration():.2f} m/s² would be too short to see.',
+        Panel(specific_force_at_rest_figure(),
+              f'{a} is zero, so the sensor reads {f} = \u2212{g}: {GAZEBO_GRAVITY} m/s² straight '
+              f'up. {g} and {f} are drawn to one scale.'),
+        Panel(specific_force_speeding_up_figure(),
+              f'{f} leans forward by only {forward_tilt:.0f}°. So the circle shows the tip of '
+              f'{f} {TIP_MAGNIFICATION} times larger: {f} ends {forward} m/s² in front of the '
+              'dotted line, which points straight up from the sensor.'),
+        Panel(specific_force_in_a_turn_figure(),
+              f'The dotted circle is the sensor’s path. {f} points up, at you, and leans toward '
+              f'the center by {turn_tilt:.1f}°. The arrow of {a} shows only its direction: at '
+              f'the scale of {g}, its {centripetal_acceleration():.2f} m/s² would be too short '
+              'to see.'),
     ]
 
 
@@ -1133,12 +1139,9 @@ def write_specific_force() -> None:
                'gives the reading along `imu_link`’s x, y and z axes on Remo, where the y axis '
                'points forward. A message of the simulation differs a little, as the text '
                'below the figure explains.')
-    drawings = [specific_force_at_rest_figure(), specific_force_speeding_up_figure(),
-                specific_force_in_a_turn_figure()]
-    with open('includes/imu-sim-specific-force.html', 'w', encoding='utf-8') as include:
-        include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html(drawings, caption, FORCE_PANEL_WIDTH, FORCE_PANEL_WIDTH,
-                                  specific_force_explanations()))
+    write_include('includes/imu-sim-specific-force.html', figure_element(
+        'imu', panels_html(specific_force_panels()), caption,
+        PanelWidths(basis=FORCE_PANEL_WIDTH, widest=FORCE_PANEL_WIDTH)))
 
 
 def main() -> None:

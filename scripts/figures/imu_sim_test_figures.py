@@ -39,8 +39,12 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
-from board_drawings import escape
+from board_drawings import Drawing
+from board_drawings import figure_element
+from board_drawings import PanelWidths
 from board_drawings import style_element
+from board_drawings import svg_element
+from board_drawings import svg_subscript
 
 # The first line of each include: the script that writes it
 INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_test_figures.py -->'
@@ -115,13 +119,6 @@ RULES = (
 )
 
 
-def subscript(symbol: str, index: str) -> str:
-    """Return SVG markup for a symbol with a subscript."""
-    # The second tspan moves the baseline back up for the text after the subscript. A shift
-    # applies to a character, so the tspan holds one that has no width: U+200B
-    return f'{symbol}<tspan class="sub" dy="3">{index}</tspan><tspan dy="-3">\u200b</tspan>'
-
-
 class Scale(NamedTuple):
     """Map a value range onto a range of SVG coordinates."""
 
@@ -138,47 +135,57 @@ class Scale(NamedTuple):
 
 
 class Figure:
-    """Collect the SVG elements of one drawing."""
+    """One timeline: its name, size, accessible texts and the elements of its drawing.
+
+    The figure draws with the shared Drawing and adds what the timelines have of their own:
+    groups with a transform.
+    """
 
     def __init__(self, name: str, width: float, height: float, title: str,
                  description: str) -> None:
+        """Initialize the figure metadata and its drawing."""
         self.name, self.width, self.height = name, width, height
         self.title, self.description = title, description
-        self.elements: List[str] = []
+        self.drawing = Drawing()
+
+    @property
+    def elements(self) -> List[str]:
+        """Return the SVG elements of the drawing, in the order they are drawn."""
+        return self.drawing.elements
 
     def rectangle(self, x: float, y: float, width: float, height: float, css_class: str,
                   radius: float = 0) -> None:
         """Add a rectangle with its upper left corner at (x, y)."""
-        self.elements.append(f'<rect class="{css_class}" x="{x}" y="{y}" width="{width}" '
-                             f'height="{height}" rx="{radius}"/>')
+        self.drawing.rect(x, y, width, height, css_class, radius)
 
-    def text(self, x: float, y: float, text: str, css_class: str = '', anchor: str = 'start',
-             markup: bool = False) -> None:
-        """Add one line of text. anchor is start, middle or end. markup keeps SVG markup."""
-        class_attribute = f' class="{css_class}"' if css_class else ''
-        content = text if markup else escape(text)
-        self.elements.append(
-            f'<text{class_attribute} x="{x}" y="{y}" text-anchor="{anchor}">{content}</text>')
+    def text(self, x: float, y: float, text: str, css_class: str = '',
+             anchor: str = 'start') -> None:
+        """Add one line of text at the requested anchor.
+
+        anchor is start, middle or end.
+        """
+        self.drawing.text(x, y, text, css_class, anchor)
+
+    def text_markup(self, x: float, y: float, markup: str, css_class: str = '') -> None:
+        """Add one line of text from SVG markup, such as a symbol with a subscript."""
+        self.drawing.text_markup(x, y, markup, css_class)
 
     def path(self, path: str, css_class: str) -> None:
         """Add a line along an SVG path."""
-        self.elements.append(f'<path class="{css_class}" d="{path}"/>')
+        self.drawing.line(path, css_class)
 
     def circle(self, x: float, y: float, radius: float, css_class: str) -> None:
         """Add a circle around (x, y)."""
-        self.elements.append(f'<circle class="{css_class}" cx="{x}" cy="{y}" r="{radius}"/>')
+        self.drawing.circle(x, y, radius, css_class)
 
     def group(self, transform: str, elements: Sequence[str]) -> None:
         """Add elements in a group with a transform."""
         self.elements.append(f'<g transform="{transform}">' + ''.join(elements) + '</g>')
 
     def svg(self) -> str:
-        """Return the drawing as an SVG element."""
-        return (f'<svg class="tl-fig" viewBox="0 0 {self.width} {self.height}" role="img" '
-                f'aria-labelledby="{self.name}-title {self.name}-description">'
-                f'<title id="{self.name}-title">{escape(self.title)}</title>'
-                f'<desc id="{self.name}-description">{escape(self.description)}</desc>\n'
-                + '\n'.join(self.elements) + '\n</svg>')
+        """Return the drawing as an SVG element without markers."""
+        return svg_element(self.name, 'tl-fig', (self.width, self.height), self.title,
+                           self.elements, description=self.description, markers=())
 
 
 class Row(NamedTuple):
@@ -325,7 +332,7 @@ def draw_robots(figure: Figure, row: Robots) -> None:
 
 def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scale:
     """Add the reading's chart with its accepted band and legend, and return its value scale."""
-    figure.text(8, CHART_TITLE_Y, reading.title, 'row-title', markup=True)
+    figure.text_markup(8, CHART_TITLE_Y, reading.title, 'row-title')
     left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
     for value, label in reading.ticks:
         y = reading.values.position(value)
@@ -404,7 +411,8 @@ def at_rest_figure() -> Figure:
         robots=[Robot(SETTLE + MEASURE / 2, 0.0, 'stands still')],
         notes=[(SETTLE / 2, ['may still brake', 'after the left turn'])]))
     reading = Reading(
-        title='Reading on the upward axis, ' + subscript('f', 'z') + ', in m/s²',
+        title=('Reading on the upward axis, ' + svg_subscript('f', 'z', restore_baseline=True)
+               + ', in m/s²'),
         values=Scale(9.0, 10.6, CHART.bottom, CHART.top),
         ticks=[(9.0, '9'), (10.0, '10')],
         accepted=Band(lowest=GRAVITY - GRAVITY_TOLERANCE, highest=GRAVITY + GRAVITY_TOLERANCE),
@@ -446,7 +454,8 @@ def left_turn_figure() -> Figure:
     draw_robots(figure, Robots(title='The robot from above: ideal headings from the command',
                                robots=robots, notes=[]))
     reading = Reading(
-        title='Turn rate about the upward axis, ' + subscript('ω', 'z') + ', in rad/s',
+        title=('Turn rate about the upward axis, '
+               + svg_subscript('ω', 'z', restore_baseline=True) + ', in rad/s'),
         values=Scale(0.0, 0.7, CHART.bottom, CHART.top),
         ticks=[(0.0, '0'), (TURN_RATE, f'{TURN_RATE}')],
         accepted=Band(lowest=TURN_RATE - TURN_RATE_TOLERANCE,
@@ -676,19 +685,13 @@ def reset_with_the_old_time_figure() -> Figure:
     return figure
 
 
-def figure_html(drawings: Sequence[Figure], caption: str, basis: int, widest: int) -> str:
-    """Return a figure element with the drawings side by side and one caption.
+def figure_html(drawings: Sequence[Figure], caption: str, widths: PanelWidths) -> str:
+    """Return the drawings' style and a figure with the drawings side by side and one caption.
 
-    The drawings wrap below each other on a narrow screen. basis and widest are the width in
-    px from which a drawing wraps and its largest width. caption is Markdown. The drawings
-    stand in a div without the markdown attribute, so that Markdown leaves the SVG's text as it
-    is and the glossary doesn't wrap a term such as IMU in an abbr element.
+    The drawings are the figure's panels, without an element around each. caption is Markdown.
     """
     panels = '\n'.join(drawing.svg() for drawing in drawings)
-    return (f'{style_element(RULES)}\n<figure class="tl-figure" markdown="block" '
-            f'style="--tl-basis:{basis}px;--tl-max:{widest}px">\n'
-            f'<div class="tl-panels">\n{panels}\n</div>\n'
-            f'<figcaption markdown="span">{caption}</figcaption>\n</figure>\n')
+    return f'{style_element(RULES)}\n{figure_element("tl", panels, caption, widths)}\n'
 
 
 def at_rest_caption() -> str:
@@ -727,14 +730,16 @@ def main() -> None:
     """Write the three includes."""
     with open('includes/imu-sim-test-at-rest.html', 'w', encoding='utf-8') as include:
         include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html([at_rest_figure()], at_rest_caption(), 300, 480))
+        include.write(figure_html([at_rest_figure()], at_rest_caption(),
+                                  PanelWidths(basis=300, widest=480)))
     with open('includes/imu-sim-test-left-turn.html', 'w', encoding='utf-8') as include:
         include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html([left_turn_figure()], left_turn_caption(), 300, 480))
+        include.write(figure_html([left_turn_figure()], left_turn_caption(),
+                                  PanelWidths(basis=300, widest=480)))
     with open('includes/imu-sim-test-reset.html', 'w', encoding='utf-8') as include:
         include.write(INCLUDE_COMMENT + '\n')
         include.write(figure_html([reset_with_the_copy_figure(), reset_with_the_old_time_figure()],
-                                  reset_caption(), 280, 400))
+                                  reset_caption(), PanelWidths(basis=280, widest=400)))
 
 
 if __name__ == '__main__':

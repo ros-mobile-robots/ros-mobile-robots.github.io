@@ -29,49 +29,49 @@
 <figure>
 <svg class="th-fig" viewBox="0 0 360 380" role="img" aria-labelledby="th-original-title th-original-description"><title id="th-original-title">The request with the original IMU plugin</title><desc id="th-original-description">Step 1: the controller spawner, another ROS node, sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and calls ros::spinOnce(). Step 3: ros::spinOnce() takes the request from the queue and runs the callback in the physics thread. Step 4: the callback notes the change and waits here for update(). Step 5: update() never runs, because its thread is waiting. This is a deadlock: the clock stops. The ROS spinner thread finds the queue empty.</desc><defs><marker id="th-original-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="th-original-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="box" x="18" y="8" width="152" height="38" rx="4"/>
-<text x="94.0" y="24" text-anchor="middle">controller spawner</text>
-<text class="note" x="94.0" y="38" text-anchor="middle">another ROS node</text>
+<text x="94" y="24" text-anchor="middle">controller spawner</text>
+<text class="note" x="94" y="38" text-anchor="middle">another ROS node</text>
 <rect class="queue" x="200" y="8" width="152" height="38" rx="4"/>
-<text x="276.0" y="24" text-anchor="middle">global callback queue</text>
-<text class="note" x="276.0" y="38" text-anchor="middle">a waiting list</text>
+<text x="276" y="24" text-anchor="middle">global callback queue</text>
+<text class="note" x="276" y="38" text-anchor="middle">a waiting list</text>
 <path class="request" d="M170,27.0 H199" marker-end="url(#th-original-request)"/>
 <circle class="step-disc" cx="185" cy="15" r="8"/>
 <text class="step" x="185" y="18.8" text-anchor="middle">1</text>
 <rect class="lane" x="18" y="62" width="160" height="314" rx="6"/>
-<text class="lane-name" x="98.0" y="79" text-anchor="middle">physics thread</text>
+<text class="lane-name" x="98" y="79" text-anchor="middle">physics thread</text>
 <rect class="lane" x="186" y="62" width="166" height="314" rx="6"/>
-<text class="lane-name" x="269.0" y="79" text-anchor="middle">ROS spinner thread</text>
+<text class="lane-name" x="269" y="79" text-anchor="middle">ROS spinner thread</text>
 <text class="note" transform="translate(13,66) rotate(-90)" text-anchor="end">time</text>
 <path class="flow" d="M9,96 V370" marker-end="url(#th-original-flow)"/>
 <path class="box" d="M22,262 V88 H174 V262"/>
 <path class="open" d="M22,262 V278 M174,262 V278"/>
-<text class="mono" x="98.0" y="104" text-anchor="middle">UpdateChild()</text>
-<text class="note" x="98.0" y="118" text-anchor="middle">publishes the IMU message</text>
+<text class="mono" x="98" y="104" text-anchor="middle">UpdateChild()</text>
+<text class="note" x="98" y="118" text-anchor="middle">publishes the IMU message</text>
 <circle class="step-disc" cx="22" cy="88" r="8"/>
 <text class="step" x="22" y="91.8" text-anchor="middle">2</text>
 <path class="box" d="M28,258 V126 H168 V258"/>
 <path class="open" d="M28,258 V272 M168,258 V272"/>
-<text class="mono" x="98.0" y="142" text-anchor="middle">ros::spinOnce()</text>
-<text class="note" x="98.0" y="156" text-anchor="middle">runs the callback here</text>
+<text class="mono" x="98" y="142" text-anchor="middle">ros::spinOnce()</text>
+<text class="note" x="98" y="156" text-anchor="middle">runs the callback here</text>
 <rect class="callback" x="34" y="166" width="128" height="66" rx="4"/>
-<text class="mono" x="98.0" y="183" text-anchor="middle">switch_controller</text>
-<text class="note" x="98.0" y="197" text-anchor="middle">callback</text>
-<text x="98.0" y="211" text-anchor="middle">notes the change,</text>
-<text x="98.0" y="225" text-anchor="middle">waits here for update()</text>
+<text class="mono" x="98" y="183" text-anchor="middle">switch_controller</text>
+<text class="note" x="98" y="197" text-anchor="middle">callback</text>
+<text x="98" y="211" text-anchor="middle">notes the change,</text>
+<text x="98" y="225" text-anchor="middle">waits here for update()</text>
 <circle class="step-disc" cx="34" cy="166" r="8"/>
 <text class="step" x="34" y="169.8" text-anchor="middle">4</text>
 <path class="request" d="M338,46 V150 H169" marker-end="url(#th-original-request)"/>
 <circle class="step-disc" cx="338" cy="112" r="8"/>
 <text class="step" x="338" y="115.8" text-anchor="middle">3</text>
 <rect class="stuck" x="22" y="286" width="152" height="38" rx="4"/>
-<text class="mono stuck-text" x="98.0" y="303" text-anchor="middle">update()</text>
-<text class="note" x="98.0" y="317" text-anchor="middle">never runs: its thread waits</text>
+<text class="mono stuck-text" x="98" y="303" text-anchor="middle">update()</text>
+<text class="note" x="98" y="317" text-anchor="middle">never runs: its thread waits</text>
 <circle class="step-disc" cx="22" cy="286" r="8"/>
 <text class="step" x="22" y="289.8" text-anchor="middle">5</text>
-<text class="stuck-text strong" x="98.0" y="342" text-anchor="middle">deadlock: the clock stops</text>
+<text class="stuck-text strong" x="98" y="342" text-anchor="middle">deadlock: the clock stops</text>
 <rect class="idle" x="206" y="176" width="126" height="38" rx="4"/>
-<text class="note" x="269.0" y="193" text-anchor="middle">finds the queue</text>
-<text class="note" x="269.0" y="207" text-anchor="middle">empty</text>
+<text class="note" x="269" y="193" text-anchor="middle">finds the queue</text>
+<text class="note" x="269" y="207" text-anchor="middle">empty</text>
 </svg>
 <figcaption>With gazebo_plugins’ original IMU plugin. Time runs downward, and the numbers are the steps below. Blue is the <code>switch_controller</code> request and its callback. The callback runs in the physics thread and waits for an <code>update()</code> that only this thread can run.</figcaption>
 </figure>
@@ -80,54 +80,54 @@
 <figure>
 <svg class="th-fig" viewBox="0 0 360 380" role="img" aria-labelledby="th-copy-title th-copy-description"><title id="th-copy-title">The request with the robots’ copy of the IMU plugin</title><desc id="th-copy-description">Step 1: the controller spawner sends a switch_controller request, which waits in the global callback queue. Step 2: the physics thread calls the IMU plugin’s UpdateChild(), which publishes the IMU message and returns. Step 3: a ROS spinner thread takes the request and runs the callback, which notes the change and waits for update(). The callback waits here, in the spinner thread, not in the physics thread. Step 4: the physics thread goes on and calls update(), which takes the change. The clock runs on. Step 5: the callback returns, and the spawner gets its answer.</desc><defs><marker id="th-copy-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="flow-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="th-copy-request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="request-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="box" x="18" y="8" width="152" height="38" rx="4"/>
-<text x="94.0" y="24" text-anchor="middle">controller spawner</text>
-<text class="note" x="94.0" y="38" text-anchor="middle">another ROS node</text>
+<text x="94" y="24" text-anchor="middle">controller spawner</text>
+<text class="note" x="94" y="38" text-anchor="middle">another ROS node</text>
 <rect class="queue" x="200" y="8" width="152" height="38" rx="4"/>
-<text x="276.0" y="24" text-anchor="middle">global callback queue</text>
-<text class="note" x="276.0" y="38" text-anchor="middle">a waiting list</text>
+<text x="276" y="24" text-anchor="middle">global callback queue</text>
+<text class="note" x="276" y="38" text-anchor="middle">a waiting list</text>
 <path class="request" d="M170,27.0 H199" marker-end="url(#th-copy-request)"/>
 <circle class="step-disc" cx="185" cy="15" r="8"/>
 <text class="step" x="185" y="18.8" text-anchor="middle">1</text>
 <rect class="lane" x="18" y="62" width="160" height="314" rx="6"/>
-<text class="lane-name" x="98.0" y="79" text-anchor="middle">physics thread</text>
+<text class="lane-name" x="98" y="79" text-anchor="middle">physics thread</text>
 <rect class="lane" x="186" y="62" width="166" height="314" rx="6"/>
-<text class="lane-name" x="269.0" y="79" text-anchor="middle">ROS spinner thread</text>
+<text class="lane-name" x="269" y="79" text-anchor="middle">ROS spinner thread</text>
 <text class="note" transform="translate(13,66) rotate(-90)" text-anchor="end">time</text>
 <path class="flow" d="M9,96 V370" marker-end="url(#th-copy-flow)"/>
 <rect class="box" x="22" y="88" width="152" height="52" rx="4"/>
-<text class="mono" x="98.0" y="105" text-anchor="middle">UpdateChild()</text>
-<text class="note" x="98.0" y="119" text-anchor="middle">publishes the IMU message</text>
-<text class="note" x="98.0" y="133" text-anchor="middle">and returns</text>
+<text class="mono" x="98" y="105" text-anchor="middle">UpdateChild()</text>
+<text class="note" x="98" y="119" text-anchor="middle">publishes the IMU message</text>
+<text class="note" x="98" y="133" text-anchor="middle">and returns</text>
 <circle class="step-disc" cx="22" cy="88" r="8"/>
 <text class="step" x="22" y="91.8" text-anchor="middle">2</text>
 <rect class="box" x="22" y="150" width="152" height="38" rx="4"/>
-<text class="mono" x="98.0" y="167" text-anchor="middle">update()</text>
-<text class="note" x="98.0" y="181" text-anchor="middle">runs the controllers</text>
+<text class="mono" x="98" y="167" text-anchor="middle">update()</text>
+<text class="note" x="98" y="181" text-anchor="middle">runs the controllers</text>
 <path class="flow" d="M98.0,198 V256" marker-end="url(#th-copy-flow)"/>
-<text class="note" x="98.0" y="274" text-anchor="middle">this step or the next</text>
+<text class="note" x="98" y="274" text-anchor="middle">this step or the next</text>
 <rect class="callback" x="22" y="286" width="152" height="38" rx="4"/>
-<text class="mono" x="98.0" y="303" text-anchor="middle">update()</text>
-<text class="note" x="98.0" y="317" text-anchor="middle">takes the change</text>
+<text class="mono" x="98" y="303" text-anchor="middle">update()</text>
+<text class="note" x="98" y="317" text-anchor="middle">takes the change</text>
 <circle class="step-disc" cx="22" cy="286" r="8"/>
 <text class="step" x="22" y="289.8" text-anchor="middle">4</text>
-<text class="strong" x="98.0" y="342" text-anchor="middle">the clock runs on</text>
+<text class="strong" x="98" y="342" text-anchor="middle">the clock runs on</text>
 <path class="request" d="M338,46 V87" marker-end="url(#th-copy-request)"/>
 <rect class="callback" x="190" y="88" width="158" height="236" rx="4"/>
-<text class="mono" x="269.0" y="105" text-anchor="middle">switch_controller</text>
-<text class="note" x="269.0" y="119" text-anchor="middle">callback</text>
-<text x="269.0" y="133" text-anchor="middle">notes the change,</text>
-<text x="269.0" y="147" text-anchor="middle">waits for update()</text>
-<text class="strong" x="269.0" y="204" text-anchor="middle">the callback waits here,</text>
-<text class="note" x="269.0" y="218" text-anchor="middle">not in the physics thread</text>
+<text class="mono" x="269" y="105" text-anchor="middle">switch_controller</text>
+<text class="note" x="269" y="119" text-anchor="middle">callback</text>
+<text x="269" y="133" text-anchor="middle">notes the change,</text>
+<text x="269" y="147" text-anchor="middle">waits for update()</text>
+<text class="strong" x="269" y="204" text-anchor="middle">the callback waits here,</text>
+<text class="note" x="269" y="218" text-anchor="middle">not in the physics thread</text>
 <circle class="step-disc" cx="190" cy="88" r="8"/>
 <text class="step" x="190" y="91.8" text-anchor="middle">3</text>
 <path class="request" d="M174,305.0 H189" marker-end="url(#th-copy-request)"/>
-<text class="note" x="269.0" y="309.0" text-anchor="middle">the change is taken</text>
+<text class="note" x="269" y="309" text-anchor="middle">the change is taken</text>
 <path class="flow" d="M269.0,324 V338" marker-end="url(#th-copy-flow)"/>
 <circle class="step-disc" cx="207" cy="354" r="8"/>
 <text class="step" x="207" y="357.8" text-anchor="middle">5</text>
-<text class="note" x="277.0" y="352" text-anchor="middle">returns: the spawner</text>
-<text class="note" x="277.0" y="366" text-anchor="middle">gets its answer</text>
+<text class="note" x="277" y="352" text-anchor="middle">returns: the spawner</text>
+<text class="note" x="277" y="366" text-anchor="middle">gets its answer</text>
 </svg>
 <figcaption>With the robots’ copy of the plugin. Time runs downward, and the numbers are the steps below. A ROS spinner thread runs the callback, and the callback waits there. The physics thread goes on and calls <code>update()</code>.</figcaption>
 </figure>

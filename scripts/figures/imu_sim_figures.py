@@ -13,9 +13,9 @@ and one of the ROS spinner threads, and time running downward:
 The two drawings stand in two tabs at the same place, so that a reader can switch between them.
 So both have the same size, and what they share lies at the same position in both: the request,
 the lanes, the update() that has to take the change (UPDATE_BOX_Y) and what happens to the clock
-(CLOCK_NOTE_Y). The tabs are written as HTML, in the markup that pymdownx.tabbed produces with
-alternate_style, as scripts/figures/simulation_test_figures.py does. The page's numbered lists
-stand in Markdown tabs with the same labels (TAB_LABELS), and the theme's content.tabs.link
+(CLOCK_NOTE_Y). The tabs are written as HTML by board_drawings.tab_set(), in the markup that
+pymdownx.tabbed produces with alternate_style. The page's numbered lists stand in Markdown tabs
+with the same labels (ORIGINAL_TAB_LABEL and COPY_TAB_LABEL), and the theme's content.tabs.link
 switches all tabs with one label together. So change the labels here and on the page together.
 The numbers in the discs are the steps of those lists. Each caption is HTML.
 
@@ -29,9 +29,12 @@ from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import arrowhead_marker
 from board_drawings import Drawing
-from board_drawings import escape
 from board_drawings import style_element
+from board_drawings import svg_element
+from board_drawings import Tab
+from board_drawings import tab_set
 
 # The first line of each include: the script that writes it
 INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_figures.py -->'
@@ -100,7 +103,8 @@ CLOCK_NOTE_Y = 342
 LINE_HEIGHT = 14
 
 # The tabs' labels, the same as those of the numbered lists on the page
-TAB_LABELS = ('With the original plugin', 'With the copy')
+ORIGINAL_TAB_LABEL = 'With the original plugin'
+COPY_TAB_LABEL = 'With the copy'
 
 # A text line in a box: the text and its CSS class
 Line = Tuple[str, str]
@@ -138,25 +142,35 @@ RULES = (
 
 
 class Figure:
-    """Collect the SVG elements of one drawing."""
+    """One thread drawing: its name, its accessible texts and the elements of its drawing.
+
+    The figure draws with the shared Drawing and adds what the thread drawings have of their
+    own: centered text, rounded rectangles, boxes as high as their text, and arrows.
+    """
 
     def __init__(self, name: str, title: str, description: str) -> None:
+        """Initialize the figure metadata and its drawing."""
         self.name, self.height = name, HEIGHT
         self.title, self.description = title, description
-        self.elements: List[str] = []
+        self.drawing = Drawing()
+
+    @property
+    def elements(self) -> List[str]:
+        """Return the SVG elements of the drawing, in the order they are drawn."""
+        return self.drawing.elements
 
     def rectangle(self, x: float, y: float, width: float, height: float, css_class: str,
                   radius: float = 4) -> None:
-        """Add a rectangle with its upper left corner at (x, y)."""
-        self.elements.append(f'<rect class="{css_class}" x="{x}" y="{y}" width="{width}" '
-                             f'height="{height}" rx="{radius}"/>')
+        """Add a rectangle with rounded corners and its upper left corner at (x, y)."""
+        self.drawing.rect(x, y, width, height, css_class, radius)
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'middle') -> None:
-        """Add one line of text. anchor is start, middle or end."""
-        class_attribute = f' class="{css_class}"' if css_class else ''
-        self.elements.append(
-            f'<text{class_attribute} x="{x}" y="{y}" text-anchor="{anchor}">{escape(text)}</text>')
+        """Add one line of text, centered at x.
+
+        anchor is start, middle or end.
+        """
+        self.drawing.text(x, y, text, css_class, anchor)
 
     def lines(self, x: float, y: float, lines: Sequence[Line]) -> None:
         """Add centered text lines, the first with its baseline at y."""
@@ -173,7 +187,7 @@ class Figure:
 
     def path(self, path: str, css_class: str) -> None:
         """Add a line along an SVG path, without an arrowhead."""
-        self.elements.append(f'<path class="{css_class}" d="{path}"/>')
+        self.drawing.line(path, css_class)
 
     def arrow(self, path: str, css_class: str) -> None:
         """Add a line along an SVG path, with an arrowhead at its end."""
@@ -182,22 +196,14 @@ class Figure:
 
     def step(self, x: float, y: float, number: int) -> None:
         """Add a step's number in a filled disc around (x, y), as the shared drawings do."""
-        disc = Drawing()
-        disc.number_disc(x, y, number, 'step-disc', 'step')
-        self.elements.extend(disc.elements)
+        self.drawing.number_disc(x, y, number, 'step-disc', 'step')
 
     def svg(self) -> str:
-        """Return the drawing as an SVG element."""
-        heads = ''.join(
-            f'<marker id="{self.name}-{css_class}" viewBox="0 0 10 10" refX="9" refY="5" '
-            'markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
-            f'<path class="{css_class}-head" d="M0,0 L10,5 L0,10 z"/></marker>'
-            for css_class in ('flow', 'request'))
-        return (f'<svg class="th-fig" viewBox="0 0 {WIDTH} {self.height}" role="img" '
-                f'aria-labelledby="{self.name}-title {self.name}-description">'
-                f'<title id="{self.name}-title">{escape(self.title)}</title>'
-                f'<desc id="{self.name}-description">{escape(self.description)}</desc>'
-                f'<defs>{heads}</defs>\n' + '\n'.join(self.elements) + '\n</svg>')
+        """Return the drawing as an SVG element with one arrowhead marker per kind of arrow."""
+        heads = [arrowhead_marker(f'{self.name}-{css_class}', f'{css_class}-head',
+                                  'auto-start-reverse') for css_class in ('flow', 'request')]
+        return svg_element(self.name, 'th-fig', (WIDTH, self.height), self.title, self.elements,
+                           description=self.description, markers=heads)
 
 
 def draw_request(figure: Figure) -> None:
@@ -308,29 +314,14 @@ def threads_with_the_copy_figure() -> Figure:
     return figure
 
 
-def tabs_html(drawings: Sequence[Figure], captions: Sequence[str]) -> str:
-    """Return a set of tabs, one per drawing, each with the drawing and its caption.
-
-    The labels are TAB_LABELS. captions are HTML. The tab set is raw HTML, so Markdown leaves
-    the SVG's text as it is. Otherwise the glossary would wrap a term such as IMU in an abbr
-    element, which a browser doesn't draw inside SVG text.
-    """
-    inputs = ''.join(
-        f'<input{" checked" if index == 0 else ""} id="__tabbed_th_{index + 1}" '
-        'name="__tabbed_th" type="radio">' for index in range(len(drawings)))
-    labels = ''.join(f'<label for="__tabbed_th_{index + 1}">{escape(label)}</label>'
-                     for index, label in enumerate(TAB_LABELS))
-    blocks = ''.join(
-        f'<div class="tabbed-block">\n<figure>\n{drawing.svg()}\n'
-        f'<figcaption>{caption}</figcaption>\n</figure>\n</div>\n'
-        for drawing, caption in zip(drawings, captions))
-    return (f'{style_element(RULES)}\n<div class="tabbed-set tabbed-alternate th-figs" '
-            f'data-tabs="th:{len(drawings)}">{inputs}<div class="tabbed-labels">{labels}</div>\n'
-            f'<div class="tabbed-content">\n{blocks}</div>\n</div>\n')
+def figure_tab(label: str, drawing: Figure, caption_html: str) -> Tab:
+    """Return a tab with a drawing and, below it, the drawing's caption as HTML."""
+    return Tab(label, f'<figure>\n{drawing.svg()}\n'
+                      f'<figcaption>{caption_html}</figcaption>\n</figure>')
 
 
-def main() -> None:
-    """Write the include."""
+def thread_tabs() -> List[Tab]:
+    """Return the two tabs, each with its label, its drawing and its caption."""
     original = ('With gazebo_plugins’ original IMU plugin. Time runs downward, and the '
                 'numbers are the steps below. Blue is the <code>switch_controller</code> '
                 'request and its callback. The callback runs in the physics thread and waits '
@@ -338,10 +329,15 @@ def main() -> None:
     copy = ('With the robots’ copy of the plugin. Time runs downward, and the numbers are the '
             'steps below. A ROS spinner thread runs the callback, and the callback waits '
             'there. The physics thread goes on and calls <code>update()</code>.')
+    return [figure_tab(ORIGINAL_TAB_LABEL, threads_with_the_original_figure(), original),
+            figure_tab(COPY_TAB_LABEL, threads_with_the_copy_figure(), copy)]
+
+
+def main() -> None:
+    """Write the include."""
     with open('includes/imu-sim-threads.html', 'w', encoding='utf-8') as include:
-        include.write(INCLUDE_COMMENT + '\n')
-        include.write(tabs_html([threads_with_the_original_figure(),
-                                 threads_with_the_copy_figure()], [original, copy]))
+        include.write(f'{INCLUDE_COMMENT}\n{style_element(RULES)}\n'
+                      f'{tab_set("th", "th-figs", thread_tabs())}\n')
 
 
 if __name__ == '__main__':
