@@ -195,7 +195,7 @@ $I_3$ is the 3 × 3 identity matrix. The firmware's matrix has the same form wit
 
 ### The covariance ellipsoid
 
-Nine numbers are hard to picture, and a shape helps. Take the deviation $\mathbf e$ of a vector from its mean, with the three components $e_1$, $e_2$ and $e_3$. For a diagonal matrix with the standard deviations $\sigma_1$, $\sigma_2$ and $\sigma_3$, count each component in units of its own standard deviation. The deviations that lie exactly one standard deviation away fulfill this equation:
+Nine numbers are hard to picture, and a shape helps. Take the deviation $\mathbf e$ of a vector from its mean, with the three components $e_1$, $e_2$ and $e_3$. For a diagonal matrix with the positive standard deviations $\sigma_1$, $\sigma_2$ and $\sigma_3$, measure each component in units of its own standard deviation. The deviations whose three measured components together have the length 1 fulfill this equation:
 
 $$
 \frac{e_1^2}{\sigma_1^2} + \frac{e_2^2}{\sigma_2^2} + \frac{e_3^2}{\sigma_3^2} = 1
@@ -203,11 +203,21 @@ $$
 
 These points form an **ellipsoid** around the mean. Its semi-axes, the half widths along the three axes, are $\sigma_1$, $\sigma_2$ and $\sigma_3$:
 
-- **The same variance on every axis:** the ellipsoid is a sphere with the radius $\sigma$. The noise prefers no direction. The simulated IMU's angular velocity has a sphere with the radius 0.005 rad/s, and the firmware's covariance a sphere with the radius 0.02 rad/s.
+- **Equal variances with zero covariances off the diagonal:** the ellipsoid is a sphere of radius $\sigma$. The simulated IMU's angular velocity has a sphere with the radius 0.005 rad/s, and the firmware's covariance a sphere with the radius 0.02 rad/s.
 - **Different variances:** the ellipsoid is stretched along the axis with the largest standard deviation.
-- **Covariances off the diagonal:** the ellipsoid turns. Its axes point along the matrix's **eigenvectors**, the directions that the matrix only stretches. Its semi-axes are the square roots of the matrix's **eigenvalues**, the stretch factors. The general equation of the ellipsoid is $\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e = 1$, which gives the equation above for a diagonal matrix.
+- **Covariances off the diagonal:** the ellipsoid turns. Its axes, the **principal axes**, point along the matrix's **eigenvectors**, the directions that the matrix only stretches. The matrix's **eigenvalues**, the stretch factors, are the variances along the principal axes. So the ellipsoid's semi-axes are the square roots of the eigenvalues, the standard deviations along the principal axes. The general equation of the ellipsoid is $\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e = 1$, which gives the equation above for a diagonal matrix.
 
-The number $d = \sqrt{\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e}$ is called the **Mahalanobis distance** of the deviation $\mathbf e$. The Mahalanobis distance counts how many standard deviations $\mathbf e$ lies from the mean, in the direction of $\mathbf e$. The ellipsoid of one standard deviation holds the deviations with $d$ = 1, and the ellipsoid of two standard deviations those with $d$ = 2. robot_localization can reject a measurement whose $d$ is too large, as [What the validator doesn't check](../../packages/imu/robot_localization.md#what-the-validator-doesnt-check) on the Localization page explains.
+The ellipsoid describes the spread of the values, which is all that a covariance matrix holds. It doesn't say how the values are distributed.
+
+**The Mahalanobis distance:** take a covariance matrix $\boldsymbol\Sigma$ whose eigenvalues are all positive, a positive-definite matrix. Measure each component of the deviation $\mathbf e$ along a principal axis in units of that axis's standard deviation. The length of the resulting vector is the **Mahalanobis distance** $d$ of the deviation:
+
+$$
+d = \sqrt{\mathbf e^\mathsf T \boldsymbol\Sigma^{-1} \mathbf e}
+$$
+
+- **On and inside the ellipsoid:** the ellipsoid's surface has $d$ = 1, and the points inside have $d$ < 1. This page calls that surface the ellipsoid of one standard deviation, because it reaches one standard deviation along each principal axis. The ellipsoids of two and three standard deviations are the surfaces with $d$ = 2 and $d$ = 3.
+- **A matrix without an inverse:** a zero eigenvalue gives zero spread along its axis, so the ordinary inverse $\boldsymbol\Sigma^{-1}$ in this formula doesn't exist. The second example of four readings in [The covariance of two values](#the-covariance-of-two-values), whose two errors go up and down fully together, has such a matrix.
+- **In the filter:** robot_localization can reject a measurement whose $d$ from the filter's prediction is too large, as [What the validator doesn't check](../../packages/imu/robot_localization.md#what-the-validator-doesnt-check) on the Localization page explains. The robots' [`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) sets no threshold for this test.
 
 **A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values, the matrix of the example pairs with the positive covariance in [The covariance of two values](#the-covariance-of-two-values):
 
@@ -221,7 +231,9 @@ The figure shows this ellipse of one standard deviation. Follow the two thick se
 
 --8<-- "includes/math-covariance-axes.html"
 
-**The share inside:** for normally distributed values, the density is the same everywhere on the ellipsoid, and the ellipsoids of one, two and three standard deviations lie inside each other. The share of the values inside an ellipsoid depends on how many values the vector has. One value has an interval, two values an ellipse and three values an ellipsoid:
+**A radius isn't the standard deviation of a component:** the ellipse's radius is a standard deviation only along a principal axis. Along the x axis, the ellipse reaches $4/\sqrt{5}$ cm = 1.79 cm, the deviation $(1.79, 0)$ cm with $d$ = 1. The standard deviation of $x$ is $\sqrt{5}$ cm = 2.24 cm, the radius of the dashed circle. The ellipse's rightmost point lies that far to the right, at $x$ = 2.24 cm. So the standard deviation of a component is half the ellipse's width along the component's axis, not the ellipse's radius in that direction.
+
+**The share inside:** the shares in the table hold for a vector whose values are jointly normal, with a positive-definite covariance matrix. Jointly normal means that every weighted sum of the values is normally distributed. For such a vector, the density is constant on each ellipsoid, and the table gives the probability that the vector lies inside the ellipsoid. The probability depends on how many values the vector has. One value has an interval, two values an ellipse and three values an ellipsoid:
 
 | Inside | 1 value | 2 values | 3 values |
 |:--|:--|:--|:--|
@@ -229,7 +241,7 @@ The figure shows this ellipse of one standard deviation. Follow the two thick se
 | 2 standard deviations | 95.4 % | 86.5 % | 73.9 % |
 | 3 standard deviations | 99.7 % | 98.9 % | 97.1 % |
 
-The shares follow from the [chi-squared distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution) with one, two and three degrees of freedom. So for a vector of three normally distributed values, the ellipsoid of one standard deviation holds only about a fifth of the vectors.
+The shares follow from the [chi-squared distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution) with one, two and three degrees of freedom. So for a vector of three jointly normal values, the ellipsoid of one standard deviation holds only about a fifth of the vectors.
 
 The figure shows the ellipses of one, two and three standard deviations of the example matrix, the deviations with the Mahalanobis distance $d$ = 1, 2 and 3. The label on each ellipse is the share for two values from the table, the share of the positions inside that ellipse:
 
@@ -332,7 +344,7 @@ The fused yaw rate lies close to the IMU's, because the IMU's variance is 75 tim
 The example leaves out the filter's other step. In the robot's filter, the estimate $\hat x$ and its variance $P$ come from the prediction, which moves the estimate forward in time with a model of the robot's motion. The prediction makes $P$ grow, so a measurement counts more after a longer time without one.
 
 ??? quote "ekf.cpp, lines 159–197: the correction step in robot_localization"
-    robot_localization 2.7.7 computes the same three steps with matrices, because one measurement can carry several values. In the function [`correct()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L55), the estimate's covariance $P$ is `estimateErrorCovariance_`, the measurement's covariance $R$ is `measurementCovarianceSubset`, the gain $K$ is `kalmanGainSubset`, and the difference $z - \hat x$ is `innovationSubset`. `stateToMeasurementSubset`, $H$, picks the measured values out of the filter's state. When the state is one value that the sensor measures directly, $H$ is 1, and the formulas in the comments become the three formulas above. The update of the covariance in lines 191–197 is written in the Joseph form, which gives $(1 - K)\,P$ for one value with this gain and keeps the matrix symmetric despite rounding. Line 186 checks the Mahalanobis distance, which [The covariance ellipsoid](#the-covariance-ellipsoid) introduces:
+    robot_localization 2.7.7 computes the same three steps with matrices, because one measurement can carry several values. In the function [`correct()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L55), the estimate's covariance $P$ is `estimateErrorCovariance_`, the measurement's covariance $R$ is `measurementCovarianceSubset`, the gain $K$ is `kalmanGainSubset`, and the difference $z - \hat x$ is `innovationSubset`. `stateToMeasurementSubset`, $H$, picks the measured values out of the filter's state. When the state is one value that the sensor measures directly, $H$ is 1, and the formulas in the comments become the three formulas above. The update of the covariance in lines 191–197 is written in the Joseph form, which gives $(1 - K)\,P$ for one value with this gain and keeps the matrix symmetric despite rounding. Line 186 passes the difference and `hphrInv` to the rejection check. For this check, the deviation is the measurement minus its prediction, and the covariance of that difference is $S = H P H^\mathsf T + R$, the innovation covariance. `hphrInv` is its inverse $S^{-1}$, from line 161, so the check computes the Mahalanobis distance of [The covariance ellipsoid](#the-covariance-ellipsoid) with $S$ as the covariance matrix. The robots set no threshold. The default for the IMU's angular velocity is the largest number that a `double` holds ([line 1418 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1418)), so the check lets every finite distance pass:
 
     ```cpp linenums="159"
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp:159:197"

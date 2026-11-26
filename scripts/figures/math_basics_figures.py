@@ -248,7 +248,12 @@ def principal_axes(covariance: Covariance) -> PrincipalAxes:
 
 
 def mahalanobis_distance(covariance: Covariance, deviation: Deviation) -> float:
-    """Return how many standard deviations a deviation lies from the mean, in its direction."""
+    """Return the Mahalanobis distance of a deviation from the mean.
+
+    The distance is the deviation's length when each of its components along a principal axis
+    of the covariance matrix counts in units of that axis's standard deviation. The matrix has
+    to be positive definite, so that its determinant isn't 0.
+    """
     determinant = covariance.xx * covariance.yy - covariance.xy ** 2
     squared = (covariance.yy * deviation.x ** 2 - 2 * covariance.xy * deviation.x * deviation.y
                + covariance.xx * deviation.y ** 2) / determinant
@@ -261,7 +266,7 @@ def share_within_for_one_value(standard_deviations: float) -> float:
 
 
 def share_within_for_two_values(standard_deviations: float) -> float:
-    """Return the share of normally distributed pairs inside the ellipse of this many σ.
+    """Return the share of jointly normal pairs inside the ellipse of this many σ.
 
     The squared Mahalanobis distance of a pair follows the chi-squared distribution with two
     degrees of freedom.

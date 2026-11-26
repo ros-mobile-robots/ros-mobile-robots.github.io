@@ -15,6 +15,7 @@ from types import ModuleType
 from typing import Any
 from typing import Iterator
 from typing import List
+from typing import NamedTuple
 from typing import Tuple
 import unittest
 
@@ -35,6 +36,9 @@ SHARES_ROW = re.compile(r'\| (\d) standard deviations? \| ([\d.]+ %) \| ([\d.]+ 
 # The drawings' numbers have one decimal, so a point that the script computed lies up to 0.05 px
 # away in the drawing
 ROUNDING = 0.05  # px
+# The rightmost of an ellipse's points in 360 directions, one degree apart, lies this close to
+# the ellipse's rightmost point
+ELLIPSE_SAMPLING_TOLERANCE = 0.001  # cm
 # The criteria of the scatter figure's seeds: the sample covariance of a cloud's pairs lies this
 # close to the covariance of their distribution, and with the covariance 0, each quadrant holds
 # a quarter of the pairs, up to this many more or fewer
@@ -62,14 +66,33 @@ def load_script() -> ModuleType:
     return module
 
 
-def page_shares() -> List[Tuple[int, str, str]]:
-    """Return each row of the page's table of shares: standard deviations, one and two values."""
+class SharesRow(NamedTuple):
+    """A row of the page's table of the shares inside, each share as the page writes it."""
+
+    standard_deviations: int
+    one_value: str
+    two_values: str
+    three_values: str
+
+
+def page_shares() -> List[SharesRow]:
+    """Return the rows of the page's table of the shares inside, from the top."""
     rows = []
     for line in PAGE.read_text(encoding='utf-8').splitlines():
         row = SHARES_ROW.match(line)
         if row:
-            rows.append((int(row[1]), row[2], row[3]))
+            rows.append(SharesRow(int(row[1]), row[2], row[3], row[4]))
     return rows
+
+
+def share_within_for_three_values(standard_deviations: float) -> float:
+    """Return the share of jointly normal triples inside the ellipsoid of this many σ.
+
+    The chi-squared distribution with three degrees of freedom, at the squared distance.
+    """
+    return (math.erf(standard_deviations / math.sqrt(2))
+            - math.sqrt(2 / math.pi) * standard_deviations
+            * math.exp(-standard_deviations ** 2 / 2))
 
 
 def in_centimeters(figures: ModuleType, plot: Any, x: float, y: float) -> Any:
@@ -160,15 +183,47 @@ class TestCovarianceMath(unittest.TestCase):
         self.assertAlmostEqual(
             figures.mahalanobis_distance(covariance, figures.Deviation(0, 2)), 2)
 
+    def test_example_ellipse_crosses_the_x_axis_at_4_over_root_5_cm(self) -> None:
+        figures = load_script()
+        crossing = figures.point_in_direction(figures.EXAMPLE_COVARIANCE, 1, 0)
+        self.assertAlmostEqual(crossing.x, 4 / math.sqrt(5))
+        self.assertAlmostEqual(crossing.y, 0)
+
+    def test_example_ellipse_is_as_wide_as_two_standard_deviations_of_x(self) -> None:
+        figures = load_script()
+        rightmost = max(figures.point_in_direction(figures.EXAMPLE_COVARIANCE, 1, degrees).x
+                        for degrees in range(360))
+        self.assertAlmostEqual(rightmost, math.sqrt(figures.EXAMPLE_COVARIANCE.xx),
+                               delta=ELLIPSE_SAMPLING_TOLERANCE)
+
+    def test_page_gives_the_example_ellipses_radius_and_half_width_along_x(self) -> None:
+        figures = load_script()
+        page = PAGE.read_text(encoding='utf-8')
+        crossing = figures.point_in_direction(figures.EXAMPLE_COVARIANCE, 1, 0).x
+        half_width = math.sqrt(figures.EXAMPLE_COVARIANCE.xx)
+        self.assertIn(f'the ellipse reaches $4/\\sqrt{{5}}$ cm = {crossing:.2f} cm', page)
+        self.assertIn(f'at $x$ = {half_width:.2f} cm', page)
+
     def test_shares_for_one_and_two_values_are_those_of_the_pages_table(self) -> None:
         figures = load_script()
         rows = page_shares()
-        self.assertEqual([row[0] for row in rows], list(figures.STANDARD_DEVIATIONS))
-        for multiple, one_value, two_values in rows:
+        self.assertEqual([row.standard_deviations for row in rows],
+                         list(figures.STANDARD_DEVIATIONS))
+        for row in rows:
+            multiple = row.standard_deviations
             self.assertEqual(figures.percent(figures.share_within_for_one_value(multiple)),
-                             one_value)
+                             row.one_value)
             self.assertEqual(figures.percent(figures.share_within_for_two_values(multiple)),
-                             two_values)
+                             row.two_values)
+
+    def test_pages_table_gives_the_chi_squared_shares_for_three_values(self) -> None:
+        figures = load_script()
+        rows = page_shares()
+        self.assertEqual(len(rows), len(figures.STANDARD_DEVIATIONS))
+        for row in rows:
+            self.assertEqual(
+                figures.percent(share_within_for_three_values(row.standard_deviations)),
+                row.three_values)
 
     def test_point_in_direction_lies_on_the_ellipse_of_its_standard_deviations(self) -> None:
         figures = load_script()
