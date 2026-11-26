@@ -8,13 +8,9 @@ Run from the repository root: python -m unittest discover -s tests
 
 from html.parser import HTMLParser
 import math
-import os
 from pathlib import Path
 import re
-import subprocess
 import sys
-import tempfile
-from typing import Dict
 from typing import List
 from typing import NamedTuple
 from typing import Optional
@@ -27,31 +23,23 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
+sys.path.insert(0, str(ROOT / 'tests'))
 
 import board_drawings  # noqa: E402
+from figure_script_runs import run_with_an_ascii_locale  # noqa: E402
 import imu_sim_figures  # noqa: E402
 import imu_sim_robot_figures  # noqa: E402
 import imu_sim_test_figures  # noqa: E402
 
-# With these variables, Python's default encoding for a text file is ASCII: the C locale, without
-# Python's own switch to UTF-8 for that locale
-ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
-
-
-def run_with_an_ascii_locale(script_name: str) -> Dict[str, bytes]:
-    """Run a figure script with an ASCII locale and return the includes it writes, by file name.
-
-    The script runs in an empty folder, so the repository's includes stay as they are.
-    """
-    script = ROOT / 'scripts' / 'figures' / script_name
-    with tempfile.TemporaryDirectory() as folder:
-        includes = Path(folder) / 'includes'
-        includes.mkdir()
-        run = subprocess.run([sys.executable, str(script)], cwd=folder,
-                             env={**os.environ, **ASCII_LOCALE}, capture_output=True, text=True)
-        if run.returncode != 0:
-            raise RuntimeError(f'{script_name} failed: {run.stderr.strip()}')
-        return {include.name: include.read_bytes() for include in includes.iterdir()}
+# The includes that each script has to write. The list stands here on its own, so that a script
+# that drops or renames an include fails a test
+INCLUDE_NAMES = {
+    'imu_sim_figures.py': ['imu-sim-threads.html'],
+    'imu_sim_robot_figures.py': ['imu-sim-angular-velocity.html', 'imu-sim-frames.html',
+                                 'imu-sim-specific-force.html'],
+    'imu_sim_test_figures.py': ['imu-sim-test-at-rest.html', 'imu-sim-test-left-turn.html',
+                                'imu-sim-test-reset.html'],
+}
 
 
 class RadioInput(NamedTuple):
@@ -149,50 +137,35 @@ class TestIncludes(unittest.TestCase):
     The includes have characters outside ASCII, such as the minus sign and the apostrophe.
     """
 
-    def assert_script_writes_the_repository_includes(self, script_name: str,
-                                                     include_names: Sequence[str]) -> None:
+    def assert_script_writes_the_repository_includes(self, script_name: str) -> None:
+        """Assert that the script writes exactly the expected include bytes."""
         written = run_with_an_ascii_locale(script_name)
-        self.assertEqual(sorted(written), sorted(include_names), script_name)
-        for include_name in include_names:
+        self.assertEqual(sorted(written), INCLUDE_NAMES[script_name], script_name)
+        for include_name in INCLUDE_NAMES[script_name]:
             committed = (ROOT / 'includes' / include_name).read_bytes()
             self.assertEqual(written[include_name], committed,
                              f'{include_name} is not what {script_name} writes')
 
-    def test_thread_figures_write_the_repository_includes_with_an_ascii_locale(self) -> None:
-        self.assert_script_writes_the_repository_includes(
-            'imu_sim_figures.py', ['imu-sim-threads.html'])
+    def test_thread_script_writes_the_repository_includes_with_an_ascii_locale(self) -> None:
+        self.assert_script_writes_the_repository_includes('imu_sim_figures.py')
 
-    def test_robot_figures_write_the_repository_includes_with_an_ascii_locale(self) -> None:
-        self.assert_script_writes_the_repository_includes(
-            'imu_sim_robot_figures.py',
-            ['imu-sim-frames.html', 'imu-sim-angular-velocity.html',
-             'imu-sim-specific-force.html'])
+    def test_robot_script_writes_the_repository_includes_with_an_ascii_locale(self) -> None:
+        self.assert_script_writes_the_repository_includes('imu_sim_robot_figures.py')
 
     def test_timeline_script_writes_the_repository_includes_with_an_ascii_locale(self) -> None:
-        self.assert_script_writes_the_repository_includes(
-            'imu_sim_test_figures.py',
-            ['imu-sim-test-at-rest.html', 'imu-sim-test-left-turn.html',
-             'imu-sim-test-reset.html'])
+        self.assert_script_writes_the_repository_includes('imu_sim_test_figures.py')
 
 
 class TestIncludeComment(unittest.TestCase):
     """Each include starts with the comment that names the script that writes it."""
 
     def test_each_include_starts_with_the_comment_that_names_its_script(self) -> None:
-        scripts = {
-            'imu-sim-threads.html': 'imu_sim_figures.py',
-            'imu-sim-frames.html': 'imu_sim_robot_figures.py',
-            'imu-sim-angular-velocity.html': 'imu_sim_robot_figures.py',
-            'imu-sim-specific-force.html': 'imu_sim_robot_figures.py',
-            'imu-sim-test-at-rest.html': 'imu_sim_test_figures.py',
-            'imu-sim-test-left-turn.html': 'imu_sim_test_figures.py',
-            'imu-sim-test-reset.html': 'imu_sim_test_figures.py',
-        }
-        for include_name, script_name in scripts.items():
-            text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
-            self.assertTrue(
-                text.startswith(f'<!-- Written by scripts/figures/{script_name} -->\n'),
-                include_name)
+        for script_name, include_names in INCLUDE_NAMES.items():
+            for include_name in include_names:
+                text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
+                self.assertTrue(
+                    text.startswith(f'<!-- Written by scripts/figures/{script_name} -->\n'),
+                    include_name)
 
 
 class TestFrameAxes(unittest.TestCase):
@@ -272,8 +245,13 @@ class TestTextsFromValues(unittest.TestCase):
             self.assertEqual(imu_sim_robot_figures.format_centimeters(meters), text, f'{meters} m')
 
     def test_format_degrees_writes_a_minus_sign_for_a_negative_angle(self) -> None:
-        self.assertEqual(imu_sim_robot_figures.format_degrees(-math.pi / 2), '\u221290°')
-        self.assertEqual(imu_sim_robot_figures.format_degrees(math.pi), '180°')
+        quarter_turn_clockwise = -math.pi / 2  # rad
+        self.assertEqual(imu_sim_robot_figures.format_degrees(quarter_turn_clockwise),
+                         '\u221290°')
+
+    def test_format_degrees_writes_no_sign_for_a_positive_angle(self) -> None:
+        half_turn = math.pi  # rad
+        self.assertEqual(imu_sim_robot_figures.format_degrees(half_turn), '180°')
 
     def test_message_values_in_a_sentence_are_along_imu_links_axes(self) -> None:
         # On Remo, imu_link's y axis points forward and its x axis to the right. So a reading
@@ -306,14 +284,19 @@ class TestTextsFromValues(unittest.TestCase):
         self.assertIn(f'1.0 rad/s turns the robot by 1 rad, about {math.degrees(turn_rate):.0f}°',
                       caption)
 
-    def test_reset_caption_names_another_reset_time_and_sample_count(self) -> None:
+    def test_reset_caption_names_the_changed_reset_time(self) -> None:
         run_before_reset = 4.0  # s
-        fresh_sample_count = 20
-        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', run_before_reset), \
-                mock.patch.object(imu_sim_test_figures, 'FRESH_SAMPLE_COUNT', fresh_sample_count):
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', run_before_reset):
             caption = imu_sim_test_figures.reset_caption()
         self.assertIn('the reset comes at exactly 4 s', caption)
+
+    def test_reset_caption_names_the_changed_fresh_sample_count(self) -> None:
+        fresh_sample_count = 20
+        with mock.patch.object(imu_sim_test_figures, 'FRESH_SAMPLE_COUNT', fresh_sample_count):
+            caption = imu_sim_test_figures.reset_caption()
         self.assertIn('The test passes with 20 fresh samples', caption)
+        # Sample 20 of 50 per second
+        self.assertIn('is sample 20, stamped about 0.40 s', caption)
 
     def test_at_rest_figure_names_the_fewest_messages_of_another_rate_tolerance(self) -> None:
         rate_tolerance = 0.8  # the share of the 50 Hz that the test would need
