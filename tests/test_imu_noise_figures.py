@@ -170,7 +170,7 @@ class TestTraceLayouts(unittest.TestCase):
         trace = figures.synthetic_trace()
         for layout in figures.TRACE_LAYOUTS:
             elements = list(ElementTree.fromstring(figures.trace_figure(trace, layout).svg()))
-            label = next(i for i, element in enumerate(elements)
+            label = next(index for index, element in enumerate(elements)
                          if element.tag == 'text' and (element.text or '').startswith('mean:'))
             self.assertEqual(elements[label - 1].get('class'), 'mean-line', layout.name)
 
@@ -267,21 +267,21 @@ class TestFlowFigure(unittest.TestCase):
     def test_both_flow_layouts_show_the_same_words(self) -> None:
         figures = load_script()
         narrow, wide = (re.sub(r'<title.*?</title>|<[^>]+>', ' ', drawing.svg()).split()
-                        for drawing in (figures.flow_figure(), figures.flow_figure_wide()))
+                        for drawing in (figures.flow_figure(), figures.wide_flow_figure()))
         self.assertEqual(sorted(narrow), sorted(wide))
 
-    def test_within_margins_moves_a_card_that_would_leave_the_wide_drawing(self) -> None:
+    def test_middle_inside_margins_moves_a_card_that_would_leave_the_wide_drawing(self) -> None:
         figures = load_script()
         left, right = figures.WIDE_FLOW_MARGIN, figures.WIDE_WIDTH - figures.WIDE_FLOW_MARGIN
-        self.assertEqual(figures.within_margins(10, 150), left + 75)
-        self.assertEqual(figures.within_margins(right, 170), right - 85)
-        self.assertEqual(figures.within_margins(270, 100), 270)
+        self.assertEqual(figures.middle_inside_margins(10, 150), left + 75)
+        self.assertEqual(figures.middle_inside_margins(right, 170), right - 85)
+        self.assertEqual(figures.middle_inside_margins(270, 100), 270)
 
     def test_wide_flow_layout_keeps_every_card_inside_its_margins(self) -> None:
         figures = load_script()
         left, right = figures.WIDE_FLOW_MARGIN, figures.WIDE_WIDTH - figures.WIDE_FLOW_MARGIN
         cards = re.findall(r'<rect [^>]*x="(-?[\d.]+)"[^>]* width="([\d.]+)"',
-                           figures.flow_figure_wide().svg())
+                           figures.wide_flow_figure().svg())
         self.assertEqual(len(cards), len(figures.TOOL_STEPS) + 3)
         for x, width in cards:
             self.assertGreaterEqual(float(x), left)

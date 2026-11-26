@@ -248,7 +248,7 @@ def steps_in_words(steps: int) -> str:
     return f'{NUMBER_WORDS[steps]} output step' + ('' if steps == 1 else 's')
 
 
-def minus_signed(value: float) -> str:
+def signed_value(value: float) -> str:
     """Return a value with its sign, with a minus sign instead of a hyphen."""
     return f'{value:+g}'.replace('-', '−')
 
@@ -307,7 +307,7 @@ def synthetic_trace() -> Trace:
                  len(set(readings)))
 
 
-def signed(value: float) -> str:
+def signed_yaw_rate(value: float) -> str:
     """Return a value in rad/s with five decimals, its sign and a typographic minus."""
     return f'{value:+.5f}'.replace('-', '−')
 
@@ -429,7 +429,7 @@ def write_trace() -> None:
         f'that reads in steps of {GYROSCOPE_STEP_TEXT}, like the BNO055. '
         f'The dots are the {shown_count} readings of the first second. The lines come from all '
         f'{len(trace.readings):,} readings of {TRACE_DURATION} s: '
-        f'the mean {signed(trace.mean)} rad/s is the bias, '
+        f'the mean {signed_yaw_rate(trace.mean)} rad/s is the bias, '
         f'and the standard deviation <em>s</em> = {trace.standard_deviation:.5f} rad/s is the '
         f'noise. The readings take {trace.distinct_value_count} distinct values.')
     write_layout_figure('includes/imu-noise-trace.html',
@@ -480,29 +480,29 @@ def variance_test_figure() -> Figure:
     """Return the drawing of the four values of the sample variance's test."""
     values = VARIANCE_TEST_VALUES
     mean = statistics.fmean(values)
-    deviations = listed([minus_signed(value - mean) for value in values])
+    deviations = listed([signed_value(value - mean) for value in values])
     value_list = listed([f'{value:g}' for value in values])
     figure = Figure('imu-noise-test-variance', f'The {NUMBER_WORDS[len(values)]} values '
                     f'{value_list} on an axis. Their mean is {mean:g}. Their deviations from the '
                     f'mean are {deviations}', 164, DRAWING_WIDTH)
     axis_y, first_x, pixels_per_unit = 96, 48, 68
 
-    def at(value: float) -> float:
+    def axis_x(value: float) -> float:
         """Return the x position of a value on the axis."""
         return first_x + (value - values[0]) * pixels_per_unit
 
-    figure.path(f'M{first_x - 30},{axis_y} H{at(values[-1]) + 30}', 'axis')
-    figure.path(f'M{at(mean):.1f},{axis_y - 66} V{axis_y + 8}', 'mean-line')
-    figure.text(at(mean), axis_y - 72, f'mean {mean:g}', 'strong', 'middle')
+    figure.path(f'M{first_x - 30},{axis_y} H{axis_x(values[-1]) + 30}', 'axis')
+    figure.path(f'M{axis_x(mean):.1f},{axis_y - 66} V{axis_y + 8}', 'mean-line')
+    figure.text(axis_x(mean), axis_y - 72, f'mean {mean:g}', 'strong', 'middle')
     for value in values:
         deviation = value - mean
         # The two outer values' arrows above the two inner ones'
         arrow_y = axis_y - (48 if abs(deviation) > 1 else 22)
-        deviation_arrow(figure, at(mean), at(value), arrow_y, minus_signed(deviation))
-        figure.circle(at(value), axis_y, 5.5, 'imu-dot')
-        figure.text(at(value), axis_y + 22, f'{value:g}', 'strong', 'middle')
-        figure.text(at(value), axis_y + 38, f'{deviation ** 2:g}', 'note', 'middle')
-    figure.text(at(mean), axis_y + 56, 'the deviations, squared', 'note', 'middle')
+        deviation_arrow(figure, axis_x(mean), axis_x(value), arrow_y, signed_value(deviation))
+        figure.circle(axis_x(value), axis_y, 5.5, 'imu-dot')
+        figure.text(axis_x(value), axis_y + 22, f'{value:g}', 'strong', 'middle')
+        figure.text(axis_x(value), axis_y + 38, f'{deviation ** 2:g}', 'note', 'middle')
+    figure.text(axis_x(mean), axis_y + 56, 'the deviations, squared', 'note', 'middle')
     return figure
 
 
@@ -705,16 +705,18 @@ def gravity_figure() -> Figure:
                     f'z = {mean_z:g} m/s². The arrow is {length:g} m/s² long', 206,
                     DRAWING_WIDTH)
 
-    def at(x: float, y: float, z: float) -> str:
+    def svg_point(x: float, y: float, z: float) -> str:
         """Return a point's position as SVG coordinates."""
         drawing = isometric(Point(x, y, z), origin, pixels_per_unit)
         return f'{drawing.x:.1f},{drawing.y:.1f}'
 
-    figure.path(f'M{at(mean_x, 0, 0)} L{at(mean_x, mean_y, 0)} L{at(0, mean_y, 0)} '
-                f'M{at(mean_x, mean_y, 0)} L{at(mean_x, mean_y, mean_z)} '
-                f'M{at(0, 0, mean_z)} L{at(mean_x, 0, mean_z)} L{at(mean_x, mean_y, mean_z)} '
-                f'L{at(0, mean_y, mean_z)} z M{at(mean_x, 0, 0)} L{at(mean_x, 0, mean_z)} '
-                f'M{at(0, mean_y, 0)} L{at(0, mean_y, mean_z)}', 'box-edge')
+    figure.path(f'M{svg_point(mean_x, 0, 0)} L{svg_point(mean_x, mean_y, 0)} '
+                f'L{svg_point(0, mean_y, 0)} '
+                f'M{svg_point(mean_x, mean_y, 0)} L{svg_point(mean_x, mean_y, mean_z)} '
+                f'M{svg_point(0, 0, mean_z)} L{svg_point(mean_x, 0, mean_z)} '
+                f'L{svg_point(mean_x, mean_y, mean_z)} L{svg_point(0, mean_y, mean_z)} z '
+                f'M{svg_point(mean_x, 0, 0)} L{svg_point(mean_x, 0, mean_z)} '
+                f'M{svg_point(0, mean_y, 0)} L{svg_point(0, mean_y, mean_z)}', 'box-edge')
     axis_labels = (AxisLabel(Point(mean_x + 1.4, 0, 0), 'x', DrawingPoint(-10, 6)),
                    AxisLabel(Point(0, mean_y + 1.2, 0), 'y', DrawingPoint(9, 6)),
                    AxisLabel(Point(0, 0, mean_z + 1.0), 'z', DrawingPoint(-4, -6)))
@@ -909,7 +911,7 @@ def wide_cards(steps: Sequence[ToolStep]) -> Sequence[WideCard]:
     return cards
 
 
-def within_margins(center: float, width: float) -> float:
+def middle_inside_margins(center: float, width: float) -> float:
     """Return a card's horizontal middle, moved so that the card stays inside the margins."""
     half_width = width / 2
     return min(max(center, WIDE_FLOW_MARGIN + half_width),
@@ -929,7 +931,7 @@ def wide_step_card(figure: Figure, top: float, height: float, number: int, step:
                     test_class.name, 'class-name')
 
 
-def flow_figure_wide() -> Figure:
+def wide_flow_figure() -> Figure:
     """Return the wide layout of the flow figure: the steps from left to right."""
     figure = Figure('imu-noise-test-flow-wide', flow_name(TOOL_STEPS), 0, WIDE_WIDTH, WIDE_LAYOUT)
     cards = wide_cards(TOOL_STEPS)
@@ -953,10 +955,10 @@ def flow_figure_wide() -> Figure:
     exit_top = bottom + 22
     figure.arrow(first.middle(), bottom, first.middle(), exit_top, 'refused')
     figure.text(first.middle() + 6, bottom + 14, FLOW_EXIT_REASON, 'note')
-    exit_bottom = end_card(figure, within_margins(first.middle(), 150), exit_top, 150,
+    exit_bottom = end_card(figure, middle_inside_margins(first.middle(), 150), exit_top, 150,
                            FLOW_EXIT, 'card-drop')
     figure.arrow(last.middle(), bottom, last.middle(), exit_top, 'flow')
-    end_card(figure, within_margins(last.middle(), 170), exit_top, 170, FLOW_REPORT,
+    end_card(figure, middle_inside_margins(last.middle(), 170), exit_top, 170, FLOW_REPORT,
              'card-pass')
     # A bracket under the whole path, with two equal end strokes, and its label below
     bracket_y = exit_bottom + 14
@@ -972,7 +974,7 @@ def flow_figure_wide() -> Figure:
 
 def write_flow() -> None:
     """Write the flow figure in its two layouts, with the number of tests at each step."""
-    write_layout_figure('includes/imu-noise-test-flow.html', [flow_figure(), flow_figure_wide()],
+    write_layout_figure('includes/imu-noise-test-flow.html', [flow_figure(), wide_flow_figure()],
                         flow_caption(TOOL_STEPS))
 
 
