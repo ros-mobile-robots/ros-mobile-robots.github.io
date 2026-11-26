@@ -740,19 +740,22 @@ class TestDrawnCommutator(unittest.TestCase):
             radius = distance(moment.shaft, arcs[0][0])
             # The two gaps lie between the end of each arc and the start of the other
             gap = min(distance(arcs[0][-1], arcs[1][0]), distance(arcs[1][-1], arcs[0][0]))
-            leads = [points_of(lead)[0] for lead in moment.paths['lead']]
+            lead_starts = sorted((points_of(lead)[0] for lead in moment.paths['lead']),
+                                 key=lambda point: point.y)
             brushes = moment.paths['brush']
             self.assertEqual(len(brushes), 2, (layout_class, index))
+            backs = []
             for brush in brushes:
                 corners = sorted(points_of(brush)[:-1],
                                  key=lambda corner: distance(moment.shaft, corner))
-                tip, back = corners[:2], corners[-2:]
+                tip, back_corners = corners[:2], corners[-2:]
                 self.assertAlmostEqual(distance(moment.shaft, middle_of(tip)),
                                        radius + stroke / 2, delta=SAME_POINT)
                 self.assertLess(distance(*tip), gap, (layout_class, index))
-                # A lead starts at the middle of its brush's back
-                self.assertTrue(any(distance(start, middle_of(back)) < SAME_POINT
-                                    for start in leads), (layout_class, index))
+                backs.append(middle_of(back_corners))
+            # Each lead starts at the middle of its own brush's back, the upper at the upper
+            for back, start in zip(sorted(backs, key=lambda point: point.y), lead_starts):
+                self.assertLess(distance(back, start), SAME_POINT, (layout_class, index))
 
     def test_the_side_names_swap_places_after_half_a_turn(self) -> None:
         for layout_class, index, moment in drawn_panels():
@@ -841,12 +844,14 @@ class TestDrawnCommutator(unittest.TestCase):
                 self.assertTrue(any(circle.holds(end.x, end.y)
                                     for circle in moment.circles['conductor']))
 
-    def test_bs_dashed_link_ends_at_the_side_named_b(self) -> None:
+    def test_as_solid_link_ends_at_a_and_bs_dashed_link_at_b(self) -> None:
         for layout_class, index, moment in drawn_panels():
-            end = points_of(only(moment.paths['link dashed']))[-1]
-            conductor = only(circle for circle in moment.circles['conductor']
-                             if circle.holds(end.x, end.y))
-            self.assertAlmostEqual(moment.label('b').x, conductor.x, delta=SAME_POINT)
+            for link_class, name in (('link', 'a'), ('link dashed', 'b')):
+                label = moment.label(name)
+                conductor = only(circle for circle in moment.circles['conductor']
+                                 if abs(circle.x - label.x) < SAME_POINT)
+                end = points_of(only(moment.paths[link_class]))[-1]
+                self.assertTrue(conductor.holds(end.x, end.y), (layout_class, index, name))
 
     def test_bs_dashed_segment_lies_at_the_minus_brush_and_then_at_the_plus_brush(self) -> None:
         for layout_class, index, moment in drawn_panels():
