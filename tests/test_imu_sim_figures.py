@@ -250,6 +250,7 @@ class TestDirections(unittest.TestCase):
         view = imu_sim_robot_figures.view_from_above(1000, center)
         points = imu_sim_robot_figures.rotation_arrow_points(
             view, imu_sim_robot_figures.CHASSIS_ORIGIN, imu_sim_robot_figures.UP, 0.0, 0.02, 0.0)
+        self.assertGreaterEqual(len(points), 2)
         # SVG's y axis points down, so each step of a counterclockwise turn has a negative cross
         # product of the two points' offsets from the center
         turns = [(first.x - center.x) * (second.y - center.y)
@@ -264,10 +265,13 @@ class TestDirections(unittest.TestCase):
                 shafts = [line for line in elements_with_class(root, 'polyline', 'shaft')
                           if kind in line.get('class', '').split()]
                 self.assertEqual(len(shafts), 1)
-                ends = shafts[0].get('points', '').split()
-                start_y, end_y = (float(end.split(',')[1]) for end in (ends[0], ends[-1]))
+                points = polyline_points(shafts[0])
+                start, end = points[0], points[-1]
                 # SVG's y axis points down: a shaft that points down ends at a larger y
-                self.assertEqual(end_y > start_y, points_down, (start_y, end_y))
+                if points_down:
+                    self.assertGreater(end.y, start.y)
+                else:
+                    self.assertLess(end.y, start.y)
 
     def test_a_robot_that_turned_left_is_drawn_turned_counterclockwise(self) -> None:
         group = imu_sim_test_figures.robot_elements(math.pi / 2)[0]
