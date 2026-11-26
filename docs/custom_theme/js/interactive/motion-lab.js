@@ -2,9 +2,13 @@
 // The markup, its texts and its numbers (robots, commands, the checks with their texts, the
 // model's limits, the examples and the drawing's sizes) come from includes/motion-lab.html, which
 // scripts/figures/motion_lab_figures.py writes. This file adds the behavior. The figure shows its
-// static version until the first drawing here has succeeded. The drawing's functions follow the
-// script's functions that draw the static version: drawingScale() is drawing_scale(), gridGroup() is
-// grid_lines(), robotOutlineGroup() is robot_outline(), and so on.
+// static version until the first drawing here has succeeded.
+//
+// The file's parts, in this order: the drawing's functions, which follow the script's functions
+// that draw the static version (drawingScale() is drawing_scale(), gridGroup() is grid_lines(),
+// robotOutlineGroup() is robot_outline(), buildDriveSvg() is static_drive_svg(), and so on);
+// bindSliderResets() for the double click and the double tap on a slider; bindEnlargedView() for
+// the enlarged figure's dialog; and mountMotionLab(), which owns one figure's state.
 import { computeDriveViews, relativeMotion, predictChecks } from './diffdrive.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -172,9 +176,178 @@ function commandMarkerGroup(scale, pose, sizes) {
   return group;
 }
 
+/**
+ * The live drawing of a drive up to one of its samples: the grid, the views' paths so far, the
+ * robot at the start, and the model, the odometry and the command at the sample. `labels` are the
+ * drawing's accessible name and the id of the element that describes it. Returns the SVG element
+ * and the grid's spacing (m).
+ */
+function buildDriveSvg(drive, shownIndex, width, sizes, labels) {
+  const { inputs, samples } = drive;
+  const scale = drawingScale(width, samples, drive.reach, sizes);
+  const gridStepMetres = gridStep(scale, sizes);
+  const shownSamples = samples.slice(0, shownIndex + 1), shownSample = samples[shownIndex];
+  const svg = svgElement('svg', {
+    class: 'ix-live-plot', viewBox: `0 0 ${scale.width} ${scale.height}`, role: 'img',
+    'aria-label': labels.name, 'aria-describedby': labels.descriptionId,
+  });
+  svg.append(gridGroup(scale, gridStepMetres));
+  const paths = [['frame', 'ix-model'], ['odometry', 'ix-odometry'], ['command', 'ix-command']];
+  if (inputs.frameOffset > 0) paths.unshift(['axle', 'ix-axle']);
+  for (const [view, cssClass] of paths) {
+    const path = pathPolyline(scale, shownSamples.map((sample) => sample[view]), cssClass);
+    if (path) svg.append(path);
+  }
+  svg.append(robotOutlineGroup(scale, samples[0].axle, inputs.wheels, 'ix-start', 'The robot at the start', sizes));
+  const truePose = robotOutlineGroup(scale, shownSample.axle, inputs.wheels, 'ix-model',
+    'True pose, in this figure’s model', sizes);
+  appendTruePoseMarkers(truePose, scale, shownSample.axle, inputs.frameOffset, sizes);
+  svg.append(truePose);
+  const odometry = robotOutlineGroup(scale, shownSample.odometry, inputs.configured, 'ix-odometry',
+    'Odometry: the controller’s geometry at the pose that it computes', sizes);
+  appendOdometryMarker(odometry, scale, shownSample.odometry, sizes);
+  svg.append(odometry);
+  svg.append(commandMarkerGroup(scale, shownSample.command, sizes));
+  return { svg, gridStepMetres };
+}
+
+// --- Resetting one slider --------------------------------------------------------------------
+
+/**
+ * Bind the gestures that set one slider back to the robot's value: a double click, and on a touch
+ * screen a double tap. resetSlider(input) does the reset.
+ *
+ * A tap is a short touch that hardly moves: two quick drags are no double tap, and any other press
+ * in between starts over. Mice and pens use the browser's double click only. The presses' history
+ * belongs to these sliders, so each figure has its own.
+ */
+function bindSliderResets(inputs, resetSlider) {
+  let press = null, lastTap = null, lastTouchResetTime = -Infinity;
+  const isPrimaryTouch = (event) => event.pointerType === 'touch' && event.isPrimary;
+
+  /** The tap that a release on a slider completes, or null if the press was no tap. */
+  function tapFromRelease(event, input) {
+    const isTap = press && press.input === input && press.id === event.pointerId && !press.moved
+      && isPrimaryTouch(event) && event.timeStamp - press.time < TAP_MAX_MS
+      && Math.hypot(event.clientX - press.x, event.clientY - press.y) <= TAP_SLOP_PX;
+    return isTap ? { input, x: event.clientX, y: event.clientY, time: event.timeStamp } : null;
+  }
+
+  /** Whether a tap follows the tap before it on the same slider, soon enough and close enough. */
+  function isSecondTap(tap) {
+    return Boolean(tap && lastTap && lastTap.input === tap.input && tap.time - lastTap.time < DOUBLE_TAP_MS
+      && Math.hypot(tap.x - lastTap.x, tap.y - lastTap.y) < DOUBLE_TAP_DISTANCE_PX);
+  }
+
+  // A press on anything else in between: the next tap is a first tap again
+  document.addEventListener('pointerdown', (event) => {
+    if (lastTap && event.target !== lastTap.input) lastTap = null;
+  }, true);
+  for (const input of inputs) {
+    // A browser that sends a double click after a double tap too resets the slider once
+    input.addEventListener('dblclick', (event) => {
+      if (event.timeStamp - lastTouchResetTime > DOUBLE_TAP_MS) resetSlider(input);
+    });
+    input.addEventListener('pointerdown', (event) => {
+      press = isPrimaryTouch(event)
+        ? { input, id: event.pointerId, x: event.clientX, y: event.clientY, time: event.timeStamp, moved: false } : null;
+      if (!press) lastTap = null;
+    });
+    input.addEventListener('pointermove', (event) => {
+      if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > TAP_SLOP_PX) press.moved = true;
+    });
+    input.addEventListener('pointercancel', () => { press = null; lastTap = null; });
+    input.addEventListener('pointerup', (event) => {
+      const tap = tapFromRelease(event, input);
+      press = null;
+      const second = isSecondTap(tap);
+      lastTap = second ? null : tap;
+      if (second) { lastTouchResetTime = event.timeStamp; resetSlider(input); }
+    });
+  }
+}
+
+// --- The enlarged view -----------------------------------------------------------------------
+
+/**
+ * Bind the Enlarge button: the figure over the whole window in a modal dialog, with the drawing
+ * and the values next to each other. The rest of the page is out of the keyboard's and the screen
+ * reader's reach meanwhile. The button, Esc, printing or a window that gets too narrow bring the
+ * figure back to its place on the page.
+ */
+function bindEnlargedView(root) {
+  const find = (selector) => root.querySelector(selector);
+  const enlarge = find('.ix-enlarge'), settings = find('.ix-settings'), caption = find('figcaption');
+  const stage = find('.ix-stage'), side = find('.ix-side');
+  const wideEnough = matchMedia(`(min-width: ${WIDE_MIN_EM}em)`);
+  const placeholder = document.createComment('The enlarged figure returns here');
+  let dialog = null, settingsWereOpen = false;
+
+  function enlargeFigure() {
+    if (dialog) return;
+    // Enlarged, the values show first in the right-hand column, and the caption ends the left one
+    settingsWereOpen = settings.open;
+    settings.open = true;
+    side.prepend(settings);
+    stage.append(caption);
+    dialog = document.createElement('dialog');
+    dialog.className = 'md-typeset ix-dialog';
+    dialog.setAttribute('aria-label', `Enlarged figure: ${find('.ix-static title').textContent}`);
+    dialog.addEventListener('cancel', (event) => { event.preventDefault(); returnToPage(); });
+    root.before(placeholder);
+    document.body.append(dialog);
+    dialog.append(root);
+    root.classList.add('ix-wide');
+    document.documentElement.classList.add('ix-wide-open');
+    enlarge.textContent = 'Back to the page';
+    dialog.showModal();
+    enlarge.focus();
+  }
+
+  function returnToPage() {
+    if (!dialog) return;
+    const focused = root.contains(document.activeElement) ? document.activeElement : null;
+    dialog.close();
+    placeholder.replaceWith(root);
+    dialog.remove();
+    dialog = null;
+    side.append(settings);
+    root.append(caption);
+    settings.open = settingsWereOpen;
+    root.classList.remove('ix-wide');
+    document.documentElement.classList.remove('ix-wide-open');
+    enlarge.textContent = 'Enlarge';
+    // The keyboard's place: where it was if it can still be there, else the summary of the closed
+    // values, the Enlarge button, or Play. A control in a closed block or a hidden button can't
+    // take the focus, so the first one that takes it keeps it.
+    const inClosedSettings = focused && !settings.open && settings.contains(focused);
+    for (const element of [focused, inClosedSettings ? settings.querySelector('summary') : null, enlarge, find('.ix-play')]) {
+      element?.focus();
+      if (element && document.activeElement === element) break;
+    }
+  }
+
+  enlarge.addEventListener('click', () => (dialog ? returnToPage() : enlargeFigure()));
+  wideEnough.addEventListener('change', () => { if (!wideEnough.matches) returnToPage(); });
+  addEventListener('beforeprint', returnToPage);
+}
+
 // --- The figure ------------------------------------------------------------------------------
 
-/** Start one figure: read its data, bind its controls and draw its first example. */
+/**
+ * Start one figure. This function owns the figure's state: the robot, the command, the example
+ * and the share of the drive that has played, the drive computed from them, and which questions
+ * are answered. Its inner functions are grouped by what they do with that state:
+ *
+ * - compute: readModelInputs() and computeDrive() turn the controls into a drive.
+ * - render: renderDriveAtCurrentTime() draws the drive at the play bar's time, with the time's
+ *   label and the drawing's description. recomputeAndRenderDrive() computes the drive again and
+ *   renders everything that shows it. Call the first after a change of the time only, the second
+ *   after a change of a value, the robot or the command.
+ * - results: recordDriveCompletion() notes that a drive has reached its end, and
+ *   renderResultState() shows what is due. updateResults() does both, after every change.
+ * - controls: Play and the time slider, the sliders and the robot, the examples.
+ */
 function mountMotionLab(root) {
   const data = JSON.parse(root.querySelector('.ix-data').textContent);
   const sizes = data.drawing;
@@ -182,6 +355,7 @@ function mountMotionLab(root) {
   const findAll = (selector) => [...root.querySelectorAll(selector)];
   const plot = find('.ix-plot'), scrub = find('.ix-scrub');
   const sliders = Object.fromEntries(findAll('input[data-setting]').map((input) => [input.dataset.setting, input]));
+  // playbackFraction is the share of the drive that has played: 0 at the start, 1 at the end
   const state = { robot: data.default.robot, command: data.default.command, playbackFraction: 0, step: 0 };
   // The questions, one per example and drive ("radius:forward"), whose drive has reached its end
   // with the example's own values: their answer shows while those values are set
@@ -191,7 +365,7 @@ function mountMotionLab(root) {
   let reachedEnd = false;
   let animationRequest = null, lastFrameTimestamp = 0, announceTimer = null, drive = null, liveDrawing = null;
 
-  // --- The model's inputs, from the controls -------------------------------------------------
+  // --- Compute: the model's inputs from the controls, and the drive --------------------------
   const sliderNumber = (name) => Number(sliders[name].value);
   /** The model's inputs in SI units, as model_inputs() in the script computes them. */
   function readModelInputs() {
@@ -234,46 +408,13 @@ function mountMotionLab(root) {
     return { kind: state.command, inputs, samples, motion, checks, reach: outlineReachMetres(inputs, sizes) };
   }
 
-  // --- The drawing, at the time that the play bar shows ---------------------------------------
+  // --- Render: the drawing at the play bar's time --------------------------------------------
+  /** The time under the drawing and the time slider's spoken value. */
   function updateTimeLabel(elapsedSeconds, durationSeconds) {
     const elapsed = elapsedSeconds.toFixed(1), duration = durationSeconds.toFixed(1);
     find('.ix-time').textContent = state.playbackFraction >= 1
       ? `t = ${duration} s, the end` : `t = ${elapsed} s of ${duration} s`;
     scrub.setAttribute('aria-valuetext', `${elapsed} of ${duration} seconds`);
-  }
-
-  function renderDriveAtCurrentTime() {
-    const { inputs, samples } = drive;
-    const scale = drawingScale(Math.max(sizes.minimumWidthPx, Math.round(plot.clientWidth)), samples, drive.reach, sizes);
-    const step = gridStep(scale, sizes);
-    const shownIndex = Math.round(state.playbackFraction * sizes.samples);
-    const shownSamples = samples.slice(0, shownIndex + 1), shownSample = samples[shownIndex];
-    const next = svgElement('svg', {
-      class: 'ix-live-plot', viewBox: `0 0 ${scale.width} ${scale.height}`, role: 'img',
-      'aria-label': find('.ix-static title').textContent, 'aria-describedby': find('.ix-now').id,
-    });
-    next.append(gridGroup(scale, step));
-    const paths = [['frame', 'ix-model'], ['odometry', 'ix-odometry'], ['command', 'ix-command']];
-    if (inputs.frameOffset > 0) paths.unshift(['axle', 'ix-axle']);
-    for (const [view, cssClass] of paths) {
-      const path = pathPolyline(scale, shownSamples.map((sample) => sample[view]), cssClass);
-      if (path) next.append(path);
-    }
-    next.append(robotOutlineGroup(scale, samples[0].axle, inputs.wheels, 'ix-start', 'The robot at the start', sizes));
-    const truePose = robotOutlineGroup(scale, shownSample.axle, inputs.wheels, 'ix-model',
-      'True pose, in this figure’s model', sizes);
-    appendTruePoseMarkers(truePose, scale, shownSample.axle, inputs.frameOffset, sizes);
-    next.append(truePose);
-    const odometry = robotOutlineGroup(scale, shownSample.odometry, inputs.configured, 'ix-odometry',
-      'Odometry: the controller’s geometry at the pose that it computes', sizes);
-    appendOdometryMarker(odometry, scale, shownSample.odometry, sizes);
-    next.append(odometry);
-    next.append(commandMarkerGroup(scale, shownSample.command, sizes));
-    if (liveDrawing) liveDrawing.replaceWith(next); else plot.append(next);
-    liveDrawing = next;
-    find('.ix-gridnote').textContent = `Grid: ${Math.round(step * 100)} cm`;
-    updateTimeLabel(shownSample.t, inputs.command.duration);
-    updateDrawingDescription(shownSample);
   }
 
   // For screen readers, the drawing's description: what it shows at the play bar's time, so the
@@ -292,7 +433,25 @@ function mountMotionLab(root) {
         + ` ${formatDecimal(Math.hypot(model.forward, model.left))} m from its starting point.`;
   }
 
-  // --- The numbers next to the drawing -------------------------------------------------------
+  /**
+   * Draw the computed drive at the play bar's time: the drawing, the grid's note, and the time as
+   * the eye reads it and as a screen reader hears it. Enough after a change of the time alone.
+   */
+  function renderDriveAtCurrentTime() {
+    const shownIndex = Math.round(state.playbackFraction * sizes.samples);
+    const shownSample = drive.samples[shownIndex];
+    const width = Math.max(sizes.minimumWidthPx, Math.round(plot.clientWidth));
+    const { svg, gridStepMetres } = buildDriveSvg(drive, shownIndex, width, sizes, {
+      name: find('.ix-static title').textContent, descriptionId: find('.ix-now').id,
+    });
+    if (liveDrawing) liveDrawing.replaceWith(svg); else plot.append(svg);
+    liveDrawing = svg;
+    find('.ix-gridnote').textContent = `Grid: ${Math.round(gridStepMetres * 100)} cm`;
+    updateTimeLabel(shownSample.t, drive.inputs.command.duration);
+    updateDrawingDescription(shownSample);
+  }
+
+  // --- Render: the numbers next to the drawing -----------------------------------------------
   function renderMotionTable({ motion }) {
     const legendGlyphSvg = (view) => find(`.ix-legend [data-view="${view}"] svg`).outerHTML;
     find('.ix-motion-rows').innerHTML = Object.entries(data.viewNames).map(([view, name]) => {
@@ -331,7 +490,8 @@ function mountMotionLab(root) {
     }
   }
 
-  function renderSliderValues(inputs) {
+  /** Each slider's value next to its label, as the eye reads it and as a screen reader hears it. */
+  function renderSliderOutputs(inputs) {
     const setSliderOutput = (name, shown, spoken) => {
       sliders[name].closest('.ix-control').querySelector('output').textContent = shown;
       sliders[name].setAttribute('aria-valuetext', spoken);
@@ -346,34 +506,33 @@ function mountMotionLab(root) {
     setSliderOutput('contact_percent', `${sliderNumber('contact_percent')} % · ${contact} mm apart`,
       `${sliderNumber('contact_percent')} percent, ${contact} millimeters apart`);
     setSliderOutput('tracking_percent', `${sliderNumber('tracking_percent')} %`, `${sliderNumber('tracking_percent')} percent of the commanded speed`);
-    // The axle's entry keeps its place while unused, so the legend keeps its lines
+  }
+
+  // The legend's entry of the axle's midpoint keeps its place while unused, so the legend keeps
+  // its lines
+  function updateAxleLegend(inputs) {
     for (const entry of findAll('.ix-legend [data-view="axle"]')) {
       entry.hidden = false;
       entry.style.visibility = inputs.frameOffset === 0 ? 'hidden' : '';
     }
   }
 
+  /**
+   * Compute the drive of the current controls and render all that shows it: the sliders' values,
+   * the legend, the tables, the summary and the drawing. Needed after a change of a value, the
+   * robot or the command.
+   */
   function recomputeAndRenderDrive() {
     drive = computeDrive();
-    renderSliderValues(drive.inputs);
+    renderSliderOutputs(drive.inputs);
+    updateAxleLegend(drive.inputs);
     renderMotionTable(drive);
     renderCheckTable(drive);
     renderSummary(drive);
     renderDriveAtCurrentTime();
   }
 
-  // Screen readers hear the result once a change is complete, not while a slider moves, and only
-  // while the results show
-  function scheduleSummaryAnnouncement() {
-    clearTimeout(announceTimer);
-    announceTimer = setTimeout(() => {
-      if (reachedEnd) find('.ix-announce').textContent = find('.ix-summary').textContent;
-    }, ANNOUNCE_DELAY_MS);
-  }
-
-  // --- Controls ------------------------------------------------------------------------------
-  // The figure shows one drive: the robot, the command and the values that the controls hold, at
-  // the time of the play bar. Only Play, the time slider and an example's opening move the time.
+  // --- Small changes of the state, each with the control that shows it -----------------------
   const defaultSliderValues = () => Object.fromEntries(Object.entries(sliders).map(([name, input]) => [name, input.defaultValue]));
   function resetSliders() {
     for (const [name, value] of Object.entries(defaultSliderValues())) sliders[name].value = value;
@@ -386,24 +545,40 @@ function mountMotionLab(root) {
     state.robot = robot;
     find('.ix-robot-select').value = robot;
   }
-  function stopPlaying() {
-    if (animationRequest) cancelAnimationFrame(animationRequest);
-    animationRequest = null;
-    find('.ix-play').textContent = 'Play';
-  }
-  // The playback fraction is the share of the drive that has played: 0 at the start, 1 at the end
   function setPlaybackFraction(fraction) {
     state.playbackFraction = fraction;
     scrub.value = Math.round(fraction * Number(scrub.max));
   }
   /** The example's own values: the example robot's, with the example's one value changed. */
   const exampleSliderValues = () => ({ ...defaultSliderValues(), ...data.examples[state.step].settings });
-  /** The controls hold the current example's own values, on either drive. */
+  /** Whether the controls hold the current example's own robot and values, on either drive. */
   function matchesExampleSettings() {
     const own = exampleSliderValues();
     return state.robot === data.default.robot
       && Object.entries(sliders).every(([name, input]) => Number(input.value) === Number(own[name]));
   }
+
+  // --- Results: what shows once a drive has reached its end -----------------------------------
+  // The summary and the tables show the drive's end: they wait until a drive has reached its end
+  // since the example opened, then follow every change. A question is answered the first time the
+  // controls hold the example's own drive at its end: another drive's end shows its results but
+  // answers nothing. The answer then shows while the example's own values are set.
+
+  /**
+   * Note what the drive's end, if the play bar is there, completes: the results show from now on,
+   * and the example's question is answered if the controls hold its own values.
+   * Returns what has just appeared: 'answer', 'results' or null.
+   */
+  function recordDriveCompletion() {
+    const atEnd = state.playbackFraction >= 1, key = questionKey();
+    const resultsAppear = atEnd && !reachedEnd;
+    if (resultsAppear) reachedEnd = true;
+    const answerAppears = atEnd && matchesExampleSettings() && !answered.has(key);
+    if (answerAppears) answered.add(key);
+    if (answerAppears) return 'answer';
+    return resultsAppear ? 'results' : null;
+  }
+
   // Under the sliders, while other values are set: the values that differ from the example's, with
   // the example's. Below the last slider, the list grows and shrinks without moving a slider.
   function renderChanges(own) {
@@ -425,21 +600,15 @@ function mountMotionLab(root) {
     lead.textContent = data.texts.changesLead;
     line.append(lead, ` ${changes.join(', ')}.`);
   }
-  // The summary and the tables show the drive's end: they wait until a drive has reached its end
-  // since the example opened, then follow every change. A question is answered the first time the
-  // controls hold the example's own drive at its end: another drive's end shows its results but
-  // answers nothing. The answer then shows while the example's own values are set.
-  // Under the play bar, one place holds the answer, the hint before it, or the note that other
-  // values are set. It is as high as the highest of them, so nothing below moves.
-  // Returns what has just appeared: 'answer', 'results' or null.
-  function showResults() {
-    const key = questionKey();
-    const resultsAppear = !reachedEnd && state.playbackFraction >= 1;
-    if (resultsAppear) reachedEnd = true;
+
+  /**
+   * Show what the recorded state says: the results or their wait, and under the play bar the
+   * answer, the hint before it, or the note that other values are set. The three share one place,
+   * as high as the highest of them, so nothing below moves.
+   */
+  function renderResultState() {
     const own = matchesExampleSettings();
-    const answerAppears = own && state.playbackFraction >= 1 && !answered.has(key);
-    if (answerAppears) answered.add(key);
-    const showAnswer = own && answered.has(key);
+    const showAnswer = own && answered.has(questionKey());
     find('.ix-shown-answer').classList.toggle('ix-off', !showAnswer);
     find('.ix-hint').classList.toggle('ix-off', !own || showAnswer);
     find('.ix-differs').classList.toggle('ix-off', own);
@@ -450,8 +619,23 @@ function mountMotionLab(root) {
     item.classList.toggle('ix-revealed', showAnswer);
     item.querySelector('.ix-show').textContent = own ? data.texts.show : data.texts.replay;
     root.classList.toggle('ix-waiting', !reachedEnd);
-    if (answerAppears) return 'answer';
-    return resultsAppear ? 'results' : null;
+  }
+
+  /** Record a drive's end and show the results' state. Returns what has just appeared. */
+  function updateResults() {
+    const appeared = recordDriveCompletion();
+    renderResultState();
+    return appeared;
+  }
+
+  // --- Announcements for screen readers ------------------------------------------------------
+  // Screen readers hear the result once a change is complete, not while a slider moves, and only
+  // while the results show
+  function scheduleSummaryAnnouncement() {
+    clearTimeout(announceTimer);
+    announceTimer = setTimeout(() => {
+      if (reachedEnd) find('.ix-announce').textContent = find('.ix-summary').textContent;
+    }, ANNOUNCE_DELAY_MS);
   }
   // Screen readers hear what has just appeared at the drive's end: the answer replaces a summary
   // that waits to be heard
@@ -461,6 +645,21 @@ function mountMotionLab(root) {
       find('.ix-announce').textContent = find('.ix-shown-answer').textContent;
     }
     if (appeared === 'results') scheduleSummaryAnnouncement();
+  }
+  // Screen readers hear the new example's question
+  function announceQuestion() {
+    clearTimeout(announceTimer);
+    const question = find('.ix-current .ix-question.ix-drive').textContent;
+    find('.ix-announce').textContent = `${find('.ix-step-count').textContent}. ${question}`;
+  }
+
+  // --- Controls: Play and the time slider ----------------------------------------------------
+  // The figure shows one drive: the robot, the command and the values that the controls hold, at
+  // the time of the play bar. Only Play, the time slider and an example's opening move the time.
+  function stopPlaying() {
+    if (animationRequest) cancelAnimationFrame(animationRequest);
+    animationRequest = null;
+    find('.ix-play').textContent = 'Play';
   }
   function startPlaying() {
     if (state.playbackFraction >= 1) setPlaybackFraction(0);
@@ -474,7 +673,7 @@ function mountMotionLab(root) {
       renderDriveAtCurrentTime();
       if (state.playbackFraction < 1) { animationRequest = requestAnimationFrame(advancePlaybackFrame); return; }
       stopPlaying();
-      announceNewResult(showResults());
+      announceNewResult(updateResults());
     };
     animationRequest = requestAnimationFrame(advancePlaybackFrame);
   }
@@ -485,7 +684,7 @@ function mountMotionLab(root) {
       stopPlaying();
       setPlaybackFraction(state.playbackFraction >= 1 ? 0 : 1);
       renderDriveAtCurrentTime();
-      announceNewResult(showResults());
+      announceNewResult(updateResults());
       return;
     }
     startPlaying();
@@ -498,142 +697,60 @@ function mountMotionLab(root) {
     stopPlaying();
     setPlaybackFraction(Number(scrub.value) / Number(scrub.max));
     renderDriveAtCurrentTime();
-    announceNewResult(showResults());
+    announceNewResult(updateResults());
   });
   // A hidden tab or a closed block draws nothing: stop instead of jumping ahead later
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPlaying(); });
 
-  // A changed value, robot or command redraws the drive at the same time
+  // --- Controls: the sliders, the robot and the resets ---------------------------------------
+  // A changed value or robot shows its drive at the same time, with the results' state
   function refreshAfterControlChange() {
     recomputeAndRenderDrive();
-    showResults();
+    updateResults();
   }
-  // A double click, or on a touch screen a double tap, sets one slider back to the robot's value.
-  // A tap is a short touch that hardly moves: two quick drags are no double tap, and any other
-  // press in between starts over. Mice and pens use the browser's double click only.
-  let press = null, lastTap = null, lastTouchReset = -Infinity;
-  const isPrimaryTouch = (event) => event.pointerType === 'touch' && event.isPrimary;
-  document.addEventListener('pointerdown', (event) => {
-    if (lastTap && event.target !== lastTap.input) lastTap = null;
-  }, true);
-  for (const [name, input] of Object.entries(sliders)) {
-    const resetSliderToDefault = () => {
-      input.value = defaultSliderValues()[name];
-      refreshAfterControlChange();
-      scheduleSummaryAnnouncement();
-    };
+  for (const input of Object.values(sliders)) {
     input.addEventListener('input', refreshAfterControlChange);
     input.addEventListener('change', scheduleSummaryAnnouncement);
-    // A browser that sends a double click after a double tap too resets the slider once
-    input.addEventListener('dblclick', (event) => {
-      if (event.timeStamp - lastTouchReset > DOUBLE_TAP_MS) resetSliderToDefault();
-    });
-    input.addEventListener('pointerdown', (event) => {
-      press = isPrimaryTouch(event)
-        ? { input, id: event.pointerId, x: event.clientX, y: event.clientY, time: event.timeStamp, moved: false } : null;
-      if (!press) lastTap = null;
-    });
-    input.addEventListener('pointermove', (event) => {
-      if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > TAP_SLOP_PX) press.moved = true;
-    });
-    input.addEventListener('pointercancel', () => { press = null; lastTap = null; });
-    input.addEventListener('pointerup', (event) => {
-      const short = press && event.timeStamp - press.time < TAP_MAX_MS
-        && Math.hypot(event.clientX - press.x, event.clientY - press.y) <= TAP_SLOP_PX;
-      const tap = short && press.input === input && press.id === event.pointerId && !press.moved && isPrimaryTouch(event)
-        ? { input, x: event.clientX, y: event.clientY, time: event.timeStamp } : null;
-      press = null;
-      const second = Boolean(tap && lastTap && lastTap.input === input && tap.time - lastTap.time < DOUBLE_TAP_MS
-        && Math.hypot(tap.x - lastTap.x, tap.y - lastTap.y) < DOUBLE_TAP_DISTANCE_PX);
-      lastTap = second ? null : tap;
-      if (second) { lastTouchReset = event.timeStamp; resetSliderToDefault(); }
-    });
   }
-  find('.ix-robot-select').addEventListener('change', (event) => {
-    selectRobot(event.target.value); resetSliders(); refreshAfterControlChange(); scheduleSummaryAnnouncement();
+  bindSliderResets(Object.values(sliders), (input) => {
+    input.value = input.defaultValue;
+    refreshAfterControlChange();
+    scheduleSummaryAnnouncement();
   });
-  // The other drive is the example's other question: it starts at its drive's start, or at its
-  // end once answered. The values stay as they are.
-  for (const button of findAll('[data-command]')) {
-    button.addEventListener('click', () => {
-      // The command that shows already: nothing changes, not even the time
-      if (button.dataset.command === state.command) return;
-      stopPlaying();
-      selectCommand(button.dataset.command);
-      renderQuestionAndAnswer();
-      reachedEnd = false;
-      setPlaybackFraction(answered.has(questionKey()) ? 1 : 0);
-      refreshAfterControlChange();
-      announceQuestion();
-    });
-  }
+  find('.ix-robot-select').addEventListener('change', (event) => {
+    selectRobot(event.target.value);
+    resetSliders();
+    refreshAfterControlChange();
+    scheduleSummaryAnnouncement();
+  });
   // Reset: next to the examples and in the block of values
   for (const button of findAll('.ix-reset')) {
     button.addEventListener('click', () => { resetSliders(); refreshAfterControlChange(); scheduleSummaryAnnouncement(); });
   }
 
-  // Enlarge: the figure over the whole window in a modal dialog, with the drawing and the values
-  // next to each other. The rest of the page is out of the keyboard's and the screen reader's
-  // reach meanwhile. The button, Esc, printing or a window that gets too narrow bring the figure
-  // back to its place on the page.
-  const enlarge = find('.ix-enlarge'), settings = find('.ix-settings'), caption = find('figcaption');
-  const stage = find('.ix-stage'), side = find('.ix-side');
-  const wideEnough = matchMedia(`(min-width: ${WIDE_MIN_EM}em)`);
-  const placeholder = document.createComment('The enlarged figure returns here');
-  let dialog = null, settingsWereOpen = false;
-  function enlargeFigure() {
-    if (dialog) return;
-    // Enlarged, the values show first in the right-hand column, and the caption ends the left one
-    settingsWereOpen = settings.open;
-    settings.open = true;
-    side.prepend(settings);
-    stage.append(caption);
-    dialog = document.createElement('dialog');
-    dialog.className = 'md-typeset ix-dialog';
-    dialog.setAttribute('aria-label', `Enlarged figure: ${find('.ix-static title').textContent}`);
-    dialog.addEventListener('cancel', (event) => { event.preventDefault(); returnToPage(); });
-    root.before(placeholder);
-    document.body.append(dialog);
-    dialog.append(root);
-    root.classList.add('ix-wide');
-    document.documentElement.classList.add('ix-wide-open');
-    enlarge.textContent = 'Back to the page';
-    dialog.showModal();
-    enlarge.focus();
-  }
-  function returnToPage() {
-    if (!dialog) return;
-    const focused = root.contains(document.activeElement) ? document.activeElement : null;
-    dialog.close();
-    placeholder.replaceWith(root);
-    dialog.remove();
-    dialog = null;
-    side.append(settings);
-    root.append(caption);
-    settings.open = settingsWereOpen;
-    root.classList.remove('ix-wide');
-    document.documentElement.classList.remove('ix-wide-open');
-    enlarge.textContent = 'Enlarge';
-    // The keyboard's place: where it was if it can still be there, else the summary of the closed
-    // values, the Enlarge button, or Play. A control in a closed block or a hidden button can't
-    // take the focus, so the first one that takes it keeps it.
-    const inClosedSettings = focused && !settings.open && settings.contains(focused);
-    for (const element of [focused, inClosedSettings ? settings.querySelector('summary') : null, enlarge, find('.ix-play')]) {
-      element?.focus();
-      if (element && document.activeElement === element) break;
-    }
-  }
-  enlarge.addEventListener('click', () => (dialog ? returnToPage() : enlargeFigure()));
-  wideEnough.addEventListener('change', () => { if (!wideEnough.matches) returnToPage(); });
-  addEventListener('beforeprint', returnToPage);
-
+  // --- Controls: the guided examples ---------------------------------------------------------
   // The guided examples, one at a time. An example opens with its question and its own drive,
   // with its one value changed, at the drive's start: the time slider and Play show the drive, and
   // its results and answer show once the drive has reached its end. "Show what happens" plays the
   // example's own drive from its start. An answered example opens at its drive's end.
   // The examples' questions share one place above the drawing, as high as the longest of them,
   // so the drawing stays where it is from one example to the next.
-  // The current example's question and answer for the current drive
+  const previousButton = find('.ix-previous'), nextButton = find('.ix-next');
+
+  /** The stepper for the example at an index: its item in the list, the count and the buttons. */
+  function renderExampleStepper(index) {
+    const example = data.examples[index];
+    for (const item of findAll('[data-example-item]')) {
+      item.classList.toggle('ix-current', item.dataset.exampleItem === example.key);
+      item.classList.remove('ix-revealed');
+      for (const answer of item.querySelectorAll('.ix-answer')) answer.hidden = true;
+    }
+    find('.ix-step-count').textContent = `Example ${index + 1} of ${data.examples.length}`;
+    previousButton.disabled = index === 0;
+    nextButton.disabled = index === data.examples.length - 1;
+  }
+
+  /** The current example's question and answer for the current drive. */
   function renderQuestionAndAnswer() {
     const item = find('.ix-current');
     for (const question of item.querySelectorAll('.ix-question')) {
@@ -642,54 +759,60 @@ function mountMotionLab(root) {
     const answer = item.querySelector(`.ix-answer[data-drive="${state.command}"]`);
     find('.ix-shown-answer').innerHTML = `<b>What happens:</b> ${answer.innerHTML}`;
   }
+
+  /**
+   * Open an example with its own robot and values, on its own command or the given one. Without
+   * a playback fraction it opens at its drive's start, or at its end once answered.
+   */
   function openExample(index, command = data.examples[index].command, playbackFraction) {
     state.step = index;
-    const example = data.examples[index];
-    for (const item of findAll('[data-example-item]')) {
-      item.classList.toggle('ix-current', item.dataset.exampleItem === example.key);
-      item.classList.remove('ix-revealed');
-      for (const answer of item.querySelectorAll('.ix-answer')) answer.hidden = true;
-    }
-    find('.ix-step-count').textContent = `Example ${index + 1} of ${data.examples.length}`;
-    find('.ix-previous').disabled = index === 0;
-    find('.ix-next').disabled = index === data.examples.length - 1;
+    renderExampleStepper(index);
     stopPlaying();
     selectRobot(data.default.robot);
     resetSliders();
-    for (const [name, value] of Object.entries(example.settings)) sliders[name].value = value;
+    for (const [name, value] of Object.entries(data.examples[index].settings)) sliders[name].value = value;
     selectCommand(command);
     renderQuestionAndAnswer();
     reachedEnd = false;
     setPlaybackFraction(playbackFraction ?? (answered.has(questionKey()) ? 1 : 0));
     recomputeAndRenderDrive();
-    showResults();
+    updateResults();
   }
-  for (const button of findAll('[data-example]')) {
-    button.addEventListener('click', () => {
-      // A summary that waits to be heard belongs to the values before the replay
-      clearTimeout(announceTimer);
-      openExample(state.step, state.command, 0);
-      if (prefersReducedMotion()) {
-        // The answer shows at once and takes the keyboard's place: screen readers read it there
-        stopPlaying();
-        setPlaybackFraction(1);
-        renderDriveAtCurrentTime();
-        showResults();
-        find('.ix-shown-answer').focus();
-        return;
-      }
-      // The keyboard's place moves to Pause while the drive plays, and stays where the reader
-      // leaves it when the drive ends
-      startPlaying();
-      find('.ix-play').focus({ preventScroll: true });
-    });
-  }
-  // Screen readers hear the new example's question
-  function announceQuestion() {
+
+  /** Play the current example's own drive from its start, on the command that shows. */
+  function replayExample() {
+    // A summary that waits to be heard belongs to the values before the replay
     clearTimeout(announceTimer);
-    const question = find('.ix-current .ix-question.ix-drive').textContent;
-    find('.ix-announce').textContent = `${find('.ix-step-count').textContent}. ${question}`;
+    openExample(state.step, state.command, 0);
+    if (prefersReducedMotion()) {
+      // The answer shows at once and takes the keyboard's place: screen readers read it there
+      stopPlaying();
+      setPlaybackFraction(1);
+      renderDriveAtCurrentTime();
+      updateResults();
+      find('.ix-shown-answer').focus();
+      return;
+    }
+    // The keyboard's place moves to Pause while the drive plays, and stays where the reader
+    // leaves it when the drive ends
+    startPlaying();
+    find('.ix-play').focus({ preventScroll: true });
   }
+
+  // The other drive is the example's other question: it starts at its drive's start, or at its
+  // end once answered. The values stay as they are.
+  function switchCommand(command) {
+    // The command that shows already: nothing changes, not even the time
+    if (command === state.command) return;
+    stopPlaying();
+    selectCommand(command);
+    renderQuestionAndAnswer();
+    reachedEnd = false;
+    setPlaybackFraction(answered.has(questionKey()) ? 1 : 0);
+    refreshAfterControlChange();
+    announceQuestion();
+  }
+
   // At the first and the last example, the button just pressed is disabled: the keyboard's place
   // moves to the other one
   function navigateToExample(index, pressed, other) {
@@ -697,10 +820,16 @@ function mountMotionLab(root) {
     announceQuestion();
     if (pressed.disabled && document.activeElement !== other) other.focus();
   }
-  const previousButton = find('.ix-previous'), nextButton = find('.ix-next');
+
+  for (const button of findAll('[data-example]')) button.addEventListener('click', replayExample);
+  for (const button of findAll('[data-command]')) {
+    button.addEventListener('click', () => switchCommand(button.dataset.command));
+  }
   previousButton.addEventListener('click', () => navigateToExample(state.step - 1, previousButton, nextButton));
   nextButton.addEventListener('click', () => navigateToExample(state.step + 1, nextButton, previousButton));
 
+  // --- Start ---------------------------------------------------------------------------------
+  bindEnlargedView(root);
   new ResizeObserver(() => { if (drive) renderDriveAtCurrentTime(); }).observe(plot);
 
   // First drawing: the first example's question and its own drive at the start. Only when it has
