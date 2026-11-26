@@ -8,21 +8,21 @@ Run from the repository root: python -m unittest discover -s tests
 from collections import Counter
 import importlib.util
 import math
-import os
 from pathlib import Path
 import re
-import subprocess
 import sys
-import tempfile
 from types import ModuleType
 from typing import Any
-from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import Tuple
 import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'tests'))
+
+from figure_script_runs import run_with_an_ascii_locale  # noqa: E402
+
 FIGURES = ROOT / 'scripts' / 'figures'
 SCRIPT = FIGURES / 'math_basics_figures.py'
 PAGE = ROOT / 'docs' / 'theory' / 'preliminaries' / 'math-basics.md'
@@ -32,9 +32,6 @@ INCLUDE_NAMES = ['math-covariance-axes.html', 'math-covariance-scatter.html',
 # one, two and three values, such as "| 1 standard deviation | 68.3 % | 39.3 % | 19.9 % |"
 SHARES_ROW = re.compile(r'\| (\d) standard deviations? \| ([\d.]+ %) \| ([\d.]+ %) \| '
                         r'([\d.]+ %) \|')
-# With these variables, Python's default encoding for a text file is ASCII: the C locale, without
-# Python's own switch to UTF-8 for that locale
-ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
 # The drawings' numbers have one decimal, so a point that the script computed lies up to 0.05 px
 # away in the drawing
 ROUNDING = 0.05  # px
@@ -46,21 +43,6 @@ QUADRANT_TOLERANCE = 5  # pairs
 # The tolerance of the sample variances and covariance of 20 000 pairs, about 2.5 times the
 # standard error of the sample variance 4 of that test's matrix
 MANY_PAIRS_TOLERANCE = 0.1
-
-
-def run_with_an_ascii_locale() -> Dict[str, bytes]:
-    """Run the script with an ASCII locale and return the includes it writes, by file name.
-
-    The script runs in an empty folder, so the repository's includes stay as they are.
-    """
-    with tempfile.TemporaryDirectory() as folder:
-        includes = Path(folder) / 'includes'
-        includes.mkdir()
-        run = subprocess.run([sys.executable, str(SCRIPT)], cwd=folder,
-                             env={**os.environ, **ASCII_LOCALE}, capture_output=True, text=True)
-        if run.returncode != 0:
-            raise RuntimeError(f'{SCRIPT.name} failed: {run.stderr.strip()}')
-        return {include.name: include.read_bytes() for include in includes.iterdir()}
 
 
 def load_script() -> ModuleType:
@@ -126,7 +108,7 @@ class TestIncludes(unittest.TestCase):
     """
 
     def test_script_writes_the_repository_includes_with_an_ascii_locale(self) -> None:
-        written = run_with_an_ascii_locale()
+        written = run_with_an_ascii_locale(SCRIPT.name)
         self.assertEqual(sorted(written), INCLUDE_NAMES)
         for include_name in INCLUDE_NAMES:
             committed = (ROOT / 'includes' / include_name).read_bytes()
