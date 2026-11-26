@@ -1,9 +1,30 @@
-In general, the text of this documentation is available under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0. 
-Please refer to [LICENSE.text](LICENSE.text) for the actual legaleese wording of the license. This applies to:
+# Licenses for ros-mobile-robots.com
 
-All md files.
-All illustrations appearing in the text.
+## Documentation
 
-The examples and code snippets associated with the book are made available under a three clause BSD license, 
-see [LICENSE.code](LICENSE.code) for the actual license text. This is to make it possible for readers to take inspiration from, 
-or even copy and paste code from the documentation without any fear of licensing issues. This applies to all example source code.
+Except where a page, file or credit specifies other terms, the original
+documentation text and illustrations for ros-mobile-robots.com are licensed
+under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International license](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+See [LICENSE.text](LICENSE.text) for the full terms. Illustrations include
+original figures generated for the documentation.
+
+## Software
+
+Except where a file or credit specifies other terms, original code written
+for this repository is licensed under the [BSD 3-Clause License](LICENSE.code).
+This includes code examples and
+snippets written for the documentation, figure-generation scripts, tests,
+build hooks and macros, the site's own theme JavaScript for interactive
+figures, and the project's CI workflows.
+
+## Other material
+
+Third-party images, parts, software and quoted or included code retain
+their respective terms. Consult the credit, file header or upstream notice
+for each item and preserve the required notices when redistributing it.
+The wiring diagrams and sketches in `docs/fritzing/` incorporate separately
+licensed part artwork. Reuse of a complete diagram or sketch is subject to
+the rights in both the layout and the included artwork.
+Remo STL files distributed separately through Gumroad or Remo Insiders are
+outside the scope of these repository licenses.

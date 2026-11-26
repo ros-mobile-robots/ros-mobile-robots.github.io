@@ -72,4 +72,11 @@ You don't need to say whether you used AI.
 
 ## License
 
-The text and illustrations are licensed under [CC BY-NC-SA 4.0](LICENSE.text), and the code under the [BSD 3-Clause License](LICENSE.code). By contributing, you agree to license your contribution under them.
+Unless a page, file or credit specifies other terms, the documentation text and illustrations are licensed under [CC BY-NC-SA 4.0](LICENSE.text), and the code written for this repository under the [BSD 3-Clause License](LICENSE.code), as [LICENSE](LICENSE) describes.
+The following grants apply only to rights you hold or are authorized by the rights holder to grant:
+
+- By contributing, you license your contribution under these terms.
+- For material you license under CC BY-NC-SA 4.0, you also grant the operator of ros-mobile-robots.com nonexclusive permission to reproduce, adapt and publish it on that site, including when advertising or affiliate links make this use commercial. All other conditions of CC BY-NC-SA 4.0 apply.
+
+The pull request template asks you to confirm these terms.
+Identify third-party material that you add, and include its source, license and required notices.

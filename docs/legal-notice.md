@@ -29,9 +29,10 @@ Links to other websites are provided for convenience; their operators are respon
 
 ## Copyright and licenses
 
-Unless stated otherwise, original text and illustrations contributed to this documentation are available under [CC BY-NC-SA 4.0](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.text), and original documentation code examples under the [BSD 3-Clause License](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.code).
+Unless stated otherwise, the original documentation text and illustrations are available under [CC BY-NC-SA 4.0](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.text), and original code written for this repository under the [BSD 3-Clause License](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE.code).
+The repository's [LICENSE](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io/blob/main/LICENSE) describes which files each license covers.
 Third-party images, software and quoted code retain their respective copyright and license terms; see their credits and license notices.
-These licenses don't cover the Remo files sold through Gumroad.
+These licenses don't cover the Remo STL files distributed separately through Gumroad or Remo Insiders.
 
 ## Privacy
 
