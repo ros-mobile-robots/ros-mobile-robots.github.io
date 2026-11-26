@@ -24,7 +24,8 @@ includes, which follow the site's light and dark colors:
   its length 7 m/s².
 - includes/imu-noise-test-flow.html: the tool's three steps from a bag file to the report, the
   test classes that call each step's functions, the exit with one line and status 1, and the
-  command tests, which span all three steps. Its wide layout puts the three steps side by side.
+  command tests, which start the tool and check its output and exit status. Its wide layout
+  puts the three steps side by side.
 
 Every drawing is 300 units wide and carries short labels only, so that its text is readable on a
 phone. The trace figure, the flow figure and the two stamp figures also have a wide layout
@@ -41,6 +42,7 @@ Run from the repository root after changing a figure:
     python3 scripts/figures/imu_noise_figures.py
 """
 
+from enum import Enum
 import math
 import random
 import statistics
@@ -148,6 +150,21 @@ class DrawingPoint(NamedTuple):
 
     x: float
     y: float
+
+
+class TraceLineKind(Enum):
+    """The two line styles for the trace's statistics: the mean and the spread around it."""
+
+    MEAN = 'mean-line'
+    SPREAD = 'spread-line'
+
+
+class TraceReferenceLine(NamedTuple):
+    """A statistic drawn as a line across the trace, with its style and its label."""
+
+    yaw_rate: float
+    kind: TraceLineKind
+    label: str
 
 
 class AxisLabel(NamedTuple):
@@ -395,15 +412,20 @@ def trace_figure(trace: Trace, layout: TraceLayout) -> Figure:
     figure.rect(TRACE_PLOT_LEFT, upper, plot_right - TRACE_PLOT_LEFT, lower - upper,
                 'spread-band')
     figure.path(f'M{TRACE_PLOT_LEFT},{trace_y(0):.1f} H{plot_right}', 'zero-line')
-    lines = ((trace.mean + trace.standard_deviation, 'spread-line', 'mean + s'),
-             (trace.mean, 'mean-line', 'mean'),
-             (trace.mean - trace.standard_deviation, 'spread-line', 'mean − s'))
-    for yaw_rate, css_class, label in lines:
-        y = trace_y(yaw_rate)
-        figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{plot_right}', css_class)
-        figure.text(plot_right + 5, y + 4, label, 'strong' if label == 'mean' else '')
-        figure.text(layout.width - 2, y + 4, f'{yaw_rate:+.4f}'.replace('-', '−'),
-                    'strong' if label == 'mean' else '', 'end')
+    lines = (
+        TraceReferenceLine(trace.mean + trace.standard_deviation, TraceLineKind.SPREAD,
+                           'mean + s'),
+        TraceReferenceLine(trace.mean, TraceLineKind.MEAN, 'mean'),
+        TraceReferenceLine(trace.mean - trace.standard_deviation, TraceLineKind.SPREAD,
+                           'mean − s'),
+    )
+    for line in lines:
+        y = trace_y(line.yaw_rate)
+        figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{plot_right}', line.kind.value)
+        text_class = 'strong' if line.kind is TraceLineKind.MEAN else ''
+        figure.text(plot_right + 5, y + 4, line.label, text_class)
+        figure.text(layout.width - 2, y + 4, f'{line.yaw_rate:+.4f}'.replace('-', '−'),
+                    text_class, 'end')
     figure.text(plot_right + 5, trace_y(0) + 4, 'zero')
     figure.text(layout.width - 2, trace_y(0) + 4, '0', '', 'end')
     for index, reading in enumerate(trace.readings[:TRACE_SHOWN_DURATION * SAMPLE_RATE]):
@@ -427,7 +449,8 @@ def write_trace() -> None:
     caption = (
         '<strong>A synthetic example, not a recording of a robot.</strong> A gyroscope at rest '
         f'that reads in steps of {GYROSCOPE_STEP_TEXT}, like the BNO055. '
-        f'The dots are the {shown_count} readings of the first second. The lines come from all '
+        f'The dots are the {shown_count} readings in the first {TRACE_SHOWN_DURATION} s. '
+        'The lines come from all '
         f'{len(trace.readings):,} readings of {TRACE_DURATION} s: '
         f'the mean {signed_yaw_rate(trace.mean)} rad/s is the bias, '
         f'and the standard deviation <em>s</em> = {trace.standard_deviation:.5f} rad/s is the '
@@ -509,12 +532,13 @@ def variance_test_figure() -> Figure:
 def write_variance_test() -> None:
     """Write the figure of the sample variance's test."""
     values = VARIANCE_TEST_VALUES
-    squares = sum((value - statistics.fmean(values)) ** 2 for value in values)
+    mean = statistics.fmean(values)
+    sum_squared_deviations = sum((value - mean) ** 2 for value in values)
     write_figure(
         'includes/imu-noise-test-variance.html', variance_test_figure(),
-        f'The squared deviations add up to {squares:g}. The sample variance is '
-        f'{squares:g} / ({len(values)} − 1) = {statistics.variance(values):.4f}. Dividing by '
-        f'{len(values)} would give {squares / len(values):g}.')
+        f'The squared deviations add up to {sum_squared_deviations:g}. The sample variance is '
+        f'{sum_squared_deviations:g} / ({len(values)} − 1) = {statistics.variance(values):.4f}. '
+        f'Dividing by {len(values)} would give {sum_squared_deviations / len(values):g}.')
 
 
 def interval_x(milliseconds: float, pixels_per_ms: float) -> float:
@@ -577,7 +601,7 @@ def write_intervals() -> None:
         f'longer than <code>LONG_INTERVAL</code>, {LONG_INTERVAL} ms.')
 
 
-def stamps_back_name(stamps: Sequence[int]) -> str:
+def stamps_back_title(stamps: Sequence[int]) -> str:
     """Return the accessible name of the stamps figure: each stamp that doesn't advance."""
     sentences = [f'{NUMBER_WORDS[len(stamps)].capitalize()} messages in the order of the '
                  'recording, each at its header stamp']
@@ -599,24 +623,23 @@ def stamps_back_figure(layout: PlotLayout) -> Figure:
     stamps = STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK
     row_height, first_row_y, pixels_per_ms = 26, 34, 2.6
     axis_y = first_row_y + len(stamps) * row_height
-    figure = Figure(f'imu-noise-test-stamps-back{layout.name_end}', stamps_back_name(stamps),
+    figure = Figure(f'imu-noise-test-stamps-back{layout.name_end}', stamps_back_title(stamps),
                     axis_y + 40, round(DRAWING_WIDTH * layout.stretch), layout.css_class,
                     layout.stretch)
     figure.text(4, 13, 'message, in the order of the recording', 'note')
-    points = [(interval_x(stamp, pixels_per_ms), first_row_y + index * row_height)
+    points = [DrawingPoint(interval_x(stamp, pixels_per_ms), first_row_y + index * row_height)
               for index, stamp in enumerate(stamps)]
-    for (start_x, start_y), (end_x, end_y), earlier, later in zip(points, points[1:], stamps,
-                                                                  stamps[1:]):
+    for start, end, earlier, later in zip(points, points[1:], stamps, stamps[1:]):
         advances = later > earlier
-        figure.path(f'M{start_x:.1f},{start_y} L{end_x:.1f},{end_y}',
+        figure.path(f'M{start.x:.1f},{start.y} L{end.x:.1f},{end.y}',
                     'step-line' if advances else 'step-bad')
         if not advances:
             label = 'repeated' if later == earlier else f'{earlier - later} ms earlier'
             # The label keeps its distance from the line in the stretched layout too
-            figure.text(max(start_x, end_x) + figure.fixed(14), (start_y + end_y) / 2 + 4,
+            figure.text(max(start.x, end.x) + figure.fixed(14), (start.y + end.y) / 2 + 4,
                         label, 'strong')
-    for number, (x, y) in enumerate(points, start=1):
-        numbered_mark(figure, x, y, number, 'pass-mark')
+    for number, point in enumerate(points, start=1):
+        numbered_mark(figure, point.x, point.y, number, 'pass-mark')
     figure.path(f'M12,{axis_y} H{interval_x(stamps[-1], pixels_per_ms) + 14:.1f}', 'axis')
     for stamp in sorted(set(stamps)):
         x = interval_x(stamp, pixels_per_ms)
@@ -638,8 +661,8 @@ def write_stamps_back() -> None:
         [stamps_back_figure(layout) for layout in PLOT_LAYOUTS],
         '<code>STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK</code>: the last stamp is '
         f'{duration} ms after the first, and {interval_count} intervals in {duration} ms '
-        f'would be {interval_count / (duration / 1000):.0f} Hz. The dashed red lines are the '
-        "two stamps that don't advance, so the tool gives no rate.")
+        f'would be {interval_count / (duration / 1000):.0f} Hz. The dashed red lines mark '
+        "stamps that don't advance, so the tool gives no rate.")
 
 
 def measured_figure() -> Figure:
@@ -683,8 +706,9 @@ def write_measured() -> None:
     write_figure(
         'includes/imu-noise-test-measured.html', measured_figure(),
         f'{len(readings)} readings with the mean {statistics.fmean(readings):g} rad/s. '
-        f'Counting the second message as a reading of zero would give {len(MEASURED_YAW_RATES)} '
-        f'readings with the mean {sum(readings) / len(MEASURED_YAW_RATES):g} rad/s.')
+        'Counting the unmeasured message as a reading of zero would give '
+        f'{len(MEASURED_YAW_RATES)} readings with the mean '
+        f'{sum(readings) / len(MEASURED_YAW_RATES):g} rad/s.')
 
 
 def isometric(point: Point, origin: DrawingPoint, pixels_per_unit: float) -> DrawingPoint:
@@ -815,12 +839,12 @@ def end_card(figure: Figure, center_x: float, top: float, width: float, lines: S
     return bottom
 
 
-def flow_name(steps: Sequence[ToolStep]) -> str:
+def flow_title(steps: Sequence[ToolStep]) -> str:
     """Return the accessible name of the flow figure: the steps, the exit, the command tests."""
     step_names = listed([f'{step.label} with {step.function}' for step in steps])
     return (f"The tool's {NUMBER_WORDS[len(steps)]} steps from a bag file to the report, each "
             f'with its test classes: {step_names}. A failed check leaves the first step to one '
-            f'line on stderr and status 1. {COMMAND_TEST_CLASS} runs the tool as a command')
+            f'line on stderr and status 1. {COMMAND_TEST_CLASS} {FLOW_COMMAND_LABEL}')
 
 
 def flow_caption(steps: Sequence[ToolStep]) -> str:
@@ -836,7 +860,7 @@ def flow_caption(steps: Sequence[ToolStep]) -> str:
 
 def flow_figure() -> Figure:
     """Return the narrow layout of the flow figure: the steps from top to bottom."""
-    figure = Figure('imu-noise-test-flow', flow_name(TOOL_STEPS), 0, DRAWING_WIDTH, NARROW_LAYOUT)
+    figure = Figure('imu-noise-test-flow', flow_title(TOOL_STEPS), 0, DRAWING_WIDTH, NARROW_LAYOUT)
     columns = class_columns(TOOL_STEPS)
     bag_bottom = end_card(figure, FLOW_PATH_X, FLOW_TOP, 124, FLOW_INPUT, 'item')
     top = bag_bottom + 18
@@ -933,7 +957,7 @@ def wide_step_card(figure: Figure, top: float, height: float, number: int, step:
 
 def wide_flow_figure() -> Figure:
     """Return the wide layout of the flow figure: the steps from left to right."""
-    figure = Figure('imu-noise-test-flow-wide', flow_name(TOOL_STEPS), 0, WIDE_WIDTH, WIDE_LAYOUT)
+    figure = Figure('imu-noise-test-flow-wide', flow_title(TOOL_STEPS), 0, WIDE_WIDTH, WIDE_LAYOUT)
     cards = wide_cards(TOOL_STEPS)
     first, last = cards[0], cards[-1]
     bag_bottom = end_card(figure, first.middle(), FLOW_TOP, 124, FLOW_INPUT, 'item')
@@ -955,11 +979,12 @@ def wide_flow_figure() -> Figure:
     exit_top = bottom + 22
     figure.arrow(first.middle(), bottom, first.middle(), exit_top, 'refused')
     figure.text(first.middle() + 6, bottom + 14, FLOW_EXIT_REASON, 'note')
-    exit_bottom = end_card(figure, middle_inside_margins(first.middle(), 150), exit_top, 150,
-                           FLOW_EXIT, 'card-drop')
+    exit_width, report_width = 150, 170
+    exit_bottom = end_card(figure, middle_inside_margins(first.middle(), exit_width), exit_top,
+                           exit_width, FLOW_EXIT, 'card-drop')
     figure.arrow(last.middle(), bottom, last.middle(), exit_top, 'flow')
-    end_card(figure, middle_inside_margins(last.middle(), 170), exit_top, 170, FLOW_REPORT,
-             'card-pass')
+    end_card(figure, middle_inside_margins(last.middle(), report_width), exit_top, report_width,
+             FLOW_REPORT, 'card-pass')
     # A bracket under the whole path, with two equal end strokes, and its label below
     bracket_y = exit_bottom + 14
     figure.path(f'M{WIDE_FLOW_MARGIN},{bracket_y - FLOW_BRACKET_END} V{bracket_y} '

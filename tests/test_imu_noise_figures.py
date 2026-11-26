@@ -40,6 +40,11 @@ INCLUDE_NAMES = ['imu-noise-test-flow.html', 'imu-noise-test-gravity.html',
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
 # Python's own switch to UTF-8 for that locale
 ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
+# The drawings write their coordinates with one decimal
+SVG_COORDINATE_TOLERANCE = 0.1
+# The synthetic recording that the trace figure's caption describes
+EXPECTED_DURATION_SECONDS = 180
+EXPECTED_SAMPLE_RATE_HZ = 50
 
 
 def run_with_an_ascii_locale() -> Dict[str, bytes]:
@@ -75,7 +80,7 @@ def load_script() -> ModuleType:
 
 
 def two_steps(figures: ModuleType) -> Sequence[Any]:
-    """Return two made-up steps: one with three test classes and nine tests, one with one."""
+    """Return a read step with nine tests in three classes and a print step with five in one."""
     return (figures.ToolStep('Read', 'read()', (figures.ClassOfTests('TestOpen', 2),
                                                 figures.ClassOfTests('TestParse', 3),
                                                 figures.ClassOfTests('TestCheck', 4))),
@@ -89,7 +94,8 @@ def page_test_counts() -> List[Tuple[str, int]]:
         entry = CLASS_LIST_ENTRY.match(line)
         if entry:
             names = re.findall(r'`(Test\w+)`', entry['names'] or entry['plain'])
-            counts.extend(zip(names, (int(count) for count in entry['counts'].split('+'))))
+            test_counts = (int(count) for count in entry['counts'].split('+'))
+            counts.extend(zip(names, test_counts, strict=True))
     return counts
 
 
@@ -115,10 +121,14 @@ class TestSyntheticTrace(unittest.TestCase):
     to be the same in every run.
     """
 
-    def test_synthetic_trace_has_180_s_of_readings_on_whole_output_steps(self) -> None:
+    def test_synthetic_trace_has_the_expected_number_of_readings(self) -> None:
         figures = load_script()
         trace = figures.synthetic_trace()
-        self.assertEqual(len(trace.readings), 180 * 50)
+        self.assertEqual(len(trace.readings), EXPECTED_DURATION_SECONDS * EXPECTED_SAMPLE_RATE_HZ)
+
+    def test_synthetic_trace_readings_are_whole_gyroscope_output_steps(self) -> None:
+        figures = load_script()
+        trace = figures.synthetic_trace()
         for reading in trace.readings:
             steps = reading / figures.GYROSCOPE_STEP
             self.assertAlmostEqual(steps, round(steps))
@@ -152,10 +162,10 @@ class TestTexts(unittest.TestCase):
         self.assertEqual([figures.steps_in_words(steps) for steps in (0, 1, 2)],
                          ['zero', 'one output step', 'two output steps'])
 
-    def test_stamps_back_name_names_the_repeat_the_step_back_and_the_last_stamp(self) -> None:
+    def test_stamp_title_describes_the_repeat_the_step_back_and_the_last_stamp(self) -> None:
         figures = load_script()
         self.assertEqual(
-            figures.stamps_back_name(figures.STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK),
+            figures.stamps_back_title(figures.STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK),
             'Five messages in the order of the recording, each at its header stamp. The third '
             'message repeats the stamp of the second, 20 ms. The fourth is stamped 10 ms, '
             'earlier than the third. The fifth is stamped 80 ms')
@@ -170,9 +180,11 @@ class TestTraceLayouts(unittest.TestCase):
         trace = figures.synthetic_trace()
         for layout in figures.TRACE_LAYOUTS:
             elements = list(ElementTree.fromstring(figures.trace_figure(trace, layout).svg()))
-            label = next(index for index, element in enumerate(elements)
-                         if element.tag == 'text' and (element.text or '').startswith('mean:'))
-            self.assertEqual(elements[label - 1].get('class'), 'mean-line', layout.name)
+            mean_label_index = next(
+                index for index, element in enumerate(elements)
+                if element.tag == 'text' and (element.text or '').startswith('mean:'))
+            self.assertEqual(elements[mean_label_index - 1].get('class'), 'mean-line',
+                             layout.name)
 
     def test_each_trace_layout_draws_the_first_seconds_readings_and_the_legends_dot(
             self) -> None:
@@ -182,6 +194,12 @@ class TestTraceLayouts(unittest.TestCase):
         for layout in figures.TRACE_LAYOUTS:
             svg = figures.trace_figure(trace, layout).svg()
             self.assertEqual(svg.count('class="reading"'), shown + 1, layout.name)
+
+    def test_each_trace_layout_uses_its_configured_viewbox_width(self) -> None:
+        figures = load_script()
+        trace = figures.synthetic_trace()
+        for layout in figures.TRACE_LAYOUTS:
+            svg = figures.trace_figure(trace, layout).svg()
             self.assertIn(f'viewBox="0 0 {layout.width} ', svg)
 
     def test_trace_x_spans_the_plot_of_each_layout(self) -> None:
@@ -191,7 +209,7 @@ class TestTraceLayouts(unittest.TestCase):
             self.assertEqual(figures.trace_x(figures.TRACE_SHOWN_DURATION, layout),
                              layout.plot_right, layout.name)
 
-    def test_each_trace_layout_has_its_ticks_and_every_legend_entry_once(self) -> None:
+    def test_each_trace_layout_has_its_expected_time_tick_count(self) -> None:
         figures = load_script()
         trace = figures.synthetic_trace()
         # A tick every 0.5 s in the narrow layout and every 0.2 s in the wide one, over 1 s
@@ -199,6 +217,12 @@ class TestTraceLayouts(unittest.TestCase):
         for layout in figures.TRACE_LAYOUTS:
             svg = figures.trace_figure(trace, layout).svg()
             self.assertEqual(svg.count('class="tick"'), tick_counts[layout.name], layout.name)
+
+    def test_each_trace_layout_shows_each_legend_entry_once(self) -> None:
+        figures = load_script()
+        trace = figures.synthetic_trace()
+        for layout in figures.TRACE_LAYOUTS:
+            svg = figures.trace_figure(trace, layout).svg()
             for entry in figures.TRACE_LEGEND:
                 self.assertEqual(svg.count(f'>{entry.label}</text>'), 1,
                                  f'{entry.label} in {layout.name}')
@@ -212,9 +236,10 @@ class TestTraceLayouts(unittest.TestCase):
     def test_each_two_layout_include_holds_both_in_the_block_that_chooses_one(self) -> None:
         for include_name in TWO_LAYOUT_INCLUDES:
             text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
-            self.assertIn('<div class="lv-space">', text, include_name)
-            self.assertIn('class="lv-fig lv-layout-narrow"', text, include_name)
-            self.assertIn('class="lv-fig lv-layout-wide"', text, include_name)
+            root = ElementTree.fromstring(f'<root>{text}</root>')
+            drawings = root.findall("./div[@class='lv-space']/figure/svg")
+            self.assertEqual([drawing.get('class') for drawing in drawings],
+                             ['lv-fig lv-layout-narrow', 'lv-fig lv-layout-wide'], include_name)
 
 
 class TestPlotLayouts(unittest.TestCase):
@@ -223,14 +248,18 @@ class TestPlotLayouts(unittest.TestCase):
     def test_wide_stamp_figures_put_each_mark_stretch_times_as_far_right(self) -> None:
         figures = load_script()
         narrow, wide = figures.PLOT_LAYOUTS
-        for drawing in (figures.intervals_figure, figures.stamps_back_figure):
+        for drawing, stamps in (
+                (figures.intervals_figure, figures.STAMPS_WITH_ONE_LONG_INTERVAL),
+                (figures.stamps_back_figure, figures.STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK)):
             narrow_x = [float(x) for x in re.findall(r'<circle[^>]* cx="([\d.]+)"',
                                                      drawing(narrow).svg())]
             wide_x = [float(x) for x in re.findall(r'<circle[^>]* cx="([\d.]+)"',
                                                    drawing(wide).svg())]
-            self.assertEqual(len(wide_x), len(narrow_x))
+            self.assertEqual(len(narrow_x), len(stamps))
+            self.assertEqual(len(wide_x), len(stamps))
             for narrow_value, wide_value in zip(narrow_x, wide_x):
-                self.assertAlmostEqual(wide_value, narrow_value * wide.stretch, delta=0.1)
+                self.assertAlmostEqual(wide_value, narrow_value * wide.stretch,
+                                       delta=SVG_COORDINATE_TOLERANCE)
 
     def test_wide_stamp_figures_are_as_wide_as_the_wide_layout(self) -> None:
         figures = load_script()
@@ -238,8 +267,7 @@ class TestPlotLayouts(unittest.TestCase):
         for drawing in (figures.intervals_figure, figures.stamps_back_figure):
             self.assertEqual(drawing(wide).width, figures.WIDE_WIDTH, drawing.__name__)
 
-    def test_a_stamp_that_does_not_advance_keeps_its_labels_distance_in_both_layouts(
-            self) -> None:
+    def test_repeated_stamp_label_keeps_its_horizontal_offset_in_both_layouts(self) -> None:
         figures = load_script()
         distances = []
         for layout in figures.PLOT_LAYOUTS:
@@ -248,7 +276,7 @@ class TestPlotLayouts(unittest.TestCase):
             label_x = float(re.findall(r'<text[^>]* x="([\d.]+)"[^>]*>repeated</text>', svg)[0])
             distances.append(label_x - second_stamp_x)
         self.assertGreater(distances[0], 0)
-        self.assertAlmostEqual(distances[0], distances[1], delta=0.1)
+        self.assertAlmostEqual(distances[0], distances[1], delta=SVG_COORDINATE_TOLERANCE)
 
 
 class TestFlowFigure(unittest.TestCase):
@@ -273,9 +301,14 @@ class TestFlowFigure(unittest.TestCase):
     def test_middle_inside_margins_moves_a_card_that_would_leave_the_wide_drawing(self) -> None:
         figures = load_script()
         left, right = figures.WIDE_FLOW_MARGIN, figures.WIDE_WIDTH - figures.WIDE_FLOW_MARGIN
-        self.assertEqual(figures.middle_inside_margins(10, 150), left + 75)
-        self.assertEqual(figures.middle_inside_margins(right, 170), right - 85)
-        self.assertEqual(figures.middle_inside_margins(270, 100), 270)
+        left_card_width, right_card_width = 150, 170
+        inside_center, inside_card_width = 270, 100
+        self.assertEqual(figures.middle_inside_margins(left, left_card_width),
+                         left + left_card_width / 2)
+        self.assertEqual(figures.middle_inside_margins(right, right_card_width),
+                         right - right_card_width / 2)
+        self.assertEqual(figures.middle_inside_margins(inside_center, inside_card_width),
+                         inside_center)
 
     def test_wide_flow_layout_keeps_every_card_inside_its_margins(self) -> None:
         figures = load_script()
@@ -285,8 +318,7 @@ class TestFlowFigure(unittest.TestCase):
         self.assertEqual(len(cards), len(figures.TOOL_STEPS) + 3)
         for x, width in cards:
             self.assertGreaterEqual(float(x), left)
-            # The drawing's numbers have one decimal
-            self.assertLessEqual(float(x) + float(width), right + 0.1)
+            self.assertLessEqual(float(x) + float(width), right + SVG_COORDINATE_TOLERANCE)
 
     def test_wide_cards_fail_when_the_names_leave_no_room_for_the_arrows(self) -> None:
         figures = load_script()
@@ -301,10 +333,10 @@ class TestFlowFigure(unittest.TestCase):
             "The test classes in a step's card call that step's functions: 9 tests at Read and "
             '5 tests at Print. '))
 
-    def test_flow_name_names_each_step_with_its_function(self) -> None:
+    def test_flow_title_names_each_step_with_its_function(self) -> None:
         figures = load_script()
         self.assertEqual(
-            figures.flow_name(two_steps(figures)),
+            figures.flow_title(two_steps(figures)),
             "The tool's two steps from a bag file to the report, each with its test classes: "
             'Read with read() and Print with show(). A failed check leaves the first step to '
             'one line on stderr and status 1. TestToolOnBags runs the tool as a command')
