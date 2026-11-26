@@ -39,7 +39,6 @@ pip3 install smbus
 
 DiffBot's Raspberry Pi 4 B sends the motor commands on its I2C bus 1, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/).
 Select DiffBot on the [Electronics](hardware_setup/electronics.md) page to see the cable routing.
-The drawing also attaches the data wire to the adjacent pin 4 (5 V) and the clock wire to the adjacent pin 6 (ground).
 Use the physical header pins in the table for the wiring.
 Shut down the Raspberry Pi, unplug its power bank and take out the motor cells before you change connections.
 
