@@ -32,6 +32,7 @@ Run from the repository root after changing a figure:
     python3 scripts/figures/imu_sim_test_figures.py
 """
 
+import enum
 import math
 from typing import List
 from typing import NamedTuple
@@ -42,6 +43,7 @@ from typing import Tuple
 from board_drawings import Drawing
 from board_drawings import figure_element
 from board_drawings import PanelWidths
+from board_drawings import Point
 from board_drawings import style_element
 from board_drawings import svg_element
 from board_drawings import svg_subscript
@@ -225,12 +227,19 @@ class Phase(NamedTuple):
     seconds: float
 
 
+class TimedNote(NamedTuple):
+    """A note in the robot's row: the time it stands at and its lines of text."""
+
+    time: float
+    lines: Sequence[str]
+
+
 class Robots(NamedTuple):
     """The row with the robot from above: its title, the robot at each time and notes."""
 
     title: str
     robots: Sequence['Robot']
-    notes: Sequence[Tuple[float, Sequence[str]]]  # (time, lines of text)
+    notes: Sequence[TimedNote]
 
 
 class Robot(NamedTuple):
@@ -249,16 +258,38 @@ class Band(NamedTuple):
     highest: float
 
 
+class Tick(NamedTuple):
+    """A value that the chart's vertical axis numbers, and the number as text."""
+
+    value: float
+    label: str
+
+
+class LegendKind(enum.Enum):
+    """What a legend entry explains. The value is the CSS class of the entry's key."""
+
+    COMMAND = 'command-line'
+    REFERENCE = 'reference-line'
+    ACCEPTED_BAND = 'imu-wash'
+
+
+class LegendEntry(NamedTuple):
+    """One entry of the chart's legend: what it explains and its text."""
+
+    kind: LegendKind
+    label: str
+
+
 class Reading(NamedTuple):
     """The chart of the one reading that a drive test checks."""
 
     title: str  # SVG markup
     values: Scale
-    ticks: Sequence[Tuple[float, str]]
+    ticks: Sequence[Tick]
     accepted: Band
     band_label: str  # what the band is, written inside it
     band_label_offset: float  # from the middle of the band down to the label's baseline
-    legend: Sequence[Tuple[str, str]]  # (CSS class of the key, text)
+    legend: Sequence[LegendEntry]
 
 
 def draw_guide(figure: Figure, time: float) -> None:
@@ -324,9 +355,9 @@ def draw_robots(figure: Figure, row: Robots) -> None:
         figure.group(f'translate({x},{ROBOT_Y})', robot_elements(robot.heading))
         label_x = x if robot.anchor == 'middle' else DRIVE_WIDTH - 6
         figure.text(label_x, ROBOT_LABEL_Y, robot.label, 'note', robot.anchor)
-    for time, lines in row.notes:
-        for index, line in enumerate(lines):
-            figure.text(DRIVE_TIME.position(time), ROBOT_Y - 3 + index * LINE_HEIGHT, line,
+    for note in row.notes:
+        for index, line in enumerate(note.lines):
+            figure.text(DRIVE_TIME.position(note.time), ROBOT_Y - 3 + index * LINE_HEIGHT, line,
                         'note', 'middle')
 
 
@@ -334,10 +365,10 @@ def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scal
     """Add the reading's chart with its accepted band and legend, and return its value scale."""
     figure.text_markup(8, CHART_TITLE_Y, reading.title, 'row-title')
     left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
-    for value, label in reading.ticks:
-        y = reading.values.position(value)
+    for tick in reading.ticks:
+        y = reading.values.position(tick.value)
         figure.path(f'M{left},{y} H{right}', 'grid')
-        figure.text(left - 6, y + 4, label, 'note', 'end')
+        figure.text(left - 6, y + 4, tick.label, 'note', 'end')
     band_left = DRIVE_TIME.position(measure_start)
     band_right = DRIVE_TIME.position(measure_start + MEASURE)
     band_top = reading.values.position(reading.accepted.highest)
@@ -349,13 +380,13 @@ def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scal
     figure.text((band_left + band_right) / 2,
                 (band_top + band_bottom) / 2 + reading.band_label_offset, reading.band_label,
                 'note', 'middle')
-    for index, (key_class, text) in enumerate(reading.legend):
+    for index, entry in enumerate(reading.legend):
         y = LEGEND_Y + index * LINE_HEIGHT
-        if key_class == 'imu-wash':
-            figure.rectangle(left, y - 9, 16, 10, key_class)
+        if entry.kind is LegendKind.ACCEPTED_BAND:
+            figure.rectangle(left, y - 9, 16, 10, entry.kind.value)
         else:
-            figure.path(f'M{left},{y - 4} H{left + 16}', key_class)
-        figure.text(left + 22, y, text, 'note')
+            figure.path(f'M{left},{y - 4} H{left + 16}', entry.kind.value)
+        figure.text(left + 22, y, entry.label, 'note')
     return reading.values
 
 
@@ -409,19 +440,19 @@ def at_rest_figure() -> Figure:
     draw_robots(figure, Robots(
         title='The robot, seen from above',
         robots=[Robot(SETTLE + MEASURE / 2, 0.0, 'stands still')],
-        notes=[(SETTLE / 2, ['may still brake', 'after the left turn'])]))
+        notes=[TimedNote(SETTLE / 2, ['may still brake', 'after the left turn'])]))
     reading = Reading(
         title=('Reading on the upward axis, ' + svg_subscript('f', 'z', restore_baseline=True)
                + ', in m/s²'),
         values=Scale(9.0, 10.6, CHART.bottom, CHART.top),
-        ticks=[(9.0, '9'), (10.0, '10')],
+        ticks=[Tick(9.0, '9'), Tick(10.0, '10')],
         accepted=Band(lowest=GRAVITY - GRAVITY_TOLERANCE, highest=GRAVITY + GRAVITY_TOLERANCE),
         band_label=f'the mean over {MEASURE:g} s must lie here',
         band_label_offset=14,
-        legend=[('reference-line', f'reference value: gravity in the simulation, '
-                                   f'{GAZEBO_GRAVITY} m/s²'),
-                ('imu-wash', f'accepted mean of the IMU’s readings: {GRAVITY} ± '
-                             f'{GRAVITY_TOLERANCE}')])
+        legend=[LegendEntry(LegendKind.REFERENCE, 'reference value: gravity in the simulation, '
+                                                  f'{GAZEBO_GRAVITY} m/s²'),
+                LegendEntry(LegendKind.ACCEPTED_BAND, 'accepted mean of the IMU’s readings: '
+                                                      f'{GRAVITY} ± {GRAVITY_TOLERANCE}')])
     values = draw_reading(figure, reading, SETTLE)
     figure.path(f'M{DRIVE_TIME.first_position},{values.position(GAZEBO_GRAVITY)} '
                 f'H{DRIVE_TIME.last_position}', 'reference-line')
@@ -457,14 +488,14 @@ def left_turn_figure() -> Figure:
         title=('Turn rate about the upward axis, '
                + svg_subscript('ω', 'z', restore_baseline=True) + ', in rad/s'),
         values=Scale(0.0, 0.7, CHART.bottom, CHART.top),
-        ticks=[(0.0, '0'), (TURN_RATE, f'{TURN_RATE}')],
+        ticks=[Tick(0.0, '0'), Tick(TURN_RATE, f'{TURN_RATE}')],
         accepted=Band(lowest=TURN_RATE - TURN_RATE_TOLERANCE,
                       highest=TURN_RATE + TURN_RATE_TOLERANCE),
         band_label=f'the mean over {MEASURE:g} s must lie here',
         band_label_offset=11,
-        legend=[('command-line', f'the test’s command: {TURN_RATE} rad/s'),
-                ('imu-wash', f'accepted mean of the IMU’s yaw rates: {TURN_RATE} ± '
-                             f'{TURN_RATE_TOLERANCE}')])
+        legend=[LegendEntry(LegendKind.COMMAND, f'the test’s command: {TURN_RATE} rad/s'),
+                LegendEntry(LegendKind.ACCEPTED_BAND, 'accepted mean of the IMU’s yaw rates: '
+                                                      f'{TURN_RATE} ± {TURN_RATE_TOLERANCE}')])
     values = draw_reading(figure, reading, SPEED_UP)
     start, end = DRIVE_TIME.position(0.0), DRIVE_TIME.position(turn_end)
     figure.path(f'M{start},{values.position(0.0)} V{values.position(TURN_RATE)} H{end} '
@@ -613,12 +644,12 @@ def draw_clock_and_samples(figure: Figure, silent_until: Optional[float]) -> Non
     figure.path(clock_path(first_run, end, RUN_BEFORE_RESET), 'imu-line')
 
 
-def draw_sample_marker(figure: Figure, stamp_after_reset: float) -> Tuple[float, float]:
+def draw_sample_marker(figure: Figure, stamp_after_reset: float) -> Point:
     """Add a dot at the sample with a stamp after the reset, and return the dot's position."""
-    x = reset_run().position(RUN_BEFORE_RESET + stamp_after_reset)
-    y = reset_stamp().position(stamp_after_reset)
-    figure.circle(x, y, 4.5, 'imu-dot')
-    return x, y
+    marker = Point(reset_run().position(RUN_BEFORE_RESET + stamp_after_reset),
+                   reset_stamp().position(stamp_after_reset))
+    figure.circle(marker.x, marker.y, 4.5, 'imu-dot')
+    return marker
 
 
 def draw_recovery_with_the_copy(figure: Figure) -> None:
@@ -640,13 +671,13 @@ def draw_silence_with_the_old_time(figure: Figure) -> None:
     """Add the run of a plugin that keeps the old time: silent until the clock is back there."""
     draw_clock_and_samples(figure, RUN_BEFORE_RESET)
     first_stamp = first_stamp_after_reset(RUN_BEFORE_RESET)
-    first_x, first_y = draw_sample_marker(figure, first_stamp)
+    first = draw_sample_marker(figure, first_stamp)
     run, stamp = reset_run(), reset_stamp()
     reset_x = run.position(RUN_BEFORE_RESET)
-    figure.text(first_x - 8, first_y - 8, f'next: about {first_stamp:.2f} s', 'note', 'end')
+    figure.text(first.x - 8, first.y - 8, f'next: about {first_stamp:.2f} s', 'note', 'end')
     figure.text(run.last_position - 6, stamp.position(RECOVERY / 2) + 4, 'no fresh sample',
                 'note', 'end')
-    figure.text((reset_x + first_x) / 2 - 6, stamp.position(0.75 * RUN_BEFORE_RESET), 'silent',
+    figure.text((reset_x + first.x) / 2 - 6, stamp.position(0.75 * RUN_BEFORE_RESET), 'silent',
                 'note', 'end')
 
 

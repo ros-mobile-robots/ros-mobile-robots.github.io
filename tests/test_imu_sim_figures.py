@@ -23,6 +23,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
 
+import board_drawings  # noqa: E402
 import imu_sim_figures  # noqa: E402
 import imu_sim_robot_figures  # noqa: E402
 import imu_sim_test_figures  # noqa: E402
@@ -106,9 +107,9 @@ class TestFrameAxes(unittest.TestCase):
     # A view from above, as the frames' drawing has it: SVG units per m, and where the frame's
     # origin lies on the drawing
     SCALE = 1500
-    ORIGIN = (170, 152)
+    ORIGIN = board_drawings.Point(170, 152)
     DRAWING_WIDTH, DRAWING_HEIGHT = 340, 306
-    FRAME_ORIGIN = (0.0, 0.0, 0.0)  # m
+    FRAME_ORIGIN = imu_sim_robot_figures.Vector3(0.0, 0.0, 0.0)  # m
     AXIS_LENGTH = 42  # SVG units
 
     def test_only_the_upward_axis_points_along_the_line_of_sight_from_above(self) -> None:
@@ -142,12 +143,13 @@ class TestTextsFromValues(unittest.TestCase):
 
     def test_message_values_in_a_sentence_are_along_imu_links_axes(self) -> None:
         # On Remo, imu_link's y axis points forward: a reading forward is the message's y
-        forward_and_up = (0.5, 0.0, 9.8)
+        forward_and_up = imu_sim_robot_figures.Vector3(0.5, 0.0, 9.8)
         self.assertEqual(imu_sim_robot_figures.message_values_in_a_sentence(forward_and_up),
                          '0, +0.5 and +9.8')
 
     def test_frames_from_above_figure_names_the_distances_of_another_imu_position(self) -> None:
-        behind_left_and_above = (-0.05, 0.03, 0.02)  # m, in chassis_link's axes
+        # In m, in chassis_link's axes
+        behind_left_and_above = imu_sim_robot_figures.Vector3(-0.05, 0.03, 0.02)
         with mock.patch.object(imu_sim_robot_figures, 'IMU_POSITION', behind_left_and_above):
             drawing = imu_sim_robot_figures.frames_from_above_figure()
         self.assertIn('5 cm behind and 3 cm left of chassis_link', drawing.description)

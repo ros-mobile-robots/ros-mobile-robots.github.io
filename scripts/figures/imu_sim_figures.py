@@ -24,10 +24,10 @@ Run from the repository root after changing a figure:
     python3 scripts/figures/imu_sim_figures.py
 """
 
+import enum
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
-from typing import Tuple
 
 from board_drawings import arrowhead_marker
 from board_drawings import Drawing
@@ -106,8 +106,20 @@ LINE_HEIGHT = 14
 ORIGINAL_TAB_LABEL = 'With the original plugin'
 COPY_TAB_LABEL = 'With the copy'
 
-# A text line in a box: the text and its CSS class
-Line = Tuple[str, str]
+
+class TextLine(NamedTuple):
+    """A line of text on the drawing: the text and its CSS class."""
+
+    text: str
+    css_class: str = ''
+
+
+class ThreadArrowKind(enum.Enum):
+    """What an arrow shows. The value is the arrow's CSS class and ends its marker's ID."""
+
+    FLOW = 'flow'  # what a thread does next
+    REQUEST = 'request'  # the way of the switch_controller request
+
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -172,13 +184,13 @@ class Figure:
         """
         self.drawing.text(x, y, text, css_class, anchor)
 
-    def lines(self, x: float, y: float, lines: Sequence[Line]) -> None:
+    def lines(self, x: float, y: float, lines: Sequence[TextLine]) -> None:
         """Add centered text lines, the first with its baseline at y."""
-        for index, (text, css_class) in enumerate(lines):
-            self.text(x, y + index * LINE_HEIGHT, text, css_class)
+        for index, line in enumerate(lines):
+            self.text(x, y + index * LINE_HEIGHT, line.text, line.css_class)
 
     def box(self, x: float, y: float, width: float, css_class: str,
-            lines: Sequence[Line]) -> float:
+            lines: Sequence[TextLine]) -> float:
         """Add a box around centered text lines and return the y position of its lower edge."""
         height = len(lines) * LINE_HEIGHT + 10
         self.rectangle(x, y, width, height, css_class)
@@ -189,10 +201,14 @@ class Figure:
         """Add a line along an SVG path, without an arrowhead."""
         self.drawing.line(path, css_class)
 
-    def arrow(self, path: str, css_class: str) -> None:
-        """Add a line along an SVG path, with an arrowhead at its end."""
-        self.elements.append(f'<path class="{css_class}" d="{path}" '
-                             f'marker-end="url(#{self.name}-{css_class})"/>')
+    def marker_id(self, kind: ThreadArrowKind) -> str:
+        """Return the ID of this drawing's arrowhead marker for a kind of arrow."""
+        return f'{self.name}-{kind.value}'
+
+    def arrow(self, path: str, kind: ThreadArrowKind) -> None:
+        """Add a line along an SVG path, with an arrowhead of its kind at its end."""
+        self.elements.append(f'<path class="{kind.value}" d="{path}" '
+                             f'marker-end="url(#{self.marker_id(kind)})"/>')
 
     def step(self, x: float, y: float, number: int) -> None:
         """Add a step's number in a filled disc around (x, y), as the shared drawings do."""
@@ -200,8 +216,8 @@ class Figure:
 
     def svg(self) -> str:
         """Return the drawing as an SVG element with one arrowhead marker per kind of arrow."""
-        heads = [arrowhead_marker(f'{self.name}-{css_class}', f'{css_class}-head',
-                                  'auto-start-reverse') for css_class in ('flow', 'request')]
+        heads = [arrowhead_marker(self.marker_id(kind), f'{kind.value}-head',
+                                  'auto-start-reverse') for kind in ThreadArrowKind]
         return svg_element(self.name, 'th-fig', (WIDTH, self.height), self.title, self.elements,
                            description=self.description, markers=heads)
 
@@ -210,12 +226,13 @@ def draw_request(figure: Figure) -> None:
     """Add the spawner, the callback queue and the request between them (step 1)."""
     spawner, queue = SPAWNER_BOX, QUEUE_BOX
     figure.rectangle(spawner.x, spawner.y, spawner.width, spawner.height, 'box')
-    figure.lines(spawner.center_x, spawner.y + 16, [('controller spawner', ''),
-                                                    ('another ROS node', 'note')])
+    figure.lines(spawner.center_x, spawner.y + 16, [TextLine('controller spawner'),
+                                                    TextLine('another ROS node', 'note')])
     figure.rectangle(queue.x, queue.y, queue.width, queue.height, 'queue')
-    figure.lines(queue.center_x, queue.y + 16, [('global callback queue', ''),
-                                                ('a waiting list', 'note')])
-    figure.arrow(f'M{spawner.right},{spawner.center_y} H{queue.x - 1}', 'request')
+    figure.lines(queue.center_x, queue.y + 16, [TextLine('global callback queue'),
+                                                TextLine('a waiting list', 'note')])
+    figure.arrow(f'M{spawner.right},{spawner.center_y} H{queue.x - 1}',
+                 ThreadArrowKind.REQUEST)
     figure.step((spawner.right + queue.x) / 2, spawner.center_y - 12, 1)
 
 
@@ -227,7 +244,7 @@ def draw_lanes(figure: Figure) -> None:
         figure.text(lane.center, LANE_TOP + 17, name, 'lane-name')
     figure.elements.append(f'<text class="note" transform="translate(13,{LANE_TOP + 4}) '
                            'rotate(-90)" text-anchor="end">time</text>')
-    figure.arrow(f'M9,{LANE_TOP + 34} V{figure.height - 10}', 'flow')
+    figure.arrow(f'M9,{LANE_TOP + 34} V{figure.height - 10}', ThreadArrowKind.FLOW)
 
 
 def threads_with_the_original_figure() -> Figure:
@@ -248,24 +265,27 @@ def threads_with_the_original_figure() -> Figure:
     # open at the bottom: these functions never return
     figure.path(f'M{left + 4},262 V88 H{right - 4} V262', 'box')
     figure.path(f'M{left + 4},262 V278 M{right - 4},262 V278', 'open')
-    figure.lines(center, 104, [('UpdateChild()', 'mono'), ('publishes the IMU message', 'note')])
+    figure.lines(center, 104, [TextLine('UpdateChild()', 'mono'),
+                               TextLine('publishes the IMU message', 'note')])
     figure.step(left + 4, 88, 2)
     figure.path(f'M{left + 10},258 V126 H{right - 10} V258', 'box')
     figure.path(f'M{left + 10},258 V272 M{right - 10},258 V272', 'open')
-    figure.lines(center, 142, [('ros::spinOnce()', 'mono'), ('runs the callback here', 'note')])
+    figure.lines(center, 142, [TextLine('ros::spinOnce()', 'mono'),
+                               TextLine('runs the callback here', 'note')])
     figure.box(left + 16, 166, right - left - 32, 'callback',
-               [('switch_controller', 'mono'), ('callback', 'note'), ('notes the change,', ''),
-                ('waits here for update()', '')])
+               [TextLine('switch_controller', 'mono'), TextLine('callback', 'note'),
+                TextLine('notes the change,'), TextLine('waits here for update()')])
     figure.step(left + 16, 166, 4)
     # The request goes from the queue down the spinner lane and into ros::spinOnce()
-    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V150 H{right - 9}', 'request')
+    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V150 H{right - 9}', ThreadArrowKind.REQUEST)
     figure.step(REQUEST_X, 112, 3)
     figure.box(left + 4, UPDATE_BOX_Y, right - left - 8, 'stuck',
-               [('update()', 'mono stuck-text'), ('never runs: its thread waits', 'note')])
+               [TextLine('update()', 'mono stuck-text'),
+                TextLine('never runs: its thread waits', 'note')])
     figure.step(left + 4, UPDATE_BOX_Y, 5)
     figure.text(center, CLOCK_NOTE_Y, 'deadlock: the clock stops', 'stuck-text strong')
     figure.box(SPINNER_LANE.left + 20, 176, SPINNER_LANE.width - 40, 'idle',
-               [('finds the queue', 'note'), ('empty', 'note')])
+               [TextLine('finds the queue', 'note'), TextLine('empty', 'note')])
     return figure
 
 
@@ -285,32 +305,34 @@ def threads_with_the_copy_figure() -> Figure:
     left, right, center = PHYSICS_LANE.left, PHYSICS_LANE.right, PHYSICS_LANE.center
     width = right - left - 8
     figure.box(left + 4, 88, width, 'box',
-               [('UpdateChild()', 'mono'), ('publishes the IMU message', 'note'),
-                ('and returns', 'note')])
+               [TextLine('UpdateChild()', 'mono'), TextLine('publishes the IMU message', 'note'),
+                TextLine('and returns', 'note')])
     figure.step(left + 4, 88, 2)
-    figure.box(left + 4, 150, width, 'box', [('update()', 'mono'),
-                                             ('runs the controllers', 'note')])
-    figure.arrow(f'M{center},198 V{UPDATE_BOX_Y - 30}', 'flow')
+    figure.box(left + 4, 150, width, 'box', [TextLine('update()', 'mono'),
+                                             TextLine('runs the controllers', 'note')])
+    figure.arrow(f'M{center},198 V{UPDATE_BOX_Y - 30}', ThreadArrowKind.FLOW)
     figure.text(center, UPDATE_BOX_Y - 12, 'this step or the next', 'note')
     update_bottom = figure.box(left + 4, UPDATE_BOX_Y, width, 'callback',
-                               [('update()', 'mono'), ('takes the change', 'note')])
+                               [TextLine('update()', 'mono'),
+                                TextLine('takes the change', 'note')])
     figure.step(left + 4, UPDATE_BOX_Y, 4)
     figure.text(center, CLOCK_NOTE_Y, 'the clock runs on', 'strong')
     spinner_left, spinner_center = SPINNER_LANE.left, SPINNER_LANE.center
-    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V87', 'request')
+    figure.arrow(f'M{REQUEST_X},{QUEUE_BOX.bottom} V87', ThreadArrowKind.REQUEST)
     figure.rectangle(spinner_left + 4, 88, SPINNER_LANE.width - 8, update_bottom - 88, 'callback')
-    figure.lines(spinner_center, 105, [('switch_controller', 'mono'), ('callback', 'note'),
-                                       ('notes the change,', ''), ('waits for update()', '')])
-    figure.lines(spinner_center, 204, [('the callback waits here,', 'strong'),
-                                       ('not in the physics thread', 'note')])
+    figure.lines(spinner_center, 105,
+                 [TextLine('switch_controller', 'mono'), TextLine('callback', 'note'),
+                  TextLine('notes the change,'), TextLine('waits for update()')])
+    figure.lines(spinner_center, 204, [TextLine('the callback waits here,', 'strong'),
+                                       TextLine('not in the physics thread', 'note')])
     figure.step(spinner_left + 4, 88, 3)
     update_center = (UPDATE_BOX_Y + update_bottom) / 2
-    figure.arrow(f'M{right - 4},{update_center} H{spinner_left + 3}', 'request')
+    figure.arrow(f'M{right - 4},{update_center} H{spinner_left + 3}', ThreadArrowKind.REQUEST)
     figure.text(spinner_center, update_center + 4, 'the change is taken', 'note')
-    figure.arrow(f'M{spinner_center},{update_bottom} V{update_bottom + 14}', 'flow')
+    figure.arrow(f'M{spinner_center},{update_bottom} V{update_bottom + 14}', ThreadArrowKind.FLOW)
     figure.step(spinner_center - 62, update_bottom + 30, 5)
-    figure.lines(spinner_center + 8, update_bottom + 28, [('returns: the spawner', 'note'),
-                                                          ('gets its answer', 'note')])
+    figure.lines(spinner_center + 8, update_bottom + 28,
+                 [TextLine('returns: the spawner', 'note'), TextLine('gets its answer', 'note')])
     return figure
 
 

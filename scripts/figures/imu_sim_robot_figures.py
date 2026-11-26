@@ -29,6 +29,7 @@ Run from the repository root after changing a figure:
     python3 scripts/figures/imu_sim_robot_figures.py
 """
 
+import enum
 import math
 from typing import Dict
 from typing import List
@@ -40,6 +41,7 @@ from typing import Tuple
 from board_drawings import Drawing
 from board_drawings import figure_element
 from board_drawings import PanelWidths
+from board_drawings import Point
 from board_drawings import style_element
 from board_drawings import svg_element
 from board_drawings import svg_subscript
@@ -49,10 +51,13 @@ from board_drawings import tab_set
 # The first line of each include: the script that writes it
 INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_robot_figures.py -->'
 
-# A point on the drawing, in SVG units
-Point = Tuple[float, float]
-# A position in m or a direction without a unit, in chassis_link's axes: x forward, y left, z up
-Vector = Tuple[float, float, float]
+
+class Vector3(NamedTuple):
+    """A position in m or a direction without a unit, in chassis_link's axes."""
+
+    x: float  # forward
+    y: float  # to the left
+    z: float  # up
 
 
 class Box(NamedTuple):
@@ -70,8 +75,24 @@ class Axis(NamedTuple):
     """One axis of a frame: its letter, the frame's origin in m and the axis's direction."""
 
     name: str
-    origin: Vector
-    direction: Vector
+    origin: Vector3
+    direction: Vector3
+
+
+class WheelSide(enum.Enum):
+    """A drive wheel's side of the robot. The value is the sign of the wheel's y position."""
+
+    LEFT = 1
+    RIGHT = -1
+
+
+class InsetBounds(NamedTuple):
+    """The edges of a box on the drawing that shows a part of it magnified, in SVG units."""
+
+    left: float
+    top: float
+    right: float
+    bottom: float
 
 
 # Remo at remo_description 2.5.0, in chassis_link's axes, in m.
@@ -97,10 +118,10 @@ HUB_RADIUS = 0.3 * WHEEL_RADIUS
 CASTER_X = -0.051
 CASTER_RADIUS = 0.012
 # remo.urdf.xacro, imu_xyz and imu_rpy: where imu_joint puts imu_link on chassis_link
-IMU_POSITION: Vector = (-0.0401, 0.0234, 0.013)
+IMU_POSITION = Vector3(-0.0401, 0.0234, 0.013)
 IMU_YAW = -math.pi / 2
 # The BNO055 board along imu_link's x, y and z axes: diffbot's config/diffbot/sensors.yaml
-IMU_BOARD_SIZE: Vector = (0.027, 0.020, 0.004)
+IMU_BOARD_SIZE = Vector3(0.027, 0.020, 0.004)
 
 # DiffBot at the pinned commit of diffbot_description, in chassis_link's axes, in m.
 # config/diffbot/base.yaml, base: 0.195 x 0.08 x 0.005, with chassis_link at its center
@@ -118,13 +139,20 @@ DIFFBOT_CASTER_X = -0.077 - 0.016
 DIFFBOT_CASTER_Z = 0.0045 - 0.04
 DIFFBOT_CASTER_RADIUS = 0.015
 # diffbot.urdf.xacro, imu_xyz and imu_rpy: placeholders, the mounting on DiffBot isn't measured
-DIFFBOT_IMU_POSITION: Vector = (0.0, 0.0, 0.01)
+DIFFBOT_IMU_POSITION = Vector3(0.0, 0.0, 0.01)
 
-CHASSIS_AXES: Tuple[Vector, Vector, Vector] = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
-IMU_AXES: Tuple[Vector, Vector, Vector] = (
-    (math.cos(IMU_YAW), math.sin(IMU_YAW), 0.0),
-    (-math.sin(IMU_YAW), math.cos(IMU_YAW), 0.0),
-    (0.0, 0.0, 1.0))
+# chassis_link's origin and the directions of its x, y and z axes
+CHASSIS_ORIGIN = Vector3(0.0, 0.0, 0.0)
+FORWARD = Vector3(1.0, 0.0, 0.0)
+LEFT = Vector3(0.0, 1.0, 0.0)
+UP = Vector3(0.0, 0.0, 1.0)
+# A frame's x, y and z axes as directions in chassis_link's axes
+FrameAxes = Tuple[Vector3, Vector3, Vector3]
+CHASSIS_AXES: FrameAxes = (FORWARD, LEFT, UP)
+IMU_AXES: FrameAxes = (
+    Vector3(math.cos(IMU_YAW), math.sin(IMU_YAW), 0.0),
+    Vector3(-math.sin(IMU_YAW), math.cos(IMU_YAW), 0.0),
+    UP)
 AXIS_NAMES = ('x', 'y', 'z')
 # The labels of the frames' tabs, the same as those of the Markdown tabs on the page
 REMO_TAB_LABEL = 'Remo'
@@ -198,28 +226,28 @@ RULES = (
 )
 
 
-def dot(first: Vector, second: Vector) -> float:
+def dot(first: Vector3, second: Vector3) -> float:
     """Return the dot product of two vectors."""
     return sum(a * b for a, b in zip(first, second))
 
 
-def cross(first: Vector, second: Vector) -> Vector:
+def cross(first: Vector3, second: Vector3) -> Vector3:
     """Return the cross product of two vectors."""
-    return (first[1] * second[2] - first[2] * second[1],
-            first[2] * second[0] - first[0] * second[2],
-            first[0] * second[1] - first[1] * second[0])
+    return Vector3(first.y * second.z - first.z * second.y,
+                   first.z * second.x - first.x * second.z,
+                   first.x * second.y - first.y * second.x)
 
 
-def add(start: Vector, direction: Vector, length: float = 1.0) -> Vector:
+def add(start: Vector3, direction: Vector3, length: float = 1.0) -> Vector3:
     """Return the position that lies length times direction away from start."""
-    return (start[0] + length * direction[0], start[1] + length * direction[1],
-            start[2] + length * direction[2])
+    return Vector3(start.x + length * direction.x, start.y + length * direction.y,
+                   start.z + length * direction.z)
 
 
-def normalized(vector: Vector) -> Vector:
+def normalized(vector: Vector3) -> Vector3:
     """Return the vector with length 1."""
     length = math.sqrt(dot(vector, vector))
-    return (vector[0] / length, vector[1] / length, vector[2] / length)
+    return Vector3(vector.x / length, vector.y / length, vector.z / length)
 
 
 class View(NamedTuple):
@@ -229,33 +257,33 @@ class View(NamedTuple):
     in SVG units per m, and origin is where chassis_link's origin lies on the drawing.
     """
 
-    right: Vector
-    up: Vector
+    right: Vector3
+    up: Vector3
     scale: float
     origin: Point
 
-    def project(self, position: Vector) -> Point:
+    def project(self, position: Vector3) -> Point:
         """Return where a position in m lies on the drawing."""
-        return (self.origin[0] + self.scale * dot(position, self.right),
-                self.origin[1] - self.scale * dot(position, self.up))
+        return Point(self.origin.x + self.scale * dot(position, self.right),
+                     self.origin.y - self.scale * dot(position, self.up))
 
-    def on_drawing(self, direction: Vector, length: float) -> Point:
+    def on_drawing(self, direction: Vector3, length: float) -> Point:
         """Return a direction as an offset on the drawing, for an arrow of length SVG units."""
-        return (length * dot(direction, self.right), -length * dot(direction, self.up))
+        return Point(length * dot(direction, self.right), -length * dot(direction, self.up))
 
-    def toward_viewer(self, direction: Vector) -> float:
+    def toward_viewer(self, direction: Vector3) -> float:
         """Return how much of a direction points out of the drawing, toward the viewer."""
         return dot(direction, cross(self.right, self.up))
 
 
 def view_from_above(scale: float, origin: Point) -> View:
     """Return the view from above, with the robot's front at the top of the drawing."""
-    return View((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), scale, origin)
+    return View(right=Vector3(0.0, -1.0, 0.0), up=FORWARD, scale=scale, origin=origin)
 
 
 def view_from_the_side(scale: float, origin: Point) -> View:
     """Return the view from the robot's right side, with the robot's front on the right."""
-    return View((1.0, 0.0, 0.0), (0.0, 0.0, 1.0), scale, origin)
+    return View(right=FORWARD, up=UP, scale=scale, origin=origin)
 
 
 def view_from_behind(scale: float, origin: Point, azimuth: float, elevation: float) -> View:
@@ -265,8 +293,9 @@ def view_from_behind(scale: float, origin: Point, azimuth: float, elevation: flo
     degrees.
     """
     turn, lift = math.radians(azimuth), math.radians(elevation)
-    right = (math.sin(turn), -math.cos(turn), 0.0)
-    up = (math.sin(lift) * math.cos(turn), math.sin(lift) * math.sin(turn), math.cos(lift))
+    right = Vector3(math.sin(turn), -math.cos(turn), 0.0)
+    up = Vector3(math.sin(lift) * math.cos(turn), math.sin(lift) * math.sin(turn),
+                 math.cos(lift))
     return View(right, up, scale, origin)
 
 
@@ -297,14 +326,14 @@ class Figure:
 
     def rectangle(self, first: Point, second: Point, css_class: str, radius: float = 0) -> None:
         """Add a rectangle between two opposite corners."""
-        x, y = min(first[0], second[0]), min(first[1], second[1])
-        width, height = abs(first[0] - second[0]), abs(first[1] - second[1])
+        x, y = min(first.x, second.x), min(first.y, second.y)
+        width, height = abs(first.x - second.x), abs(first.y - second.y)
         self.drawing.rect(round(x, 1), round(y, 1), round(width, 1), round(height, 1), css_class,
                           radius)
 
     def circle(self, center: Point, radius: float, css_class: str) -> None:
         """Add a circle around center."""
-        self.drawing.circle(round(center[0], 1), round(center[1], 1), round(radius, 1), css_class)
+        self.drawing.circle(round(center.x, 1), round(center.y, 1), round(radius, 1), css_class)
 
     def polyline(self, points: Sequence[Point], css_class: str) -> None:
         """Add an open line through the points."""
@@ -314,28 +343,29 @@ class Figure:
     def head(self, tip: Point, direction: Point, css_class: str, size: float = 8.0) -> None:
         """Add an arrowhead whose tip points along direction."""
         length = math.hypot(*direction)
-        along = (direction[0] / length, direction[1] / length)
-        across = (-along[1], along[0])
-        base = (tip[0] - size * along[0], tip[1] - size * along[1])
+        along = Point(direction.x / length, direction.y / length)
+        across = Point(-along.y, along.x)
+        base = Point(tip.x - size * along.x, tip.y - size * along.y)
         half = 0.42 * size
-        self.polygon([tip, (base[0] + half * across[0], base[1] + half * across[1]),
-                      (base[0] - half * across[0], base[1] - half * across[1])],
+        self.polygon([tip, Point(base.x + half * across.x, base.y + half * across.y),
+                      Point(base.x - half * across.x, base.y - half * across.y)],
                      f'head {css_class}')
 
     def arrow(self, start: Point, end: Point, css_class: str, size: float = 8.0) -> None:
         """Add a straight arrow from start to end."""
-        direction = (end[0] - start[0], end[1] - start[1])
+        direction = Point(end.x - start.x, end.y - start.y)
         length = math.hypot(*direction)
-        shaft_end = (end[0] - 0.8 * size * direction[0] / length,
-                     end[1] - 0.8 * size * direction[1] / length)
+        shaft_end = Point(end.x - 0.8 * size * direction.x / length,
+                          end.y - 0.8 * size * direction.y / length)
         self.polyline([start, shaft_end], f'shaft {css_class}')
         self.head(end, direction, css_class, size)
 
     def curved_arrow(self, points: Sequence[Point], css_class: str, size: float = 7.0) -> None:
         """Add an arrow along the points, with its head at the last one."""
         self.polyline(points[:-1], f'shaft {css_class}')
-        direction = (points[-1][0] - points[-3][0], points[-1][1] - points[-3][1])
-        self.head(points[-1], direction, css_class, size)
+        tip, before_the_tip = points[-1], points[-3]
+        direction = Point(tip.x - before_the_tip.x, tip.y - before_the_tip.y)
+        self.head(tip, direction, css_class, size)
 
     def text(self, position: Point, text: str, css_class: str = '',
              anchor: str = 'start') -> None:
@@ -343,7 +373,7 @@ class Figure:
 
         anchor is start, middle or end.
         """
-        self.drawing.text(round(position[0], 1), round(position[1], 1), text, css_class, anchor)
+        self.drawing.text(round(position.x, 1), round(position.y, 1), text, css_class, anchor)
 
     def text_markup(self, position: Point, markup: str, css_class: str = '',
                     anchor: str = 'start') -> None:
@@ -351,7 +381,7 @@ class Figure:
 
         anchor is start, middle or end.
         """
-        self.drawing.text_markup(round(position[0], 1), round(position[1], 1), markup, css_class,
+        self.drawing.text_markup(round(position.x, 1), round(position.y, 1), markup, css_class,
                                  anchor)
 
     def svg(self) -> str:
@@ -360,9 +390,9 @@ class Figure:
                            self.elements, description=self.description, markers=())
 
 
-def box_corners(box: Box) -> List[Vector]:
+def box_corners(box: Box) -> List[Vector3]:
     """Return the eight corners of a box."""
-    return [(x, y, z) for x in (box.x_min, box.x_max) for y in (box.y_min, box.y_max)
+    return [Vector3(x, y, z) for x in (box.x_min, box.x_max) for y in (box.y_min, box.y_max)
             for z in (box.z_min, box.z_max)]
 
 
@@ -380,18 +410,19 @@ def imu_board() -> Box:
 def outline(figure: Figure, view: View, box: Box, css_class: str, radius: float = 0) -> None:
     """Add a box as the rectangle that a view along one of the axes shows."""
     points = [view.project(corner) for corner in box_corners(box)]
-    figure.rectangle((min(x for x, _ in points), min(y for _, y in points)),
-                     (max(x for x, _ in points), max(y for _, y in points)), css_class, radius)
+    figure.rectangle(Point(min(point.x for point in points), min(point.y for point in points)),
+                     Point(max(point.x for point in points), max(point.y for point in points)),
+                     css_class, radius)
 
 
-def wheel_center(side: int) -> Vector:
-    """Return the center of the left (side 1) or the right (side -1) wheel."""
-    return (AXLE_X, side * WHEEL_SEPARATION / 2, AXLE_Z)
+def wheel_center(side: WheelSide) -> Vector3:
+    """Return the center of the left or the right wheel."""
+    return Vector3(AXLE_X, side.value * WHEEL_SEPARATION / 2, AXLE_Z)
 
 
 def draw_remo_from_above(figure: Figure, view: View) -> None:
     """Add Remo as the view from above shows it: wheels, deck, breadboard and IMU board."""
-    for side in (1, -1):
+    for side in WheelSide:
         x, y, z = wheel_center(side)
         outline(figure, view, Box(x - WHEEL_RADIUS, x + WHEEL_RADIUS, y - WHEEL_WIDTH / 2,
                                   y + WHEEL_WIDTH / 2, z, z), 'wheel', 4)
@@ -402,14 +433,15 @@ def draw_remo_from_above(figure: Figure, view: View) -> None:
 
 def draw_remo_from_the_side(figure: Figure, view: View) -> None:
     """Add Remo as the view from its right side shows it, standing on the floor."""
-    caster = view.project((CASTER_X, 0.0, FLOOR_Z + CASTER_RADIUS))
+    caster = view.project(Vector3(CASTER_X, 0.0, FLOOR_Z + CASTER_RADIUS))
     figure.circle(caster, CASTER_RADIUS * view.scale, 'wheel')
     outline(figure, view, PLATE, 'body', 2)
     outline(figure, view, DECK, 'body')
     outline(figure, view, BREADBOARD, 'part', 1.5)
     outline(figure, view, imu_board(), 'board', 1)
-    figure.circle(view.project(wheel_center(-1)), WHEEL_RADIUS * view.scale, 'wheel')
-    figure.circle(view.project(wheel_center(-1)), HUB_RADIUS * view.scale, 'body')
+    wheel = view.project(wheel_center(WheelSide.RIGHT))
+    figure.circle(wheel, WHEEL_RADIUS * view.scale, 'wheel')
+    figure.circle(wheel, HUB_RADIUS * view.scale, 'body')
 
 
 def draw_floor(figure: Figure, view: View, left: float, right: float,
@@ -418,28 +450,28 @@ def draw_floor(figure: Figure, view: View, left: float, right: float,
 
     floor_z is the floor's height in chassis_link's axes, in m. The default is Remo's.
     """
-    height = view.project((0.0, 0.0, floor_z))[1]
-    figure.polyline([(left, height), (right, height)], 'floor')
+    height = view.project(Vector3(0.0, 0.0, floor_z)).y
+    figure.polyline([Point(left, height), Point(right, height)], 'floor')
 
 
-def visible_faces(view: View, box: Box) -> List[List[Vector]]:
+def visible_faces(view: View, box: Box) -> List[List[Vector3]]:
     """Return the corners of each face of a box that faces the viewer."""
-    low = (box.x_min, box.y_min, box.z_min)
-    high = (box.x_max, box.y_max, box.z_max)
+    low = Vector3(box.x_min, box.y_min, box.z_min)
+    high = Vector3(box.x_max, box.y_max, box.z_max)
     faces = []
     for axis in range(3):
         first, second = [other for other in range(3) if other != axis]
         for value, outward in ((low[axis], -1.0), (high[axis], 1.0)):
             normal = [0.0, 0.0, 0.0]
             normal[axis] = outward
-            if view.toward_viewer((normal[0], normal[1], normal[2])) <= 0:
+            if view.toward_viewer(Vector3(*normal)) <= 0:
                 continue
             corners = []
             for a, b in ((low[first], low[second]), (high[first], low[second]),
                          (high[first], high[second]), (low[first], high[second])):
                 corner = [0.0, 0.0, 0.0]
                 corner[axis], corner[first], corner[second] = value, a, b
-                corners.append((corner[0], corner[1], corner[2]))
+                corners.append(Vector3(*corner))
             faces.append(corners)
     return faces
 
@@ -455,7 +487,7 @@ def convex_hull(points: Sequence[Point]) -> List[Point]:
     ordered = sorted(set(points))
 
     def turns_left(a: Point, b: Point, c: Point) -> bool:
-        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]) > 0
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0
 
     def half(sequence: Sequence[Point]) -> List[Point]:
         hull: List[Point] = []
@@ -468,17 +500,18 @@ def convex_hull(points: Sequence[Point]) -> List[Point]:
     return half(ordered) + half(ordered[::-1])
 
 
-def wheel_rim(view: View, side: int, y_offset: float, radius: float) -> List[Point]:
+def wheel_rim(view: View, side: WheelSide, y_offset: float, radius: float) -> List[Point]:
     """Return a circle around a wheel's axle on the drawing, y_offset from the wheel's center."""
     x, y, z = wheel_center(side)
-    return [view.project((x + radius * math.cos(math.radians(angle)), y + y_offset,
-                          z + radius * math.sin(math.radians(angle))))
+    return [view.project(Vector3(x + radius * math.cos(math.radians(angle)), y + y_offset,
+                                 z + radius * math.sin(math.radians(angle))))
             for angle in range(0, 360, 10)]
 
 
-def draw_wheel(figure: Figure, view: View, side: int) -> None:
+def draw_wheel(figure: Figure, view: View, side: WheelSide) -> None:
     """Add a wheel as a cylinder, with the face that the viewer sees."""
-    near = -WHEEL_WIDTH / 2 if view.toward_viewer((0.0, -1.0, 0.0)) > 0 else WHEEL_WIDTH / 2
+    to_the_right = Vector3(0.0, -1.0, 0.0)
+    near = -WHEEL_WIDTH / 2 if view.toward_viewer(to_the_right) > 0 else WHEEL_WIDTH / 2
     rims = wheel_rim(view, side, near, WHEEL_RADIUS) + wheel_rim(view, side, -near, WHEEL_RADIUS)
     figure.polygon(convex_hull(rims), 'wheel')
     figure.polygon(wheel_rim(view, side, near, WHEEL_RADIUS), 'wheel')
@@ -487,17 +520,17 @@ def draw_wheel(figure: Figure, view: View, side: int) -> None:
 
 def draw_remo_from_behind(figure: Figure, view: View) -> None:
     """Add Remo as a view from behind and above shows it, the far parts first."""
-    draw_wheel(figure, view, 1)
-    caster = view.project((CASTER_X, 0.0, FLOOR_Z + CASTER_RADIUS))
+    draw_wheel(figure, view, WheelSide.LEFT)
+    caster = view.project(Vector3(CASTER_X, 0.0, FLOOR_Z + CASTER_RADIUS))
     figure.circle(caster, CASTER_RADIUS * view.scale, 'wheel')
     draw_box(figure, view, PLATE, 'body')
     draw_box(figure, view, DECK, 'body')
     draw_box(figure, view, BREADBOARD, 'part')
     draw_box(figure, view, imu_board(), 'board')
-    draw_wheel(figure, view, -1)
+    draw_wheel(figure, view, WheelSide.RIGHT)
 
 
-def points_along_the_line_of_sight(view: View, direction: Vector) -> bool:
+def points_along_the_line_of_sight(view: View, direction: Vector3) -> bool:
     """Return whether a direction points at the viewer or away from the viewer."""
     return math.hypot(*view.on_drawing(direction, 1.0)) < RING_SHARE
 
@@ -516,11 +549,11 @@ def draw_axis_ring(figure: Figure, view: View, axis: Axis,
         figure.circle(center, 2.0, f'head {axis.name}')
     else:
         for sign in (1, -1):
-            figure.polyline([(center[0] - 3.2, center[1] - 3.2 * sign),
-                             (center[0] + 3.2, center[1] + 3.2 * sign)],
+            figure.polyline([Point(center.x - 3.2, center.y - 3.2 * sign),
+                             Point(center.x + 3.2, center.y + 3.2 * sign)],
                             f'shaft thin {axis.name}')
     if label_offset:
-        figure.text((center[0] + label_offset[0], center[1] + label_offset[1]), axis.name,
+        figure.text(Point(center.x + label_offset.x, center.y + label_offset.y), axis.name,
                     f'{axis.name} halo', 'middle')
 
 
@@ -533,16 +566,17 @@ def draw_axis_arrow(figure: Figure, view: View, axis: Axis, length: float,
     """
     start = view.project(axis.origin)
     offset = view.on_drawing(axis.direction, length)
-    end = (start[0] + offset[0], start[1] + offset[1])
+    end = Point(start.x + offset.x, start.y + offset.y)
     figure.arrow(start, end, axis.name)
     reach = math.hypot(*offset)
-    beyond = (9 * offset[0] / reach, 9 * offset[1] / reach + 4)
+    beyond = Point(9 * offset.x / reach, 9 * offset.y / reach + 4)
     label = label_offset or beyond
-    figure.text((end[0] + label[0], end[1] + label[1]), axis.name, f'{axis.name} halo', 'middle')
+    figure.text(Point(end.x + label.x, end.y + label.y), axis.name, f'{axis.name} halo',
+                'middle')
 
 
-def draw_frame(figure: Figure, view: View, origin: Vector, axes: Tuple[Vector, Vector, Vector],
-               length: float, label_offsets: Optional[Dict[str, Point]] = None) -> None:
+def draw_frame(figure: Figure, view: View, origin: Vector3, axes: FrameAxes, length: float,
+               label_offsets: Optional[Dict[str, Point]] = None) -> None:
     """Add a frame's three axes in ROS's colors, the arrows first and then the rings.
 
     An axis along the drawing is an arrow of length SVG units, and an axis along the line of
@@ -560,13 +594,13 @@ def draw_frame(figure: Figure, view: View, origin: Vector, axes: Tuple[Vector, V
         draw_axis_ring(figure, view, axis, offsets.get(axis.name))
 
 
-def draw_joint(figure: Figure, view: View, imu_position: Optional[Vector] = None) -> None:
+def draw_joint(figure: Figure, view: View, imu_position: Optional[Vector3] = None) -> None:
     """Add imu_joint as a dashed line from chassis_link's origin to imu_link's origin.
 
     imu_position is imu_link's origin in chassis_link's axes, in m. The default is Remo's.
     """
     end = IMU_POSITION if imu_position is None else imu_position
-    figure.polyline([view.project((0.0, 0.0, 0.0)), view.project(end)], 'joint')
+    figure.polyline([view.project(CHASSIS_ORIGIN), view.project(end)], 'joint')
 
 
 def number(value: float) -> str:
@@ -597,28 +631,29 @@ def frames_from_above_figure() -> Figure:
                     f'{left} cm left of chassis_link. Its x axis points to the right and its y '
                     'axis forward. The z axes of both point up, out of the drawing. A dashed '
                     'line, the fixed joint imu_joint, connects the two origins.')
-    view = view_from_above(1500, (170, 152))
-    figure.text((10, 18), 'Remo with the Raspberry Pi deck, from above', 'title')
-    figure.text((170, 38), 'front', 'note', 'middle')
+    view = view_from_above(1500, Point(170, 152))
+    figure.text(Point(10, 18), 'Remo with the Raspberry Pi deck, from above', 'title')
+    figure.text(Point(170, 38), 'front', 'note', 'middle')
     draw_remo_from_above(figure, view)
     draw_joint(figure, view)
-    draw_frame(figure, view, (0.0, 0.0, 0.0), CHASSIS_AXES, 42, {'y': (0, -8), 'z': (11, -7)})
-    draw_frame(figure, view, IMU_POSITION, IMU_AXES, 42, {'y': (-11, 12), 'z': (0, 28)})
-    figure.text((184, 164), 'chassis_link', 'mono halo')
-    figure.text((98, 216), 'imu_link', 'mono halo', 'end')
-    figure.text((162, 191), 'imu_joint', 'mono halo')
-    figure.text((162, 204), 'a fixed joint', 'note halo')
-    figure.text((226, 248), 'breadboard', 'note', 'end')
-    figure.text((170, 279), f'imu_joint puts imu_link {back} cm back, {left} cm left', 'note',
+    draw_frame(figure, view, CHASSIS_ORIGIN, CHASSIS_AXES, 42,
+               {'y': Point(0, -8), 'z': Point(11, -7)})
+    draw_frame(figure, view, IMU_POSITION, IMU_AXES, 42, {'y': Point(-11, 12), 'z': Point(0, 28)})
+    figure.text(Point(184, 164), 'chassis_link', 'mono halo')
+    figure.text(Point(98, 216), 'imu_link', 'mono halo', 'end')
+    figure.text(Point(162, 191), 'imu_joint', 'mono halo')
+    figure.text(Point(162, 204), 'a fixed joint', 'note halo')
+    figure.text(Point(226, 248), 'breadboard', 'note', 'end')
+    figure.text(Point(170, 279), f'imu_joint puts imu_link {back} cm back, {left} cm left', 'note',
                 'middle')
-    figure.text((170, 295), f'and {up} cm up, and turns it by {degrees(IMU_YAW)} about z',
+    figure.text(Point(170, 295), f'and {up} cm up, and turns it by {degrees(IMU_YAW)} about z',
                 'note', 'middle')
     return figure
 
 
 def frames_from_the_side_figure() -> Figure:
     """Return the drawing of the two frames and their joint on Remo, from its right side."""
-    up = centimeters(IMU_POSITION[2])
+    up = centimeters(IMU_POSITION.z)
     figure = Figure('imu-frames-side', 340, 270, 'chassis_link, imu_joint and imu_link on Remo, '
                     'from the right side',
                     'Remo with the Raspberry Pi deck, from its right side, with its front on '
@@ -627,20 +662,21 @@ def frames_from_the_side_figure() -> Figure:
                     f'is {up} cm higher, on the breadboard. Its y axis points forward and its z '
                     'axis up. chassis_link’s y axis points into the drawing, and '
                     'imu_link’s x axis out of it.')
-    view = view_from_the_side(1500, (190, 128))
-    figure.text((10, 18), 'Remo with the Raspberry Pi deck, from the right side', 'title')
-    figure.text((318, 114), 'front', 'note', 'end')
+    view = view_from_the_side(1500, Point(190, 128))
+    figure.text(Point(10, 18), 'Remo with the Raspberry Pi deck, from the right side', 'title')
+    figure.text(Point(318, 114), 'front', 'note', 'end')
     draw_floor(figure, view, 24, 330)
-    figure.text((30, 240), 'floor', 'note')
+    figure.text(Point(30, 240), 'floor', 'note')
     draw_remo_from_the_side(figure, view)
-    figure.text((84, 121), 'breadboard', 'note', 'end')
+    figure.text(Point(84, 121), 'breadboard', 'note', 'end')
     draw_joint(figure, view)
-    draw_frame(figure, view, (0.0, 0.0, 0.0), CHASSIS_AXES, 42, {'x': (5, -7), 'y': (12, 16)})
-    draw_frame(figure, view, IMU_POSITION, IMU_AXES, 42, {'y': (0, -8), 'x': (-11, 15)})
-    figure.text((198, 102), 'chassis_link', 'mono halo')
-    figure.text((121, 88), 'imu_link', 'mono halo', 'end')
-    figure.text((146, 150), 'imu_joint', 'mono halo', 'middle')
-    figure.text((170, 262), f'imu_link lies {up} cm above chassis_link, on the breadboard',
+    draw_frame(figure, view, CHASSIS_ORIGIN, CHASSIS_AXES, 42,
+               {'x': Point(5, -7), 'y': Point(12, 16)})
+    draw_frame(figure, view, IMU_POSITION, IMU_AXES, 42, {'y': Point(0, -8), 'x': Point(-11, 15)})
+    figure.text(Point(198, 102), 'chassis_link', 'mono halo')
+    figure.text(Point(121, 88), 'imu_link', 'mono halo', 'end')
+    figure.text(Point(146, 150), 'imu_joint', 'mono halo', 'middle')
+    figure.text(Point(170, 262), f'imu_link lies {up} cm above chassis_link, on the breadboard',
                 'note', 'middle')
     return figure
 
@@ -658,9 +694,9 @@ def diffbot_imu_board() -> Box:
 
 def draw_diffbot_from_the_side(figure: Figure, view: View) -> None:
     """Add DiffBot as the view from its right side shows it, standing on the floor."""
-    caster = view.project((DIFFBOT_CASTER_X, 0.0, DIFFBOT_CASTER_Z))
+    caster = view.project(Vector3(DIFFBOT_CASTER_X, 0.0, DIFFBOT_CASTER_Z))
     figure.circle(caster, DIFFBOT_CASTER_RADIUS * view.scale, 'wheel')
-    wheel = view.project((DIFFBOT_AXLE_X, 0.0, DIFFBOT_AXLE_Z))
+    wheel = view.project(Vector3(DIFFBOT_AXLE_X, 0.0, DIFFBOT_AXLE_Z))
     figure.circle(wheel, DIFFBOT_WHEEL_RADIUS * view.scale, 'wheel')
     figure.circle(wheel, 0.3 * DIFFBOT_WHEEL_RADIUS * view.scale, 'body')
     outline(figure, view, DIFFBOT_PLATE, 'body', 1)
@@ -673,35 +709,38 @@ DIFFBOT_SCALE = 1500  # SVG units per m
 DIFFBOT_MAGNIFICATION = 4
 
 
-def draw_magnified_diffbot_frames(figure: Figure, left: float, top: float, right: float,
-                                  bottom: float) -> None:
+def draw_magnified_diffbot_frames(figure: Figure, inset: InsetBounds) -> None:
     """Add a box with DiffBot's base plate, IMU board and the two frames, magnified.
 
-    The box lies between left, top, right and bottom on the drawing. The plate and the board
-    are bands across the box, cut off at its edges.
+    The plate and the board are bands across the box, cut off at its edges.
     """
-    view = view_from_the_side(DIFFBOT_SCALE * DIFFBOT_MAGNIFICATION, (left + 65, bottom - 15))
+    view = view_from_the_side(DIFFBOT_SCALE * DIFFBOT_MAGNIFICATION,
+                              Point(inset.left + 65, inset.bottom - 15))
     board = diffbot_imu_board()
-    figure.rectangle((left, top), (right, bottom), 'inset', 4)
+    figure.rectangle(Point(inset.left, inset.top), Point(inset.right, inset.bottom), 'inset', 4)
     figure.elements.append('<g class="context">')
     for box, css_class in ((DIFFBOT_PLATE, 'body'), (board, 'board')):
-        figure.rectangle((left + 1, view.project((0.0, 0.0, box.z_max))[1]),
-                         (min(right - 1, view.project((box.x_max, 0.0, 0.0))[0]),
-                          min(bottom - 1, view.project((0.0, 0.0, box.z_min))[1])), css_class)
+        band_top = view.project(Vector3(0.0, 0.0, box.z_max)).y
+        band_bottom = view.project(Vector3(0.0, 0.0, box.z_min)).y
+        band_right = view.project(Vector3(box.x_max, 0.0, 0.0)).x
+        figure.rectangle(Point(inset.left + 1, band_top),
+                         Point(min(inset.right - 1, band_right),
+                               min(inset.bottom - 1, band_bottom)), css_class)
     figure.elements.append('</g>')
     draw_joint(figure, view, DIFFBOT_IMU_POSITION)
     draw_frame(figure, view, DIFFBOT_IMU_POSITION, CHASSIS_AXES, 40,
-               {'x': (4, -8), 'y': (-12, -9), 'z': (10, 6)})
-    chassis = view.project((0.0, 0.0, 0.0))
+               {'x': Point(4, -8), 'y': Point(-12, -9), 'z': Point(10, 6)})
+    chassis = view.project(CHASSIS_ORIGIN)
     imu = view.project(DIFFBOT_IMU_POSITION)
     figure.circle(chassis, 3, 'dot')
-    up = centimeters(DIFFBOT_IMU_POSITION[2])
-    figure.text((left + 8, top + 15), f'{DIFFBOT_MAGNIFICATION}\u00d7 larger', 'note')
-    figure.text((right - 8, imu[1] - 26), 'imu_link', 'mono halo', 'end')
-    figure.text((chassis[0] + 9, (chassis[1] + imu[1]) / 2 - 3), 'imu_joint', 'mono halo')
-    figure.text((chassis[0] + 9, (chassis[1] + imu[1]) / 2 + 11), f'{up} cm up, not turned',
-                'note halo')
-    figure.text((right - 8, chassis[1] + 4), 'chassis_link', 'mono halo', 'end')
+    up = centimeters(DIFFBOT_IMU_POSITION.z)
+    joint_middle = (chassis.y + imu.y) / 2
+    figure.text(Point(inset.left + 8, inset.top + 15), f'{DIFFBOT_MAGNIFICATION}\u00d7 larger',
+                'note')
+    figure.text(Point(inset.right - 8, imu.y - 26), 'imu_link', 'mono halo', 'end')
+    figure.text(Point(chassis.x + 9, joint_middle - 3), 'imu_joint', 'mono halo')
+    figure.text(Point(chassis.x + 9, joint_middle + 11), f'{up} cm up, not turned', 'note halo')
+    figure.text(Point(inset.right - 8, chassis.y + 4), 'chassis_link', 'mono halo', 'end')
 
 
 def frames_on_diffbot_figure() -> Figure:
@@ -710,7 +749,7 @@ def frames_on_diffbot_figure() -> Figure:
     imu_link has chassis_link's directions and lies straight above it. So the drawing shows
     imu_link's axes and marks chassis_link's origin with a dot, in a magnified box.
     """
-    up = centimeters(DIFFBOT_IMU_POSITION[2])
+    up = centimeters(DIFFBOT_IMU_POSITION.z)
     figure = Figure('imu-frames-diffbot', 340, 318, 'chassis_link, imu_joint and imu_link on '
                     'DiffBot, from the right side',
                     'DiffBot from its right side, with its front on the right. chassis_link is '
@@ -720,26 +759,27 @@ def frames_on_diffbot_figure() -> Figure:
                     'fixed joint imu_joint, connects the two origins. A box shows the two '
                     f'frames {DIFFBOT_MAGNIFICATION} times larger. This mounting is a '
                     'placeholder of DiffBot’s URDF model. It is not measured on the robot.')
-    view = view_from_the_side(DIFFBOT_SCALE, (165, 196))
-    figure.text((10, 18), 'DiffBot’s placeholder mounting, from the right side', 'title')
-    figure.text((326, 184), 'front', 'note', 'end')
+    view = view_from_the_side(DIFFBOT_SCALE, Point(165, 196))
+    figure.text(Point(10, 18), 'DiffBot’s placeholder mounting, from the right side', 'title')
+    figure.text(Point(326, 184), 'front', 'note', 'end')
     draw_floor(figure, view, 4, 336, DIFFBOT_FLOOR_Z)
-    figure.text((60, 288), 'floor', 'note')
+    figure.text(Point(60, 288), 'floor', 'note')
     figure.elements.append('<g class="context">')
     draw_diffbot_from_the_side(figure, view)
     figure.elements.append('</g>')
     # A ring around the two frames on the robot, and a line from it to the magnified box
-    frames = view.project((0.0, 0.0, DIFFBOT_IMU_POSITION[2] / 2))
+    frames = view.project(Vector3(0.0, 0.0, DIFFBOT_IMU_POSITION.z / 2))
     figure.circle(frames, 13, 'lens')
-    box_left, box_top, box_right, box_bottom = 150.0, 30.0, 330.0, 150.0
-    figure.polyline([(frames[0] + 3, frames[1] - 13), (box_left + 24, box_bottom)], 'lens')
-    draw_magnified_diffbot_frames(figure, box_left, box_top, box_right, box_bottom)
-    figure.text((170, 308), f'Placeholder: imu_link {up} cm above chassis_link, not turned',
+    inset = InsetBounds(left=150.0, top=30.0, right=330.0, bottom=150.0)
+    figure.polyline([Point(frames.x + 3, frames.y - 13), Point(inset.left + 24, inset.bottom)],
+                    'lens')
+    draw_magnified_diffbot_frames(figure, inset)
+    figure.text(Point(170, 308), f'Placeholder: imu_link {up} cm above chassis_link, not turned',
                 'note', 'middle')
     return figure
 
 
-def rotation_arrow(view: View, origin: Vector, axis: Vector, distance: float, radius: float,
+def rotation_arrow(view: View, origin: Vector3, axis: Vector3, distance: float, radius: float,
                    first_angle: float) -> List[Point]:
     """Return the points of an arrow that turns about an axis in the positive direction.
 
@@ -748,7 +788,7 @@ def rotation_arrow(view: View, origin: Vector, axis: Vector, distance: float, ra
     radius is the circle's radius, both in m. The arrow starts at first_angle, in degrees, and
     covers 290 degrees of the circle.
     """
-    helper = (0.0, 0.0, 1.0) if abs(axis[2]) < 0.9 else (1.0, 0.0, 0.0)
+    helper = UP if abs(axis.z) < 0.9 else FORWARD
     first = normalized(cross(axis, helper))
     second = cross(axis, first)
     center = add(origin, axis, distance)
@@ -772,11 +812,11 @@ def angular_velocity_figure() -> Figure:
                     'about z is the yaw rate, which is positive in a left turn: a left turn at '
                     f'{TURN_RATE} rad/s reads {signed(TURN_RATE)} rad/s. The EKF fuses this '
                     'value.')
-    view = view_from_behind(1300, (166, 168), 30, 35)
+    view = view_from_behind(1300, Point(166, 168), 30, 35)
     figure.elements.append('<g class="context">')
     draw_remo_from_behind(figure, view)
     figure.elements.append('</g>')
-    figure.text(view.project((0.086, -0.045, 0.0)), 'front', 'note', 'middle')
+    figure.text(view.project(Vector3(0.086, -0.045, 0.0)), 'front', 'note', 'middle')
     length = 118 / view.scale
     start = view.project(IMU_POSITION)
     # Where each curved arrow starts on its circle, so that its head lies on the viewer's side
@@ -784,20 +824,22 @@ def angular_velocity_figure() -> Figure:
     for axis, name in zip(IMU_AXES, AXIS_NAMES):
         end = view.project(add(IMU_POSITION, axis, length))
         figure.arrow(start, end, name, 9)
-        offset = (end[0] - start[0], end[1] - start[1])
+        offset = Point(end.x - start.x, end.y - start.y)
         reach = math.hypot(*offset)
-        figure.text((end[0] + 10 * offset[0] / reach, end[1] + 10 * offset[1] / reach + 4),
+        figure.text(Point(end.x + 10 * offset.x / reach, end.y + 10 * offset.y / reach + 4),
                     name, f'{name} halo', 'middle')
         figure.curved_arrow(rotation_arrow(view, IMU_POSITION, axis, 0.68 * length,
                                            0.2 * length, first_angles[name]), f'turn {name}', 8)
     figure.circle(start, 3, 'dot')
-    figure.text_markup((70, 28), svg_subscript('ω', 'z'), 'z', 'end')
-    figure.text((78, 28), f'yaw rate. Left turn at {TURN_RATE} rad/s: {signed(TURN_RATE)} rad/s.')
-    figure.text((78, 44), 'The EKF fuses this value.')
-    figure.text_markup((186, 150), svg_subscript('ω', 'y'), 'y halo')
-    figure.text_markup((199, 246), svg_subscript('ω', 'x'), 'x halo')
-    figure.text((180, 306), 'Each curved arrow shows the direction that counts', 'note', 'middle')
-    figure.text((180, 321), 'as positive for the angular velocity about its axis', 'note',
+    figure.text_markup(Point(70, 28), svg_subscript('ω', 'z'), 'z', 'end')
+    figure.text(Point(78, 28),
+                f'yaw rate. Left turn at {TURN_RATE} rad/s: {signed(TURN_RATE)} rad/s.')
+    figure.text(Point(78, 44), 'The EKF fuses this value.')
+    figure.text_markup(Point(186, 150), svg_subscript('ω', 'y'), 'y halo')
+    figure.text_markup(Point(199, 246), svg_subscript('ω', 'x'), 'x halo')
+    figure.text(Point(180, 306), 'Each curved arrow shows the direction that counts', 'note',
+                'middle')
+    figure.text(Point(180, 321), 'as positive for the angular velocity about its axis', 'note',
                 'middle')
     return figure
 
@@ -821,7 +863,7 @@ FORCE_PANEL_WIDTH = 290
 
 def draw_vector(figure: Figure, start: Point, offset: Point, css_class: str) -> Point:
     """Add an arrow from start along an offset on the drawing, and return its tip."""
-    end = (start[0] + offset[0], start[1] + offset[1])
+    end = Point(start.x + offset.x, start.y + offset.y)
     figure.arrow(start, end, css_class, 9)
     return end
 
@@ -836,14 +878,14 @@ def signed(value: float) -> str:
     return '0' if abs(value) < 0.005 else f'{value:+.2f}'.rstrip('0').rstrip('.')
 
 
-def specific_force(acceleration: Vector) -> Vector:
+def specific_force(acceleration: Vector3) -> Vector3:
     """Return what the sensor reads for an acceleration: the acceleration minus gravity."""
-    return add(acceleration, (0.0, 0.0, 1.0), GAZEBO_GRAVITY)
+    return add(acceleration, UP, GAZEBO_GRAVITY)
 
 
-def tilt_from_vertical(reading: Vector) -> float:
+def tilt_from_vertical(reading: Vector3) -> float:
     """Return the angle between a reading and the upward direction, in degrees."""
-    return math.degrees(math.atan2(math.hypot(reading[0], reading[1]), reading[2]))
+    return math.degrees(math.atan2(math.hypot(reading.x, reading.y), reading.z))
 
 
 # What the three numbers of a specific force drawing are: a level floor, the named motion and no
@@ -852,7 +894,7 @@ EXAMPLE_IN_A_SENTENCE = ('In this level, noise-free example, the reading along i
                          'and z axes on Remo is')
 
 
-def message_numbers(reading: Vector) -> List[str]:
+def message_numbers(reading: Vector3) -> List[str]:
     """Return an ideal reading as x, y and z on Remo, along imu_link's axes.
 
     These are the message's three numbers when the floor is level and the reading has no noise.
@@ -860,30 +902,30 @@ def message_numbers(reading: Vector) -> List[str]:
     return [signed(dot(reading, axis)) for axis in IMU_AXES]
 
 
-def message_values(reading: Vector) -> str:
+def message_values(reading: Vector3) -> str:
     """Return an ideal reading's x, y and z on Remo as a drawing shows them: (x, y, z)."""
     return '(' + ', '.join(message_numbers(reading)) + ')'
 
 
-def message_values_in_a_sentence(reading: Vector) -> str:
+def message_values_in_a_sentence(reading: Vector3) -> str:
     """Return an ideal reading's x, y and z on Remo as a sentence names them: x, y and z."""
     x, y, z = message_numbers(reading)
     return f'{x}, {y} and {z}'
 
 
-def reading_lines(figure: Figure, first: str, second: str, reading: Vector) -> None:
+def reading_lines(figure: Figure, first: str, second: str, reading: Vector3) -> None:
     """Add what the sensor reads at the bottom of a specific force drawing.
 
     first and second say it in the robot's directions. reading, in chassis_link's axes, becomes
     three numbers along imu_link's axes on Remo, labeled as a level, noise-free example.
     """
     center = FORCE_WIDTH / 2
-    figure.text((center, 232), 'The sensor reads', 'note', 'middle')
-    figure.text((center, 249), first, 'reading', 'middle')
-    figure.text((center, 265), second, 'reading', 'middle')
-    figure.text((center, 284), 'Level, noise-free example', 'note', 'middle')
-    figure.text((center, 299), 'in Remo’s IMU axes x, y, z', 'note', 'middle')
-    figure.text((center, 316), message_values(reading), 'reading', 'middle')
+    figure.text(Point(center, 232), 'The sensor reads', 'note', 'middle')
+    figure.text(Point(center, 249), first, 'reading', 'middle')
+    figure.text(Point(center, 265), second, 'reading', 'middle')
+    figure.text(Point(center, 284), 'Level, noise-free example', 'note', 'middle')
+    figure.text(Point(center, 299), 'in Remo’s IMU axes x, y, z', 'note', 'middle')
+    figure.text(Point(center, 316), message_values(reading), 'reading', 'middle')
 
 
 def draw_magnified_tip(figure: Figure, tip: Point, acceleration: float) -> None:
@@ -893,27 +935,28 @@ def draw_magnified_tip(figure: Figure, tip: Point, acceleration: float) -> None:
     forward by the acceleration. The circle shows the end of that upward line, dotted, the arrow
     of a from there to the tip of f, and the end of f's arrow in its true direction.
     """
-    center, radius = (160.0, 100.0), 32.0
-    toward = (center[0] - tip[0], center[1] - tip[1])
+    center, radius = Point(160.0, 100.0), 32.0
+    toward = Point(center.x - tip.x, center.y - tip.y)
     reach = math.hypot(*toward)
     figure.circle(tip, 7, 'lens')
-    figure.polyline([(tip[0] + 7 * toward[0] / reach, tip[1] + 7 * toward[1] / reach),
-                     (center[0] - radius * toward[0] / reach,
-                      center[1] - radius * toward[1] / reach)], 'lens')
+    figure.polyline([Point(tip.x + 7 * toward.x / reach, tip.y + 7 * toward.y / reach),
+                     Point(center.x - radius * toward.x / reach,
+                           center.y - radius * toward.y / reach)], 'lens')
     figure.circle(center, radius, 'inset')
-    figure.text((center[0], center[1] - radius - 6), f'{TIP_MAGNIFICATION}\u00d7 larger', 'note',
-                'middle')
+    figure.text(Point(center.x, center.y - radius - 6), f'{TIP_MAGNIFICATION}\u00d7 larger',
+                'note', 'middle')
     forward = acceleration * FORCE_SCALE * TIP_MAGNIFICATION
-    reading_tip = (center[0] + forward / 2, center[1] - 4)
-    above_sensor = (reading_tip[0] - forward, reading_tip[1])
+    reading_tip = Point(center.x + forward / 2, center.y - 4)
+    above_sensor = Point(reading_tip.x - forward, reading_tip.y)
     shown_height = 30.0
-    figure.polyline([(above_sensor[0], above_sensor[1] + shown_height), above_sensor], 'guide')
-    figure.arrow((reading_tip[0] - shown_height * acceleration / GAZEBO_GRAVITY,
-                  reading_tip[1] + shown_height), reading_tip, 'reading', 9)
+    figure.polyline([Point(above_sensor.x, above_sensor.y + shown_height), above_sensor],
+                    'guide')
+    figure.arrow(Point(reading_tip.x - shown_height * acceleration / GAZEBO_GRAVITY,
+                       reading_tip.y + shown_height), reading_tip, 'reading', 9)
     figure.arrow(above_sensor, reading_tip, 'acceleration', 7)
-    figure.text((center[0], reading_tip[1] - 8), f'a = {number(acceleration)}', 'acceleration',
-                'middle')
-    figure.text((reading_tip[0] + 6, reading_tip[1] + 17), 'f', 'reading')
+    figure.text(Point(center.x, reading_tip.y - 8), f'a = {number(acceleration)}',
+                'acceleration', 'middle')
+    figure.text(Point(reading_tip.x + 6, reading_tip.y + 17), 'f', 'reading')
 
 
 def specific_force_from_the_side_figure(name: str, title: str, description: str,
@@ -923,32 +966,32 @@ def specific_force_from_the_side_figure(name: str, title: str, description: str,
     acceleration is the robot's forward acceleration in m/s². g and f are drawn to FORCE_SCALE.
     """
     figure = Figure(name, FORCE_WIDTH, FORCE_HEIGHT, title, description)
-    view = view_from_the_side(900, (118, 152))
-    figure.text((6, 18), title, 'title')
+    view = view_from_the_side(900, Point(118, 152))
+    figure.text(Point(6, 18), title, 'title')
     draw_floor(figure, view, 10, FORCE_WIDTH - 10)
-    figure.text((FORCE_WIDTH - 10, 146), 'front', 'note', 'end')
+    figure.text(Point(FORCE_WIDTH - 10, 146), 'front', 'note', 'end')
     figure.elements.append('<g class="context">')
     draw_remo_from_the_side(figure, view)
     figure.elements.append('</g>')
     sensor = view.project(IMU_POSITION)
-    reading = specific_force((acceleration, 0.0, 0.0))
-    draw_vector(figure, sensor, (0, GAZEBO_GRAVITY * FORCE_SCALE), 'gravity')
-    figure.text((sensor[0] - 8, sensor[1] + GRAVITY_LENGTH / 2 + 8), f'g = {GAZEBO_GRAVITY}',
+    reading = specific_force(Vector3(acceleration, 0.0, 0.0))
+    draw_vector(figure, sensor, Point(0, GAZEBO_GRAVITY * FORCE_SCALE), 'gravity')
+    figure.text(Point(sensor.x - 8, sensor.y + GRAVITY_LENGTH / 2 + 8), f'g = {GAZEBO_GRAVITY}',
                 'gravity halo', 'end')
-    tip = draw_vector(figure, sensor, (reading[0] * FORCE_SCALE, -reading[2] * FORCE_SCALE),
+    tip = draw_vector(figure, sensor, Point(reading.x * FORCE_SCALE, -reading.z * FORCE_SCALE),
                       'reading')
-    figure.text((tip[0], tip[1] - 9), 'f', 'reading halo', 'middle')
+    figure.text(Point(tip.x, tip.y - 9), 'f', 'reading halo', 'middle')
     if acceleration:
         draw_magnified_tip(figure, tip, acceleration)
     else:
-        figure.text((sensor[0] + 7, sensor[1] - 5), 'a = 0', 'acceleration halo')
+        figure.text(Point(sensor.x + 7, sensor.y - 5), 'a = 0', 'acceleration halo')
     figure.circle(sensor, 3, 'dot')
     return figure
 
 
 def specific_force_at_rest_figure() -> Figure:
     """Return the drawing of the specific force while the robot stands still."""
-    reading = specific_force((0.0, 0.0, 0.0))
+    reading = specific_force(Vector3(0.0, 0.0, 0.0))
     figure = specific_force_from_the_side_figure(
         'imu-force-rest', 'At rest',
         'Remo stands still on the floor, seen from its right side. At the IMU, gravity g points '
@@ -961,7 +1004,7 @@ def specific_force_at_rest_figure() -> Figure:
 
 def specific_force_speeding_up_figure() -> Figure:
     """Return the drawing of the specific force while the robot speeds up forward."""
-    reading = specific_force((FORWARD_ACCELERATION, 0.0, 0.0))
+    reading = specific_force(Vector3(FORWARD_ACCELERATION, 0.0, 0.0))
     forward = number(FORWARD_ACCELERATION)
     figure = specific_force_from_the_side_figure(
         'imu-force-speeding-up', 'Speeding up forward',
@@ -973,8 +1016,8 @@ def specific_force_speeding_up_figure() -> Figure:
         f'larger: f ends {forward} m/s² in front of the point straight above the sensor. '
         f'{EXAMPLE_IN_A_SENTENCE} {message_values_in_a_sentence(reading)}.',
         FORWARD_ACCELERATION)
-    figure.arrow((132, 46), (178, 46), 'motion thin', 7)
-    figure.text((155, 39), 'speeds up', 'note', 'middle')
+    figure.arrow(Point(132, 46), Point(178, 46), 'motion thin', 7)
+    figure.text(Point(155, 39), 'speeds up', 'note', 'middle')
     reading_lines(figure, f'forward {signed(FORWARD_ACCELERATION)},',
                   f'up +{GAZEBO_GRAVITY} m/s²', reading)
     return figure
@@ -982,19 +1025,20 @@ def specific_force_speeding_up_figure() -> Figure:
 
 def turn_radius() -> float:
     """Return the IMU's distance from the wheel axle's midpoint, which Remo turns about, in m."""
-    return math.hypot(IMU_POSITION[0] - AXLE_X, IMU_POSITION[1])
+    return math.hypot(IMU_POSITION.x - AXLE_X, IMU_POSITION.y)
 
 
 def circle_points(center: Point, radius: float, first_angle: int, last_angle: int) -> List[Point]:
     """Return points on a circle on the drawing, counterclockwise between two angles in degrees."""
-    return [(center[0] + radius * math.cos(math.radians(angle)),
-             center[1] - radius * math.sin(math.radians(angle)))
+    return [Point(center.x + radius * math.cos(math.radians(angle)),
+                  center.y - radius * math.sin(math.radians(angle)))
             for angle in range(first_angle, last_angle + 1, 6)]
 
 
-def turn_acceleration() -> Vector:
+def turn_acceleration() -> Vector3:
     """Return the IMU's acceleration in a turn on the spot: toward the wheel axle's midpoint."""
-    return (TURN_RATE ** 2 * (AXLE_X - IMU_POSITION[0]), TURN_RATE ** 2 * -IMU_POSITION[1], 0.0)
+    return Vector3(TURN_RATE ** 2 * (AXLE_X - IMU_POSITION.x), TURN_RATE ** 2 * -IMU_POSITION.y,
+                   0.0)
 
 
 def centripetal_acceleration() -> float:
@@ -1015,26 +1059,26 @@ def specific_force_in_a_turn_figure() -> Figure:
                     f'and {GAZEBO_GRAVITY} m/s² up, out of the drawing, so f leans toward the '
                     f'center by {tilt_from_vertical(reading):.1f} degrees. '
                     f'{EXAMPLE_IN_A_SENTENCE} {message_values_in_a_sentence(reading)}.')
-    view = view_from_above(900, (FORCE_WIDTH / 2, 142))
-    figure.text((6, 18), 'Turning left, from above', 'title')
+    view = view_from_above(900, Point(FORCE_WIDTH / 2, 142))
+    figure.text(Point(6, 18), 'Turning left, from above', 'title')
     figure.elements.append('<g class="context">')
     draw_remo_from_above(figure, view)
     figure.elements.append('</g>')
-    center = view.project((AXLE_X, 0.0, 0.0))
+    center = view.project(Vector3(AXLE_X, 0.0, 0.0))
     sensor = view.project(IMU_POSITION)
     figure.polyline(circle_points(center, turn_radius() * view.scale, 0, 360), 'guide')
     figure.curved_arrow(circle_points(center, 13, -60, 222), 'motion thin', 7)
     figure.circle(center, 2.5, 'dot')
-    figure.text((center[0], center[1] - 20), f'{TURN_RATE} rad/s', 'note', 'middle')
-    toward = (center[0] - sensor[0], center[1] - sensor[1])
+    figure.text(Point(center.x, center.y - 20), f'{TURN_RATE} rad/s', 'note', 'middle')
+    toward = Point(center.x - sensor.x, center.y - sensor.y)
     reach = math.hypot(*toward)
-    tip = draw_vector(figure, sensor, (TURN_ACCELERATION_LENGTH * toward[0] / reach,
-                                       TURN_ACCELERATION_LENGTH * toward[1] / reach),
+    tip = draw_vector(figure, sensor, Point(TURN_ACCELERATION_LENGTH * toward.x / reach,
+                                            TURN_ACCELERATION_LENGTH * toward.y / reach),
                       'acceleration')
-    figure.text((tip[0] + 7, tip[1] + 8), f'a = {centripetal}', 'acceleration halo')
+    figure.text(Point(tip.x + 7, tip.y + 8), f'a = {centripetal}', 'acceleration halo')
     figure.circle(sensor, 5.5, 'ring reading')
     figure.circle(sensor, 2.0, 'head reading')
-    figure.text((sensor[0] - 10, sensor[1] + 4), 'f', 'reading halo', 'end')
+    figure.text(Point(sensor.x - 10, sensor.y + 4), 'f', 'reading halo', 'end')
     reading_lines(figure, f'toward the center {centripetal},', f'up +{GAZEBO_GRAVITY} m/s²',
                   reading)
     return figure
@@ -1068,7 +1112,7 @@ def frame_tabs() -> List[Tab]:
 
     The tab set is raw HTML, so the captions are HTML.
     """
-    up = centimeters(DIFFBOT_IMU_POSITION[2])
+    up = centimeters(DIFFBOT_IMU_POSITION.z)
     remo = ('Remo’s frames, to scale. <code>chassis_link</code> is at the center of the base '
             'plate’s top. <code>imu_joint</code>, the dashed line, is a fixed joint. It puts '
             '<code>imu_link</code> on <code>chassis_link</code>, at the IMU’s board (blue) on '
@@ -1111,7 +1155,7 @@ def write_angular_velocity() -> None:
 def specific_force_panels() -> List[Panel]:
     """Return the three specific force drawings, each with the text below it, as HTML."""
     forward = number(FORWARD_ACCELERATION)
-    forward_tilt = tilt_from_vertical(specific_force((FORWARD_ACCELERATION, 0.0, 0.0)))
+    forward_tilt = tilt_from_vertical(specific_force(Vector3(FORWARD_ACCELERATION, 0.0, 0.0)))
     turn_tilt = tilt_from_vertical(specific_force(turn_acceleration()))
     a, f, g = '<strong>a</strong>', '<strong>f</strong>', '<strong>g</strong>'
     return [
