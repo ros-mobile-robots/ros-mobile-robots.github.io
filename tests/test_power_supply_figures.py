@@ -224,12 +224,15 @@ class TestLayouts(unittest.TestCase):
             labels = [index for index, element in enumerate(elements)
                       if element.tag == 'text' and element.text == 'hub']
             self.assertEqual(len(labels), 1, figure.css_class)
-            hub = elements[labels[0] - 1]
-            self.assertEqual(hub.tag, 'rect', figure.css_class)
-            left, top = float(hub.get('x', 0)), float(hub.get('y', 0))
-            right, bottom = left + float(hub.get('width', 0)), top + float(hub.get('height', 0))
-            label_x = float(elements[labels[0]].get('x', 0))
+            hub_rect = elements[labels[0] - 1]
+            self.assertEqual(hub_rect.tag, 'rect', figure.css_class)
+            left, top = float(hub_rect.get('x', 0)), float(hub_rect.get('y', 0))
+            right = left + float(hub_rect.get('width', 0))
+            bottom = top + float(hub_rect.get('height', 0))
+            label = elements[labels[0]]
+            label_x, label_y = float(label.get('x', 0)), float(label.get('y', 0))
             self.assertTrue(left < label_x < right, figure.css_class)
+            self.assertTrue(top < label_y < bottom, figure.css_class)
             for css_class in ('line data', 'line ground'):
                 through_the_hub = [
                     segment for line in drawn_lines(figure, css_class) for segment in line
@@ -238,6 +241,14 @@ class TestLayouts(unittest.TestCase):
                 self.assertEqual(len(through_the_hub), 1, (figure.css_class, css_class))
         for figure in figures.layouts(figures.REMO):
             self.assertNotIn('hub', drawn_texts(figure), figure.css_class)
+            hub_box = figure.box_of(figures.DIFFBOT_HUB_BOX)
+            for rect in ElementTree.fromstring(figure.svg()).findall('rect'):
+                rect_x, rect_y = float(rect.get('x', 0)), float(rect.get('y', 0))
+                rect_right = rect_x + float(rect.get('width', 0))
+                rect_bottom = rect_y + float(rect.get('height', 0))
+                overlaps = (rect_x < hub_box.right and hub_box.x < rect_right
+                            and rect_y < hub_box.bottom and hub_box.y < rect_bottom)
+                self.assertFalse(overlaps, (figure.css_class, rect.attrib))
 
     def test_diffbots_hub_stays_clear_of_the_encoder_supply_and_the_camera(self) -> None:
         figures = power_supply_figures
