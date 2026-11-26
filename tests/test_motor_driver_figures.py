@@ -42,6 +42,8 @@ AN905_TABLE_1 = {'Forward': {'Q1', 'Q4'}, 'Reverse': {'Q2', 'Q3'}, 'Coast': set(
 SWITCH_NAMES = {'Q1', 'Q2', 'Q3', 'Q4'}
 # The modes that connect the motor to the supply, so that the current has one direction
 DRIVE_MODES = ['Forward', 'Reverse']
+# An arrowhead is a triangle: its path has this many straight pieces
+ARROWHEAD_SIDES = 3
 # A rail's name stands at most this far above or below its rail, in the drawing's units
 RAIL_NAME_REACH = 16
 # The texts of a row of the PWM figure reach at most this far below its wave
@@ -560,6 +562,33 @@ class TestDrawnBridge(unittest.TestCase):
             # The arrowhead stands outside the motor's circle, where the current leaves it
             self.assertGreater((base_to_tip.x1 - bridge.motor.x) * heading, bridge.motor.radius,
                                (layout_class, bridge.mode))
+
+    def test_each_arrowhead_is_a_triangle_on_the_wire_from_the_motor_to_a_half_bridge(
+            self) -> None:
+        for layout_class, bridge in self.bridges:
+            if bridge.mode not in DRIVE_MODES:
+                continue
+            panel_name = (layout_class, bridge.mode)
+            motor = bridge.motor
+            arrowhead = only(bridge.arrowheads)
+            self.assertEqual(len(arrowhead), ARROWHEAD_SIDES, panel_name)
+            # The path runs from one end of the base to the tip, on to the base's other end,
+            # and along the base back to its start
+            to_tip, _, base = arrowhead
+            self.assertEqual((base.x2, base.y2), (to_tip.x1, to_tip.y1), panel_name)
+            # The tip lies on the motor's wire, the base stands upright across it, as far above
+            # the wire as below it, and no taller than the motor
+            self.assertAlmostEqual(to_tip.y2, motor.y, COORDINATE_PLACES, panel_name)
+            self.assertAlmostEqual(base.x1, base.x2, COORDINATE_PLACES, panel_name)
+            self.assertAlmostEqual((base.y1 + base.y2) / 2, motor.y, COORDINATE_PLACES, panel_name)
+            self.assertTrue(0 < abs(base.y1 - base.y2) <= 2 * motor.radius, panel_name)
+            # Along the wire: the motor's edge, the base, the tip, then the half-bridge
+            heading = math.copysign(1, to_tip.x2 - motor.x)
+            left_x, right_x = bridge.half_bridge_xs
+            half_bridge_x = right_x if heading > 0 else left_x
+            self.assertTrue(motor.radius < (base.x1 - motor.x) * heading
+                            < (to_tip.x2 - motor.x) * heading
+                            < (half_bridge_x - motor.x) * heading, panel_name)
 
     def test_each_panels_wires_join_the_rails_the_contacts_and_the_motor(self) -> None:
         for layout_class, bridge in self.bridges:
