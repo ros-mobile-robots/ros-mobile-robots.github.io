@@ -38,14 +38,6 @@ def classes_drawn(draw: Callable[[board_drawings.Drawing], None]) -> Set[str]:
     return set(re.findall(r'class="([^"]+)"', ''.join(drawing.elements)))
 
 
-def only_child(root: ElementTree.Element, tag: str) -> ElementTree.Element:
-    """Return the one child element of root called tag, and fail unless there is exactly one."""
-    children = root.findall(tag)
-    if len(children) != 1:
-        raise AssertionError(f'{len(children)} <{tag}> elements, expected 1')
-    return children[0]
-
-
 class TestBoardRules(unittest.TestCase):
     """Every part keeps its colors: each class a drawing uses has a rule in the figure's scope."""
 
@@ -75,7 +67,9 @@ class TestSvgElement(unittest.TestCase):
 
     def test_svg_element_is_an_image_named_by_its_title_alone(self) -> None:
         root = ElementTree.fromstring(self.svg)
-        title = only_child(root, 'title')
+        titles = root.findall('title')
+        self.assertEqual(len(titles), 1)
+        title = titles[0]
         self.assertEqual(root.get('role'), 'img')
         self.assertEqual(title.get('id'), 'some-layout-title')
         self.assertEqual(root.get('aria-labelledby'), title.get('id'))
@@ -104,8 +98,10 @@ class TestSvgElementWithADescription(unittest.TestCase):
     def test_svg_element_is_named_by_its_title_and_described_by_its_description(self) -> None:
         root = ElementTree.fromstring(board_drawings.svg_element(
             'some-layout', 'some-figure', (340, 120), 'A & B', [], description='C < D'))
-        title = only_child(root, 'title')
-        description = only_child(root, 'desc')
+        titles = root.findall('title')
+        descriptions = root.findall('desc')
+        self.assertEqual((len(titles), len(descriptions)), (1, 1))
+        title, description = titles[0], descriptions[0]
         self.assertEqual(title.get('id'), 'some-layout-title')
         self.assertEqual(description.get('id'), 'some-layout-description')
         self.assertEqual(root.get('aria-labelledby'), title.get('id'))
