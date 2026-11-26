@@ -38,8 +38,10 @@ pip3 install smbus
 ### Connection
 
 DiffBot's Raspberry Pi 4 B sends the motor commands on its I2C bus 1, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/).
-Select DiffBot on the [Electronics](hardware_setup/electronics.md) page to see the cable routing.
-Use the physical header pins in the table for the wiring.
+Select DiffBot on the [Electronics](hardware_setup/electronics.md) page to trace the cable through the Grove hub.
+At the Raspberry Pi header, the drawing shows SDA on pin 4 (5 V) and SCL on pin 6 (ground).
+Use the table below for the header connections.
+Connect SDA to physical pin 3 (GPIO2) and SCL to physical pin 5 (GPIO3).
 Shut down the Raspberry Pi, unplug its power bank and take out the motor cells before you change connections.
 
 | Signal | Raspberry Pi header to the hub's port J1 | Hub's port J4 to the driver's Grove I2C connector |
