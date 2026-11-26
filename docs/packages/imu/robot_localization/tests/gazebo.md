@@ -78,7 +78,7 @@ A failure names the test and the check. The turn test checks four things in a fi
 
 ??? note "The details"
 
-    - **The real gyroscope:** the simulated IMU adds random noise to the true yaw rate and reports the matching variance $\sigma^2$. It has no bias and no mounting error. [The simulated IMU](../../../../diffbot_gazebo.md#inertial-measurement-unit-imu) describes the sensor.
+    - **The real gyroscope:** the simulated IMU adds random noise to the true yaw rate and reports the matching variance $\sigma^2$. It has no bias and no mounting error. [IMU: Simulation](../../simulation/index.md) describes the sensor.
     - **The real robot's rates and delays:** in the simulation, the wheel odometry and the IMU are both configured for 50 Hz and stamped with simulation time. The saved DiffBot run measured 49.7 Hz of validated IMU samples. On the robot, the wheel odometry arrives at most 10 times per second, as [The other settings](../../robot_localization.md#the-other-settings) on the Localization page explains. [How it's tested](../../robot_localization.md#how-its-tested) on the same page lists what the tests don't show about the robot's rates and delays.
     - **Other errors of the wheels:** the test's error is one constant factor on a turn on the spot. The test has no slip that comes and goes and no driving forward.
     - **The position:** the test compares the three turns only, not the positions $x$ and $y$.
