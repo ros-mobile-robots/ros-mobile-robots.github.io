@@ -5,6 +5,8 @@ categories: [robotics]
 tags: [2wd, differential drive, robot, ros, noetic, raspberry, pi, autonomous, ubuntu, focal, package, gazebo, simulation]
 ---
 
+The [`diffbot_gazebo` package]({{ imu_sim_src_url }}/diffbot_gazebo/package.xml) lets you try DiffBot or Remo without hardware in Gazebo, a robot simulator. Its [launch file]({{ imu_sim_src_url }}/diffbot_gazebo/launch/diffbot.launch) loads a world, spawns the selected robot and starts its controllers. Send a velocity command to drive the wheels. If the simulated robot drives differently from the real one, the [tuning steps](#tuning-the-simulated-robot) show which settings to check first. The [simulation section](#simulate-diffbot-in-gazebo) introduces the robot and its simulated sensors. [Troubleshooting](#troubleshooting) shows how to check the conversion from the robot description to Gazebo's model format.
+
 !!! tip "Simulation test"
     CI drives DiffBot and Remo in this simulation on every pull request, without a display. [Simulation Test](development/simulation-test.md) shows how Gazebo, `gazebo_ros_control` and the controllers work together.
 
