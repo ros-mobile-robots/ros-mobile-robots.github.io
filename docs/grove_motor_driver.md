@@ -37,7 +37,7 @@ pip3 install smbus
 
 ### Connection
 
-DiffBot's Raspberry Pi 4 B sends the motor commands on its I2C bus 1, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/).
+The driver is wired to I2C bus 1 of DiffBot's Raspberry Pi 4 B, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/). The diffbot repository's launch files start no node for this driver: [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch#L25-L28) has the `grove_motor_driver` node commented out as deprecated.
 Select DiffBot on the [Electronics](hardware_setup/electronics.md) page to trace the cable through the Grove hub.
 At the Raspberry Pi header, the drawing shows SDA on pin 4 (5 V) and SCL on pin 6 (ground).
 Use the table below for the header connections.
