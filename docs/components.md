@@ -186,7 +186,7 @@ For the robot base you have at least two options to choose from: DiffBot, built 
 
 === "DiffBot"
 
-    DiffBot is built on the acrylic plate of the [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05). The kit includes two drive wheels and a caster wheel. DiffBot's motors run from eight NiMH AA cells in series.
+    DiffBot is built on the acrylic plate of the [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05). The kit includes two drive wheels and a caster wheel. DiffBot's motors run from four alkaline AA cells in series, in the kit's battery holder.
 
     <figure>
         <a href="{{ asset_dir }}/components/car-kit05.jpg"><img src="{{ asset_dir }}/components/car-kit05.jpg"></a>
@@ -218,8 +218,8 @@ DiffBot's Raspberry Pi 4 B runs on a 5 V/2.1 A USB-C power bank.
     <figcaption>Power bank with 10.000 mAh from Intenso.</figcaption>
 </figure>
 
-The motors of both robots run from eight NiMH AA cells.
-[Power Supply](power-supply.md) explains both supplies and how to charge the NiMH cells.
+DiffBot's motors run from four alkaline AA cells. Remo's motors run from eight rechargeable NiMH AA cells.
+[Power Supply](power-supply.md) explains both supplies and how to charge Remo's NiMH cells.
 
 ### I2C Hub
 

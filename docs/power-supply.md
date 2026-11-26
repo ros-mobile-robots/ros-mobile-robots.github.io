@@ -1,17 +1,13 @@
 # Power Supply
 
-DiffBot and Remo each have two separate power supplies. A USB power bank runs the Raspberry Pi, and eight NiMH AA cells in a battery holder run the motors, through the motor driver.
-This page explains what each supply has to deliver, what the cells give each robot's motor driver and motors, when to recharge the cells, and how to charge them.
-Read the page before you buy cells or a charger, and before you put other cells into a robot's holder: the voltage of the cells decides whether they fit the motor driver's input range and what the motors get.
-
-The motors get their own supply because they need more current than a USB connection provides ([Adafruit's FeatherWing guide](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts)).
+On both robots, a USB power bank runs the Raspberry Pi, and a separate battery runs the motors through their driver. DiffBot uses four primary alkaline AA cells in the kit's holder. Remo uses eight rechargeable nickel-metal hydride (NiMH) AA cells. Check the driver's input range before you choose cells of another type.
 
 | | DiffBot | Remo |
 | --- | --- | --- |
 | Raspberry Pi | USB power bank | USB power bank |
 | Motor driver | [Grove I2C Motor Driver V1.3](grove_motor_driver.md), with an L298 | [Adafruit DC Motor + Stepper FeatherWing](https://www.adafruit.com/product/2927), with TB6612 driver chips |
-| Motor supply | Eight rechargeable NiMH AA cells | Eight rechargeable NiMH AA cells in the holder under the top plate |
-| After each use | [Recharge all eight cells](#charging-the-nimh-cells) | Recharge all eight cells |
+| Motor supply | Four alkaline AA cells in the robot car kit's holder | Eight rechargeable NiMH AA cells in the holder under the top plate |
+| Used cells | [Replace all four at the same time](#diffbot-four-alkaline-cells-and-the-grove-i2c-motor-driver) | [Recharge all eight after each use](#charging-the-nimh-cells) |
 | Motors | Two [DG01D-E](DG01D-E-motor-with-encoder.md), rated 3 V to 9 V | The same |
 
 ## Raspberry Pi
@@ -44,9 +40,9 @@ So three numbers decide whether a battery suits a robot:
 2. The input range of the motor driver: the battery voltages for which its manufacturer specifies the driver.
 3. The voltage drop in the motor driver. What's left reaches the motors. The DG01D-E motors are rated for 3 V to 9 V, and their [datasheet](https://cdn.sparkfun.com/assets/8/3/b/e/4/DS-16413-DG01D-E_Motor_with_Encoder.pdf) gives 90 RPM at 4.5 V.
 
-## The NiMH cells
+## Remo's NiMH cells
 
-Both robots run their motors on eight rechargeable NiMH AA cells.
+Remo runs its motors on eight rechargeable NiMH AA cells.
 In series, the voltages of the cells add up:
 
 | | Per cell | Eight cells |
@@ -55,31 +51,32 @@ In series, the voltages of the cells add up:
 | At the start of the example discharge curves | about 1.4 V | about 11.2 V |
 | End of the datasheet's capacity test | 1.0 V | 8.0 V |
 
-The cell values come from Energizer's [NH15-1500 datasheet](https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf). It gives 1.2 V nominal for a NiMH AA cell. Energizer's curves for the NH15-1500 start near 1.4 V per cell. Eight cells at that voltage would give about 11.2 V. The voltage of the robots' own packs under load has not been measured. The datasheet rates the capacity of this 1500 mAh cell for a discharge with 300 mA at 21 °C, down to 1.0 V per cell. The table's 8.0 V is eight times this end value. The robots' cells, with 2000 mAh, can behave differently at the motors' unmeasured currents. So 8.0 V is a comparison with the datasheet, not a voltage to drive down to. [Recharge the cells](#when-to-recharge) after each use.
+The cell values come from Energizer's [NH15-1500 datasheet](https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf). It gives 1.2 V nominal for a NiMH AA cell. Energizer's curves for the NH15-1500 start near 1.4 V per cell. Eight cells at that voltage would give about 11.2 V. The voltage of Remo's pack under load has not been measured. The datasheet rates the capacity of this 1500 mAh cell for a discharge with 300 mA at 21 °C, down to 1.0 V per cell. The table's 8.0 V is eight times this end value. Remo's 2000 mAh cells can behave differently at the currents its motors draw. So 8.0 V is a comparison with the datasheet, not a voltage to drive down to. [Recharge the cells](#when-to-recharge) after each use.
 
 A NiMH cell stays near 1.2 V for most of its discharge and drops only at the end (see the curves in the datasheet).
 So the voltage that the motors can get stays nearly the same until the cells are nearly empty.
 
 ### When to recharge
 
-Neither robot has a battery-protection cutoff.
-The motor battery's voltage isn't measured, and nothing stops the motors when it gets low.
-Remo's firmware, for example, has one automatic stop, [the command timeout](packages/diffbot_base/low-level.md#the-command-timeout): the firmware releases the motors when no wheel commands arrive.
-So you decide when the cells are recharged: on both robots, recharge all eight cells after each use, as [Charging the NiMH cells](#charging-the-nimh-cells) describes. Don't drive until the robot gets slow or stops.
+Remo's firmware doesn't monitor the motor battery's voltage.
+Its [command timeout](packages/diffbot_base/low-level.md#the-command-timeout) releases the motors when wheel commands stop arriving.
+Recharge Remo's eight cells after each use, as [Charging the NiMH cells](#charging-the-nimh-cells) describes.
 
-Two things speak against driving a robot until it stops. The first is shown on Remo:
+Two things speak against driving Remo until it stops:
 
 - **The speed doesn't show the state of the cells:** Remo's firmware regulates the speed of each wheel. Its [PID controller](packages/diffbot_base/pid.md) compares the measured speed with the target speed and changes the duty cycle. When the voltage of the pack falls, the controller raises the duty cycle. So the speed can look steady while the cells run down, and it gives no reliable sign of when to recharge.
 - **A deep discharge damages NiMH cells:** In a pack, the same current flows through all eight cells. The cell with the least charge is empty first, and the others keep driving the current through it. Its voltage then reverses. Energizer calls this battery reversal: the cell can vent, and the damage stays. Energizer recommends removing the load before a NiMH battery is fully discharged ([Nickel Metal Hydride Handbook](https://energizer.com/eu/austria/wp-content/uploads/2024/05/nickelmetalhydride_appman.pdf), Discharge Termination on page 9 and Battery Reversal on page 12).
 
-## DiffBot: eight NiMH cells and the Grove I2C Motor Driver
+## DiffBot: four alkaline cells and the Grove I2C Motor Driver
 
-DiffBot's eight NiMH AA cells are connected to the power terminal of the [Grove I2C Motor Driver V1.3](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/).
+DiffBot's four alkaline AA cells sit in the battery holder of its robot car kit and are connected to the power terminal of the [Grove I2C Motor Driver V1.3](grove_motor_driver.md#connection).
 
-- **Input range:** Seeed specifies 6 V to 15 V at this terminal. Eight NiMH cells stay inside this range, from about 11.2 V at the start of the example discharge curves down to 8.0 V at the end value of the capacity test.
-- **Logic supply:** The board makes the supply for its own logic from this input. Behind a protection diode (D9 in Seeed's [schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)), a 78M05 regulator supplies the board's microcontroller, the logic of the L298 and the VCC pin of the I2C connector. The [78M05 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/ST_78M05DataSheet.pdf) specifies its 5 V for inputs from 7 V to 20 V. If the battery supplies 9.6 V at the board and D9 drops 1.1 V at 1 A, the regulator receives 8.5 V. Its specified input range starts at 7 V. With the same diode drop, an 8.0 V pack would give the regulator 6.9 V.
-- **Voltage drop:** On its way to a motor, the current passes the protection diode (D9, a 1N4007, in Seeed's schematic) and two transistors of the L298. The diode carries the current of the whole board: both motors and the board's logic. Each bridge of the L298 carries the current of its own motor. At 1 A, the [1N4007 datasheet](https://www.vishay.com/docs/88503/1n4001.pdf) gives up to 1.1 V for the diode. The [L298 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf) gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. Seeed limits the board to 0.5 A per channel ([Specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/)). On the bench, with the board on 10 V, a DG01D-E got 7.9 V at the highest command, a drop of 2.1 V ([Wheel Encoder Measurements](DG01D-E-motor-with-encoder.md#wheel-encoder-measurements)).
-- **What the motors get:** At the maximum duty cycle, a motor gets close to the battery voltage under load minus the drop. On the bench, the motor received 2.1 V less than the board supply at speed 100. If that difference were the same on DiffBot, 9.6 V at the board would give about 7.5 V at the motor, and 11.2 V would give about 9.1 V. Neither motor voltage has been measured on DiffBot.
+- **Voltage:** A primary alkaline AA cell is rated at 1.5 V. Energizer gives an open-circuit example of 1.6 V per cell ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf)). Four in series give 6.0 V nominal, or about 6.4 V fresh without load.
+- **Input range:** Seeed specifies 6 V to 15 V at the screw terminal ([specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications)). The pack's nominal voltage is at that lower limit. When the motors draw current, even fresh cells can drop below it. At Energizer's example device end point of 0.9 V per cell, the pack would give 3.6 V, already below the driver's range. Energizer gives 0.8 V per cell as the minimum discharge cutoff, because a deep discharge increases gassing. DiffBot has no measured replacement threshold.
+- **Logic supply:** The motor battery feeds the board's 78M05 regulator through the protection diode D9 (Seeed's [schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)). The regulator supplies the ATmega8 and the logic of the L298. The driver's jumper J4 connects that rail to the Grove connector's VCC pin when it is fitted. The [78M05 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/ST_78M05DataSheet.pdf) specifies a 5 V output for 7 V to 20 V at the regulator's input. Even the 6.4 V open-circuit example is below 7 V before the diode's drop. The logic voltage on DiffBot has not been measured.
+- **Voltage drop:** On its way to a motor, the current passes the protection diode (D9, a 1N4007, in Seeed's schematic) and two transistors of the L298. The diode carries the current of the whole board: both motors and the board's logic. Each bridge of the L298 carries the current of its own motor. At 1 A, the [1N4007 datasheet](https://www.vishay.com/docs/88503/1n4001.pdf) gives up to 1.1 V for the diode. The [L298 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf) gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. Seeed limits the board to 0.5 A per channel ([Specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications)).
+- **What the motors get:** At speed 100 on the bench, the motor received 7.9 V with 10 V at the board, a difference of 2.1 V ([Wheel Encoder Measurements](DG01D-E-motor-with-encoder.md#wheel-encoder-measurements)). If the board operated at 6.0 V under load and the difference were still 2.1 V, the motor would receive about 3.9 V. The motor is rated for 3 V to 9 V. DiffBot's loaded pack voltage, motor voltage and motor current have not been measured.
+- **Used cells:** Replace all four primary alkaline cells together, with fresh AA cells of the same type and make. Never recharge these cells or mix them with used cells ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), Care and Handling).
 
 ## Remo: eight NiMH cells and the Adafruit FeatherWing
 
@@ -92,29 +89,30 @@ The holder's cable goes to the 2-pin power terminal of the [Adafruit DC Motor + 
 
 ## Other AA-sized cells
 
-Use eight NiMH AA cells in each holder. Two other cells of similar size have different electrical characteristics:
+Each holder takes cells of the AA size: DiffBot's four, Remo's eight. Other cells of this size have different voltages:
 
-- **Alkaline AA batteries:** They can't be recharged. A fresh alkaline cell has about 1.6 V without load ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf)). Eight fresh cells give about 12.8 V without load. This exceeds the FeatherWing guide's 12 V supply recommendation.
-- **14500 lithium-ion cells:** A 14500 cell with 3.6 V or 3.7 V nominal has 4.2 V when fully charged ([Nitecore's charger manual](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), section Default Settings). Eight of them give 33.6 V, far above the 15 V of the Grove I2C Motor Driver and the 13.5 V of the FeatherWing.
+- **Alkaline AA cells in Remo's holder:** They can't be recharged. A fresh alkaline cell has about 1.6 V without load ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf)). Eight fresh cells give about 12.8 V without load. This exceeds the FeatherWing guide's 12 V supply recommendation.
+- **NiMH AA cells in DiffBot's holder:** Four NiMH cells give 4.8 V nominal, below the 6 V that Seeed specifies for the Grove I2C Motor Driver.
+- **14500 lithium-ion cells:** A 14500 cell with 3.6 V or 3.7 V nominal has 4.2 V when fully charged ([Nitecore's charger manual](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), section Default Settings). Four of them give 16.8 V, above the 15 V of the Grove I2C Motor Driver, and eight give 33.6 V, far above the 13.5 V of the FeatherWing.
 
-## Why the robots use NiMH cells
+## Why Remo uses NiMH cells
 
-- **Voltage:** Eight NiMH cells stay inside the input ranges of both motor drivers, as shown above.
+- **Voltage:** At the three example pack voltages in the NiMH table, Remo's battery is within the FeatherWing's input range.
 - **Steady voltage:** Their voltage stays near 1.2 V for most of the discharge.
 - **High currents:** The higher the current, the longer NiMH cells last compared with alkaline cells. Energizer's comparison gives a NiMH cell more than twice the capacity of an alkaline cell at 1000 mA, and about 1.2 times at 250 mA (Figure 7 in the [Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf)).
 - **Recharging:** They can be charged again many times, so you don't need new batteries after each run.
 
-The robots use Amazon Basics NiMH AA cells with 2000 mAh and 1.2 V, sold as an 8-pack ([Amazon.com][amazon_nimh_aa_2000mah_8x_us], [Amazon.de][amazon_nimh_aa_2000mah_8x_ger], affiliate links).
-One pack fills a robot's holder.
+Remo uses Amazon Basics NiMH AA cells with 2000 mAh and 1.2 V, sold as an 8-pack ([Amazon.com][amazon_nimh_aa_2000mah_8x_us], [Amazon.de][amazon_nimh_aa_2000mah_8x_ger], affiliate links).
+One pack fills Remo's holder.
 
 ## Charging the NiMH cells
 
-The NiMH cells are charged outside the robot, in a [Nitecore UMS4](https://www.nitecore.com/product/ums4) ([Amazon.com][amazon_nitecore_ums4_us], [Amazon.de][amazon_nitecore_ums4_ger], affiliate links).
+Charge Remo's NiMH cells outside the robot, in a [Nitecore UMS4](https://www.nitecore.com/product/ums4) ([Amazon.com][amazon_nitecore_ums4_us], [Amazon.de][amazon_nitecore_ums4_ger], affiliate links).
 The charger has four slots, so the eight cells take two rounds of four.
 The steps follow Nitecore's [user manual for the UMS4](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), whose English part comes first.
 Read the manual's Precautions before the first charge.
 
-1. Take the cells out of the robot's battery holder. On DiffBot, shut down the Raspberry Pi and unplug its power bank first, and plug the power bank in again only when the cells are back. The [Grove I2C Motor Driver page](grove_motor_driver.md#connection) explains this order.
+1. Take the cells out of Remo's battery holder.
 2. Connect the charger to a USB power adapter with its USB cable.
 3. Insert four of the eight cells. Each slot has marks for the plus pole and the minus pole. Insert every cell the way the marks of its slot show. The charger starts by itself.
 4. Check each slot on the display. A short press of the C button selects the next slot, and short presses of the V button step through the slot's values, among them Battery Health.
@@ -123,9 +121,9 @@ Read the manual's Precautions before the first charge.
 5. Wait until the display shows for each slot that its charge has ended. The charger ends the charge of each slot on its own, so one cell can still be charging when the others are full. Check every slot before you take the cells out. If charging in one slot exceeds 20 hours, the UMS4 stops that slot and shows `END` below `CHG. STATUS` (the manual's Overtime Charging Protection). Treat the cell's state of charge as unknown and leave it out of the pack.
 6. Take out the four cells and repeat steps 3 to 5 with the other four.
 7. Unplug the charger and take out the cells when the second round is done. Don't leave the charger unattended while it is connected (precautions 8 and 19 of the manual).
-8. Put the cells back into the robot's holder only if all of them have finished their charge and none is faulty or showed `Poor` or `END`. Keep the eight cells together as one set, and don't mix them with older cells or other types of batteries. Energizer warns that mixing can make cells rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). So if a cell fails, replace the whole set, not only that cell.
+8. Put the cells back into Remo's holder only if all of them have finished their charge and none is faulty or showed `Poor` or `END`. Keep the eight cells together as one set, and don't mix them with older cells or other types of batteries. Energizer warns that mixing can make cells rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). So if a cell fails, replace the whole set, not only that cell.
 
-!!! warning "These steps are for the robots' NiMH cells only"
+!!! warning "These steps are for Remo's NiMH cells only"
     - **Never charge alkaline AA batteries**, or any other battery that isn't marked as rechargeable. Recharging a battery that isn't rechargeable can make it rupture or leak (Alkaline Handbook, section Testing / Care / Warnings). Nitecore's manual forbids such batteries in the charger as well (precautions 1 and 10).
     - **Other rechargeable cells** can need settings that this page doesn't describe. Follow Nitecore's manual for them.
 
@@ -136,7 +134,7 @@ So a charger has to notice when a cell is full, and then stop.
 Energizer recommends a smart charger for this, one that protects the cells from overcharge ([Nickel Metal Hydride Handbook](https://energizer.com/eu/austria/wp-content/uploads/2024/05/nickelmetalhydride_appman.pdf), pages 10 and 11).
 That's also why Energizer warns against chargers that aren't designed for the battery type ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings).
 
-For the robots' NiMH cells, the UMS4 does the following:
+For Remo's NiMH cells, the UMS4 does the following:
 
 - **Charging mode:** For NiMH cells, it selects the charging mode by itself ([manual](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), the note under Default Settings).
 - **End of the charge:** Nitecore lists −dV/dt as one of the charger's modes ([specifications](https://www.nitecore.com/product/ums4)). This method ends a charge when the cell voltage starts to fall. A NiMH cell's voltage peaks when the cell is full and then falls slightly (Energizer's handbook above, page 10).
