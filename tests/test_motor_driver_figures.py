@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
 sys.path.insert(0, str(ROOT / 'tests'))
 
+from board_drawings import Point  # noqa: E402
 from figure_script_runs import run_with_an_ascii_locale  # noqa: E402
 import motor_driver_figures as figures  # noqa: E402
 from svg_paths import path_segments  # noqa: E402
@@ -32,6 +33,27 @@ PAGE = ROOT / 'docs' / 'theory' / 'actuation.md'
 POWER_SUPPLY_PAGE = ROOT / 'docs' / 'power-supply.md'
 # How the page writes the site's folder of shared images, docs/resources
 ASSET_DIR = '{{ asset_dir }}/'
+# The photos of the page: the DG01D-E from the site's shared images, then two from Wikimedia
+# Commons in the page's folder of images, under CC BY-SA 3.0
+DG01D_E_PHOTO = ASSET_DIR + 'hardware/encoder/DG01D-E_exposed_encoder.jpg'
+IMAGES = ROOT / 'docs' / 'theory' / 'images'
+CC_BY_SA_3 = '<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>'
+
+
+class CommonsPhoto(NamedTuple):
+    """A photo from Wikimedia Commons: its file in IMAGES, its title, author and file page."""
+
+    file_name: str
+    title: str
+    author: str
+    file_page: str
+
+
+COMMONS_PHOTOS = (
+    CommonsPhoto('brushed-dc-motor-assembly.jpg', 'Brushed dc motor assembly', 'Ilia Krivoruk',
+                 'https://commons.wikimedia.org/wiki/File:Brushed_dc_motor_assembly.jpg'),
+    CommonsPhoto('small-dc-motor-rotor.jpg', 'Small DC Motor Rotor', 'Jjmontero9',
+                 'https://commons.wikimedia.org/wiki/File:Small_DC_Motor_Rotor.JPG'))
 # The includes that the script has to write, each with the accessible name of its two layouts.
 # The names stand here on their own, so that a script that renames one fails a test
 DRAWING_TITLES = {
@@ -387,7 +409,7 @@ class TestIncludes(unittest.TestCase):
                 self.assertEqual(drawing.get('aria-labelledby'), title.get('id'), include_name)
                 self.assertEqual(title.text, expected_title, include_name)
                 title_ids.append(title.get('id'))
-        # Both includes stand on one page, so no two of their drawings may share an ID
+        # All three includes stand on one page, so no two of their drawings may share an ID
         self.assertEqual(len(set(title_ids)), len(title_ids), title_ids)
 
     def test_every_class_that_a_layout_draws_has_a_rule_in_its_includes_style(self) -> None:
@@ -423,7 +445,7 @@ class TestIncludes(unittest.TestCase):
 class TestDrawingBounds(unittest.TestCase):
     """Nothing of a generated drawing lies outside the drawing, where it would be cut off."""
 
-    def test_every_text_circle_and_path_point_lies_inside_its_drawing(self) -> None:
+    def test_every_text_circle_rectangle_and_path_point_lies_inside_its_drawing(self) -> None:
         drawings = ([figures.commutator_figure(layout) for layout in figures.MOTOR_LAYOUTS]
                     + [figures.h_bridge_figure(layout) for layout in figures.BRIDGE_LAYOUTS]
                     + [figures.pwm_figure(layout) for layout in figures.PWM_LAYOUTS])
@@ -438,29 +460,46 @@ class TestDrawingBounds(unittest.TestCase):
             for path in drawing.iter('path'):
                 for piece in path_segments(path.get('d', '')):
                     points += [(piece.x1, piece.y1), (piece.x2, piece.y2)]
+            for rect in drawing.iter('rect'):
+                left, top = float(rect.get('x', 0)), float(rect.get('y', 0))
+                points += [(left, top), (left + float(rect.get('width', 0)),
+                                         top + float(rect.get('height', 0)))]
             for x, y in points:
                 self.assertTrue(0 <= x <= width and 0 <= y <= height,
                                 (drawing.get('class'), drawing.findtext('title'), x, y))
 
 
-# The commutator figure's motor: the field runs from the N magnet on the left to the S magnet on
-# the right, along +x, and +z points out of the page, toward the viewer
-FIELD = (1.0, 0.0, 0.0)
-OUT_OF_PAGE = (0.0, 0.0, 1.0)
-INTO_PAGE = (0.0, 0.0, -1.0)
+class Vector(NamedTuple):
+    """A vector in the commutator figure's motor: x to the right, y up, z out of the page."""
+
+    x: float
+    y: float
+    z: float
+
+
+# The field runs from the N magnet on the left to the S magnet on the right, along +x
+FIELD = Vector(1, 0, 0)
+OUT_OF_PAGE = Vector(0, 0, 1)
+INTO_PAGE = Vector(0, 0, -1)
 # The places of the winding's sides next to the magnets, counterclockwise from +x
 NEXT_TO_N = 180
 NEXT_TO_S = 0
 # The side that the + brush feeds at each moment of the figure, in order
 FED_SIDES = ['a', 'b']
-Vector = Tuple[float, float, float]
+# The rotations around the changeovers, when the sides pass the top and the bottom a quarter and
+# three quarters of a turn after the start, with the side that the + brush feeds: none in a gap
+CHANGEOVERS: Tuple[Tuple[float, List[str]], ...] = (
+    (75, ['a']), (90, []), (105, ['b']), (255, ['b']), (270, []), (285, ['a']))
+# How close two drawn points must be to count as one, in the drawing's units: the script writes
+# a path's coordinates to one decimal
+SAME_POINT = 0.15
 
 
 def cross(first: Vector, second: Vector) -> Vector:
     """Return the cross product first × second."""
-    return (first[1] * second[2] - first[2] * second[1],
-            first[2] * second[0] - first[0] * second[2],
-            first[0] * second[1] - first[1] * second[0])
+    return Vector(first.y * second.z - first.z * second.y,
+                  first.z * second.x - first.x * second.z,
+                  first.x * second.y - first.y * second.x)
 
 
 def current_direction(side: figures.WindingSide, moment: figures.Moment) -> Vector:
@@ -469,13 +508,12 @@ def current_direction(side: figures.WindingSide, moment: figures.Moment) -> Vect
 
 
 def torque(place: float, current: Vector) -> float:
-    """Return the torque about the shaft on a side at an angle with a current, along +z.
+    """Return the torque about the shaft, along +z, on a side at an angle with a current.
 
     The side lies one unit from the shaft, and the force on it is its current × the field.
     """
-    force = cross(current, FIELD)
-    x, y = math.cos(math.radians(place)), math.sin(math.radians(place))
-    return x * force[1] - y * force[0]
+    lever = Vector(math.cos(math.radians(place)), math.sin(math.radians(place)), 0)
+    return cross(lever, cross(current, FIELD)).z
 
 
 class TestCommutator(unittest.TestCase):
@@ -505,21 +543,37 @@ class TestCommutator(unittest.TestCase):
                              moment.title)
 
     def test_the_fed_side_swaps_after_half_a_turn(self) -> None:
-        self.assertEqual([figures.fed_side(moment).name for moment in figures.MOMENTS], FED_SIDES)
+        self.assertEqual([figures.fed_side(moment).name for moment in figures.MOMENTS],
+                         FED_SIDES)
+
+    def test_the_brushes_change_sides_where_the_sides_pass_the_top_and_the_bottom(self) -> None:
+        names = {side.name for side in figures.WINDING_SIDES}
+        for rotation, fed in CHANGEOVERS:
+            moment = figures.Moment(f'{rotation}°', rotation)
+            on_plus = [side.name for side in
+                       figures.sides_touching(moment, figures.PLUS_BRUSH_ANGLE)]
+            on_minus = [side.name for side in
+                        figures.sides_touching(moment, figures.MINUS_BRUSH_ANGLE)]
+            self.assertEqual(on_plus, fed, rotation)
+            self.assertEqual(on_minus, sorted(names - set(fed)) if fed else [], rotation)
 
     def test_the_push_up_is_that_of_the_current_crossed_with_the_field(self) -> None:
         for moment in figures.MOMENTS:
             for side in figures.WINDING_SIDES:
                 force = cross(current_direction(side, moment), FIELD)
-                self.assertEqual(figures.push_up(side, moment), force[1] > 0,
+                self.assertEqual(figures.push_up(side, moment), force.y > 0,
                                  (moment.title, side.name))
 
-    def test_both_sides_turn_the_rotor_counterclockwise_at_both_moments(self) -> None:
-        for moment in figures.MOMENTS:
+    def test_both_sides_turn_the_rotor_counterclockwise_whenever_a_brush_feeds_them(
+            self) -> None:
+        rotations = [moment.rotation for moment in figures.MOMENTS]
+        rotations += [rotation for rotation, fed in CHANGEOVERS if fed]
+        for rotation in rotations:
+            moment = figures.Moment(f'{rotation}°', rotation)
             for side in figures.WINDING_SIDES:
                 place = figures.side_angle(side, moment)
                 self.assertGreater(torque(place, current_direction(side, moment)), 0,
-                                   (moment.title, side.name))
+                                   (rotation, side.name))
 
     def test_without_the_commutator_the_torque_would_reverse_half_a_turn_later(self) -> None:
         # Each side keeps its current of the start, as two rings instead of a commutator would
@@ -530,167 +584,294 @@ class TestCommutator(unittest.TestCase):
 
 
 class DrawnMoment(NamedTuple):
-    """What one panel of the commutator figure draws, around its shaft."""
+    """What one panel of the commutator figure draws around its shaft: texts, paths, circles."""
 
-    shaft_x: float
-    shaft_y: float
+    shaft: Point
     labels: List[Label]
-    paths: List[Tuple[str, List[Segment]]]  # each path's class and straight pieces
-    circles: List[Tuple[str, Circle]]  # each circle's class and its place
-
-    def paths_of(self, css_class: str) -> List[List[Segment]]:
-        """Return the straight pieces of each path whose class is exactly css_class."""
-        return [pieces for path_class, pieces in self.paths if path_class == css_class]
-
-    def circles_of(self, css_class: str) -> List[Circle]:
-        """Return the circles whose class is exactly css_class."""
-        return [circle for circle_class, circle in self.circles if circle_class == css_class]
+    paths: Dict[str, List[List[Segment]]]  # the straight pieces of each path, by its class
+    circles: Dict[str, List[Circle]]  # by class
 
     def label(self, text: str) -> Label:
         """Return the one label with a text."""
         return only(label for label in self.labels if label.text == text)
 
 
-def element_point(element: ElementTree.Element) -> Tuple[float, float]:
-    """Return a point of a drawn element: a circle's center, a text's anchor, a path's start."""
+class DrawnPanel(NamedTuple):
+    """One panel of a layout of the commutator figure: the layout's class, the moment's index."""
+
+    layout_class: str
+    moment_index: int
+    moment: DrawnMoment
+
+
+def element_anchor(element: ElementTree.Element) -> Point:
+    """Return where a drawn element starts: a circle's center, a path's start, a text's anchor."""
     if element.tag == 'circle':
-        return float(element.get('cx', 0)), float(element.get('cy', 0))
+        return Point(float(element.get('cx', 0)), float(element.get('cy', 0)))
     if element.tag == 'path':
         first = path_segments(element.get('d', ''))[0]
-        return first.x1, first.y1
-    return float(element.get('x', 0)), float(element.get('y', 0))
+        return Point(first.x1, first.y1)
+    return Point(float(element.get('x', 0)), float(element.get('y', 0)))
 
 
-def drawn_moments(layout: figures.MotorLayout) -> List[DrawnMoment]:
-    """Return what each panel of a layout of the commutator figure draws, in order."""
-    drawing = ElementTree.fromstring(figures.commutator_figure(layout))
-    moments = []
-    for index in range(len(figures.MOMENTS)):
-        panel = layout.panel(index)
-        shaft_x, shaft_y = panel.shaft
-
-        def inside(element: ElementTree.Element) -> bool:
-            x, y = element_point(element)
-            return (abs(x - panel.middle_x) <= figures.MOTOR_PANEL_WIDTH / 2
-                    and panel.top <= y <= panel.top + figures.MOTOR_PANEL_HEIGHT)
-
-        elements = [element for element in drawing.iter()
-                    if element.tag in ('circle', 'path', 'text', 'rect') and inside(element)]
-        moments.append(DrawnMoment(
-            shaft_x, shaft_y,
-            [Label(float(element.get('x', 0)), float(element.get('y', 0)),
-                   ''.join(element.itertext()), element.get('class', ''))
-             for element in elements if element.tag == 'text'],
-            [(element.get('class', ''), path_segments(element.get('d', '')))
-             for element in elements if element.tag == 'path'],
-            [(element.get('class', ''), Circle(float(element.get('cx', 0)),
-                                               float(element.get('cy', 0)),
-                                               float(element.get('r', 0))))
-             for element in elements if element.tag == 'circle']))
-    return moments
+def panel_holds(panel: figures.MotorPanel, point: Point) -> bool:
+    """Return whether a point lies inside a panel of the commutator figure."""
+    return (abs(point.x - panel.middle_x) <= figures.MOTOR_PANEL_WIDTH / 2
+            and panel.top <= point.y <= panel.top + figures.MOTOR_PANEL_HEIGHT)
 
 
-def middle_of(pieces: List[Segment]) -> Tuple[float, float]:
-    """Return the mean of the points of a path's straight pieces."""
-    points = [(piece.x1, piece.y1) for piece in pieces] + [(pieces[-1].x2, pieces[-1].y2)]
-    return (sum(x for x, _ in points) / len(points), sum(y for _, y in points) / len(points))
+def collect_moment(drawing: ElementTree.Element, panel: figures.MotorPanel) -> DrawnMoment:
+    """Return what a panel of a drawing draws: its texts, and its paths and circles by class."""
+    moment = DrawnMoment(panel.shaft, [], {}, {})
+    for element in drawing.iter():
+        if element.tag not in ('circle', 'path', 'text', 'rect'):
+            continue
+        if not panel_holds(panel, element_anchor(element)):
+            continue
+        css_class = element.get('class', '')
+        if element.tag == 'path':
+            moment.paths.setdefault(css_class, []).append(path_segments(element.get('d', '')))
+        elif element.tag == 'circle':
+            center = element_anchor(element)
+            moment.circles.setdefault(css_class, []).append(
+                Circle(center.x, center.y, float(element.get('r', 0))))
+        elif element.tag == 'text':
+            anchor = element_anchor(element)
+            moment.labels.append(Label(anchor.x, anchor.y, ''.join(element.itertext()),
+                                       css_class))
+        else:
+            raise AssertionError(f'a rect of class {css_class} that no test reads')
+    return moment
+
+
+def drawn_panels() -> List[DrawnPanel]:
+    """Return the panels of both layouts of the commutator figure, with what each draws."""
+    panels = []
+    for layout in figures.MOTOR_LAYOUTS:
+        drawing = ElementTree.fromstring(figures.commutator_figure(layout))
+        panels += [DrawnPanel(layout.css_class, index,
+                              collect_moment(drawing, layout.panel(index)))
+                   for index in range(len(figures.MOMENTS))]
+    return panels
+
+
+def points_of(pieces: List[Segment]) -> List[Point]:
+    """Return the points of a path's straight pieces, in order."""
+    return [Point(piece.x1, piece.y1) for piece in pieces] + [Point(pieces[-1].x2, pieces[-1].y2)]
+
+
+def middle_of(points: Sequence[Point]) -> Point:
+    """Return the mean of points."""
+    return Point(sum(point.x for point in points) / len(points),
+                 sum(point.y for point in points) / len(points))
+
+
+def distance(first: Point, second: Point) -> float:
+    """Return the distance between two points."""
+    return math.hypot(first.x - second.x, first.y - second.y)
+
+
+def angle_around(shaft: Point, point: Point) -> float:
+    """Return the angle of a point around the shaft, counterclockwise from +x, in degrees.
+
+    The drawing's y grows downward, so the angle takes the y difference the other way round.
+    """
+    return math.degrees(math.atan2(shaft.y - point.y, point.x - shaft.x))
+
+
+def arrowhead_heading(head: List[Segment]) -> Point:
+    """Return the vector from the middle of a triangular arrowhead's base to its tip.
+
+    The script draws an arrowhead from one corner of the base to the tip to the other corner.
+    """
+    tip = Point(head[0].x2, head[0].y2)
+    base = middle_of([Point(head[0].x1, head[0].y1), Point(head[1].x2, head[1].y2)])
+    return Point(tip.x - base.x, tip.y - base.y)
+
+
+def rule_value(rules: Sequence[Tuple[str, str]], selector: str, name: str) -> str:
+    """Return the value of a property in the rule of a selector."""
+    declarations = dict(rule for rule in rules)[selector]
+    return only(re.findall(rf'(?:^|;){name}:([^;]+)', declarations))
 
 
 class TestDrawnCommutator(unittest.TestCase):
     """Each panel draws the commutator's moment that TestCommutator checks."""
 
-    def moments(self) -> List[Tuple[str, int, DrawnMoment]]:
-        """Return each layout's class, each moment's index and what its panel draws."""
-        return [(layout.css_class, index, moment) for layout in figures.MOTOR_LAYOUTS
-                for index, moment in enumerate(drawn_moments(layout))]
-
     def test_each_panel_has_its_title_and_names_the_side_that_the_plus_brush_feeds(self) -> None:
-        for layout_class, index, moment in self.moments():
+        for layout_class, index, moment in drawn_panels():
             texts = [label.text for label in moment.labels]
             self.assertIn(figures.MOMENTS[index].title, texts, layout_class)
             self.assertIn(f"+ brush on {FED_SIDES[index]}'s segment", texts, layout_class)
 
-    def test_the_plus_lead_ends_above_the_shaft_and_the_minus_lead_below_it(self) -> None:
-        for layout_class, index, moment in self.moments():
-            self.assertLess(moment.label('+').y, moment.shaft_y, (layout_class, index))
-            self.assertGreater(moment.label('−').y, moment.shaft_y, (layout_class, index))
+    def test_the_n_magnet_stands_left_of_the_shaft_and_the_s_magnet_right_of_it(self) -> None:
+        for layout_class, index, moment in drawn_panels():
+            magnets = sorted(middle_of(points_of(pieces)) for pieces in moment.paths['magnet'])
+            self.assertEqual(len(magnets), 2, (layout_class, index))
+            left, right = magnets
+            self.assertLess(left.x, moment.shaft.x)
+            self.assertGreater(right.x, moment.shaft.x)
+            for letter, own, other in (('N', left, right), ('S', right, left)):
+                label = moment.label(letter)
+                place = Point(label.x, label.y)
+                self.assertLess(distance(place, own), distance(place, other),
+                                (layout_class, index, letter))
+
+    def test_the_plus_lead_ends_above_the_shaft_at_its_sign_and_the_minus_lead_below(
+            self) -> None:
+        for layout_class, index, moment in drawn_panels():
+            ends = sorted((points_of(lead)[-1] for lead in moment.paths['lead']),
+                          key=lambda point: point.y)
+            self.assertEqual(len(ends), 2, (layout_class, index))
+            upper, lower = ends
+            self.assertLess(upper.y, moment.shaft.y)
+            self.assertGreater(lower.y, moment.shaft.y)
+            plus, minus = moment.label('+'), moment.label('−')
+            self.assertAlmostEqual(plus.x, upper.x, delta=SAME_POINT)
+            self.assertAlmostEqual(minus.x, lower.x, delta=SAME_POINT)
+            self.assertLess(plus.y, upper.y)
+            self.assertGreater(minus.y, lower.y)
+
+    def test_each_brush_touches_the_segments_with_a_tip_narrower_than_their_gap(self) -> None:
+        stroke = float(rule_value(figures.COMMUTATOR_RULES, '.ac-fig .segment', 'stroke-width'))
+        for layout_class, index, moment in drawn_panels():
+            arcs = [points_of(pieces) for pieces in
+                    moment.paths['segment'] + moment.paths['segment dashed']]
+            radius = distance(moment.shaft, arcs[0][0])
+            # The two gaps lie between the end of each arc and the start of the other
+            gap = min(distance(arcs[0][-1], arcs[1][0]), distance(arcs[1][-1], arcs[0][0]))
+            leads = [points_of(lead)[0] for lead in moment.paths['lead']]
+            brushes = moment.paths['brush']
+            self.assertEqual(len(brushes), 2, (layout_class, index))
+            for brush in brushes:
+                corners = sorted(points_of(brush)[:-1],
+                                 key=lambda corner: distance(moment.shaft, corner))
+                tip, back = corners[:2], corners[-2:]
+                self.assertAlmostEqual(distance(moment.shaft, middle_of(tip)),
+                                       radius + stroke / 2, delta=SAME_POINT)
+                self.assertLess(distance(*tip), gap, (layout_class, index))
+                # A lead starts at the middle of its brush's back
+                self.assertTrue(any(distance(start, middle_of(back)) < SAME_POINT
+                                    for start in leads), (layout_class, index))
 
     def test_the_side_names_swap_places_after_half_a_turn(self) -> None:
-        for layout_class, index, moment in self.moments():
+        for layout_class, index, moment in drawn_panels():
             fed, other = moment.label(FED_SIDES[index]), moment.label(FED_SIDES[1 - index])
-            self.assertLess(fed.x, moment.shaft_x, (layout_class, index))
-            self.assertGreater(other.x, moment.shaft_x, (layout_class, index))
+            self.assertLess(fed.x, moment.shaft.x, (layout_class, index))
+            self.assertGreater(other.x, moment.shaft.x, (layout_class, index))
 
-    def test_the_cross_marks_the_side_next_to_n_and_the_dot_the_side_next_to_s(self) -> None:
-        for layout_class, index, moment in self.moments():
-            left, right = sorted(moment.circles_of('conductor'))
-            cross_x, cross_y = middle_of(only(moment.paths_of('into-page')))
-            self.assertTrue(left.holds(cross_x, cross_y), (layout_class, index))
-            dot = only(moment.circles_of('out-of-page'))
-            self.assertTrue(right.holds(dot.x, dot.y), (layout_class, index))
-            self.assertLess(left.x, moment.shaft_x)
-            self.assertGreater(right.x, moment.shaft_x)
+    def test_a_cross_marks_the_side_next_to_n_and_a_dot_the_side_next_to_s(self) -> None:
+        for layout_class, index, moment in drawn_panels():
+            left, right = sorted(moment.circles['conductor'])
+            self.assertLess(left.x, moment.shaft.x)
+            self.assertGreater(right.x, moment.shaft.x)
+            diagonals = only(moment.paths['into-page'])
+            self.assertEqual(len(diagonals), 2, (layout_class, index))
+            slopes = []
+            for diagonal in diagonals:
+                dx, dy = diagonal.x2 - diagonal.x1, diagonal.y2 - diagonal.y1
+                self.assertAlmostEqual(abs(dx), abs(dy), delta=SAME_POINT)
+                self.assertGreater(abs(dx), 0)
+                slopes.append(math.copysign(1, dx * dy))
+                middle = middle_of(points_of([diagonal]))
+                self.assertLess(distance(middle, Point(left.x, left.y)), SAME_POINT)
+            self.assertEqual(sorted(slopes), [-1, 1], (layout_class, index))
+            dot = only(moment.circles['out-of-page'])
+            self.assertLess(distance(Point(dot.x, dot.y), Point(right.x, right.y)), SAME_POINT)
 
     def test_the_arrows_push_the_side_at_n_down_and_the_side_at_s_up(self) -> None:
-        for layout_class, index, moment in self.moments():
-            arrows = moment.paths_of('force')
-            self.assertEqual(len(arrows), 2, (layout_class, index))
-            for (arrow,) in arrows:
-                at_n = arrow.x1 < moment.shaft_x
-                # The drawing's y grows downward
-                self.assertEqual(arrow.y2 > arrow.y1, at_n, (layout_class, index, arrow))
+        for layout_class, index, moment in drawn_panels():
+            conductors = moment.circles['conductor']
+            heads = [arrowhead_heading(head) for head in moment.paths['force-head']]
+            tips = [Point(head[0].x2, head[0].y2) for head in moment.paths['force-head']]
+            self.assertEqual(len(moment.paths['force']), 2, (layout_class, index))
+            for (line,) in moment.paths['force']:
+                start, end = Point(line.x1, line.y1), Point(line.x2, line.y2)
+                conductor = only(circle for circle in conductors
+                                 if abs(distance(start, Point(circle.x, circle.y))
+                                        - circle.radius) < SAME_POINT)
+                at_n = conductor.x < moment.shaft.x
+                # The drawing's y grows downward, so a push down has a growing y
+                self.assertEqual(end.y > start.y, at_n, (layout_class, index))
+                head = only(heading for heading, tip in zip(heads, tips)
+                            if distance(tip, end) < SAME_POINT)
+                self.assertEqual(head.y > 0, at_n, (layout_class, index))
+                self.assertAlmostEqual(head.x, 0, delta=SAME_POINT)
 
     def test_each_sides_name_stands_on_the_other_side_of_its_conductor_than_its_arrow(
             self) -> None:
-        for layout_class, index, moment in self.moments():
-            for conductor in moment.circles_of('conductor'):
-                (arrow,) = only(arrow for arrow in moment.paths_of('force')
-                                if arrow[0].x1 == conductor.x)
-                name = only(label for label in moment.labels
-                            if label.text in FED_SIDES and label.x == conductor.x)
+        for layout_class, index, moment in drawn_panels():
+            for conductor in moment.circles['conductor']:
+                (arrow,) = only(arrow for arrow in moment.paths['force']
+                                if abs(arrow[0].x1 - conductor.x) < SAME_POINT)
+                name = only(label for label in moment.labels if label.text in FED_SIDES
+                            and abs(label.x - conductor.x) < SAME_POINT)
                 arrow_below = arrow.y2 > conductor.y
                 self.assertEqual(name.y < conductor.y, arrow_below,
                                  (layout_class, index, name.text))
 
     def test_the_current_runs_from_plus_to_the_side_at_n_and_from_the_side_at_s_to_minus(
             self) -> None:
-        for layout_class, index, moment in self.moments():
-            left, right = sorted(moment.circles_of('conductor'))
-            into_winding, out_of_winding = moment.paths_of('current')
-            self.assertLess(into_winding[0].y1, moment.shaft_y - figures.MAGNET_INNER_RADIUS)
-            self.assertTrue(left.holds(into_winding[-1].x2, into_winding[-1].y2),
+        for layout_class, index, moment in drawn_panels():
+            left, right = sorted(moment.circles['conductor'])
+            into_winding, out_of_winding = (points_of(path) for path in moment.paths['current'])
+            plus_end, minus_end = sorted((points_of(lead)[-1] for lead in moment.paths['lead']),
+                                         key=lambda point: point.y)
+            self.assertLess(distance(into_winding[0], plus_end), SAME_POINT)
+            self.assertTrue(left.holds(into_winding[-1].x, into_winding[-1].y),
                             (layout_class, index))
-            self.assertTrue(right.holds(out_of_winding[0].x1, out_of_winding[0].y1),
+            self.assertTrue(right.holds(out_of_winding[0].x, out_of_winding[0].y),
                             (layout_class, index))
-            self.assertGreater(out_of_winding[-1].y2,
-                               moment.shaft_y + figures.MAGNET_INNER_RADIUS)
+            self.assertLess(distance(out_of_winding[-1], minus_end), SAME_POINT)
 
-    def test_bs_dashed_segment_lies_at_the_minus_brush_and_then_at_the_plus_brush(self) -> None:
-        for layout_class, index, moment in self.moments():
-            _, segment_y = middle_of(only(moment.paths_of('segment dashed')))
-            under_plus = FED_SIDES[index] == 'b'
-            self.assertEqual(segment_y < moment.shaft_y, under_plus, (layout_class, index))
+    def test_each_link_runs_from_its_own_segment_to_a_conductor(self) -> None:
+        for layout_class, index, moment in drawn_panels():
+            for link_class, segment_class in (('link', 'segment'),
+                                              ('link dashed', 'segment dashed')):
+                start, end = points_of(only(moment.paths[link_class]))
+                arc = points_of(only(moment.paths[segment_class]))
+                self.assertAlmostEqual(distance(moment.shaft, start),
+                                       distance(moment.shaft, arc[0]), delta=SAME_POINT)
+                # The start lies within the arc's span of angles around the shaft
+                angles = [angle_around(moment.shaft, point) for point in arc]
+                middle = angles[len(angles) // 2]
+                span = max(abs(figures.toward(middle, angle) - middle) for angle in angles)
+                start_angle = figures.toward(middle, angle_around(moment.shaft, start))
+                self.assertLessEqual(abs(start_angle - middle), span, (layout_class, index))
+                self.assertTrue(any(circle.holds(end.x, end.y)
+                                    for circle in moment.circles['conductor']))
 
     def test_bs_dashed_link_ends_at_the_side_named_b(self) -> None:
-        for layout_class, index, moment in self.moments():
-            link = only(moment.paths_of('wire dashed'))
-            conductor = only(circle for circle in moment.circles_of('conductor')
-                             if circle.holds(link[-1].x2, link[-1].y2))
-            name = moment.label('b')
-            self.assertEqual(name.x, conductor.x, (layout_class, index))
+        for layout_class, index, moment in drawn_panels():
+            end = points_of(only(moment.paths['link dashed']))[-1]
+            conductor = only(circle for circle in moment.circles['conductor']
+                             if circle.holds(end.x, end.y))
+            self.assertAlmostEqual(moment.label('b').x, conductor.x, delta=SAME_POINT)
 
-    def test_the_turn_arrow_runs_counterclockwise_to_its_arrowhead(self) -> None:
-        for layout_class, index, moment in self.moments():
-            pieces = only(moment.paths_of('turn'))
-            points = [(piece.x1, piece.y1) for piece in pieces] + [(pieces[-1].x2, pieces[-1].y2)]
-            # Counterclockwise on the page: the angle from +x grows, with the y axis flipped
-            angles = [math.degrees(math.atan2(moment.shaft_y - y, x - moment.shaft_x))
-                      for x, y in points]
+    def test_bs_dashed_segment_lies_at_the_minus_brush_and_then_at_the_plus_brush(self) -> None:
+        for layout_class, index, moment in drawn_panels():
+            segment = middle_of(points_of(only(moment.paths['segment dashed'])))
+            under_plus = FED_SIDES[index] == 'b'
+            self.assertEqual(segment.y < moment.shaft.y, under_plus, (layout_class, index))
+
+    def test_the_dashed_parts_have_a_dash_pattern(self) -> None:
+        pattern = rule_value(figures.COMMUTATOR_RULES, '.ac-fig .dashed', 'stroke-dasharray')
+        lengths = [float(length) for length in pattern.split()]
+        self.assertGreaterEqual(len(lengths), 2, pattern)
+        self.assertTrue(all(length > 0 for length in lengths), pattern)
+
+    def test_the_turn_arrow_runs_counterclockwise_into_its_arrowhead(self) -> None:
+        for layout_class, index, moment in drawn_panels():
+            points = points_of(only(moment.paths['turn']))
+            angles = [angle_around(moment.shaft, point) for point in points]
             self.assertEqual(angles, sorted(angles), (layout_class, index))
-            head = only(moment.paths_of('turn-head'))
-            tip = (head[0].x2, head[0].y2)
-            self.assertAlmostEqual(tip[0], points[-1][0], places=1)
-            self.assertAlmostEqual(tip[1], points[-1][1], places=1)
+            head = only(moment.paths['turn-head'])
+            self.assertLess(distance(Point(head[0].x2, head[0].y2), points[-1]), SAME_POINT)
+            heading = arrowhead_heading(head)
+            tangent = Point(points[-1].x - points[-2].x, points[-1].y - points[-2].y)
+            alignment = ((heading.x * tangent.x + heading.y * tangent.y)
+                         / (math.hypot(*heading) * math.hypot(*tangent)))
+            self.assertGreater(alignment, 0.95, (layout_class, index))
 
 
 class TestModes(unittest.TestCase):
@@ -1057,27 +1238,25 @@ class TestPage(unittest.TestCase):
         for include_name in DRAWING_TITLES:
             self.assertIn(f'--8<-- "includes/{include_name}"', self.page)
 
-    def test_every_photo_of_the_page_is_in_the_repository(self) -> None:
+    def test_the_page_shows_the_dg01d_e_photo_and_then_the_commons_photos(self) -> None:
         sources = re.findall(r'<img src="([^"]+)"', self.page)
-        self.assertEqual(len(sources), 3, sources)
-        for source in sources:
-            if source.startswith(ASSET_DIR):
-                path = ROOT / 'docs' / 'resources' / source[len(ASSET_DIR):]
-            else:
-                # The page is served as the folder theory/actuation/, so a relative source starts
-                # there
-                path = (PAGE.parent / PAGE.stem / source).resolve()
-            self.assertTrue(path.is_file(), source)
+        self.assertEqual(sources, [DG01D_E_PHOTO] + [f'../images/{photo.file_name}'
+                                                     for photo in COMMONS_PHOTOS])
 
-    def test_each_photo_from_wikimedia_commons_credits_its_author_and_license(self) -> None:
-        for figure in re.findall(r'<figure>.*?</figure>', self.page, re.DOTALL):
-            if 'src="../images/' not in figure:
-                continue
+    def test_every_photo_of_the_page_is_in_the_repository(self) -> None:
+        self.assertTrue((ROOT / 'docs' / 'resources' / DG01D_E_PHOTO[len(ASSET_DIR):]).is_file())
+        for photo in COMMONS_PHOTOS:
+            self.assertTrue((IMAGES / photo.file_name).is_file(), photo.file_name)
+
+    def test_each_commons_photo_credits_its_title_author_and_license(self) -> None:
+        figures_on_the_page = re.findall(r'<figure>.*?</figure>', self.page, re.DOTALL)
+        for photo in COMMONS_PHOTOS:
+            figure = only(figure for figure in figures_on_the_page
+                          if f'src="../images/{photo.file_name}"' in figure)
             caption = only(re.findall(r'<figcaption>(.*?)</figcaption>', figure, re.DOTALL))
-            self.assertRegex(caption, r'Photo: [^,<]+, via <a href="https://commons\.wikimedia'
-                                      r'\.org/wiki/File:[^"]+">Wikimedia Commons</a>, '
-                                      r'<a href="https://creativecommons\.org/licenses/'
-                                      r'by-sa/3\.0/">CC BY-SA 3\.0</a>$')
+            self.assertTrue(caption.endswith(
+                f'Photo: <a href="{photo.file_page}">{photo.title}</a> by {photo.author}, '
+                f'Wikimedia Commons, {CC_BY_SA_3}'), caption)
 
     def test_the_text_under_the_figure_names_its_supply_voltage(self) -> None:
         self.assertIn(f"The figure's supply of {figures.volts(figures.SUPPLY_VOLTAGE)} is the "

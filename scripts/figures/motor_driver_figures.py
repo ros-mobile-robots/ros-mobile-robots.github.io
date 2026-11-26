@@ -42,6 +42,7 @@ from typing import Tuple
 
 from board_drawings import Drawing
 from board_drawings import escape
+from board_drawings import Point
 from board_drawings import style_element
 from board_drawings import svg_element
 from localization_figures import WIDE_FROM
@@ -58,7 +59,7 @@ WIDE = 'ac-wide'
 NARROW_WIDTH = 360  # of a narrow drawing, in SVG units
 WIDE_STRETCH = 1.5  # a wide drawing is this much wider than a narrow one
 FIGURE_WIDTH_REM = 24  # the largest width of a figure with a narrow drawing
-# The rules of both figures. A figure's largest width is in rem, so that the figure grows with
+# The rules of every figure. A figure's largest width is in rem, so that the figure grows with
 # the page's text on a large screen
 COMMON_RULES = (
     (f'.md-typeset .{SPACE}', 'container-type:inline-size;margin:1em 0'),
@@ -78,6 +79,10 @@ COMMON_RULES = (
     ('.ac-fig .strong', 'font-weight:700'),
     ('.ac-fig .note', f'font-size:11px;fill:{FG_LIGHT}'),
 )
+# The style of a thin line and the highlight of a current, in the H-bridge and the commutator
+WIRE_STYLE = f'fill:none;stroke:{FG_LIGHT};stroke-width:1.4'
+CURRENT_RULE = ('.ac-fig .current', 'fill:none;stroke:var(--ac-current);stroke-width:6;'
+                'opacity:.45;stroke-linejoin:round')
 NUMBER_WORDS = {3: 'three', 4: 'four'}
 
 
@@ -111,13 +116,16 @@ def write_include(path: str, include: str) -> None:
 # magnet on the left to the S magnet on the right. The winding's two sides, a and b, lie on
 # opposite sides of the rotor. Each side connects to one of the commutator's two segments, whose
 # middle lies SEGMENT_OFFSET from the side. Two brushes on the stator touch the segments, the +
-# brush at the top and the - brush at the bottom. The current enters the winding at this end
-# through the segment under the + brush, runs along that side away from the viewer, crosses to
-# the other side at the far end and comes back along it.
+# brush at the top and the - brush at the bottom. The model takes a brush to touch the segment
+# under its middle, and the drawn brushes end in tips narrower than the gap between the
+# segments. While a gap passes under the brushes, when the sides pass the top and the bottom,
+# neither side carries a current and the rotor coasts. The current enters the winding through the
+# segment under the + brush, runs along that side away from the viewer, crosses to the other side
+# at the far end and comes back along it.
 
 
 class WindingSide(NamedTuple):
-    """One side of the winding: its name, its angle at the start, and whether its parts are dashed.
+    """One side of the winding: its name, its angle at the start, whether its parts are dashed.
 
     A dashed segment and link tell the side's parts from the other side's as the rotor turns.
     """
@@ -138,6 +146,7 @@ WINDING_SIDES = (WindingSide('a', 180, False), WindingSide('b', 0, True))
 MOMENTS = (Moment('Start', 0), Moment('Half a turn later', 180))
 SEGMENT_OFFSET = -90  # from a side to the middle of its segment
 SEGMENT_GAP = 24  # between the two segments, in degrees
+SEGMENT_HALF_SPAN = 90 - SEGMENT_GAP / 2  # from a segment's middle to each of its ends
 PLUS_BRUSH_ANGLE = 90
 MINUS_BRUSH_ANGLE = 270
 N_MAGNET_ANGLE = 180
@@ -151,7 +160,7 @@ def angle_between(first: float, second: float) -> float:
 
 
 def toward(start: float, end: float) -> float:
-    """Return the angle of the direction end that lies less than 180 degrees from start."""
+    """Return the angle of the direction end that lies at most 180 degrees from start."""
     return start + (end - start + 180) % 360 - 180
 
 
@@ -166,13 +175,13 @@ def segment_middle(side: WindingSide, moment: Moment) -> float:
 
 
 def touches(side: WindingSide, moment: Moment, brush_angle: float) -> bool:
-    """Return whether the segment of a side touches the brush at brush_angle."""
-    return angle_between(segment_middle(side, moment), brush_angle) < 90 - SEGMENT_GAP / 2
+    """Return whether the segment of a side lies under the middle of the brush at brush_angle."""
+    return angle_between(segment_middle(side, moment), brush_angle) < SEGMENT_HALF_SPAN
 
 
-def fed_side(moment: Moment) -> WindingSide:
-    """Return the side whose segment touches the + brush, where the current enters."""
-    return only_one(side for side in WINDING_SIDES if touches(side, moment, PLUS_BRUSH_ANGLE))
+def sides_touching(moment: Moment, brush_angle: float) -> List[WindingSide]:
+    """Return the sides whose segment touches the brush at brush_angle: one, or none in a gap."""
+    return [side for side in WINDING_SIDES if touches(side, moment, brush_angle)]
 
 
 def only_one(sides: Iterable[WindingSide]) -> WindingSide:
@@ -181,6 +190,11 @@ def only_one(sides: Iterable[WindingSide]) -> WindingSide:
     if len(found) != 1:
         raise ValueError(f'expected one side, found {found}')
     return found[0]
+
+
+def fed_side(moment: Moment) -> WindingSide:
+    """Return the side whose segment touches the + brush, where the current enters."""
+    return only_one(sides_touching(moment, PLUS_BRUSH_ANGLE))
 
 
 def current_into_page(side: WindingSide, moment: Moment) -> bool:
@@ -201,6 +215,13 @@ def push_up(side: WindingSide, moment: Moment) -> bool:
     return not current_into_page(side, moment)
 
 
+class Heading(NamedTuple):
+    """A direction on a drawing as a vector of length 1, with y growing downward."""
+
+    dx: float
+    dy: float
+
+
 # One moment in a panel MOTOR_PANEL_HEIGHT units tall: its title and its line under the title at
 # the top, then the motor around its shaft, MOTOR_CENTER_DROP below the panel's top
 MOTOR_PANEL_HEIGHT = 250
@@ -216,24 +237,28 @@ CONDUCTOR_RADIUS = 7
 MARK_HALF_SIZE = 3.5  # of the cross for a current into the page
 DOT_RADIUS = 2  # for a current out of the page
 SHAFT_RADIUS = 3
-COMMUTATOR_RADIUS = 12
+COMMUTATOR_RADIUS = 12  # of the middle of the segments' stroke
+SEGMENT_WIDTH = 5  # of the segments' stroke
 LINK_ANGLE = -30  # from a side to where its link leaves its segment
 BRUSH_WIDTH = 8
-BRUSH_LENGTH = 11
+BRUSH_LENGTH = 11  # from its tip to its back, where its lead starts
+BRUSH_TIP_WIDTH = 3  # narrower than the gap between the segments, about 5 units
+BRUSH_TIP_LENGTH = 3  # from the tip to where the brush has its full width
 LEAD_REACH = 86  # from the shaft to the end of a brush's lead
 LEAD_LABEL_GAP = 5  # from the end of a lead to its sign
+SIGN_HEIGHT = 9  # of a lead's sign, from its baseline up
 FORCE_LENGTH = 18  # from a conductor's circle to the tip of its arrow
-FORCE_HEAD_LENGTH = 6
-FORCE_HEAD_HALF_WIDTH = 4
+ARROWHEAD_LENGTH = 6
+ARROWHEAD_HALF_WIDTH = 4
 SIDE_LABEL_ABOVE = 12  # from a side's middle up to the baseline of its name
 SIDE_LABEL_BELOW = 20  # from a side's middle down to the baseline of its name
 TURN_ARROW_RADIUS = 54
 TURN_ARROW_FROM = 105
 TURN_ARROW_TO = 165
-ARC_STEP = 5  # degrees between the points of a drawn arc
-BRUSH_LABEL_POSITION = (8, -30)  # of the start of the word brush, from the shaft
-COMMUTATOR_LABEL_POSITION = (8, 64)  # of the start of the word commutator, from the shaft
-COMMUTATOR_LEADER = ((10, 54), (10, 18))  # the line from that word to the commutator
+ARC_STEP = 5  # the most degrees between two points of a drawn arc
+BRUSH_LABEL_SHIFT = Point(8, -30)  # of the start of the word brush, from the shaft
+COMMUTATOR_LABEL_SHIFT = Point(8, 64)  # of the start of the word commutator, from the shaft
+COMMUTATOR_LEADER = (Point(10, 54), Point(10, 18))  # from that word to the commutator, by shift
 
 
 class MotorPanel(NamedTuple):
@@ -243,20 +268,18 @@ class MotorPanel(NamedTuple):
     top: float
 
     @property
-    def shaft(self) -> Tuple[float, float]:
+    def shaft(self) -> Point:
         """Return the point of the shaft, the middle of the motor."""
-        return self.middle_x, self.top + MOTOR_CENTER_DROP
+        return Point(self.middle_x, self.top + MOTOR_CENTER_DROP)
 
-    def at(self, radius: float, angle: float) -> Tuple[float, float]:
+    def at(self, radius: float, angle: float) -> Point:
         """Return the point at a radius from the shaft and an angle, counterclockwise."""
-        shaft_x, shaft_y = self.shaft
-        return (shaft_x + radius * math.cos(math.radians(angle)),
-                shaft_y - radius * math.sin(math.radians(angle)))
+        return Point(self.shaft.x + radius * math.cos(math.radians(angle)),
+                     self.shaft.y - radius * math.sin(math.radians(angle)))
 
-    def offset(self, dx: float, dy: float) -> Tuple[float, float]:
-        """Return the point dx to the right of and dy below the shaft."""
-        shaft_x, shaft_y = self.shaft
-        return shaft_x + dx, shaft_y + dy
+    def shifted(self, shift: Point) -> Point:
+        """Return the point shift.x to the right of and shift.y below the shaft."""
+        return Point(self.shaft.x + shift.x, self.shaft.y + shift.y)
 
 
 class MotorLayout(NamedTuple):
@@ -284,16 +307,15 @@ class MotorLayout(NamedTuple):
 MOTOR_LAYOUTS = (MotorLayout(1, NARROW_WIDTH, NARROW),
                  MotorLayout(2, NARROW_WIDTH * WIDE_STRETCH, WIDE))
 COMMUTATOR_RULES = COMMON_RULES + (
+    CURRENT_RULE,
     ('.ac-fig .magnet', f'fill:{FG_LIGHT};fill-opacity:.25;stroke:{FG};stroke-width:1.2'),
     ('.ac-fig .pole', 'font-size:14px;font-weight:700'),
-    ('.ac-fig .wire', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.4'),
-    ('.ac-fig .segment', f'fill:none;stroke:{FG};stroke-width:5'),
+    ('.ac-fig .lead,.ac-fig .link,.ac-fig .leader', WIRE_STYLE),
+    ('.ac-fig .segment', f'fill:none;stroke:{FG};stroke-width:{SEGMENT_WIDTH}'),
     ('.ac-fig .dashed', 'stroke-dasharray:3 2'),
     ('.ac-fig .brush', f'fill:{FG_LIGHT};stroke:{FG};stroke-width:1'),
     ('.ac-fig .shaft', f'fill:{FG}'),
     ('.ac-fig .conductor', f'fill:{BG};stroke:{FG};stroke-width:1.4'),
-    ('.ac-fig .current', 'fill:none;stroke:var(--ac-current);stroke-width:6;opacity:.45;'
-                         'stroke-linejoin:round'),
     ('.ac-fig .into-page', 'fill:none;stroke:var(--ac-current);stroke-width:1.8;'
                            'stroke-linecap:round'),
     ('.ac-fig .out-of-page', 'fill:var(--ac-current)'),
@@ -304,40 +326,38 @@ COMMUTATOR_RULES = COMMON_RULES + (
 )
 
 
-def path_through(points: Sequence[Tuple[float, float]], closed: bool = False) -> str:
+def path_through(points: Sequence[Point], closed: bool = False) -> str:
     """Return an SVG path of straight pieces through points, closed with Z if closed."""
-    pieces = [f'{"M" if index == 0 else "L"}{x:.1f},{y:.1f}'
-              for index, (x, y) in enumerate(points)]
+    pieces = [f'{"M" if index == 0 else "L"}{point.x:.1f},{point.y:.1f}'
+              for index, point in enumerate(points)]
     return ' '.join(pieces) + (' Z' if closed else '')
 
 
-def arc_points(panel: MotorPanel, radius: float, start: float,
-               end: float) -> List[Tuple[float, float]]:
-    """Return points along an arc around the shaft from angle start to end, ARC_STEP apart."""
+def arc_points(panel: MotorPanel, radius: float, start: float, end: float) -> List[Point]:
+    """Return points on an arc around the shaft from angle start to end, ARC_STEP or less apart."""
     steps = max(1, math.ceil(abs(end - start) / ARC_STEP))
     return [panel.at(radius, start + (end - start) * step / steps) for step in range(steps + 1)]
 
 
-def arrowhead(tip: Tuple[float, float], heading: Tuple[float, float]) -> List[Tuple[float, float]]:
-    """Return the three corners of an arrowhead at tip that points along the unit heading."""
-    tip_x, tip_y = tip
-    along_x, along_y = heading
-    base_x = tip_x - along_x * FORCE_HEAD_LENGTH
-    base_y = tip_y - along_y * FORCE_HEAD_LENGTH
-    return [(base_x - along_y * FORCE_HEAD_HALF_WIDTH, base_y + along_x * FORCE_HEAD_HALF_WIDTH),
+def arrowhead(tip: Point, heading: Heading) -> List[Point]:
+    """Return the three corners of an arrowhead at tip that points along heading."""
+    base = Point(tip.x - heading.dx * ARROWHEAD_LENGTH, tip.y - heading.dy * ARROWHEAD_LENGTH)
+    return [Point(base.x - heading.dy * ARROWHEAD_HALF_WIDTH,
+                  base.y + heading.dx * ARROWHEAD_HALF_WIDTH),
             tip,
-            (base_x + along_y * FORCE_HEAD_HALF_WIDTH, base_y - along_x * FORCE_HEAD_HALF_WIDTH)]
+            Point(base.x + heading.dy * ARROWHEAD_HALF_WIDTH,
+                  base.y - heading.dx * ARROWHEAD_HALF_WIDTH)]
 
 
 def draw_magnets(drawing: Drawing, panel: MotorPanel) -> None:
-    """Add the two magnets as rings' pieces left and right of the rotor, with their poles."""
+    """Add the two magnets as pieces of a ring left and right of the rotor, with their poles."""
     for middle, pole in ((N_MAGNET_ANGLE, 'N'), (S_MAGNET_ANGLE, 'S')):
         start, end = middle - MAGNET_HALF_SPAN, middle + MAGNET_HALF_SPAN
         outline = (arc_points(panel, MAGNET_OUTER_RADIUS, start, end)
                    + arc_points(panel, MAGNET_INNER_RADIUS, end, start))
         drawing.line(path_through(outline, closed=True), 'magnet')
-        label_x, label_y = panel.at(POLE_LABEL_RADIUS, middle)
-        drawing.text(label_x, label_y + 5, pole, 'pole', 'middle')
+        label = panel.at(POLE_LABEL_RADIUS, middle)
+        drawing.text(label.x, label.y + 5, pole, 'pole', 'middle')
 
 
 def draw_winding_current(drawing: Drawing, panel: MotorPanel, moment: Moment) -> None:
@@ -366,50 +386,80 @@ def draw_commutator(drawing: Drawing, panel: MotorPanel, moment: Moment) -> None
     for side in WINDING_SIDES:
         dashed = ' dashed' if side.dashed else ''
         middle = segment_middle(side, moment)
-        reach = 90 - SEGMENT_GAP / 2
-        drawing.line(path_through(arc_points(panel, COMMUTATOR_RADIUS, middle - reach,
-                                             middle + reach)), f'segment{dashed}')
+        drawing.line(path_through(arc_points(panel, COMMUTATOR_RADIUS,
+                                             middle - SEGMENT_HALF_SPAN,
+                                             middle + SEGMENT_HALF_SPAN)), f'segment{dashed}')
         link_start = panel.at(COMMUTATOR_RADIUS, side_angle(side, moment) + LINK_ANGLE)
         drawing.line(path_through([link_start, panel.at(SIDE_RADIUS, side_angle(side, moment))]),
-                     f'wire{dashed}')
-    shaft_x, shaft_y = panel.shaft
-    drawing.circle(shaft_x, shaft_y, SHAFT_RADIUS, 'shaft')
+                     f'link{dashed}')
+    drawing.circle(panel.shaft.x, panel.shaft.y, SHAFT_RADIUS, 'shaft')
+
+
+def brush_outline(panel: MotorPanel, brush_angle: float) -> List[Point]:
+    """Return the corners of a brush that touches the segments' outside at brush_angle.
+
+    The brush narrows to its tip, so that its contact is narrower than the gap between the
+    segments.
+    """
+    tip_radius = COMMUTATOR_RADIUS + SEGMENT_WIDTH / 2
+    shoulder_radius = tip_radius + BRUSH_TIP_LENGTH
+    back_radius = tip_radius + BRUSH_LENGTH
+    corners = ((BRUSH_TIP_WIDTH / 2, tip_radius), (BRUSH_WIDTH / 2, shoulder_radius),
+               (BRUSH_WIDTH / 2, back_radius), (-BRUSH_WIDTH / 2, back_radius),
+               (-BRUSH_WIDTH / 2, shoulder_radius), (-BRUSH_TIP_WIDTH / 2, tip_radius))
+    # Across the brush along the tangent, out from the shaft along the radius
+    radial = Heading(math.cos(math.radians(brush_angle)), -math.sin(math.radians(brush_angle)))
+    tangent = Heading(-radial.dy, radial.dx)
+    return [Point(panel.shaft.x + across * tangent.dx + out * radial.dx,
+                  panel.shaft.y + across * tangent.dy + out * radial.dy)
+            for across, out in corners]
 
 
 def draw_brushes(drawing: Drawing, panel: MotorPanel) -> None:
     """Add the + brush above the commutator and the - brush below it, each with its lead."""
-    shaft_x, shaft_y = panel.shaft
+    back_radius = COMMUTATOR_RADIUS + SEGMENT_WIDTH / 2 + BRUSH_LENGTH
     for brush_angle, sign in ((PLUS_BRUSH_ANGLE, '+'), (MINUS_BRUSH_ANGLE, '−')):
-        downward = brush_angle == MINUS_BRUSH_ANGLE
-        brush_top = shaft_y + COMMUTATOR_RADIUS if downward else (
-            shaft_y - COMMUTATOR_RADIUS - BRUSH_LENGTH)
-        lead_start = brush_top + BRUSH_LENGTH if downward else brush_top
-        lead_end_x, lead_end_y = panel.at(LEAD_REACH, brush_angle)
-        drawing.line(path_through([(shaft_x, lead_start), (lead_end_x, lead_end_y)]), 'wire')
-        drawing.rect(shaft_x - BRUSH_WIDTH / 2, brush_top, BRUSH_WIDTH, BRUSH_LENGTH, 'brush')
-        sign_y = lead_end_y + LEAD_LABEL_GAP + 9 if downward else lead_end_y - LEAD_LABEL_GAP
-        drawing.text(lead_end_x, sign_y, sign, 'name strong', 'middle')
+        lead_end = panel.at(LEAD_REACH, brush_angle)
+        drawing.line(path_through([panel.at(back_radius, brush_angle), lead_end]), 'lead')
+        drawing.line(path_through(brush_outline(panel, brush_angle), closed=True), 'brush')
+        below = brush_angle == MINUS_BRUSH_ANGLE
+        sign_y = (lead_end.y + LEAD_LABEL_GAP + SIGN_HEIGHT if below
+                  else lead_end.y - LEAD_LABEL_GAP)
+        drawing.text(lead_end.x, sign_y, sign, 'name strong', 'middle')
+
+
+def draw_current_mark(drawing: Drawing, center: Point, into_page: bool) -> None:
+    """Add the mark of a side's current: a cross into the page, a dot out of it."""
+    if not into_page:
+        drawing.circle(center.x, center.y, DOT_RADIUS, 'out-of-page')
+        return
+    near, far = center.x - MARK_HALF_SIZE, center.x + MARK_HALF_SIZE
+    top, bottom = center.y - MARK_HALF_SIZE, center.y + MARK_HALF_SIZE
+    drawing.line(f'M{near:.1f},{top:.1f} L{far:.1f},{bottom:.1f} '
+                 f'M{near:.1f},{bottom:.1f} L{far:.1f},{top:.1f}', 'into-page')
+
+
+def draw_push(drawing: Drawing, center: Point, up: bool) -> None:
+    """Add the arrow of the field's push on a side, up or down from its conductor."""
+    heading = Heading(0, -1 if up else 1)
+    start = Point(center.x, center.y + heading.dy * CONDUCTOR_RADIUS)
+    tip = Point(center.x, start.y + heading.dy * FORCE_LENGTH)
+    drawing.line(path_through([start, tip]), 'force')
+    drawing.line(path_through(arrowhead(tip, heading), closed=True), 'force-head')
 
 
 def draw_side(drawing: Drawing, panel: MotorPanel, side: WindingSide, moment: Moment) -> None:
-    """Add a side of the winding: its conductor, its current's mark, its push and its name."""
-    x, y = panel.at(SIDE_RADIUS, side_angle(side, moment))
-    drawing.circle(x, y, CONDUCTOR_RADIUS, 'conductor')
-    if current_into_page(side, moment):
-        drawing.line(f'M{x - MARK_HALF_SIZE:.1f},{y - MARK_HALF_SIZE:.1f} '
-                     f'L{x + MARK_HALF_SIZE:.1f},{y + MARK_HALF_SIZE:.1f} '
-                     f'M{x - MARK_HALF_SIZE:.1f},{y + MARK_HALF_SIZE:.1f} '
-                     f'L{x + MARK_HALF_SIZE:.1f},{y - MARK_HALF_SIZE:.1f}', 'into-page')
-    else:
-        drawing.circle(x, y, DOT_RADIUS, 'out-of-page')
+    """Add a side of the winding: its conductor, its current's mark, its push and its name.
+
+    The name stands on the other side of the conductor than the push's arrow.
+    """
+    center = panel.at(SIDE_RADIUS, side_angle(side, moment))
+    drawing.circle(center.x, center.y, CONDUCTOR_RADIUS, 'conductor')
+    draw_current_mark(drawing, center, current_into_page(side, moment))
     up = push_up(side, moment)
-    heading = -1 if up else 1  # the push along the drawing's y, which grows downward
-    start_y = y + heading * CONDUCTOR_RADIUS
-    tip = (x, start_y + heading * FORCE_LENGTH)
-    drawing.line(path_through([(x, start_y), tip]), 'force')
-    drawing.line(path_through(arrowhead(tip, (0, heading)), closed=True), 'force-head')
-    label_y = y + SIDE_LABEL_BELOW if up else y - SIDE_LABEL_ABOVE
-    drawing.text(x, label_y, side.name, 'name strong', 'middle')
+    draw_push(drawing, center, up)
+    label_y = center.y + SIDE_LABEL_BELOW if up else center.y - SIDE_LABEL_ABOVE
+    drawing.text(center.x, label_y, side.name, 'name strong', 'middle')
 
 
 def draw_turn_arrow(drawing: Drawing, panel: MotorPanel) -> None:
@@ -418,15 +468,17 @@ def draw_turn_arrow(drawing: Drawing, panel: MotorPanel) -> None:
     drawing.line(path_through(points), 'turn')
     end = math.radians(TURN_ARROW_TO)
     # Counterclockwise on the page: the angle grows, and the drawing's y grows downward
-    heading = (-math.sin(end), -math.cos(end))
+    heading = Heading(-math.sin(end), -math.cos(end))
     drawing.line(path_through(arrowhead(points[-1], heading), closed=True), 'turn-head')
 
 
 def draw_labels(drawing: Drawing, panel: MotorPanel) -> None:
     """Add the names of a brush and of the commutator, with a line to the commutator."""
-    drawing.text(*panel.offset(*BRUSH_LABEL_POSITION), 'brush', 'note')
-    drawing.text(*panel.offset(*COMMUTATOR_LABEL_POSITION), 'commutator', 'note')
-    drawing.line(path_through([panel.offset(*point) for point in COMMUTATOR_LEADER]), 'wire')
+    brush_label = panel.shifted(BRUSH_LABEL_SHIFT)
+    drawing.text(brush_label.x, brush_label.y, 'brush', 'note')
+    commutator_label = panel.shifted(COMMUTATOR_LABEL_SHIFT)
+    drawing.text(commutator_label.x, commutator_label.y, 'commutator', 'note')
+    drawing.line(path_through([panel.shifted(shift) for shift in COMMUTATOR_LEADER]), 'leader')
 
 
 def fed_side_label(moment: Moment) -> str:
@@ -462,16 +514,11 @@ def commutator_include() -> str:
     """Return the include of the commutator's two moments."""
     return figure_include(
         COMMUTATOR_RULES, [commutator_figure(layout) for layout in MOTOR_LAYOUTS],
-        "The view looks along the shaft from the commutator's end. a and b are the two sides of "
-        "one winding. Each connects to one of the commutator's two segments, and b's segment and "
-        'link are dashed. Trace the highlighted current from the + brush through the segment '
-        'that it touches to the side next to the N magnet. There the current runs into the page '
-        "(×), and it comes back out of the page in the side next to S (•). The magnets' field, "
-        'from N to S, pushes the first side down and the second up, so the rotor turns '
-        'counterclockwise. Half a turn later, a and b have swapped places, and the + brush '
-        "touches b's segment. The side next to N again carries the current into the page, so the "
-        'push keeps turning the rotor the same way. Real motors have several windings and '
-        'segments.')
+        'The fixed + brush first feeds side a, then side b, whose segment and link are dashed. '
+        'In both views the current goes into the page (×) on the left, crosses the winding at '
+        'the far end and comes out (•) on the right. The field from N to S pushes the left side '
+        'down and the right side up. Both pushes turn the rotor counterclockwise. Between these '
+        'views the moving rotor coasts past the gap between the segments.')
 
 
 # --- The H-bridge -------------------------------------------------------------------------------
@@ -630,13 +677,12 @@ BRIDGE_LAYOUTS = (BridgeLayout(2, NARROW_WIDTH, NARROW),
                   BridgeLayout(4, NARROW_WIDTH * WIDE_STRETCH, WIDE))
 BRIDGE_RULES = COMMON_RULES + (
     ('.ac-fig .rail', f'fill:none;stroke:{FG};stroke-width:2'),
-    ('.ac-fig .wire', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.4'),
+    ('.ac-fig .wire', WIRE_STYLE),
     ('.ac-fig .switch', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.6;stroke-linecap:round'),
     ('.ac-fig .switch.closed', f'stroke:{FG};stroke-width:2.2'),
     ('.ac-fig .contact', f'fill:{BG};stroke:{FG};stroke-width:1.2'),
     ('.ac-fig .motor', f'fill:{BG};stroke:{FG};stroke-width:1.6'),
-    ('.ac-fig .current', 'fill:none;stroke:var(--ac-current);stroke-width:6;opacity:.45;'
-                         'stroke-linejoin:round'),
+    CURRENT_RULE,
     ('.ac-fig .current-head', 'fill:var(--ac-current)'),
 )
 
