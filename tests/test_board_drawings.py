@@ -204,13 +204,19 @@ class TestBox(unittest.TestCase):
     """Box gives a rectangle's far edges and its middle from its corner and its size."""
 
     def setUp(self) -> None:
+        """Create an offset, non-square rectangle."""
         self.box = board_drawings.Box(x=10, y=20, width=60, height=30)
 
     def test_box_right_and_bottom_are_the_corner_plus_the_size(self) -> None:
-        self.assertEqual((self.box.right, self.box.bottom), (70, 50))
+        """Check the right and bottom edges."""
+        expected_right, expected_bottom = 70, 50
+        self.assertEqual((self.box.right, self.box.bottom), (expected_right, expected_bottom))
 
     def test_box_middle_is_half_the_size_from_the_corner(self) -> None:
-        self.assertEqual((self.box.middle_x, self.box.middle_y), (40, 35))
+        """Check the horizontal and vertical midpoints."""
+        expected_middle_x, expected_middle_y = 40, 35
+        self.assertEqual((self.box.middle_x, self.box.middle_y),
+                         (expected_middle_x, expected_middle_y))
 
 
 class TestNumberDisc(unittest.TestCase):

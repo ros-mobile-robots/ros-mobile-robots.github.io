@@ -16,6 +16,7 @@ from typing import Dict
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
+from typing import Set
 from typing import Tuple
 import unittest
 from xml.etree import ElementTree
@@ -54,12 +55,15 @@ MEASURED_RECORD = ROOT / MEASURED_DATA / 'imu-noise-remo-yaw-rate-at-rest.json'
 # The page's section about the figure, and the equation in it that squares the setting
 REPORT_TO_EKF_SECTION = 'From the report to the EKF'
 PAGE_SETTING_EQUATION = re.compile(
-    r'\((?P<standard_deviation>[\d.]+) rad/s\)² = [\d.]+ \(rad/s\)² = '
+    r'\((?P<standard_deviation>[\d.]+) rad/s\)² = (?P<decimal_variance>[\d.]+) \(rad/s\)² = '
     r'(?P<variance>\d+ · 10\S+) \(rad/s\)²')
 # The page's table with the measured values, and the column of the board that the figure shows
 RESULTS_SECTION = 'Results on Remo'
 RESULTS_BOARD = 'Teensy 4.0'
 VARIANCE_UNIT = '(rad/s)²'
+SUPERSCRIPT_TO_DIGITS = str.maketrans('⁻⁰¹²³⁴⁵⁶⁷⁸⁹', '-0123456789')
+# The class of the page's text column, which the theme puts around every include
+PAGE_TEXT_CLASS = 'md-typeset'
 # The figure from the report to the EKF: its layouts' classes with their widths in SVG units
 LAYOUT_WIDTHS = {'lv-layout-narrow': 300, 'lv-layout-wide': 540}
 LONGEST_NAME_WORDS = 12  # of a drawing's accessible name
@@ -87,16 +91,12 @@ COVARIANCE_PART = 'covariance'
 FIELD_NAME_REACH = 14
 # How far from an arrow's line the anchor of its label may lie, in SVG units
 ARROW_LABEL_REACH = 8
-# The example boxes of the tests of connection(), as x, y, width and height. The upper and the
-# lower box share the x positions from 50 to 110. The left and the right box share the y
-# positions from 30 to 70
-UPPER_BOX = (10, 0, 100, 20)
-LOWER_BOX = (50, 60, 100, 20)
+# What the tests of connection() expect for the example boxes of connection_boxes(). The upper
+# and the lower box share the x positions from 50 to 110. The left and the right box share the
+# y positions from 30 to 70
 UPPER_BOX_BOTTOM = 20
 LOWER_BOX_TOP = 60
 SHARED_X_MIDDLE = 80
-LEFT_BOX = (0, 10, 40, 60)
-RIGHT_BOX = (100, 30, 40, 100)
 LEFT_BOX_RIGHT = 40
 RIGHT_BOX_LEFT = 100
 SHARED_Y_MIDDLE = 50
@@ -129,6 +129,23 @@ def two_steps(figures: ModuleType) -> Sequence[Any]:
                                                 figures.ClassOfTests('TestParse', 3),
                                                 figures.ClassOfTests('TestCheck', 4))),
             figures.ToolStep('Print', 'show()', (figures.ClassOfTests('TestShow', 5),)))
+
+
+class ConnectionBoxes(NamedTuple):
+    """The example boxes of the tests of connection(): two above each other, two side by side."""
+
+    upper: Any
+    lower: Any
+    left: Any
+    right: Any
+
+
+def connection_boxes(figures: ModuleType) -> ConnectionBoxes:
+    """Return the example boxes: the lower one starts right of the upper, the right one lower."""
+    return ConnectionBoxes(upper=figures.Box(x=10, y=0, width=100, height=20),
+                           lower=figures.Box(x=50, y=60, width=100, height=20),
+                           left=figures.Box(x=0, y=10, width=40, height=60),
+                           right=figures.Box(x=100, y=30, width=40, height=100))
 
 
 def page_test_counts() -> List[Tuple[str, int]]:
@@ -269,17 +286,56 @@ def report_to_ekf_caption() -> str:
     return ''.join(caption.itertext())
 
 
-def css_declarations(include_text: str, css_class: str) -> Dict[str, str]:
-    """Return the CSS properties that an include's style rules set for a class of a drawing.
+def drawing_ancestors(include_text: str) -> List[Set[str]]:
+    """Return the classes of each element around the parts of an include's first drawing.
 
-    A rule counts when one of its selectors ends with the class. A later rule's value replaces
-    an earlier one's.
+    From the outside in: the page's text column, the block around a figure with two layouts
+    if the include has one, the figure, and the drawing itself.
     """
+    root = ElementTree.fromstring(f'<root>{include_text}</root>')
+    block, figure = root.find('./div'), root.find('.//figure')
+    drawing = figure.find('svg') if figure is not None else None
+    if figure is None or drawing is None:
+        raise ReadError('the include has no figure with a drawing')
+    return [{PAGE_TEXT_CLASS}] + [set((element.get('class') or '').split())
+                                  for element in (block, figure, drawing) if element is not None]
+
+
+def selector_applies(selector: str, css_class: str, ancestors: Sequence[Set[str]]) -> bool:
+    """Return whether a selector matches a part that has only css_class, below the ancestors.
+
+    The selector's last part has to name the class and no other one. Each part before it has
+    to name classes of one of the ancestors, in their order from the outside in. A selector
+    with an attribute, a pseudo-class or a combinator other than a space doesn't count: the
+    includes use those for the dark scheme and for other figures.
+    """
+    if re.search(r'[\[:>+~]', selector):
+        return False
+    *outer_parts, last_part = (set(re.findall(r'\.([\w-]+)', part)) for part in selector.split())
+    if last_part != {css_class}:
+        return False
+    remaining = list(ancestors)
+    for part in outer_parts:
+        while remaining and not (part and part <= remaining[0]):
+            remaining.pop(0)
+        if not remaining:
+            return False
+        remaining.pop(0)
+    return True
+
+
+def css_declarations(include_text: str, css_class: str) -> Dict[str, str]:
+    """Return the CSS properties that an include's rules give a class of its drawing's parts.
+
+    A rule counts when one of its selectors applies to such a part inside the include's own
+    figure (selector_applies). A later rule's value replaces an earlier one's.
+    """
+    ancestors = drawing_ancestors(include_text)
     declarations: Dict[str, str] = {}
     for rule in re.finditer(r'^(?P<selectors>[^@{\n][^{\n]*)\{(?P<declarations>[^}]*)\}$',
                             include_text, re.MULTILINE):
-        selectors = [selector.strip() for selector in rule['selectors'].split(',')]
-        if any(re.search(rf'\.{re.escape(css_class)}$', selector) for selector in selectors):
+        if any(selector_applies(selector.strip(), css_class, ancestors)
+               for selector in rule['selectors'].split(',')):
             for declaration in filter(None, rule['declarations'].split(';')):
                 name, _, value = declaration.partition(':')
                 declarations[name.strip()] = value.strip()
@@ -472,6 +528,15 @@ def page_section(heading: str) -> str:
     return section['text']
 
 
+def power_of_ten_value(text: str) -> float:
+    """Return the value of a number times a power of ten, such as "4 · 10⁻⁴"."""
+    number = re.fullmatch(r'(?P<mantissa>[\d.]+) · 10(?P<exponent>[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)', text)
+    if number is None:
+        raise ReadError(f'{text!r} is no number times a power of ten')
+    return float(number['mantissa']) * 10 ** int(
+        number['exponent'].translate(SUPERSCRIPT_TO_DIGITS))
+
+
 def remo_z_value(row_start: str) -> str:
     """Return the z value of a row of the page's table "Results on Remo", for the Teensy 4.0.
 
@@ -505,7 +570,8 @@ def remo_z_variance_text() -> str:
 def page_setting(quantity: str) -> str:
     """Return a quantity of the equation with which the page's section squares the setting.
 
-    The quantity is standard_deviation, such as "0.02", or variance, such as "4 · 10⁻⁴".
+    The quantity is standard_deviation, such as "0.02", decimal_variance, such as "0.0004",
+    or variance, such as "4 · 10⁻⁴".
     """
     equation = PAGE_SETTING_EQUATION.search(page_section(REPORT_TO_EKF_SECTION))
     if equation is None:
@@ -520,6 +586,7 @@ class TestIncludes(unittest.TestCase):
     """
 
     def test_script_writes_the_repository_includes_with_an_ascii_locale(self) -> None:
+        """Compare the generated includes with the checked-in UTF-8 bytes under an ASCII locale."""
         written = figure_script_runs.run_with_an_ascii_locale(SCRIPT.name, [MEASURED_DATA])
         self.assertEqual(sorted(written), INCLUDE_NAMES)
         for include_name in INCLUDE_NAMES:
@@ -854,11 +921,13 @@ class TestReportToEkfFigure(unittest.TestCase):
                                        msg=f'{interval_class} in {layout}')
 
     def test_each_layout_draws_both_intervals_equally_thick_in_rows_of_their_own(self) -> None:
-        """Check that the intervals have one height and that the measured one ends higher."""
+        """Check the intervals' one height, which is less than the width of the measured one."""
         for layout, drawing in report_to_ekf_drawings().items():
             measured_interval = drawn_box(drawing, MEASURED_INTERVAL_CLASS)
             setting_interval = drawn_box(drawing, SETTING_INTERVAL_CLASS)
             self.assertEqual(measured_interval.height, setting_interval.height, layout)
+            self.assertGreater(measured_interval.height, 0, layout)
+            self.assertLess(measured_interval.height, measured_interval.width, layout)
             self.assertLess(measured_interval.bottom, setting_interval.y, layout)
 
     def test_each_layout_labels_each_interval_with_its_name_and_its_own_reach(self) -> None:
@@ -898,9 +967,9 @@ class TestReportToEkfFigure(unittest.TestCase):
             self.assertIn(SCALE_NAME, texts, layout)
             self.assertGreater(texts[SCALE_NAME], texts['0'], layout)
 
-    def test_each_layout_draws_the_zero_guide_through_both_intervals_at_the_zero_tick(
+    def test_each_layout_draws_the_zero_guide_through_both_intervals_down_to_the_ticks(
             self) -> None:
-        """Check that the guide's strokes stand at zero and cover each interval's height."""
+        """Check that the guide's strokes stand at zero, cover each interval, and reach a tick."""
         for layout, drawing in report_to_ekf_drawings().items():
             strokes = [re.fullmatch(rf'M({SVG_NUMBER}),({SVG_NUMBER}) V({SVG_NUMBER})',
                                     path.get('d') or '')
@@ -914,6 +983,11 @@ class TestReportToEkfFigure(unittest.TestCase):
                 interval = drawn_box(drawing, interval_class)
                 self.assertTrue(any(top <= interval.y and interval.bottom <= bottom
                                     for top, bottom in spans), f'{interval_class} in {layout}')
+            setting_interval = drawn_box(drawing, SETTING_INTERVAL_CLASS)
+            ticks_top = min(path_start(path).y for path in drawing.iter('path')
+                            if path.get('class') == 'tick')
+            self.assertTrue(any(top <= setting_interval.y and ticks_top <= bottom
+                                for top, bottom in spans), layout)
 
     def test_each_layouts_comparison_says_how_many_times_as_wide_the_setting_is(self) -> None:
         """Find the rounded ratio of the page's two standard deviations in the comparison."""
@@ -950,6 +1024,15 @@ class TestReportToEkfFigure(unittest.TestCase):
         for layout, drawing in report_to_ekf_drawings().items():
             card = box_with_text(drawing, SETTING_CARD_TITLE)
             self.assertEqual(card_rows(drawing, card), expected_rows, layout)
+
+    def test_pages_equation_squares_the_standard_deviation_to_the_firmwares_variance(
+            self) -> None:
+        """Compare the decimal variance with the square, the power of ten and the setting."""
+        decimal_variance = float(page_setting('decimal_variance'))
+        self.assertAlmostEqual(decimal_variance, float(page_setting('standard_deviation')) ** 2)
+        self.assertAlmostEqual(decimal_variance, power_of_ten_value(page_setting('variance')))
+        self.assertAlmostEqual(decimal_variance,
+                               load_script().FIRMWARE_ANGULAR_VELOCITY_VARIANCE)
 
     def test_each_layout_numbers_the_nine_elements_row_by_row_from_zero(self) -> None:
         """Read the indices of the cells in the order of their positions."""
@@ -1056,10 +1139,11 @@ class TestReportToEkfFigure(unittest.TestCase):
         self.assertEqual(widths, LAYOUT_WIDTHS)
 
     def test_each_drawing_has_a_short_accessible_name(self) -> None:
-        """Follow aria-labelledby to the drawing's title and count the title's words."""
+        """Follow aria-labelledby to the drawing's one title and count the title's words."""
         for layout, drawing in report_to_ekf_drawings().items():
-            titles = [title for title in drawing.iter('title')
-                      if title.get('id') == drawing.get('aria-labelledby')]
+            reference = drawing.get('aria-labelledby')
+            self.assertTrue(reference, layout)
+            titles = [title for title in drawing.iter('title') if title.get('id') == reference]
             self.assertEqual(len(titles), 1, layout)
             word_count = len((titles[0].text or '').split())
             self.assertGreater(word_count, 0, layout)
@@ -1083,7 +1167,7 @@ class TestReportToEkfFigure(unittest.TestCase):
         """Connect the upper example box with the lower one."""
         figures = load_script()
         self.assertEqual(
-            figures.connection(figures.Box(*UPPER_BOX), figures.Box(*LOWER_BOX)),
+            figures.connection(connection_boxes(figures).upper, connection_boxes(figures).lower),
             figures.Connection(figures.DrawingPoint(SHARED_X_MIDDLE, UPPER_BOX_BOTTOM),
                                figures.DrawingPoint(SHARED_X_MIDDLE, LOWER_BOX_TOP)))
 
@@ -1091,7 +1175,7 @@ class TestReportToEkfFigure(unittest.TestCase):
         """Connect the lower example box with the upper one."""
         figures = load_script()
         self.assertEqual(
-            figures.connection(figures.Box(*LOWER_BOX), figures.Box(*UPPER_BOX)),
+            figures.connection(connection_boxes(figures).lower, connection_boxes(figures).upper),
             figures.Connection(figures.DrawingPoint(SHARED_X_MIDDLE, LOWER_BOX_TOP),
                                figures.DrawingPoint(SHARED_X_MIDDLE, UPPER_BOX_BOTTOM)))
 
@@ -1099,7 +1183,7 @@ class TestReportToEkfFigure(unittest.TestCase):
         """Connect the left example box with the right one."""
         figures = load_script()
         self.assertEqual(
-            figures.connection(figures.Box(*LEFT_BOX), figures.Box(*RIGHT_BOX)),
+            figures.connection(connection_boxes(figures).left, connection_boxes(figures).right),
             figures.Connection(figures.DrawingPoint(LEFT_BOX_RIGHT, SHARED_Y_MIDDLE),
                                figures.DrawingPoint(RIGHT_BOX_LEFT, SHARED_Y_MIDDLE)))
 
@@ -1107,7 +1191,7 @@ class TestReportToEkfFigure(unittest.TestCase):
         """Connect the right example box with the left one."""
         figures = load_script()
         self.assertEqual(
-            figures.connection(figures.Box(*RIGHT_BOX), figures.Box(*LEFT_BOX)),
+            figures.connection(connection_boxes(figures).right, connection_boxes(figures).left),
             figures.Connection(figures.DrawingPoint(RIGHT_BOX_LEFT, SHARED_Y_MIDDLE),
                                figures.DrawingPoint(LEFT_BOX_RIGHT, SHARED_Y_MIDDLE)))
 

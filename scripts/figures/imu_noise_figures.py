@@ -1031,8 +1031,8 @@ def write_flow() -> None:
 REPORT_TO_EKF_RULES = (
     ('.lv-noise .lv-fig .measured-interval', 'fill:var(--lv-imu);stroke:var(--lv-imu);'
                                              'stroke-width:1'),
-    ('.lv-noise .lv-fig .setting-interval', f'fill:{FG_LIGHT};fill-opacity:.25;stroke:{FG};'
-                                            'stroke-width:1.2;stroke-dasharray:5 3'),
+    ('.lv-noise .lv-fig .setting-interval', f'fill:{FG_LIGHT};fill-opacity:.5;stroke:{FG};'
+                                            'stroke-width:.8;stroke-dasharray:3 2'),
     ('.lv-noise .lv-fig .zero-guide', f'fill:none;stroke:{FG_LIGHT};stroke-width:1'),
     ('.lv-noise .lv-fig .compared-line', f'fill:none;stroke:{FG};stroke-width:1.4;'
                                          'stroke-dasharray:4 3'),
@@ -1074,15 +1074,14 @@ TWO_LINE_ARROW_LENGTH = 40
 ARROW_LABEL_LINE_HEIGHT = 13
 # The comparison panel, from its top: a note, one row for each interval with its label above it,
 # the axis with its ticks and their labels, and the name of the scale
-INTERVAL_THICKNESS = 10
-INTERVAL_ROW_HEIGHT = 34
+INTERVAL_THICKNESS = 4
+INTERVAL_ROW_HEIGHT = 28
 PANEL_FIRST_LABEL_BASELINE = 36
 INTERVAL_BELOW_LABEL = 6  # from a label's baseline to the top of its interval
-ZERO_GUIDE_REACH = 3  # of the zero guide above and below an interval
+ZERO_GUIDE_REACH = 3  # of the zero guide above an interval, and below one that isn't the last
 # From the comparison panel's left and right edge to the ends of the setting's interval, for the
 # labels of the axis's outer ticks
 PANEL_AXIS_MARGIN = 24
-AXIS_BELOW_INTERVALS = 12
 AXIS_TICK_LABEL_BELOW = 15
 AXIS_NAME_BELOW = 30
 PANEL_BOTTOM_PADDING = 10  # below the baseline of the axis's name
@@ -1270,16 +1269,24 @@ def svg_units_per_rad_s(panel: Box, widest_standard_deviation: float) -> float:
     return (panel.width / 2 - PANEL_AXIS_MARGIN) / widest_standard_deviation
 
 
+def interval_bottom(label_baseline: float) -> float:
+    """Return the lower edge of the interval whose label has this baseline."""
+    return label_baseline + INTERVAL_BELOW_LABEL + INTERVAL_THICKNESS
+
+
 def interval_row(figure: Figure, zero_x: float, label_baseline: float, scale: float,
-                 interval: SpreadInterval) -> None:
-    """Add an interval around zero_x, to scale, with its name and its reach above it."""
+                 interval: SpreadInterval, guide_bottom: float) -> None:
+    """Add an interval around zero_x, to scale, with its name and its reach above it.
+
+    The zero guide crosses the interval, from a little above it down to guide_bottom.
+    """
     reach = interval.standard_deviation * scale
     top = label_baseline + INTERVAL_BELOW_LABEL
     figure.rich_text(zero_x, label_baseline,
                      (Span(f'{interval.name} '),
                       Span(spread_text(interval.standard_deviation), 'strong')), 'middle')
-    figure.path(f'M{zero_x:.1f},{top - ZERO_GUIDE_REACH:.1f} '
-                f'V{top + INTERVAL_THICKNESS + ZERO_GUIDE_REACH:.1f}', 'zero-guide')
+    figure.path(f'M{zero_x:.1f},{top - ZERO_GUIDE_REACH:.1f} V{guide_bottom:.1f}',
+                'zero-guide')
     figure.rect(zero_x - reach, top, 2 * reach, INTERVAL_THICKNESS, interval.css_class)
 
 
@@ -1287,11 +1294,9 @@ def deviation_axis(figure: Figure, zero_x: float, axis_y: float, scale: float,
                    outer_tick: float) -> None:
     """Add the axis of the comparison: ticks at zero and at plus and minus outer_tick, in rad/s.
 
-    The zero guide reaches down from the last interval to the axis. The axis's name stands
-    below the labels of the ticks.
+    The axis's name stands below the labels of the ticks.
     """
     reach = outer_tick * scale
-    figure.path(f'M{zero_x:.1f},{axis_y - AXIS_BELOW_INTERVALS:.1f} V{axis_y:.1f}', 'zero-guide')
     figure.path(f'M{zero_x - reach - 10:.1f},{axis_y:.1f} H{zero_x + reach + 10:.1f}', 'axis')
     for yaw_rate in (-outer_tick, 0, outer_tick):
         tick_x = zero_x + yaw_rate * scale
@@ -1305,19 +1310,22 @@ def comparison_panel(figure: Figure, panel: Box, intervals: Sequence[SpreadInter
                      ratio: float) -> None:
     """Add the framed comparison: the intervals to scale, one in each row, above one axis.
 
-    The intervals have the same thickness and share zero, in the panel's middle. The note at
-    the panel's top says how many times as wide the widest interval is as the narrowest.
+    The intervals have the same thickness and share zero, in the panel's middle. The zero
+    guide crosses each interval and runs from the last one down to the axis, clear of the
+    labels. The note at the panel's top says how many times as wide the widest interval is as
+    the narrowest.
     """
     widest = max(interval.standard_deviation for interval in intervals)
     scale = svg_units_per_rad_s(panel, widest)
     figure.rect(panel.x, panel.y, panel.width, panel.height, 'item', corner_radius=5)
     figure.text(panel.middle_x, panel.y + 16,
                 f'drawn to scale: about {ratio:.0f} times as wide', 'note', 'middle')
-    for row, interval in enumerate(intervals):
-        interval_row(figure, panel.middle_x,
-                     panel.y + PANEL_FIRST_LABEL_BASELINE + row * INTERVAL_ROW_HEIGHT, scale,
-                     interval)
     axis_y = panel.y + PANEL_FIRST_LABEL_BASELINE + len(intervals) * INTERVAL_ROW_HEIGHT
+    for row, interval in enumerate(intervals):
+        label_baseline = panel.y + PANEL_FIRST_LABEL_BASELINE + row * INTERVAL_ROW_HEIGHT
+        is_last = row == len(intervals) - 1
+        interval_row(figure, panel.middle_x, label_baseline, scale, interval,
+                     axis_y if is_last else interval_bottom(label_baseline) + ZERO_GUIDE_REACH)
     deviation_axis(figure, panel.middle_x, axis_y, scale, widest)
 
 
