@@ -5,11 +5,18 @@ name of this file doesn't start with test_, so the test discovery doesn't collec
 """
 
 import re
+from typing import Iterator
 from typing import List
 from typing import NamedTuple
+from typing import Tuple
 
-# A command of a path with the numbers after it
-COMMAND = re.compile(r'([MLHVZ])([^MLHVZ]*)')
+# A number as a figure script writes it: with a sign, a decimal point or an exponent
+NUMBER = r'[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?'
+# One command with exactly the coordinates that it takes: a pair after M or L, one coordinate
+# after H or V, none after Z. A comma or spaces separate the two coordinates of a pair
+COMMAND = re.compile(rf'\s*(?:(?P<pair>[ML])\s*(?P<x>{NUMBER})(?:\s*,\s*|\s+)(?P<y>{NUMBER})'
+                     rf'|(?P<single>[HV])\s*(?P<coordinate>{NUMBER})'
+                     r'|(?P<close>Z))\s*')
 
 
 class Segment(NamedTuple):
@@ -21,26 +28,52 @@ class Segment(NamedTuple):
     y2: float
 
 
-def path_segments(path: str) -> List[Segment]:
-    """Return the straight pieces of an SVG path made of absolute M, L, H, V and Z commands.
+class PathCommand(NamedTuple):
+    """A command of a path: its letter and the coordinates after it."""
 
-    Z closes a part of the path with a piece back to the point of its M command. The letter of
-    any other command, such as a curve or a relative command, stands among the numbers, which
-    raises a ValueError.
+    letter: str
+    coordinates: Tuple[float, ...]
+
+
+def path_commands(path: str) -> Iterator[PathCommand]:
+    """Yield the commands of a path in order, and consume the whole path.
+
+    Raise ValueError at the first text that is not M, L, H, V or Z with exactly the coordinates
+    that the command takes.
     """
+    position = 0
+    while position < len(path):
+        command = COMMAND.match(path, position)
+        if command is None:
+            raise ValueError('unsupported command or unexpected arguments at position '
+                             f'{position} of the path {path!r}')
+        numbers = (command['x'], command['y'], command['coordinate'])
+        yield PathCommand(command['pair'] or command['single'] or command['close'],
+                          tuple(float(number) for number in numbers if number is not None))
+        position = command.end()
+
+
+def path_segments(path: str) -> List[Segment]:
+    """Read straight segments from a path that starts with an absolute M.
+
+    Each M or L takes one coordinate pair, each H or V takes one coordinate, and Z closes the
+    current subpath. Raise ValueError on unsupported commands or unexpected arguments.
+    """
+    commands = list(path_commands(path))
+    if not commands or commands[0].letter != 'M':
+        raise ValueError(f'the path {path!r} does not start with an absolute M')
     segments: List[Segment] = []
     x = y = start_x = start_y = 0.0
-    for command, numbers in COMMAND.findall(path):
-        values = [float(value) for value in re.split(r'[ ,]+', numbers.strip()) if value]
-        if command == 'M':
-            x, y = start_x, start_y = values[0], values[1]
+    for command in commands:
+        if command.letter == 'M':
+            x, y = start_x, start_y = command.coordinates
             continue
-        if command == 'H':
-            end_x, end_y = values[0], y
-        elif command == 'V':
-            end_x, end_y = x, values[0]
-        elif command == 'L':
-            end_x, end_y = values[0], values[1]
+        if command.letter == 'L':
+            end_x, end_y = command.coordinates
+        elif command.letter == 'H':
+            end_x, end_y = command.coordinates[0], y
+        elif command.letter == 'V':
+            end_x, end_y = x, command.coordinates[0]
         else:
             end_x, end_y = start_x, start_y
         segments.append(Segment(x, y, end_x, end_y))
