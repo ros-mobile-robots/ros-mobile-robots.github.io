@@ -1,8 +1,8 @@
-"""Generate the figures of the Noise and Covariance page as inline SVG.
+"""Generate the figures of the two pages with the math basics of the IMU pages as inline SVG.
 
-The page is docs/theory/preliminaries/noise-and-covariance.md, one of the two pages with the math
-basics of the IMU pages. The other one, quaternions.md, has no generated figure. The script writes
-these includes, which follow the site's light and dark colors:
+The pages are docs/theory/preliminaries/noise-and-covariance.md, which shows the first four
+includes, and docs/theory/preliminaries/quaternions.md, which shows the last one. The script
+writes these includes, which follow the site's light and dark colors:
 
 - includes/math-normal-distribution.html, in "The normal distribution": the density of the
   simulated IMU's noise, a normal distribution with the mean 0 and the standard deviation of the
@@ -19,6 +19,9 @@ these includes, which follow the site's light and dark colors:
 - includes/math-covariance-shares.html, in "The covariance ellipsoid": the ellipses of one, two
   and three standard deviations of the same matrix, each labeled with the share of the values
   inside it.
+- includes/math-quaternion-circle.html, in "Remo's IMU, turned by −90°" on the Quaternions page:
+  the two numbers of a yaw's quaternion that aren't 0, as a point on the unit circle at half the
+  yaw, for the yaw of Remo's IMU, with the opposite point, which is the same rotation.
 
 Each include holds one figure of one section, and one function writes it.
 
@@ -44,6 +47,7 @@ from board_drawings import Box
 from board_drawings import escape
 from board_drawings import normal_values
 from board_drawings import Point
+from localization_figures import arrow_head
 from localization_figures import bell
 from localization_figures import BG
 from localization_figures import DRAWING_RULES
@@ -91,6 +95,15 @@ MATH_RULES = (
     ('.lv-math .lv-fig .pair', f'fill:{FG};fill-opacity:.7;stroke:none'),
     ('.lv-math .lv-fig .sign', f'font-size:{SIGN_SIZE}px;font-weight:700'),
     ('.lv-math .lv-fig .angle-arc', f'fill:none;stroke:{FG};stroke-width:1.2'),
+    ('.lv-math .lv-fig .angle-head', f'fill:{FG};stroke:none'),
+    ('.lv-math .lv-fig .axis-head', f'fill:{FG_LIGHT};stroke:none'),
+    ('.lv-math .lv-fig .unit-circle', f'fill:none;stroke:{FG_LIGHT};stroke-width:1.3'),
+    # The quaternion's line is solid and the opposite one's dashed, and each point has its name
+    ('.lv-math .lv-fig .quaternion-radius', 'fill:none;stroke:var(--lv-estimate);'
+                                            'stroke-width:2.2'),
+    ('.lv-math .lv-fig .opposite-radius', 'fill:none;stroke:var(--lv-estimate);'
+                                          'stroke-width:1.5;stroke-dasharray:5 3'),
+    ('.lv-math .lv-fig .opposite-dot', f'fill:{BG};stroke:var(--lv-estimate);stroke-width:1.6'),
     # A label over the example pairs: a band in the page's color around its letters keeps the
     # label readable, and the dots stay visible around the letters
     ('.lv-math .lv-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:3px;'
@@ -780,12 +793,171 @@ def write_covariance_scatter() -> None:
                         scatter_caption())
 
 
+class Quaternion(NamedTuple):
+    """The four numbers of a rotation, in the order of ROS's geometry_msgs/Quaternion."""
+
+    x: float
+    y: float
+    z: float
+    w: float
+
+
+def yaw_only_quaternion(yaw: float) -> Quaternion:
+    """Return the quaternion of a rotation by yaw degrees about the z axis."""
+    half_yaw = math.radians(yaw) / 2
+    return Quaternion(0.0, 0.0, math.sin(half_yaw), math.cos(half_yaw))
+
+
+class CirclePlot(NamedTuple):
+    """A plot of the numbers w and z of a yaw's quaternion, with the same scale on both axes."""
+
+    center: Point  # where w and z are 0
+    pixels_per_unit: float
+    axis_reach: float  # how far each axis runs from the center, in the numbers' unit
+
+    def at(self, w: float, z: float) -> Point:
+        """Return the drawing's position of the numbers w and z."""
+        return Point(self.center.x + w * self.pixels_per_unit,
+                     self.center.y - z * self.pixels_per_unit)
+
+    def on_circle(self, degrees: float, radius: float) -> Point:
+        """Return the point at an angle from the w axis, counterclockwise, radius px away."""
+        return Point(self.center.x + radius * math.cos(math.radians(degrees)),
+                     self.center.y - radius * math.sin(math.radians(degrees)))
+
+
+# The yaw of Remo's IMU on its chassis: imu_rpy = "0 0 -1.5707963" in urdf/remo.urdf.xacro of
+# remo_description 2.5.0, in degrees
+REMO_IMU_YAW = -90
+# The plot of the quaternion's numbers, the radius of the half yaw's arc and where its name stands
+QUATERNION_PLOT = CirclePlot(center=Point(150, 142), pixels_per_unit=88, axis_reach=1.32)
+HALF_YAW_ARC_RADIUS = 28  # px
+HALF_YAW_NAME_RADIUS = 48  # px
+QUATERNION_DOT_RADIUS = 4.5  # px
+# Where the line with the two angles has its baseline, under the plot
+ANGLES_LINE_Y = 284
+QUATERNION_DRAWING_HEIGHT = 296
+
+
+def four_decimals(value: float) -> str:
+    """Return a number with four decimals and a minus sign, such as "−0.7071"."""
+    return f'{round(value, 4) + 0:.4f}'.replace('-', '−')
+
+
+def degrees_text(degrees: float) -> str:
+    """Return an angle in degrees with a minus sign, such as "−45°"."""
+    return f'{minus_signed(degrees)}°'
+
+
+def add_circle_axes(figure: Figure, plot: CirclePlot) -> None:
+    """Add the plot's two axes through its center, with arrowheads, names and the marks at ±1."""
+    left, bottom = plot.at(-plot.axis_reach, -plot.axis_reach)
+    right, top = plot.at(plot.axis_reach, plot.axis_reach)
+    center = plot.center
+    figure.path(f'M{left:.1f},{center.y:.1f} H{right:.1f} '
+                f'M{center.x:.1f},{bottom:.1f} V{top:.1f}', 'axis')
+    figure.path(arrow_head(right, center.y, 1, 0), 'axis-head')
+    figure.path(arrow_head(center.x, top, 0, -1), 'axis-head')
+    figure.rich_text(right, center.y - 9, (Span('q', 'variable'), Span('w', 'subscript index')),
+                     'end')
+    figure.rich_text(center.x + 9, top + 6, (Span('q', 'variable'), Span('z', 'subscript index')))
+    for unit in (-1, 1):
+        on_w_axis = plot.at(unit, 0)
+        figure.path(f'M{on_w_axis.x:.1f},{center.y - 4:.1f} v8', 'tick')
+        figure.text(on_w_axis.x + unit * 5, center.y + 15, minus_signed(unit), 'note',
+                    'start' if unit > 0 else 'end')
+        on_z_axis = plot.at(0, unit)
+        figure.path(f'M{center.x - 4:.1f},{on_z_axis.y:.1f} h8', 'tick')
+        # To the left of the axis: its name stands to the right of its upper end
+        figure.text(center.x - 8, on_z_axis.y - unit * 13 + 4, minus_signed(unit), 'note', 'end')
+
+
+def add_half_yaw_arc(figure: Figure, plot: CirclePlot, half_yaw: float) -> None:
+    """Add the arc of half the yaw from the w axis, with an arrowhead and the name ψ/2."""
+    start = plot.on_circle(0, HALF_YAW_ARC_RADIUS)
+    end = plot.on_circle(half_yaw, HALF_YAW_ARC_RADIUS)
+    # The drawing's y points down, so a negative angle turns clockwise on the screen
+    sweep = 1 if half_yaw < 0 else 0
+    figure.path(f'M{start.x:.1f},{start.y:.1f} A{HALF_YAW_ARC_RADIUS},{HALF_YAW_ARC_RADIUS} '
+                f'0 0 {sweep} {end.x:.1f},{end.y:.1f}', 'angle-arc')
+    turn = math.copysign(90, half_yaw)
+    ahead = plot.on_circle(half_yaw + turn, 1)
+    figure.path(arrow_head(end.x, end.y, ahead.x - plot.center.x, ahead.y - plot.center.y, 6),
+                'angle-head')
+    name = plot.on_circle(half_yaw / 2, HALF_YAW_NAME_RADIUS)
+    figure.rich_text(name.x, name.y + BASELINE_SHIFT * VARIABLE_SIZE,
+                     (Span('ψ', 'variable'), Span('/2')), 'middle')
+
+
+def add_quaternion_point(figure: Figure, plot: CirclePlot, quaternion: Quaternion) -> None:
+    """Add a yaw's quaternion: its point, its line from the center and its two numbers.
+
+    A dashed line leads from the point to each axis, and the number stands at the axis.
+    """
+    point = plot.at(quaternion.w, quaternion.z)
+    center = plot.center
+    figure.path(f'M{point.x:.1f},{center.y:.1f} V{point.y:.1f} H{center.x:.1f}', 'reference')
+    figure.text(point.x, center.y - 7, four_decimals(quaternion.w), 'note', 'middle')
+    figure.text(center.x - 7, point.y + 4, four_decimals(quaternion.z), 'note', 'end')
+    figure.path(f'M{center.x:.1f},{center.y:.1f} L{point.x:.1f},{point.y:.1f}',
+                'quaternion-radius')
+    figure.circle(point.x, point.y, QUATERNION_DOT_RADIUS, 'estimate-dot')
+    figure.rich_text(point.x + 9, point.y + 16, (Span('q', 'vector'),))
+
+
+def add_opposite_point(figure: Figure, plot: CirclePlot, quaternion: Quaternion) -> None:
+    """Add the opposite quaternion, the same rotation: its point and a dashed line to it."""
+    point = plot.at(-quaternion.w, -quaternion.z)
+    figure.path(f'M{plot.center.x:.1f},{plot.center.y:.1f} L{point.x:.1f},{point.y:.1f}',
+                'opposite-radius')
+    figure.circle(point.x, point.y, QUATERNION_DOT_RADIUS, 'opposite-dot')
+    figure.rich_text(point.x - 9, point.y - 8, (Span('−'), Span('q', 'vector')), 'end')
+
+
+def quaternion_circle_figure() -> Figure:
+    """Return the drawing of the quaternion of Remo's IMU as a point on the unit circle."""
+    plot, yaw = QUATERNION_PLOT, REMO_IMU_YAW
+    quaternion = yaw_only_quaternion(yaw)
+    title = (f'A yaw of {degrees_text(yaw)} as a quaternion: a point on the unit circle at '
+             f'{degrees_text(yaw / 2)}, and the opposite point')
+    figure = Figure('math-quaternion-circle', title, QUATERNION_DRAWING_HEIGHT, DRAWING_WIDTH)
+    figure.circle(plot.center.x, plot.center.y, plot.pixels_per_unit, 'unit-circle')
+    add_circle_axes(figure, plot)
+    add_opposite_point(figure, plot, quaternion)
+    add_half_yaw_arc(figure, plot, yaw / 2)
+    add_quaternion_point(figure, plot, quaternion)
+    figure.rich_text(DRAWING_WIDTH / 2, ANGLES_LINE_Y,
+                     (Span('ψ', 'variable'), Span(f' = {degrees_text(yaw)}, half of it: '),
+                      Span('ψ', 'variable'), Span(f'/2 = {degrees_text(yaw / 2)}')), 'middle')
+    return figure
+
+
+def quaternion_circle_caption() -> str:
+    """Return the caption of the quaternion figure, with the numbers of Remo's quaternion."""
+    yaw = REMO_IMU_YAW
+    quaternion = yaw_only_quaternion(yaw)
+    return ("The two numbers of a yaw's quaternion that aren't 0, <em>q<sub>w</sub></em> = "
+            'cos(<em>ψ</em>/2) and <em>q<sub>z</sub></em> = sin(<em>ψ</em>/2), as a point on the '
+            f"unit circle at half the yaw. For the yaw of Remo's IMU, {degrees_text(yaw)}, the "
+            f'point <strong>q</strong> lies at {degrees_text(yaw / 2)}: <em>q<sub>w</sub></em> ≈ '
+            f'{four_decimals(quaternion.w)} and <em>q<sub>z</sub></em> ≈ '
+            f'{four_decimals(quaternion.z)}. The opposite point −<strong>q</strong> is the '
+            'same rotation.')
+
+
+def write_quaternion_circle() -> None:
+    """Write the figure of a yaw's quaternion, in "Remo's IMU, turned by −90°"."""
+    write_figure('includes/math-quaternion-circle.html', quaternion_circle_figure(),
+                 quaternion_circle_caption())
+
+
 def main() -> None:
-    """Write the includes of the Noise and Covariance page, in the order of its sections."""
+    """Write the includes of the two pages, in the order of their sections."""
     write_normal_distribution()
     write_covariance_scatter()
     write_covariance_axes()
     write_covariance_shares()
+    write_quaternion_circle()
 
 
 if __name__ == '__main__':

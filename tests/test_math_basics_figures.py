@@ -1,6 +1,7 @@
 """Tests for scripts/figures/math_basics_figures.py.
 
-The script writes the figures of the Noise and Covariance page as four includes.
+The script writes the figures of the Noise and Covariance page as four includes and the figure of
+the Quaternions page as one.
 
 Run from the repository root: python -m unittest discover -s tests
 """
@@ -28,8 +29,13 @@ from figure_script_runs import run_with_an_ascii_locale  # noqa: E402
 FIGURES = ROOT / 'scripts' / 'figures'
 SCRIPT = FIGURES / 'math_basics_figures.py'
 PAGE = ROOT / 'docs' / 'theory' / 'preliminaries' / 'noise-and-covariance.md'
-INCLUDE_NAMES = ['math-covariance-axes.html', 'math-covariance-scatter.html',
-                 'math-covariance-shares.html', 'math-normal-distribution.html']
+QUATERNIONS_PAGE = ROOT / 'docs' / 'theory' / 'preliminaries' / 'quaternions.md'
+# The script's includes on the Noise and Covariance page, its include on the Quaternions page,
+# and all of them in the order of their names
+NOISE_INCLUDE_NAMES = ['math-covariance-axes.html', 'math-covariance-scatter.html',
+                       'math-covariance-shares.html', 'math-normal-distribution.html']
+QUATERNION_INCLUDE_NAME = 'math-quaternion-circle.html'
+INCLUDE_NAMES = NOISE_INCLUDE_NAMES + [QUATERNION_INCLUDE_NAME]
 # The includes of scripts/figures/imu_noise_figures.py that the page shows first, in "The noise
 # of one value": the readings at rest against time, and the three readings of the worked example
 OTHER_SCRIPTS_INCLUDES = ['imu-noise-trace.html', 'imu-noise-three-readings.html']
@@ -86,9 +92,9 @@ class SharesRow(NamedTuple):
     three_values: str
 
 
-def page_include_names() -> List[str]:
-    """Return the file names of the includes that the page shows, from the top."""
-    return re.findall(r'^--8<-- "includes/([^"]+\.html)"$', PAGE.read_text(encoding='utf-8'),
+def page_include_names(page: Path = PAGE) -> List[str]:
+    """Return the file names of the includes that a page shows, from the top."""
+    return re.findall(r'^--8<-- "includes/([^"]+\.html)"$', page.read_text(encoding='utf-8'),
                       re.MULTILINE)
 
 
@@ -124,6 +130,20 @@ def first_match(pattern: str, text: str) -> 're.Match[str]':
     if match is None:
         raise AssertionError(f'{pattern} is not in {text[:80]}')
     return match
+
+
+def quaternion_numbers(plot: Any, x: float, y: float) -> Tuple[float, float]:
+    """Return the numbers w and z of a point of the quaternion figure's drawing."""
+    return ((x - plot.center.x) / plot.pixels_per_unit,
+            (plot.center.y - y) / plot.pixels_per_unit)
+
+
+def drawn_point(svg: str, css_class: str) -> Tuple[float, float]:
+    """Return the center of the one circle of a class in a drawing."""
+    circles = re.findall(rf'<circle class="{css_class}" cx="([\d.]+)" cy="([\d.]+)"', svg)
+    if len(circles) != 1:
+        raise AssertionError(f'{len(circles)} circles of the class {css_class}')
+    return float(circles[0][0]), float(circles[0][1])
 
 
 def scatter_layout(figures: ModuleType, css_class: str) -> Any:
@@ -163,8 +183,11 @@ class TestIncludes(unittest.TestCase):
 
     def test_page_shows_each_of_the_scripts_includes_once(self) -> None:
         shown = page_include_names()
-        for include_name in INCLUDE_NAMES:
+        for include_name in NOISE_INCLUDE_NAMES:
             self.assertEqual(shown.count(include_name), 1, include_name)
+
+    def test_quaternions_page_shows_only_the_quaternion_figure(self) -> None:
+        self.assertEqual(page_include_names(QUATERNIONS_PAGE), [QUATERNION_INCLUDE_NAME])
 
     def test_page_shows_the_trace_and_the_three_readings_before_the_scripts_figures(
             self) -> None:
@@ -174,7 +197,7 @@ class TestIncludes(unittest.TestCase):
     def test_pages_includes_have_no_id_in_common(self) -> None:
         # The page shows this script's figures and two of imu_noise_figures.py
         shown = page_include_names()
-        self.assertEqual(len(shown), len(INCLUDE_NAMES) + len(OTHER_SCRIPTS_INCLUDES))
+        self.assertEqual(len(shown), len(NOISE_INCLUDE_NAMES) + len(OTHER_SCRIPTS_INCLUDES))
         ids: List[str] = []
         for include_name in shown:
             ids += re.findall(r' id="([^"]+)"',
@@ -574,6 +597,159 @@ class TestDrawnValues(unittest.TestCase):
             for (x, y), position in zip(dots, positions):
                 self.assertAlmostEqual(float(x), position.x, delta=ROUNDING)
                 self.assertAlmostEqual(float(y), position.y, delta=ROUNDING)
+
+
+class TestQuaternionCircle(unittest.TestCase):
+    """The quaternion figure shows a yaw's quaternion at half the yaw on the unit circle."""
+
+    def test_yaw_only_quaternion_of_no_yaw_is_the_identity(self) -> None:
+        self.assertEqual(load_script().yaw_only_quaternion(0), (0, 0, 0, 1))
+
+    def test_yaw_only_quaternion_of_remos_imu_is_minus_and_plus_the_root_of_a_half(self) -> None:
+        figures = load_script()
+        quaternion = figures.yaw_only_quaternion(figures.REMO_IMU_YAW)
+        self.assertEqual((quaternion.x, quaternion.y), (0, 0))
+        self.assertAlmostEqual(quaternion.z, -math.sqrt(0.5))
+        self.assertAlmostEqual(quaternion.w, math.sqrt(0.5))
+
+    def test_yaw_only_quaternion_has_the_length_1(self) -> None:
+        figures = load_script()
+        for yaw in (-170, -90, 30, 180, 400):
+            self.assertAlmostEqual(math.hypot(*figures.yaw_only_quaternion(yaw)), 1, msg=str(yaw))
+
+    def test_yaw_only_quaternion_of_a_full_turn_more_is_the_opposite_quaternion(self) -> None:
+        figures = load_script()
+        quaternion = figures.yaw_only_quaternion(figures.REMO_IMU_YAW)
+        turned_once_more = figures.yaw_only_quaternion(figures.REMO_IMU_YAW + 360)
+        self.assertAlmostEqual(turned_once_more.z, -quaternion.z)
+        self.assertAlmostEqual(turned_once_more.w, -quaternion.w)
+
+    def test_remos_yaw_is_the_angle_in_the_quaternions_pages_heading(self) -> None:
+        figures = load_script()
+        self.assertIn(f"## Remo's IMU, turned by {figures.degrees_text(figures.REMO_IMU_YAW)}\n",
+                      QUATERNIONS_PAGE.read_text(encoding='utf-8'))
+
+    def test_quaternions_page_gives_the_quaternion_that_the_figure_draws(self) -> None:
+        figures = load_script()
+        quaternion = figures.yaw_only_quaternion(figures.REMO_IMU_YAW)
+        self.assertIn(f'(0,\\ 0,\\ {quaternion.z:.4f},\\ {quaternion.w:.4f})',
+                      QUATERNIONS_PAGE.read_text(encoding='utf-8'))
+
+    def test_quaternion_figure_draws_the_unit_circle_around_the_plots_center(self) -> None:
+        figures = load_script()
+        plot = figures.QUATERNION_PLOT
+        svg = figures.quaternion_circle_figure().svg()
+        self.assertEqual(drawn_point(svg, 'unit-circle'), (plot.center.x, plot.center.y))
+        self.assertIn(f'<circle class="unit-circle" cx="{plot.center.x:.1f}" '
+                      f'cy="{plot.center.y:.1f}" r="{plot.pixels_per_unit}"/>', svg)
+
+    def test_quaternion_figure_draws_the_point_on_the_unit_circle_at_half_the_yaw(self) -> None:
+        figures = load_script()
+        plot = figures.QUATERNION_PLOT
+        w, z = quaternion_numbers(
+            plot, *drawn_point(figures.quaternion_circle_figure().svg(), 'estimate-dot'))
+        half_yaw = math.radians(figures.REMO_IMU_YAW / 2)
+        self.assertAlmostEqual(w, math.cos(half_yaw), delta=ROUNDING / plot.pixels_per_unit)
+        self.assertAlmostEqual(z, math.sin(half_yaw), delta=ROUNDING / plot.pixels_per_unit)
+
+    def test_quaternion_figure_draws_the_opposite_point_across_the_center(self) -> None:
+        figures = load_script()
+        plot = figures.QUATERNION_PLOT
+        svg = figures.quaternion_circle_figure().svg()
+        w, z = quaternion_numbers(plot, *drawn_point(svg, 'estimate-dot'))
+        opposite_w, opposite_z = quaternion_numbers(plot, *drawn_point(svg, 'opposite-dot'))
+        self.assertAlmostEqual(opposite_w, -w, delta=2 * ROUNDING / plot.pixels_per_unit)
+        self.assertAlmostEqual(opposite_z, -z, delta=2 * ROUNDING / plot.pixels_per_unit)
+
+    def test_quaternion_figure_draws_a_solid_line_to_the_point_and_a_dashed_one_opposite(
+            self) -> None:
+        figures = load_script()
+        svg = figures.quaternion_circle_figure().svg()
+        center = figures.QUATERNION_PLOT.center
+        for line_class, dot_class in (('quaternion-radius', 'estimate-dot'),
+                                      ('opposite-radius', 'opposite-dot')):
+            x, y = drawn_point(svg, dot_class)
+            self.assertIn(f'<path class="{line_class}" d="M{center.x:.1f},{center.y:.1f} '
+                          f'L{x:.1f},{y:.1f}"/>', svg)
+        rules = dict(figures.MATH_RULES)
+        self.assertNotIn('stroke-dasharray', rules['.lv-math .lv-fig .quaternion-radius'])
+        self.assertIn('stroke-dasharray', rules['.lv-math .lv-fig .opposite-radius'])
+
+    def assert_half_yaw_arc_turns(self, half_yaw: float, sweep_flag: str) -> None:
+        """Assert that the arc runs from the w axis to half_yaw, with this SVG sweep flag."""
+        figures = load_script()
+        plot = figures.QUATERNION_PLOT
+        figure = figures.Figure('test', 'Test', 300)
+        figures.add_half_yaw_arc(figure, plot, half_yaw)
+        arc = first_match(r'class="angle-arc" d="M([\d.]+),([\d.]+) A[\d.]+,[\d.]+ 0 0 (\d) '
+                          r'([\d.]+),([\d.]+)"', figure.elements[0])
+        start_x, start_y, end_x, end_y = (float(arc[index]) for index in (1, 2, 4, 5))
+        self.assertEqual((start_x, start_y),
+                         (plot.center.x + figures.HALF_YAW_ARC_RADIUS, plot.center.y))
+        self.assertEqual(arc[3], sweep_flag)
+        end_angle = math.degrees(math.atan2(plot.center.y - end_y, end_x - plot.center.x))
+        self.assertAlmostEqual(end_angle, half_yaw, delta=0.2)
+
+    def test_half_yaw_arc_of_a_negative_yaw_turns_clockwise_on_the_screen(self) -> None:
+        self.assert_half_yaw_arc_turns(load_script().REMO_IMU_YAW / 2, '1')
+
+    def test_half_yaw_arc_of_a_positive_yaw_turns_counterclockwise_on_the_screen(self) -> None:
+        self.assert_half_yaw_arc_turns(60, '0')
+
+    def test_half_yaw_arcs_arrowhead_has_its_tip_at_the_arcs_end(self) -> None:
+        figures = load_script()
+        figure = figures.Figure('test', 'Test', 300)
+        figures.add_half_yaw_arc(figure, figures.QUATERNION_PLOT, figures.REMO_IMU_YAW / 2)
+        arc_end = first_match(r' ([\d.]+,[\d.]+)"/>$', figure.elements[0])[1]
+        self.assertTrue(figure.elements[1].startswith(f'<path class="angle-head" d="M{arc_end} '))
+
+    def test_quaternion_figure_writes_each_number_at_its_axis(self) -> None:
+        figures = load_script()
+        plot = figures.QUATERNION_PLOT
+        svg = figures.quaternion_circle_figure().svg()
+        x, y = drawn_point(svg, 'estimate-dot')
+        # The w number stands over the point's x on the w axis, the z number beside the z axis
+        self.assertEqual(svg.count(f'<text class="note" x="{x:.1f}" y="{plot.center.y - 7:.1f}" '
+                                   'text-anchor="middle">0.7071</text>'), 1)
+        self.assertEqual(svg.count(f'<text class="note" x="{plot.center.x - 7:.1f}" '
+                                   f'y="{y + 4:.1f}" text-anchor="end">−0.7071</text>'), 1)
+
+    def test_quaternion_figure_leads_dashed_lines_from_the_point_to_both_axes(self) -> None:
+        figures = load_script()
+        center = figures.QUATERNION_PLOT.center
+        svg = figures.quaternion_circle_figure().svg()
+        x, y = drawn_point(svg, 'estimate-dot')
+        self.assertIn(f'<path class="reference" d="M{x:.1f},{center.y:.1f} V{y:.1f} '
+                      f'H{center.x:.1f}"/>', svg)
+
+    def test_quaternion_figure_has_a_short_accessible_name_with_both_angles(self) -> None:
+        self.assertEqual(load_script().quaternion_circle_figure().title,
+                         'A yaw of −90° as a quaternion: a point on the unit circle at −45°, and '
+                         'the opposite point')
+
+    def test_quaternion_figure_names_the_yaw_and_half_of_it_under_the_plot(self) -> None:
+        svg = load_script().quaternion_circle_figure().svg()
+        self.assertIn('<tspan> = −90°, half of it: </tspan>', svg)
+        self.assertIn('<tspan>/2 = −45°</tspan>', svg)
+
+    def test_quaternion_caption_gives_remos_yaw_half_of_it_and_the_two_numbers(self) -> None:
+        figures = load_script()
+        half_yaw = math.radians(figures.REMO_IMU_YAW / 2)
+        w = f'{math.cos(half_yaw):.4f}'
+        z = f'{math.sin(half_yaw):.4f}'.replace('-', '−')
+        self.assertIn(f"For the yaw of Remo's IMU, −90°, the point <strong>q</strong> lies at "
+                      f'−45°: <em>q<sub>w</sub></em> ≈ {w} and <em>q<sub>z</sub></em> ≈ {z}.',
+                      figures.quaternion_circle_caption())
+
+    def test_four_decimals_writes_a_minus_sign_but_not_before_zero(self) -> None:
+        figures = load_script()
+        self.assertEqual(figures.four_decimals(-math.sqrt(0.5)), '−0.7071')
+        self.assertEqual(figures.four_decimals(-0.00004), '0.0000')
+
+    def test_degrees_text_writes_a_minus_sign_and_the_degree_sign(self) -> None:
+        figures = load_script()
+        self.assertEqual(figures.degrees_text(-45), '−45°')
+        self.assertEqual(figures.degrees_text(90), '90°')
 
 
 class TestTexts(unittest.TestCase):
