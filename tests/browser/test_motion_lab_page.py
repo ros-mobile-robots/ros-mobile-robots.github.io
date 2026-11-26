@@ -383,12 +383,33 @@ class TestMotionLabPage(unittest.TestCase):
                          str(getattr(figures.DEFAULT_SETTINGS, slider.setting)))
         self.assertEqual(page.input_value(f'#{other.element_id}'), str(other.lowest))
 
+    def test_a_long_hold_then_a_tap_resets_no_slider(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure(**PHONE).page
+        open_settings(page)
+        set_slider(page, slider, slider.lowest)
+        # A touch held still for 1.5 s, then a tap at the same place
+        page.evaluate("""async (selector) => {
+            const input = document.querySelector(selector);
+            const box = input.getBoundingClientRect();
+            const x = box.left + 40, y = box.top + box.height / 2;
+            const send = (type) => input.dispatchEvent(new PointerEvent(type,
+                {pointerType: 'touch', isPrimary: true, pointerId: 7, bubbles: true,
+                 clientX: x, clientY: y}));
+            send('pointerdown');
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            send('pointerup');
+            send('pointerdown');
+            send('pointerup');
+        }""", f'#{slider.element_id}')
+        self.assertEqual(page.input_value(f'#{slider.element_id}'), str(slider.lowest))
+
     def test_two_quick_drags_or_two_distant_taps_reset_no_slider(self) -> None:
         slider = figures.CONFIGURATION_SLIDERS[0]
         page = self.open_live_figure(**PHONE).page
         open_settings(page)
         set_slider(page, slider, slider.lowest)
-        # Two touches, each as the slider gets them: down, moves, up. 100 ms apart
+        # Dispatch two touch sequences in quick succession
         touches = """([selector, presses]) => {
             const input = document.querySelector(selector);
             const box = input.getBoundingClientRect(), y = box.top + box.height / 2;
@@ -649,6 +670,8 @@ class TestMotionLabPage(unittest.TestCase):
                 self.assertEqual(page.eval_on_selector_all(f'{FIGURE} .ix-answer', shown),
                                  len(figures.EXAMPLES))
                 self.assertEqual(page.eval_on_selector_all(f'{FIGURE} [data-live]', shown), 0)
+                # The introduction asks for no control that the static version lacks
+                self.assertNotIn('Press Play', page.inner_text(f'{FIGURE} .ix-steps'))
 
     def test_static_version_stays_when_a_script_fails_to_load(self) -> None:
         shown = 'parts => parts.filter(part => part.offsetParent).length'
@@ -718,6 +741,47 @@ class TestMotionLabPage(unittest.TestCase):
         at_end = page.evaluate(DESCRIPTION, FIGURE)
         for value in end_values:
             self.assertIn(value, at_end)
+
+    def test_dragging_a_slider_through_the_examples_value_keeps_it_in_place(self) -> None:
+        # With many values changed, the comparison under the play bar is long. A slider that
+        # crosses the example's value takes one comparison away and back, and stays where it is
+        separation = figures.EXAMPLES[1]
+        changes = (('radius_percent', 98), ('separation_percent', 80), ('offset_mm', 60),
+                   ('contact_percent', 100))
+        tracking = slider_for('tracking_percent')
+        own = getattr(separation.settings, tracking.setting)
+        for size in (SMALL_PHONE, PHONE):
+            with self.subTest(width=size['width']):
+                page = self.open_live_figure(**size).page
+                page.click(f'{FIGURE} .ix-next')
+                page.click(f'{FIGURE} [data-command="{figures.CommandKind.FORWARD.value}"]')
+                open_settings(page)
+                page.select_option(f'{FIGURE} .ix-robot-select', 'diffbot')
+                for setting, value in changes:
+                    set_slider(page, slider_for(setting), value)
+                places = []
+                for value in (own - 1, own, own + 1):
+                    set_slider(page, tracking, value)
+                    places.append(top_of(page, f'#{tracking.element_id}'))
+                self.assertEqual(places, [places[0]] * 3)
+
+    def test_a_replay_with_reduced_motion_hears_no_summary_of_the_values_before(self) -> None:
+        example = figures.EXAMPLES[0]
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure(reduced_motion='reduce').page
+        page.click(f'{FIGURE} [data-example="{example.key}"]')
+        open_settings(page)
+        set_slider(page, slider, slider.lowest)
+        # The changed value's summary waits to be heard. The replay comes first, and no summary
+        # follows it into the live region
+        page.dispatch_event(f'#{slider.element_id}', 'change')
+        page.click(f'{FIGURE} [data-example="{example.key}"]')
+        page.wait_for_timeout(1000)
+        # textContent on both sides: the summary's hidden failing names make its innerText differ
+        self.assertNotEqual(page.text_content(f'{FIGURE} .ix-announce'),
+                            page.text_content(f'{FIGURE} .ix-summary'))
+        self.assertTrue(page.eval_on_selector(
+            f'{FIGURE} .ix-shown-answer', 'answer => document.activeElement === answer'))
 
     def test_pressing_the_shown_command_keeps_the_time(self) -> None:
         example = figures.EXAMPLES[0]

@@ -11,9 +11,11 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const MILLISECONDS_PER_SECOND = 1000;
 // Screen readers hear the result once a change is complete: this long after the last change
 const ANNOUNCE_DELAY_MS = 400;
-// Two taps on a slider within this time reset it: touch screens send no double click. A tap
-// moves less than TAP_SLOP_PX while pressed, and the second one lands that close to the first.
+// Two taps on a slider within this time reset it: touch screens send no double click. A tap is a
+// touch shorter than TAP_MAX_MS that moves less than TAP_SLOP_PX, and the second one lands that
+// close to the first.
 const DOUBLE_TAP_MS = 350;
+const TAP_MAX_MS = 300;
 const TAP_SLOP_PX = 10;
 const DOUBLE_TAP_DISTANCE_PX = 30;
 // The Enlarge button shows from this window width on, as in interactive.css
@@ -268,11 +270,11 @@ function mount(root) {
     const model = relativePose(start.frame, shownSample.frame);
     const at = `At ${shownSample.t.toFixed(1)} s of ${inputs.command.duration.toFixed(1)} s, `;
     find('.ix-now').textContent = kind === 'forward'
-      ? `${at}the command has driven ${fixed(command.forward)} m, the odometry reports ${fixed(odometry.forward)} m,`
-        + ` and the true pose has driven ${fixed(model.forward)} m.`
-      : `${at}the command has turned ${fixed(command.turned)} rad, the odometry reports ${fixed(odometry.turned)} rad,`
-        + ` and the true pose has turned ${fixed(model.turned)} rad, with base_footprint`
-        + ` ${fixed(Math.hypot(model.forward, model.left))} m from its start.`;
+      ? `${at}the commanded distance is ${fixed(command.forward)} m. The odometry reports`
+        + ` ${fixed(odometry.forward)} m and the robot in the model has travelled ${fixed(model.forward)} m.`
+      : `${at}the commanded angle is ${fixed(command.turned)} rad. The odometry reports ${fixed(odometry.turned)} rad`
+        + ` and the robot in the model has turned ${fixed(model.turned)} rad. Its base_footprint is`
+        + ` ${fixed(Math.hypot(model.forward, model.left))} m from its starting point.`;
   }
 
   // --- The numbers next to the drawing -------------------------------------------------------
@@ -406,6 +408,15 @@ function mount(root) {
     lead.textContent = data.texts.changesLead;
     line.append(lead, ` ${changes.join(', ')}. ${data.texts.changesEnd}`);
   }
+  // The place under the play bar only grows while an example is open, and at one width: a value
+  // that crosses the example's own takes its comparison away, and the controls below stay put
+  let areaHeight = 0;
+  function holdAreaHeight() {
+    const area = find('.ix-answer-area');
+    area.style.minHeight = '';
+    areaHeight = Math.max(areaHeight, area.offsetHeight);
+    area.style.minHeight = `${areaHeight}px`;
+  }
   // The summary and the tables show the drive's end: they wait until a drive has reached its end
   // since the example opened, then follow every change. A question is answered the first time the
   // controls hold the example's own drive at its end: another drive's end shows its results but
@@ -430,6 +441,7 @@ function mount(root) {
     const item = find('.ix-current');
     item.classList.toggle('ix-revealed', showAnswer);
     item.querySelector('.ix-show').textContent = own ? data.texts.show : data.texts.replay;
+    holdAreaHeight();
     root.classList.toggle('ix-waiting', !reachedEnd);
     if (answerAppears) return 'answer';
     return resultsAppear ? 'results' : null;
@@ -496,7 +508,8 @@ function mount(root) {
       if (event.timeStamp - lastTouchReset > DOUBLE_TAP_MS) resetOne();
     });
     input.addEventListener('pointerdown', (event) => {
-      press = isTouch(event) ? { input, x: event.clientX, y: event.clientY, moved: false } : null;
+      press = isTouch(event)
+        ? { input, id: event.pointerId, x: event.clientX, y: event.clientY, time: event.timeStamp, moved: false } : null;
       if (!press) lastTap = null;
     });
     input.addEventListener('pointermove', (event) => {
@@ -504,7 +517,9 @@ function mount(root) {
     });
     input.addEventListener('pointercancel', () => { press = null; lastTap = null; });
     input.addEventListener('pointerup', (event) => {
-      const tap = press && press.input === input && !press.moved && isTouch(event)
+      const short = press && event.timeStamp - press.time < TAP_MAX_MS
+        && Math.hypot(event.clientX - press.x, event.clientY - press.y) <= TAP_SLOP_PX;
+      const tap = short && press.input === input && press.id === event.pointerId && !press.moved && isTouch(event)
         ? { input, x: event.clientX, y: event.clientY, time: event.timeStamp } : null;
       press = null;
       const second = Boolean(tap && lastTap && lastTap.input === input && tap.time - lastTap.time < DOUBLE_TAP_MS
@@ -626,10 +641,13 @@ function mount(root) {
     reachedEnd = false;
     setTime(time ?? (answered.has(questionKey()) ? 1 : 0));
     update();
+    areaHeight = 0;
     showResults();
   }
   for (const button of findAll('[data-example]')) {
     button.addEventListener('click', () => {
+      // A summary that waits to be heard belongs to the values before the replay
+      clearTimeout(announceTimer);
       showStep(state.step, state.command, 0);
       if (reducedMotion()) {
         // The answer shows at once and takes the keyboard's place: screen readers read it there
@@ -663,7 +681,13 @@ function mount(root) {
   previousButton.addEventListener('click', () => stepTo(state.step - 1, previousButton, nextButton));
   nextButton.addEventListener('click', () => stepTo(state.step + 1, nextButton, previousButton));
 
-  new ResizeObserver(() => { if (drive) draw(); }).observe(plot);
+  // Another width redraws the drawing and measures the place under the play bar anew
+  new ResizeObserver(() => {
+    if (!drive) return;
+    draw();
+    areaHeight = 0;
+    holdAreaHeight();
+  }).observe(plot);
 
   // First drawing: the first example's question and its own drive at the start. Only when it has
   // succeeded does the figure switch from the static version to the controls.

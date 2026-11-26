@@ -1309,8 +1309,8 @@ def steps_html() -> str:
     return ''.join([
         '<div class="ix-steps">',
         f'<p><b>{NUMBER_WORDS[len(EXAMPLES)]} drives to try.</b> Each one changes a single value'
-        f' of {robot}. Make a prediction, then press Play or move the time slider to see how'
-        ' the three views compare.</p>',
+        f' of {robot}. Make a prediction.<span data-live hidden> Press Play or move the time'
+        ' slider to see how the three views compare.</span></p>',
         '<div class="ix-stepper" data-live hidden><button type="button"'
         ' class="ix-previous">Previous</button><span class="ix-step-count"></span><button'
         ' type="button" class="ix-next">Next</button><button'
