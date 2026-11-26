@@ -704,6 +704,23 @@ class TestMotionLabPage(unittest.TestCase):
         self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
         self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Play')
 
+    def test_play_at_the_drives_end_shows_its_start_with_reduced_motion(self) -> None:
+        # An example that was played opens at its drive's end. Play then has to show something:
+        # the start, and the next Play the end again
+        page = self.open_live_figure(reduced_motion='reduce').page
+        scrub = f'{FIGURE} .ix-scrub'
+        last = len(figures.EXAMPLES) - 1
+        for _ in range(last):
+            page.click(f'{FIGURE} .ix-play')
+            page.click(f'{FIGURE} .ix-next')
+        page.click(f'{FIGURE} .ix-play')
+        page.click(f'{FIGURE} .ix-previous')
+        self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
+        page.click(f'{FIGURE} .ix-play')
+        self.assertEqual(page.input_value(scrub), '0')
+        page.click(f'{FIGURE} .ix-play')
+        self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
+
     def test_another_drives_end_never_answers_the_examples_question(self) -> None:
         # Reach the end with other values, go back to the middle, set the example's values again:
         # the results show, but the question waits for its own drive's end. On both drives

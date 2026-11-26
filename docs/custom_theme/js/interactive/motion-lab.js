@@ -463,9 +463,16 @@ function mount(root) {
     };
     animationRequest = requestAnimationFrame(tick);
   }
-  // With reduced motion, Play shows the drive's end at once
+  // With reduced motion, Play shows the drive's end at once. At the end already, as an example
+  // that was played opens, Play shows the start instead, and the next Play the end again
   function play() {
-    if (reducedMotion()) { stopPlaying(); setTime(1); draw(); announceAppeared(showResults()); return; }
+    if (reducedMotion()) {
+      stopPlaying();
+      setTime(state.time >= 1 ? 0 : 1);
+      draw();
+      announceAppeared(showResults());
+      return;
+    }
     startPlaying();
   }
   find('.ix-play').addEventListener('click', () => {
