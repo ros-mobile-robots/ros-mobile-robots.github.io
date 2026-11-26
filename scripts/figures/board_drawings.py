@@ -7,14 +7,17 @@ BNO055 breakout. The parts keep the colors of the real ones in both color scheme
 returns their CSS.
 
 The module also holds what a figure script needs to write SVG: escape(), style_element(),
-svg_element() with its arrowhead marker, Point and Box for a position and a rectangle in a
-drawing, and Drawing, which collects the elements of one layout and draws its rectangles, circles,
-lines, text, boxes with text and numbers in discs.
+svg_subscript(), svg_element() with its arrowhead markers, Point and Box for a position and a
+rectangle in a drawing, and Drawing, which collects the elements of one layout and draws its
+rectangles, circles, lines, text, boxes with text and numbers in discs. For the HTML around a
+drawing it has figure_element(), the figure with its panels and its caption, and tab_set(), a set
+of content tabs.
 """
 
 import math
 from typing import List
 from typing import NamedTuple
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -23,13 +26,6 @@ from typing import Tuple
 ENCODER_BOARD_OFFSET = 76
 # The radius of the disc around a step's or a check's number, in px
 NUMBER_DISC_RADIUS = 8
-
-
-class Point(NamedTuple):
-    """A position in a drawing, in px from its top left corner: y points down."""
-
-    x: float
-    y: float
 
 
 class Box(NamedTuple):
@@ -52,24 +48,59 @@ def style_element(rules: Sequence[Tuple[str, str]]) -> str:
     return '<style>\n' + '\n'.join(lines) + '\n</style>'
 
 
-def arrowhead_marker(marker_id: str) -> str:
-    """Return an SVG marker that ends a line with an arrowhead of the CSS class arrow-head."""
+class Point(NamedTuple):
+    """A point on a drawing, in SVG units from the upper left corner."""
+
+    x: float
+    y: float
+
+
+def svg_subscript(symbol: str, index: str, *, restore_baseline: bool = False) -> str:
+    """Return SVG markup for a symbol with a subscript of the CSS class sub.
+
+    symbol and index are text, which the markup holds escaped. The subscript lowers the baseline
+    of the text line. With restore_baseline, the markup moves the baseline back up, for a line
+    that goes on after the subscript.
+    """
+    lowered = f'{escape(symbol)}<tspan class="sub" dy="3">{escape(index)}</tspan>'
+    # A shift applies to a character, so the second tspan holds one that has no width: U+200B
+    return lowered + '<tspan dy="-3">\u200b</tspan>' if restore_baseline else lowered
+
+
+def arrowhead_marker(marker_id: str, head_class: str = 'arrow-head',
+                     orientation: str = 'auto') -> str:
+    """Return an SVG marker that ends a line with an arrowhead of the CSS class head_class.
+
+    orientation is the marker's orient attribute: auto, or auto-start-reverse for a marker that
+    may also start a line.
+    """
     return (f'<marker id="{marker_id}" viewBox="0 0 10 10" refX="9" refY="5" '
-            'markerWidth="7" markerHeight="7" orient="auto">'
-            '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
+            f'markerWidth="7" markerHeight="7" orient="{orientation}">'
+            f'<path class="{head_class}" d="M0,0 L10,5 L0,10 z"/></marker>')
 
 
 def svg_element(name: str, css_classes: str, size: Tuple[float, float], title: str,
-                elements: Sequence[str]) -> str:
+                elements: Sequence[str], *, description: Optional[str] = None,
+                markers: Optional[Sequence[str]] = None) -> str:
     """Return an SVG element of size (width, height) with the elements, named title.
 
-    name starts the element's IDs: name-title for its accessible name, and name-head for the
-    arrowhead marker that its arrows point to.
+    name starts the element's IDs: name-title for its accessible name and, with a description,
+    name-description for the text that a screen reader reads after the name. markers are the
+    marker elements that the drawing's lines point to. Without them, the element has one
+    arrowhead marker, name-head. An empty sequence gives an element without markers.
     """
     width, height = size
+    labelled_by = f'{name}-title'
+    described = ''
+    if description is not None:
+        labelled_by += f' {name}-description'
+        described = f'<desc id="{name}-description">{escape(description)}</desc>'
+    if markers is None:
+        markers = (arrowhead_marker(f'{name}-head'),)
+    definitions = f'<defs>{"".join(markers)}</defs>' if markers else ''
     return (f'<svg class="{css_classes}" viewBox="0 0 {width:g} {height:g}" role="img" '
-            f'aria-labelledby="{name}-title"><title id="{name}-title">{escape(title)}</title>'
-            f'<defs>{arrowhead_marker(f"{name}-head")}</defs>\n'
+            f'aria-labelledby="{labelled_by}"><title id="{name}-title">{escape(title)}</title>'
+            f'{described}{definitions}\n'
             + '\n'.join(elements) + '\n</svg>')
 
 
@@ -95,10 +126,19 @@ class Drawing:
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'start') -> None:
-        """Add one line of text. anchor is start, middle or end."""
+        """Add one line of escaped text at the requested anchor."""
+        self.text_markup(x, y, escape(text), css_class, anchor)
+
+    def text_markup(self, x: float, y: float, markup: str, css_class: str = '',
+                    anchor: str = 'start') -> None:
+        """Add one line of text from SVG markup, such as a symbol with a subscript.
+
+        The markup goes into the drawing as it is, so escape() the text in it. anchor is start,
+        middle or end.
+        """
         class_attribute = f' class="{css_class}"' if css_class else ''
         self.elements.append(f'<text{class_attribute} x="{x:g}" y="{y:g}" '
-                             f'text-anchor="{anchor}">{escape(text)}</text>')
+                             f'text-anchor="{anchor}">{markup}</text>')
 
     def number_disc(self, x: float, y: float, number: int, disc_class: str,
                     number_class: str) -> None:
@@ -116,6 +156,60 @@ class Drawing:
         for index, (text, text_class) in enumerate(lines):
             baseline = y + height / 2 + (index - (len(lines) - 1) / 2) * 14 + 4
             self.text(x + width / 2, baseline, text, text_class, 'middle')
+
+
+class PanelWidths(NamedTuple):
+    """The widths of a figure's panels on the page, in px."""
+
+    basis: int  # the width from which a panel takes a row of its own
+    widest: int  # a panel's largest width
+
+
+def figure_element(css_prefix: str, panels_html: str, caption: str, widths: PanelWidths, *,
+                   caption_is_markdown: bool = True) -> str:
+    """Return a figure element with panels side by side and one caption below them.
+
+    css_prefix starts the classes and the CSS variables: prefix-figure, prefix-panels,
+    --prefix-basis and --prefix-max. panels_html is the markup of the panels, which wrap below
+    each other on a narrow screen. caption is Markdown, or HTML without caption_is_markdown, for
+    a figure inside raw HTML. The panels stand in a div without the markdown attribute, so that
+    Markdown leaves the SVG's text as it is and the glossary doesn't wrap a term such as IMU in
+    an abbr element.
+    """
+    figure_markdown, caption_markdown = (
+        (' markdown="block"', ' markdown="span"') if caption_is_markdown else ('', ''))
+    style = f'--{css_prefix}-basis:{widths.basis}px;--{css_prefix}-max:{widths.widest}px'
+    return (f'<figure class="{css_prefix}-figure"{figure_markdown} style="{style}">\n'
+            f'<div class="{css_prefix}-panels">\n{panels_html}\n</div>\n'
+            f'<figcaption{caption_markdown}>{caption}</figcaption>\n</figure>')
+
+
+class Tab(NamedTuple):
+    """One tab of a tab set: its label as text and its content as HTML."""
+
+    label: str
+    content_html: str
+
+
+def tab_set(name: str, css_class: str, tabs: Sequence[Tab]) -> str:
+    """Return a set of content tabs as HTML, the first one selected.
+
+    The HTML has the elements and classes of the tabs that the Markdown extension
+    pymdownx.tabbed writes with alternate_style, so the site's theme shows, links and prints the
+    set like a set from Markdown. The set is raw HTML, so Markdown leaves the text of a drawing
+    in a tab as it is. name makes the IDs, which keeps them apart from the numbered IDs of the
+    sets from Markdown. css_class is the set's own class. Each radio input, its label and its
+    block come from one Tab, so a tab's content can't stand under another tab's label.
+    """
+    group = f'__tabbed_{name}'
+    inputs = ''.join(f'<input{" checked" if index == 0 else ""} id="{group}_{index + 1}" '
+                     f'name="{group}" type="radio">' for index in range(len(tabs)))
+    labels = ''.join(f'<label for="{group}_{index + 1}">{escape(tab.label)}</label>'
+                     for index, tab in enumerate(tabs))
+    blocks = ''.join(f'<div class="tabbed-block">\n{tab.content_html}\n</div>\n' for tab in tabs)
+    return (f'<div class="tabbed-set tabbed-alternate {css_class}" '
+            f'data-tabs="{name}:{len(tabs)}">{inputs}<div class="tabbed-labels">{labels}</div>\n'
+            f'<div class="tabbed-content">\n{blocks}</div>\n</div>')
 
 
 def board_rules(scope: str) -> Tuple[Tuple[str, str], ...]:
@@ -149,6 +243,27 @@ def board_rules(scope: str) -> Tuple[Tuple[str, str], ...]:
          'fill:#111;stroke:#e0e0e0;stroke-width:0.8'),
         (f'{scope} .connector', 'fill:#f4f4f4;stroke:#999;stroke-width:0.8'),
         (f'{scope} .imu-board', 'fill:#2450a6;stroke:#142e66;stroke-width:0.8'),
+    )
+
+
+def supply_part_rules(scope: str) -> Tuple[Tuple[str, str], ...]:
+    """Return the CSS rules of the colors that only the supply's parts use, in scope.
+
+    The power bank, the battery holder, the LiDAR, the camera and the Grove board use these
+    together with board_rules(). The cases get a lighter fill and edge in the dark scheme, so
+    that they stand out from its background.
+    """
+    return (
+        (f'{scope} .case', 'fill:#3b3f45;stroke:#1f2226;stroke-width:0.8'),
+        (f'[data-md-color-scheme=slate] {scope} .case', 'fill:#4a4f57;stroke:#a0a6ae'),
+        (f'{scope} .led', 'fill:#4fc3f7'),
+        (f'{scope} .holder-lid', 'fill:none;stroke:#6b7078;stroke-width:0.8'),
+        (f'{scope} .lead-plus', 'fill:none;stroke:#d32f2f;stroke-width:1.6'),
+        (f'{scope} .lead-minus', 'fill:none;stroke:#222;stroke-width:1.6'),
+        (f'[data-md-color-scheme=slate] {scope} .lead-minus', 'stroke:#d0d4da'),
+        (f'{scope} .lidar-window', 'fill:#8a1c1c'),
+        (f'{scope} .lens', 'fill:#1b3f6b;stroke:#c8ccd2;stroke-width:0.6'),
+        (f'{scope} .ribbon', 'fill:#e9d8a6;stroke:#b39a55;stroke-width:0.6'),
     )
 
 
@@ -242,3 +357,58 @@ def draw_bno055_breakout(drawing: Drawing, x: float, y: float) -> None:
         drawing.circle(x + 19.6, y + 10.5 + index * 2.3, 0.9, 'pad')
     drawing.rect(x + 13, y + 3, 4, 8, 'chip', 0.5)
     drawing.rect(x + 8, y + 11.5, 7, 7, 'chip', 0.5)
+
+
+def draw_power_bank(drawing: Drawing, x: float, y: float) -> None:
+    """Add a USB power bank at (x, y): its case, a USB port at its end and four charge LEDs."""
+    drawing.rect(x, y, 44, 24, 'case', 4)
+    drawing.rect(x + 44, y + 8, 4, 8, 'metal', 1)
+    for index in range(4):
+        drawing.circle(x + 8 + index * 5, y + 18, 1.4, 'led')
+
+
+def draw_battery_holder(drawing: Drawing, x: float, y: float) -> None:
+    """Add the series motor pack at (x, y): a closed holder with its two leads.
+
+    The drawing shows no cells, so that it fits any number of cells and any holder. The red lead
+    is the plus pole, the black one the minus pole.
+    """
+    drawing.rect(x, y + 2, 48, 24, 'case', 3)
+    drawing.rect(x + 5, y + 7, 38, 14, 'holder-lid', 2)
+    drawing.line(f'M{x + 48},{y + 9} H{x + 52} Q{x + 56},{y + 9} {x + 56},{y + 5} V{y + 2}',
+                 'lead-plus')
+    drawing.line(f'M{x + 48},{y + 19} H{x + 52} Q{x + 56},{y + 19} {x + 56},{y + 23} V{y + 26}',
+                 'lead-minus')
+
+
+def draw_lidar(drawing: Drawing, x: float, y: float) -> None:
+    """Add an RPLIDAR A2 at (x, y), from the side: its base and the round head that turns on it."""
+    drawing.rect(x, y + 14, 38, 12, 'case', 2)
+    drawing.rect(x + 4, y, 30, 15, 'case', 6)
+    drawing.rect(x + 8, y + 5, 22, 4, 'lidar-window', 1)
+
+
+def draw_camera(drawing: Drawing, x: float, y: float) -> None:
+    """Add a Raspberry Pi Camera Module 2 at (x, y): its board, the lens and the ribbon cable."""
+    drawing.rect(x, y, 25, 24, 'mcu-board', 2)
+    drawing.rect(x + 7.5, y + 5, 10, 10, 'chip', 1)
+    drawing.circle(x + 12.5, y + 10, 3, 'lens')
+    drawing.rect(x + 5, y + 24, 15, 6, 'ribbon')
+
+
+def draw_grove_motor_driver(drawing: Drawing, x: float, y: float) -> None:
+    """Add the Grove I2C Motor Driver V1.3 at (x, y), from above, as the board's photo shows it.
+
+    Two motor terminals on the left, the power terminal at the top right, the flat L298 with its
+    pins, the square microcontroller, the jumper J4 and the white Grove socket below it.
+    """
+    drawing.rect(x, y, 46, 26, 'driver-board', 2)
+    for terminal_x, terminal_y in ((x + 1.5, y + 2), (x + 1.5, y + 16), (x + 37.5, y + 2)):
+        drawing.rect(terminal_x, terminal_y, 7, 8, 'terminal')
+    for index in range(6):
+        drawing.rect(x + 12 + index * 2.2, y + 7, 1.2, 1.6, 'metal')
+        drawing.rect(x + 12 + index * 2.2, y + 18.4, 1.2, 1.6, 'metal')
+    drawing.rect(x + 11, y + 8.5, 14, 10, 'chip', 0.8)
+    drawing.rect(x + 28, y + 11, 6.5, 6.5, 'chip')
+    drawing.rect(x + 38.5, y + 11, 5, 2, 'chip')
+    drawing.rect(x + 38.5, y + 14, 6, 10, 'connector', 0.6)

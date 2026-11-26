@@ -1,0 +1,226 @@
+<!-- Written by scripts/figures/imu_noise_figures.py -->
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
+.lv-noise .lv-fig .level{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.7;stroke-dasharray:1.5 3}
+.lv-noise .lv-fig .zero-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .spread-band{fill:var(--lv-imu);fill-opacity:.14;stroke:none}
+.lv-noise .lv-fig .mean-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .spread-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6;stroke-dasharray:5 3}
+.lv-noise .lv-fig .reading{fill:var(--md-default-fg-color);fill-opacity:.85;stroke:none}
+.lv-noise .lv-fig .deviation-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-noise .lv-fig .deviation-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .step-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.lv-noise .lv-fig .step-bad{fill:none;stroke:var(--lv-bad);stroke-width:2;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .long-interval{fill:none;stroke:var(--lv-bad);stroke-width:1.6}
+.lv-noise .lv-fig .box-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-noise .lv-fig .gravity-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .gravity-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .class-name{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-noise .lv-fig .flow-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .flow-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-noise .lv-fig .refused-line{fill:none;stroke:var(--lv-bad);stroke-width:1.6;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .refused-head{fill:var(--lv-bad);stroke:none}
+.lv-noise .lv-fig .command-span{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
+</style>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-noise lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 406" role="img" aria-labelledby="imu-noise-test-flow-title"><title id="imu-noise-test-flow-title">The tool's three steps from a bag file to the report, each with its test classes: Read and check with read_samples(), Calculate with imu_statistics() and Print with format_report(). A failed check leaves the first step to one line on stderr and status 1. TestToolOnBags runs the tool as a command</title>
+<rect class="item" x="42.0" y="4.0" width="124.0" height="26.0" rx="5"/>
+<text class="strong" x="104.0" y="24.0" text-anchor="middle">a bag file</text>
+<path class="flow-line" d="M104.0,30.0 L104.0,43.0"/>
+<path class="flow-head" d="M104.0,48.0 L99.8,41.0 L108.2,41.0 z"/>
+<rect class="item" x="14.0" y="48.0" width="282.0" height="58.0" rx="5"/>
+<circle class="item" cx="28" cy="63" r="8"/>
+<text class="letter" x="28" y="66.8" text-anchor="middle">1</text>
+<text class="strong" x="42.0" y="67.0" text-anchor="start">Read and check</text>
+<text class="mono" x="288.0" y="67.0" text-anchor="end">read_samples()</text>
+<text class="class-name" x="28.0" y="85.0" text-anchor="start">TestMeasuredVector</text>
+<text class="class-name" x="146.3" y="85.0" text-anchor="start">TestToSample</text>
+<text class="class-name" x="28.0" y="99.0" text-anchor="start">TestTopicChecks</text>
+<text class="class-name" x="146.3" y="99.0" text-anchor="start">TestSampleChecks</text>
+<path class="refused-line" d="M223.0,106.0 L223.0,117.0"/>
+<path class="refused-head" d="M223.0,122.0 L218.8,115.0 L227.2,115.0 z"/>
+<text class="note" x="217.0" y="119.0" text-anchor="end">a check fails</text>
+<rect class="card-drop" x="150.0" y="122.0" width="146.0" height="40.0" rx="5"/>
+<text class="strong" x="223.0" y="142.0" text-anchor="middle">✕ one line on stderr</text>
+<text class="note" x="223.0" y="156.0" text-anchor="middle">status 1</text>
+<path class="flow-line" d="M104.0,106.0 L104.0,165.0"/>
+<path class="flow-head" d="M104.0,170.0 L99.8,163.0 L108.2,163.0 z"/>
+<text class="note" x="98.0" y="164.0" text-anchor="end">samples</text>
+<rect class="item" x="14.0" y="170.0" width="282.0" height="72.0" rx="5"/>
+<circle class="item" cx="28" cy="185" r="8"/>
+<text class="letter" x="28" y="188.8" text-anchor="middle">2</text>
+<text class="strong" x="42.0" y="189.0" text-anchor="start">Calculate</text>
+<text class="mono" x="288.0" y="189.0" text-anchor="end">imu_statistics()</text>
+<text class="class-name" x="28.0" y="207.0" text-anchor="start">TestAxisStatistics</text>
+<text class="class-name" x="146.3" y="207.0" text-anchor="start">TestVectorStatistics</text>
+<text class="class-name" x="28.0" y="221.0" text-anchor="start">TestFieldStatistics</text>
+<text class="class-name" x="146.3" y="221.0" text-anchor="start">TestStampStatistics</text>
+<text class="class-name" x="28.0" y="235.0" text-anchor="start">TestImuStatistics</text>
+<path class="flow-line" d="M104.0,242.0 L104.0,257.0"/>
+<path class="flow-head" d="M104.0,262.0 L99.8,255.0 L108.2,255.0 z"/>
+<text class="note" x="98.0" y="256.0" text-anchor="end">statistics</text>
+<rect class="item" x="14.0" y="262.0" width="282.0" height="58.0" rx="5"/>
+<circle class="item" cx="28" cy="277" r="8"/>
+<text class="letter" x="28" y="280.8" text-anchor="middle">3</text>
+<text class="strong" x="42.0" y="281.0" text-anchor="start">Print</text>
+<text class="mono" x="288.0" y="281.0" text-anchor="end">format_report()</text>
+<text class="class-name" x="28.0" y="299.0" text-anchor="start">TestFormatDuration</text>
+<text class="class-name" x="146.3" y="299.0" text-anchor="start">TestFormatLongestInterval</text>
+<text class="class-name" x="28.0" y="313.0" text-anchor="start">TestFormatTable</text>
+<text class="class-name" x="146.3" y="313.0" text-anchor="start">TestFormatReport</text>
+<path class="flow-line" d="M104.0,320.0 L104.0,335.0"/>
+<path class="flow-head" d="M104.0,340.0 L99.8,333.0 L108.2,333.0 z"/>
+<rect class="card-pass" x="19.0" y="340.0" width="170.0" height="40.0" rx="5"/>
+<text class="strong" x="104.0" y="360.0" text-anchor="middle">✓ the report on stdout</text>
+<text class="note" x="104.0" y="374.0" text-anchor="middle">status 0</text>
+<path class="command-span" d="M10,4 H6 V394 H10"/>
+<text class="class-name" x="12.0" y="398.0" text-anchor="start">TestToolOnBags</text>
+<text class="note" x="97.8" y="398.0" text-anchor="start">runs the tool as a command</text>
+</svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 264" role="img" aria-labelledby="imu-noise-test-flow-wide-title"><title id="imu-noise-test-flow-wide-title">The tool's three steps from a bag file to the report, each with its test classes: Read and check with read_samples(), Calculate with imu_statistics() and Print with format_report(). A failed check leaves the first step to one line on stderr and status 1. TestToolOnBags runs the tool as a command</title>
+<rect class="item" x="14.8" y="4.0" width="124.0" height="26.0" rx="5"/>
+<text class="strong" x="76.8" y="24.0" text-anchor="middle">a bag file</text>
+<path class="flow-line" d="M76.8,30.0 L76.8,43.0"/>
+<path class="flow-head" d="M76.8,48.0 L72.6,41.0 L81.0,41.0 z"/>
+<rect class="item" x="4.0" y="48.0" width="145.6" height="116.0" rx="5"/>
+<circle class="item" cx="18" cy="63" r="8"/>
+<text class="letter" x="18" y="66.8" text-anchor="middle">1</text>
+<text class="strong" x="32.0" y="67.0" text-anchor="start">Read and check</text>
+<text class="mono" x="18.0" y="83.0" text-anchor="start">read_samples()</text>
+<text class="class-name" x="18.0" y="101.0" text-anchor="start">TestMeasuredVector</text>
+<text class="class-name" x="18.0" y="115.0" text-anchor="start">TestToSample</text>
+<text class="class-name" x="18.0" y="129.0" text-anchor="start">TestTopicChecks</text>
+<text class="class-name" x="18.0" y="143.0" text-anchor="start">TestSampleChecks</text>
+<path class="flow-line" d="M149.6,63.0 L181.6,63.0"/>
+<path class="flow-head" d="M186.6,63.0 L179.6,67.2 L179.6,58.8 z"/>
+<text class="note" x="168.1" y="42.0" text-anchor="middle">samples</text>
+<rect class="item" x="186.6" y="48.0" width="142.0" height="116.0" rx="5"/>
+<circle class="item" cx="200.55" cy="63" r="8"/>
+<text class="letter" x="200.55" y="66.8" text-anchor="middle">2</text>
+<text class="strong" x="214.6" y="67.0" text-anchor="start">Calculate</text>
+<text class="mono" x="200.6" y="83.0" text-anchor="start">imu_statistics()</text>
+<text class="class-name" x="200.6" y="101.0" text-anchor="start">TestAxisStatistics</text>
+<text class="class-name" x="200.6" y="115.0" text-anchor="start">TestVectorStatistics</text>
+<text class="class-name" x="200.6" y="129.0" text-anchor="start">TestFieldStatistics</text>
+<text class="class-name" x="200.6" y="143.0" text-anchor="start">TestStampStatistics</text>
+<text class="class-name" x="200.6" y="157.0" text-anchor="start">TestImuStatistics</text>
+<path class="flow-line" d="M328.6,63.0 L360.5,63.0"/>
+<path class="flow-head" d="M365.5,63.0 L358.5,67.2 L358.5,58.8 z"/>
+<text class="note" x="347.0" y="42.0" text-anchor="middle">statistics</text>
+<rect class="item" x="365.5" y="48.0" width="170.5" height="116.0" rx="5"/>
+<circle class="item" cx="379.5" cy="63" r="8"/>
+<text class="letter" x="379.5" y="66.8" text-anchor="middle">3</text>
+<text class="strong" x="393.5" y="67.0" text-anchor="start">Print</text>
+<text class="mono" x="379.5" y="83.0" text-anchor="start">format_report()</text>
+<text class="class-name" x="379.5" y="101.0" text-anchor="start">TestFormatDuration</text>
+<text class="class-name" x="379.5" y="115.0" text-anchor="start">TestFormatLongestInterval</text>
+<text class="class-name" x="379.5" y="129.0" text-anchor="start">TestFormatTable</text>
+<text class="class-name" x="379.5" y="143.0" text-anchor="start">TestFormatReport</text>
+<path class="refused-line" d="M76.8,164.0 L76.8,181.0"/>
+<path class="refused-head" d="M76.8,186.0 L72.6,179.0 L81.0,179.0 z"/>
+<text class="note" x="82.8" y="178.0" text-anchor="start">a check fails</text>
+<rect class="card-drop" x="4.0" y="186.0" width="150.0" height="40.0" rx="5"/>
+<text class="strong" x="79.0" y="206.0" text-anchor="middle">✕ one line on stderr</text>
+<text class="note" x="79.0" y="220.0" text-anchor="middle">status 1</text>
+<path class="flow-line" d="M450.8,164.0 L450.8,181.0"/>
+<path class="flow-head" d="M450.8,186.0 L446.6,179.0 L454.9,179.0 z"/>
+<rect class="card-pass" x="365.8" y="186.0" width="170.0" height="40.0" rx="5"/>
+<text class="strong" x="450.8" y="206.0" text-anchor="middle">✓ the report on stdout</text>
+<text class="note" x="450.8" y="220.0" text-anchor="middle">status 0</text>
+<path class="command-span" d="M4,236 V240 H536 V236"/>
+<text x="270.0" y="256.0" text-anchor="middle"><tspan class="class-name">TestToolOnBags</tspan><tspan class="note"> runs the tool as a command</tspan></text>
+</svg>
+<figcaption>The test classes in a step's card call that step's functions: 22 tests at Read and check, 26 tests at Calculate and 11 tests at Print. <code>TestToolOnBags</code> runs the tool as a command, most of its tests on a small bag that the test writes. 7 of its tests check the report and status 0, and 16 check the one line and status 1.</figcaption>
+</figure>
+</div>
