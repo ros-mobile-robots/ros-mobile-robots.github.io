@@ -119,7 +119,7 @@ The table gives the three commands of the figure and the highest command:
 
 ??? example "How Remo sets direction, duty cycle and frequency"
     Remo's microcontroller (MCU), a Teensy, commands the FeatherWing over I2C.
-    When the wheel command is valid and a control step is due, [`BaseController::write()`](../packages/diffbot_base/pid.md#the-feedback-loop-of-one-wheel) passes each wheel's command to [`AdafruitMotorController::setSpeed()`]({{ pid_src_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36) as `value`.
+    When the wheel command is valid and a control step is due, `BaseController::write()` passes each wheel's command to [`AdafruitMotorController::setSpeed()`]({{ pid_src_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36) as `value`.
     In the excerpt, follow the sign of `value` to the call of `pMotor_->run()`, and its magnitude to the call of `pMotor_->setSpeed()`:
 
     ```cpp title="adafruit_feather_wing.cpp: setSpeed()" linenums="16"
