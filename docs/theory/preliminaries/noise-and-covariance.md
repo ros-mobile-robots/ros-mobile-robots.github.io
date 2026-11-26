@@ -24,11 +24,11 @@ The figure plots the yaw rate that a gyroscope at rest reads, against time. Ever
 
 --8<-- "includes/imu-noise-trace.html"
 
-- **The bias** is how far the mean of the readings lies from zero.
-- **The noise** is how far the readings scatter around their mean. The band reaches one standard deviation $s$ above and below the mean.
+- **The line of the mean:** here the mean lies above zero, so the estimated bias is positive.
+- **The band:** the band spans one sample standard deviation $s$ on each side of the mean.
 - **The steps:** the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055 reports the angular velocity in steps of $\Delta$ = 1/900 rad/s, about 0.00111 rad/s ([BNO055 datasheet, table 3-22 on page 35](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=35)).
 
-The example's bias is about 30 times the bias that was measured on Remo, so that the figure can show the bias. With Remo's +0.00005 rad/s, which [Results on Remo](../../packages/imu/driver-bno055.md#results-on-remo) on the BNO055 page lists, the line of the mean would lie on the zero line. [Bias and noise at rest](../../packages/imu/driver-bno055.md#bias-and-noise-at-rest) on the same page shows how to record a robot's IMU and measure both.
+The example's bias is about 30 times the bias that was measured on Remo, so that the figure can show the bias. At this scale, Remo's measured mean of +0.00005 rad/s would appear just above the zero line ([Results on Remo](../../packages/imu/driver-bno055.md#results-on-remo) on the BNO055 page). [Bias and noise at rest](../../packages/imu/driver-bno055.md#bias-and-noise-at-rest) on the same page shows how to record a robot's IMU and measure both.
 
 A recording of $N$ readings $\omega_{z,1}, \omega_{z,2}, \dots, \omega_{z,N}$ at rest describes both with three numbers. The mean says where the readings lie. The variance and the standard deviation say how far they scatter. The example below uses three readings, so that every step can be followed by hand. Remo's recording of 180 s contains thousands.
 
