@@ -6,12 +6,10 @@ Run from the repository root: python -m unittest discover -s tests
 """
 
 import importlib.util
-import os
+import json
 from pathlib import Path
 import re
-import subprocess
 import sys
-import tempfile
 from types import ModuleType
 from typing import Any
 from typing import Dict
@@ -24,6 +22,10 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 FIGURES = ROOT / 'scripts' / 'figures'
+sys.path.insert(0, str(ROOT / 'tests'))
+
+import figure_script_runs  # noqa: E402
+
 SCRIPT = FIGURES / 'imu_noise_figures.py'
 TESTS_PAGE = ROOT / 'docs' / 'packages' / 'imu' / 'noise-at-rest-tests.md'
 IMU_PAGE = ROOT / 'docs' / 'packages' / 'imu' / 'driver-bno055.md'
@@ -41,40 +43,67 @@ INCLUDE_NAMES = [REPORT_TO_EKF_INCLUDE, 'imu-noise-test-flow.html', 'imu-noise-t
                  'imu-noise-test-intervals.html', 'imu-noise-test-measured.html',
                  'imu-noise-test-stamps-back.html', 'imu-noise-test-variance.html',
                  'imu-noise-three-readings.html', 'imu-noise-trace.html']
-# With these variables, Python's default encoding for a text file is ASCII: the C locale, without
-# Python's own switch to UTF-8 for that locale
-ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
 # The drawings write their coordinates with one decimal
 SVG_COORDINATE_TOLERANCE = 0.1
 # The synthetic recording that the trace figure's caption describes
 EXPECTED_DURATION_SECONDS = 180
 EXPECTED_SAMPLE_RATE_HZ = 50
-# The page's sentence about the firmware's setting: its variance, and the standard deviation
-# that the firmware's comment gives for it
-PAGE_SETTING_VARIANCE = re.compile(
-    r'`angular_velocity_variance`\]\([^)]*\) = (?P<variance>\S+ · 10\S+) \(rad/s\)²')
-PAGE_SETTING_STANDARD_DEVIATION = re.compile(
-    r'the square of a standard deviation of (?P<standard_deviation>[\d.]+) rad/s')
+# The measured data that the script reads, as a path from the repository's root
+MEASURED_DATA = 'scripts/figures/data'
+MEASURED_RECORD = ROOT / MEASURED_DATA / 'imu-noise-remo-yaw-rate-at-rest.json'
+# The page's section about the figure, and the equation in it that squares the setting
+REPORT_TO_EKF_SECTION = 'From the report to the EKF'
+PAGE_SETTING_EQUATION = re.compile(
+    r'\((?P<standard_deviation>[\d.]+) rad/s\)² = [\d.]+ \(rad/s\)² = '
+    r'(?P<variance>\d+ · 10\S+) \(rad/s\)²')
+# The page's table with the measured values, and the column of the board that the figure shows
+RESULTS_SECTION = 'Results on Remo'
+RESULTS_BOARD = 'Teensy 4.0'
 VARIANCE_UNIT = '(rad/s)²'
+# The figure from the report to the EKF: its layouts' classes with their widths in SVG units
+LAYOUT_WIDTHS = {'lv-layout-narrow': 300, 'lv-layout-wide': 540}
+LONGEST_NAME_WORDS = 12  # of a drawing's accessible name
+# A position or a length as the drawings write it
+SVG_NUMBER = r'-?\d+(?:\.\d+)?'
+REPORT_CARD_TITLE = "The report's row z"
+SETTING_CARD_TITLE = "The firmware's setting"
+COMPARISON_NOTE_START = 'drawn to scale'
+MEASURED_INTERVAL_CLASS = 'measured-interval'
+SETTING_INTERVAL_CLASS = 'setting-interval'
+ZERO_GUIDE_CLASS = 'zero-guide'
+SCALE_NAME = 'deviation in yaw rate (rad/s)'
+AXIS_TICK_COUNT = 3
+# How far above an interval the baseline of its label may stand, in SVG units
+INTERVAL_LABEL_REACH = 8
 # The message's covariance: three rows of three elements, stored row by row
-COVARIANCE_ELEMENT_COUNT = 9
+COVARIANCE_FIELD = 'angular_velocity_covariance'
+COVARIANCE_SIZE = 3
 COVARIANCE_DIAGONAL_INDICES = (0, 4, 8)
 YAW_RATE_VARIANCE_INDEX = 8
-
-
-def run_with_an_ascii_locale() -> Dict[str, bytes]:
-    """Run the script with an ASCII locale and return the includes it writes, by file name.
-
-    The script runs in an empty folder, so the repository's includes stay as they are.
-    """
-    with tempfile.TemporaryDirectory() as folder:
-        includes = Path(folder) / 'includes'
-        includes.mkdir()
-        run = subprocess.run([sys.executable, str(SCRIPT)], cwd=folder,
-                             env={**os.environ, **ASCII_LOCALE}, capture_output=True, text=True)
-        if run.returncode != 0:
-            raise RuntimeError(f'{SCRIPT.name} failed: {run.stderr.strip()}')
-        return {include.name: include.read_bytes() for include in includes.iterdir()}
+MARKED_CELL_CLASS = 'cell-fused'
+# The covariance as the end of an arrow, and how far above the baseline of its field's name
+# the arrow may end, in SVG units
+COVARIANCE_PART = 'covariance'
+FIELD_NAME_REACH = 14
+# How far from an arrow's line the anchor of its label may lie, in SVG units
+ARROW_LABEL_REACH = 8
+# The example boxes of the tests of connection(), as x, y, width and height. The upper and the
+# lower box share the x positions from 50 to 110. The left and the right box share the y
+# positions from 30 to 70
+UPPER_BOX = (10, 0, 100, 20)
+LOWER_BOX = (50, 60, 100, 20)
+UPPER_BOX_BOTTOM = 20
+LOWER_BOX_TOP = 60
+SHARED_X_MIDDLE = 80
+LEFT_BOX = (0, 10, 40, 60)
+RIGHT_BOX = (100, 30, 40, 100)
+LEFT_BOX_RIGHT = 40
+RIGHT_BOX_LEFT = 100
+SHARED_Y_MIDDLE = 50
+# The two variances of the figure, and the decimals with which the report prints one
+SETTING_VARIANCE = 4.0e-4
+REPORT_VARIANCE = 5.317e-7
+REPORT_DECIMALS = 3
 
 
 def load_script() -> ModuleType:
@@ -112,6 +141,10 @@ def page_test_counts() -> List[Tuple[str, int]]:
             test_counts = (int(count) for count in entry['counts'].split('+'))
             counts.extend(zip(names, test_counts, strict=True))
     return counts
+
+
+class ReadError(ValueError):
+    """The page, the include or a drawing lacks something that a test reads from it."""
 
 
 class DrawnPoint(NamedTuple):
@@ -160,18 +193,25 @@ class DrawnBox(NamedTuple):
                                    for edge in (self.y, self.bottom))
         return self.holds(point) and (on_a_vertical_edge or on_a_horizontal_edge)
 
+    def grown(self, margin: float) -> 'DrawnBox':
+        """Return the box with the margin added on each of its four sides."""
+        return DrawnBox(self.css_class, self.x - margin, self.y - margin,
+                        self.width + 2 * margin, self.height + 2 * margin)
+
 
 class DrawnText(NamedTuple):
-    """A line of text that a drawing wrote: where it stands, its CSS class and its words."""
+    """A line of text that a drawing wrote: its anchor point and side, its class, its words."""
 
     position: DrawnPoint
     css_class: str
+    anchor: str  # start, middle or end: the side of the text at which its position lies
     content: str
 
 
 class DrawnArrow(NamedTuple):
-    """An arrow that a drawing wrote: where its line starts and where its head's tip is."""
+    """An arrow that a drawing wrote: its line's CSS class, its start and its head's tip."""
 
+    line_class: str
     start: DrawnPoint
     tip: DrawnPoint
 
@@ -184,15 +224,75 @@ class DrawnCell(NamedTuple):
     value_text: str
 
 
-def report_to_ekf_drawings() -> Dict[str, ElementTree.Element]:
-    """Return the drawings of the repository's include from the report to the EKF, by layout.
+class DrawnConnection(NamedTuple):
+    """An arrow as a reader sees it: from which part to which part, dashed or solid, its label."""
 
-    The keys are the classes of the two layouts, lv-layout-narrow and lv-layout-wide.
-    """
+    start: str
+    end: str
+    is_dashed: bool
+    label: Tuple[str, ...]
+
+
+# The figure's four arrows. A comparison by hand is dashed, a value in the message is solid
+EXPECTED_CONNECTIONS = (
+    DrawnConnection('report', 'comparison', is_dashed=True, label=('std dev',)),
+    DrawnConnection('setting', 'comparison', is_dashed=True, label=('std dev',)),
+    DrawnConnection('setting', COVARIANCE_PART, is_dashed=False,
+                    label=('into every message,', 'at indices 0, 4 and 8')),
+    DrawnConnection('yaw-rate cell', 'EKF', is_dashed=False, label=('yaw-rate variance',)),
+)
+
+
+def report_to_ekf_include() -> ElementTree.Element:
+    """Return the repository's include from the report to the EKF, under one root element."""
     text = (ROOT / 'includes' / REPORT_TO_EKF_INCLUDE).read_text(encoding='utf-8')
-    root = ElementTree.fromstring(f'<root>{text}</root>')
-    return {(drawing.get('class') or '').split()[-1]: drawing
-            for drawing in root.findall('./div/figure/svg')}
+    return ElementTree.fromstring(f'<root>{text}</root>')
+
+
+def report_to_ekf_drawings() -> Dict[str, ElementTree.Element]:
+    """Return the drawings of the include from the report to the EKF, by their layout's class."""
+    drawings = {}
+    for drawing in report_to_ekf_include().findall('./div/figure/svg'):
+        classes = (drawing.get('class') or '').split()
+        layouts = [layout for layout in LAYOUT_WIDTHS if layout in classes]
+        if len(layouts) != 1:
+            raise ReadError(f'a drawing with the classes {classes} has no single layout')
+        drawings[layouts[0]] = drawing
+    return drawings
+
+
+def report_to_ekf_caption() -> str:
+    """Return the caption of the include from the report to the EKF."""
+    caption = report_to_ekf_include().find('./div/figure/figcaption')
+    if caption is None:
+        raise ReadError('the include has no caption')
+    return ''.join(caption.itertext())
+
+
+def css_declarations(include_text: str, css_class: str) -> Dict[str, str]:
+    """Return the CSS properties that an include's style rules set for a class of a drawing.
+
+    A rule counts when one of its selectors ends with the class. A later rule's value replaces
+    an earlier one's.
+    """
+    declarations: Dict[str, str] = {}
+    for rule in re.finditer(r'^(?P<selectors>[^@{\n][^{\n]*)\{(?P<declarations>[^}]*)\}$',
+                            include_text, re.MULTILINE):
+        selectors = [selector.strip() for selector in rule['selectors'].split(',')]
+        if any(re.search(rf'\.{re.escape(css_class)}$', selector) for selector in selectors):
+            for declaration in filter(None, rule['declarations'].split(';')):
+                name, _, value = declaration.partition(':')
+                declarations[name.strip()] = value.strip()
+    return declarations
+
+
+def line_is_dashed(css_class: str) -> bool:
+    """Return whether the include from the report to the EKF draws a class's stroke dashed."""
+    text = (ROOT / 'includes' / REPORT_TO_EKF_INCLUDE).read_text(encoding='utf-8')
+    declarations = css_declarations(text, css_class)
+    if 'stroke' not in declarations:
+        raise ReadError(f'no rule of the include gives .{css_class} a stroke')
+    return declarations.get('stroke-dasharray', 'none') != 'none'
 
 
 def drawn_boxes(drawing: ElementTree.Element, css_class: str) -> List[DrawnBox]:
@@ -203,15 +303,28 @@ def drawn_boxes(drawing: ElementTree.Element, css_class: str) -> List[DrawnBox]:
             if css_class in (rectangle.get('class') or '').split()]
 
 
+def drawn_box(drawing: ElementTree.Element, css_class: str) -> DrawnBox:
+    """Return the one rectangle of a drawing that has the CSS class."""
+    boxes = drawn_boxes(drawing, css_class)
+    if len(boxes) != 1:
+        raise ReadError(f'the drawing has {len(boxes)} rectangles of the class {css_class}')
+    return boxes[0]
+
+
 def drawn_texts(drawing: ElementTree.Element) -> List[DrawnText]:
     """Return a drawing's lines of text, each with the words of all its spans."""
     return [DrawnText(DrawnPoint(float(text.get('x') or 'nan'), float(text.get('y') or 'nan')),
-                      text.get('class') or '', ''.join(text.itertext()))
+                      text.get('class') or '', text.get('text-anchor') or 'start',
+                      ''.join(text.itertext()))
             for text in drawing.iter('text')]
 
 
 def texts_in(drawing: ElementTree.Element, box: DrawnBox) -> List[DrawnText]:
-    """Return the lines of text of a drawing that start, end or have their middle in the box."""
+    """Return the lines of text of a drawing whose anchor point lies in the box.
+
+    The anchor is the start, the middle or the end of a line's baseline. Whether the whole
+    line fits in the box is a check in the browser.
+    """
     return [text for text in drawn_texts(drawing) if box.holds(text.position)]
 
 
@@ -220,20 +333,29 @@ def box_with_text(drawing: ElementTree.Element, text_start: str) -> DrawnBox:
     for box in drawn_boxes(drawing, 'item'):
         if any(text.content.startswith(text_start) for text in texts_in(drawing, box)):
             return box
-    raise AssertionError(f'no box holds a text that starts with {text_start!r}')
+    raise ReadError(f'no framed box holds a text that starts with {text_start!r}')
 
 
-def drawn_arrows(drawing: ElementTree.Element, series: str) -> List[DrawnArrow]:
-    """Return a drawing's arrows of a series, such as flow: each a line and the head after it."""
+def path_start(path: ElementTree.Element) -> DrawnPoint:
+    """Return the point at which a path of a drawing starts."""
+    start = re.match(rf'M({SVG_NUMBER}),({SVG_NUMBER})', path.get('d') or '')
+    if start is None:
+        raise ReadError(f"the path {path.get('d')!r} doesn't start with a point")
+    return DrawnPoint(float(start[1]), float(start[2]))
+
+
+def drawn_arrows(drawing: ElementTree.Element) -> List[DrawnArrow]:
+    """Return a drawing's arrows: each head with the line before it, which has to match it."""
     paths = list(drawing.iter('path'))
     arrows = []
-    for line, head in zip(paths, paths[1:]):
-        if line.get('class') == f'{series}-line' and head.get('class') == f'{series}-head':
-            start, tip = (re.match(r'M([\d.]+),([\d.]+)', path.get('d') or '')
-                          for path in (line, head))
-            assert start is not None and tip is not None
-            arrows.append(DrawnArrow(DrawnPoint(float(start[1]), float(start[2])),
-                                     DrawnPoint(float(tip[1]), float(tip[2]))))
+    for index, head in enumerate(paths):
+        head_class = head.get('class') or ''
+        if head_class.endswith('-head'):
+            line_class = head_class[:-len('-head')] + '-line'
+            if index == 0 or paths[index - 1].get('class') != line_class:
+                raise ReadError(f'the arrowhead {head_class} has no {line_class} before it')
+            arrows.append(DrawnArrow(line_class, path_start(paths[index - 1]),
+                                     path_start(head)))
     return arrows
 
 
@@ -242,32 +364,129 @@ def covariance_cells(drawing: ElementTree.Element) -> List[DrawnCell]:
 
     The order comes from the cells' positions, not from the order in which they are drawn.
     """
-    boxes = drawn_boxes(drawing, 'cell') + drawn_boxes(drawing, 'cell-fused')
+    boxes = drawn_boxes(drawing, 'cell') + drawn_boxes(drawing, MARKED_CELL_CLASS)
     cells = []
     for box in sorted(boxes, key=lambda box: (box.y, box.x)):
         index_texts = [text.content for text in texts_in(drawing, box)
                        if 'cell-index' in text.css_class.split()]
         value_texts = [text.content for text in texts_in(drawing, box)
                        if 'cell-index' not in text.css_class.split()]
-        assert len(index_texts) == 1 and len(value_texts) == 1, (index_texts, value_texts)
+        if len(index_texts) != 1 or len(value_texts) != 1:
+            raise ReadError(f'a cell has the indices {index_texts} and the values {value_texts}')
         cells.append(DrawnCell(box, index_texts[0], value_texts[0]))
     return cells
 
 
 def tick_positions(drawing: ElementTree.Element) -> List[float]:
     """Return the x positions of the ticks of a drawing's axis, from left to right."""
-    ticks = [re.match(r'M([\d.]+),', path.get('d') or '') for path in drawing.iter('path')
-             if path.get('class') == 'tick']
-    return sorted(float(tick[1]) for tick in ticks if tick is not None)
+    return sorted(path_start(path).x for path in drawing.iter('path')
+                  if path.get('class') == 'tick')
+
+
+def zero_tick(drawing: ElementTree.Element) -> float:
+    """Return the x position of the middle one of the three ticks of a drawing's axis."""
+    ticks = tick_positions(drawing)
+    if len(ticks) != AXIS_TICK_COUNT:
+        raise ReadError(f'the axis has {len(ticks)} ticks')
+    return ticks[1]
+
+
+def interval_label(drawing: ElementTree.Element, interval: DrawnBox) -> str:
+    """Return the text of the one line that stands right above an interval, at its middle."""
+    above = DrawnBox('', interval.middle_x, interval.y - INTERVAL_LABEL_REACH, 0,
+                     INTERVAL_LABEL_REACH)
+    labels = [text.content for text in texts_in(drawing, above)]
+    if len(labels) != 1:
+        raise ReadError(f'the lines {labels} stand right above the {interval.css_class}')
+    return labels[0]
+
+
+def card_rows(drawing: ElementTree.Element, card: DrawnBox) -> Dict[str, str]:
+    """Return the rows of a card of values: each row's label with the value on its baseline.
+
+    A label starts at its anchor and a value ends at its anchor. A row without a label has
+    the key '', and a row without a value has the value ''.
+    """
+    rows: Dict[str, str] = {}
+    texts = texts_in(drawing, card)
+    for baseline in sorted({text.position.y for text in texts}):
+        row = {text.anchor: text.content for text in texts if text.position.y == baseline}
+        rows[row.get('start', '')] = row.get('end', '')
+    return rows
+
+
+def connection_parts(drawing: ElementTree.Element) -> Dict[str, DrawnBox]:
+    """Return the parts of a drawing that an arrow can start or end at, by their names.
+
+    An arrow touches a framed box or a cell at its edge. The covariance has no frame: an arrow
+    to it ends right above the name of its field, within the width of its cells.
+    """
+    cells = covariance_cells(drawing)
+    field_names = [text for text in drawn_texts(drawing) if text.content == COVARIANCE_FIELD]
+    if len(field_names) != 1:
+        raise ReadError(f'the drawing names {COVARIANCE_FIELD} {len(field_names)} times')
+    above_the_field_name = DrawnBox(
+        '', cells[0].box.x, field_names[0].position.y - FIELD_NAME_REACH,
+        cells[-1].box.right - cells[0].box.x, FIELD_NAME_REACH)
+    return {'report': box_with_text(drawing, REPORT_CARD_TITLE),
+            'setting': box_with_text(drawing, SETTING_CARD_TITLE),
+            'comparison': box_with_text(drawing, COMPARISON_NOTE_START),
+            'yaw-rate cell': cells[YAW_RATE_VARIANCE_INDEX].box,
+            'EKF': box_with_text(drawing, 'EKF'),
+            COVARIANCE_PART: above_the_field_name}
+
+
+def part_at(parts: Dict[str, DrawnBox], point: DrawnPoint) -> str:
+    """Return the name of the part that an arrow's end at the point touches, or "nothing"."""
+    for name, box in parts.items():
+        touches = box.holds(point) if name == COVARIANCE_PART else box.has_on_its_edge(point)
+        if touches:
+            return name
+    return 'nothing'
+
+
+def arrow_label(drawing: ElementTree.Element, arrow: DrawnArrow) -> Tuple[str, ...]:
+    """Return the lines of the small text beside an arrow, from top to bottom."""
+    shaft = DrawnBox('', min(arrow.start.x, arrow.tip.x), min(arrow.start.y, arrow.tip.y),
+                     abs(arrow.tip.x - arrow.start.x), abs(arrow.tip.y - arrow.start.y))
+    lines = [text for text in texts_in(drawing, shaft.grown(ARROW_LABEL_REACH))
+             if text.css_class == 'note']
+    return tuple(text.content for text in sorted(lines, key=lambda text: text.position.y))
+
+
+def drawn_connections(drawing: ElementTree.Element) -> List[DrawnConnection]:
+    """Return every arrow of a drawing as a connection, sorted by its two parts."""
+    parts = connection_parts(drawing)
+    return sorted(DrawnConnection(part_at(parts, arrow.start), part_at(parts, arrow.tip),
+                                  line_is_dashed(arrow.line_class), arrow_label(drawing, arrow))
+                  for arrow in drawn_arrows(drawing))
+
+
+def page_section(heading: str) -> str:
+    """Return the text of the IMU page's section with this heading, up to the next heading."""
+    page = IMU_PAGE.read_text(encoding='utf-8')
+    section = re.search(rf'^#+ {re.escape(heading)}\n(?P<text>.*?)(?=^#+ |\Z)', page,
+                        re.MULTILINE | re.DOTALL)
+    if section is None:
+        raise ReadError(f'the page has no section {heading!r}')
+    return section['text']
 
 
 def remo_z_value(row_start: str) -> str:
-    """Return the z value of the Teensy 4.0 column of a row of the page's "Results on Remo"."""
-    for line in IMU_PAGE.read_text(encoding='utf-8').splitlines():
-        if line.startswith(f'| {row_start}'):
-            teensy_4_0_column = line.strip('| ').split('|')[-1]
-            return teensy_4_0_column.split(',')[-1].strip()
-    raise AssertionError(f'the page has no table row that starts with {row_start!r}')
+    """Return the z value of a row of the page's table "Results on Remo", for the Teensy 4.0.
+
+    The column is the one whose header names the board. The z value is the last of the three
+    values of an axis row.
+    """
+    rows = [[cell.strip() for cell in line.strip().strip('|').split('|')]
+            for line in page_section(RESULTS_SECTION).splitlines() if line.startswith('|')]
+    if not rows or RESULTS_BOARD not in rows[0]:
+        raise ReadError(f'the table of {RESULTS_SECTION!r} has no column {RESULTS_BOARD!r}')
+    column = rows[0].index(RESULTS_BOARD)
+    for row in rows:
+        if row[0].startswith(row_start):
+            return row[column].split(',')[-1].strip()
+    raise ReadError(f'the table of {RESULTS_SECTION!r} has no row {row_start!r}')
 
 
 def remo_z_variance_text() -> str:
@@ -276,17 +495,22 @@ def remo_z_variance_text() -> str:
     The table's row gives the power of ten in its first cell and the number before it in the
     column of the Teensy 4.0, which together are "5.317 · 10⁻⁷".
     """
-    page = IMU_PAGE.read_text(encoding='utf-8')
-    power_of_ten = re.search(r'\| Gyroscope variance x, y, z \((10\S+) \(rad/s\)²\)', page)
-    assert power_of_ten is not None
+    power_of_ten = re.search(r'\| Gyroscope variance x, y, z \((10\S+) \(rad/s\)²\)',
+                             page_section(RESULTS_SECTION))
+    if power_of_ten is None:
+        raise ReadError("the table's variance row doesn't give its power of ten")
     return f"{remo_z_value('Gyroscope variance')} · {power_of_ten[1]}"
 
 
-def page_setting_text(pattern: 're.Pattern[str]') -> str:
-    """Return what the page's sentence about the firmware's setting gives for the pattern."""
-    found = pattern.search(IMU_PAGE.read_text(encoding='utf-8'))
-    assert found is not None, pattern.pattern
-    return found[1]
+def page_setting(quantity: str) -> str:
+    """Return a quantity of the equation with which the page's section squares the setting.
+
+    The quantity is standard_deviation, such as "0.02", or variance, such as "4 · 10⁻⁴".
+    """
+    equation = PAGE_SETTING_EQUATION.search(page_section(REPORT_TO_EKF_SECTION))
+    if equation is None:
+        raise ReadError(f'the section {REPORT_TO_EKF_SECTION!r} has no equation of the setting')
+    return equation[quantity]
 
 
 class TestIncludes(unittest.TestCase):
@@ -296,7 +520,7 @@ class TestIncludes(unittest.TestCase):
     """
 
     def test_script_writes_the_repository_includes_with_an_ascii_locale(self) -> None:
-        written = run_with_an_ascii_locale()
+        written = figure_script_runs.run_with_an_ascii_locale(SCRIPT.name, [MEASURED_DATA])
         self.assertEqual(sorted(written), INCLUDE_NAMES)
         for include_name in INCLUDE_NAMES:
             committed = (ROOT / 'includes' / include_name).read_bytes()
@@ -605,198 +829,302 @@ class TestFlowFigure(unittest.TestCase):
 class TestReportToEkfFigure(unittest.TestCase):
     """The figure from the report to the EKF shows the page's values, to scale, in two layouts.
 
-    The tests read the drawings of the repository's include. Their expected values come from
-    the page: the table "Results on Remo" and the sentence about the firmware's setting.
+    The tests read the drawings, the caption and the style rules of the repository's include.
+    Their expected values come from the page: the table "Results on Remo" and the equation
+    that squares the firmware's setting.
     """
 
-    def test_each_layout_draws_the_measured_band_to_the_scale_of_the_settings_band(self) -> None:
+    def test_each_layout_draws_the_measured_interval_to_the_scale_of_the_settings(self) -> None:
+        """Compare the two intervals' widths with the ratio of the page's values."""
         measured = float(remo_z_value('Gyroscope std dev'))
-        setting = float(page_setting_text(PAGE_SETTING_STANDARD_DEVIATION))
+        setting = float(page_setting('standard_deviation'))
         for layout, drawing in report_to_ekf_drawings().items():
-            measured_band, = drawn_boxes(drawing, 'measured-band')
-            setting_band, = drawn_boxes(drawing, 'setting-band')
-            self.assertAlmostEqual(measured_band.width, setting_band.width * measured / setting,
+            measured_interval = drawn_box(drawing, MEASURED_INTERVAL_CLASS)
+            setting_interval = drawn_box(drawing, SETTING_INTERVAL_CLASS)
+            self.assertAlmostEqual(measured_interval.width,
+                                   setting_interval.width * measured / setting,
                                    delta=SVG_COORDINATE_TOLERANCE, msg=layout)
 
-    def test_each_layout_centres_both_bands_on_the_axis_zero(self) -> None:
+    def test_each_layout_centres_both_intervals_on_the_zero_tick(self) -> None:
+        """Compare each interval's middle with the middle tick of the axis."""
         for layout, drawing in report_to_ekf_drawings().items():
-            _, zero_tick, _ = tick_positions(drawing)
-            for band_class in ('measured-band', 'setting-band'):
-                band, = drawn_boxes(drawing, band_class)
-                self.assertAlmostEqual(band.middle_x, zero_tick, delta=SVG_COORDINATE_TOLERANCE,
-                                       msg=f'{band_class} in {layout}')
+            for interval_class in (MEASURED_INTERVAL_CLASS, SETTING_INTERVAL_CLASS):
+                self.assertAlmostEqual(drawn_box(drawing, interval_class).middle_x,
+                                       zero_tick(drawing), delta=SVG_COORDINATE_TOLERANCE,
+                                       msg=f'{interval_class} in {layout}')
 
-    def test_each_layout_labels_the_ends_of_the_settings_band_with_its_standard_deviation(
+    def test_each_layout_draws_both_intervals_equally_thick_in_rows_of_their_own(self) -> None:
+        """Check that the intervals have one height and that the measured one ends higher."""
+        for layout, drawing in report_to_ekf_drawings().items():
+            measured_interval = drawn_box(drawing, MEASURED_INTERVAL_CLASS)
+            setting_interval = drawn_box(drawing, SETTING_INTERVAL_CLASS)
+            self.assertEqual(measured_interval.height, setting_interval.height, layout)
+            self.assertLess(measured_interval.bottom, setting_interval.y, layout)
+
+    def test_each_layout_labels_each_interval_with_its_name_and_its_own_reach(self) -> None:
+        """Read the line above each interval and compare it with the page's value for it."""
+        measured = remo_z_value('Gyroscope std dev')
+        setting = page_setting('standard_deviation')
+        expected_labels = {MEASURED_INTERVAL_CLASS: f'Measured at rest ±{measured} rad/s',
+                           SETTING_INTERVAL_CLASS: f'Firmware setting ±{setting} rad/s'}
+        for layout, drawing in report_to_ekf_drawings().items():
+            labels = {interval_class: interval_label(drawing, drawn_box(drawing, interval_class))
+                      for interval_class in expected_labels}
+            self.assertEqual(labels, expected_labels, layout)
+
+    def test_each_layout_has_one_tick_at_each_end_of_the_settings_interval_and_at_zero(
             self) -> None:
-        setting = page_setting_text(PAGE_SETTING_STANDARD_DEVIATION)
+        """Compare the three ticks and their signed labels with the setting's interval."""
+        setting = page_setting('standard_deviation')
+        expected_labels = (f'−{setting}', '0', f'+{setting}')
         for layout, drawing in report_to_ekf_drawings().items():
-            setting_band, = drawn_boxes(drawing, 'setting-band')
-            ticks = tick_positions(drawing)
-            panel = box_with_text(drawing, 'compared by hand')
-            labels = {text.content: text.position.x for text in texts_in(drawing, panel)}
-            for tick, band_x, label in zip(
-                    ticks, (setting_band.x, setting_band.middle_x, setting_band.right),
-                    (f'−{setting} rad/s', '0', f'+{setting} rad/s')):
-                self.assertAlmostEqual(tick, band_x, delta=SVG_COORDINATE_TOLERANCE, msg=layout)
-                self.assertAlmostEqual(labels[label], tick, delta=SVG_COORDINATE_TOLERANCE,
-                                       msg=f'{label} in {layout}')
+            interval = drawn_box(drawing, SETTING_INTERVAL_CLASS)
+            panel = box_with_text(drawing, COMPARISON_NOTE_START)
+            label_positions = {text.content: text.position.x
+                               for text in texts_in(drawing, panel)}
+            for tick, interval_x, label in zip(
+                    tick_positions(drawing), (interval.x, interval.middle_x, interval.right),
+                    expected_labels, strict=True):
+                self.assertAlmostEqual(tick, interval_x, delta=SVG_COORDINATE_TOLERANCE,
+                                       msg=layout)
+                self.assertAlmostEqual(label_positions[label], tick,
+                                       delta=SVG_COORDINATE_TOLERANCE, msg=f'{label} in {layout}')
 
-    def test_each_layout_says_how_many_times_as_wide_the_settings_band_is(self) -> None:
-        ratio = (float(page_setting_text(PAGE_SETTING_STANDARD_DEVIATION))
+    def test_each_layout_names_its_scale_a_deviation_in_yaw_rate_below_the_ticks(self) -> None:
+        """Find the scale's name in the comparison, below the labels of the ticks."""
+        for layout, drawing in report_to_ekf_drawings().items():
+            panel = box_with_text(drawing, COMPARISON_NOTE_START)
+            texts = {text.content: text.position.y for text in texts_in(drawing, panel)}
+            self.assertIn(SCALE_NAME, texts, layout)
+            self.assertGreater(texts[SCALE_NAME], texts['0'], layout)
+
+    def test_each_layout_draws_the_zero_guide_through_both_intervals_at_the_zero_tick(
+            self) -> None:
+        """Check that the guide's strokes stand at zero and cover each interval's height."""
+        for layout, drawing in report_to_ekf_drawings().items():
+            strokes = [re.fullmatch(rf'M({SVG_NUMBER}),({SVG_NUMBER}) V({SVG_NUMBER})',
+                                    path.get('d') or '')
+                       for path in drawing.iter('path') if path.get('class') == ZERO_GUIDE_CLASS]
+            self.assertTrue(strokes and all(strokes), layout)
+            spans = [(float(stroke[2]), float(stroke[3])) for stroke in strokes if stroke]
+            for stroke in strokes:
+                self.assertAlmostEqual(float(stroke[1] if stroke else 'nan'), zero_tick(drawing),
+                                       delta=SVG_COORDINATE_TOLERANCE, msg=layout)
+            for interval_class in (MEASURED_INTERVAL_CLASS, SETTING_INTERVAL_CLASS):
+                interval = drawn_box(drawing, interval_class)
+                self.assertTrue(any(top <= interval.y and interval.bottom <= bottom
+                                    for top, bottom in spans), f'{interval_class} in {layout}')
+
+    def test_each_layouts_comparison_says_how_many_times_as_wide_the_setting_is(self) -> None:
+        """Find the rounded ratio of the page's two standard deviations in the comparison."""
+        ratio = (float(page_setting('standard_deviation'))
                  / float(remo_z_value('Gyroscope std dev')))
         for layout, drawing in report_to_ekf_drawings().items():
-            setting_band, = drawn_boxes(drawing, 'setting-band')
-            self.assertIn(f'about {ratio:.0f} times as wide',
-                          [text.content for text in texts_in(drawing, setting_band)], layout)
-
-    def test_each_layouts_report_card_shows_the_three_values_of_the_pages_table(self) -> None:
-        expected_values = [f"{remo_z_value('Gyroscope bias')} rad/s",
-                           f"{remo_z_value('Gyroscope std dev')} rad/s",
-                           f'{remo_z_variance_text()} {VARIANCE_UNIT}']
-        for layout, drawing in report_to_ekf_drawings().items():
-            card = box_with_text(drawing, "The report's row z")
-            texts = [text.content for text in texts_in(drawing, card)]
+            panel = box_with_text(drawing, COMPARISON_NOTE_START)
+            notes = [text.content for text in texts_in(drawing, panel)]
             self.assertEqual(
-                texts[1:], ['mean', expected_values[0], 'std dev', expected_values[1],
-                            'variance', expected_values[2]], layout)
+                [note for note in notes if 'times as wide' in note],
+                [f'{COMPARISON_NOTE_START}: about {ratio:.0f} times as wide'], layout)
 
-    def test_each_layouts_setting_card_shows_the_variance_and_its_root_of_the_page(self) -> None:
-        variance = f'{page_setting_text(PAGE_SETTING_VARIANCE)} {VARIANCE_UNIT}'
-        standard_deviation = f'{page_setting_text(PAGE_SETTING_STANDARD_DEVIATION)} rad/s'
+    def test_each_layouts_report_card_pairs_each_statistic_with_the_pages_value(self) -> None:
+        """Compare each row's label and value with the page's table, whatever their order."""
+        expected_rows = {
+            "The report's row z, Remo at rest": '',
+            'mean': f"{remo_z_value('Gyroscope bias')} rad/s",
+            'std dev': f"{remo_z_value('Gyroscope std dev')} rad/s",
+            'variance': f'{remo_z_variance_text()} {VARIANCE_UNIT}',
+        }
         for layout, drawing in report_to_ekf_drawings().items():
-            card = box_with_text(drawing, "The firmware's setting")
-            texts = [text.content for text in texts_in(drawing, card)]
-            self.assertEqual(texts[1:], ['angular_velocity_variance', 'variance', variance,
-                                         'std dev, its root', standard_deviation], layout)
+            card = box_with_text(drawing, REPORT_CARD_TITLE)
+            self.assertEqual(card_rows(drawing, card), expected_rows, layout)
+
+    def test_each_layouts_setting_card_shows_the_variance_as_the_square_of_the_setting(
+            self) -> None:
+        """Compare the card's rows with the two sides of the page's equation."""
+        expected_rows = {
+            SETTING_CARD_TITLE: '',
+            'angular_velocity_variance': '',
+            'variance': f"{page_setting('variance')} {VARIANCE_UNIT}",
+            '': f"= ({page_setting('standard_deviation')} rad/s)²",
+        }
+        for layout, drawing in report_to_ekf_drawings().items():
+            card = box_with_text(drawing, SETTING_CARD_TITLE)
+            self.assertEqual(card_rows(drawing, card), expected_rows, layout)
 
     def test_each_layout_numbers_the_nine_elements_row_by_row_from_zero(self) -> None:
+        """Read the indices of the cells in the order of their positions."""
         for layout, drawing in report_to_ekf_drawings().items():
             indices = [cell.index_text.lstrip('✓') for cell in covariance_cells(drawing)]
-            self.assertEqual(indices, [str(index) for index in range(COVARIANCE_ELEMENT_COUNT)],
+            self.assertEqual(indices, [str(index) for index in range(COVARIANCE_SIZE ** 2)],
                              layout)
 
-    def test_each_layout_has_three_rows_of_three_cells(self) -> None:
+    def test_each_layout_has_three_rows_with_cells_in_the_same_three_columns(self) -> None:
+        """Check that each row of cells has one y and the three x positions of the first row."""
         for layout, drawing in report_to_ekf_drawings().items():
-            cells = covariance_cells(drawing)
-            self.assertEqual(len({cell.box.y for cell in cells}), 3, layout)
-            self.assertEqual(len({cell.box.x for cell in cells}), 3, layout)
+            cells = [cell.box for cell in covariance_cells(drawing)]
+            rows = [cells[start:start + COVARIANCE_SIZE]
+                    for start in range(0, len(cells), COVARIANCE_SIZE)]
+            columns = [cell.x for cell in rows[0]]
+            self.assertEqual(len(rows), COVARIANCE_SIZE, layout)
+            self.assertEqual(len(set(columns)), COVARIANCE_SIZE, layout)
+            self.assertEqual(len({row[0].y for row in rows}), COVARIANCE_SIZE, layout)
+            for row in rows:
+                self.assertEqual([cell.x for cell in row], columns, layout)
+                self.assertEqual(len({cell.y for cell in row}), 1, layout)
 
     def test_each_layout_has_the_setting_on_the_diagonal_and_zero_elsewhere(self) -> None:
-        setting = page_setting_text(PAGE_SETTING_VARIANCE)
+        """Compare the nine values with the page's variance at 0, 4 and 8."""
+        setting = page_setting('variance')
         expected_values = [setting if index in COVARIANCE_DIAGONAL_INDICES else '0'
-                           for index in range(COVARIANCE_ELEMENT_COUNT)]
+                           for index in range(COVARIANCE_SIZE ** 2)]
         for layout, drawing in report_to_ekf_drawings().items():
             self.assertEqual([cell.value_text for cell in covariance_cells(drawing)],
                              expected_values, layout)
 
-    def test_each_layout_marks_only_the_yaw_rates_element_with_an_edge_and_a_check_mark(
+    def test_each_layout_marks_only_the_yaw_rates_element_with_its_class_and_a_check_mark(
             self) -> None:
+        """List the cells with the marked class and those with a check mark."""
         for layout, drawing in report_to_ekf_drawings().items():
             cells = covariance_cells(drawing)
             self.assertEqual([index for index, cell in enumerate(cells)
-                              if cell.box.css_class == 'cell-fused'],
+                              if cell.box.css_class == MARKED_CELL_CLASS],
                              [YAW_RATE_VARIANCE_INDEX], layout)
             self.assertEqual([index for index, cell in enumerate(cells)
                               if cell.index_text.startswith('✓')],
                              [YAW_RATE_VARIANCE_INDEX], layout)
 
-    def test_each_layouts_arrow_to_the_ekf_starts_at_the_marked_element(self) -> None:
-        for layout, drawing in report_to_ekf_drawings().items():
-            marked_cell, = drawn_boxes(drawing, 'cell-fused')
-            filter_box = box_with_text(drawing, 'EKF')
-            arrows_from_the_cell = [arrow for arrow in drawn_arrows(drawing, 'flow')
-                                    if marked_cell.has_on_its_edge(arrow.start)]
-            self.assertEqual(len(arrows_from_the_cell), 1, layout)
-            self.assertTrue(filter_box.has_on_its_edge(arrows_from_the_cell[0].tip), layout)
+    def test_marked_cell_has_a_thicker_edge_than_the_other_cells(self) -> None:
+        """Compare the stroke widths that the include's rules give the two classes of cells."""
+        include = (ROOT / 'includes' / REPORT_TO_EKF_INCLUDE).read_text(encoding='utf-8')
+        marked_width, plain_width = (
+            float(css_declarations(include, css_class)['stroke-width'])
+            for css_class in (MARKED_CELL_CLASS, 'cell'))
+        self.assertGreater(marked_width, plain_width)
 
-    def test_each_layout_compares_both_cards_with_dashed_arrows_into_the_bands_panel(
+    def test_each_layout_has_exactly_the_four_connections_with_their_lines_and_labels(
             self) -> None:
+        """Compare every arrow's two parts, its dashed or solid line and its label."""
         for layout, drawing in report_to_ekf_drawings().items():
-            panel = box_with_text(drawing, 'compared by hand')
-            arrows = drawn_arrows(drawing, 'compared')
-            self.assertEqual(len(arrows), 2, layout)
-            for card_title in ("The report's row z", "The firmware's setting"):
-                card = box_with_text(drawing, card_title)
-                tips = [arrow.tip for arrow in arrows if card.has_on_its_edge(arrow.start)]
-                self.assertEqual(len(tips), 1, f'{card_title} in {layout}')
-                self.assertTrue(panel.has_on_its_edge(tips[0]), f'{card_title} in {layout}')
+            self.assertEqual(drawn_connections(drawing), sorted(EXPECTED_CONNECTIONS), layout)
 
-    def test_each_layouts_solid_arrow_from_the_setting_ends_above_the_covariance(self) -> None:
-        for layout, drawing in report_to_ekf_drawings().items():
-            card = box_with_text(drawing, "The firmware's setting")
-            tips = [arrow.tip for arrow in drawn_arrows(drawing, 'flow')
-                    if card.has_on_its_edge(arrow.start)]
-            self.assertEqual(len(tips), 1, layout)
-            cells = covariance_cells(drawing)
-            self.assertLess(tips[0].y, cells[0].box.y, layout)
-            self.assertGreater(tips[0].x, cells[0].box.x, layout)
-            self.assertLess(tips[0].x, cells[-1].box.right, layout)
+    def test_caption_gives_each_line_style_the_meaning_that_its_connections_have(self) -> None:
+        """Find one sentence for the dashed and one for the solid arrow in the caption."""
+        caption = report_to_ekf_caption()
+        meanings = dict(re.findall(r'A (dashed|solid) arrow is a (comparison by hand|value in '
+                                   r'the message)', caption))
+        self.assertEqual(meanings, {'dashed': 'comparison by hand',
+                                    'solid': 'value in the message'})
+
+    def test_intervals_differ_by_a_dashed_edge_as_well_as_by_their_color(self) -> None:
+        """Check the dash of the two interval classes in the include's rules."""
+        self.assertTrue(line_is_dashed(SETTING_INTERVAL_CLASS))
+        self.assertFalse(line_is_dashed(MEASURED_INTERVAL_CLASS))
+
+    def test_only_the_report_to_ekf_include_has_the_rules_of_its_intervals_and_dashed_arrows(
+            self) -> None:
+        """Look for a stroke of the figure's own classes in each of the script's includes."""
+        for include_name in INCLUDE_NAMES:
+            text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
+            for css_class in (MEASURED_INTERVAL_CLASS, SETTING_INTERVAL_CLASS, 'compared-line'):
+                self.assertEqual('stroke' in css_declarations(text, css_class),
+                                 include_name == REPORT_TO_EKF_INCLUDE,
+                                 f'{css_class} in {include_name}')
 
     def test_both_layouts_show_the_same_texts(self) -> None:
+        """Compare the sorted lines of text of the two drawings."""
         narrow, wide = (sorted(text.content for text in drawn_texts(drawing))
                         for drawing in report_to_ekf_drawings().values())
         self.assertEqual(narrow, wide)
 
     def test_each_layout_keeps_its_boxes_inside_the_drawing(self) -> None:
+        """Check both corners of every rectangle against the drawing's viewBox."""
         for layout, drawing in report_to_ekf_drawings().items():
             _, _, width, height = (float(number) for number in
                                    (drawing.get('viewBox') or '').split())
             whole_drawing = DrawnBox('', 0, 0, width, height)
-            for css_class in ('item', 'cell', 'cell-fused', 'measured-band', 'setting-band'):
+            for css_class in ('item', 'cell', MARKED_CELL_CLASS, MEASURED_INTERVAL_CLASS,
+                              SETTING_INTERVAL_CLASS):
                 for box in drawn_boxes(drawing, css_class):
                     self.assertTrue(whole_drawing.holds(DrawnPoint(box.x, box.y))
                                     and whole_drawing.holds(DrawnPoint(box.right, box.bottom)),
                                     f'{box} in {layout}')
 
-    def test_each_layout_has_its_own_width(self) -> None:
-        figures = load_script()
-        widths = {layout: (drawing.get('viewBox') or '').split()[2]
+    def test_layouts_are_300_and_540_units_wide(self) -> None:
+        """Read the width of each drawing's viewBox."""
+        widths = {layout: int((drawing.get('viewBox') or '').split()[2])
                   for layout, drawing in report_to_ekf_drawings().items()}
-        self.assertEqual(widths, {figures.NARROW_LAYOUT: str(figures.DRAWING_WIDTH),
-                                  figures.WIDE_LAYOUT: str(figures.WIDE_WIDTH)})
+        self.assertEqual(widths, LAYOUT_WIDTHS)
 
-    def test_connection_is_vertical_between_boxes_that_stand_above_each_other(self) -> None:
-        figures = load_script()
-        upper, lower = figures.Box(10, 0, 100, 20), figures.Box(50, 60, 100, 20)
-        line = figures.connection(upper, lower)
-        # The boxes share the x positions from 50 to 110, whose middle is 80
-        self.assertEqual(line, figures.Connection(figures.DrawingPoint(80, 20),
-                                                  figures.DrawingPoint(80, 60)))
+    def test_each_drawing_has_a_short_accessible_name(self) -> None:
+        """Follow aria-labelledby to the drawing's title and count the title's words."""
+        for layout, drawing in report_to_ekf_drawings().items():
+            titles = [title for title in drawing.iter('title')
+                      if title.get('id') == drawing.get('aria-labelledby')]
+            self.assertEqual(len(titles), 1, layout)
+            word_count = len((titles[0].text or '').split())
+            self.assertGreater(word_count, 0, layout)
+            self.assertLessEqual(word_count, LONGEST_NAME_WORDS, layout)
 
-    def test_connection_is_horizontal_between_boxes_that_stand_beside_each_other(self) -> None:
-        figures = load_script()
-        left, right = figures.Box(0, 10, 40, 60), figures.Box(100, 30, 40, 100)
-        line = figures.connection(left, right)
-        # The boxes share the y positions from 30 to 70, whose middle is 50
-        self.assertEqual(line, figures.Connection(figures.DrawingPoint(40, 50),
-                                                  figures.DrawingPoint(100, 50)))
+    def test_pages_section_embeds_the_include(self) -> None:
+        """Find the line that includes the figure in the section about the EKF."""
+        self.assertIn(f'\n--8<-- "includes/{REPORT_TO_EKF_INCLUDE}"\n',
+                      page_section(REPORT_TO_EKF_SECTION))
 
-    def test_connection_runs_back_from_a_box_to_a_box_above_it_or_left_of_it(self) -> None:
+    def test_measured_record_has_the_values_of_the_pages_table_for_the_teensy_4_0(self) -> None:
+        """Compare the record that the script reads with the page's table and its column."""
+        record = json.loads(MEASURED_RECORD.read_text(encoding='utf-8'))
+        measured = load_script().remo_yaw_rate_at_rest()
+        self.assertEqual((record['board'], record['axis']), (RESULTS_BOARD, 'z'))
+        self.assertEqual(measured.mean, float(remo_z_value('Gyroscope bias')))
+        self.assertEqual(measured.standard_deviation, float(remo_z_value('Gyroscope std dev')))
+        self.assertEqual(f'{measured.variance * 1e7:.3f}', remo_z_value('Gyroscope variance'))
+
+    def test_connection_runs_down_between_boxes_that_stand_above_each_other(self) -> None:
+        """Connect the upper example box with the lower one."""
         figures = load_script()
-        upper, lower = figures.Box(10, 0, 100, 20), figures.Box(50, 60, 100, 20)
-        self.assertEqual(figures.connection(lower, upper),
-                         figures.Connection(figures.DrawingPoint(80, 60),
-                                            figures.DrawingPoint(80, 20)))
-        left, right = figures.Box(0, 10, 40, 60), figures.Box(100, 30, 40, 100)
-        self.assertEqual(figures.connection(right, left),
-                         figures.Connection(figures.DrawingPoint(100, 50),
-                                            figures.DrawingPoint(40, 50)))
+        self.assertEqual(
+            figures.connection(figures.Box(*UPPER_BOX), figures.Box(*LOWER_BOX)),
+            figures.Connection(figures.DrawingPoint(SHARED_X_MIDDLE, UPPER_BOX_BOTTOM),
+                               figures.DrawingPoint(SHARED_X_MIDDLE, LOWER_BOX_TOP)))
+
+    def test_connection_runs_up_from_the_lower_box_to_the_upper_one(self) -> None:
+        """Connect the lower example box with the upper one."""
+        figures = load_script()
+        self.assertEqual(
+            figures.connection(figures.Box(*LOWER_BOX), figures.Box(*UPPER_BOX)),
+            figures.Connection(figures.DrawingPoint(SHARED_X_MIDDLE, LOWER_BOX_TOP),
+                               figures.DrawingPoint(SHARED_X_MIDDLE, UPPER_BOX_BOTTOM)))
+
+    def test_connection_runs_right_between_boxes_that_stand_beside_each_other(self) -> None:
+        """Connect the left example box with the right one."""
+        figures = load_script()
+        self.assertEqual(
+            figures.connection(figures.Box(*LEFT_BOX), figures.Box(*RIGHT_BOX)),
+            figures.Connection(figures.DrawingPoint(LEFT_BOX_RIGHT, SHARED_Y_MIDDLE),
+                               figures.DrawingPoint(RIGHT_BOX_LEFT, SHARED_Y_MIDDLE)))
+
+    def test_connection_runs_left_from_the_right_box_to_the_left_one(self) -> None:
+        """Connect the right example box with the left one."""
+        figures = load_script()
+        self.assertEqual(
+            figures.connection(figures.Box(*RIGHT_BOX), figures.Box(*LEFT_BOX)),
+            figures.Connection(figures.DrawingPoint(RIGHT_BOX_LEFT, SHARED_Y_MIDDLE),
+                               figures.DrawingPoint(LEFT_BOX_RIGHT, SHARED_Y_MIDDLE)))
 
     def test_power_of_ten_text_gives_the_number_its_decimals_and_a_raised_exponent(self) -> None:
+        """Format the setting without decimals and the report's variance with three."""
         figures = load_script()
-        self.assertEqual(figures.power_of_ten_text(4.0e-4, 0), '4 · 10⁻⁴')
-        self.assertEqual(figures.power_of_ten_text(5.317e-7, 3), '5.317 · 10⁻⁷')
+        self.assertEqual(figures.power_of_ten_text(SETTING_VARIANCE, 0), '4 · 10⁻⁴')
+        self.assertEqual(figures.power_of_ten_text(REPORT_VARIANCE, REPORT_DECIMALS),
+                         '5.317 · 10⁻⁷')
 
-    def test_firmware_standard_deviation_is_the_root_of_the_settings_variance(self) -> None:
+    def test_firmware_standard_deviation_is_the_positive_root_of_the_settings_variance(
+            self) -> None:
+        """Square the positive standard deviation and compare it with the variance."""
         figures = load_script()
+        self.assertGreater(figures.FIRMWARE_STANDARD_DEVIATION, 0)
         self.assertAlmostEqual(figures.FIRMWARE_STANDARD_DEVIATION ** 2,
                                figures.FIRMWARE_ANGULAR_VELOCITY_VARIANCE)
-
-    def test_only_the_report_to_ekf_include_carries_the_rules_of_its_bands(self) -> None:
-        for include_name in INCLUDE_NAMES:
-            text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
-            self.assertEqual('.measured-band' in text, include_name == REPORT_TO_EKF_INCLUDE,
-                             include_name)
 
 
 if __name__ == '__main__':

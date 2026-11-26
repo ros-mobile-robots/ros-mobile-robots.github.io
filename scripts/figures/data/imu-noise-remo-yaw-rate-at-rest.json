@@ -1,0 +1,14 @@
+{
+  "robot": "Remo",
+  "board": "Teensy 4.0",
+  "date": "2026-11-03",
+  "run": "https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527",
+  "source": "The report of diffbot_bringup/scripts/imu_noise_at_rest.py for this run, row z of angular_velocity, as in the table Results on Remo of docs/packages/imu/driver-bno055.md",
+  "topic": "/diffbot/imu/data_raw",
+  "messages": 8990,
+  "field": "angular_velocity",
+  "axis": "z",
+  "mean_rad_per_s": 0.00005,
+  "standard_deviation_rad_per_s": 0.00073,
+  "variance_rad2_per_s2": 5.317e-07
+}

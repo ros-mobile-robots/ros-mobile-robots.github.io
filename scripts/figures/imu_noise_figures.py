@@ -27,10 +27,11 @@ includes, which follow the site's light and dark colors:
   command tests, which start the tool and check its output and exit status. Its wide layout
   puts the three steps side by side.
 - includes/imu-noise-report-to-ekf.html: the yaw rate's standard deviation that Remo's report
-  measured at rest and the standard deviation of the firmware's setting, as two bands to scale
-  on one axis. Around them the report's row z, the setting, the message's covariance with the
-  index of each element, and the EKF, which reads index 8. Its wide layout puts the two values
-  left of the bands and the EKF right of the covariance.
+  measured at rest and the standard deviation of the firmware's setting, as two intervals to
+  scale above one axis. Around them the report's row z, the setting, the message's covariance
+  with the index of each element, and the EKF, which reads index 8. Its wide layout puts the two
+  values left of the intervals and the EKF right of the covariance. The measured row is read
+  from scripts/figures/data/imu-noise-remo-yaw-rate-at-rest.json.
 
 Every drawing is 300 units wide and carries short labels only, so that its text is readable on a
 phone. The trace figure, the flow figure, the two stamp figures and the figure from the report
@@ -48,6 +49,7 @@ Run from the repository root after changing a figure:
 """
 
 from enum import Enum
+import json
 import math
 import random
 import statistics
@@ -1023,12 +1025,15 @@ def write_flow() -> None:
                         flow_caption(TOOL_STEPS))
 
 
-# The figure from the report to the EKF. Its CSS rules stand in its own include only
+# The figure from the report to the EKF. Its CSS rules stand in its own include only. The two
+# intervals differ by their fill and by the dashed edge of the setting's, the two kinds of arrows
+# by a solid and a dashed line
 REPORT_TO_EKF_RULES = (
-    ('.lv-noise .lv-fig .measured-band', 'fill:var(--lv-imu);stroke:var(--lv-imu);'
-                                         'stroke-width:1'),
-    ('.lv-noise .lv-fig .setting-band', f'fill:{FG_LIGHT};fill-opacity:.12;stroke:{FG};'
-                                        'stroke-width:1.2;stroke-dasharray:5 3'),
+    ('.lv-noise .lv-fig .measured-interval', 'fill:var(--lv-imu);stroke:var(--lv-imu);'
+                                             'stroke-width:1'),
+    ('.lv-noise .lv-fig .setting-interval', f'fill:{FG_LIGHT};fill-opacity:.25;stroke:{FG};'
+                                            'stroke-width:1.2;stroke-dasharray:5 3'),
+    ('.lv-noise .lv-fig .zero-guide', f'fill:none;stroke:{FG_LIGHT};stroke-width:1'),
     ('.lv-noise .lv-fig .compared-line', f'fill:none;stroke:{FG};stroke-width:1.4;'
                                          'stroke-dasharray:4 3'),
     ('.lv-noise .lv-fig .compared-head', f'fill:{FG};stroke:none'),
@@ -1040,16 +1045,14 @@ REPORT_TO_EKF_RULES = (
 class ReportRow(NamedTuple):
     """One axis of the report's table of the angular velocity."""
 
-    mean: float  # rad/s, the bias
+    mean: float  # rad/s, the estimate of the bias
     standard_deviation: float  # rad/s
     variance: float  # (rad/s)^2
 
 
-# Remo's row z at rest, recorded on 2026-11-03: the column "Teensy 4.0" of the table "Results on
-# Remo" on docs/packages/imu/driver-bno055.md. The report prints a rate with five decimals and
-# a variance with three decimals before its power of ten
-REMO_YAW_RATE_AT_REST = ReportRow(mean=0.00005, standard_deviation=0.00073, variance=5.317e-7)
-REPORT_VARIANCE_DECIMALS = 3
+# Remo's row z at rest with its Teensy 4.0: one record with the run, the board and the units
+REMO_YAW_RATE_FILE = 'scripts/figures/data/imu-noise-remo-yaw-rate-at-rest.json'
+REPORT_VARIANCE_DECIMALS = 3  # before the power of ten, as the report prints a variance
 # The firmware's angular_velocity_variance: diffbot_firmware/lib/config/diffbot_base_config.h,
 # line 75, at the commit that mkdocs.yml pins as imu_noise_src_url
 FIRMWARE_ANGULAR_VELOCITY_VARIANCE = 4.0e-4  # (rad/s)^2
@@ -1061,8 +1064,7 @@ COVARIANCE_FIELD = 'angular_velocity_covariance'
 VARIANCE_INDICES = tuple(range(0, COVARIANCE_SIZE ** 2, COVARIANCE_SIZE + 1))
 # The EKF fuses the yaw rate only, so of the nine elements it reads this one
 YAW_RATE_VARIANCE_INDEX, = ANGULAR_VELOCITY_FUSED_VARIANCES
-# How many times as wide the setting's band is as the measured one
-BAND_WIDTH_RATIO = FIRMWARE_STANDARD_DEVIATION / REMO_YAW_RATE_AT_REST.standard_deviation
+REPORT_TO_EKF_NAME = 'Yaw-rate spread and the variance used by the EKF'
 
 VALUE_CARD_ROW_HEIGHT = 16
 VALUE_CARD_ROWS = 3  # below a card's title, in the report's card and in the setting's
@@ -1070,14 +1072,21 @@ VALUE_CARD_HEIGHT = 30 + VALUE_CARD_ROWS * VALUE_CARD_ROW_HEIGHT
 ARROW_LENGTH = 28  # of an arrow with one line of text beside it
 TWO_LINE_ARROW_LENGTH = 40
 ARROW_LABEL_LINE_HEIGHT = 13
-BAND_HEIGHT = 34
-# From the comparison panel's left and right edge to the ends of the setting's band, for the
+# The comparison panel, from its top: a note, one row for each interval with its label above it,
+# the axis with its ticks and their labels, and the name of the scale
+INTERVAL_THICKNESS = 10
+INTERVAL_ROW_HEIGHT = 34
+PANEL_FIRST_LABEL_BASELINE = 36
+INTERVAL_BELOW_LABEL = 6  # from a label's baseline to the top of its interval
+ZERO_GUIDE_REACH = 3  # of the zero guide above and below an interval
+# From the comparison panel's left and right edge to the ends of the setting's interval, for the
 # labels of the axis's outer ticks
-PANEL_AXIS_MARGIN = 36
-PANEL_MEASURED_TOP = 26  # from the panel's top to the measured band
-PANEL_AXIS_Y = PANEL_MEASURED_TOP + BAND_HEIGHT + 12
-PANEL_SETTING_TOP = PANEL_AXIS_Y + 26
-PANEL_HEIGHT = PANEL_SETTING_TOP + BAND_HEIGHT + 10
+PANEL_AXIS_MARGIN = 24
+AXIS_BELOW_INTERVALS = 12
+AXIS_TICK_LABEL_BELOW = 15
+AXIS_NAME_BELOW = 30
+PANEL_BOTTOM_PADDING = 10  # below the baseline of the axis's name
+AXIS_NAME = 'deviation in yaw rate (rad/s)'
 COVARIANCE_CELL_WIDTH = 62
 COVARIANCE_CELL_HEIGHT = 36
 COVARIANCE_HEADER_HEIGHT = 52  # the field's name, a note and the column symbols above the cells
@@ -1088,11 +1097,27 @@ FILTER_BOX_HEIGHT = 44
 SUPERSCRIPT_DIGITS = str.maketrans('-0123456789', '⁻⁰¹²³⁴⁵⁶⁷⁸⁹')
 
 
+class SpreadInterval(NamedTuple):
+    """An interval of the comparison: one standard deviation to both sides of zero."""
+
+    name: str  # the start of the label above the interval
+    standard_deviation: float  # rad/s
+    css_class: str
+
+
 class ArrowKind(Enum):
     """What an arrow of the figure from the report to the EKF means, as its line's style."""
 
-    WRITTEN = 'flow'  # solid: a value that code writes or reads
+    MESSAGE_VALUE = 'flow'  # solid: a value in the message, which code writes or reads
     COMPARED = 'compared'  # dashed: a value that a person compares by hand
+
+
+# What the caption says about each kind of arrow
+ARROW_MEANINGS = {
+    ArrowKind.COMPARED: 'A dashed arrow is a comparison by hand.',
+    ArrowKind.MESSAGE_VALUE: 'A solid arrow is a value in the message, which the firmware '
+                             'writes and the EKF reads.',
+}
 
 
 class Connection(NamedTuple):
@@ -1128,6 +1153,32 @@ class ReportToEkfLayout(NamedTuple):
         return int(max(self.covariance.bottom, self.filter_box.bottom)) + 4
 
 
+def remo_yaw_rate_at_rest() -> ReportRow:
+    """Return Remo's measured row z at rest, read from the record in the data folder."""
+    with open(REMO_YAW_RATE_FILE, encoding='utf-8') as record_file:
+        record = json.load(record_file)
+    return ReportRow(mean=record['mean_rad_per_s'],
+                     standard_deviation=record['standard_deviation_rad_per_s'],
+                     variance=record['variance_rad2_per_s2'])
+
+
+def spread_intervals(measured: ReportRow) -> Sequence[SpreadInterval]:
+    """Return the two intervals of the comparison, the measured one first."""
+    return (SpreadInterval('Measured at rest', measured.standard_deviation, 'measured-interval'),
+            SpreadInterval('Firmware setting', FIRMWARE_STANDARD_DEVIATION, 'setting-interval'))
+
+
+def width_ratio(measured: ReportRow) -> float:
+    """Return how many times as wide the setting's interval is as the measured one."""
+    return FIRMWARE_STANDARD_DEVIATION / measured.standard_deviation
+
+
+def comparison_panel_height(interval_count: int) -> float:
+    """Return the height of a comparison panel with this number of intervals."""
+    return (PANEL_FIRST_LABEL_BASELINE + interval_count * INTERVAL_ROW_HEIGHT
+            + AXIS_NAME_BELOW + PANEL_BOTTOM_PADDING)
+
+
 def covariance_cell(covariance: Box, element: int) -> Box:
     """Return the cell of an element of the covariance's array, which holds it row by row."""
     row, column = divmod(element, COVARIANCE_SIZE)
@@ -1136,11 +1187,11 @@ def covariance_cell(covariance: Box, element: int) -> Box:
                COVARIANCE_CELL_WIDTH, COVARIANCE_CELL_HEIGHT)
 
 
-def narrow_report_to_ekf_layout() -> ReportToEkfLayout:
-    """Return the narrow layout: the parts from top to bottom, the setting below the bands."""
+def narrow_report_to_ekf_layout(panel_height: float) -> ReportToEkfLayout:
+    """Return the narrow layout: the parts from top to bottom, the setting below the panel."""
     left, width = 4, DRAWING_WIDTH - 8
     report_card = Box(left, 4, width, VALUE_CARD_HEIGHT)
-    comparison_panel = Box(left, report_card.bottom + ARROW_LENGTH, width, PANEL_HEIGHT)
+    comparison_panel = Box(left, report_card.bottom + ARROW_LENGTH, width, panel_height)
     setting_card = Box(left, comparison_panel.bottom + ARROW_LENGTH, width, VALUE_CARD_HEIGHT)
     covariance = Box((DRAWING_WIDTH - COVARIANCE_WIDTH) / 2,
                      setting_card.bottom + TWO_LINE_ARROW_LENGTH, COVARIANCE_WIDTH,
@@ -1150,15 +1201,15 @@ def narrow_report_to_ekf_layout() -> ReportToEkfLayout:
                              report_card, comparison_panel, setting_card, covariance, filter_box)
 
 
-def wide_report_to_ekf_layout() -> ReportToEkfLayout:
-    """Return the wide layout: the two cards left of the bands, the EKF right of the covariance."""
+def wide_report_to_ekf_layout(panel_height: float) -> ReportToEkfLayout:
+    """Return the wide layout: the two cards left of the panel, the EKF right of the covariance."""
     left, card_width, right = 4, 196, WIDE_WIDTH - 4
     report_card = Box(left, 4, card_width, VALUE_CARD_HEIGHT)
     setting_card = Box(left, report_card.bottom + 18, card_width, VALUE_CARD_HEIGHT)
     panel_left = report_card.right + 44
     # Beside the two cards, in the middle of their height
-    comparison_panel = Box(panel_left, (report_card.y + setting_card.bottom - PANEL_HEIGHT) / 2,
-                           right - panel_left, PANEL_HEIGHT)
+    comparison_panel = Box(panel_left, (report_card.y + setting_card.bottom - panel_height) / 2,
+                           right - panel_left, panel_height)
     covariance = Box(left + COVARIANCE_ROW_SYMBOL_WIDTH,
                      setting_card.bottom + TWO_LINE_ARROW_LENGTH, COVARIANCE_WIDTH,
                      COVARIANCE_HEIGHT)
@@ -1184,23 +1235,22 @@ def variance_text(variance: float, mantissa_decimals: int) -> str:
 
 
 def spread_text(standard_deviation: float) -> str:
-    """Return a band's reach to both sides of zero, such as "±0.02 rad/s"."""
+    """Return an interval's reach to both sides of zero, such as "±0.02 rad/s"."""
     return f'±{standard_deviation:g} rad/s'
 
 
-def report_rows() -> Sequence[CardRow]:
-    """Return the three values of Remo's row z, as the report prints them."""
-    row = REMO_YAW_RATE_AT_REST
-    return (CardRow('mean', f'{signed_yaw_rate(row.mean)} rad/s'),
-            CardRow('std dev', f'{row.standard_deviation:g} rad/s'),
-            CardRow('variance', variance_text(row.variance, REPORT_VARIANCE_DECIMALS)))
+def report_rows(measured: ReportRow) -> Sequence[CardRow]:
+    """Return three statistics of the measured row, as the report prints them."""
+    return (CardRow('mean', f'{signed_yaw_rate(measured.mean)} rad/s'),
+            CardRow('std dev', f'{measured.standard_deviation:g} rad/s'),
+            CardRow('variance', variance_text(measured.variance, REPORT_VARIANCE_DECIMALS)))
 
 
 def setting_rows() -> Sequence[CardRow]:
-    """Return the setting's name, its variance and the standard deviation that it stands for."""
+    """Return the setting's name, its variance, and the standard deviation whose square it is."""
     return (CardRow('angular_velocity_variance', label_class='mono'),
             CardRow('variance', variance_text(FIRMWARE_ANGULAR_VELOCITY_VARIANCE, 0)),
-            CardRow('std dev, its root', f'{FIRMWARE_STANDARD_DEVIATION:g} rad/s'))
+            CardRow('', f'= ({FIRMWARE_STANDARD_DEVIATION:g} rad/s)²'))
 
 
 def value_card(figure: Figure, card: Box, title: str, rows: Sequence[CardRow]) -> None:
@@ -1209,50 +1259,66 @@ def value_card(figure: Figure, card: Box, title: str, rows: Sequence[CardRow]) -
     figure.text(card.x + 8, card.y + 18, title, 'strong')
     for index, row in enumerate(rows):
         baseline = card.y + 36 + index * VALUE_CARD_ROW_HEIGHT
-        figure.text(card.x + 8, baseline, row.label, row.label_class)
+        if row.label:
+            figure.text(card.x + 8, baseline, row.label, row.label_class)
         if row.value:
             figure.text(card.right - 8, baseline, row.value, '', 'end')
 
 
-def pixels_per_rad_s(panel: Box) -> float:
-    """Return the scale of a comparison panel's axis: the setting's band fills its width."""
-    return (panel.width / 2 - PANEL_AXIS_MARGIN) / FIRMWARE_STANDARD_DEVIATION
+def svg_units_per_rad_s(panel: Box, widest_standard_deviation: float) -> float:
+    """Return the scale of a comparison panel: its widest interval fills the panel's width."""
+    return (panel.width / 2 - PANEL_AXIS_MARGIN) / widest_standard_deviation
 
 
-def comparison_panel(figure: Figure, panel: Box) -> None:
-    """Add the two bands, to scale on one axis in rad/s that has zero in the panel's middle.
+def interval_row(figure: Figure, zero_x: float, label_baseline: float, scale: float,
+                 interval: SpreadInterval) -> None:
+    """Add an interval around zero_x, to scale, with its name and its reach above it."""
+    reach = interval.standard_deviation * scale
+    top = label_baseline + INTERVAL_BELOW_LABEL
+    figure.rich_text(zero_x, label_baseline,
+                     (Span(f'{interval.name} '),
+                      Span(spread_text(interval.standard_deviation), 'strong')), 'middle')
+    figure.path(f'M{zero_x:.1f},{top - ZERO_GUIDE_REACH:.1f} '
+                f'V{top + INTERVAL_THICKNESS + ZERO_GUIDE_REACH:.1f}', 'zero-guide')
+    figure.rect(zero_x - reach, top, 2 * reach, INTERVAL_THICKNESS, interval.css_class)
 
-    The measured band is solid, with its name and its reach beside it. The setting's band has
-    a dashed edge, with its name and its reach inside it.
+
+def deviation_axis(figure: Figure, zero_x: float, axis_y: float, scale: float,
+                   outer_tick: float) -> None:
+    """Add the axis of the comparison: ticks at zero and at plus and minus outer_tick, in rad/s.
+
+    The zero guide reaches down from the last interval to the axis. The axis's name stands
+    below the labels of the ticks.
     """
-    scale = pixels_per_rad_s(panel)
-    zero_x = panel.middle_x
-    measured_reach = REMO_YAW_RATE_AT_REST.standard_deviation * scale
-    setting_reach = FIRMWARE_STANDARD_DEVIATION * scale
-    figure.rect(panel.x, panel.y, panel.width, panel.height, 'item', corner_radius=5)
-    figure.text(zero_x, panel.y + 16, 'compared by hand, drawn to scale', 'note', 'middle')
-    measured_top = panel.y + PANEL_MEASURED_TOP
-    figure.rect(zero_x - measured_reach, measured_top, 2 * measured_reach, BAND_HEIGHT,
-                'measured-band')
-    label_baseline = measured_top + BAND_HEIGHT / 2 + 4
-    figure.text(zero_x - measured_reach - 8, label_baseline, 'measured at rest', '', 'end')
-    figure.text(zero_x + measured_reach + 8, label_baseline,
-                spread_text(REMO_YAW_RATE_AT_REST.standard_deviation), 'strong')
-    axis_y = panel.y + PANEL_AXIS_Y
-    figure.path(f'M{zero_x - setting_reach - 10:.1f},{axis_y:.1f} '
-                f'H{zero_x + setting_reach + 10:.1f}', 'axis')
-    for yaw_rate in (-FIRMWARE_STANDARD_DEVIATION, 0, FIRMWARE_STANDARD_DEVIATION):
+    reach = outer_tick * scale
+    figure.path(f'M{zero_x:.1f},{axis_y - AXIS_BELOW_INTERVALS:.1f} V{axis_y:.1f}', 'zero-guide')
+    figure.path(f'M{zero_x - reach - 10:.1f},{axis_y:.1f} H{zero_x + reach + 10:.1f}', 'axis')
+    for yaw_rate in (-outer_tick, 0, outer_tick):
         tick_x = zero_x + yaw_rate * scale
         figure.path(f'M{tick_x:.1f},{axis_y - 4:.1f} v8', 'tick')
-        label = '0' if yaw_rate == 0 else f'{signed_value(yaw_rate)} rad/s'
-        figure.text(tick_x, axis_y + 17, label, 'note', 'middle')
-    setting_top = panel.y + PANEL_SETTING_TOP
-    figure.rect(zero_x - setting_reach, setting_top, 2 * setting_reach, BAND_HEIGHT,
-                'setting-band')
-    figure.text(zero_x, setting_top + 15, f'setting {spread_text(FIRMWARE_STANDARD_DEVIATION)}',
-                'strong', 'middle')
-    figure.text(zero_x, setting_top + 29, f'about {BAND_WIDTH_RATIO:.0f} times as wide', '',
-                'middle')
+        figure.text(tick_x, axis_y + AXIS_TICK_LABEL_BELOW,
+                    '0' if yaw_rate == 0 else signed_value(yaw_rate), 'note', 'middle')
+    figure.text(zero_x, axis_y + AXIS_NAME_BELOW, AXIS_NAME, 'note', 'middle')
+
+
+def comparison_panel(figure: Figure, panel: Box, intervals: Sequence[SpreadInterval],
+                     ratio: float) -> None:
+    """Add the framed comparison: the intervals to scale, one in each row, above one axis.
+
+    The intervals have the same thickness and share zero, in the panel's middle. The note at
+    the panel's top says how many times as wide the widest interval is as the narrowest.
+    """
+    widest = max(interval.standard_deviation for interval in intervals)
+    scale = svg_units_per_rad_s(panel, widest)
+    figure.rect(panel.x, panel.y, panel.width, panel.height, 'item', corner_radius=5)
+    figure.text(panel.middle_x, panel.y + 16,
+                f'drawn to scale: about {ratio:.0f} times as wide', 'note', 'middle')
+    for row, interval in enumerate(intervals):
+        interval_row(figure, panel.middle_x,
+                     panel.y + PANEL_FIRST_LABEL_BASELINE + row * INTERVAL_ROW_HEIGHT, scale,
+                     interval)
+    axis_y = panel.y + PANEL_FIRST_LABEL_BASELINE + len(intervals) * INTERVAL_ROW_HEIGHT
+    deviation_axis(figure, panel.middle_x, axis_y, scale, widest)
 
 
 def covariance_grid(figure: Figure, covariance: Box) -> None:
@@ -1288,8 +1354,10 @@ def covariance_grid(figure: Figure, covariance: Box) -> None:
 def connection(start: Box, end: Box) -> Connection:
     """Return the straight line from a box to the facing edge of another box.
 
-    The line is vertical, in the middle of the x positions that both boxes cover. Where they
-    cover none, the line is horizontal, in the middle of the y positions that both cover.
+    The two boxes don't overlap, and they share a range of x positions or a range of y
+    positions. The line is vertical, in the middle of the x positions that both boxes cover.
+    Where they cover none, the line is horizontal, in the middle of the y positions that both
+    cover.
     """
     shared_left, shared_right = max(start.x, end.x), min(start.right, end.right)
     if shared_left < shared_right:
@@ -1325,51 +1393,47 @@ def labelled_arrow(figure: Figure, start: Box, end: Box, kind: ArrowKind,
         figure.text(x, first_baseline + index * ARROW_LABEL_LINE_HEIGHT, text, 'note', anchor)
 
 
-def report_to_ekf_title() -> str:
-    """Return the accessible name of the figure: the two bands, the covariance and the EKF."""
-    return ("The yaw rate's standard deviation that Remo's report measured at rest, "
-            f'{spread_text(REMO_YAW_RATE_AT_REST.standard_deviation)}, and the standard '
-            f"deviation of the firmware's setting, {spread_text(FIRMWARE_STANDARD_DEVIATION)}, "
-            f"as two bands on one axis. The setting's band is about {BAND_WIDTH_RATIO:.0f} "
-            "times as wide. The firmware writes the setting's variance, "
-            f'{variance_text(FIRMWARE_ANGULAR_VELOCITY_VARIANCE, 0)}, to the indices '
-            f'{listed([str(index) for index in VARIANCE_INDICES])} of {COVARIANCE_FIELD}. '
-            f"The EKF reads index {YAW_RATE_VARIANCE_INDEX}, the yaw rate's variance")
-
-
-def report_to_ekf_figure(layout: ReportToEkfLayout) -> Figure:
-    """Return a layout of the drawing from the report's row z to the EKF."""
-    figure = Figure(layout.name, report_to_ekf_title(), layout.height, layout.width,
+def report_to_ekf_figure(layout: ReportToEkfLayout, measured: ReportRow) -> Figure:
+    """Return a layout of the drawing from the measured row of the report to the EKF."""
+    figure = Figure(layout.name, REPORT_TO_EKF_NAME, layout.height, layout.width,
                     layout.css_class)
-    value_card(figure, layout.report_card, "The report's row z, Remo at rest", report_rows())
+    value_card(figure, layout.report_card, "The report's row z, Remo at rest",
+               report_rows(measured))
     value_card(figure, layout.setting_card, "The firmware's setting", setting_rows())
-    comparison_panel(figure, layout.comparison_panel)
+    comparison_panel(figure, layout.comparison_panel, spread_intervals(measured),
+                     width_ratio(measured))
     covariance_grid(figure, layout.covariance)
     figure.box(layout.filter_box.x, layout.filter_box.y, layout.filter_box.width,
                layout.filter_box.height,
                (('EKF', 'strong'), ("fuses only the IMU's yaw rate", 'note')))
     for card in (layout.report_card, layout.setting_card):
         labelled_arrow(figure, card, layout.comparison_panel, ArrowKind.COMPARED, ['std dev'])
-    labelled_arrow(figure, layout.setting_card, layout.covariance, ArrowKind.WRITTEN,
+    labelled_arrow(figure, layout.setting_card, layout.covariance, ArrowKind.MESSAGE_VALUE,
                    ['into every message,',
                     f'at indices {listed([str(index) for index in VARIANCE_INDICES])}'])
     labelled_arrow(figure, covariance_cell(layout.covariance, YAW_RATE_VARIANCE_INDEX),
-                   layout.filter_box, ArrowKind.WRITTEN,
-                   [f'index {YAW_RATE_VARIANCE_INDEX}: the yaw rate'])
+                   layout.filter_box, ArrowKind.MESSAGE_VALUE, ['yaw-rate variance'])
     return figure
+
+
+def report_to_ekf_caption(measured: ReportRow) -> str:
+    """Return the caption: what an interval is, the ratio of the widths, the arrows' meanings."""
+    return ('Each interval reaches one standard deviation to both sides of zero. Both are drawn '
+            "to scale: the firmware setting's is about "
+            f'{width_ratio(measured):.0f} times as wide as the measured one. '
+            f'{ARROW_MEANINGS[ArrowKind.COMPARED]} {ARROW_MEANINGS[ArrowKind.MESSAGE_VALUE]} '
+            "The measured values are Remo's at rest, with its Teensy 4.0.")
 
 
 def write_report_to_ekf() -> None:
     """Write the figure from the report to the EKF in its two layouts."""
-    layouts = (narrow_report_to_ekf_layout(), wide_report_to_ekf_layout())
+    measured = remo_yaw_rate_at_rest()
+    panel_height = comparison_panel_height(len(spread_intervals(measured)))
+    layouts = (narrow_report_to_ekf_layout(panel_height), wide_report_to_ekf_layout(panel_height))
     write_layout_figure(
         'includes/imu-noise-report-to-ekf.html',
-        [report_to_ekf_figure(layout) for layout in layouts],
-        "The two bands are drawn to scale: the setting's band is about "
-        f'{BAND_WIDTH_RATIO:.0f} times as wide as the measured one. A dashed arrow is a '
-        'comparison by hand. A solid arrow is a value that the firmware writes or that the EKF '
-        "reads. The measured values are Remo's at rest, with its Teensy 4.0.",
-        FIGURE_RULES + REPORT_TO_EKF_RULES)
+        [report_to_ekf_figure(layout, measured) for layout in layouts],
+        report_to_ekf_caption(measured), FIGURE_RULES + REPORT_TO_EKF_RULES)
 
 
 if __name__ == '__main__':
